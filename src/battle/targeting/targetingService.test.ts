@@ -32,7 +32,7 @@ import { BattleOrchestratorStateService } from "../orchestrator/battleOrchestrat
 import { BattleStateService } from "../orchestrator/battleState"
 import { HIGHLIGHT_PULSE_COLOR } from "../../hexMap/hexDrawingUtils"
 import { SquaddieRepositoryService } from "../../utils/test/squaddie"
-import { MapGraphicsLayerService } from "../../hexMap/mapGraphicsLayer"
+import { MapGraphicsLayerService } from "../../hexMap/mapLayer/mapGraphicsLayer"
 import { BattleActionDecisionStepService } from "../actionDecision/battleActionDecisionStep"
 import { TargetConstraintsService } from "../../action/targetConstraints"
 import { beforeEach, describe, expect, it, MockInstance, vi } from "vitest"

@@ -3,7 +3,7 @@ import {
     MapGraphicsLayerService,
     MapGraphicsLayerType,
 } from "./mapGraphicsLayer"
-import { HIGHLIGHT_PULSE_COLOR } from "./hexDrawingUtils"
+import { HIGHLIGHT_PULSE_COLOR } from "../hexDrawingUtils"
 import { beforeEach, describe, expect, it } from "vitest"
 
 describe("Map Graphics Layer", () => {

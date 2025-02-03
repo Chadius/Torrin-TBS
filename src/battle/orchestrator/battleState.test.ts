@@ -609,7 +609,7 @@ describe("Battle State", () => {
             gameEngineState.battleOrchestratorState.battleHUDState.summaryHUDState.squaddieStatusTiles[
                 ActionTilePosition.ACTOR_STATUS
             ] = SquaddieStatusTileService.new({
-                objectRepository: objectRepository,
+                gameEngineState,
                 battleSquaddieId: battleSquaddie.battleSquaddieId,
                 horizontalPosition: ActionTilePosition.ACTOR_STATUS,
             })
@@ -617,7 +617,7 @@ describe("Battle State", () => {
             gameEngineState.battleOrchestratorState.battleHUDState.summaryHUDState.squaddieStatusTiles[
                 ActionTilePosition.TARGET_STATUS
             ] = SquaddieStatusTileService.new({
-                objectRepository: objectRepository,
+                gameEngineState,
                 battleSquaddieId: battleSquaddie.battleSquaddieId,
                 horizontalPosition: ActionTilePosition.TARGET_STATUS,
             })
@@ -637,7 +637,7 @@ describe("Battle State", () => {
                     .summaryHUDState.squaddieStatusTiles[
                     ActionTilePosition.ACTOR_STATUS
                 ],
-                objectRepository: objectRepository,
+                gameEngineState,
                 missionMap:
                     gameEngineState.battleOrchestratorState.battleState
                         .missionMap,
@@ -647,7 +647,7 @@ describe("Battle State", () => {
                     .summaryHUDState.squaddieStatusTiles[
                     ActionTilePosition.TARGET_STATUS
                 ],
-                objectRepository: objectRepository,
+                gameEngineState,
                 missionMap:
                     gameEngineState.battleOrchestratorState.battleState
                         .missionMap,

@@ -30,7 +30,7 @@ import { TerrainTileMapService } from "../../hexMap/terrainTileMap"
 import {
     MapGraphicsLayerService,
     MapGraphicsLayerType,
-} from "../../hexMap/mapGraphicsLayer"
+} from "../../hexMap/mapLayer/mapGraphicsLayer"
 import { ConvertCoordinateService } from "../../hexMap/convertCoordinates"
 import { ImageUI } from "../../ui/imageUI/imageUI"
 import { ResourceHandler } from "../../resource/resourceHandler"
@@ -338,12 +338,11 @@ const drawMapIconActionPointsBar = (
         return
     }
 
-    const { actionPointsRemaining, actionPointsMarked } =
-        SquaddieService.getNumberOfActionPoints({
-            squaddieTemplate,
-            battleSquaddie,
-        })
-    const actionPointsToShow = actionPointsRemaining - actionPointsMarked
+    const { actionPointsRemaining } = SquaddieService.getNumberOfActionPoints({
+        squaddieTemplate,
+        battleSquaddie,
+    })
+    const actionPointsToShow = actionPointsRemaining
     if (actionPointsToShow >= DEFAULT_ACTION_POINTS_PER_TURN) {
         return
     }

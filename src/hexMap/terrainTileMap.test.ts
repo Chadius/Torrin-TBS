@@ -5,7 +5,7 @@ import {
     MapGraphicsLayerHighlight,
     MapGraphicsLayerService,
     MapGraphicsLayerType,
-} from "./mapGraphicsLayer"
+} from "./mapLayer/mapGraphicsLayer"
 import { HIGHLIGHT_PULSE_COLOR } from "./hexDrawingUtils"
 import { beforeEach, describe, expect, it } from "vitest"
 

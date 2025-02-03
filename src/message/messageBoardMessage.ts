@@ -9,6 +9,7 @@ import { GraphicsBuffer } from "../utils/graphics/graphicsRenderer"
 import { ResourceHandler } from "../resource/resourceHandler"
 import { LoadSaveState } from "../dataLoader/playerData/loadSaveState"
 import { BattleSaveState } from "../battle/history/battleSaveState"
+import { MovementDecision } from "../battle/playerSelectionService/playerSelectionContext"
 
 export type MessageBoardMessage =
     | MessageBoardMessageBase
@@ -259,9 +260,13 @@ export interface MessageBoardMessagePlayerDataLoadFinishRequest {
 export interface MessageBoardMessagePlayerConsidersAction {
     type: MessageBoardMessageType.PLAYER_CONSIDERS_ACTION
     gameEngineState: GameEngineState
-    action: {
+    useAction: {
         actionTemplateId: string
         isEndTurn: boolean
-        cancel: boolean
+        movement?: MovementDecision
+    }
+    cancelAction?: {
+        actionTemplate?: boolean
+        movement?: boolean
     }
 }

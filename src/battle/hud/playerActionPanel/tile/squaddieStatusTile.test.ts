@@ -43,6 +43,19 @@ import {
 import { ProficiencyLevel } from "../../../../squaddie/armyAttributes"
 import { AttributeType } from "../../../../squaddie/attribute/attributeType"
 import { DataBlobService } from "../../../../utils/dataBlob/dataBlob"
+import {
+    GameEngineState,
+    GameEngineStateService,
+} from "../../../../gameEngine/gameEngine"
+import { CampaignService } from "../../../../campaign/campaign"
+import { BattleStateService } from "../../../orchestrator/battleState"
+import { BattlePhase } from "../../../orchestratorComponents/battlePhaseTracker"
+import { BattleOrchestratorStateService } from "../../../orchestrator/battleOrchestratorState"
+import {
+    ActionTemplate,
+    ActionTemplateService,
+} from "../../../../action/template/actionTemplate"
+import { ActionResourceCostService } from "../../../../action/actionResourceCost"
 
 describe("Squaddie Status Tile", () => {
     let objectRepository: ObjectRepository
@@ -50,6 +63,7 @@ describe("Squaddie Status Tile", () => {
     let resourceHandler: ResourceHandler
     let mockP5GraphicsContext: MockedP5GraphicsBuffer
     let graphicsBufferSpies: { [key: string]: MockInstance }
+    let gameEngineState: GameEngineState
 
     beforeEach(() => {
         objectRepository = ObjectRepositoryService.new()
@@ -61,6 +75,22 @@ describe("Squaddie Status Tile", () => {
         graphicsBufferSpies = MockedGraphicsBufferService.addSpies(
             mockP5GraphicsContext
         )
+        gameEngineState = GameEngineStateService.new({
+            resourceHandler,
+            repository: objectRepository,
+            campaign: CampaignService.default(),
+            battleOrchestratorState: BattleOrchestratorStateService.new({
+                battleState: BattleStateService.new({
+                    missionMap: MissionMapService.default(),
+                    campaignId: "test campaign",
+                    missionId: "missionId",
+                    battlePhaseState: {
+                        currentAffiliation: BattlePhase.PLAYER,
+                        turnCount: 0,
+                    },
+                }),
+            }),
+        })
     })
 
     afterEach(() => {
@@ -85,8 +115,8 @@ describe("Squaddie Status Tile", () => {
 
         it.each(tests)(`$affiliation`, ({ affiliation }) => {
             ;({ tile } = createSquaddieOfGivenAffiliation({
-                objectRepository,
                 affiliation,
+                gameEngineState,
             }))
 
             resourceHandler.isResourceLoaded = vi.fn().mockReturnValue(false)
@@ -111,7 +141,7 @@ describe("Squaddie Status Tile", () => {
         let battleSquaddie: BattleSquaddie
         beforeEach(() => {
             ;({ tile, battleSquaddie } = createSquaddieOfGivenAffiliation({
-                objectRepository,
+                gameEngineState,
                 affiliation: SquaddieAffiliation.PLAYER,
             }))
         })
@@ -123,8 +153,7 @@ describe("Squaddie Status Tile", () => {
             })
             SquaddieStatusTileService.updateTileUsingSquaddie({
                 tile,
-                objectRepository,
-                missionMap: MissionMapService.default(),
+                gameEngineState,
             })
 
             SquaddieStatusTileService.draw({
@@ -155,8 +184,7 @@ describe("Squaddie Status Tile", () => {
             )
             SquaddieStatusTileService.updateTileUsingSquaddie({
                 tile,
-                objectRepository,
-                missionMap: MissionMapService.default(),
+                gameEngineState,
             })
 
             SquaddieStatusTileService.draw({
@@ -179,21 +207,53 @@ describe("Squaddie Status Tile", () => {
 
     describe("action points", () => {
         let battleSquaddie: BattleSquaddie
+        let actionCosts1ActionPoint: ActionTemplate
+
         beforeEach(() => {
-            ;({ tile, battleSquaddie } = createSquaddieOfGivenAffiliation({
-                objectRepository,
-                affiliation: SquaddieAffiliation.PLAYER,
-            }))
+            const squaddieTemplate = SquaddieTemplateService.new({
+                squaddieId: SquaddieIdService.new({
+                    templateId: "JoeTheSoldier",
+                    name: "Joe the Soldier",
+                    affiliation: SquaddieAffiliation.PLAYER,
+                }),
+            })
+            battleSquaddie = BattleSquaddieService.new({
+                battleSquaddieId: "battleJoeTheSoldier",
+                squaddieTemplateId: "JoeTheSoldier",
+            })
+
+            ObjectRepositoryService.addSquaddie({
+                repo: gameEngineState.repository,
+                squaddieTemplate: squaddieTemplate,
+                battleSquaddie: battleSquaddie,
+            })
+
+            actionCosts1ActionPoint = ActionTemplateService.new({
+                id: "action costs 1 action point",
+                name: "action costs 1 action point",
+                resourceCost: ActionResourceCostService.new({
+                    actionPoints: 1,
+                }),
+            })
+
+            ObjectRepositoryService.addActionTemplate(
+                gameEngineState.repository,
+                actionCosts1ActionPoint
+            )
         })
         it("should draw the current number of action points", () => {
             SquaddieTurnService.spendActionPoints(
                 battleSquaddie.squaddieTurn,
                 1
             )
+            const tile = SquaddieStatusTileService.new({
+                gameEngineState,
+                battleSquaddieId: "battleJoeTheSoldier",
+                horizontalPosition: ActionTilePosition.ACTOR_STATUS,
+            })
             SquaddieStatusTileService.updateTileUsingSquaddie({
                 tile,
-                objectRepository,
-                missionMap: MissionMapService.default(),
+                gameEngineState,
             })
 
             SquaddieStatusTileService.draw({
@@ -210,16 +270,22 @@ describe("Squaddie Status Tile", () => {
                 expect.anything()
             )
         })
-        it("should draw a meter representing the current action points", () => {
+        it("should draw a meter representing the current action points when the user considers an action", () => {
             SquaddieTurnService.spendActionPoints(
                 battleSquaddie.squaddieTurn,
                 1
             )
-            SquaddieTurnService.markActionPoints(battleSquaddie.squaddieTurn, 1)
+            gameEngineState.battleOrchestratorState.battleState.playerConsideredActions.actionTemplateId =
+                "action costs 1 action point"
+            const tile = SquaddieStatusTileService.new({
+                gameEngineState,
+                battleSquaddieId: "battleJoeTheSoldier",
+                horizontalPosition: ActionTilePosition.ACTOR_STATUS,
+            })
+
             SquaddieStatusTileService.updateTileUsingSquaddie({
                 tile,
-                objectRepository,
-                missionMap: MissionMapService.default(),
+                gameEngineState,
             })
 
             SquaddieStatusTileService.draw({
@@ -242,13 +308,90 @@ describe("Squaddie Status Tile", () => {
             ).toEqual(1)
             expect(DataBlobService.get<number>(dataBlob, "maxValue")).toEqual(3)
         })
+
+        it("should empty the meter when player considers ending the turn", () => {
+            SquaddieTurnService.spendActionPoints(
+                battleSquaddie.squaddieTurn,
+                2
+            )
+            gameEngineState.battleOrchestratorState.battleState.playerConsideredActions.endTurn =
+                true
+            const tile = SquaddieStatusTileService.new({
+                gameEngineState,
+                battleSquaddieId: "battleJoeTheSoldier",
+                horizontalPosition: ActionTilePosition.ACTOR_STATUS,
+            })
+
+            SquaddieStatusTileService.updateTileUsingSquaddie({
+                tile,
+                gameEngineState,
+            })
+
+            SquaddieStatusTileService.draw({
+                tile,
+                graphicsContext: mockP5GraphicsContext,
+                resourceHandler,
+            })
+
+            const uiObjects = DataBlobService.get<SquaddieStatusTileUIObjects>(
+                tile.data,
+                "uiObjects"
+            )
+
+            const dataBlob = uiObjects.actionPoints.actionPointMeterDataBlob
+            expect(
+                DataBlobService.get<number>(dataBlob, "currentValue")
+            ).toEqual(1)
+            expect(
+                DataBlobService.get<number>(dataBlob, "highlightedValue")
+            ).toEqual(1)
+        })
+
+        it("should mark points when player considers moving", () => {
+            gameEngineState.battleOrchestratorState.battleState.playerConsideredActions.movement =
+                {
+                    coordinates: [],
+                    destination: { q: 0, r: 0 },
+                    actionPointCost: 2,
+                }
+
+            const tile = SquaddieStatusTileService.new({
+                gameEngineState,
+                battleSquaddieId: "battleJoeTheSoldier",
+                horizontalPosition: ActionTilePosition.ACTOR_STATUS,
+            })
+
+            SquaddieStatusTileService.updateTileUsingSquaddie({
+                tile,
+                gameEngineState,
+            })
+
+            SquaddieStatusTileService.draw({
+                tile,
+                graphicsContext: mockP5GraphicsContext,
+                resourceHandler,
+            })
+
+            const uiObjects = DataBlobService.get<SquaddieStatusTileUIObjects>(
+                tile.data,
+                "uiObjects"
+            )
+
+            const dataBlob = uiObjects.actionPoints.actionPointMeterDataBlob
+            expect(
+                DataBlobService.get<number>(dataBlob, "currentValue")
+            ).toEqual(3)
+            expect(
+                DataBlobService.get<number>(dataBlob, "highlightedValue")
+            ).toEqual(2)
+        })
     })
 
     describe("movement", () => {
         let battleSquaddie: BattleSquaddie
         beforeEach(() => {
             ;({ tile, battleSquaddie } = createSquaddieOfGivenAffiliation({
-                objectRepository,
+                gameEngineState,
                 affiliation: SquaddieAffiliation.PLAYER,
             }))
         })
@@ -265,8 +408,7 @@ describe("Squaddie Status Tile", () => {
 
             SquaddieStatusTileService.updateTileUsingSquaddie({
                 tile,
-                objectRepository,
-                missionMap: MissionMapService.default(),
+                gameEngineState,
             })
 
             SquaddieStatusTileService.draw({
@@ -290,7 +432,7 @@ describe("Squaddie Status Tile", () => {
         let missionMap: MissionMap
         beforeEach(() => {
             ;({ tile, battleSquaddie } = createSquaddieOfGivenAffiliation({
-                objectRepository,
+                gameEngineState,
                 affiliation: SquaddieAffiliation.PLAYER,
             }))
             missionMap = MissionMapService.new({
@@ -306,11 +448,11 @@ describe("Squaddie Status Tile", () => {
                 squaddieTemplateId: battleSquaddie.squaddieTemplateId,
                 coordinate: { q: 0, r: 2 },
             })
-
+            gameEngineState.battleOrchestratorState.battleState.missionMap =
+                missionMap
             SquaddieStatusTileService.updateTileUsingSquaddie({
                 tile,
-                objectRepository,
-                missionMap,
+                gameEngineState,
             })
 
             SquaddieStatusTileService.draw({
@@ -333,7 +475,7 @@ describe("Squaddie Status Tile", () => {
         let battleSquaddie: BattleSquaddie
         beforeEach(() => {
             ;({ tile, battleSquaddie } = createSquaddieOfGivenAffiliation({
-                objectRepository,
+                gameEngineState,
                 affiliation: SquaddieAffiliation.PLAYER,
             }))
         })
@@ -353,8 +495,7 @@ describe("Squaddie Status Tile", () => {
             )
             SquaddieStatusTileService.updateTileUsingSquaddie({
                 tile,
-                objectRepository,
-                missionMap: MissionMapService.default(),
+                gameEngineState,
             })
 
             SquaddieStatusTileService.draw({
@@ -380,7 +521,7 @@ describe("Squaddie Status Tile", () => {
 
         beforeEach(() => {
             ;({ tile, battleSquaddie } = createSquaddieOfGivenAffiliation({
-                objectRepository,
+                gameEngineState,
                 affiliation: SquaddieAffiliation.PLAYER,
             }))
 
@@ -409,8 +550,7 @@ describe("Squaddie Status Tile", () => {
 
             SquaddieStatusTileService.updateTileUsingSquaddie({
                 tile,
-                objectRepository,
-                missionMap: MissionMapService.default(),
+                gameEngineState,
             })
 
             SquaddieStatusTileService.draw({
@@ -487,8 +627,7 @@ describe("Squaddie Status Tile", () => {
 
                     SquaddieStatusTileService.updateTileUsingSquaddie({
                         tile,
-                        objectRepository,
-                        missionMap: MissionMapService.default(),
+                        gameEngineState,
                     })
 
                     SquaddieStatusTileService.draw({
@@ -567,8 +706,7 @@ describe("Squaddie Status Tile", () => {
 
                     SquaddieStatusTileService.updateTileUsingSquaddie({
                         tile,
-                        objectRepository,
-                        missionMap: MissionMapService.default(),
+                        gameEngineState,
                     })
 
                     SquaddieStatusTileService.draw({
@@ -632,8 +770,7 @@ describe("Squaddie Status Tile", () => {
 
             SquaddieStatusTileService.updateTileUsingSquaddie({
                 tile,
-                objectRepository,
-                missionMap: MissionMapService.default(),
+                gameEngineState,
             })
 
             SquaddieStatusTileService.draw({
@@ -692,8 +829,7 @@ describe("Squaddie Status Tile", () => {
 
                 SquaddieStatusTileService.updateTileUsingSquaddie({
                     tile,
-                    objectRepository,
-                    missionMap: MissionMapService.default(),
+                    gameEngineState,
                 })
 
                 SquaddieStatusTileService.draw({
@@ -711,8 +847,7 @@ describe("Squaddie Status Tile", () => {
 
                 SquaddieStatusTileService.updateTileUsingSquaddie({
                     tile,
-                    objectRepository,
-                    missionMap: MissionMapService.default(),
+                    gameEngineState,
                 })
 
                 SquaddieStatusTileService.draw({
@@ -735,10 +870,10 @@ describe("Squaddie Status Tile", () => {
 })
 
 const createSquaddieOfGivenAffiliation = ({
-    objectRepository,
+    gameEngineState,
     affiliation,
 }: {
-    objectRepository: ObjectRepository
+    gameEngineState: GameEngineState
     affiliation?: SquaddieAffiliation
 }) => {
     const squaddieTemplate = SquaddieTemplateService.new({
@@ -754,13 +889,13 @@ const createSquaddieOfGivenAffiliation = ({
     })
 
     ObjectRepositoryService.addSquaddie({
-        repo: objectRepository,
+        repo: gameEngineState.repository,
         squaddieTemplate: squaddieTemplate,
         battleSquaddie: battleSquaddie,
     })
 
     const tile = SquaddieStatusTileService.new({
-        objectRepository,
+        gameEngineState,
         battleSquaddieId: "battleJoeTheSoldier",
         horizontalPosition: ActionTilePosition.ACTOR_STATUS,
     })

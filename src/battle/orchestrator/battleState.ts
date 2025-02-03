@@ -50,13 +50,19 @@ import { BattleActionService } from "../history/battleAction/battleAction"
 import { DrawSquaddieUtilities } from "../animation/drawSquaddie"
 import { SquaddieStatusTileService } from "../hud/playerActionPanel/tile/squaddieStatusTile"
 import { ActionTilePosition } from "../hud/playerActionPanel/tile/actionTilePosition"
-import { GraphicsBuffer } from "../../utils/graphics/graphicsRenderer"
-import { ResourceHandler } from "../../resource/resourceHandler"
+import { MapDataBlob } from "../../hexMap/mapLayer/mapDataBlob"
+import { MovementDecision } from "../playerSelectionService/playerSelectionContext"
 
 export enum BattleStateValidityMissingComponent {
     MISSION_MAP = "MISSION_MAP",
     TEAMS = "TEAMS",
     MISSION_OBJECTIVE = "MISSION_OBJECTIVE",
+}
+
+export interface PlayerConsideredActions {
+    actionTemplateId?: string
+    movement?: MovementDecision
+    endTurn?: boolean
 }
 
 export interface BattleState extends MissionObjectivesAndCutscenes {
@@ -66,6 +72,8 @@ export interface BattleState extends MissionObjectivesAndCutscenes {
     teamStrategiesById: { [key: string]: TeamStrategy[] }
     battlePhaseState: BattlePhaseState
     squaddieMovePath?: SearchPath
+    mapDataBlob?: MapDataBlob
+    playerConsideredActions?: PlayerConsideredActions
     camera: BattleCamera
     battleActionRecorder: BattleActionRecorder
     missionCompletionStatus: MissionCompletionStatus
@@ -206,7 +214,6 @@ interface BattleStateConstructorParameters {
 }
 
 const newBattleState = ({
-    campaignId,
     missionId,
     objectives,
     cutsceneCollection,
@@ -250,6 +257,14 @@ const newBattleState = ({
         battleCompletionStatus:
             battleCompletionStatus || BattleCompletionStatus.IN_PROGRESS,
         battleActionDecisionStep,
+        mapDataBlob: missionMap
+            ? new MapDataBlob(missionMap.terrainTileMap)
+            : undefined,
+        playerConsideredActions: {
+            actionTemplateId: undefined,
+            movement: undefined,
+            endTurn: undefined,
+        },
     }
 }
 
@@ -378,8 +393,6 @@ const updateSummaryHUDAfterFinishingAnimation = (
     message: MessageBoardBattleActionFinishesAnimation
 ) => {
     const gameEngineState: GameEngineState = message.gameEngineState
-    const graphicsContext: GraphicsBuffer = message.graphicsContext
-    const resourceHandler: ResourceHandler = message.resourceHandler
 
     if (
         !gameEngineState.battleOrchestratorState.battleHUDState.summaryHUDState
@@ -402,10 +415,7 @@ const updateSummaryHUDAfterFinishingAnimation = (
         .forEach((tile) =>
             SquaddieStatusTileService.updateTileUsingSquaddie({
                 tile,
-                objectRepository: gameEngineState.repository,
-                missionMap:
-                    gameEngineState.battleOrchestratorState.battleState
-                        .missionMap,
+                gameEngineState,
             })
         )
 }

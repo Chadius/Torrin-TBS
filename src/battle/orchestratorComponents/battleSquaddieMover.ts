@@ -116,7 +116,7 @@ export class BattleSquaddieMover implements BattleOrchestratorComponent {
         }
     }
 
-    reset(gameEngineState: GameEngineState) {
+    reset(_: GameEngineState) {
         this.animationStartTime = undefined
         this.finishedCleanup = false
     }

@@ -13,14 +13,12 @@ export enum ActionPerformFailureReason {
 
 export interface SquaddieTurn {
     remainingActionPoints: number
-    markedActionPoints: number
 }
 
 export const SquaddieTurnService = {
     new: (): SquaddieTurn => {
         return {
             remainingActionPoints: DEFAULT_ACTION_POINTS_PER_TURN,
-            markedActionPoints: 0,
         }
     },
     spendActionPoints: (
@@ -33,7 +31,6 @@ export const SquaddieTurnService = {
         }
         data.remainingActionPoints =
             data.remainingActionPoints - actionPointCost
-        data.markedActionPoints = 0
     },
     canPerformAction: (
         data: SquaddieTurn,
@@ -64,15 +61,8 @@ export const SquaddieTurnService = {
     endTurn: (data: SquaddieTurn) => {
         data.remainingActionPoints = 0
     },
-    markActionPoints: (turn: SquaddieTurn, numberOfActionPoints: number) => {
-        turn.markedActionPoints =
-            numberOfActionPoints <= turn.remainingActionPoints
-                ? numberOfActionPoints
-                : turn.remainingActionPoints
-    },
 }
 
 const refreshActionPoints = (data: SquaddieTurn) => {
     data.remainingActionPoints = DEFAULT_ACTION_POINTS_PER_TURN
-    data.markedActionPoints = 0
 }

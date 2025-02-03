@@ -84,7 +84,7 @@ import { SquaddieRepositoryService } from "../../../utils/test/squaddie"
 import {
     MapGraphicsLayer,
     MapGraphicsLayerType,
-} from "../../../hexMap/mapGraphicsLayer"
+} from "../../../hexMap/mapLayer/mapGraphicsLayer"
 import { MovementCalculatorService } from "../../calculator/movement/movementCalculator"
 import { BattleOrchestratorMode } from "../../orchestrator/battleOrchestrator"
 import { BattleActionRecorderService } from "../../history/battleAction/battleActionRecorder"

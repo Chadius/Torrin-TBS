@@ -2,6 +2,7 @@ import { MouseClick, ScreenLocation } from "../../utils/mouseConfig"
 import { GameEngineState } from "../../gameEngine/gameEngine"
 import { OrchestratorUtilities } from "../orchestratorComponents/orchestratorUtils"
 import {
+    MovementDecision,
     PlayerSelectionContext,
     PlayerSelectionContextService,
 } from "./playerSelectionContext"
@@ -41,6 +42,8 @@ import { TargetingResultsService } from "../targeting/targetingService"
 import { BehaviorTreeTask } from "../../utils/behaviorTree/task"
 import { DataBlobService } from "../../utils/dataBlob/dataBlob"
 import { SelectorComposite } from "../../utils/behaviorTree/composite/selector/selector"
+import { BattleSquaddieSelectorService } from "../orchestratorComponents/battleSquaddieSelectorUtils"
+import { SquaddieAffiliation } from "../../squaddie/squaddieAffiliation"
 
 interface PlayerContextDataBlob {
     data: {
@@ -58,6 +61,7 @@ export enum PlayerIntent {
     START_OF_TURN_SELECT_NEXT_CONTROLLABLE_SQUADDIE = "START_OF_TURN_SELECT_NEXT_CONTROLLABLE_SQUADDIE",
     PEEK_AT_SQUADDIE = "PEEK_AT_SQUADDIE",
     SQUADDIE_SELECTED_MOVE_SQUADDIE_TO_COORDINATE = "SQUADDIE_SELECTED_MOVE_SQUADDIE_TO_COORDINATE",
+    CONSIDER_MOVING_SQUADDIE = "CONSIDER_MOVING_SQUADDIE",
     SQUADDIE_SELECTED_DIFFERENT_SQUADDIE_MID_TURN = "SQUADDIE_SELECTED_DIFFERENT_SQUADDIE_MID_TURN",
     SQUADDIE_SELECTED_CANCEL_SQUADDIE_SELECTION = "SQUADDIE_SELECTED_CANCEL_SQUADDIE_SELECTION",
     PLAYER_SELECTS_AN_ACTION = "PLAYER_SELECTS_AN_ACTION",
@@ -142,6 +146,7 @@ export const PlayerSelectionService = {
                 dataBlob
             ),
             new PlayerHoversOverSquaddieToPeekAtItBehavior(dataBlob),
+            new PlayerConsidersMovementForSelectedSquaddie(dataBlob),
             new PlayerClicksOnAnEmptyMapTileBehavior(dataBlob),
             new PlayerPressesNextButtonBehavior(dataBlob),
         ])
@@ -276,6 +281,21 @@ export const PlayerSelectionService = {
                 }
                 gameEngineState.messageBoard.sendMessage(messageSent)
                 return PlayerSelectionChangesService.new({ messageSent })
+            case PlayerIntent.CONSIDER_MOVING_SQUADDIE:
+                messageSent = {
+                    type: MessageBoardMessageType.PLAYER_CONSIDERS_ACTION,
+                    gameEngineState,
+                    useAction: {
+                        isEndTurn: false,
+                        actionTemplateId: undefined,
+                        movement: context.movement,
+                    },
+                    cancelAction: {
+                        movement: context.movement == undefined,
+                    },
+                }
+                gameEngineState.messageBoard.sendMessage(messageSent)
+                return PlayerSelectionChangesService.new({ messageSent })
         }
         return PlayerSelectionChangesService.new({})
     },
@@ -318,7 +338,7 @@ const getSquaddiePlayerClickedOn = ({
         }
     }
     const battleSquaddieId = getBattleSquaddieIdAtLocation({
-        screenCoordinate: {
+        screenLocation: {
             x: mouseClick.x,
             y: mouseClick.y,
         },
@@ -356,13 +376,16 @@ const getSquaddiePlayerClickedOn = ({
 }
 
 const getBattleSquaddieIdAtLocation = ({
-    screenCoordinate,
+    screenLocation,
     gameEngineState,
 }: {
-    screenCoordinate?: ScreenLocation
+    screenLocation?: ScreenLocation
     gameEngineState: GameEngineState
 }) => {
-    const { q, r } = getClickedOnLocation({ screenCoordinate, gameEngineState })
+    const { q, r } = getCoordinateAtLocation({
+        screenLocation,
+        gameEngineState,
+    })
 
     const { battleSquaddieId } =
         MissionMapService.getBattleSquaddieAtCoordinate(
@@ -372,21 +395,21 @@ const getBattleSquaddieIdAtLocation = ({
     return battleSquaddieId
 }
 
-const getClickedOnLocation = ({
-    screenCoordinate,
+const getCoordinateAtLocation = ({
+    screenLocation,
     gameEngineState,
 }: {
-    screenCoordinate: ScreenLocation
+    screenLocation: ScreenLocation
     gameEngineState: GameEngineState
 }): HexCoordinate => {
-    if (!screenCoordinate) {
+    if (!screenLocation) {
         return undefined
     }
 
     const { q, r } =
         ConvertCoordinateService.convertScreenLocationToMapCoordinates({
-            screenX: screenCoordinate.x,
-            screenY: screenCoordinate.y,
+            screenX: screenLocation.x,
+            screenY: screenLocation.y,
             ...gameEngineState.battleOrchestratorState.battleState.camera.getCoordinates(),
         })
 
@@ -574,15 +597,31 @@ class CollectDataForContext implements BehaviorTreeTask {
             "hoveredBattleSquaddieId",
             hoveredBattleSquaddieId
         )
+
+        const hoveredMapCoordinate = getCoordinateAtLocation({
+            gameEngineState: contextCalculationArgs.gameEngineState,
+            screenLocation: contextCalculationArgs.mouseMovement,
+        })
+        const hoveredOnTheMap = TerrainTileMapService.isCoordinateOnMap(
+            contextCalculationArgs.gameEngineState.battleOrchestratorState
+                .battleState.missionMap.terrainTileMap,
+            hoveredMapCoordinate
+        )
+
+        DataBlobService.add<HexCoordinate>(
+            this.dataBlob,
+            "hoveredMapLocation",
+            hoveredOnTheMap ? hoveredMapCoordinate : undefined
+        )
     }
 
     private calculateClickedLocation(
         contextCalculationArgs: PlayerSelectionContextCalculationArgs
     ) {
         const clickedLocation: HexCoordinate = contextCalculationArgs.mouseClick
-            ? getClickedOnLocation({
+            ? getCoordinateAtLocation({
                   gameEngineState: contextCalculationArgs.gameEngineState,
-                  screenCoordinate: {
+                  screenLocation: {
                       x: contextCalculationArgs.mouseClick.x,
                       y: contextCalculationArgs.mouseClick.y,
                   },
@@ -639,7 +678,7 @@ class CollectDataForContext implements BehaviorTreeTask {
             }
         }
         const battleSquaddieId = getBattleSquaddieIdAtLocation({
-            screenCoordinate: {
+            screenLocation: {
                 x: mouseMovement.x,
                 y: mouseMovement.y,
             },
@@ -1261,5 +1300,123 @@ class PlayerPressesNextButtonBehavior implements BehaviorTreeTask {
 
     clone(): PlayerPressesNextButtonBehavior {
         return new PlayerPressesNextButtonBehavior(this.dataBlob)
+    }
+}
+
+class PlayerConsidersMovementForSelectedSquaddie implements BehaviorTreeTask {
+    dataBlob: PlayerContextDataBlob
+
+    constructor(dataBlob: PlayerContextDataBlob) {
+        this.dataBlob = dataBlob
+    }
+
+    run(): boolean {
+        const hoveredMapCoordinate = DataBlobService.get<HexCoordinate>(
+            this.dataBlob,
+            "hoveredMapLocation"
+        )
+
+        const battleSquaddieTryingToStartAnAction: string =
+            DataBlobService.get<string>(
+                this.dataBlob,
+                "battleSquaddieTryingToStartAnAction"
+            )
+
+        if (!battleSquaddieTryingToStartAnAction || !hoveredMapCoordinate) {
+            return false
+        }
+
+        const playerSelectionContextCalculationArgs =
+            DataBlobService.get<PlayerSelectionContextCalculationArgs>(
+                this.dataBlob,
+                "playerSelectionContextCalculationArgs"
+            )
+        const { gameEngineState } = playerSelectionContextCalculationArgs
+
+        const movementDecision = this.getMovementDecisionForCoordinate({
+            gameEngineState,
+            battleSquaddieId: battleSquaddieTryingToStartAnAction,
+            coordinate: hoveredMapCoordinate,
+        })
+
+        addPlayerSelectionContextToDataBlob(
+            this.dataBlob,
+            PlayerSelectionContextService.new({
+                playerIntent: PlayerIntent.CONSIDER_MOVING_SQUADDIE,
+                movement: movementDecision,
+            })
+        )
+        return true
+    }
+
+    getMovementDecisionForCoordinate({
+        coordinate,
+        gameEngineState,
+        battleSquaddieId,
+    }: {
+        coordinate: HexCoordinate
+        gameEngineState: GameEngineState
+        battleSquaddieId: string
+    }): MovementDecision {
+        const cached =
+            gameEngineState.battleOrchestratorState.battleState.mapDataBlob.get<MovementDecision>(
+                coordinate
+            )
+        if (cached !== undefined) return cached
+
+        const { battleSquaddie, squaddieTemplate } = getResultOrThrowError(
+            ObjectRepositoryService.getSquaddieByBattleId(
+                gameEngineState.repository,
+                battleSquaddieId
+            )
+        )
+
+        const actionPointsExplanation = SquaddieService.getNumberOfActionPoints(
+            { battleSquaddie, squaddieTemplate }
+        )
+
+        const closestRoute =
+            BattleSquaddieSelectorService.getClosestRouteForSquaddieToReachDestination(
+                {
+                    gameEngineState,
+                    battleSquaddie,
+                    squaddieTemplate,
+                    distanceRangeFromDestination: {
+                        minimum: 0,
+                        maximum: 0,
+                    },
+                    actionPointsRemaining:
+                        squaddieTemplate.squaddieId.affiliation ===
+                        SquaddieAffiliation.PLAYER
+                            ? actionPointsExplanation.actionPointsRemaining
+                            : 0,
+                    stopCoordinate: coordinate,
+                }
+            )
+
+        if (closestRoute == undefined) {
+            gameEngineState.battleOrchestratorState.battleState.mapDataBlob.add<MovementDecision>(
+                coordinate,
+                undefined
+            )
+            return undefined
+        }
+
+        const movementDecision: MovementDecision = {
+            actionPointCost: closestRoute.currentNumberOfMoveActions,
+            coordinates: closestRoute.coordinatesTraveled.map(
+                (c) => c.hexCoordinate
+            ),
+            destination: closestRoute.destination,
+        }
+        gameEngineState.battleOrchestratorState.battleState.mapDataBlob.add<MovementDecision>(
+            coordinate,
+            movementDecision
+        )
+        return movementDecision
+    }
+
+    clone(): PlayerConsidersMovementForSelectedSquaddie {
+        return new PlayerConsidersMovementForSelectedSquaddie(this.dataBlob)
     }
 }

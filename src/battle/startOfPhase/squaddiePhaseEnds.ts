@@ -9,7 +9,7 @@ import {
 import { BattleSquaddie } from "../battleSquaddie"
 import { DrawSquaddieUtilities } from "../animation/drawSquaddie"
 import { TerrainTileMapService } from "../../hexMap/terrainTileMap"
-import { MapGraphicsLayerSquaddieTypes } from "../../hexMap/mapGraphicsLayer"
+import { MapGraphicsLayerSquaddieTypes } from "../../hexMap/mapLayer/mapGraphicsLayer"
 
 export const SquaddiePhaseEndsService = {
     unTintSquaddieMapIconForEachSquaddie: (

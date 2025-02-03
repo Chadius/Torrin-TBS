@@ -19,7 +19,7 @@ import { TerrainTileMapService } from "../../hexMap/terrainTileMap"
 import {
     MapGraphicsLayerService,
     MapGraphicsLayerType,
-} from "../../hexMap/mapGraphicsLayer"
+} from "../../hexMap/mapLayer/mapGraphicsLayer"
 import { BattleActionRecorderService } from "../history/battleAction/battleActionRecorder"
 import { BattleActionDecisionStepService } from "../actionDecision/battleActionDecisionStep"
 

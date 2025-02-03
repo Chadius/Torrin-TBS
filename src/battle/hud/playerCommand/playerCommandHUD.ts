@@ -186,18 +186,25 @@ export const PlayerCommandStateService = {
                 )
         )
 
-        if (!consideredActionButton) {
+        if (
+            !consideredActionButton &&
+            playerCommandState.consideredActionTemplateId
+        ) {
             gameEngineState.messageBoard.sendMessage({
                 type: MessageBoardMessageType.PLAYER_CONSIDERS_ACTION,
                 gameEngineState,
-                action: {
+                useAction: {
                     actionTemplateId: undefined,
                     isEndTurn: false,
-                    cancel: true,
+                },
+                cancelAction: {
+                    actionTemplate: undefined,
                 },
             })
             return
         }
+
+        if (!consideredActionButton) return
 
         playerCommandState.consideredActionTemplateId =
             ActionButtonService.getActionTemplateId(consideredActionButton)
@@ -220,12 +227,11 @@ export const PlayerCommandStateService = {
         gameEngineState.messageBoard.sendMessage({
             type: MessageBoardMessageType.PLAYER_CONSIDERS_ACTION,
             gameEngineState,
-            action: {
+            useAction: {
                 actionTemplateId: isActionButtonEndTurn(consideredActionButton)
                     ? undefined
                     : consideredActionButton.actionTemplate.id,
                 isEndTurn: isActionButtonEndTurn(consideredActionButton),
-                cancel: false,
             },
         })
     },

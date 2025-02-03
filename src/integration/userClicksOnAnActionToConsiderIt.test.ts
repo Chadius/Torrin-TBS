@@ -46,7 +46,7 @@ import { BattleOrchestratorMode } from "../battle/orchestrator/battleOrchestrato
 import { BattlePlayerSquaddieTarget } from "../battle/orchestratorComponents/battlePlayerSquaddieTarget"
 import { MouseButton } from "../utils/mouseConfig"
 import { MessageBoardMessageType } from "../message/messageBoardMessage"
-import { MapGraphicsLayer } from "../hexMap/mapGraphicsLayer"
+import { MapGraphicsLayer } from "../hexMap/mapLayer/mapGraphicsLayer"
 import { BattleActionDecisionStepService } from "../battle/actionDecision/battleActionDecisionStep"
 import { TargetConstraintsService } from "../action/targetConstraints"
 import { ActionResourceCostService } from "../action/actionResourceCost"

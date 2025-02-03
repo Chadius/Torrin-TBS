@@ -12,10 +12,6 @@ import {
     PopupWindowService,
     PopupWindowStatus,
 } from "../popupWindow/popupWindow"
-import { BattleActionDecisionStepService } from "../../actionDecision/battleActionDecisionStep"
-import { getResultOrThrowError } from "../../../utils/ResultOrError"
-import { ObjectRepositoryService } from "../../objectRepository"
-import { SquaddieTurnService } from "../../../squaddie/turn"
 import { SquaddieStatusTileService } from "./tile/squaddieStatusTile"
 import { ActionTilePosition } from "./tile/actionTilePosition"
 
@@ -120,36 +116,36 @@ const playerConsidersAction = (
     message: MessageBoardMessagePlayerConsidersAction
 ) => {
     const gameEngineState = message.gameEngineState
-    const battleSquaddieId: string = BattleActionDecisionStepService.getActor(
-        gameEngineState.battleOrchestratorState.battleState
-            .battleActionDecisionStep
-    ).battleSquaddieId
-
-    const { battleSquaddie } = getResultOrThrowError(
-        ObjectRepositoryService.getSquaddieByBattleId(
-            gameEngineState.repository,
-            battleSquaddieId
-        )
-    )
 
     switch (true) {
-        case !!message.action.actionTemplateId:
-            SquaddieTurnService.markActionPoints(
-                battleSquaddie.squaddieTurn,
-                ObjectRepositoryService.getActionTemplateById(
-                    gameEngineState.repository,
-                    message.action.actionTemplateId
-                ).resourceCost.actionPoints
-            )
+        case !!message.useAction.actionTemplateId:
+            gameEngineState.battleOrchestratorState.battleState.playerConsideredActions.actionTemplateId =
+                message.useAction.actionTemplateId
+            gameEngineState.battleOrchestratorState.battleState.playerConsideredActions.endTurn =
+                false
             break
-        case !!message.action.isEndTurn:
-            SquaddieTurnService.markActionPoints(
-                battleSquaddie.squaddieTurn,
-                battleSquaddie.squaddieTurn.remainingActionPoints
-            )
+        case !!message.useAction.isEndTurn:
+            gameEngineState.battleOrchestratorState.battleState.playerConsideredActions.actionTemplateId =
+                undefined
+            gameEngineState.battleOrchestratorState.battleState.playerConsideredActions.endTurn =
+                true
             break
-        case !!message.action.cancel:
-            SquaddieTurnService.markActionPoints(battleSquaddie.squaddieTurn, 0)
+        case !!message.useAction.movement:
+            gameEngineState.battleOrchestratorState.battleState.playerConsideredActions.movement =
+                message.useAction.movement
+            break
+    }
+
+    switch (true) {
+        case !!message.cancelAction?.actionTemplate:
+            gameEngineState.battleOrchestratorState.battleState.playerConsideredActions.actionTemplateId =
+                undefined
+            gameEngineState.battleOrchestratorState.battleState.playerConsideredActions.endTurn =
+                false
+            break
+        case !!message.cancelAction?.movement:
+            gameEngineState.battleOrchestratorState.battleState.playerConsideredActions.movement =
+                undefined
             break
     }
 
@@ -158,9 +154,7 @@ const playerConsidersAction = (
             .summaryHUDState.squaddieStatusTiles[
             ActionTilePosition.ACTOR_STATUS
         ],
-        objectRepository: gameEngineState.repository,
-        missionMap:
-            gameEngineState.battleOrchestratorState.battleState.missionMap,
+        gameEngineState,
     })
 
     PlayerDecisionHUDService.clearPopupWindow(

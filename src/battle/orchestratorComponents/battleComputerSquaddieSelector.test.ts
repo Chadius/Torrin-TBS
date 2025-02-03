@@ -61,7 +61,7 @@ import {
 } from "../actionDecision/battleActionDecisionStep"
 import { MockedP5GraphicsBuffer } from "../../utils/test/mocks"
 import { SquaddieRepositoryService } from "../../utils/test/squaddie"
-import { MapGraphicsLayer } from "../../hexMap/mapGraphicsLayer"
+import { MapGraphicsLayer } from "../../hexMap/mapLayer/mapGraphicsLayer"
 import {
     BattleAction,
     BattleActionService,

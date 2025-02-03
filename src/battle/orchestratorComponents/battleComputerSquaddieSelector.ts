@@ -40,7 +40,7 @@ import { TerrainTileMapService } from "../../hexMap/terrainTileMap"
 import {
     MapGraphicsLayerService,
     MapGraphicsLayerType,
-} from "../../hexMap/mapGraphicsLayer"
+} from "../../hexMap/mapLayer/mapGraphicsLayer"
 import {
     ActionPointCost,
     BattleAction,

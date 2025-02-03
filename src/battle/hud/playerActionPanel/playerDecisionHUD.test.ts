@@ -48,11 +48,7 @@ import {
     Trait,
     TraitStatusStorageService,
 } from "../../../trait/traitStatusStorage"
-import {
-    DamageType,
-    HealingType,
-    SquaddieService,
-} from "../../../squaddie/squaddieService"
+import { DamageType, HealingType } from "../../../squaddie/squaddieService"
 import {
     AttributeModifierService,
     AttributeSource,
@@ -66,13 +62,7 @@ import { BattleHUDStateService } from "../battleHUD/battleHUDState"
 import { SummaryHUDStateService } from "../summary/summaryHUD"
 import { CampaignService } from "../../../campaign/campaign"
 import { BattleActionDecisionStepService } from "../../actionDecision/battleActionDecisionStep"
-import { ActionTilePosition } from "./tile/actionTilePosition"
-import { DataBlobService } from "../../../utils/dataBlob/dataBlob"
-import {
-    SquaddieStatusTileContext,
-    SquaddieStatusTileService,
-} from "./tile/squaddieStatusTile"
-import { getResultOrThrowError } from "../../../utils/ResultOrError"
+import { MovementDecision } from "../../playerSelectionService/playerSelectionContext"
 
 describe("Player Decision HUD", () => {
     const differentSquaddiePopup: PopupWindow = PopupWindowService.new({
@@ -406,40 +396,6 @@ describe("Player Decision HUD", () => {
             }
         }
 
-        const getNumberOfActionPointsMarkedInSquaddieTile = (
-            gameEngineState: GameEngineState
-        ): number => {
-            const data =
-                gameEngineState.battleOrchestratorState.battleHUDState
-                    .summaryHUDState.squaddieStatusTiles[
-                    ActionTilePosition.ACTOR_STATUS
-                ].data
-            const tileContext = DataBlobService.get<SquaddieStatusTileContext>(
-                data,
-                "context"
-            )
-            return tileContext.actionPoints.actionPointsMarked
-        }
-
-        const getNumberOfActionPointsMarkedInSquaddieTurn = (
-            gameEngineState: GameEngineState
-        ) => {
-            const { battleSquaddie, squaddieTemplate } = getResultOrThrowError(
-                ObjectRepositoryService.getSquaddieByBattleId(
-                    gameEngineState.repository,
-                    BattleActionDecisionStepService.getActor(
-                        gameEngineState.battleOrchestratorState.battleState
-                            .battleActionDecisionStep
-                    ).battleSquaddieId
-                )
-            )
-            const explanation = SquaddieService.getNumberOfActionPoints({
-                battleSquaddie,
-                squaddieTemplate,
-            })
-            return explanation.actionPointsMarked
-        }
-
         beforeEach(() => {
             ;({ gameEngineState, longswordAction } = createGameEngineState({}))
 
@@ -474,32 +430,18 @@ describe("Player Decision HUD", () => {
                 gameEngineState.messageBoard.sendMessage({
                     type: MessageBoardMessageType.PLAYER_CONSIDERS_ACTION,
                     gameEngineState,
-                    action: {
+                    useAction: {
                         actionTemplateId: longswordAction.id,
                         isEndTurn: false,
-                        cancel: false,
                     },
                 })
-
-                SummaryHUDStateService.draw({
-                    summaryHUDState:
-                        gameEngineState.battleOrchestratorState.battleHUDState
-                            .summaryHUDState,
-                    gameEngineState,
-                    resourceHandler: gameEngineState.resourceHandler,
-                    graphicsBuffer: mockP5GraphicsContext,
-                })
             })
 
-            it("marks some of the action points", () => {
+            it("notes which action was considered", () => {
                 expect(
-                    getNumberOfActionPointsMarkedInSquaddieTurn(gameEngineState)
-                ).toEqual(longswordAction.resourceCost.actionPoints)
-            })
-            it("marks portions of the actor status tile action bar", () => {
-                expect(
-                    getNumberOfActionPointsMarkedInSquaddieTile(gameEngineState)
-                ).toEqual(longswordAction.resourceCost.actionPoints)
+                    gameEngineState.battleOrchestratorState.battleState
+                        .playerConsideredActions.actionTemplateId
+                ).toEqual(longswordAction.id)
             })
         })
         it("clears the invalid selection popup window when a valid action is considered", () => {
@@ -521,10 +463,9 @@ describe("Player Decision HUD", () => {
             gameEngineState.messageBoard.sendMessage({
                 type: MessageBoardMessageType.PLAYER_CONSIDERS_ACTION,
                 gameEngineState,
-                action: {
+                useAction: {
                     actionTemplateId: longswordAction.id,
                     isEndTurn: false,
-                    cancel: false,
                 },
             })
 
@@ -548,90 +489,94 @@ describe("Player Decision HUD", () => {
                 gameEngineState.messageBoard.sendMessage({
                     type: MessageBoardMessageType.PLAYER_CONSIDERS_ACTION,
                     gameEngineState,
-                    action: {
+                    useAction: {
                         actionTemplateId: undefined,
                         isEndTurn: true,
-                        cancel: false,
                     },
                 })
+            })
 
-                SummaryHUDStateService.draw({
-                    summaryHUDState:
-                        gameEngineState.battleOrchestratorState.battleHUDState
-                            .summaryHUDState,
-                    gameEngineState,
-                    resourceHandler: gameEngineState.resourceHandler,
-                    graphicsBuffer: mockP5GraphicsContext,
-                })
-            })
-            it("marks all of the action points", () => {
+            it("notes which action was considered", () => {
                 expect(
-                    getNumberOfActionPointsMarkedInSquaddieTurn(gameEngineState)
-                ).toEqual(3)
-            })
-            it("marks all of the actor status tile action bar", () => {
-                expect(
-                    getNumberOfActionPointsMarkedInSquaddieTile(gameEngineState)
-                ).toEqual(3)
+                    gameEngineState.battleOrchestratorState.battleState
+                        .playerConsideredActions.endTurn
+                ).toEqual(true)
             })
         })
         describe("cancels consideration", () => {
             beforeEach(() => {
-                const { battleSquaddie } = getResultOrThrowError(
-                    ObjectRepositoryService.getSquaddieByBattleId(
-                        gameEngineState.repository,
-                        BattleActionDecisionStepService.getActor(
-                            gameEngineState.battleOrchestratorState.battleState
-                                .battleActionDecisionStep
-                        ).battleSquaddieId
-                    )
-                )
-                SquaddieTurnService.markActionPoints(
-                    battleSquaddie.squaddieTurn,
-                    2
-                )
-                SquaddieStatusTileService.updateTileUsingSquaddie({
-                    tile: gameEngineState.battleOrchestratorState.battleHUDState
-                        .summaryHUDState.squaddieStatusTiles[
-                        ActionTilePosition.ACTOR_STATUS
-                    ],
-                    objectRepository: gameEngineState.repository,
-                    missionMap:
-                        gameEngineState.battleOrchestratorState.battleState
-                            .missionMap,
-                })
-                expect(
-                    getNumberOfActionPointsMarkedInSquaddieTile(gameEngineState)
-                ).toEqual(2)
+                gameEngineState.battleOrchestratorState.battleState.playerConsideredActions.actionTemplateId =
+                    longswordAction.id
 
                 gameEngineState.messageBoard.sendMessage({
                     type: MessageBoardMessageType.PLAYER_CONSIDERS_ACTION,
                     gameEngineState,
-                    action: {
+                    useAction: {
                         actionTemplateId: undefined,
                         isEndTurn: false,
-                        cancel: true,
+                    },
+                    cancelAction: {
+                        actionTemplate: true,
                     },
                 })
+            })
 
-                SummaryHUDStateService.draw({
-                    summaryHUDState:
-                        gameEngineState.battleOrchestratorState.battleHUDState
-                            .summaryHUDState,
+            it("clears which action was considered", () => {
+                expect(
+                    gameEngineState.battleOrchestratorState.battleState
+                        .playerConsideredActions.actionTemplateId
+                ).toBeUndefined()
+                expect(
+                    gameEngineState.battleOrchestratorState.battleState
+                        .playerConsideredActions.endTurn
+                ).toBeFalsy()
+            })
+        })
+        describe("considers moving squaddie", () => {
+            let movementDecision: MovementDecision
+            beforeEach(() => {
+                movementDecision = {
+                    actionPointCost: 2,
+                    coordinates: [
+                        { q: 0, r: 0 },
+                        { q: 1, r: 0 },
+                    ],
+                    destination: { q: 1, r: 0 },
+                }
+                gameEngineState.messageBoard.sendMessage({
+                    type: MessageBoardMessageType.PLAYER_CONSIDERS_ACTION,
                     gameEngineState,
-                    resourceHandler: gameEngineState.resourceHandler,
-                    graphicsBuffer: mockP5GraphicsContext,
+                    useAction: {
+                        actionTemplateId: undefined,
+                        isEndTurn: false,
+                        movement: movementDecision,
+                    },
                 })
             })
-            it("marks no action points", () => {
+
+            it("marks which path was considered", () => {
                 expect(
-                    getNumberOfActionPointsMarkedInSquaddieTurn(gameEngineState)
-                ).toEqual(0)
+                    gameEngineState.battleOrchestratorState.battleState
+                        .playerConsideredActions.movement
+                ).toEqual(movementDecision)
             })
-            it("marks none of the actor status tile action bar", () => {
+
+            it("can cancel consideration", () => {
+                gameEngineState.messageBoard.sendMessage({
+                    type: MessageBoardMessageType.PLAYER_CONSIDERS_ACTION,
+                    gameEngineState,
+                    useAction: {
+                        actionTemplateId: undefined,
+                        isEndTurn: false,
+                        movement: undefined,
+                    },
+                    cancelAction: { movement: true },
+                })
+
                 expect(
-                    getNumberOfActionPointsMarkedInSquaddieTile(gameEngineState)
-                ).toEqual(0)
+                    gameEngineState.battleOrchestratorState.battleState
+                        .playerConsideredActions.movement
+                ).toBeUndefined()
             })
         })
     })

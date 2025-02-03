@@ -16,7 +16,7 @@ import { TerrainTileMapService } from "../../hexMap/terrainTileMap"
 import {
     MapGraphicsLayerService,
     MapGraphicsLayerType,
-} from "../../hexMap/mapGraphicsLayer"
+} from "../../hexMap/mapLayer/mapGraphicsLayer"
 import { HexGridService } from "../../hexMap/hexGridDirection"
 import { ObjectRepository, ObjectRepositoryService } from "../objectRepository"
 import { MissionMap, MissionMapService } from "../../missionMap/missionMap"

@@ -10,7 +10,7 @@ import {
     MapGraphicsLayerHighlight,
     MapGraphicsLayerSquaddieTypes,
     MapGraphicsLayerType,
-} from "./mapGraphicsLayer"
+} from "./mapLayer/mapGraphicsLayer"
 
 export type HighlightCoordinateDescription = {
     coordinates: HexCoordinate[]

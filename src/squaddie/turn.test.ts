@@ -112,31 +112,4 @@ describe("Squaddie turn and resources", () => {
             ).toBeFalsy()
         })
     })
-    describe("Marking action points", () => {
-        it("can mark action points and knows when the remaining points are not enough", () => {
-            SquaddieTurnService.markActionPoints(turn, 2)
-            expect(turn.markedActionPoints).toBe(2)
-            expect(turn.remainingActionPoints).toBe(3)
-        })
-        it("cannot mark more action points than it has available", () => {
-            SquaddieTurnService.spendActionPoints(turn, 1)
-            SquaddieTurnService.markActionPoints(turn, 3)
-            expect(turn.markedActionPoints).toBe(2)
-        })
-        it("can override marked action points and knows when the remaining points are enough", () => {
-            SquaddieTurnService.markActionPoints(turn, 2)
-            SquaddieTurnService.markActionPoints(turn, 1)
-            expect(turn.markedActionPoints).toBe(1)
-        })
-        it("resetting the turn should clear marked action points", () => {
-            SquaddieTurnService.markActionPoints(turn, 2)
-            SquaddieTurnService.beginNewRound(turn)
-            expect(turn.markedActionPoints).toBe(0)
-        })
-        it("spending action points should clear marked action points", () => {
-            SquaddieTurnService.markActionPoints(turn, 2)
-            SquaddieTurnService.spendActionPoints(turn, 1)
-            expect(turn.markedActionPoints).toBe(0)
-        })
-    })
 })

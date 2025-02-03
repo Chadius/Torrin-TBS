@@ -17,7 +17,6 @@ import { WINDOW_SPACING } from "../../../../ui/constants"
 import { HUE_BY_SQUADDIE_AFFILIATION } from "../../../../graphicsConstants"
 import { BattleSquaddie } from "../../../battleSquaddie"
 import {
-    SquaddieActionPointsExplanation,
     SquaddieMovementExplanation,
     SquaddieService,
 } from "../../../../squaddie/squaddieService"
@@ -46,10 +45,11 @@ import {
     DrawHorizontalMeterActionDataBlob,
 } from "../../horizontalBar/drawHorizontalMeterAction"
 import { DEFAULT_ACTION_POINTS_PER_TURN } from "../../../../squaddie/turn"
+import { GameEngineState } from "../../../../gameEngine/gameEngine"
+import { PlayerConsideredActions } from "../../../orchestrator/battleState"
 
 export interface SquaddieStatusTile {
     data: DataBlob
-    objectRepository: ObjectRepository
     drawBehaviorTree: BehaviorTreeTask
 }
 
@@ -159,7 +159,7 @@ export interface SquaddieStatusTileContext {
     squaddieAffiliation: SquaddieAffiliation
     horizontalPosition: ActionTilePosition
     battleSquaddieId: string
-    squaddieActionPointsExplanation?: SquaddieActionPointsExplanation
+    playerConsideredActions?: PlayerConsideredActions
     armor?: {
         net: number
         modifier: number
@@ -183,17 +183,17 @@ export interface SquaddieStatusTileContext {
 
 export const SquaddieStatusTileService = {
     new: ({
-        objectRepository,
         battleSquaddieId,
         horizontalPosition,
+        gameEngineState,
     }: {
-        objectRepository: ObjectRepository
         battleSquaddieId: string
         horizontalPosition: ActionTilePosition
+        gameEngineState: GameEngineState
     }): SquaddieStatusTile => {
         const dataBlob: DataBlob = DataBlobService.new()
         const context = createContext({
-            objectRepository,
+            gameEngineState,
             battleSquaddieId,
             horizontalPosition,
         })
@@ -301,14 +301,12 @@ export const SquaddieStatusTileService = {
 
         updateContext({
             dataBlob: dataBlob,
-            objectRepository: objectRepository,
-            missionMap: undefined,
+            gameEngineState,
         })
 
         return {
             data: dataBlob,
             drawBehaviorTree: undefined,
-            objectRepository,
         }
     },
     draw: ({
@@ -348,17 +346,14 @@ export const SquaddieStatusTileService = {
     },
     updateTileUsingSquaddie: ({
         tile,
-        objectRepository,
-        missionMap,
+        gameEngineState,
     }: {
         tile: SquaddieStatusTile
-        objectRepository: ObjectRepository
-        missionMap: MissionMap
+        gameEngineState: GameEngineState
     }) => {
         updateContext({
             dataBlob: tile.data,
-            objectRepository,
-            missionMap,
+            gameEngineState,
         })
     },
 }
@@ -438,17 +433,17 @@ const createTextBoxOnLeftSideOfRow = ({
 }
 
 const createContext = ({
-    objectRepository,
     battleSquaddieId,
     horizontalPosition,
+    gameEngineState,
 }: {
-    objectRepository: ObjectRepository
     battleSquaddieId: string
     horizontalPosition: ActionTilePosition
+    gameEngineState: GameEngineState
 }): SquaddieStatusTileContext => {
     const { squaddieTemplate, battleSquaddie } = getResultOrThrowError(
         ObjectRepositoryService.getSquaddieByBattleId(
-            objectRepository,
+            gameEngineState.repository,
             battleSquaddieId
         )
     )
@@ -457,15 +452,22 @@ const createContext = ({
         squaddieAffiliation: squaddieTemplate.squaddieId.affiliation,
         horizontalPosition,
         battleSquaddieId,
-        squaddieActionPointsExplanation:
-            SquaddieService.getNumberOfActionPoints({
-                battleSquaddie,
-                squaddieTemplate,
-            }),
+        playerConsideredActions: {
+            ...gameEngineState.battleOrchestratorState.battleState
+                .playerConsideredActions,
+        },
         armor: { ...calculateArmorClass(battleSquaddie, squaddieTemplate) },
         hitPoints: { ...calculateHitPoints(battleSquaddie, squaddieTemplate) },
         actionPoints: {
             ...calculateActionPoints(battleSquaddie, squaddieTemplate),
+            actionPointsMarked:
+                getExpectedMarkedActionPointsBasedOnPlayerConsideration({
+                    objectRepository: gameEngineState.repository,
+                    playerConsideredActions:
+                        gameEngineState.battleOrchestratorState.battleState
+                            .playerConsideredActions,
+                    battleSquaddie,
+                }),
         },
         movement: { ...calculateMovement(battleSquaddie, squaddieTemplate) },
         coordinates: { q: 0, r: 0 },
@@ -507,15 +509,13 @@ const calculateActionPoints = (
     battleSquaddie: BattleSquaddie,
     squaddieTemplate: SquaddieTemplate
 ) => {
-    let { actionPointsRemaining, actionPointsMarked } =
-        SquaddieService.getNumberOfActionPoints({
-            battleSquaddie,
-            squaddieTemplate,
-        })
+    let { actionPointsRemaining } = SquaddieService.getNumberOfActionPoints({
+        battleSquaddie,
+        squaddieTemplate,
+    })
 
     return {
         actionPointsRemaining,
-        actionPointsMarked,
     }
 }
 
@@ -586,13 +586,15 @@ const calculateCoordinates = (
 
 const updateContext = ({
     dataBlob,
-    objectRepository,
-    missionMap,
+    gameEngineState,
 }: {
     dataBlob: DataBlob
-    objectRepository: ObjectRepository
-    missionMap?: MissionMap
+    gameEngineState: GameEngineState
 }) => {
+    const objectRepository = gameEngineState.repository
+    const missionMap =
+        gameEngineState.battleOrchestratorState.battleState.missionMap
+
     const updateArmor = new SequenceComposite(dataBlob, [
         new DoesUIObjectExistCondition(dataBlob, "armor"),
         new InverterDecorator(
@@ -615,9 +617,9 @@ const updateContext = ({
         new DoesUIObjectExistCondition(dataBlob, "actionPoints"),
         new InverterDecorator(
             dataBlob,
-            new IsActionPointsCorrectCondition(dataBlob, objectRepository)
+            new IsActionPointsCorrectCondition(dataBlob, gameEngineState)
         ),
-        new UpdateActionPointsContextAction(dataBlob, objectRepository),
+        new UpdateActionPointsContextAction(dataBlob, gameEngineState),
     ])
 
     const updateMovement = new SequenceComposite(dataBlob, [
@@ -1098,11 +1100,11 @@ class UpdateHitPointsUIObjectsAction implements BehaviorTreeTask {
 
 class IsActionPointsCorrectCondition implements BehaviorTreeTask {
     dataBlob: DataBlob
-    objectRepository: ObjectRepository
+    gameEngineState: GameEngineState
 
-    constructor(dataBlob: DataBlob, objectRepository: ObjectRepository) {
+    constructor(dataBlob: DataBlob, gameEngineState: GameEngineState) {
         this.dataBlob = dataBlob
-        this.objectRepository = objectRepository
+        this.gameEngineState = gameEngineState
     }
 
     run(): boolean {
@@ -1114,36 +1116,72 @@ class IsActionPointsCorrectCondition implements BehaviorTreeTask {
         const battleSquaddieId = context.battleSquaddieId
         const { battleSquaddie, squaddieTemplate } = getResultOrThrowError(
             ObjectRepositoryService.getSquaddieByBattleId(
-                this.objectRepository,
+                this.gameEngineState.repository,
                 battleSquaddieId
             )
         )
 
-        const { actionPointsRemaining, actionPointsMarked } =
-            calculateActionPoints(battleSquaddie, squaddieTemplate)
+        const { actionPointsRemaining } = calculateActionPoints(
+            battleSquaddie,
+            squaddieTemplate
+        )
+
+        let expectedMarkedActionPoints =
+            getExpectedMarkedActionPointsBasedOnPlayerConsideration({
+                objectRepository: this.gameEngineState.repository,
+                playerConsideredActions:
+                    this.gameEngineState.battleOrchestratorState.battleState
+                        .playerConsideredActions,
+                battleSquaddie,
+            })
 
         return (
             context.actionPoints?.actionPointsRemaining ===
                 actionPointsRemaining &&
-            context.actionPoints?.actionPointsMarked === actionPointsMarked
+            context.actionPoints?.actionPointsMarked ===
+                expectedMarkedActionPoints
         )
     }
 
     clone(): BehaviorTreeTask {
         return new IsActionPointsCorrectCondition(
             this.dataBlob,
-            this.objectRepository
+            this.gameEngineState
         )
+    }
+}
+
+const getExpectedMarkedActionPointsBasedOnPlayerConsideration = ({
+    objectRepository,
+    playerConsideredActions,
+    battleSquaddie,
+}: {
+    objectRepository: ObjectRepository
+    playerConsideredActions: PlayerConsideredActions
+    battleSquaddie: BattleSquaddie
+}): number => {
+    switch (true) {
+        case !!playerConsideredActions?.movement:
+            return playerConsideredActions.movement.actionPointCost
+        case !!playerConsideredActions?.endTurn:
+            return battleSquaddie.squaddieTurn.remainingActionPoints
+        case !!playerConsideredActions?.actionTemplateId:
+            return ObjectRepositoryService.getActionTemplateById(
+                objectRepository,
+                playerConsideredActions.actionTemplateId
+            ).resourceCost.actionPoints
+        default:
+            return 0
     }
 }
 
 class UpdateActionPointsContextAction implements BehaviorTreeTask {
     dataBlob: DataBlob
-    objectRepository: ObjectRepository
+    gameEngineState: GameEngineState
 
-    constructor(blackboard: DataBlob, objectRepository: ObjectRepository) {
+    constructor(blackboard: DataBlob, gameEngineState: GameEngineState) {
         this.dataBlob = blackboard
-        this.objectRepository = objectRepository
+        this.gameEngineState = gameEngineState
     }
 
     run(): boolean {
@@ -1155,20 +1193,29 @@ class UpdateActionPointsContextAction implements BehaviorTreeTask {
         const battleSquaddieId = context.battleSquaddieId
         const { battleSquaddie, squaddieTemplate } = getResultOrThrowError(
             ObjectRepositoryService.getSquaddieByBattleId(
-                this.objectRepository,
+                this.gameEngineState.repository,
                 battleSquaddieId
             )
         )
 
-        const { actionPointsRemaining, actionPointsMarked } =
-            calculateActionPoints(battleSquaddie, squaddieTemplate)
+        const { actionPointsRemaining } = calculateActionPoints(
+            battleSquaddie,
+            squaddieTemplate
+        )
 
         context.actionPoints ||= {
             actionPointsRemaining: 0,
             actionPointsMarked: 0,
         }
         context.actionPoints.actionPointsRemaining = actionPointsRemaining
-        context.actionPoints.actionPointsMarked = actionPointsMarked
+        context.actionPoints.actionPointsMarked =
+            getExpectedMarkedActionPointsBasedOnPlayerConsideration({
+                objectRepository: this.gameEngineState.repository,
+                playerConsideredActions:
+                    this.gameEngineState.battleOrchestratorState.battleState
+                        .playerConsideredActions,
+                battleSquaddie,
+            })
 
         DataBlobService.add<SquaddieStatusTileContext>(
             this.dataBlob,
@@ -1182,7 +1229,7 @@ class UpdateActionPointsContextAction implements BehaviorTreeTask {
     clone(): BehaviorTreeTask {
         return new UpdateActionPointsContextAction(
             this.dataBlob,
-            this.objectRepository
+            this.gameEngineState
         )
     }
 }
@@ -1264,11 +1311,10 @@ class UpdateActionPointsUIObjectsAction implements BehaviorTreeTask {
             context.actionPoints.actionPointsRemaining
         )
 
-        DataBlobService.add<number>(
-            actionPointMeterDataBlob,
-            "highlightedValue",
-            context.actionPoints.actionPointsMarked
-        )
+        this.addHighlightedActionPoints({
+            actionPointMeterDataBlob: actionPointMeterDataBlob,
+            context: context,
+        })
 
         let highlightedValueFillStartTime = DataBlobService.get<number>(
             actionPointMeterDataBlob,
@@ -1294,6 +1340,20 @@ class UpdateActionPointsUIObjectsAction implements BehaviorTreeTask {
             this.dataBlob,
             "uiObjects",
             uiObjects
+        )
+    }
+
+    private addHighlightedActionPoints({
+        actionPointMeterDataBlob,
+        context,
+    }: {
+        actionPointMeterDataBlob: DrawHorizontalMeterActionDataBlob
+        context: SquaddieStatusTileContext
+    }) {
+        DataBlobService.add<number>(
+            actionPointMeterDataBlob,
+            "highlightedValue",
+            context.actionPoints.actionPointsMarked
         )
     }
 
@@ -1416,7 +1476,7 @@ class UpdateActionPointsUIObjectsAction implements BehaviorTreeTask {
         return actionPointMeterDataBlob
     }
 
-    clone(): BehaviorTreeTask {
+    clone(): UpdateActionPointsUIObjectsAction {
         return new UpdateActionPointsUIObjectsAction(
             this.dataBlob,
             this.graphicsContext

@@ -49,7 +49,7 @@ import {
     MapGraphicsLayerService,
     MapGraphicsLayerSquaddieTypes,
     MapGraphicsLayerType,
-} from "../../../hexMap/mapGraphicsLayer"
+} from "../../../hexMap/mapLayer/mapGraphicsLayer"
 import { MapHighlightService } from "../../animation/mapHighlight"
 import { SquaddieAffiliation } from "../../../squaddie/squaddieAffiliation"
 import { MissionMapSquaddieCoordinateService } from "../../../missionMap/squaddieCoordinate"
@@ -60,6 +60,7 @@ import { BattleActionRecorderService } from "../../history/battleAction/battleAc
 import { ActionTemplateService } from "../../../action/template/actionTemplate"
 import { ActionTilePosition } from "../playerActionPanel/tile/actionTilePosition"
 import { CalculatedResult } from "../../history/calculatedResult"
+import { MapDataBlob } from "../../../hexMap/mapLayer/mapDataBlob"
 
 export interface BattleHUD {
     fileAccessHUD: FileAccessHUD
@@ -205,6 +206,10 @@ export const BattleHUDService = {
             battleSquaddie,
         })
 
+        gameEngineState.battleOrchestratorState.battleState.mapDataBlob =
+            new MapDataBlob(
+                gameEngineState.battleOrchestratorState.battleState.missionMap.terrainTileMap
+            )
         OrchestratorUtilities.highlightSquaddieRange(
             gameEngineState,
             battleSquaddieId

@@ -1,7 +1,7 @@
-import { HexCoordinate } from "./hexCoordinate/hexCoordinate"
-import { PulseBlendColor } from "./colorUtils"
-import { HighlightCoordinateDescription } from "./terrainTileMap"
-import { isValidValue } from "../utils/validityCheck"
+import { HexCoordinate } from "../hexCoordinate/hexCoordinate"
+import { PulseBlendColor } from "../colorUtils"
+import { HighlightCoordinateDescription } from "../terrainTileMap"
+import { isValidValue } from "../../utils/validityCheck"
 
 export interface MapGraphicsLayerHighlight {
     coordinate: HexCoordinate

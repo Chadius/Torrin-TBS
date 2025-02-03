@@ -34,7 +34,7 @@ import { SquaddieRepositoryService } from "../../utils/test/squaddie"
 import {
     MapGraphicsLayer,
     MapGraphicsLayerType,
-} from "../../hexMap/mapGraphicsLayer"
+} from "../../hexMap/mapLayer/mapGraphicsLayer"
 import { BattleActionDecisionStepService } from "../actionDecision/battleActionDecisionStep"
 import { BattleActionRecorderService } from "../history/battleAction/battleActionRecorder"
 import {

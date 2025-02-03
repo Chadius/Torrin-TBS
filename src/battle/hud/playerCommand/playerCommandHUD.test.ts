@@ -367,10 +367,9 @@ describe("playerCommandHUD", () => {
                 expect(messageSpy).toBeCalledWith(
                     expect.objectContaining({
                         type: MessageBoardMessageType.PLAYER_CONSIDERS_ACTION,
-                        action: {
+                        useAction: {
                             actionTemplateId: actionNeedsTarget.id,
                             isEndTurn: false,
-                            cancel: false,
                         },
                     })
                 )
@@ -390,8 +389,14 @@ describe("playerCommandHUD", () => {
                     })
                 )
             })
-            it("will send a message to cancel consideration if no button is hovered", () => {
+            it("will send a message to cancel consideration if a button was considered, but no button is hovered over", () => {
                 selectPlayer()
+                const actionNeedsTargetButton =
+                    findActionButtonByActionTemplateId(actionNeedsTarget.id)
+                hoverOverActionButton({
+                    buttonArea:
+                        actionNeedsTargetButton.uiObjects.buttonIcon.drawArea,
+                })
                 PlayerCommandStateService.mouseMoved({
                     mouseX: -9001,
                     mouseY: 9001,
@@ -401,11 +406,23 @@ describe("playerCommandHUD", () => {
                 expect(messageSpy).toBeCalledWith(
                     expect.objectContaining({
                         type: MessageBoardMessageType.PLAYER_CONSIDERS_ACTION,
-                        action: {
-                            actionTemplateId: undefined,
-                            isEndTurn: false,
-                            cancel: true,
+                        cancelAction: {
+                            actionTemplate: undefined,
                         },
+                    })
+                )
+            })
+            it("will not send a message to cancel consideration if no buttons were considered hovered over", () => {
+                selectPlayer()
+                PlayerCommandStateService.mouseMoved({
+                    mouseX: -9001,
+                    mouseY: 9001,
+                    gameEngineState,
+                    playerCommandState,
+                })
+                expect(messageSpy).not.toBeCalledWith(
+                    expect.objectContaining({
+                        type: MessageBoardMessageType.PLAYER_CONSIDERS_ACTION,
                     })
                 )
             })

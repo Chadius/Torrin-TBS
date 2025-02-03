@@ -16,7 +16,7 @@ import { BattleOrchestratorStateService } from "../../orchestrator/battleOrchest
 import { BattleStateService } from "../../orchestrator/battleState"
 import { SearchPathService } from "../../../hexMap/pathfinder/searchPath"
 import { BattleActionDecisionStepService } from "../../actionDecision/battleActionDecisionStep"
-import { MapGraphicsLayerHighlight } from "../../../hexMap/mapGraphicsLayer"
+import { MapGraphicsLayerHighlight } from "../../../hexMap/mapLayer/mapGraphicsLayer"
 import { HIGHLIGHT_PULSE_COLOR } from "../../../hexMap/hexDrawingUtils"
 import { CampaignService } from "../../../campaign/campaign"
 import { BattleActionRecorderService } from "../../history/battleAction/battleActionRecorder"

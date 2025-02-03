@@ -24,7 +24,6 @@ import {
 
 export interface SquaddieActionPointsExplanation {
     actionPointsRemaining: number
-    actionPointsMarked: number
 }
 
 export interface SquaddieArmorExplanation {
@@ -336,7 +335,6 @@ const getNumberOfActionPoints = ({
     return {
         actionPointsRemaining:
             battleSquaddie.squaddieTurn.remainingActionPoints,
-        actionPointsMarked: battleSquaddie.squaddieTurn.markedActionPoints,
     }
 }
 

@@ -58,6 +58,7 @@ import {
     vi,
 } from "vitest"
 import { PlayerInputAction } from "../../ui/playerInput/playerInputState"
+import { BattleSquaddieSelectorService } from "../orchestratorComponents/battleSquaddieSelectorUtils"
 
 describe("Player Selection Service", () => {
     let gameEngineState: GameEngineState
@@ -234,9 +235,11 @@ describe("Player Selection Service", () => {
         })
     })
 
-    const createGameEngineWith1PlayerAnd1EnemyAndSpyMessages = () => {
+    const createGameEngineWith1PlayerAnd1EnemyAndSpyMessages = (
+        movementCost?: string[]
+    ) => {
         objectRepository = ObjectRepositoryService.new()
-        missionMap = createMap()
+        missionMap = createMap(movementCost)
         gameEngineState = createGameEngineStateWith1PlayerAnd1Enemy({
             objectRepository,
             missionMap,
@@ -833,6 +836,119 @@ describe("Player Selection Service", () => {
                 gameEngineState.messageBoard.sendMessage
             ).toHaveBeenCalledWith(expectedMessage)
             expect(actualChanges.messageSent).toEqual(expectedMessage)
+        })
+    })
+
+    describe("user selects a squaddie then hovers over the map", () => {
+        beforeEach(() => {
+            createGameEngineWith1PlayerAnd1EnemyAndSpyMessages([
+                "1 1 x 1 ",
+                " 1 1 x x ",
+            ])
+            gameEngineState.battleOrchestratorState.battleState.battleActionDecisionStep =
+                BattleActionDecisionStepService.new()
+
+            BattleActionDecisionStepService.setActor({
+                actionDecisionStep:
+                    gameEngineState.battleOrchestratorState.battleState
+                        .battleActionDecisionStep,
+                battleSquaddieId: "PLAYER",
+            })
+        })
+
+        afterEach(() => {
+            messageSpy.mockRestore()
+        })
+
+        describe("path is possible", () => {
+            let actualContext: PlayerSelectionContext
+            let pathfindingSpy: MockInstance
+            beforeEach(() => {
+                pathfindingSpy = vi.spyOn(
+                    BattleSquaddieSelectorService,
+                    "getClosestRouteForSquaddieToReachDestination"
+                )
+                actualContext = hoverOverMapCoordinate({
+                    q: 1,
+                    r: 0,
+                    gameEngineState,
+                })
+            })
+
+            afterEach(() => {
+                pathfindingSpy.mockRestore()
+            })
+
+            it("knows the player wants to consider moving the squaddie", () => {
+                expect(actualContext.playerIntent).toEqual(
+                    PlayerIntent.CONSIDER_MOVING_SQUADDIE
+                )
+            })
+
+            it("uses pathfinding to calculate a possible route", () => {
+                expect(pathfindingSpy).toHaveBeenCalledTimes(1)
+            })
+
+            it("will reuse pathfinding results if hovering over the same location", () => {
+                hoverOverMapCoordinate({
+                    q: 1,
+                    r: 0,
+                    gameEngineState,
+                })
+                expect(pathfindingSpy).toHaveBeenCalledTimes(1)
+            })
+
+            it("will calculate more pathfinding results if hovering over a different location", () => {
+                hoverOverMapCoordinate({
+                    q: 1,
+                    r: 1,
+                    gameEngineState,
+                })
+                expect(pathfindingSpy).toHaveBeenCalledTimes(2)
+            })
+
+            it("will send a message indicating the path and its cost if the path is possible", () => {
+                PlayerSelectionService.applyContextToGetChanges({
+                    gameEngineState,
+                    context: actualContext,
+                })
+                expect(messageSpy).toHaveBeenCalledWith(
+                    expect.objectContaining({
+                        type: MessageBoardMessageType.PLAYER_CONSIDERS_ACTION,
+                        useAction: expect.objectContaining({
+                            movement: {
+                                actionPointCost: 1,
+                                coordinates: [
+                                    { q: 0, r: 0 },
+                                    { q: 1, r: 0 },
+                                ],
+                                destination: { q: 1, r: 0 },
+                            },
+                        }),
+                    })
+                )
+            })
+        })
+        it("if the path is impossible clear the considered movement", () => {
+            const actualContext = hoverOverMapCoordinate({
+                q: 0,
+                r: 3,
+                gameEngineState,
+            })
+
+            PlayerSelectionService.applyContextToGetChanges({
+                gameEngineState,
+                context: actualContext,
+            })
+
+            expect(messageSpy).toHaveBeenCalledWith(
+                expect.objectContaining({
+                    type: MessageBoardMessageType.PLAYER_CONSIDERS_ACTION,
+                    cancelAction: {
+                        movement: true,
+                    },
+                })
+            )
         })
     })
 
