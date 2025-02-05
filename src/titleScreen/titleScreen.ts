@@ -64,7 +64,7 @@ const TitleScreenDesign = {
         endColumn: 4,
     },
     byLine: {
-        screenHeight: 0.52,
+        screenHeight: 0.55,
         startColumn: 2,
         endColumn: 5,
     },
