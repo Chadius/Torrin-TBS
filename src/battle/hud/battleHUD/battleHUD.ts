@@ -58,9 +58,10 @@ import { BattleOrchestratorMode } from "../../orchestrator/battleOrchestrator"
 import { SquaddieTemplate } from "../../../campaign/squaddieTemplate"
 import { BattleActionRecorderService } from "../../history/battleAction/battleActionRecorder"
 import { ActionTemplateService } from "../../../action/template/actionTemplate"
-import { ActionTilePosition } from "../playerActionPanel/tile/actionTilePosition"
 import { CalculatedResult } from "../../history/calculatedResult"
 import { MapDataBlob } from "../../../hexMap/mapLayer/mapDataBlob"
+import { BattleStateService } from "../../orchestrator/battleState"
+import { BattleHUDStateService } from "./battleHUDState"
 
 export interface BattleHUD {
     fileAccessHUD: FileAccessHUD
@@ -574,34 +575,51 @@ export const BattleHUDService = {
     ) => {
         const gameEngineState = message.gameEngineState
 
-        if (
-            gameEngineState.battleOrchestratorState.battleHUDState
-                .nextSquaddieBattleSquaddieIdsToCycleThrough.length === 0
-        ) {
-            resetNextBattleSquaddieIds(gameEngineState)
-        }
+        const squaddieCurrentlyTakingATurn =
+            OrchestratorUtilities.getBattleSquaddieIdCurrentlyTakingATurn({
+                gameEngineState,
+            })
+        if (squaddieCurrentlyTakingATurn) {
+            panCameraToSquaddie(gameEngineState, squaddieCurrentlyTakingATurn)
 
-        if (
-            gameEngineState.battleOrchestratorState.battleHUDState
-                .nextSquaddieBattleSquaddieIdsToCycleThrough.length === 0
-        ) {
+            gameEngineState.messageBoard.sendMessage({
+                type: MessageBoardMessageType.PLAYER_SELECTS_AND_LOCKS_SQUADDIE,
+                gameEngineState,
+                battleSquaddieSelectedId: squaddieCurrentlyTakingATurn,
+            })
             return
         }
 
-        const nextBattleSquaddieId: string =
-            gameEngineState.battleOrchestratorState.battleHUDState.nextSquaddieBattleSquaddieIdsToCycleThrough.find(
-                (id) =>
-                    id !==
-                    gameEngineState.battleOrchestratorState.battleHUDState
-                        .summaryHUDState?.squaddieNameTiles[
-                        ActionTilePosition.ACTOR_NAME
-                    ]?.battleSquaddieId
-            )
+        const currentTeam = BattleStateService.getCurrentTeam(
+            gameEngineState.battleOrchestratorState.battleState,
+            gameEngineState.repository
+        )
 
-        gameEngineState.battleOrchestratorState.battleHUDState.nextSquaddieBattleSquaddieIdsToCycleThrough =
-            gameEngineState.battleOrchestratorState.battleHUDState.nextSquaddieBattleSquaddieIdsToCycleThrough.filter(
-                (id) => id != nextBattleSquaddieId
-            )
+        if (
+            gameEngineState.battleOrchestratorState.battleHUDState
+                .squaddieListing === undefined ||
+            gameEngineState.battleOrchestratorState.battleHUDState
+                .squaddieListing.teamId != currentTeam.id
+        ) {
+            BattleHUDStateService.resetSquaddieListingForTeam({
+                battleHUDState:
+                    gameEngineState.battleOrchestratorState.battleHUDState,
+                team: currentTeam,
+            })
+        }
+
+        const nextBattleSquaddieId = BattleHUDStateService.getNextSquaddieId({
+            battleHUDState:
+                gameEngineState.battleOrchestratorState.battleHUDState,
+            objectRepository: gameEngineState.repository,
+            missionMap:
+                gameEngineState.battleOrchestratorState.battleState.missionMap,
+        })
+
+        if (nextBattleSquaddieId == undefined) {
+            return
+        }
+
         panCameraToSquaddie(gameEngineState, nextBattleSquaddieId)
 
         gameEngineState.messageBoard.sendMessage({
@@ -820,39 +838,6 @@ const panCameraToSquaddie = (
             respectConstraints: true,
         })
     }
-}
-
-const resetNextBattleSquaddieIds = (gameEngineState: GameEngineState) => {
-    gameEngineState.battleOrchestratorState.battleHUDState.nextSquaddieBattleSquaddieIdsToCycleThrough =
-        ObjectRepositoryService.getBattleSquaddieIterator(
-            gameEngineState.repository
-        )
-            .filter((info) => {
-                const { squaddieTemplate, battleSquaddie } =
-                    getResultOrThrowError(
-                        ObjectRepositoryService.getSquaddieByBattleId(
-                            gameEngineState.repository,
-                            info.battleSquaddieId
-                        )
-                    )
-
-                const { playerCanControlThisSquaddieRightNow } =
-                    SquaddieService.canPlayerControlSquaddieRightNow({
-                        squaddieTemplate,
-                        battleSquaddie,
-                    })
-
-                return playerCanControlThisSquaddieRightNow
-            })
-            .filter(
-                (info) =>
-                    MissionMapService.getByBattleSquaddieId(
-                        gameEngineState.battleOrchestratorState.battleState
-                            .missionMap,
-                        info.battleSquaddieId
-                    ).mapCoordinate !== undefined
-            )
-            .map((info) => info.battleSquaddieId)
 }
 
 const playerControlledSquaddieNeedsNextAction = (
