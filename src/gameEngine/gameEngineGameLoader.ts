@@ -445,7 +445,7 @@ export class GameEngineGameLoader implements GameEngineComponent {
                 success = true
             })
             .catch((reason) => {
-                if (reason === "user canceled") {
+                if (reason.message === "user canceled") {
                     gameEngineState.messageBoard.sendMessage({
                         type: MessageBoardMessageType.PLAYER_DATA_LOAD_USER_CANCEL,
                         loadSaveState: gameEngineState.fileState.loadSaveState,

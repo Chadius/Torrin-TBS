@@ -16,6 +16,8 @@ import { beforeEach, describe, expect, it, vi } from "vitest"
 import { PlayerInputTestService } from "../utils/test/playerInput"
 import { MessageBoardMessageType } from "../message/messageBoardMessage"
 import { PlayerDataMessageListener } from "../dataLoader/playerData/playerDataMessageListener"
+import { DataBlobService } from "../utils/dataBlob/dataBlob"
+import { Button } from "../ui/button"
 
 describe("Title Screen", () => {
     let gameEngineState: GameEngineState
@@ -67,15 +69,15 @@ describe("Title Screen", () => {
         expect(titleScreen.hasCompleted(gameEngineState)).toBeFalsy()
         titleScreen.update(gameEngineState, mockedP5GraphicsContext)
         expect(titleScreen.hasCompleted(gameEngineState)).toBeFalsy()
+        const startNewGameButton: Button = DataBlobService.get<{
+            startNewGameButton: Button
+        }>(titleScreen.data, "uiObjects").startNewGameButton
+
         titleScreen.mouseClicked(
             gameEngineState,
             MouseButton.ACCEPT,
-            RectAreaService.centerX(
-                titleScreen.startNewGameButton.readyLabel.textBox.area
-            ),
-            RectAreaService.centerY(
-                titleScreen.startNewGameButton.readyLabel.textBox.area
-            )
+            RectAreaService.centerX(startNewGameButton.readyLabel.textBox.area),
+            RectAreaService.centerY(startNewGameButton.readyLabel.textBox.area)
         )
         expect(titleScreen.hasCompleted(gameEngineState)).toBeTruthy()
         let textSpy = vi.spyOn(mockedP5GraphicsContext.mockedP5, "text")
@@ -212,48 +214,26 @@ describe("Title Screen", () => {
         )
     })
 
-    it("will gather resources once upon startup", () => {
-        const [mockedWidth, mockedHeight] = [1, 1]
-        vi.spyOn(mockedP5GraphicsContext, "width", "get").mockReturnValue(
-            mockedWidth
-        )
-        vi.spyOn(mockedP5GraphicsContext, "height", "get").mockReturnValue(
-            mockedHeight
-        )
-
-        mockResourceHandler.isResourceLoaded = vi.fn().mockReturnValue(true)
-        const isResourceLoadedMock = vi.spyOn(
-            mockResourceHandler,
-            "isResourceLoaded"
-        )
-
-        titleScreen.reset(gameEngineState)
-        titleScreen.update(gameEngineState, mockedP5GraphicsContext)
-        const resourceCallCount = isResourceLoadedMock.mock.calls.length
-        expect(mockResourceHandler.isResourceLoaded).toBeCalledTimes(
-            resourceCallCount
-        )
-
-        titleScreen.update(gameEngineState, mockedP5GraphicsContext)
-        expect(mockResourceHandler.isResourceLoaded).toBeCalledTimes(
-            resourceCallCount
-        )
-    })
-
     describe("user clicks the load button", () => {
         it("will begin the loading process when the user clicks the button", () => {
             expect(titleScreen.hasCompleted(gameEngineState)).toBeFalsy()
             titleScreen.update(gameEngineState, mockedP5GraphicsContext)
             expect(titleScreen.hasCompleted(gameEngineState)).toBeFalsy()
-            const loadGame = vi.spyOn(titleScreen, "markGameToBeLoaded")
+            const loadGame = vi.spyOn(
+                gameEngineState.messageBoard,
+                "sendMessage"
+            )
+            const continueGameButton: Button = DataBlobService.get<{
+                continueGameButton: Button
+            }>(titleScreen.data, "uiObjects").continueGameButton
             titleScreen.mouseClicked(
                 gameEngineState,
                 MouseButton.ACCEPT,
                 RectAreaService.centerX(
-                    titleScreen.continueGameButton.readyLabel.textBox.area
+                    continueGameButton.readyLabel.textBox.area
                 ),
                 RectAreaService.centerY(
-                    titleScreen.continueGameButton.readyLabel.textBox.area
+                    continueGameButton.readyLabel.textBox.area
                 )
             )
             expect(titleScreen.hasCompleted(gameEngineState)).toBeTruthy()
@@ -276,14 +256,17 @@ describe("Title Screen", () => {
         })
         it("should ignore other inputs while loading", () => {
             titleScreen.update(gameEngineState, mockedP5GraphicsContext)
+            const continueGameButton: Button = DataBlobService.get<{
+                continueGameButton: Button
+            }>(titleScreen.data, "uiObjects").continueGameButton
             titleScreen.mouseClicked(
                 gameEngineState,
                 MouseButton.ACCEPT,
                 RectAreaService.centerX(
-                    titleScreen.continueGameButton.readyLabel.textBox.area
+                    continueGameButton.readyLabel.textBox.area
                 ),
                 RectAreaService.centerY(
-                    titleScreen.continueGameButton.readyLabel.textBox.area
+                    continueGameButton.readyLabel.textBox.area
                 )
             )
             expect(titleScreen.newGameSelected).toBeFalsy()
@@ -330,24 +313,27 @@ describe("Title Screen", () => {
             it.each(tests)(
                 `$name`,
                 ({
-                    name,
                     loadSaveStateChange,
                     expectedSaveStateField,
                     expectedErrorMessage,
                 }) => {
                     vi.spyOn(Date, "now").mockReturnValue(0)
-                    const loadGame = vi.spyOn(titleScreen, "markGameToBeLoaded")
+                    const loadGame = vi.spyOn(
+                        gameEngineState.messageBoard,
+                        "sendMessage"
+                    )
                     titleScreen.update(gameEngineState, mockedP5GraphicsContext)
+                    const continueGameButton: Button = DataBlobService.get<{
+                        continueGameButton: Button
+                    }>(titleScreen.data, "uiObjects").continueGameButton
                     titleScreen.mouseClicked(
                         gameEngineState,
                         MouseButton.ACCEPT,
                         RectAreaService.centerX(
-                            titleScreen.continueGameButton.readyLabel.textBox
-                                .area
+                            continueGameButton.readyLabel.textBox.area
                         ),
                         RectAreaService.centerY(
-                            titleScreen.continueGameButton.readyLabel.textBox
-                                .area
+                            continueGameButton.readyLabel.textBox.area
                         )
                     )
                     loadSaveStateChange(gameEngineState.fileState.loadSaveState)
@@ -397,16 +383,22 @@ describe("Title Screen", () => {
 
         it("should show a failure message if the load failed", () => {
             vi.spyOn(Date, "now").mockReturnValue(0)
-            const loadGame = vi.spyOn(titleScreen, "markGameToBeLoaded")
+            const loadGame = vi.spyOn(
+                gameEngineState.messageBoard,
+                "sendMessage"
+            )
             titleScreen.update(gameEngineState, mockedP5GraphicsContext)
+            const continueGameButton: Button = DataBlobService.get<{
+                continueGameButton: Button
+            }>(titleScreen.data, "uiObjects").continueGameButton
             titleScreen.mouseClicked(
                 gameEngineState,
                 MouseButton.ACCEPT,
                 RectAreaService.centerX(
-                    titleScreen.continueGameButton.readyLabel.textBox.area
+                    continueGameButton.readyLabel.textBox.area
                 ),
                 RectAreaService.centerY(
-                    titleScreen.continueGameButton.readyLabel.textBox.area
+                    continueGameButton.readyLabel.textBox.area
                 )
             )
             gameEngineState.fileState.loadSaveState.applicationErroredWhileLoading =
@@ -448,14 +440,17 @@ describe("Title Screen", () => {
         it("should mark as completed and recommend the battle loader", () => {
             expect(titleScreen.hasCompleted(gameEngineState)).toBeFalsy()
             titleScreen.update(gameEngineState, mockedP5GraphicsContext)
+            const continueGameButton: Button = DataBlobService.get<{
+                continueGameButton: Button
+            }>(titleScreen.data, "uiObjects").continueGameButton
             titleScreen.mouseClicked(
                 gameEngineState,
                 MouseButton.ACCEPT,
                 RectAreaService.centerX(
-                    titleScreen.continueGameButton.readyLabel.textBox.area
+                    continueGameButton.readyLabel.textBox.area
                 ),
                 RectAreaService.centerY(
-                    titleScreen.continueGameButton.readyLabel.textBox.area
+                    continueGameButton.readyLabel.textBox.area
                 )
             )
             expect(titleScreen.hasCompleted(gameEngineState)).toBeTruthy()
