@@ -633,7 +633,7 @@ describe("GameEngineGameLoader", () => {
             it("should print error message if retrieving a file throws an error", async () => {
                 openDialogSpy = vi
                     .spyOn(SaveFile, "RetrieveFileContent")
-                    .mockRejectedValue(null)
+                    .mockRejectedValue(new Error("File not found"))
                 while (loader.hasCompleted(currentState) != true) {
                     await loader.update(currentState)
                 }
@@ -667,7 +667,7 @@ describe("GameEngineGameLoader", () => {
                 const tests = [
                     {
                         reason: "error",
-                        rejectedValue: null,
+                        rejectedValue: new Error("retrieve fails"),
                     },
                     {
                         reason: "user canceled",
@@ -893,7 +893,7 @@ describe("GameEngineGameLoader", () => {
                 .mockImplementation(() => {})
             openDialogSpy = vi
                 .spyOn(SaveFile, "RetrieveFileContent")
-                .mockRejectedValue(null)
+                .mockRejectedValue(new Error("whoops"))
             currentState.messageBoard.sendMessage({
                 type: MessageBoardMessageType.PLAYER_DATA_LOAD_USER_REQUEST,
                 loadSaveState: currentState.fileState.loadSaveState,

@@ -4,14 +4,6 @@ export type ColorDescription = {
     hsb: number[]
 }
 
-export interface GraphicsRenderer extends GraphicsBuffer {
-    windowWidth(): number
-
-    windowHeight(): number
-
-    get p(): p5
-}
-
 export interface GraphicsBuffer {
     background(hue: number, saturation: number, brightness: number): void
 

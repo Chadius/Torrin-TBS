@@ -351,7 +351,6 @@ describe("user clicks on an action to consider it", () => {
         targeting.update({
             gameEngineState,
             graphicsContext,
-            resourceHandler: gameEngineState.resourceHandler,
         })
 
         expect(addGraphicsLayerSpy).toHaveBeenCalled()

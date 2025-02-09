@@ -1,4 +1,4 @@
-import { ButtonStatus } from "../../../ui/button"
+import { ButtonStatus } from "../../../ui/button/button"
 import { RectAreaService } from "../../../ui/rectArea"
 import { SaveSaveStateService } from "../../../dataLoader/saveSaveState"
 import { BattleSaveStateService } from "../../history/battleSaveState"

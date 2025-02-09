@@ -1,6 +1,6 @@
 import { TextBox, TextBoxService } from "../../../ui/textBox/textBox"
 import { RectAreaService } from "../../../ui/rectArea"
-import { Rectangle, RectangleService } from "../../../ui/rectangle"
+import { Rectangle, RectangleService } from "../../../ui/rectangle/rectangle"
 import { ACTION_ANIMATION_TARGET_REACTS_TO_ACTION_TIME } from "./actionAnimationConstants"
 import { WINDOW_SPACING } from "../../../ui/constants"
 import { GraphicsBuffer } from "../../../utils/graphics/graphicsRenderer"

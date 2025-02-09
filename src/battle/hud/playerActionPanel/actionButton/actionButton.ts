@@ -9,7 +9,7 @@ import { ImageUI, ImageUILoadingBehavior } from "../../../../ui/imageUI/imageUI"
 import { GraphicsBuffer } from "../../../../utils/graphics/graphicsRenderer"
 import { ActionTemplate } from "../../../../action/template/actionTemplate"
 import { WINDOW_SPACING } from "../../../../ui/constants"
-import { Rectangle, RectangleService } from "../../../../ui/rectangle"
+import { Rectangle, RectangleService } from "../../../../ui/rectangle/rectangle"
 import { ColorUtils } from "../../../../hexMap/colorUtils"
 import { TextBox, TextBoxService } from "../../../../ui/textBox/textBox"
 

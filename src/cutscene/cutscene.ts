@@ -12,7 +12,7 @@ import {
     VERTICAL_ALIGN,
     WINDOW_SPACING,
 } from "../ui/constants"
-import { Button, ButtonStatus } from "../ui/button"
+import { Button, ButtonStatus } from "../ui/button/button"
 import { LabelService } from "../ui/label"
 import { RectAreaService } from "../ui/rectArea"
 import {

@@ -1,34 +1,34 @@
 import { BehaviorTreeTask } from "../../utils/behaviorTree/task"
-import { TextBox, TextBoxService } from "./textBox"
 import { GraphicsBuffer } from "../../utils/graphics/graphicsRenderer"
 import { DataBlob } from "../../utils/dataBlob/dataBlob"
+import { Button } from "./button"
 
-export class DrawTextBoxesAction implements BehaviorTreeTask {
+export class DrawButtonsAction implements BehaviorTreeTask {
     dataBlob: DataBlob
-    getTextBoxes: (dataBlob: DataBlob) => TextBox[]
+    getButtons: (dataBlob: DataBlob) => Button[]
     getGraphicsContext: (dataBlob: DataBlob) => GraphicsBuffer
 
     constructor(
         dataBlob: DataBlob,
-        getTextBoxes: (dataBlob: DataBlob) => TextBox[],
+        getButtons: (dataBlob: DataBlob) => Button[],
         getGraphicsContext: (dataBlob: DataBlob) => GraphicsBuffer
     ) {
         this.dataBlob = dataBlob
-        this.getTextBoxes = getTextBoxes
+        this.getButtons = getButtons
         this.getGraphicsContext = getGraphicsContext
     }
 
     run(): boolean {
-        this.getTextBoxes(this.dataBlob).forEach((textBox) => {
-            TextBoxService.draw(textBox, this.getGraphicsContext(this.dataBlob))
+        this.getButtons(this.dataBlob).forEach((button) => {
+            button.draw(this.getGraphicsContext(this.dataBlob))
         })
         return true
     }
 
     clone(): BehaviorTreeTask {
-        return new DrawTextBoxesAction(
+        return new DrawButtonsAction(
             this.dataBlob,
-            this.getTextBoxes,
+            this.getButtons,
             this.getGraphicsContext
         )
     }

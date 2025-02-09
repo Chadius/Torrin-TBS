@@ -1,6 +1,6 @@
-import { Label, LabelService } from "./label"
-import { GraphicsBuffer } from "../utils/graphics/graphicsRenderer"
-import { RectAreaService } from "./rectArea"
+import { Label, LabelService } from "../label"
+import { GraphicsBuffer } from "../../utils/graphics/graphicsRenderer"
+import { RectAreaService } from "../rectArea"
 
 type RequiredOptions = {
     readyLabel: Label

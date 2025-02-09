@@ -1,6 +1,6 @@
 import { Button, ButtonStatus } from "./button"
-import { LabelService } from "./label"
-import { RectAreaService } from "./rectArea"
+import { LabelService } from "../label"
+import { RectAreaService } from "../rectArea"
 import { describe, expect, it, vi } from "vitest"
 
 describe("Button UI", () => {

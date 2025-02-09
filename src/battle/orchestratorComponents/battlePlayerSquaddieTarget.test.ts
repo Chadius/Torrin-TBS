@@ -285,7 +285,6 @@ describe("BattleSquaddieTarget", () => {
         targetComponent.update({
             gameEngineState,
             graphicsContext: mockedP5GraphicsContext,
-            resourceHandler: gameEngineState.resourceHandler,
         })
 
         expect(targetComponent.hasCompleted(gameEngineState)).toBeFalsy()
@@ -388,7 +387,6 @@ describe("BattleSquaddieTarget", () => {
         targetComponent.update({
             gameEngineState,
             graphicsContext: mockedP5GraphicsContext,
-            resourceHandler: gameEngineState.resourceHandler,
         })
         clickOnThief()
         expect(targetComponent.hasCompleted(gameEngineState)).toBeFalsy()
@@ -411,7 +409,6 @@ describe("BattleSquaddieTarget", () => {
             targetComponent.update({
                 gameEngineState,
                 graphicsContext: mockedP5GraphicsContext,
-                resourceHandler: gameEngineState.resourceHandler,
             })
             clickOnThief()
         })
@@ -529,7 +526,6 @@ describe("BattleSquaddieTarget", () => {
                 targetComponent.update({
                     gameEngineState,
                     graphicsContext: mockedP5GraphicsContext,
-                    resourceHandler: gameEngineState.resourceHandler,
                 })
                 invalidTargetClicker()
 

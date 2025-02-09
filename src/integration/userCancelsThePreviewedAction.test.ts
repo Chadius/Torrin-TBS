@@ -206,7 +206,6 @@ describe("User cancels the previewed action", () => {
             targeting.update({
                 gameEngineState,
                 graphicsContext,
-                resourceHandler: gameEngineState.resourceHandler,
             })
         })
         afterEach(() => {
@@ -346,7 +345,6 @@ describe("User cancels the previewed action", () => {
         targeting.update({
             gameEngineState,
             graphicsContext,
-            resourceHandler: gameEngineState.resourceHandler,
         })
         BattlePlayerActionTargetSpec.clickOnCancelButton({
             targeting: targeting,
@@ -460,7 +458,6 @@ describe("User cancels the previewed action", () => {
         targeting.update({
             gameEngineState,
             graphicsContext,
-            resourceHandler: gameEngineState.resourceHandler,
         })
 
         let { screenX: mouseX, screenY: mouseY } =
@@ -478,7 +475,6 @@ describe("User cancels the previewed action", () => {
         targeting.update({
             gameEngineState,
             graphicsContext,
-            resourceHandler: gameEngineState.resourceHandler,
         })
 
         expect(targeting.hasSelectedValidTarget).toBeTruthy()

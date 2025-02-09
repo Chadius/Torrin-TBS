@@ -1,4 +1,4 @@
-import { Button, ButtonStatus } from "../../../ui/button"
+import { Button, ButtonStatus } from "../../../ui/button/button"
 import { MouseButton } from "../../../utils/mouseConfig"
 import { RectArea, RectAreaService } from "../../../ui/rectArea"
 import { ScreenDimensions } from "../../../utils/graphics/graphicsConfig"

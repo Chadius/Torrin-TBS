@@ -1,7 +1,7 @@
 import p5 from "p5"
 import { ResourceHandler } from "../../resource/resourceHandler"
 import { StubImmediateLoader } from "../../resource/resourceHandlerTestUtils"
-import { GraphicsBuffer, GraphicsRenderer } from "../graphics/graphicsRenderer"
+import { GraphicsBuffer } from "../graphics/graphicsRenderer"
 import { Mocked, MockInstance, vi } from "vitest"
 
 vi.mock("p5", () => {
@@ -71,6 +71,14 @@ export class MockedP5GraphicsBuffer implements GraphicsBuffer {
     }
 
     get width(): number {
+        return this.mockedP5.windowWidth
+    }
+
+    get windowHeight(): number {
+        return this.mockedP5.windowHeight
+    }
+
+    get windowWidth(): number {
         return this.mockedP5.windowWidth
     }
 
@@ -203,38 +211,6 @@ export class MockedP5GraphicsBuffer implements GraphicsBuffer {
 
     vertex(x: number, y: number): void {
         this.mockedP5.vertex(x, y)
-    }
-}
-
-export class MockedP5GraphicsRenderer
-    extends MockedP5GraphicsBuffer
-    implements GraphicsRenderer
-{
-    mockedP5: p5
-
-    constructor() {
-        super()
-        this.mockedP5 = mockedP5()
-    }
-
-    get p() {
-        return this.mockedP5
-    }
-
-    get height(): number {
-        return this.mockedP5.windowHeight
-    }
-
-    get width(): number {
-        return this.mockedP5.windowWidth
-    }
-
-    windowWidth(): number {
-        return this.mockedP5.windowWidth
-    }
-
-    windowHeight(): number {
-        return this.mockedP5.windowHeight
     }
 }
 

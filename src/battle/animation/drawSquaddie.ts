@@ -4,7 +4,7 @@ import {
     HUE_BY_SQUADDIE_AFFILIATION,
 } from "../../graphicsConstants"
 import { RectArea, RectAreaService } from "../../ui/rectArea"
-import { Rectangle, RectangleService } from "../../ui/rectangle"
+import { Rectangle, RectangleService } from "../../ui/rectangle/rectangle"
 import { BattleCamera } from "../battleCamera"
 import { getResultOrThrowError } from "../../utils/ResultOrError"
 import { ObjectRepository, ObjectRepositoryService } from "../objectRepository"

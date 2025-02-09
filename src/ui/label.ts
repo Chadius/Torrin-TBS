@@ -1,6 +1,10 @@
 import { RectAreaService } from "./rectArea"
 import { TextBox, TextBoxArguments, TextBoxService } from "./textBox/textBox"
-import { Rectangle, RectangleArguments, RectangleService } from "./rectangle"
+import {
+    Rectangle,
+    RectangleArguments,
+    RectangleService,
+} from "./rectangle/rectangle"
 import { GraphicsBuffer } from "../utils/graphics/graphicsRenderer"
 
 export type TextBoxMargin = {

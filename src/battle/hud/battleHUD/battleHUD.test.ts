@@ -15,7 +15,7 @@ import {
     FileAccessHUD,
     FileAccessHUDService,
 } from "../fileAccess/fileAccessHUD"
-import { ButtonStatus } from "../../../ui/button"
+import { ButtonStatus } from "../../../ui/button/button"
 import * as mocks from "../../../utils/test/mocks"
 import { MockedP5GraphicsBuffer } from "../../../utils/test/mocks"
 import { SquaddieTemplateService } from "../../../campaign/squaddieTemplate"

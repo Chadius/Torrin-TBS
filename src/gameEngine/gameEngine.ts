@@ -199,7 +199,6 @@ export class GameEngine {
         })
 
         this._titleScreen = new TitleScreen({
-            resourceHandler: this.resourceHandler,
             version,
         })
         this.gameEngineGameLoader = new GameEngineGameLoader(

@@ -230,7 +230,7 @@ describe("User Selects Target and Confirms", () => {
             playerBattleActionBuilderState,
         })
 
-        targeting.update({ gameEngineState, graphicsContext, resourceHandler })
+        targeting.update({ gameEngineState, graphicsContext })
 
         BattlePlayerActionTargetSpec.clickOnMapAtCoordinates({
             targeting,
@@ -238,7 +238,7 @@ describe("User Selects Target and Confirms", () => {
             q: 0,
             r: 2,
         })
-        targeting.update({ gameEngineState, graphicsContext, resourceHandler })
+        targeting.update({ gameEngineState, graphicsContext })
 
         expect(targeting.hasSelectedValidTarget).toBeTruthy()
         expect(
@@ -748,7 +748,7 @@ const clickOnEnemy = ({
         playerBattleActionBuilderState,
     })
 
-    targeting.update({ gameEngineState, graphicsContext, resourceHandler })
+    targeting.update({ gameEngineState, graphicsContext })
 
     BattlePlayerActionTargetSpec.clickOnMapAtCoordinates({
         targeting,
@@ -756,7 +756,7 @@ const clickOnEnemy = ({
         q: 0,
         r: 2,
     })
-    targeting.update({ gameEngineState, graphicsContext, resourceHandler })
+    targeting.update({ gameEngineState, graphicsContext })
 
     return {
         gameEngineState,

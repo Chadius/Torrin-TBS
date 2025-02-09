@@ -53,7 +53,7 @@ export interface SquaddieStatusTile {
     drawBehaviorTree: BehaviorTreeTask
 }
 
-export interface SquaddieStatusTileUILayout {
+interface SquaddieStatusTileUILayout {
     rowSize: number
     armor: {
         row: number
@@ -155,7 +155,7 @@ export interface SquaddieStatusTileUIObjects {
     }
 }
 
-export interface SquaddieStatusTileContext {
+interface SquaddieStatusTileContext {
     squaddieAffiliation: SquaddieAffiliation
     horizontalPosition: ActionTilePosition
     battleSquaddieId: string
