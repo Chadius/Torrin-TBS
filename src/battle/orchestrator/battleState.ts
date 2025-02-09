@@ -387,6 +387,8 @@ const squaddieTurnEnds = (message: MessageBoardMessageSquaddieTurnEnds) => {
     )
     gameEngineState.battleOrchestratorState.battleHUDState.summaryHUDState =
         undefined
+    gameEngineState.battleOrchestratorState.battleState.playerConsideredActions =
+        {}
 }
 
 const updateSummaryHUDAfterFinishingAnimation = (

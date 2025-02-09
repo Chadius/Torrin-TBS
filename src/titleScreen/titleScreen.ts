@@ -396,6 +396,7 @@ export class TitleScreen implements GameEngineComponent {
 
     reset(_: GameEngineState): void {
         this.resetContext()
+        this.resetUIObjects()
     }
 
     setup(): TitleScreenState {

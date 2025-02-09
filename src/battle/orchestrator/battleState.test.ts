@@ -58,6 +58,8 @@ import {
     MockInstance,
     vi,
 } from "vitest"
+import { MovementDecision } from "../playerSelectionService/playerSelectionContext"
+import { HexCoordinate } from "../../hexMap/hexCoordinate/hexCoordinate"
 
 describe("Battle State", () => {
     it("overrides team strategy for non-player teams", () => {
@@ -854,7 +856,7 @@ describe("Battle State", () => {
             ).toBeTruthy()
         })
 
-        it("clears the summary HUD is no longer drawn", () => {
+        it("the summary HUD is no longer drawn", () => {
             setupBattleActionRecorder()
 
             gameEngineState.messageBoard.sendMessage({
@@ -866,6 +868,34 @@ describe("Battle State", () => {
                 gameEngineState.battleOrchestratorState.battleHUDState
                     .summaryHUDState
             ).toBeUndefined()
+        })
+
+        it("the player is not considering any actions once the turn ends", () => {
+            setupBattleActionRecorder()
+
+            gameEngineState.battleOrchestratorState.battleState.playerConsideredActions =
+                {
+                    actionTemplateId: "actionTemplateId",
+                    movement: {
+                        actionPointCost: 3,
+                        coordinates: [
+                            { q: 0, r: 0 },
+                            { q: 0, r: 1 },
+                        ],
+                        destination: { q: 0, r: 1 },
+                    },
+                    endTurn: true,
+                }
+
+            gameEngineState.messageBoard.sendMessage({
+                type: MessageBoardMessageType.SQUADDIE_TURN_ENDS,
+                gameEngineState,
+            })
+
+            expect(
+                gameEngineState.battleOrchestratorState.battleState
+                    .playerConsideredActions
+            ).toEqual({})
         })
     })
 })
