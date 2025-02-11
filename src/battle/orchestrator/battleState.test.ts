@@ -58,8 +58,6 @@ import {
     MockInstance,
     vi,
 } from "vitest"
-import { MovementDecision } from "../playerSelectionService/playerSelectionContext"
-import { HexCoordinate } from "../../hexMap/hexCoordinate/hexCoordinate"
 
 describe("Battle State", () => {
     it("overrides team strategy for non-player teams", () => {

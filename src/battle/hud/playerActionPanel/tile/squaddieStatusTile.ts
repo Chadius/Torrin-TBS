@@ -47,6 +47,7 @@ import {
 import { DEFAULT_ACTION_POINTS_PER_TURN } from "../../../../squaddie/turn"
 import { GameEngineState } from "../../../../gameEngine/gameEngine"
 import { PlayerConsideredActions } from "../../../orchestrator/battleState"
+import { BattleActionDecisionStepService } from "../../../actionDecision/battleActionDecisionStep"
 
 export interface SquaddieStatusTile {
     data: DataBlob
@@ -447,6 +448,21 @@ const createContext = ({
             battleSquaddieId
         )
     )
+    const actorBattleSquaddieId = BattleActionDecisionStepService.getActor(
+        gameEngineState.battleOrchestratorState.battleState
+            .battleActionDecisionStep
+    )?.battleSquaddieId
+
+    const squaddieIsTheActor = battleSquaddieId === actorBattleSquaddieId
+    const actorSquaddieDependentContext = squaddieIsTheActor
+        ? getContextVariablesThatDependOnActorSquaddie(
+              gameEngineState,
+              battleSquaddieId
+          )
+        : getContextVariablesThatDependOnTargetSquaddie(
+              gameEngineState,
+              battleSquaddieId
+          )
 
     return {
         squaddieAffiliation: squaddieTemplate.squaddieId.affiliation,
@@ -458,8 +474,32 @@ const createContext = ({
         },
         armor: { ...calculateArmorClass(battleSquaddie, squaddieTemplate) },
         hitPoints: { ...calculateHitPoints(battleSquaddie, squaddieTemplate) },
+        movement: { ...calculateMovement(battleSquaddie, squaddieTemplate) },
+        coordinates: { q: 0, r: 0 },
+        attributeModifiers: calculateAttributeModifiers(battleSquaddie),
+        ...actorSquaddieDependentContext,
+    }
+}
+
+const getContextVariablesThatDependOnActorSquaddie = (
+    gameEngineState: GameEngineState,
+    battleSquaddieId: string
+) => {
+    const { squaddieTemplate, battleSquaddie } = getResultOrThrowError(
+        ObjectRepositoryService.getSquaddieByBattleId(
+            gameEngineState.repository,
+            battleSquaddieId
+        )
+    )
+
+    const { actionPointsRemaining } = calculateActionPoints(
+        battleSquaddie,
+        squaddieTemplate
+    )
+
+    return {
         actionPoints: {
-            ...calculateActionPoints(battleSquaddie, squaddieTemplate),
+            actionPointsRemaining,
             actionPointsMarked:
                 getExpectedMarkedActionPointsBasedOnPlayerConsideration({
                     objectRepository: gameEngineState.repository,
@@ -469,9 +509,30 @@ const createContext = ({
                     battleSquaddie,
                 }),
         },
-        movement: { ...calculateMovement(battleSquaddie, squaddieTemplate) },
-        coordinates: { q: 0, r: 0 },
-        attributeModifiers: calculateAttributeModifiers(battleSquaddie),
+    }
+}
+
+const getContextVariablesThatDependOnTargetSquaddie = (
+    gameEngineState: GameEngineState,
+    battleSquaddieId: string
+) => {
+    const { squaddieTemplate, battleSquaddie } = getResultOrThrowError(
+        ObjectRepositoryService.getSquaddieByBattleId(
+            gameEngineState.repository,
+            battleSquaddieId
+        )
+    )
+
+    const { actionPointsRemaining } = calculateActionPoints(
+        battleSquaddie,
+        squaddieTemplate
+    )
+
+    return {
+        actionPoints: {
+            actionPointsRemaining,
+            actionPointsMarked: 0,
+        },
     }
 }
 
@@ -1191,31 +1252,30 @@ class UpdateActionPointsContextAction implements BehaviorTreeTask {
         )
 
         const battleSquaddieId = context.battleSquaddieId
-        const { battleSquaddie, squaddieTemplate } = getResultOrThrowError(
-            ObjectRepositoryService.getSquaddieByBattleId(
-                this.gameEngineState.repository,
-                battleSquaddieId
-            )
-        )
+        const actorBattleSquaddieId = BattleActionDecisionStepService.getActor(
+            this.gameEngineState.battleOrchestratorState.battleState
+                .battleActionDecisionStep
+        )?.battleSquaddieId
 
-        const { actionPointsRemaining } = calculateActionPoints(
-            battleSquaddie,
-            squaddieTemplate
-        )
+        const squaddieIsTheActor = battleSquaddieId === actorBattleSquaddieId
+        const actorSquaddieDependentContext = squaddieIsTheActor
+            ? getContextVariablesThatDependOnActorSquaddie(
+                  this.gameEngineState,
+                  battleSquaddieId
+              )
+            : getContextVariablesThatDependOnTargetSquaddie(
+                  this.gameEngineState,
+                  battleSquaddieId
+              )
 
         context.actionPoints ||= {
             actionPointsRemaining: 0,
             actionPointsMarked: 0,
         }
-        context.actionPoints.actionPointsRemaining = actionPointsRemaining
+        context.actionPoints.actionPointsRemaining =
+            actorSquaddieDependentContext.actionPoints.actionPointsRemaining
         context.actionPoints.actionPointsMarked =
-            getExpectedMarkedActionPointsBasedOnPlayerConsideration({
-                objectRepository: this.gameEngineState.repository,
-                playerConsideredActions:
-                    this.gameEngineState.battleOrchestratorState.battleState
-                        .playerConsideredActions,
-                battleSquaddie,
-            })
+            actorSquaddieDependentContext.actionPoints.actionPointsMarked
 
         DataBlobService.add<SquaddieStatusTileContext>(
             this.dataBlob,

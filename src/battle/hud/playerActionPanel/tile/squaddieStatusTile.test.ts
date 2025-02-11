@@ -56,6 +56,7 @@ import {
     ActionTemplateService,
 } from "../../../../action/template/actionTemplate"
 import { ActionResourceCostService } from "../../../../action/actionResourceCost"
+import { BattleActionDecisionStepService } from "../../../actionDecision/battleActionDecisionStep"
 
 describe("Squaddie Status Tile", () => {
     let objectRepository: ObjectRepository
@@ -240,6 +241,15 @@ describe("Squaddie Status Tile", () => {
                 gameEngineState.repository,
                 actionCosts1ActionPoint
             )
+
+            gameEngineState.battleOrchestratorState.battleState.battleActionDecisionStep =
+                BattleActionDecisionStepService.new()
+            BattleActionDecisionStepService.setActor({
+                actionDecisionStep:
+                    gameEngineState.battleOrchestratorState.battleState
+                        .battleActionDecisionStep,
+                battleSquaddieId: "battleJoeTheSoldier",
+            })
         })
         it("should draw the current number of action points", () => {
             SquaddieTurnService.spendActionPoints(

@@ -169,12 +169,13 @@ export const PlayerCommandStateService = {
 
         if (playerCommandState.selectedActionTemplateId) return
 
+        let battleSquaddieId = BattleActionDecisionStepService.getActor(
+            gameEngineState.battleOrchestratorState.battleState
+                .battleActionDecisionStep
+        ).battleSquaddieId
         const actionValidity = ValidityCheckService.calculateActionValidity({
             objectRepository: gameEngineState.repository,
-            battleSquaddieId: BattleActionDecisionStepService.getActor(
-                gameEngineState.battleOrchestratorState.battleState
-                    .battleActionDecisionStep
-            ).battleSquaddieId,
+            battleSquaddieId: battleSquaddieId,
             gameEngineState,
         })
 
