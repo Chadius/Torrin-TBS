@@ -23,15 +23,18 @@ describe("UI Control Settings", () => {
         const settings1: UIControlSettings = new UIControlSettings({
             scrollCamera: false,
             displayMap: true,
+            displayPlayerHUD: false,
         })
 
         const settings2: UIControlSettings = new UIControlSettings({
             displayMap: false,
+            displayPlayerHUD: true,
         })
 
         settings1.update(settings2)
 
         expect(settings1.letMouseScrollCamera).toBe(false)
         expect(settings1.displayBattleMap).toBe(false)
+        expect(settings1.displayPlayerHUD).toBe(true)
     })
 })

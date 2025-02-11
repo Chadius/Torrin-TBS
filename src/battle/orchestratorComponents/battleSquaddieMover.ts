@@ -57,6 +57,7 @@ export class BattleSquaddieMover implements BattleOrchestratorComponent {
             scrollCamera: false,
             displayMap: true,
             pauseTimer: true,
+            displayPlayerHUD: false,
         })
     }
 
@@ -111,7 +112,6 @@ export class BattleSquaddieMover implements BattleOrchestratorComponent {
 
         return {
             nextMode,
-            displayMap: true,
             checkMissionObjectives: true,
         }
     }

@@ -48,7 +48,6 @@ export const OrchestratorComponentKeyEventService = {
 }
 
 export type BattleOrchestratorChanges = {
-    displayMap?: boolean
     nextMode?: BattleOrchestratorMode
     checkMissionObjectives?: boolean
 }

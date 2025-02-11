@@ -55,7 +55,7 @@ const ActionPanelPositionForStatus = [
 ]
 
 export interface SummaryHUDState {
-    showPlayerCommand: boolean
+    showAllPlayerActions: boolean
     playerCommandState: PlayerCommandState
     squaddieNameTiles: {
         [q in ActionTilePosition]?: SquaddieNameAndPortraitTile
@@ -78,7 +78,7 @@ export interface SummaryHUDState {
 export const SummaryHUDStateService = {
     new: (): SummaryHUDState => ({
         playerCommandState: PlayerCommandStateService.new(),
-        showPlayerCommand: false,
+        showAllPlayerActions: false,
         actionSelectedTile: undefined,
         actionPreviewTile: undefined,
         squaddieNameTiles: {
@@ -144,7 +144,7 @@ export const SummaryHUDStateService = {
         gameEngineState: GameEngineState
         mouseY: number
     }): PlayerCommandSelection => {
-        if (!summaryHUDState?.showPlayerCommand) {
+        if (!summaryHUDState?.showAllPlayerActions) {
             return PlayerCommandSelection.PLAYER_COMMAND_SELECTION_NONE
         }
 
@@ -199,14 +199,14 @@ export const SummaryHUDStateService = {
             gameEngineState,
         })
 
-        if (summaryHUDState.showPlayerCommand) {
-            PlayerCommandStateService.draw({
-                playerCommandState: summaryHUDState.playerCommandState,
-                graphicsBuffer,
-                gameEngineState,
-                resourceHandler,
-            })
-        }
+        PlayerCommandStateService.draw({
+            playerCommandState: summaryHUDState.playerCommandState,
+            graphicsBuffer,
+            gameEngineState,
+            resourceHandler,
+            showOnlySelectedActionButton:
+                !!summaryHUDState.playerCommandState.selectedActionTemplateId,
+        })
     },
     mouseMoved: ({
         mouseY,
@@ -219,7 +219,7 @@ export const SummaryHUDStateService = {
         mouseY: number
         gameEngineState: GameEngineState
     }) => {
-        if (!summaryHUDState.showPlayerCommand) {
+        if (!summaryHUDState.showAllPlayerActions) {
             return
         }
 
@@ -248,7 +248,7 @@ export const SummaryHUDStateService = {
             return
         }
 
-        summaryHUDState.showPlayerCommand = true
+        summaryHUDState.showAllPlayerActions = true
         PlayerCommandStateService.createCommandWindow({
             playerCommandState: summaryHUDState.playerCommandState,
             summaryHUDState,

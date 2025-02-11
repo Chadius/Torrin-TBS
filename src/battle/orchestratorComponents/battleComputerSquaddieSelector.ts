@@ -109,6 +109,7 @@ export class BattleComputerSquaddieSelector
             scrollCamera: false,
             displayMap: true,
             pauseTimer: true,
+            displayPlayerHUD: false,
         })
     }
 
@@ -169,7 +170,6 @@ export class BattleComputerSquaddieSelector
             nextMode = BattleOrchestratorMode.PHASE_CONTROLLER
         }
         return {
-            displayMap: true,
             nextMode,
         }
     }

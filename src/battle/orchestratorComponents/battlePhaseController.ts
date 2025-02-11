@@ -82,23 +82,24 @@ export class BattlePhaseController implements BattleOrchestratorComponent {
     }
 
     mouseEventHappened(
-        state: GameEngineState,
-        event: OrchestratorComponentMouseEvent
+        _state: GameEngineState,
+        _event: OrchestratorComponentMouseEvent
     ): void {
         // Required by inheritance
     }
 
     keyEventHappened(
-        state: GameEngineState,
-        event: OrchestratorComponentKeyEvent
+        _state: GameEngineState,
+        _event: OrchestratorComponentKeyEvent
     ): void {
         // Required by inheritance
     }
 
-    uiControlSettings(state: GameEngineState): UIControlSettings {
+    uiControlSettings(_: GameEngineState): UIControlSettings {
         return new UIControlSettings({
             scrollCamera: false,
             displayMap: true,
+            displayPlayerHUD: false,
         })
     }
 
@@ -181,6 +182,16 @@ export class BattlePhaseController implements BattleOrchestratorComponent {
                 gameEngineState.messageBoard.sendMessage({
                     type: MessageBoardMessageType.STARTED_PLAYER_PHASE,
                     gameEngineState,
+                })
+
+                const playerTeam = BattleStateService.getCurrentTeam(
+                    gameEngineState.battleOrchestratorState.battleState,
+                    gameEngineState.repository
+                )
+                gameEngineState.messageBoard.sendMessage({
+                    type: MessageBoardMessageType.PLAYER_SELECTS_AND_LOCKS_SQUADDIE,
+                    gameEngineState,
+                    battleSquaddieSelectedId: playerTeam.battleSquaddieIds[0],
                 })
             }
         }
@@ -270,7 +281,7 @@ export class BattlePhaseController implements BattleOrchestratorComponent {
     }
 
     draw(
-        state: BattleOrchestratorState,
+        _: BattleOrchestratorState,
         graphicsContext: GraphicsBuffer,
         resourceHandler: ResourceHandler
     ): void {
@@ -281,14 +292,12 @@ export class BattlePhaseController implements BattleOrchestratorComponent {
     }
 
     recommendStateChanges(
-        state: GameEngineState
+        _: GameEngineState
     ): BattleOrchestratorChanges | undefined {
-        return {
-            displayMap: true,
-        }
+        return {}
     }
 
-    reset(gameEngineState: GameEngineState) {
+    reset(_: GameEngineState) {
         this.bannerImage = undefined
         this.bannerImageUI = undefined
         this.affiliationImage = undefined

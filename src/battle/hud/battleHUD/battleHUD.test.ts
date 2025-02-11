@@ -594,7 +594,7 @@ describe("Battle HUD", () => {
             it("will not show the player command window for uncontrollable enemy squaddies", () => {
                 expect(
                     gameEngineState.battleOrchestratorState.battleHUDState
-                        .summaryHUDState.showPlayerCommand
+                        .summaryHUDState.showAllPlayerActions
                 ).toBeFalsy()
             })
 
@@ -1177,13 +1177,6 @@ describe("Battle HUD", () => {
                 })
             })
 
-            it("hides the command window", () => {
-                expect(
-                    gameEngineState.battleOrchestratorState.battleHUDState
-                        .summaryHUDState.showPlayerCommand
-                ).toBeFalsy()
-            })
-
             it("updates the action builder actor", () => {
                 expect(
                     BattleActionDecisionStepService.isActorSet(
@@ -1274,13 +1267,6 @@ describe("Battle HUD", () => {
                         playerSoldierBattleSquaddie.battleSquaddieId,
                     ],
                 })
-            })
-
-            it("hides the command window", () => {
-                expect(
-                    gameEngineState.battleOrchestratorState.battleHUDState
-                        .summaryHUDState.showPlayerCommand
-                ).toBeFalsy()
             })
 
             it("updates the action builder actor", () => {

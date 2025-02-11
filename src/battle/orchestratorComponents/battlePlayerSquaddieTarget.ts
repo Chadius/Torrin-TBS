@@ -124,6 +124,7 @@ export class BattlePlayerSquaddieTarget implements BattleOrchestratorComponent {
             scrollCamera: true,
             displayMap: true,
             pauseTimer: false,
+            displayPlayerHUD: true,
         })
     }
 
@@ -152,14 +153,12 @@ export class BattlePlayerSquaddieTarget implements BattleOrchestratorComponent {
         )
         if (this.cancelAbility) {
             return {
-                displayMap: true,
                 nextMode: BattleOrchestratorMode.PLAYER_HUD_CONTROLLER,
             }
         }
 
         if (this.hasSelectedValidTarget) {
             return {
-                displayMap: true,
                 nextMode: BattleOrchestratorMode.PLAYER_ACTION_CONFIRM,
             }
         }

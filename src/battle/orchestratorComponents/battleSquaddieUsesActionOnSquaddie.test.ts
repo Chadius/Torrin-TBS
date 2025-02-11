@@ -665,7 +665,6 @@ describe("BattleSquaddieUsesActionOnSquaddie", () => {
         expect(stateChanges.nextMode).toEqual(
             BattleOrchestratorMode.PLAYER_HUD_CONTROLLER
         )
-        expect(stateChanges.displayMap).toBeTruthy()
 
         squaddieUsesActionOnSquaddie.reset(gameEngineState)
         expect(squaddieTargetsOtherSquaddiesAnimatorResetSpy).toBeCalled()

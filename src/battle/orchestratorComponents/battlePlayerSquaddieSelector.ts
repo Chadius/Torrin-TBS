@@ -34,6 +34,10 @@ import {
     PlayerInputAction,
     PlayerInputStateService,
 } from "../../ui/playerInput/playerInputState"
+import { BattleStateService } from "../orchestrator/battleState"
+import { isValidValue } from "../../utils/validityCheck"
+import { BattleSquaddieTeamService } from "../battleSquaddieTeam"
+import { BattleActionDecisionStepService } from "../actionDecision/battleActionDecisionStep"
 
 export class BattlePlayerSquaddieSelector
     implements BattleOrchestratorComponent, MessageBoardListener
@@ -208,15 +212,70 @@ export class BattlePlayerSquaddieSelector
             scrollCamera: true,
             displayMap: true,
             pauseTimer: false,
+            displayPlayerHUD: true,
         })
     }
 
-    update(_params: {
+    update({
+        gameEngineState,
+    }: {
         gameEngineState: GameEngineState
         graphicsContext: GraphicsBuffer
         resourceHandler: ResourceHandler
     }): void {
-        // Required by inheritance
+        if (this.readyToAutomaticallySelectASquaddie(gameEngineState)) {
+            this.selectFirstPlayableSquaddie(gameEngineState)
+        }
+    }
+
+    private readyToAutomaticallySelectASquaddie(
+        gameEngineState: GameEngineState
+    ) {
+        if (
+            gameEngineState.battleOrchestratorState.battleHUDState
+                .summaryHUDState ||
+            gameEngineState.battleOrchestratorState.battleState.camera.isPanning()
+        ) {
+            return false
+        }
+
+        if (
+            BattleActionDecisionStepService.getAction(
+                gameEngineState.battleOrchestratorState.battleState
+                    .battleActionDecisionStep
+            )
+        )
+            return false
+
+        const currentTeam = BattleStateService.getCurrentTeam(
+            gameEngineState.battleOrchestratorState.battleState,
+            gameEngineState.repository
+        )
+        if (!isValidValue(currentTeam)) {
+            return false
+        }
+
+        return BattleSquaddieTeamService.canPlayerControlAnySquaddieOnThisTeamRightNow(
+            currentTeam,
+            gameEngineState.repository
+        )
+    }
+
+    private selectFirstPlayableSquaddie(gameEngineState: GameEngineState) {
+        const currentTeam = BattleStateService.getCurrentTeam(
+            gameEngineState.battleOrchestratorState.battleState,
+            gameEngineState.repository
+        )
+        const battleSquaddieIds =
+            BattleSquaddieTeamService.getBattleSquaddiesThatCanAct(
+                currentTeam,
+                gameEngineState.repository
+            )
+        gameEngineState.messageBoard.sendMessage({
+            type: MessageBoardMessageType.PLAYER_SELECTS_AND_LOCKS_SQUADDIE,
+            gameEngineState,
+            battleSquaddieSelectedId: battleSquaddieIds[0],
+        })
     }
 
     recommendStateChanges(
@@ -225,7 +284,6 @@ export class BattlePlayerSquaddieSelector
         let nextMode: BattleOrchestratorMode = this.recommendedNextMode
 
         return {
-            displayMap: true,
             nextMode,
         }
     }

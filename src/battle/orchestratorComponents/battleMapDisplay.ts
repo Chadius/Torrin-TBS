@@ -96,22 +96,6 @@ export class BattleMapDisplay implements BattleOrchestratorComponent {
             gameEngineState.battleOrchestratorState.battleHUD.fileAccessHUD,
             graphics
         )
-
-        if (
-            !gameEngineState.battleOrchestratorState.battleHUDState
-                .summaryHUDState
-        ) {
-            return
-        }
-
-        SummaryHUDStateService.draw({
-            summaryHUDState:
-                gameEngineState.battleOrchestratorState.battleHUDState
-                    .summaryHUDState,
-            graphicsBuffer: graphics,
-            gameEngineState,
-            resourceHandler,
-        })
     }
 
     hasCompleted(state: GameEngineState): boolean {

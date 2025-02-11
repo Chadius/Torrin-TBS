@@ -344,7 +344,7 @@ export const BattleHUDService = {
             gameEngineState.battleOrchestratorState.battleState.missionMap
                 .terrainTileMap
         )
-        gameEngineState.battleOrchestratorState.battleHUDState.summaryHUDState.showPlayerCommand =
+        gameEngineState.battleOrchestratorState.battleHUDState.summaryHUDState.showAllPlayerActions =
             false
 
         gameEngineState.battleOrchestratorState.battleState.battleActionDecisionStep =
@@ -390,7 +390,7 @@ export const BattleHUDService = {
             gameEngineState.battleOrchestratorState.battleState.missionMap
                 .terrainTileMap
         )
-        gameEngineState.battleOrchestratorState.battleHUDState.summaryHUDState.showPlayerCommand =
+        gameEngineState.battleOrchestratorState.battleHUDState.summaryHUDState.showAllPlayerActions =
             false
 
         gameEngineState.battleOrchestratorState.battleState.battleActionDecisionStep =

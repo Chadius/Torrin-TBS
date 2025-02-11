@@ -120,7 +120,6 @@ describe("BattleSquaddieUsesActionOnMap", () => {
         expect(stateChanges.nextMode).toEqual(
             BattleOrchestratorMode.PLAYER_HUD_CONTROLLER
         )
-        expect(stateChanges.displayMap).toBeTruthy()
 
         mapAction.reset(gameEngineState)
         expect(mapAction.animationCompleteStartTime).toBeUndefined()
@@ -151,18 +150,6 @@ describe("BattleSquaddieUsesActionOnMap", () => {
                 )
             )
         ).toBeTruthy()
-    })
-
-    it("displays the map", () => {
-        dateSpy.mockImplementation(() => 500)
-        mapAction.update({
-            gameEngineState,
-            graphicsContext: mockedP5GraphicsContext,
-            resourceHandler: gameEngineState.resourceHandler,
-        })
-
-        const stateChanges = mapAction.recommendStateChanges(gameEngineState)
-        expect(stateChanges.displayMap).toBeTruthy()
     })
 
     it("sends a message noting the animation is complete", () => {

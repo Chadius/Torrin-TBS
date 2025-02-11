@@ -250,6 +250,25 @@ describe("playerCommandHUD", () => {
                 playerSquaddieTemplate.actionTemplateIds.length + 1
             )
         })
+        it("will only draw the selected action and hide other features", () => {
+            selectPlayer()
+            const selectedActionButton = findActionButtonByActionTemplateId(
+                actionNeedsTarget.id
+            )
+            clickActionButton({
+                buttonArea: selectedActionButton.uiObjects.buttonIcon.drawArea,
+            })
+            const actionButtonSpy = vi.spyOn(ActionButtonService, "draw")
+            SummaryHUDStateService.draw({
+                summaryHUDState,
+                graphicsBuffer,
+                gameEngineState,
+                resourceHandler,
+            })
+            expect(actionButtonSpy).toBeCalledTimes(1)
+            actionButtonSpy.mockRestore()
+        })
+
         it("will draw disabled buttons with a faded decoration", () => {
             const actionButtonSpy = vi.spyOn(ActionButtonService, "draw")
             selectPlayer()

@@ -363,7 +363,7 @@ describe("user clicks on an action to consider it", () => {
         ).toEqual([{ q: 0, r: 1 }])
     })
 
-    it("Hides the action selector", () => {
+    it("Hides the action selector except for the selected button", () => {
         selectorClicksOnSquaddie(
             selector,
             gameEngineState,
@@ -388,7 +388,7 @@ describe("user clicks on an action to consider it", () => {
 
         expect(
             gameEngineState.battleOrchestratorState.battleHUDState
-                .summaryHUDState.showPlayerCommand
+                .summaryHUDState.showAllPlayerActions
         ).toBeFalsy()
     })
 })

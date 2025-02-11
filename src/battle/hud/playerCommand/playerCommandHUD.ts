@@ -240,17 +240,27 @@ export const PlayerCommandStateService = {
         graphicsBuffer,
         gameEngineState,
         resourceHandler,
+        showOnlySelectedActionButton,
     }: {
         playerCommandState: PlayerCommandState
         graphicsBuffer: GraphicsBuffer
         gameEngineState: GameEngineState
         resourceHandler: ResourceHandler
+        showOnlySelectedActionButton: boolean
     }) {
         createQueuedPopupIfNeeded(
             playerCommandState,
             graphicsBuffer,
             gameEngineState
         )
+
+        if (
+            BattleActionDecisionStepService.getActor(
+                gameEngineState.battleOrchestratorState.battleState
+                    .battleActionDecisionStep
+            ) == undefined
+        )
+            return
 
         const actionValidity = ValidityCheckService.calculateActionValidity({
             objectRepository: gameEngineState.repository,
@@ -268,6 +278,9 @@ export const PlayerCommandStateService = {
             actionValidity,
             consideredActionTemplateId:
                 playerCommandState.consideredActionTemplateId,
+            selectedActionTemplateId:
+                playerCommandState.selectedActionTemplateId,
+            showOnlySelectedActionButton,
         })
     },
     createQueuedPopupIfNeeded: ({
@@ -441,14 +454,25 @@ const drawActionButtons = ({
     resourceHandler,
     actionValidity,
     consideredActionTemplateId,
+    selectedActionTemplateId,
+    showOnlySelectedActionButton,
 }: {
     actionButtons: ActionButton[]
     graphicsBuffer: GraphicsBuffer
     resourceHandler: ResourceHandler
     actionValidity: { [_: string]: ActionValidityStatus }
     consideredActionTemplateId?: string
+    selectedActionTemplateId?: string
+    showOnlySelectedActionButton: boolean
 }) => {
     actionButtons.forEach((actionButton, index) => {
+        const actionIsSelected: boolean = actionButton.actionTemplate
+            ? selectedActionTemplateId === actionButton.actionTemplate.id
+            : actionButton.actionTemplateOverride.name ===
+              selectedActionTemplateId
+
+        if (showOnlySelectedActionButton && !actionIsSelected) return
+
         switch (index) {
             case 0:
                 break
@@ -490,7 +514,7 @@ const drawActionButtons = ({
             graphicsBuffer,
             resourceHandler,
             fade: actionIsDisabled,
-            selected: actionIsConsidered,
+            selected: actionIsConsidered || actionIsSelected,
         })
     })
 }

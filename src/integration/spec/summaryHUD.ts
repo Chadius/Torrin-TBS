@@ -16,7 +16,7 @@ export const SummaryHUDSpec = {
 
         expect(
             gameEngineState.battleOrchestratorState.battleHUDState
-                .summaryHUDState.showPlayerCommand
+                .summaryHUDState.showAllPlayerActions
         ).toBeTruthy()
         expect(
             gameEngineState.battleOrchestratorState.battleHUDState

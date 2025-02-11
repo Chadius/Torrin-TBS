@@ -87,11 +87,12 @@ export class BattleSquaddieUsesActionOnSquaddie
         }
     }
 
-    uiControlSettings(state: GameEngineState): UIControlSettings {
+    uiControlSettings(_state: GameEngineState): UIControlSettings {
         return new UIControlSettings({
             scrollCamera: false,
             displayMap: true,
             pauseTimer: true,
+            displayPlayerHUD: false,
         })
     }
 
@@ -113,7 +114,6 @@ export class BattleSquaddieUsesActionOnSquaddie
 
         return {
             nextMode,
-            displayMap: true,
             checkMissionObjectives: true,
         }
     }
@@ -151,10 +151,10 @@ export class BattleSquaddieUsesActionOnSquaddie
         }
     }
 
-    private reactToAnimationCompletion = (
+    private reactToAnimationCompletion(
         gameEngineState: GameEngineState,
         graphicsContext: GraphicsBuffer
-    ) => {
+    ) {
         this.hideDeadSquaddies(gameEngineState)
         const battleSquaddieId =
             BattleActionRecorderService.peekAtAnimationQueue(

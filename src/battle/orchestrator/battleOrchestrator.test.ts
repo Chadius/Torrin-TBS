@@ -55,6 +55,7 @@ import { BattleActionService } from "../history/battleAction/battleAction"
 import { beforeEach, describe, expect, it, MockInstance, vi } from "vitest"
 import { MessageBoardMessageType } from "../../message/messageBoardMessage"
 import { PlayerDataMessageListener } from "../../dataLoader/playerData/playerDataMessageListener"
+import { SummaryHUDStateService } from "../hud/summary/summaryHUD"
 
 describe("Battle Orchestrator", () => {
     type OrchestratorTestOptions = {
@@ -112,6 +113,7 @@ describe("Battle Orchestrator", () => {
         mockPlayerSquaddieSelector.uiControlSettings = vi.fn().mockReturnValue(
             new UIControlSettings({
                 displayMap: true,
+                displayPlayerHUD: true,
                 scrollCamera: true,
             })
         )
@@ -127,6 +129,7 @@ describe("Battle Orchestrator", () => {
         mockPlayerSquaddieTarget.uiControlSettings = vi.fn().mockReturnValue(
             new UIControlSettings({
                 displayMap: true,
+                displayPlayerHUD: true,
                 scrollCamera: true,
             })
         )
@@ -141,6 +144,7 @@ describe("Battle Orchestrator", () => {
         mockPlayerConfirm.uiControlSettings = vi.fn().mockReturnValue(
             new UIControlSettings({
                 displayMap: true,
+                displayPlayerHUD: true,
                 scrollCamera: true,
             })
         )
@@ -157,6 +161,7 @@ describe("Battle Orchestrator", () => {
             .mockReturnValue(
                 new UIControlSettings({
                     displayMap: true,
+                    displayPlayerHUD: false,
                     scrollCamera: false,
                 })
             )
@@ -643,6 +648,7 @@ describe("Battle Orchestrator", () => {
             )
             orchestrator.update(nullState, mockedP5GraphicsContext)
             expect(options.orchestratorComponent.update).toBeCalled()
+            return true
         }
 
         describe("knows which component to load based on the state", () => {
@@ -690,10 +696,12 @@ describe("Battle Orchestrator", () => {
                             mockSquaddieUsesActionOnSquaddie,
                     }
 
-                    loadAndExpect({
-                        mode,
-                        orchestratorComponent: tests[mode],
-                    })
+                    expect(
+                        loadAndExpect({
+                            mode,
+                            orchestratorComponent: tests[mode],
+                        })
+                    ).toBeTruthy()
                 })
             }
         })
@@ -1058,27 +1066,76 @@ describe("Battle Orchestrator", () => {
         })
     })
 
-    it("will update its UI Control Settings after updating", () => {
-        const cutscenePlayerRecommendsAMode = new BattleCutscenePlayer()
-        cutscenePlayerRecommendsAMode.update = vi.fn()
-        cutscenePlayerRecommendsAMode.uiControlSettings = vi
-            .fn()
-            .mockReturnValue(
+    describe("UI Control Settings", () => {
+        it("will update its UI Control Settings after updating", () => {
+            const cutscenePlayerRecommendsAMode = new BattleCutscenePlayer()
+            cutscenePlayerRecommendsAMode.update = vi.fn()
+            cutscenePlayerRecommendsAMode.uiControlSettings = vi
+                .fn()
+                .mockReturnValue(
+                    new UIControlSettings({
+                        displayMap: true,
+                    })
+                )
+            cutscenePlayerRecommendsAMode.mouseEventHappened = vi.fn()
+            cutscenePlayerRecommendsAMode.hasCompleted = vi.fn()
+
+            const orchestrator1 = createOrchestrator({
+                initialMode: BattleOrchestratorMode.CUTSCENE_PLAYER,
+                cutscenePlayer: cutscenePlayerRecommendsAMode,
+            })
+
+            expect(
+                orchestrator1.uiControlSettings.displayBattleMap
+            ).toBeUndefined()
+            orchestrator1.update(nullState, mockedP5GraphicsContext)
+            expect(orchestrator1.uiControlSettings.displayBattleMap).toBe(true)
+        })
+
+        it("will only draw the map if the settings turn it on", () => {
+            const orchestrator1 = createOrchestrator({})
+
+            orchestrator1.uiControlSettings.update(
+                new UIControlSettings({
+                    displayMap: false,
+                })
+            )
+            orchestrator1.update(nullState, mockedP5GraphicsContext)
+            expect(mockMapDisplay.update).not.toBeCalled()
+
+            orchestrator1.uiControlSettings.update(
                 new UIControlSettings({
                     displayMap: true,
                 })
             )
-        cutscenePlayerRecommendsAMode.mouseEventHappened = vi.fn()
-        cutscenePlayerRecommendsAMode.hasCompleted = vi.fn()
-
-        const orchestrator1 = createOrchestrator({
-            initialMode: BattleOrchestratorMode.CUTSCENE_PLAYER,
-            cutscenePlayer: cutscenePlayerRecommendsAMode,
+            orchestrator1.update(nullState, mockedP5GraphicsContext)
+            expect(mockMapDisplay.update).toBeCalled()
         })
 
-        expect(orchestrator1.uiControlSettings.displayBattleMap).toBeUndefined()
-        orchestrator1.update(nullState, mockedP5GraphicsContext)
-        expect(orchestrator1.uiControlSettings.displayBattleMap).toBe(true)
+        it("will only draw the HUD if the settings turn it on", () => {
+            const orchestrator1 = createOrchestrator({})
+            nullState.battleOrchestratorState.battleHUDState.summaryHUDState =
+                SummaryHUDStateService.new()
+            const hudSpy = vi.spyOn(SummaryHUDStateService, "draw")
+
+            orchestrator1.uiControlSettings.update(
+                new UIControlSettings({
+                    displayMap: true,
+                    displayPlayerHUD: false,
+                })
+            )
+            orchestrator1.update(nullState, mockedP5GraphicsContext)
+            expect(hudSpy).not.toBeCalled()
+
+            orchestrator1.uiControlSettings.update(
+                new UIControlSettings({
+                    displayPlayerHUD: true,
+                })
+            )
+            orchestrator1.update(nullState, mockedP5GraphicsContext)
+            expect(hudSpy).toBeCalled()
+            hudSpy.mockRestore()
+        })
     })
 
     it("will move from squaddie map action mode to player hud mode", () => {
@@ -1116,16 +1173,9 @@ describe("Battle Orchestrator", () => {
                 })
             )
 
-            expectMouseEventsWillGoToMapDisplay(
-                orchestrator,
-                mockPlayerSquaddieSelector
-            )
-        })
+            const squaddieSelectorOrchestratorShouldDisplayMap = orchestrator
+            const component = mockPlayerSquaddieSelector
 
-        const expectMouseEventsWillGoToMapDisplay = (
-            squaddieSelectorOrchestratorShouldDisplayMap: BattleOrchestrator,
-            component: BattleOrchestratorComponent
-        ) => {
             const stateWantsToDisplayTheMap: GameEngineState =
                 GameEngineStateService.new({
                     resourceHandler: undefined,
@@ -1156,7 +1206,7 @@ describe("Battle Orchestrator", () => {
             )
             expect(component.mouseEventHappened).toBeCalledTimes(2)
             expect(mockMapDisplay.mouseEventHappened).toBeCalledTimes(2)
-        }
+        })
     })
 
     describe("keyboard events", () => {
@@ -1171,6 +1221,38 @@ describe("Battle Orchestrator", () => {
                     displayMap: true,
                 })
             )
+
+            const expectKeyEventsWillGoToMapDisplay = (
+                squaddieSelectorOrchestratorShouldDisplayMap: BattleOrchestrator,
+                component: BattleOrchestratorComponent
+            ) => {
+                const stateWantsToDisplayTheMap: GameEngineState =
+                    GameEngineStateService.new({
+                        resourceHandler: undefined,
+                        battleOrchestratorState:
+                            BattleOrchestratorStateService.new({
+                                battleState: BattleStateService.newBattleState({
+                                    missionId: "test mission",
+                                    campaignId: "test campaign",
+                                }),
+                            }),
+                        repository: undefined,
+                    })
+
+                squaddieSelectorOrchestratorShouldDisplayMap.keyPressed(
+                    stateWantsToDisplayTheMap,
+                    0
+                )
+                expect(component.keyEventHappened).toBeCalledTimes(1)
+                expect(mockMapDisplay.keyEventHappened).toBeCalledTimes(1)
+
+                squaddieSelectorOrchestratorShouldDisplayMap.keyPressed(
+                    stateWantsToDisplayTheMap,
+                    0
+                )
+                expect(component.keyEventHappened).toBeCalledTimes(2)
+                expect(mockMapDisplay.keyEventHappened).toBeCalledTimes(2)
+            }
 
             expectKeyEventsWillGoToMapDisplay(
                 orchestrator,
@@ -1269,38 +1351,6 @@ describe("Battle Orchestrator", () => {
                     .missionStatistics.timeElapsedInMilliseconds
             ).toBeGreaterThan(0)
         })
-        const expectKeyEventsWillGoToMapDisplay = (
-            squaddieSelectorOrchestratorShouldDisplayMap: BattleOrchestrator,
-            component: BattleOrchestratorComponent
-        ) => {
-            const stateWantsToDisplayTheMap: GameEngineState =
-                GameEngineStateService.new({
-                    resourceHandler: undefined,
-                    battleOrchestratorState: BattleOrchestratorStateService.new(
-                        {
-                            battleState: BattleStateService.newBattleState({
-                                missionId: "test mission",
-                                campaignId: "test campaign",
-                            }),
-                        }
-                    ),
-                    repository: undefined,
-                })
-
-            squaddieSelectorOrchestratorShouldDisplayMap.keyPressed(
-                stateWantsToDisplayTheMap,
-                0
-            )
-            expect(component.keyEventHappened).toBeCalledTimes(1)
-            expect(mockMapDisplay.keyEventHappened).toBeCalledTimes(1)
-
-            squaddieSelectorOrchestratorShouldDisplayMap.keyPressed(
-                stateWantsToDisplayTheMap,
-                0
-            )
-            expect(component.keyEventHappened).toBeCalledTimes(2)
-            expect(mockMapDisplay.keyEventHappened).toBeCalledTimes(2)
-        }
     })
 
     describe("Loading saved game", () => {

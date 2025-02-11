@@ -149,7 +149,7 @@ describe("player phase listener", () => {
             })
         }
 
-        it("pans the camera to the first player when it is the player phase and the player is not near the middle of the screen", () => {
+        it("pans the camera to the first squaddie on the player team when it is the player phase and the player is not near the middle of the screen", () => {
             const gameEngineState = initializeState({
                 squaddieTemplateIdToAdd: playerTemplate.squaddieId.templateId,
                 battleSquaddieIdToAdd: player1.battleSquaddieId,
@@ -191,7 +191,7 @@ describe("player phase listener", () => {
             ).toBe(playerSquaddieLocation.worldY)
         })
 
-        it("does not pan the camera to the first player when it is the player phase and the player is near the center of the screen", () => {
+        it("does not pan the camera to the first squaddie on the player team when it is the player phase and the player is near the center of the screen", () => {
             const { worldX, worldY } =
                 ConvertCoordinateService.convertMapCoordinatesToWorldLocation(
                     0,

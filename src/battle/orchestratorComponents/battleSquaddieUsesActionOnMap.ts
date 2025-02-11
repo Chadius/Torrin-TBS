@@ -48,6 +48,7 @@ export class BattleSquaddieUsesActionOnMap
             displayMap: true,
             scrollCamera: false,
             pauseTimer: true,
+            displayPlayerHUD: false,
         })
     }
 
@@ -69,7 +70,6 @@ export class BattleSquaddieUsesActionOnMap
 
         return {
             nextMode,
-            displayMap: true,
             checkMissionObjectives: true,
         }
     }

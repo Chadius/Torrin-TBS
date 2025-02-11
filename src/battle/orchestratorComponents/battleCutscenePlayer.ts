@@ -80,10 +80,11 @@ export class BattleCutscenePlayer implements BattleOrchestratorComponent {
         }
     }
 
-    uiControlSettings(state: GameEngineState): UIControlSettings {
+    uiControlSettings(_state: GameEngineState): UIControlSettings {
         return new UIControlSettings({
             scrollCamera: false,
             pauseTimer: true,
+            displayPlayerHUD: false,
         })
     }
 
@@ -137,9 +138,7 @@ export class BattleCutscenePlayer implements BattleOrchestratorComponent {
     recommendStateChanges(
         state: GameEngineState
     ): BattleOrchestratorChanges | undefined {
-        return {
-            displayMap: true,
-        }
+        return {}
     }
 
     reset(state: GameEngineState) {

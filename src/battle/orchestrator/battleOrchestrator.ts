@@ -43,6 +43,7 @@ import { BattlePlayerActionConfirm } from "../orchestratorComponents/battlePlaye
 import { MissionCutsceneService } from "../cutscene/missionCutsceneService"
 import { CutsceneQueueService } from "../cutscene/cutsceneIdQueue"
 import { PlayerDecisionHUDService } from "../hud/playerActionPanel/playerDecisionHUD"
+import { SummaryHUDStateService } from "../hud/summary/summaryHUD"
 
 export enum BattleOrchestratorMode {
     UNKNOWN = "UNKNOWN",
@@ -192,14 +193,7 @@ export class BattleOrchestrator implements GameEngineComponent {
         if (gameEngineState.fileState.loadSaveState.applicationStartedLoad) {
             return
         }
-
-        if (this.uiControlSettings.displayBattleMap === true) {
-            this.displayBattleMap(gameEngineState, graphicsContext)
-            PlayerDecisionHUDService.draw(
-                gameEngineState.battleOrchestratorState.playerDecisionHUD,
-                graphicsContext
-            )
-        }
+        this.displayMapAndPlayerHUD(gameEngineState, graphicsContext)
 
         if (this.mode === BattleOrchestratorMode.PLAYER_HUD_CONTROLLER) {
             const orchestrationChanges: BattleOrchestratorChanges =
@@ -286,6 +280,34 @@ export class BattleOrchestrator implements GameEngineComponent {
                 )
             }
             this._previousUpdateTimestamp = Date.now()
+        }
+    }
+
+    private displayMapAndPlayerHUD(
+        gameEngineState: GameEngineState,
+        graphicsContext: GraphicsBuffer
+    ) {
+        if (this.uiControlSettings.displayBattleMap === true) {
+            this.displayBattleMap(gameEngineState, graphicsContext)
+            PlayerDecisionHUDService.draw(
+                gameEngineState.battleOrchestratorState.playerDecisionHUD,
+                graphicsContext
+            )
+
+            if (
+                this.uiControlSettings.displayPlayerHUD === true &&
+                gameEngineState.battleOrchestratorState.battleHUDState
+                    .summaryHUDState
+            ) {
+                SummaryHUDStateService.draw({
+                    summaryHUDState:
+                        gameEngineState.battleOrchestratorState.battleHUDState
+                            .summaryHUDState,
+                    graphicsBuffer: graphicsContext,
+                    gameEngineState,
+                    resourceHandler: gameEngineState.resourceHandler,
+                })
+            }
         }
     }
 

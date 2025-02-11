@@ -930,7 +930,6 @@ describe("summaryHUD", () => {
             })
         })
         it("will create a playerCommandHUD when the squaddie is player controllable", () => {
-            expect(summaryHUDState.showPlayerCommand).toBeTruthy()
             expect(summaryHUDState.playerCommandState).not.toBeUndefined()
         })
     })

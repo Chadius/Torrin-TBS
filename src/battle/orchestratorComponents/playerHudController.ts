@@ -17,20 +17,20 @@ import { BattleActionRecorderService } from "../history/battleAction/battleActio
 import { ResourceHandler } from "../../resource/resourceHandler"
 
 export class PlayerHudController implements BattleOrchestratorComponent {
-    hasCompleted(gameEngineState: GameEngineState): boolean {
+    hasCompleted(_gameEngineState: GameEngineState): boolean {
         return true
     }
 
     keyEventHappened(
-        gameEngineState: GameEngineState,
-        event: OrchestratorComponentKeyEvent
+        _gameEngineState: GameEngineState,
+        _event: OrchestratorComponentKeyEvent
     ): void {
         // Required by inheritance
     }
 
     mouseEventHappened(
-        gameEngineState: GameEngineState,
-        event: OrchestratorComponentMouseEvent
+        _gameEngineState: GameEngineState,
+        _event: OrchestratorComponentMouseEvent
     ): void {
         // Required by inheritance
     }
@@ -66,7 +66,6 @@ export class PlayerHudController implements BattleOrchestratorComponent {
                 battleActionHasAnimated)
         ) {
             return {
-                displayMap: true,
                 nextMode: BattleOrchestratorMode.COMPUTER_SQUADDIE_SELECTOR,
             }
         }
@@ -76,21 +75,18 @@ export class PlayerHudController implements BattleOrchestratorComponent {
             !BattleActionDecisionStepService.isActionSet(actionBuilderState)
         ) {
             return {
-                displayMap: true,
                 nextMode: BattleOrchestratorMode.PLAYER_SQUADDIE_SELECTOR,
             }
         }
 
         if (actionBuilderState.action.endTurn) {
             return {
-                displayMap: true,
                 nextMode: BattleOrchestratorMode.SQUADDIE_USES_ACTION_ON_MAP,
             }
         }
 
         if (actionBuilderState.action.movement) {
             return {
-                displayMap: true,
                 nextMode: BattleOrchestratorMode.SQUADDIE_MOVER,
             }
         }
@@ -102,7 +98,6 @@ export class PlayerHudController implements BattleOrchestratorComponent {
                 )
             ) {
                 return {
-                    displayMap: true,
                     nextMode:
                         BattleOrchestratorMode.SQUADDIE_USES_ACTION_ON_SQUADDIE,
                 }
@@ -114,36 +109,29 @@ export class PlayerHudController implements BattleOrchestratorComponent {
                 )
             ) {
                 return {
-                    displayMap: true,
                     nextMode: BattleOrchestratorMode.PLAYER_ACTION_CONFIRM,
                 }
             }
 
             return {
-                displayMap: true,
                 nextMode: BattleOrchestratorMode.PLAYER_SQUADDIE_TARGET,
             }
         }
 
         return {
-            displayMap: true,
             nextMode: undefined,
         }
     }
 
-    reset(gameEngineState: GameEngineState): void {
+    reset(_gameEngineState: GameEngineState): void {
         // Required by inheritance
     }
 
-    uiControlSettings(gameEngineState: GameEngineState): UIControlSettings {
+    uiControlSettings(_gameEngineState: GameEngineState): UIControlSettings {
         return undefined
     }
 
-    update({
-        gameEngineState,
-        graphicsContext,
-        resourceHandler,
-    }: {
+    update(_param: {
         gameEngineState: GameEngineState
         graphicsContext: GraphicsBuffer
         resourceHandler: ResourceHandler

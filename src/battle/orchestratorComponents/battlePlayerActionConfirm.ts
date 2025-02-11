@@ -105,6 +105,7 @@ export class BattlePlayerActionConfirm implements BattleOrchestratorComponent {
             scrollCamera: false,
             displayMap: true,
             pauseTimer: false,
+            displayPlayerHUD: true,
         })
     }
 
@@ -132,13 +133,11 @@ export class BattlePlayerActionConfirm implements BattleOrchestratorComponent {
         )
         if (this.cancelAbility) {
             return {
-                displayMap: true,
                 nextMode: BattleOrchestratorMode.PLAYER_SQUADDIE_TARGET,
             }
         }
         if (this.hasConfirmedAction) {
             return {
-                displayMap: true,
                 nextMode: BattleOrchestratorMode.PLAYER_HUD_CONTROLLER,
             }
         }
