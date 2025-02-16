@@ -44,6 +44,7 @@ import { MissionCutsceneService } from "../cutscene/missionCutsceneService"
 import { CutsceneQueueService } from "../cutscene/cutsceneIdQueue"
 import { PlayerDecisionHUDService } from "../hud/playerActionPanel/playerDecisionHUD"
 import { SummaryHUDStateService } from "../hud/summary/summaryHUD"
+import { SquaddieSelectorPanelService } from "../hud/playerActionPanel/squaddieSelectorPanel/squaddieSelectorPanel"
 
 export enum BattleOrchestratorMode {
     UNKNOWN = "UNKNOWN",
@@ -287,27 +288,41 @@ export class BattleOrchestrator implements GameEngineComponent {
         gameEngineState: GameEngineState,
         graphicsContext: GraphicsBuffer
     ) {
-        if (this.uiControlSettings.displayBattleMap === true) {
-            this.displayBattleMap(gameEngineState, graphicsContext)
-            PlayerDecisionHUDService.draw(
-                gameEngineState.battleOrchestratorState.playerDecisionHUD,
-                graphicsContext
-            )
+        if (this.uiControlSettings.displayBattleMap !== true) return
+        this.displayBattleMap(gameEngineState, graphicsContext)
+        PlayerDecisionHUDService.draw(
+            gameEngineState.battleOrchestratorState.playerDecisionHUD,
+            graphicsContext
+        )
 
-            if (
-                this.uiControlSettings.displayPlayerHUD === true &&
-                gameEngineState.battleOrchestratorState.battleHUDState
-                    .summaryHUDState
-            ) {
-                SummaryHUDStateService.draw({
-                    summaryHUDState:
-                        gameEngineState.battleOrchestratorState.battleHUDState
-                            .summaryHUDState,
-                    graphicsBuffer: graphicsContext,
-                    gameEngineState,
-                    resourceHandler: gameEngineState.resourceHandler,
-                })
-            }
+        if (
+            this.uiControlSettings.displayPlayerHUD === true &&
+            gameEngineState.battleOrchestratorState.battleHUDState
+                .summaryHUDState
+        ) {
+            SummaryHUDStateService.draw({
+                summaryHUDState:
+                    gameEngineState.battleOrchestratorState.battleHUDState
+                        .summaryHUDState,
+                graphicsBuffer: graphicsContext,
+                gameEngineState,
+                resourceHandler: gameEngineState.resourceHandler,
+            })
+        }
+
+        if (
+            this.uiControlSettings.displayPlayerHUD === true &&
+            gameEngineState.battleOrchestratorState.battleHUDState
+                .squaddieSelectorPanel
+        ) {
+            SquaddieSelectorPanelService.draw({
+                squaddieSelectorPanel:
+                    gameEngineState.battleOrchestratorState.battleHUDState
+                        .squaddieSelectorPanel,
+                objectRepository: gameEngineState.repository,
+                graphicsContext,
+                resourceHandler: gameEngineState.resourceHandler,
+            })
         }
     }
 

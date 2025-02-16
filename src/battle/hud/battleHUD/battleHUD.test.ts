@@ -110,6 +110,7 @@ import {
     AttributeSource,
 } from "../../../squaddie/attribute/attributeModifier"
 import { AttributeType } from "../../../squaddie/attribute/attributeType"
+import { SquaddieSelectorPanelService } from "../playerActionPanel/squaddieSelectorPanel/squaddieSelectorPanel"
 
 describe("Battle HUD", () => {
     let mockP5GraphicsContext: MockedP5GraphicsBuffer
@@ -500,6 +501,16 @@ describe("Battle HUD", () => {
                         .battleActionDecisionStep
                 ).battleSquaddieId
             ).toEqual(battleSquaddie.battleSquaddieId)
+        })
+
+        it("will set up the squaddie selector panel to point at the selected squaddie", () => {
+            sendMessageViaMouseClick()
+            expect(
+                SquaddieSelectorPanelService.getSelectedBattleSquaddieId(
+                    gameEngineState.battleOrchestratorState.battleHUDState
+                        .squaddieSelectorPanel
+                )
+            ).toBe(battleSquaddie.battleSquaddieId)
         })
 
         it("knows after selecting the player the hud has not selected actions", () => {
@@ -1955,6 +1966,19 @@ describe("Battle HUD", () => {
             ).toBeTruthy()
         })
 
+        it("shows the squaddie selector panel with the first squaddie already selected", () => {
+            gameEngineState.messageBoard.sendMessage({
+                type: MessageBoardMessageType.SELECT_AND_LOCK_NEXT_SQUADDIE,
+                gameEngineState,
+            })
+            expect(
+                SquaddieSelectorPanelService.getSelectedBattleSquaddieId(
+                    gameEngineState.battleOrchestratorState.battleHUDState
+                        .squaddieSelectorPanel
+                )
+            ).toBe("playerSquaddie0")
+        })
+
         it("rotates through the squaddies if you keep pressing next", () => {
             gameEngineState.messageBoard.sendMessage({
                 type: MessageBoardMessageType.SELECT_AND_LOCK_NEXT_SQUADDIE,
@@ -1964,14 +1988,34 @@ describe("Battle HUD", () => {
                 type: MessageBoardMessageType.SELECT_AND_LOCK_NEXT_SQUADDIE,
                 gameEngineState,
             })
+            expect(
+                SquaddieSelectorPanelService.getSelectedBattleSquaddieId(
+                    gameEngineState.battleOrchestratorState.battleHUDState
+                        .squaddieSelectorPanel
+                )
+            ).toBe("playerSquaddie1")
+
             gameEngineState.messageBoard.sendMessage({
                 type: MessageBoardMessageType.SELECT_AND_LOCK_NEXT_SQUADDIE,
                 gameEngineState,
             })
+            expect(
+                SquaddieSelectorPanelService.getSelectedBattleSquaddieId(
+                    gameEngineState.battleOrchestratorState.battleHUDState
+                        .squaddieSelectorPanel
+                )
+            ).toBe("playerSquaddie2")
+
             gameEngineState.messageBoard.sendMessage({
                 type: MessageBoardMessageType.SELECT_AND_LOCK_NEXT_SQUADDIE,
                 gameEngineState,
             })
+            expect(
+                SquaddieSelectorPanelService.getSelectedBattleSquaddieId(
+                    gameEngineState.battleOrchestratorState.battleHUDState
+                        .squaddieSelectorPanel
+                )
+            ).toBe("playerSquaddie0")
 
             const calls = getPlayerSelectsAndLocksSquaddieCalls()
             expect(calls).toHaveLength(4)

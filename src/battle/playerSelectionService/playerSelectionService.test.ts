@@ -59,6 +59,12 @@ import {
 } from "vitest"
 import { PlayerInputAction } from "../../ui/playerInput/playerInputState"
 import { BattleSquaddieSelectorService } from "../orchestratorComponents/battleSquaddieSelectorUtils"
+import { SquaddieSelectorPanelService } from "../hud/playerActionPanel/squaddieSelectorPanel/squaddieSelectorPanel"
+import * as mocks from "../../utils/test/mocks"
+import { MockedP5GraphicsBuffer } from "../../utils/test/mocks"
+import { GraphicsBuffer } from "../../utils/graphics/graphicsRenderer"
+import { SquaddieSelectorPanelButtonService } from "../hud/playerActionPanel/squaddieSelectorPanel/squaddieSelectorPanelButton/squaddieSelectorPanelButton"
+import { RectAreaService } from "../../ui/rectArea"
 
 describe("Player Selection Service", () => {
     let gameEngineState: GameEngineState
@@ -434,6 +440,141 @@ describe("Player Selection Service", () => {
                         battleSquaddie2.battleSquaddieId
                     )
                 })
+            })
+        })
+
+        describe("click directly on the squaddie selector", () => {
+            let mockedP5GraphicsContext: GraphicsBuffer
+            let playerBattleSquaddie2: BattleSquaddie
+            let actualContext: PlayerSelectionContext
+
+            beforeEach(() => {
+                mockedP5GraphicsContext = new MockedP5GraphicsBuffer()
+
+                createGameEngineWith1PlayerAnd1EnemyAndSpyMessages()
+                ;({ battleSquaddie: playerBattleSquaddie2 } = createSquaddie({
+                    objectRepository,
+                    squaddieAffiliation: SquaddieAffiliation.PLAYER,
+                }))
+
+                MissionMapService.addSquaddie({
+                    missionMap,
+                    battleSquaddieId: playerBattleSquaddie2.battleSquaddieId,
+                    squaddieTemplateId:
+                        playerBattleSquaddie2.squaddieTemplateId,
+                    coordinate: {
+                        q: 0,
+                        r: 3,
+                    },
+                })
+
+                const playerTeam =
+                    gameEngineState.battleOrchestratorState.battleState.teams.find(
+                        (team) => team.id == "player_team"
+                    )
+                BattleSquaddieTeamService.addBattleSquaddieIds(playerTeam, [
+                    playerBattleSquaddie2.battleSquaddieId,
+                ])
+
+                gameEngineState.battleOrchestratorState.battleHUDState.squaddieSelectorPanel =
+                    SquaddieSelectorPanelService.new({
+                        objectRepository: gameEngineState.repository,
+                        battleSquaddieIds: [...playerTeam.battleSquaddieIds],
+                    })
+                SquaddieSelectorPanelService.draw({
+                    graphicsContext: mockedP5GraphicsContext,
+                    resourceHandler: gameEngineState.resourceHandler,
+                    objectRepository: gameEngineState.repository,
+                    squaddieSelectorPanel:
+                        gameEngineState.battleOrchestratorState.battleHUDState
+                            .squaddieSelectorPanel,
+                })
+            })
+
+            const clickOnSquaddieSelectorAndCalculateContext = (
+                battleSquaddieId: string
+            ) => {
+                const battleSquaddieButton =
+                    gameEngineState.battleOrchestratorState.battleHUDState.squaddieSelectorPanel.buttons.find(
+                        (button) =>
+                            SquaddieSelectorPanelButtonService.getBattleSquaddieId(
+                                button
+                            ) === battleSquaddieId
+                    )
+
+                actualContext = PlayerSelectionService.calculateContext({
+                    playerInputActions: [],
+                    gameEngineState,
+                    mouseClick: {
+                        button: MouseButton.ACCEPT,
+                        x: RectAreaService.centerX(
+                            SquaddieSelectorPanelButtonService.getDrawingArea(
+                                battleSquaddieButton
+                            )
+                        ),
+                        y: RectAreaService.centerY(
+                            SquaddieSelectorPanelButtonService.getDrawingArea(
+                                battleSquaddieButton
+                            )
+                        ),
+                    },
+                })
+            }
+            it("clicking on the squaddie selector button will indicate the player wants to choose that squaddie", () => {
+                gameEngineState.battleOrchestratorState.battleState.battleActionDecisionStep =
+                    BattleActionDecisionStepService.new()
+                BattleActionDecisionStepService.setActor({
+                    actionDecisionStep:
+                        gameEngineState.battleOrchestratorState.battleState
+                            .battleActionDecisionStep,
+                    battleSquaddieId: "player",
+                })
+                clickOnSquaddieSelectorAndCalculateContext(
+                    playerBattleSquaddie2.battleSquaddieId
+                )
+                expect(actualContext.playerIntent).toEqual(
+                    PlayerIntent.START_OF_TURN_CLICK_ON_SQUADDIE_PLAYABLE
+                )
+            })
+            it("clicking on the squaddie selector mid turn will have no effect", () => {
+                gameEngineState.battleOrchestratorState.battleState.battleActionDecisionStep =
+                    BattleActionDecisionStepService.new()
+                BattleActionDecisionStepService.setActor({
+                    actionDecisionStep:
+                        gameEngineState.battleOrchestratorState.battleState
+                            .battleActionDecisionStep,
+                    battleSquaddieId: "player",
+                })
+                BattleActionDecisionStepService.addAction({
+                    actionDecisionStep:
+                        gameEngineState.battleOrchestratorState.battleState
+                            .battleActionDecisionStep,
+                    movement: true,
+                })
+
+                clickOnSquaddieSelectorAndCalculateContext(
+                    playerBattleSquaddie2.battleSquaddieId
+                )
+                expect(actualContext.playerIntent).not.toEqual(
+                    PlayerIntent.START_OF_TURN_CLICK_ON_SQUADDIE_PLAYABLE
+                )
+            })
+            it("applying the context will send a message to select the squaddie", () => {
+                clickOnSquaddieSelectorAndCalculateContext(
+                    playerBattleSquaddie2.battleSquaddieId
+                )
+                PlayerSelectionService.applyContextToGetChanges({
+                    gameEngineState,
+                    context: actualContext,
+                })
+
+                expect(messageSpy).toHaveBeenCalledWith(
+                    expect.objectContaining({
+                        type: MessageBoardMessageType.PLAYER_SELECTS_AND_LOCKS_SQUADDIE,
+                        battleSquaddieSelectedId:
+                            playerBattleSquaddie2.battleSquaddieId,
+                    })
+                )
             })
         })
     })
@@ -1673,6 +1814,9 @@ const createGameEngineStateWith1PlayerAnd1Enemy = ({
         }),
         repository: objectRepository,
         campaign: CampaignService.default(),
+        resourceHandler: mocks.mockResourceHandler(
+            new MockedP5GraphicsBuffer()
+        ),
     })
 }
 

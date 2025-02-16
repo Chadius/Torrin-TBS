@@ -15,11 +15,14 @@ import { MissionMap, MissionMapService } from "../../../missionMap/missionMap"
 import { TerrainTileMapService } from "../../../hexMap/terrainTileMap"
 import { getResultOrThrowError } from "../../../utils/ResultOrError"
 import { SquaddieTurnService } from "../../../squaddie/turn"
+import { SquaddieSelectorPanelService } from "../playerActionPanel/squaddieSelectorPanel/squaddieSelectorPanel"
+import { BattleActionDecisionStepService } from "../../actionDecision/battleActionDecisionStep"
 
 describe("BattleHUDState", () => {
     it("can be initialized with default fields", () => {
         const battleHUDState: BattleHUDState = BattleHUDStateService.new({})
         expect(battleHUDState.summaryHUDState).toBeUndefined()
+        expect(battleHUDState.squaddieSelectorPanel).toBeUndefined()
     })
     it("can be cloned", () => {
         const battleHUDState: BattleHUDState = BattleHUDStateService.new({
@@ -74,10 +77,18 @@ describe("BattleHUDState", () => {
                     })
                 }
             )
+            const battleActionDecisionStep =
+                BattleActionDecisionStepService.new()
+            BattleActionDecisionStepService.setActor({
+                actionDecisionStep: battleActionDecisionStep,
+                battleSquaddieId: "playerSquaddie0",
+            })
             battleHUDState = BattleHUDStateService.new({})
             BattleHUDStateService.resetSquaddieListingForTeam({
                 battleHUDState,
                 team: playerTeam,
+                objectRepository,
+                battleActionDecisionStep,
             })
         })
 
@@ -87,6 +98,10 @@ describe("BattleHUDState", () => {
             expect(battleHUDState.squaddieListing.battleSquaddieIds).toEqual([
                 ...playerTeam.battleSquaddieIds,
             ])
+            expect(battleHUDState.squaddieSelectorPanel).not.toBeUndefined()
+            expect(battleHUDState.squaddieSelectorPanel.buttons).toHaveLength(
+                playerTeam.battleSquaddieIds.length
+            )
         })
 
         it("knows to iterate through the squaddies and repeat when it runs out", () => {
@@ -98,12 +113,24 @@ describe("BattleHUDState", () => {
                 })
             ).toEqual("playerSquaddie0")
             expect(
+                SquaddieSelectorPanelService.getSelectedBattleSquaddieId(
+                    battleHUDState.squaddieSelectorPanel
+                )
+            ).toBe("playerSquaddie0")
+
+            expect(
                 BattleHUDStateService.getNextSquaddieId({
                     battleHUDState,
                     objectRepository,
                     missionMap,
                 })
             ).toEqual("playerSquaddie1")
+            expect(
+                SquaddieSelectorPanelService.getSelectedBattleSquaddieId(
+                    battleHUDState.squaddieSelectorPanel
+                )
+            ).toBe("playerSquaddie1")
+
             expect(
                 BattleHUDStateService.getNextSquaddieId({
                     battleHUDState,
@@ -112,12 +139,23 @@ describe("BattleHUDState", () => {
                 })
             ).toEqual("playerSquaddie2")
             expect(
+                SquaddieSelectorPanelService.getSelectedBattleSquaddieId(
+                    battleHUDState.squaddieSelectorPanel
+                )
+            ).toBe("playerSquaddie2")
+
+            expect(
                 BattleHUDStateService.getNextSquaddieId({
                     battleHUDState,
                     objectRepository,
                     missionMap,
                 })
             ).toEqual("playerSquaddie0")
+            expect(
+                SquaddieSelectorPanelService.getSelectedBattleSquaddieId(
+                    battleHUDState.squaddieSelectorPanel
+                )
+            ).toBe("playerSquaddie0")
         })
 
         it("skips any squaddie who took their turn", () => {
@@ -211,6 +249,11 @@ describe("BattleHUDState", () => {
                     objectRepository,
                     missionMap,
                 })
+            ).toBeUndefined()
+            expect(
+                SquaddieSelectorPanelService.getSelectedBattleSquaddieId(
+                    battleHUDState.squaddieSelectorPanel
+                )
             ).toBeUndefined()
         })
     })

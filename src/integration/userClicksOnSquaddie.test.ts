@@ -157,8 +157,18 @@ describe("User clicks on a squaddie", () => {
             resourceHandler,
             missionMap,
             repository,
-            teams: [],
-            battlePhaseState: undefined,
+            teams: [
+                BattleSquaddieTeamService.new({
+                    id: "player team",
+                    battleSquaddieIds: [playerBattleSquaddie.battleSquaddieId],
+                    name: "player team",
+                    affiliation: SquaddieAffiliation.PLAYER,
+                }),
+            ],
+            battlePhaseState: BattlePhaseStateService.new({
+                turnCount: 0,
+                currentAffiliation: BattlePhase.PLAYER,
+            }),
         })
         ObjectRepositoryService.addActionTemplate(repository, attackAction2)
 

@@ -40,12 +40,13 @@ import { ActionTemplate } from "../../action/template/actionTemplate"
 import { ActionEffectTemplateService } from "../../action/template/actionEffectTemplate"
 import { TargetingResultsService } from "../targeting/targetingService"
 import { BehaviorTreeTask } from "../../utils/behaviorTree/task"
-import { DataBlobService } from "../../utils/dataBlob/dataBlob"
+import { DataBlob, DataBlobService } from "../../utils/dataBlob/dataBlob"
 import { SelectorComposite } from "../../utils/behaviorTree/composite/selector/selector"
 import { BattleSquaddieSelectorService } from "../orchestratorComponents/battleSquaddieSelectorUtils"
 import { SquaddieAffiliation } from "../../squaddie/squaddieAffiliation"
+import { PlayerClicksOnSquaddieSelectorPanel } from "./contextCalculator/playerClicksOnSquaddieSelectorPanel"
 
-interface PlayerContextDataBlob {
+export interface PlayerContextDataBlob extends DataBlob {
     data: {
         playerSelectionContextCalculationArgs: PlayerSelectionContextCalculationArgs
         playerSelectionContext?: PlayerSelectionContext
@@ -141,6 +142,7 @@ export const PlayerSelectionService = {
             new AfterSquaddieStartsTurnPlayerClicksADifferentSquaddieBehavior(
                 dataBlob
             ),
+            new PlayerClicksOnSquaddieSelectorPanel(dataBlob),
             new PlayerClicksOnTheMapToMoveTheSelectedSquaddieBehavior(dataBlob),
             new PlayerClicksOffMapToCancelAllSquaddieSelectionBehavior(
                 dataBlob

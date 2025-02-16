@@ -31,13 +31,13 @@ export const ActionTilePositionService = {
         horizontalPosition: ActionTilePosition
         graphicsContext: GraphicsBuffer
     }) => {
-        const squaddieAffiliationHue: number =
-            HUE_BY_SQUADDIE_AFFILIATION[squaddieAffiliation]
+        const fillColor = getBackgroundColorByAffiliation(squaddieAffiliation)
+
         const overallBoundingBox =
             getBoundingBoxBasedOnActionPanelPosition(horizontalPosition)
 
         graphicsContext.push()
-        graphicsContext.fill(squaddieAffiliationHue, 10, 20)
+        graphicsContext.fill(fillColor[0], fillColor[1], fillColor[2])
         graphicsContext.rect(
             RectAreaService.left(overallBoundingBox),
             RectAreaService.top(overallBoundingBox),
@@ -46,6 +46,10 @@ export const ActionTilePositionService = {
         )
         graphicsContext.pop()
     },
+    getBackgroundColorByAffiliation: (
+        squaddieAffiliation: SquaddieAffiliation
+    ): [number, number, number] =>
+        getBackgroundColorByAffiliation(squaddieAffiliation),
 }
 
 const getBoundingBoxBasedOnActionPanelPosition = (
@@ -108,4 +112,12 @@ const getBoundingBoxBasedOnActionPanelPosition = (
             (ScreenDimensions.SCREEN_WIDTH / 12) * GOLDEN_RATIO,
         bottom: ScreenDimensions.SCREEN_HEIGHT,
     })
+}
+
+const getBackgroundColorByAffiliation = (
+    squaddieAffiliation: SquaddieAffiliation
+): [number, number, number] => {
+    const squaddieAffiliationHue: number =
+        HUE_BY_SQUADDIE_AFFILIATION[squaddieAffiliation]
+    return [squaddieAffiliationHue, 10, 20]
 }

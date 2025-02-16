@@ -8,6 +8,11 @@ import { getResultOrThrowError } from "../../../utils/ResultOrError"
 import { SquaddieService } from "../../../squaddie/squaddieService"
 import { MissionMap, MissionMapService } from "../../../missionMap/missionMap"
 import { TerrainTileMapService } from "../../../hexMap/terrainTileMap"
+import {
+    SquaddieSelectorPanel,
+    SquaddieSelectorPanelService,
+} from "../playerActionPanel/squaddieSelectorPanel/squaddieSelectorPanel"
+import { BattleActionDecisionStep } from "../../actionDecision/battleActionDecisionStep"
 
 export interface BattleHUDState {
     squaddieListing: {
@@ -16,6 +21,7 @@ export interface BattleHUDState {
         currentIndex: number
     }
     summaryHUDState: SummaryHUDState
+    squaddieSelectorPanel: SquaddieSelectorPanel
 }
 
 export const BattleHUDStateService = {
@@ -23,27 +29,30 @@ export const BattleHUDStateService = {
         summaryHUDState,
     }: {
         summaryHUDState?: SummaryHUDState
-    }): BattleHUDState => {
-        return newBattleHUDState({
+    }): BattleHUDState =>
+        newBattleHUDState({
             summaryHUDState,
-        })
-    },
+        }),
     clone: (battleHUDState: BattleHUDState): BattleHUDState => {
         return newBattleHUDState({ ...battleHUDState })
     },
     resetSquaddieListingForTeam: ({
         battleHUDState,
         team,
+        objectRepository,
+        battleActionDecisionStep,
     }: {
         battleHUDState: BattleHUDState
         team: BattleSquaddieTeam
-    }) => {
-        battleHUDState.squaddieListing = {
-            teamId: team.id,
-            battleSquaddieIds: [...team.battleSquaddieIds],
-            currentIndex: 0,
-        }
-    },
+        objectRepository: ObjectRepository
+        battleActionDecisionStep: BattleActionDecisionStep
+    }) =>
+        resetSquaddieListingForTeam({
+            battleHUDState,
+            team,
+            objectRepository,
+            battleActionDecisionStep,
+        }),
     getNextSquaddieId: ({
         battleHUDState,
         objectRepository,
@@ -95,9 +104,17 @@ export const BattleHUDStateService = {
             )
                 continue
 
+            SquaddieSelectorPanelService.selectSquaddie(
+                battleHUDState.squaddieSelectorPanel,
+                currentBattleSquaddieId
+            )
             return currentBattleSquaddieId
         }
 
+        SquaddieSelectorPanelService.selectSquaddie(
+            battleHUDState.squaddieSelectorPanel,
+            undefined
+        )
         return undefined
     },
 }
@@ -114,9 +131,35 @@ const newBattleHUDState = ({
             battleSquaddieIds: [],
             currentIndex: 0,
         },
+        squaddieSelectorPanel: undefined,
     })
 }
 
 const sanitize = (battleHUDState: BattleHUDState): BattleHUDState => {
     return battleHUDState
+}
+
+const resetSquaddieListingForTeam = ({
+    battleHUDState,
+    team,
+    objectRepository,
+    battleActionDecisionStep,
+}: {
+    battleHUDState: BattleHUDState
+    team: BattleSquaddieTeam
+    objectRepository: ObjectRepository
+    battleActionDecisionStep: BattleActionDecisionStep
+}) => {
+    if (!team) return
+
+    battleHUDState.squaddieListing = {
+        teamId: team.id,
+        battleSquaddieIds: [...team.battleSquaddieIds],
+        currentIndex: 0,
+    }
+    battleHUDState.squaddieSelectorPanel = SquaddieSelectorPanelService.new({
+        battleSquaddieIds: team.battleSquaddieIds,
+        objectRepository,
+        battleActionDecisionStep,
+    })
 }
