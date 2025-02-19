@@ -1,4 +1,3 @@
-import { ButtonStatus } from "../../../ui/button/button"
 import { RectAreaService } from "../../../ui/rectArea"
 import { SaveSaveStateService } from "../../../dataLoader/saveSaveState"
 import { BattleSaveStateService } from "../../history/battleSaveState"
@@ -35,6 +34,7 @@ import {
 import { MessageBoard } from "../../../message/messageBoard"
 import { PlayerDataMessageListener } from "../../../dataLoader/playerData/playerDataMessageListener"
 import { MessageBoardMessageType } from "../../../message/messageBoardMessage"
+import { ButtonStatus } from "../../../ui/button/buttonStatus"
 
 describe("File Access HUD", () => {
     let fileAccessHUD: FileAccessHUD

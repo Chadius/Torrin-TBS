@@ -1,6 +1,7 @@
 import { Label, LabelService } from "../label"
 import { GraphicsBuffer } from "../../utils/graphics/graphicsRenderer"
 import { RectAreaService } from "../rectArea"
+import { ButtonStatus } from "../button/buttonStatus"
 
 type RequiredOptions = {
     readyLabel: Label
@@ -13,13 +14,13 @@ type Options = {
     onClickHandler: (
         mouseX: number,
         mouseY: number,
-        button: Button,
+        button: DEPRECATEDButton,
         caller: any
     ) => {}
     onMoveHandler: (
         mouseX: number,
         mouseY: number,
-        button: Button,
+        button: DEPRECATEDButton,
         caller: any
     ) => {}
     initialStatus: ButtonStatus
@@ -27,14 +28,7 @@ type Options = {
 
 export type ButtonArguments = RequiredOptions & Partial<Options>
 
-export enum ButtonStatus {
-    READY = "READY",
-    ACTIVE = "ACTIVE",
-    DISABLED = "DISABLED",
-    HOVER = "HOVER",
-}
-
-export class Button {
+export class DEPRECATEDButton {
     readyLabel: Label
     activeLabel: Label
     disabledLabel: Label
@@ -42,13 +36,13 @@ export class Button {
     onClickHandler: (
         mouseX: number,
         mouseY: number,
-        button: Button,
+        button: DEPRECATEDButton,
         caller: any
     ) => {}
     onMoveHandler: (
         mouseX: number,
         mouseY: number,
-        button: Button,
+        button: DEPRECATEDButton,
         caller: any
     ) => {}
     buttonStatus: ButtonStatus

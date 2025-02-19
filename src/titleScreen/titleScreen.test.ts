@@ -17,9 +17,9 @@ import { PlayerInputTestService } from "../utils/test/playerInput"
 import { MessageBoardMessageType } from "../message/messageBoardMessage"
 import { PlayerDataMessageListener } from "../dataLoader/playerData/playerDataMessageListener"
 import { DataBlobService } from "../utils/dataBlob/dataBlob"
-import { Button } from "../ui/button/button"
 import { WindowService } from "../utils/graphics/window"
 import { TITLE_SCREEN_FILE_MESSAGE_DISPLAY_DURATION } from "./components/continueGameButton"
+import { DEPRECATEDButton } from "../ui/buttonDEPRECATED/DEPRECATEDButton"
 
 describe("Title Screen", () => {
     let gameEngineState: GameEngineState
@@ -74,8 +74,8 @@ describe("Title Screen", () => {
         expect(titleScreen.hasCompleted(gameEngineState)).toBeFalsy()
         titleScreen.update(gameEngineState, mockedP5GraphicsContext)
         expect(titleScreen.hasCompleted(gameEngineState)).toBeFalsy()
-        const startNewGameButton: Button = DataBlobService.get<{
-            startNewGameButton: Button
+        const startNewGameButton: DEPRECATEDButton = DataBlobService.get<{
+            startNewGameButton: DEPRECATEDButton
         }>(titleScreen.data, "uiObjects").startNewGameButton
 
         titleScreen.mouseClicked(
@@ -219,8 +219,8 @@ describe("Title Screen", () => {
                 gameEngineState.messageBoard,
                 "sendMessage"
             )
-            const continueGameButton: Button = DataBlobService.get<{
-                continueGameButton: Button
+            const continueGameButton: DEPRECATEDButton = DataBlobService.get<{
+                continueGameButton: DEPRECATEDButton
             }>(titleScreen.data, "uiObjects").continueGameButton
             titleScreen.mouseClicked(
                 gameEngineState,
@@ -252,8 +252,8 @@ describe("Title Screen", () => {
         })
         it("should ignore other inputs while loading", () => {
             titleScreen.update(gameEngineState, mockedP5GraphicsContext)
-            const continueGameButton: Button = DataBlobService.get<{
-                continueGameButton: Button
+            const continueGameButton: DEPRECATEDButton = DataBlobService.get<{
+                continueGameButton: DEPRECATEDButton
             }>(titleScreen.data, "uiObjects").continueGameButton
             titleScreen.mouseClicked(
                 gameEngineState,
@@ -319,9 +319,10 @@ describe("Title Screen", () => {
                         "sendMessage"
                     )
                     titleScreen.update(gameEngineState, mockedP5GraphicsContext)
-                    const continueGameButton: Button = DataBlobService.get<{
-                        continueGameButton: Button
-                    }>(titleScreen.data, "uiObjects").continueGameButton
+                    const continueGameButton: DEPRECATEDButton =
+                        DataBlobService.get<{
+                            continueGameButton: DEPRECATEDButton
+                        }>(titleScreen.data, "uiObjects").continueGameButton
                     titleScreen.mouseClicked(
                         gameEngineState,
                         MouseButton.ACCEPT,
@@ -384,8 +385,8 @@ describe("Title Screen", () => {
                 "sendMessage"
             )
             titleScreen.update(gameEngineState, mockedP5GraphicsContext)
-            const continueGameButton: Button = DataBlobService.get<{
-                continueGameButton: Button
+            const continueGameButton: DEPRECATEDButton = DataBlobService.get<{
+                continueGameButton: DEPRECATEDButton
             }>(titleScreen.data, "uiObjects").continueGameButton
             titleScreen.mouseClicked(
                 gameEngineState,
@@ -438,8 +439,8 @@ describe("Title Screen", () => {
         it("should mark as completed and recommend the battle loader", () => {
             expect(titleScreen.hasCompleted(gameEngineState)).toBeFalsy()
             titleScreen.update(gameEngineState, mockedP5GraphicsContext)
-            const continueGameButton: Button = DataBlobService.get<{
-                continueGameButton: Button
+            const continueGameButton: DEPRECATEDButton = DataBlobService.get<{
+                continueGameButton: DEPRECATEDButton
             }>(titleScreen.data, "uiObjects").continueGameButton
             titleScreen.mouseClicked(
                 gameEngineState,

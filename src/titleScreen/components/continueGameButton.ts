@@ -6,7 +6,6 @@ import {
     VERTICAL_ALIGN,
     WINDOW_SPACING,
 } from "../../ui/constants"
-import { Button, ButtonStatus } from "../../ui/button/button"
 import { LabelService } from "../../ui/label"
 import { RectAreaService } from "../../ui/rectArea"
 import { LoadSaveStateService } from "../../dataLoader/playerData/loadSaveState"
@@ -18,6 +17,8 @@ import {
     TitleScreenMenuSelection,
     TitleScreenUIObjects,
 } from "../titleScreen"
+import { DEPRECATEDButton } from "../../ui/buttonDEPRECATED/DEPRECATEDButton"
+import { ButtonStatus } from "../../ui/button/buttonStatus"
 
 export const TITLE_SCREEN_FILE_MESSAGE_DISPLAY_DURATION = 2000
 
@@ -95,7 +96,7 @@ export class CreateUpdateGameButtonAction implements BehaviorTreeTask {
         const buttonFontSize = WINDOW_SPACING.SPACING2
         const playButtonHorizontalAlignment = HORIZONTAL_ALIGN.CENTER
 
-        uiObjects.continueGameButton = new Button({
+        uiObjects.continueGameButton = new DEPRECATEDButton({
             activeLabel: LabelService.new({
                 text: "Now loading...",
                 fillColor: layout.colors.playButtonActive,
@@ -122,7 +123,7 @@ export class CreateUpdateGameButtonAction implements BehaviorTreeTask {
             onClickHandler(
                 _mouseX: number,
                 _mouseY: number,
-                button: Button,
+                button: DEPRECATEDButton,
                 _caller: TitleScreen
             ): {} {
                 if (context.menuSelection === TitleScreenMenuSelection.NONE) {

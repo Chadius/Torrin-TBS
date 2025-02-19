@@ -6,7 +6,6 @@ import {
 import { MouseButton } from "../utils/mouseConfig"
 import { GameEngineState } from "../gameEngine/gameEngine"
 import { GameModeEnum } from "../utils/startupConfig"
-import { Button } from "../ui/button/button"
 import { WINDOW_SPACING } from "../ui/constants"
 import { ScreenDimensions } from "../utils/graphics/graphicsConfig"
 import { TextBox } from "../ui/textBox/textBox"
@@ -28,7 +27,6 @@ import { DoesObjectHaveKeyExistCondition } from "../utils/behaviorTree/condition
 import { DrawTextBoxesAction } from "../ui/textBox/drawTextBoxesAction"
 import { DrawRectangleAction } from "../ui/rectangle/drawRectangleAction"
 import { DrawImagesAction } from "../ui/imageUI/drawImagesAction"
-import { DrawButtonsAction } from "../ui/button/drawButtonsAction"
 import { InverterDecorator } from "../utils/behaviorTree/decorator/inverter/inverter"
 import { TitleScreenCreateBackgroundAction } from "./components/backgroundAction"
 import { TitleScreenCreateTitleBannerAction } from "./components/banner"
@@ -65,6 +63,8 @@ import {
     CreateUpdateGameButtonAction,
     ShouldCreateUpdateGameButtonAction,
 } from "./components/continueGameButton"
+import { DEPRECATEDButton } from "../ui/buttonDEPRECATED/DEPRECATEDButton"
+import { DrawDEPRECATEDButtonsAction } from "../ui/buttonDEPRECATED/drawDEPRECATEDButtonsAction"
 
 export enum TitleScreenMenuSelection {
     NONE = "NONE",
@@ -178,8 +178,8 @@ export interface TitleScreenContext {
 }
 
 export interface TitleScreenUIObjects {
-    continueGameButton: Button
-    startNewGameButton: Button
+    continueGameButton: DEPRECATEDButton
+    startNewGameButton: DEPRECATEDButton
     byLine: TextBox
     titleText: TextBox
     gameDescription: TextBox
@@ -668,7 +668,7 @@ export class TitleScreen implements GameEngineComponent {
                     getGraphicsContext,
                     getResourceHandler
                 ),
-                new DrawButtonsAction(
+                new DrawDEPRECATEDButtonsAction(
                     this.data,
                     (dataBlob: DataBlob) => {
                         const uiObjects: TitleScreenUIObjects =

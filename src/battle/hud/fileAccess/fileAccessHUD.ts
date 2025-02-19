@@ -1,4 +1,3 @@
-import { Button, ButtonStatus } from "../../../ui/button/button"
 import { MouseButton } from "../../../utils/mouseConfig"
 import { RectArea, RectAreaService } from "../../../ui/rectArea"
 import { ScreenDimensions } from "../../../utils/graphics/graphicsConfig"
@@ -18,6 +17,8 @@ import { GraphicsBuffer } from "../../../utils/graphics/graphicsRenderer"
 import { FileState } from "../../../gameEngine/fileState"
 import { MessageBoard } from "../../../message/messageBoard"
 import { MessageBoardMessageType } from "../../../message/messageBoardMessage"
+import { ButtonStatus } from "../../../ui/button/buttonStatus"
+import { DEPRECATEDButton } from "../../../ui/buttonDEPRECATED/DEPRECATEDButton"
 
 export enum FileAccessHUDMessage {
     SAVE_SUCCESS = "Saved!",
@@ -112,8 +113,8 @@ export const FileAccessHUDDesign = {
 }
 
 export interface FileAccessHUD {
-    saveButton: Button
-    loadButton: Button
+    saveButton: DEPRECATEDButton
+    loadButton: DEPRECATEDButton
     messageLabel: Label
     messageDisplayStartTime: number
     message: string
@@ -280,7 +281,7 @@ const battleIsCurrentlySavingOrLoading = (caller: {
 const clickedOnLoadButton = (
     _mouseX: number,
     _mouseY: number,
-    _button: Button,
+    _button: DEPRECATEDButton,
     caller: {
         fileAccessHUD: FileAccessHUD
         fileState: FileState
@@ -300,7 +301,7 @@ const clickedOnLoadButton = (
 const clickedOnSaveButton = (
     _mouseX: number,
     _mouseY: number,
-    _button: Button,
+    _button: DEPRECATEDButton,
     caller: {
         fileAccessHUD: FileAccessHUD
         fileState: FileState
@@ -319,11 +320,11 @@ const createUIObjects = (fileAccessHUD: FileAccessHUD) => {
         screenWidth: ScreenDimensions.SCREEN_WIDTH,
         ...FileAccessHUDDesign.LOAD_BUTTON.AREA,
     })
-    fileAccessHUD.loadButton = new Button({
+    fileAccessHUD.loadButton = new DEPRECATEDButton({
         onMoveHandler(
             _mouseX: number,
             _mouseY: number,
-            _button: Button,
+            _button: DEPRECATEDButton,
             _caller: any
         ): {} {
             return {}
@@ -391,7 +392,7 @@ const createUIObjects = (fileAccessHUD: FileAccessHUD) => {
         onClickHandler(
             mouseX: number,
             mouseY: number,
-            button: Button,
+            button: DEPRECATEDButton,
             caller: {
                 fileAccessHUD: FileAccessHUD
                 fileState: FileState
@@ -406,7 +407,7 @@ const createUIObjects = (fileAccessHUD: FileAccessHUD) => {
         screenWidth: ScreenDimensions.SCREEN_WIDTH,
         ...FileAccessHUDDesign.SAVE_BUTTON.AREA,
     })
-    fileAccessHUD.saveButton = new Button({
+    fileAccessHUD.saveButton = new DEPRECATEDButton({
         readyLabel: LabelService.new({
             area: saveButtonArea,
             fontColor: FileAccessHUDDesign.SAVE_BUTTON.FONT_COLOR,
@@ -470,7 +471,7 @@ const createUIObjects = (fileAccessHUD: FileAccessHUD) => {
         onClickHandler(
             mouseX: number,
             mouseY: number,
-            button: Button,
+            button: DEPRECATEDButton,
             caller: {
                 fileAccessHUD: FileAccessHUD
                 fileState: FileState

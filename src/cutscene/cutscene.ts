@@ -12,7 +12,6 @@ import {
     VERTICAL_ALIGN,
     WINDOW_SPACING,
 } from "../ui/constants"
-import { Button, ButtonStatus } from "../ui/button/button"
 import { LabelService } from "../ui/label"
 import { RectAreaService } from "../ui/rectArea"
 import {
@@ -37,6 +36,8 @@ import {
     PlayerInputStateService,
 } from "../ui/playerInput/playerInputState"
 import { OrchestratorComponentKeyEvent } from "../battle/orchestrator/battleOrchestratorComponent"
+import { DEPRECATEDButton } from "../ui/buttonDEPRECATED/DEPRECATEDButton"
+import { ButtonStatus } from "../ui/button/buttonStatus"
 
 const FAST_FORWARD_ACTION_WAIT_TIME_MILLISECONDS = 100
 
@@ -56,7 +57,7 @@ export interface Cutscene {
 
     decisionTriggers?: CutsceneDecisionTrigger[]
 
-    fastForwardButton?: Button
+    fastForwardButton?: DEPRECATEDButton
     fastForwardPreviousTimeTick?: number
 
     allResourceLocators?: ResourceLocator[]
@@ -526,7 +527,7 @@ const collectResourceLocatorsAndKeys = (cutscene: Cutscene) => {
 }
 
 const getResourceLocators = (
-    cutscene: Cutscene,
+    _cutscene: Cutscene,
     direction: CutsceneDirection
 ): ResourceLocator[] => {
     switch (direction.type) {
@@ -541,7 +542,7 @@ const getResourceLocators = (
 
 const toggleFastForwardAndUpdateFFButton = (
     cutscene: Cutscene,
-    button: Button
+    button: DEPRECATEDButton
 ) => {
     toggleFastForwardMode(cutscene)
     if (isFastForward(cutscene)) {
@@ -570,12 +571,16 @@ const setUpFastForwardButton = (cutscene: Cutscene) => {
         height: fastForwardButtonLocation.height,
     })
 
-    const handler = (mouseX: number, mouseY: number, button: Button): {} => {
+    const handler = (
+        _mouseX: number,
+        _mouseY: number,
+        button: DEPRECATEDButton
+    ): {} => {
         toggleFastForwardAndUpdateFFButton(cutscene, button)
         return {}
     }
 
-    cutscene.fastForwardButton = new Button({
+    cutscene.fastForwardButton = new DEPRECATEDButton({
         activeLabel: LabelService.new({
             text: "Stop FF",
             fillColor: buttonDeactivateBackgroundColor,
@@ -610,8 +615,8 @@ const setUpFastForwardButton = (cutscene: Cutscene) => {
         onClickHandler(
             mouseX: number,
             mouseY: number,
-            button: Button,
-            caller: Cutscene
+            _button: DEPRECATEDButton,
+            _caller: Cutscene
         ): {} {
             return handler(mouseX, mouseY, this)
         },
@@ -656,7 +661,7 @@ const findDirectionIndexByID = (
 ): number => {
     return cutscene.directions.findIndex((dialog) => dialog.id === targetId)
 }
-const getFastForwardButtonLocation = (cutscene: Cutscene) => {
+const getFastForwardButtonLocation = (_cutscene: Cutscene) => {
     return {
         left: ScreenDimensions.SCREEN_WIDTH * 0.8,
         top: ScreenDimensions.SCREEN_HEIGHT * 0.1,

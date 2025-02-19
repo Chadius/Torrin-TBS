@@ -1,11 +1,12 @@
-import { Button, ButtonStatus } from "./button"
+import { DEPRECATEDButton } from "./DEPRECATEDButton"
 import { LabelService } from "../label"
 import { RectAreaService } from "../rectArea"
 import { describe, expect, it, vi } from "vitest"
+import { ButtonStatus } from "../button/buttonStatus"
 
 describe("Button UI", () => {
     it("defaults to ready status", () => {
-        const button = new Button({
+        const button = new DEPRECATEDButton({
             readyLabel: LabelService.new({
                 area: undefined,
                 textBoxMargin: undefined,
@@ -19,7 +20,7 @@ describe("Button UI", () => {
     })
 
     it("can change initial status", () => {
-        const button = new Button({
+        const button = new DEPRECATEDButton({
             readyLabel: LabelService.new({
                 area: undefined,
                 textBoxMargin: undefined,
@@ -34,7 +35,7 @@ describe("Button UI", () => {
     })
 
     it("can change status", () => {
-        const button = new Button({
+        const button = new DEPRECATEDButton({
             readyLabel: LabelService.new({
                 area: undefined,
                 textBoxMargin: undefined,
@@ -54,7 +55,7 @@ describe("Button UI", () => {
         const buttonHandler = vi.fn()
         const callerObject = vi.fn()
 
-        const button = new Button({
+        const button = new DEPRECATEDButton({
             readyLabel: LabelService.new({
                 area: RectAreaService.new({
                     left: 10,
@@ -82,7 +83,7 @@ describe("Button UI", () => {
         const buttonHandler = vi.fn()
         const callerObject = vi.fn()
 
-        const button = new Button({
+        const button = new DEPRECATEDButton({
             readyLabel: LabelService.new({
                 area: RectAreaService.new({
                     left: 10,
@@ -122,7 +123,7 @@ describe("Button UI", () => {
         const buttonHandler = vi.fn()
         const callerObject = vi.fn()
 
-        const button = new Button({
+        const button = new DEPRECATEDButton({
             readyLabel: LabelService.new({
                 area: RectAreaService.new({
                     left: 10,
@@ -149,7 +150,7 @@ describe("Button UI", () => {
         const buttonHandler = vi.fn()
         const callerObject = vi.fn()
 
-        const button = new Button({
+        const button = new DEPRECATEDButton({
             readyLabel: LabelService.new({
                 area: RectAreaService.new({
                     left: 10,
@@ -190,7 +191,7 @@ describe("Button UI", () => {
         const buttonHandler = vi.fn()
         const callerObject = vi.fn()
 
-        const button = new Button({
+        const button = new DEPRECATEDButton({
             readyLabel: LabelService.new({
                 area: RectAreaService.new({
                     left: 10,
@@ -216,7 +217,7 @@ describe("Button UI", () => {
         const buttonHandler = vi.fn()
         const callerObject = vi.fn()
 
-        const button = new Button({
+        const button = new DEPRECATEDButton({
             readyLabel: LabelService.new({
                 area: RectAreaService.new({
                     left: 10,
@@ -254,7 +255,7 @@ describe("Button UI", () => {
         const buttonHandler = vi.fn()
         const callerObject = vi.fn()
 
-        const button = new Button({
+        const button = new DEPRECATEDButton({
             readyLabel: LabelService.new({
                 area: RectAreaService.new({
                     left: 10,
@@ -291,7 +292,7 @@ describe("Button UI", () => {
     it("can revert to hovered state if the mouse was hovering over the button and then it moves away", () => {
         const callerObject = vi.fn()
 
-        const button = new Button({
+        const button = new DEPRECATEDButton({
             readyLabel: LabelService.new({
                 area: RectAreaService.new({
                     left: 10,

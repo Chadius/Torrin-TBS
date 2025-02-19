@@ -15,7 +15,6 @@ import {
     FileAccessHUD,
     FileAccessHUDService,
 } from "../fileAccess/fileAccessHUD"
-import { ButtonStatus } from "../../../ui/button/button"
 import * as mocks from "../../../utils/test/mocks"
 import { MockedP5GraphicsBuffer } from "../../../utils/test/mocks"
 import { SquaddieTemplateService } from "../../../campaign/squaddieTemplate"
@@ -112,6 +111,7 @@ import {
 import { AttributeType } from "../../../squaddie/attribute/attributeType"
 import { SquaddieSelectorPanelService } from "../playerActionPanel/squaddieSelectorPanel/squaddieSelectorPanel"
 import { PlayerConsideredActionsService } from "../../battleState/playerConsideredActions"
+import { ButtonStatus } from "../../../ui/button/buttonStatus"
 
 describe("Battle HUD", () => {
     let mockP5GraphicsContext: MockedP5GraphicsBuffer

@@ -2,7 +2,6 @@ import { BehaviorTreeTask } from "../../utils/behaviorTree/task"
 import { DataBlob, DataBlobService } from "../../utils/dataBlob/dataBlob"
 import { WindowService } from "../../utils/graphics/window"
 import { ScreenDimensions } from "../../utils/graphics/graphicsConfig"
-import { Button, ButtonStatus } from "../../ui/button/button"
 import {
     TitleScreen,
     TitleScreenContext,
@@ -17,6 +16,8 @@ import {
     VERTICAL_ALIGN,
     WINDOW_SPACING,
 } from "../../ui/constants"
+import { DEPRECATEDButton } from "../../ui/buttonDEPRECATED/DEPRECATEDButton"
+import { ButtonStatus } from "../../ui/button/buttonStatus"
 
 export class ShouldCreateStartGameButtonAction implements BehaviorTreeTask {
     dataBlob: DataBlob
@@ -95,7 +96,7 @@ export class CreateStartGameButtonAction implements BehaviorTreeTask {
         const context: TitleScreenContext =
             DataBlobService.get<TitleScreenContext>(this.dataBlob, "context")
 
-        uiObjects.startNewGameButton = new Button({
+        uiObjects.startNewGameButton = new DEPRECATEDButton({
             activeLabel: LabelService.new({
                 text: "Now loading...",
                 fillColor: layout.colors.playButtonActive,
@@ -122,7 +123,7 @@ export class CreateStartGameButtonAction implements BehaviorTreeTask {
             onClickHandler(
                 _mouseX: number,
                 _mouseY: number,
-                button: Button,
+                button: DEPRECATEDButton,
                 _caller: TitleScreen
             ): {} {
                 if (context.menuSelection === TitleScreenMenuSelection.NONE) {

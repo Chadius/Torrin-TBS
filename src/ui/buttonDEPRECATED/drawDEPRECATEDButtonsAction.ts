@@ -1,16 +1,16 @@
 import { BehaviorTreeTask } from "../../utils/behaviorTree/task"
 import { GraphicsBuffer } from "../../utils/graphics/graphicsRenderer"
 import { DataBlob } from "../../utils/dataBlob/dataBlob"
-import { Button } from "./button"
+import { DEPRECATEDButton } from "./DEPRECATEDButton"
 
-export class DrawButtonsAction implements BehaviorTreeTask {
+export class DrawDEPRECATEDButtonsAction implements BehaviorTreeTask {
     dataBlob: DataBlob
-    getButtons: (dataBlob: DataBlob) => Button[]
+    getButtons: (dataBlob: DataBlob) => DEPRECATEDButton[]
     getGraphicsContext: (dataBlob: DataBlob) => GraphicsBuffer
 
     constructor(
         dataBlob: DataBlob,
-        getButtons: (dataBlob: DataBlob) => Button[],
+        getButtons: (dataBlob: DataBlob) => DEPRECATEDButton[],
         getGraphicsContext: (dataBlob: DataBlob) => GraphicsBuffer
     ) {
         this.dataBlob = dataBlob
@@ -26,7 +26,7 @@ export class DrawButtonsAction implements BehaviorTreeTask {
     }
 
     clone(): BehaviorTreeTask {
-        return new DrawButtonsAction(
+        return new DrawDEPRECATEDButtonsAction(
             this.dataBlob,
             this.getButtons,
             this.getGraphicsContext
