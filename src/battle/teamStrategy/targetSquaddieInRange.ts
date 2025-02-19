@@ -81,10 +81,10 @@ export class TargetSquaddieInRange implements TeamStrategyCalculator {
             )
             .filter((actionTemplate) => {
                 return (
-                    SquaddieTurnService.canPerformAction(
-                        battleSquaddie.squaddieTurn,
-                        actionTemplate
-                    ).canPerform === true
+                    SquaddieTurnService.canPerformAction({
+                        actionTemplate: actionTemplate,
+                        battleSquaddie,
+                    }).canPerform === true
                 )
             })
 

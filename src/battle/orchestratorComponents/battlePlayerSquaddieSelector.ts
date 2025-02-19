@@ -34,7 +34,7 @@ import {
     PlayerInputAction,
     PlayerInputStateService,
 } from "../../ui/playerInput/playerInputState"
-import { BattleStateService } from "../orchestrator/battleState"
+import { BattleStateService } from "../battleState/battleState"
 import { isValidValue } from "../../utils/validityCheck"
 import { BattleSquaddieTeamService } from "../battleSquaddieTeam"
 import { BattleActionDecisionStepService } from "../actionDecision/battleActionDecisionStep"

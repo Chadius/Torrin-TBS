@@ -7,7 +7,7 @@ import { PerRoundCheck } from "./perRoundCheck"
 import { GameEngineState } from "../../gameEngine/gameEngine"
 
 export type ActionValidityStatus = {
-    disabled: boolean
+    isValid: boolean
     messages: string[]
 }
 
@@ -34,14 +34,13 @@ export const ValidityCheckService = {
             actionCheckResult: ActionCheckResult,
             shouldDisableIfInvalid: boolean
         ): ActionValidityStatus => {
-            if (actionCheckResult.isValid) {
-                return currentStatus
+            if (shouldDisableIfInvalid && actionCheckResult.isValid === false) {
+                currentStatus.isValid = false
             }
 
-            if (shouldDisableIfInvalid) {
-                currentStatus.disabled = true
+            if (actionCheckResult.message) {
+                currentStatus.messages.push(actionCheckResult.message)
             }
-            currentStatus.messages.push(actionCheckResult.message)
             return currentStatus
         }
 
@@ -58,7 +57,7 @@ export const ValidityCheckService = {
         squaddieTemplate.actionTemplateIds.forEach(
             (actionTemplateId: string) => {
                 overallStatus[actionTemplateId] = {
-                    disabled: false,
+                    isValid: true,
                     messages: [],
                 }
 
@@ -67,6 +66,9 @@ export const ValidityCheckService = {
                         battleSquaddie,
                         objectRepository,
                         actionTemplateId,
+                        playerConsideredActions:
+                            gameEngineState.battleOrchestratorState.battleState
+                                .playerConsideredActions,
                     }),
                     BuffSelfCheck.willBuffUser({
                         battleSquaddie,

@@ -37,7 +37,7 @@ import { BattlePhaseState } from "./battlePhaseController"
 import { SquaddieTemplate } from "../../campaign/squaddieTemplate"
 import { SquaddieMovementService } from "../../squaddie/movement"
 import { TeamStrategyType } from "../teamStrategy/teamStrategy"
-import { BattleStateService } from "../orchestrator/battleState"
+import { BattleStateService } from "../battleState/battleState"
 import {
     GameEngineState,
     GameEngineStateService,

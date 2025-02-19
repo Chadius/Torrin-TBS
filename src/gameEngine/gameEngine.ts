@@ -44,7 +44,7 @@ import { MessageBoardMessageType } from "../message/messageBoardMessage"
 import { PlayerHudController } from "../battle/orchestratorComponents/playerHudController"
 import { GraphicsBuffer } from "../utils/graphics/graphicsRenderer"
 import { CutsceneMessageListener } from "../battle/cutscene/missionCutsceneService"
-import { BattleStateListener } from "../battle/orchestrator/battleState"
+import { BattleStateListener } from "../battle/battleState/battleState"
 import { BattlePlayerActionConfirm } from "../battle/orchestratorComponents/battlePlayerActionConfirm"
 import { SquaddiePhaseListener } from "../battle/startOfPhase/squaddiePhaseListener"
 import { PlayerDecisionHUDListener } from "../battle/hud/playerActionPanel/playerDecisionHUD"
@@ -311,7 +311,6 @@ export class GameEngine {
             MessageBoardMessageType.PLAYER_CONFIRMS_ACTION,
             MessageBoardMessageType.SELECT_AND_LOCK_NEXT_SQUADDIE,
             MessageBoardMessageType.MOVE_SQUADDIE_TO_COORDINATE,
-            MessageBoardMessageType.PLAYER_CANCELS_SQUADDIE_SELECTION,
             MessageBoardMessageType.PLAYER_SELECTS_EMPTY_TILE,
             MessageBoardMessageType.PLAYER_SELECTS_ACTION_WITH_KNOWN_TARGETS,
             MessageBoardMessageType.PLAYER_CONTROLLED_SQUADDIE_NEEDS_NEXT_ACTION,
@@ -364,14 +363,16 @@ export class GameEngine {
         const playerDecisionHUDListener = new PlayerDecisionHUDListener(
             "playerDecisionHUDListener"
         )
-        this.gameEngineState.messageBoard.addListener(
-            playerDecisionHUDListener,
-            MessageBoardMessageType.PLAYER_SELECTION_IS_INVALID
-        )
-        this.gameEngineState.messageBoard.addListener(
-            playerDecisionHUDListener,
-            MessageBoardMessageType.PLAYER_CONSIDERS_ACTION
-        )
+        ;[
+            MessageBoardMessageType.PLAYER_CANCELS_PLAYER_ACTION_CONSIDERATIONS,
+            MessageBoardMessageType.PLAYER_CONSIDERS_ACTION,
+            MessageBoardMessageType.PLAYER_SELECTION_IS_INVALID,
+        ].forEach((messageBoardMessageType) => {
+            this.gameEngineState.messageBoard.addListener(
+                playerDecisionHUDListener,
+                messageBoardMessageType
+            )
+        })
 
         const playerDataMessageListener = new PlayerDataMessageListener(
             "playerDataMessageListener"

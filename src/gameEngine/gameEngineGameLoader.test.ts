@@ -9,7 +9,7 @@ import {
 import { BattleOrchestratorStateService } from "../battle/orchestrator/battleOrchestratorState"
 import { MissionFileFormat } from "../dataLoader/missionLoader"
 import { GameModeEnum } from "../utils/startupConfig"
-import { BattleStateService } from "../battle/orchestrator/battleState"
+import { BattleStateService } from "../battle/battleState/battleState"
 import { GameEngineState, GameEngineStateService } from "./gameEngine"
 import { CampaignFileFormat } from "../campaign/campaignFileFormat"
 import { LoadCampaignData } from "../utils/fileHandling/loadCampaignData"

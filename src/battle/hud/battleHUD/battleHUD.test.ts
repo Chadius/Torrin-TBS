@@ -10,7 +10,7 @@ import {
     GameEngineStateService,
 } from "../../../gameEngine/gameEngine"
 import { BattleOrchestratorStateService } from "../../orchestrator/battleOrchestratorState"
-import { BattleStateService } from "../../orchestrator/battleState"
+import { BattleStateService } from "../../battleState/battleState"
 import {
     FileAccessHUD,
     FileAccessHUDService,
@@ -111,6 +111,7 @@ import {
 } from "../../../squaddie/attribute/attributeModifier"
 import { AttributeType } from "../../../squaddie/attribute/attributeType"
 import { SquaddieSelectorPanelService } from "../playerActionPanel/squaddieSelectorPanel/squaddieSelectorPanel"
+import { PlayerConsideredActionsService } from "../../battleState/playerConsideredActions"
 
 describe("Battle HUD", () => {
     let mockP5GraphicsContext: MockedP5GraphicsBuffer
@@ -2030,6 +2031,28 @@ describe("Battle HUD", () => {
             )
         })
 
+        // TODO need to clear movement based considerations when off map
+        it("clears player considerations", () => {
+            gameEngineState.battleOrchestratorState.battleState.playerConsideredActions =
+                PlayerConsideredActionsService.new()
+            gameEngineState.battleOrchestratorState.battleState.playerConsideredActions.movement =
+                {
+                    destination: { q: 1, r: 0 },
+                    coordinates: [],
+                    actionPointCost: 1,
+                }
+
+            gameEngineState.messageBoard.sendMessage({
+                type: MessageBoardMessageType.SELECT_AND_LOCK_NEXT_SQUADDIE,
+                gameEngineState,
+            })
+
+            expect(
+                gameEngineState.battleOrchestratorState.battleState
+                    .playerConsideredActions.movement
+            ).toBeUndefined()
+        })
+
         it("if a squaddie is taking a turn, they are always next", () => {
             const { battleSquaddie } = getResultOrThrowError(
                 ObjectRepositoryService.getSquaddieByBattleId(
@@ -2418,144 +2441,7 @@ describe("Battle HUD", () => {
             })
         })
     })
-    describe("player wants to cancel their squaddie selection", () => {
-        let gameEngineState: GameEngineState
-        let battleHUDListener: BattleHUDListener
-        let battleSquaddie: BattleSquaddie
 
-        beforeEach(() => {
-            ;({ gameEngineState, playerSoldierBattleSquaddie: battleSquaddie } =
-                createGameEngineState({
-                    missionMap: MissionMapService.new({
-                        terrainTileMap: TerrainTileMapService.new({
-                            movementCost: ["1 1 1 1 "],
-                        }),
-                    }),
-                }))
-
-            battleHUDListener = new BattleHUDListener("battleHUDListener")
-            gameEngineState.messageBoard.addListener(
-                battleHUDListener,
-                MessageBoardMessageType.PLAYER_CANCELS_SQUADDIE_SELECTION
-            )
-            gameEngineState.messageBoard.addListener(
-                battleHUDListener,
-                MessageBoardMessageType.PLAYER_SELECTS_AND_LOCKS_SQUADDIE
-            )
-            SummaryHUDStateService.draw({
-                summaryHUDState:
-                    gameEngineState.battleOrchestratorState.battleHUDState
-                        .summaryHUDState,
-                gameEngineState,
-                resourceHandler: gameEngineState.resourceHandler,
-                graphicsBuffer: mockP5GraphicsContext,
-            })
-        })
-        it("closes the HUD", () => {
-            gameEngineState.messageBoard.sendMessage({
-                type: MessageBoardMessageType.PLAYER_CANCELS_SQUADDIE_SELECTION,
-                gameEngineState,
-            })
-            expect(
-                gameEngineState.battleOrchestratorState.battleHUDState
-                    .summaryHUDState
-            ).toBeUndefined()
-        })
-        it("clears the battle action builder", () => {
-            gameEngineState.messageBoard.sendMessage({
-                type: MessageBoardMessageType.PLAYER_CANCELS_SQUADDIE_SELECTION,
-                gameEngineState,
-            })
-            expect(
-                BattleActionDecisionStepService.isActorSet(
-                    gameEngineState.battleOrchestratorState.battleState
-                        .battleActionDecisionStep
-                )
-            ).toBeFalsy()
-        })
-        it("clears the map graphics layer for all clicked controllable units", () => {
-            const terrainTileMapSpy: MockInstance = vi.spyOn(
-                TerrainTileMapService,
-                "removeGraphicsLayerByType"
-            )
-            gameEngineState.messageBoard.sendMessage({
-                type: MessageBoardMessageType.PLAYER_CANCELS_SQUADDIE_SELECTION,
-                gameEngineState,
-            })
-            expect(terrainTileMapSpy).toBeCalledWith(
-                gameEngineState.battleOrchestratorState.battleState.missionMap
-                    .terrainTileMap,
-                MapGraphicsLayerType.CLICKED_ON_CONTROLLABLE_SQUADDIE
-            )
-            terrainTileMapSpy.mockRestore()
-        })
-
-        describe("ignore attempts to cancel if the squaddie has already acted this round", () => {
-            beforeEach(() => {
-                const movementStep: BattleActionDecisionStep =
-                    BattleActionDecisionStepService.new()
-                BattleActionDecisionStepService.setActor({
-                    actionDecisionStep: movementStep,
-                    battleSquaddieId: "player_soldier_0",
-                })
-                BattleActionDecisionStepService.addAction({
-                    actionDecisionStep: movementStep,
-                    movement: true,
-                })
-                BattleActionDecisionStepService.setConfirmedTarget({
-                    actionDecisionStep: movementStep,
-                    targetCoordinate: { q: 0, r: 2 },
-                })
-
-                BattleActionRecorderService.addReadyToAnimateBattleAction(
-                    gameEngineState.battleOrchestratorState.battleState
-                        .battleActionRecorder,
-                    BattleActionService.new({
-                        actor: {
-                            actorBattleSquaddieId:
-                                battleSquaddie.battleSquaddieId,
-                        },
-                        action: { isMovement: true },
-                        effect: {
-                            movement: {
-                                startCoordinate: { q: 0, r: 0 },
-                                endCoordinate: { q: 0, r: 0 },
-                            },
-                        },
-                    })
-                )
-                BattleActionRecorderService.battleActionFinishedAnimating(
-                    gameEngineState.battleOrchestratorState.battleState
-                        .battleActionRecorder
-                )
-
-                gameEngineState.messageBoard.sendMessage({
-                    type: MessageBoardMessageType.PLAYER_CANCELS_SQUADDIE_SELECTION,
-                    gameEngineState,
-                })
-            })
-            it("keeps the HUD open", () => {
-                expect(
-                    gameEngineState.battleOrchestratorState.battleHUDState
-                        .summaryHUDState.squaddieNameTiles["ACTOR_NAME"]
-                ).not.toBeUndefined()
-            })
-            it("maintains the battle action builder", () => {
-                expect(
-                    BattleActionDecisionStepService.isActorSet(
-                        gameEngineState.battleOrchestratorState.battleState
-                            .battleActionDecisionStep
-                    )
-                ).toBeTruthy()
-                expect(
-                    BattleActionDecisionStepService.getActor(
-                        gameEngineState.battleOrchestratorState.battleState
-                            .battleActionDecisionStep
-                    )
-                ).toEqual({ battleSquaddieId: battleSquaddie.battleSquaddieId })
-            })
-        })
-    })
     describe("player selects an empty tile at the start of the turn", () => {
         let gameEngineState: GameEngineState
         let battleSquaddie: BattleSquaddie

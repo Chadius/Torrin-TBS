@@ -48,7 +48,7 @@ import {
     GameEngineStateService,
 } from "../../../../gameEngine/gameEngine"
 import { CampaignService } from "../../../../campaign/campaign"
-import { BattleStateService } from "../../../orchestrator/battleState"
+import { BattleStateService } from "../../../battleState/battleState"
 import { BattlePhase } from "../../../orchestratorComponents/battlePhaseTracker"
 import { BattleOrchestratorStateService } from "../../../orchestrator/battleOrchestratorState"
 import {

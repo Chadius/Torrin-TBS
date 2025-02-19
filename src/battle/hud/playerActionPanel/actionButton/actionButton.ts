@@ -169,18 +169,23 @@ export const ActionButtonService = {
         graphicsBuffer,
         resourceHandler,
         selected,
-        fade,
+        disabled,
     }: {
         actionButton: ActionButton
         graphicsBuffer: GraphicsBuffer
         resourceHandler: ResourceHandler
         selected?: boolean
-        fade?: boolean
+        disabled?: boolean
     }) {
         drawButtonIcon(actionButton, graphicsBuffer, resourceHandler)
         drawActionName(actionButton, graphicsBuffer)
-        if (selected || fade) {
-            drawDecorator(actionButton, graphicsBuffer, selected, fade)
+        if (selected || disabled) {
+            drawDecorator({
+                actionButton: actionButton,
+                graphicsBuffer: graphicsBuffer,
+                selected: selected,
+                disabled: disabled,
+            })
         }
     },
     getExpectedDrawBoundingBox: (
@@ -278,12 +283,17 @@ const createActionNameTextBox = (
     })
 }
 
-const drawDecorator = (
-    actionButton: ActionButton,
-    graphicsBuffer: GraphicsBuffer,
-    selected: boolean,
-    fade: boolean
-) => {
+const drawDecorator = ({
+    actionButton,
+    graphicsBuffer,
+    selected,
+    disabled,
+}: {
+    actionButton: ActionButton
+    graphicsBuffer: GraphicsBuffer
+    selected: boolean
+    disabled: boolean
+}) => {
     const strokeBrightness: number = ColorUtils.calculatePulseValueOverTime({
         low: actionButton.layout.selectedBorder.strokeBrightnessRange[0],
         high: actionButton.layout.selectedBorder.strokeBrightnessRange[1],
@@ -308,8 +318,8 @@ const drawDecorator = (
                   strokeBrightness,
               ]
             : undefined,
-        noFill: !fade,
-        fillColor: fade
+        noFill: !disabled,
+        fillColor: disabled
             ? [...actionButton.layout.disabled.fillColor, fillAlpha]
             : undefined,
     })

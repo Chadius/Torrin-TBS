@@ -3,7 +3,7 @@ import { MissionCondition, MissionConditionType } from "./missionCondition"
 import { BattleOrchestratorStateService } from "../orchestrator/battleOrchestratorState"
 import { MissionRewardType } from "./missionReward"
 import { MissionObjectiveHelper } from "./missionObjective"
-import { BattleStateService } from "../orchestrator/battleState"
+import { BattleStateService } from "../battleState/battleState"
 import {
     GameEngineState,
     GameEngineStateService,

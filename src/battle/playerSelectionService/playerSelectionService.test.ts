@@ -22,7 +22,7 @@ import {
 } from "../../gameEngine/gameEngine"
 import { CampaignService } from "../../campaign/campaign"
 import { BattleOrchestratorStateService } from "../orchestrator/battleOrchestratorState"
-import { BattleStateService } from "../orchestrator/battleState"
+import { BattleStateService } from "../battleState/battleState"
 import { MouseButton, MouseClickService } from "../../utils/mouseConfig"
 import { ConvertCoordinateService } from "../../hexMap/convertCoordinates"
 import { PlayerIntent, PlayerSelectionService } from "./playerSelectionService"
@@ -65,6 +65,7 @@ import { MockedP5GraphicsBuffer } from "../../utils/test/mocks"
 import { GraphicsBuffer } from "../../utils/graphics/graphicsRenderer"
 import { SquaddieSelectorPanelButtonService } from "../hud/playerActionPanel/squaddieSelectorPanel/squaddieSelectorPanelButton/squaddieSelectorPanelButton"
 import { RectAreaService } from "../../ui/rectArea"
+import { PlayerConsideredActionsService } from "../battleState/playerConsideredActions"
 
 describe("Player Selection Service", () => {
     let gameEngineState: GameEngineState
@@ -913,7 +914,7 @@ describe("Player Selection Service", () => {
             messageSpy.mockRestore()
         })
     })
-    describe("After selecting a squaddie, the user clicks off map", () => {
+    describe("After selecting a squaddie and considering an action, the user moves the mouse off map", () => {
         beforeEach(() => {
             objectRepository = ObjectRepositoryService.new()
             missionMap = createMap()
@@ -933,33 +934,41 @@ describe("Player Selection Service", () => {
                 battleSquaddieId: "PLAYER",
             })
 
+            gameEngineState.battleOrchestratorState.battleState.playerConsideredActions =
+                PlayerConsideredActionsService.new()
+            gameEngineState.battleOrchestratorState.battleState.playerConsideredActions.movement =
+                {
+                    actionPointCost: 1,
+                    coordinates: [],
+                    destination: { q: 0, r: 3 },
+                }
+
             messageSpy = vi.spyOn(gameEngineState.messageBoard, "sendMessage")
         })
         afterEach(() => {
             messageSpy.mockRestore()
         })
 
-        describe("user clicks off the map to indicate intent", () => {
+        describe("user moves the mouse off the map to indicate intent", () => {
             let actualContext: PlayerSelectionContext
             beforeEach(() => {
-                actualContext = clickOnMapCoordinate({
+                actualContext = hoverOverMapCoordinate({
                     gameEngineState,
                     q: -100,
                     r: 9001,
                 })
             })
 
-            it("knows the player intends to cancel selection", () => {
+            it("knows the player intends to cancel considered actions", () => {
                 expect(actualContext.playerIntent).toEqual(
-                    PlayerIntent.SQUADDIE_SELECTED_CANCEL_SQUADDIE_SELECTION
+                    PlayerIntent.CANCEL_SQUADDIE_CONSIDERED_ACTIONS
                 )
             })
         })
 
         it("sends a message indicating the squaddie wants to cancel their selection", () => {
             const actualContext = PlayerSelectionContextService.new({
-                playerIntent:
-                    PlayerIntent.SQUADDIE_SELECTED_CANCEL_SQUADDIE_SELECTION,
+                playerIntent: PlayerIntent.CANCEL_SQUADDIE_CONSIDERED_ACTIONS,
             })
 
             const actualChanges: PlayerSelectionChanges =
@@ -969,7 +978,7 @@ describe("Player Selection Service", () => {
                 })
 
             const expectedMessage: MessageBoardMessage = {
-                type: MessageBoardMessageType.PLAYER_CANCELS_SQUADDIE_SELECTION,
+                type: MessageBoardMessageType.PLAYER_CANCELS_PLAYER_ACTION_CONSIDERATIONS,
                 gameEngineState,
             }
 
@@ -1087,6 +1096,7 @@ describe("Player Selection Service", () => {
                     type: MessageBoardMessageType.PLAYER_CONSIDERS_ACTION,
                     cancelAction: {
                         movement: true,
+                        actionTemplate: false,
                     },
                 })
             )

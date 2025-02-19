@@ -10,7 +10,7 @@ import { CampaignService } from "../../campaign/campaign"
 import * as mocks from "../..//utils/test/mocks"
 import { MockedP5GraphicsBuffer } from "../../utils/test/mocks"
 import { BattleOrchestratorStateService } from "../orchestrator/battleOrchestratorState"
-import { BattleStateService } from "../orchestrator/battleState"
+import { BattleStateService } from "../battleState/battleState"
 import {
     BattleOrchestrator,
     BattleOrchestratorMode,

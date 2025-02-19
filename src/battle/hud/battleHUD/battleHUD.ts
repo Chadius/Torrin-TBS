@@ -8,7 +8,7 @@ import {
 } from "../../../utils/validityCheck"
 import {
     MessageBoardMessageMoveSquaddieToCoordinate,
-    MessageBoardMessagePlayerCancelsSquaddieSelection,
+    MessageBoardMessagePlayerCancelsPlayerActionConsiderations,
     MessageBoardMessagePlayerCancelsTargetConfirmation,
     MessageBoardMessagePlayerCancelsTargetSelection,
     MessageBoardMessagePlayerConfirmsAction,
@@ -60,9 +60,10 @@ import { BattleActionRecorderService } from "../../history/battleAction/battleAc
 import { ActionTemplateService } from "../../../action/template/actionTemplate"
 import { CalculatedResult } from "../../history/calculatedResult"
 import { MapDataBlob } from "../../../hexMap/mapLayer/mapDataBlob"
-import { BattleStateService } from "../../orchestrator/battleState"
+import { BattleStateService } from "../../battleState/battleState"
 import { BattleHUDStateService } from "./battleHUDState"
 import { SquaddieSelectorPanelService } from "../playerActionPanel/squaddieSelectorPanel/squaddieSelectorPanel"
+import { PlayerConsideredActionsService } from "../../battleState/playerConsideredActions"
 
 export interface BattleHUD {
     fileAccessHUD: FileAccessHUD
@@ -587,6 +588,9 @@ export const BattleHUDService = {
 
         panCameraToSquaddie(gameEngineState, nextBattleSquaddieId)
 
+        gameEngineState.battleOrchestratorState.battleState.playerConsideredActions =
+            PlayerConsideredActionsService.new()
+
         gameEngineState.messageBoard.sendMessage({
             type: MessageBoardMessageType.PLAYER_SELECTS_AND_LOCKS_SQUADDIE,
             gameEngineState,
@@ -643,7 +647,7 @@ export const BattleHUDService = {
         })
     },
     cancelSquaddieSelectionAtStartOfTurn: (
-        message: MessageBoardMessagePlayerCancelsSquaddieSelection
+        message: MessageBoardMessagePlayerCancelsPlayerActionConsiderations
     ) => {
         const gameEngineState = message.gameEngineState
         if (

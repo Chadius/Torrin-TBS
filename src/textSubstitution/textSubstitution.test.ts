@@ -1,7 +1,7 @@
 import * as battleOrchestratorStateSubstitution from "./battleOrchestratorStateSubstitution"
 import { SubstituteText } from "./textSubstitution"
 import { BattleOrchestratorStateService } from "../battle/orchestrator/battleOrchestratorState"
-import { BattleStateService } from "../battle/orchestrator/battleState"
+import { BattleStateService } from "../battle/battleState/battleState"
 import { describe, expect, it, vi } from "vitest"
 
 describe("TextSubstitution", () => {

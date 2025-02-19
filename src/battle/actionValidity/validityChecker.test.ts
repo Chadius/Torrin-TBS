@@ -104,7 +104,7 @@ describe("validity checker", () => {
             })
 
             expect(actionStatus[actionTemplateId]).toEqual({
-                disabled: true,
+                isValid: false,
                 messages: expectedMessages,
             })
 
@@ -137,11 +137,41 @@ describe("validity checker", () => {
         })
 
         expect(actionStatus[actionTemplateId]).toEqual({
-            disabled: true,
+            isValid: false,
             messages: [
                 "Need 1 action point",
                 "Will have no effect on squaddieName",
             ],
+        })
+
+        actionPointCheckSpy.mockRestore()
+        willBuffUserSpy.mockRestore()
+    })
+
+    it("will make the check have a warning if a validity checker returns a warning", () => {
+        const { actionTemplateId, battleSquaddieId, objectRepository } =
+            setupSingleSquaddie()
+
+        const actionPointCheckSpy = vi.spyOn(ActionPointCheck, "canAfford")
+        actionPointCheckSpy.mockReturnValue({
+            isValid: true,
+            reason: ActionPerformFailureReason.CAN_PERFORM_BUT_TOO_MANY_CONSIDERED_ACTION_POINTS,
+        })
+
+        const willBuffUserSpy = vi.spyOn(BuffSelfCheck, "willBuffUser")
+        willBuffUserSpy.mockReturnValue({
+            isValid: true,
+        })
+
+        const actionStatus = ValidityCheckService.calculateActionValidity({
+            objectRepository,
+            battleSquaddieId,
+            gameEngineState: GameEngineStateService.new({}),
+        })
+
+        expect(actionStatus[actionTemplateId]).toEqual({
+            isValid: true,
+            messages: [],
         })
 
         actionPointCheckSpy.mockRestore()

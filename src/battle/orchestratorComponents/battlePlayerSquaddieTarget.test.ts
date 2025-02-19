@@ -22,7 +22,7 @@ import { MockedP5GraphicsBuffer } from "../../utils/test/mocks"
 import { DamageType } from "../../squaddie/squaddieService"
 import { SquaddieTemplate } from "../../campaign/squaddieTemplate"
 import { SquaddieMovementService } from "../../squaddie/movement"
-import { BattleStateService } from "../orchestrator/battleState"
+import { BattleStateService } from "../battleState/battleState"
 import {
     GameEngineState,
     GameEngineStateService,

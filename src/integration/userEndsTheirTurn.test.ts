@@ -36,7 +36,7 @@ import { BattleOrchestratorStateService } from "../battle/orchestrator/battleOrc
 import {
     BattleStateListener,
     BattleStateService,
-} from "../battle/orchestrator/battleState"
+} from "../battle/battleState/battleState"
 import { BattleCamera } from "../battle/battleCamera"
 import { CampaignService } from "../campaign/campaign"
 import { RectAreaService } from "../ui/rectArea"

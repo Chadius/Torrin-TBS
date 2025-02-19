@@ -82,7 +82,7 @@ export class BattleHUDListener implements MessageBoardListener {
             case MessageBoardMessageType.MOVE_SQUADDIE_TO_COORDINATE:
                 BattleHUDService.tryToMoveSquaddieToLocation(message)
                 break
-            case MessageBoardMessageType.PLAYER_CANCELS_SQUADDIE_SELECTION:
+            case MessageBoardMessageType.PLAYER_CANCELS_PLAYER_ACTION_CONSIDERATIONS:
                 BattleHUDService.cancelSquaddieSelectionAtStartOfTurn(message)
                 break
             case MessageBoardMessageType.PLAYER_SELECTS_EMPTY_TILE:

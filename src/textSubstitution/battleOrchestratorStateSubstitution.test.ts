@@ -5,7 +5,7 @@ import {
 import { BattlePhase } from "../battle/orchestratorComponents/battlePhaseTracker"
 import { SubstituteTextUsingBattleOrchestraState } from "./BattleOrchestratorStateSubstitution"
 import { MissionStatisticsService } from "../battle/missionStatistics/missionStatistics"
-import { BattleStateService } from "../battle/orchestrator/battleState"
+import { BattleStateService } from "../battle/battleState/battleState"
 import { beforeEach, describe, expect, it } from "vitest"
 
 describe("BattleOrchestratorStateSubstitution", () => {

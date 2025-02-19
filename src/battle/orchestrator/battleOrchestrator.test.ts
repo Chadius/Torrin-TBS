@@ -42,7 +42,7 @@ import { MissionConditionType } from "../missionResult/missionCondition"
 import { MissionMapService } from "../../missionMap/missionMap"
 import { MissionStartOfPhaseCutsceneTrigger } from "../cutscene/missionStartOfPhaseCutsceneTrigger"
 import { InitializeBattle } from "./initializeBattle"
-import { BattleStateService } from "./battleState"
+import { BattleStateService } from "../battleState/battleState"
 import { BattlePhase } from "../orchestratorComponents/battlePhaseTracker"
 import {
     GameEngineState,

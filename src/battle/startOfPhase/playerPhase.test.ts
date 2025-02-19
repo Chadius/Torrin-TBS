@@ -7,7 +7,7 @@ import {
     BattleOrchestratorState,
     BattleOrchestratorStateService,
 } from "../orchestrator/battleOrchestratorState"
-import { BattleStateService } from "../orchestrator/battleState"
+import { BattleStateService } from "../battleState/battleState"
 import { BattlePhase } from "../orchestratorComponents/battlePhaseTracker"
 import { ObjectRepository, ObjectRepositoryService } from "../objectRepository"
 import { SquaddieAffiliation } from "../../squaddie/squaddieAffiliation"

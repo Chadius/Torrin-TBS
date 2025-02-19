@@ -172,12 +172,12 @@ describe("Action Button", () => {
             dateSpy.mockRestore()
         })
 
-        it("will fade the icon if it is disabled", () => {
+        it("will use the disabled style if the icon is disabled", () => {
             ActionButtonService.draw({
                 actionButton,
                 graphicsBuffer,
                 resourceHandler,
-                fade: true,
+                disabled: true,
             })
 
             expect(graphicsSpies["fill"]).toBeCalledWith(
@@ -187,6 +187,7 @@ describe("Action Button", () => {
                 expect.any(Number)
             )
         })
+
         it("can get overall dimensions", () => {
             graphicsSpies["textWidth"].mockReturnValue(9001)
             const boundingBox: RectArea =

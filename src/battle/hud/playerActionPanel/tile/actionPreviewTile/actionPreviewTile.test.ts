@@ -36,7 +36,7 @@ import {
     MockedP5GraphicsBuffer,
 } from "../../../../../utils/test/mocks"
 import { BattleOrchestratorStateService } from "../../../../orchestrator/battleOrchestratorState"
-import { BattleStateService } from "../../../../orchestrator/battleState"
+import { BattleStateService } from "../../../../battleState/battleState"
 import { CampaignService } from "../../../../../campaign/campaign"
 import {
     MissionMap,

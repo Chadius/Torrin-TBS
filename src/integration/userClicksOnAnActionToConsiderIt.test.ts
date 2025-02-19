@@ -34,32 +34,22 @@ import {
 } from "../gameEngine/gameEngine"
 import { ResourceHandler } from "../resource/resourceHandler"
 import { BattleOrchestratorStateService } from "../battle/orchestrator/battleOrchestratorState"
-import { BattleStateService } from "../battle/orchestrator/battleState"
+import { BattleStateService } from "../battle/battleState/battleState"
 import { BattleCamera } from "../battle/battleCamera"
 import { CampaignService } from "../campaign/campaign"
-import { RectAreaService } from "../ui/rectArea"
 import { SquaddieTurnService } from "../squaddie/turn"
 import { BattlePlayerSquaddieSelector } from "../battle/orchestratorComponents/battlePlayerSquaddieSelector"
-import { ConvertCoordinateService } from "../hexMap/convertCoordinates"
-import { OrchestratorComponentMouseEventType } from "../battle/orchestrator/battleOrchestratorComponent"
 import { BattleOrchestratorMode } from "../battle/orchestrator/battleOrchestrator"
 import { BattlePlayerSquaddieTarget } from "../battle/orchestratorComponents/battlePlayerSquaddieTarget"
-import { MouseButton } from "../utils/mouseConfig"
 import { MessageBoardMessageType } from "../message/messageBoardMessage"
 import { MapGraphicsLayer } from "../hexMap/mapLayer/mapGraphicsLayer"
 import { BattleActionDecisionStepService } from "../battle/actionDecision/battleActionDecisionStep"
 import { TargetConstraintsService } from "../action/targetConstraints"
 import { ActionResourceCostService } from "../action/actionResourceCost"
 import { ActionTilePosition } from "../battle/hud/playerActionPanel/tile/actionTilePosition"
-import { SummaryHUDStateService } from "../battle/hud/summary/summaryHUD"
-import { GraphicsBuffer } from "../utils/graphics/graphicsRenderer"
 import { beforeEach, describe, expect, it, vi } from "vitest"
 import { BattleHUDListener } from "../battle/hud/battleHUD/battleHUDListener"
-import {
-    ActionButton,
-    ActionButtonService,
-} from "../battle/hud/playerActionPanel/actionButton/actionButton"
-import { PlayerCommandState } from "../battle/hud/playerCommand/playerCommandHUD"
+import { BattlePlayerSquaddieSelectorSpec } from "./spec/battlePlayerSquaddieSelectorSpec"
 
 describe("user clicks on an action to consider it", () => {
     let objectRepository: ObjectRepository
@@ -75,7 +65,6 @@ describe("user clicks on an action to consider it", () => {
     let resourceHandler: ResourceHandler
     let missionMap: MissionMap
 
-    let attackButton: ActionButton
     let selector: BattlePlayerSquaddieSelector
 
     beforeEach(() => {
@@ -203,26 +192,18 @@ describe("user clicks on an action to consider it", () => {
             playerBattleSquaddie.squaddieTurn.remainingActionPoints
         ).toBeLessThan(attackButtonAction.resourceCost.actionPoints)
 
-        selectorClicksOnSquaddie(
+        BattlePlayerSquaddieSelectorSpec.clickOnMapAtCoordinates({
             selector,
             gameEngineState,
-            mockP5GraphicsContext
-        )
-        attackButton = getActionButton(
-            gameEngineState.battleOrchestratorState.battleHUDState
-                .summaryHUDState.playerCommandState,
-            attackAction.id
-        )
+            q: 0,
+            r: 0,
+            graphicsContext: mockP5GraphicsContext,
+        })
 
-        selector.mouseClicked({
-            mouseX: RectAreaService.centerX(
-                attackButton.uiObjects.buttonIcon.drawArea
-            ),
-            mouseY: RectAreaService.centerY(
-                attackButton.uiObjects.buttonIcon.drawArea
-            ),
-            mouseButton: MouseButton.ACCEPT,
+        BattlePlayerSquaddieSelectorSpec.clickOnActionButton({
+            actionTemplateId: attackAction.id,
             gameEngineState,
+            selector,
         })
 
         expect(
@@ -235,28 +216,20 @@ describe("user clicks on an action to consider it", () => {
     })
 
     it("BattleDecisionStep should mark it as being considered when HUD selects an action", () => {
-        selectorClicksOnSquaddie(
+        BattlePlayerSquaddieSelectorSpec.clickOnMapAtCoordinates({
             selector,
             gameEngineState,
-            mockP5GraphicsContext
-        )
-
-        attackButton = getActionButton(
-            gameEngineState.battleOrchestratorState.battleHUDState
-                .summaryHUDState.playerCommandState,
-            attackAction.id
-        )
-
-        selector.mouseEventHappened(gameEngineState, {
-            eventType: OrchestratorComponentMouseEventType.CLICKED,
-            mouseX: RectAreaService.centerX(
-                attackButton.uiObjects.buttonIcon.drawArea
-            ),
-            mouseY: RectAreaService.centerY(
-                attackButton.uiObjects.buttonIcon.drawArea
-            ),
-            mouseButton: MouseButton.ACCEPT,
+            q: 0,
+            r: 0,
+            graphicsContext: mockP5GraphicsContext,
         })
+
+        BattlePlayerSquaddieSelectorSpec.clickOnActionButton({
+            actionTemplateId: attackAction.id,
+            gameEngineState,
+            selector,
+        })
+
         expect(
             gameEngineState.battleOrchestratorState.battleHUDState
                 .summaryHUDState.playerCommandState.playerSelectedSquaddieAction
@@ -286,27 +259,18 @@ describe("user clicks on an action to consider it", () => {
     })
 
     it("Squaddie Selector is Complete and recommends Player HUD Controller phase", () => {
-        selectorClicksOnSquaddie(
+        BattlePlayerSquaddieSelectorSpec.clickOnMapAtCoordinates({
             selector,
             gameEngineState,
-            mockP5GraphicsContext
-        )
+            q: 0,
+            r: 0,
+            graphicsContext: mockP5GraphicsContext,
+        })
 
-        attackButton = getActionButton(
-            gameEngineState.battleOrchestratorState.battleHUDState
-                .summaryHUDState.playerCommandState,
-            attackAction.id
-        )
-
-        selector.mouseEventHappened(gameEngineState, {
-            eventType: OrchestratorComponentMouseEventType.CLICKED,
-            mouseX: RectAreaService.centerX(
-                attackButton.uiObjects.buttonIcon.drawArea
-            ),
-            mouseY: RectAreaService.centerY(
-                attackButton.uiObjects.buttonIcon.drawArea
-            ),
-            mouseButton: MouseButton.ACCEPT,
+        BattlePlayerSquaddieSelectorSpec.clickOnActionButton({
+            actionTemplateId: attackAction.id,
+            gameEngineState,
+            selector,
         })
 
         expect(selector.hasCompleted(gameEngineState)).toBeTruthy()
@@ -318,27 +282,20 @@ describe("user clicks on an action to consider it", () => {
     })
 
     it("Squaddie Target should tell Map to highlight targetable squares", () => {
-        selectorClicksOnSquaddie(
+        BattlePlayerSquaddieSelectorSpec.clickOnMapAtCoordinates({
             selector,
             gameEngineState,
-            mockP5GraphicsContext
-        )
-        attackButton = getActionButton(
-            gameEngineState.battleOrchestratorState.battleHUDState
-                .summaryHUDState.playerCommandState,
-            attackAction.id
-        )
-
-        selector.mouseEventHappened(gameEngineState, {
-            eventType: OrchestratorComponentMouseEventType.CLICKED,
-            mouseX: RectAreaService.centerX(
-                attackButton.uiObjects.buttonIcon.drawArea
-            ),
-            mouseY: RectAreaService.centerY(
-                attackButton.uiObjects.buttonIcon.drawArea
-            ),
-            mouseButton: MouseButton.ACCEPT,
+            q: 0,
+            r: 0,
+            graphicsContext: mockP5GraphicsContext,
         })
+
+        BattlePlayerSquaddieSelectorSpec.clickOnActionButton({
+            actionTemplateId: attackAction.id,
+            gameEngineState,
+            selector,
+        })
+
         selector.recommendStateChanges(gameEngineState)
         selector.reset(gameEngineState)
 
@@ -364,26 +321,18 @@ describe("user clicks on an action to consider it", () => {
     })
 
     it("Hides the action selector except for the selected button", () => {
-        selectorClicksOnSquaddie(
+        BattlePlayerSquaddieSelectorSpec.clickOnMapAtCoordinates({
             selector,
             gameEngineState,
-            mockP5GraphicsContext
-        )
+            q: 0,
+            r: 0,
+            graphicsContext: mockP5GraphicsContext,
+        })
 
-        attackButton = getActionButton(
-            gameEngineState.battleOrchestratorState.battleHUDState
-                .summaryHUDState.playerCommandState,
-            attackAction.id
-        )
-        selector.mouseClicked({
-            mouseX: RectAreaService.centerX(
-                attackButton.uiObjects.buttonIcon.drawArea
-            ),
-            mouseY: RectAreaService.centerY(
-                attackButton.uiObjects.buttonIcon.drawArea
-            ),
-            mouseButton: MouseButton.ACCEPT,
+        BattlePlayerSquaddieSelectorSpec.clickOnActionButton({
+            actionTemplateId: attackAction.id,
             gameEngineState,
+            selector,
         })
 
         expect(
@@ -422,41 +371,3 @@ const getGameEngineState = ({
         campaign: CampaignService.default(),
     })
 }
-
-const selectorClicksOnSquaddie = (
-    selector: BattlePlayerSquaddieSelector,
-    gameEngineState: GameEngineState,
-    graphicsContext: GraphicsBuffer
-) => {
-    let { screenX: mouseX, screenY: mouseY } =
-        ConvertCoordinateService.convertMapCoordinatesToScreenLocation({
-            q: 0,
-            r: 0,
-            ...gameEngineState.battleOrchestratorState.battleState.camera.getCoordinates(),
-        })
-    selector.mouseEventHappened(gameEngineState, {
-        eventType: OrchestratorComponentMouseEventType.CLICKED,
-        mouseX,
-        mouseY,
-        mouseButton: MouseButton.ACCEPT,
-    })
-
-    SummaryHUDStateService.draw({
-        summaryHUDState:
-            gameEngineState.battleOrchestratorState.battleHUDState
-                .summaryHUDState,
-        gameEngineState,
-        resourceHandler: gameEngineState.resourceHandler,
-        graphicsBuffer: graphicsContext,
-    })
-}
-
-const getActionButton = (
-    playerCommandState: PlayerCommandState,
-    actionTemplateId: string
-) =>
-    playerCommandState.actionButtons.find(
-        (actionButton) =>
-            ActionButtonService.getActionTemplateId(actionButton) ===
-            actionTemplateId
-    )

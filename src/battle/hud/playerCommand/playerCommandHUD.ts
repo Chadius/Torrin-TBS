@@ -143,7 +143,7 @@ export const PlayerCommandStateService = {
         })
         if (
             actionButtonClicked &&
-            !actionValidity[actionButtonClicked.actionTemplate.id].disabled
+            actionValidity[actionButtonClicked.actionTemplate.id]?.isValid
         ) {
             return mouseClickedOnActionButton({
                 playerCommandState,
@@ -212,7 +212,7 @@ export const PlayerCommandStateService = {
 
         if (
             actionValidity[playerCommandState.consideredActionTemplateId]
-                ?.disabled
+                ?.messages.length > 0
         ) {
             playerCommandState.newInvalidPopup = {
                 buttonArea:
@@ -222,6 +222,12 @@ export const PlayerCommandStateService = {
                         playerCommandState.consideredActionTemplateId
                     ].messages.join("\n"),
             }
+        }
+
+        if (
+            !actionValidity[playerCommandState.consideredActionTemplateId]
+                ?.isValid
+        ) {
             return
         }
 
@@ -501,9 +507,9 @@ const drawActionButtons = ({
                 break
         }
 
-        const actionIsDisabled: boolean = actionButton.actionTemplate
-            ? actionValidity[actionButton.actionTemplate.id]?.disabled
-            : false
+        const actionIsEnabled: boolean = actionButton.actionTemplate
+            ? actionValidity[actionButton.actionTemplate.id]?.isValid
+            : true
 
         const actionIsConsidered: boolean = actionButton.actionTemplate
             ? consideredActionTemplateId === actionButton.actionTemplate.id
@@ -514,7 +520,7 @@ const drawActionButtons = ({
             actionButton,
             graphicsBuffer,
             resourceHandler,
-            fade: actionIsDisabled,
+            disabled: !actionIsEnabled,
             selected: actionIsConsidered || actionIsSelected,
         })
     })

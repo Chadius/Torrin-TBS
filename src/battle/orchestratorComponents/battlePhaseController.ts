@@ -14,7 +14,7 @@ import {
     BattleSquaddieTeam,
     BattleSquaddieTeamService,
 } from "../battleSquaddieTeam"
-import { BattleStateService } from "../orchestrator/battleState"
+import { BattleStateService } from "../battleState/battleState"
 import { GameEngineState } from "../../gameEngine/gameEngine"
 import { ObjectRepository } from "../objectRepository"
 import { isValidValue } from "../../utils/validityCheck"

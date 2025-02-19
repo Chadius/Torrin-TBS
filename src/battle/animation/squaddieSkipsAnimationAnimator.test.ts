@@ -18,7 +18,7 @@ import {
 } from "../orchestrator/battleOrchestratorComponent"
 import { LabelService } from "../../ui/label"
 import * as ActionResultTextService from "./actionResultTextService"
-import { BattleStateService } from "../orchestrator/battleState"
+import { BattleStateService } from "../battleState/battleState"
 import {
     GameEngineState,
     GameEngineStateService,

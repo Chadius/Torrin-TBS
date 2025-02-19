@@ -1,6 +1,7 @@
 import { MessageBoardListener } from "../../../message/messageBoardListener"
 import {
     MessageBoardMessage,
+    MessageBoardMessagePlayerCancelsPlayerActionConsiderations,
     MessageBoardMessagePlayerConsidersAction,
     MessageBoardMessagePlayerSelectionIsInvalid,
     MessageBoardMessageType,
@@ -37,6 +38,9 @@ export class PlayerDecisionHUDListener implements MessageBoardListener {
                 break
             case MessageBoardMessageType.PLAYER_CONSIDERS_ACTION:
                 playerConsidersAction(message)
+                break
+            case MessageBoardMessageType.PLAYER_CANCELS_PLAYER_ACTION_CONSIDERATIONS:
+                cancelPlayerActionConsiderations(message)
                 break
         }
     }
@@ -136,17 +140,16 @@ const playerConsidersAction = (
             break
     }
 
-    switch (true) {
-        case !!message.cancelAction?.actionTemplate:
-            gameEngineState.battleOrchestratorState.battleState.playerConsideredActions.actionTemplateId =
-                undefined
-            gameEngineState.battleOrchestratorState.battleState.playerConsideredActions.endTurn =
-                false
-            break
-        case !!message.cancelAction?.movement:
-            gameEngineState.battleOrchestratorState.battleState.playerConsideredActions.movement =
-                undefined
-            break
+    if (message.cancelAction?.actionTemplate) {
+        gameEngineState.battleOrchestratorState.battleState.playerConsideredActions.actionTemplateId =
+            undefined
+        gameEngineState.battleOrchestratorState.battleState.playerConsideredActions.endTurn =
+            false
+    }
+
+    if (message.cancelAction?.movement) {
+        gameEngineState.battleOrchestratorState.battleState.playerConsideredActions.movement =
+            undefined
     }
 
     SquaddieStatusTileService.updateTileUsingSquaddie({
@@ -161,4 +164,23 @@ const playerConsidersAction = (
         gameEngineState.battleOrchestratorState.playerDecisionHUD,
         PopupWindowType.PLAYER_INVALID_SELECTION
     )
+}
+
+const cancelPlayerActionConsiderations = (
+    message: MessageBoardMessagePlayerCancelsPlayerActionConsiderations
+) => {
+    const gameEngineState = message.gameEngineState
+    playerConsidersAction({
+        useAction: {
+            actionTemplateId: "",
+            isEndTurn: false,
+            movement: undefined,
+        },
+        type: MessageBoardMessageType.PLAYER_CONSIDERS_ACTION,
+        gameEngineState,
+        cancelAction: {
+            actionTemplate: true,
+            movement: true,
+        },
+    })
 }

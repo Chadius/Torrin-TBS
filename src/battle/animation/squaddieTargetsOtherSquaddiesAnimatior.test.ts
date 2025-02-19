@@ -21,7 +21,7 @@ import { DamageType } from "../../squaddie/squaddieService"
 import { SquaddieTargetsOtherSquaddiesAnimator } from "./squaddieTargetsOtherSquaddiesAnimatior"
 import { ActionAnimationPhase } from "./actionAnimation/actionAnimationConstants"
 import { ActionTimer } from "./actionAnimation/actionTimer"
-import { BattleStateService } from "../orchestrator/battleState"
+import { BattleStateService } from "../battleState/battleState"
 import {
     GameEngineState,
     GameEngineStateService,

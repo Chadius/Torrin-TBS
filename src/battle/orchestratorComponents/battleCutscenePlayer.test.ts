@@ -2,7 +2,7 @@ import { BattleOrchestratorStateService } from "../orchestrator/battleOrchestrat
 import { BattleCutscenePlayer } from "./battleCutscenePlayer"
 import { Cutscene, CutsceneService } from "../../cutscene/cutscene"
 import { MissionCutsceneCollectionHelper } from "../orchestrator/missionCutsceneCollection"
-import { BattleStateService } from "../orchestrator/battleState"
+import { BattleStateService } from "../battleState/battleState"
 import {
     GameEngineState,
     GameEngineStateService,

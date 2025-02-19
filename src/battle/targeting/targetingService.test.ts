@@ -29,7 +29,7 @@ import {
     GameEngineStateService,
 } from "../../gameEngine/gameEngine"
 import { BattleOrchestratorStateService } from "../orchestrator/battleOrchestratorState"
-import { BattleStateService } from "../orchestrator/battleState"
+import { BattleStateService } from "../battleState/battleState"
 import { HIGHLIGHT_PULSE_COLOR } from "../../hexMap/hexDrawingUtils"
 import { SquaddieRepositoryService } from "../../utils/test/squaddie"
 import { MapGraphicsLayerService } from "../../hexMap/mapLayer/mapGraphicsLayer"

@@ -4,7 +4,7 @@ import {
 } from "../../battle/history/battleSaveState"
 import { ObjectRepositoryService } from "../../battle/objectRepository"
 import { BattleOrchestratorStateService } from "../../battle/orchestrator/battleOrchestratorState"
-import { BattleStateService } from "../../battle/orchestrator/battleState"
+import { BattleStateService } from "../../battle/battleState/battleState"
 import { BattleCamera } from "../../battle/battleCamera"
 import { NullMissionMap } from "../../utils/test/battleOrchestratorState"
 import { BattlePhase } from "../../battle/orchestratorComponents/battlePhaseTracker"

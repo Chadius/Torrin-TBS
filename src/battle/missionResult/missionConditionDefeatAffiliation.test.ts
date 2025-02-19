@@ -13,7 +13,7 @@ import {
 import { SquaddieTemplate } from "../../campaign/squaddieTemplate"
 import { SquaddieMovementService } from "../../squaddie/movement"
 import { InBattleAttributesService } from "../stats/inBattleAttributes"
-import { BattleStateService } from "../orchestrator/battleState"
+import { BattleStateService } from "../battleState/battleState"
 import {
     GameEngineState,
     GameEngineStateService,

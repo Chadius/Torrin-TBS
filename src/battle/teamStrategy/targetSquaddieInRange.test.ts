@@ -33,7 +33,7 @@ import {
     GameEngineStateService,
 } from "../../gameEngine/gameEngine"
 import { BattleOrchestratorStateService } from "../orchestrator/battleOrchestratorState"
-import { BattleStateService } from "../orchestrator/battleState"
+import { BattleStateService } from "../battleState/battleState"
 import { TargetConstraintsService } from "../../action/targetConstraints"
 import { ActionResourceCostService } from "../../action/actionResourceCost"
 import { beforeEach, describe, expect, it } from "vitest"

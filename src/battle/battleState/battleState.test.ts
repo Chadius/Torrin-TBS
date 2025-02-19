@@ -3,7 +3,7 @@ import {
     BattleStateListener,
     BattleStateService,
     BattleStateValidityMissingComponent,
-} from "./BattleState"
+} from "./battleState"
 import { TeamStrategyType } from "../teamStrategy/teamStrategy"
 import { SquaddieAffiliation } from "../../squaddie/squaddieAffiliation"
 import { MissionObjectiveHelper } from "../missionResult/missionObjective"
@@ -27,7 +27,7 @@ import {
     GameEngineState,
     GameEngineStateService,
 } from "../../gameEngine/gameEngine"
-import { BattleOrchestratorStateService } from "./battleOrchestratorState"
+import { BattleOrchestratorStateService } from "../orchestrator/battleOrchestratorState"
 import { MessageBoardMessageType } from "../../message/messageBoardMessage"
 import {
     BattleAction,

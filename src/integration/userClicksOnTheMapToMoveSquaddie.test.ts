@@ -28,7 +28,7 @@ import {
 } from "../battle/orchestratorComponents/battlePhaseController"
 import { BattlePhase } from "../battle/orchestratorComponents/battlePhaseTracker"
 import { BattleOrchestratorStateService } from "../battle/orchestrator/battleOrchestratorState"
-import { BattleStateService } from "../battle/orchestrator/battleState"
+import { BattleStateService } from "../battle/battleState/battleState"
 import { BattleCamera } from "../battle/battleCamera"
 import { CampaignService } from "../campaign/campaign"
 import { BattlePlayerSquaddieSelector } from "../battle/orchestratorComponents/battlePlayerSquaddieSelector"
@@ -53,6 +53,7 @@ import { ActionTilePosition } from "../battle/hud/playerActionPanel/tile/actionT
 import { SummaryHUDStateService } from "../battle/hud/summary/summaryHUD"
 import { beforeEach, describe, expect, it, MockInstance, vi } from "vitest"
 import { BattleHUDListener } from "../battle/hud/battleHUD/battleHUDListener"
+import { BattlePlayerSquaddieSelectorSpec } from "./spec/battlePlayerSquaddieSelectorSpec"
 
 describe("user clicks on the map to move", () => {
     let repository: ObjectRepository
@@ -148,7 +149,7 @@ describe("user clicks on the map to move", () => {
         )
         gameEngineState.messageBoard.addListener(
             battleHUDListener,
-            MessageBoardMessageType.PLAYER_CANCELS_SQUADDIE_SELECTION
+            MessageBoardMessageType.PLAYER_CANCELS_PLAYER_ACTION_CONSIDERATIONS
         )
         gameEngineState.messageBoard.addListener(
             battleHUDListener,
@@ -168,24 +169,28 @@ describe("user clicks on the map to move", () => {
         mockP5GraphicsContext = new MockedP5GraphicsBuffer()
         mockP5GraphicsContext.textWidth = vi.fn().mockReturnValue(1)
 
-        selectorAndHUDClickOnSquaddie(
+        BattlePlayerSquaddieSelectorSpec.clickOnMapAtCoordinates({
             selector,
             gameEngineState,
-            mockP5GraphicsContext
-        )
+            q: 0,
+            r: 0,
+            graphicsContext: mockP5GraphicsContext,
+        })
     })
 
     describe("Invalid coordinates", () => {
-        it("When user clicks off map", () => {
+        it("Do not make an action if the user clicks off map", () => {
             selectorClicksOnMapCoordinate(selector, gameEngineState, -10, 9001)
-            expectNoActionWasMadeAndSelectorIsComplete()
+            expect(expectNoActionWasMadeAndSelectorIsComplete()).toBeTruthy()
             expect(
                 gameEngineState.battleOrchestratorState.battleHUDState
-                    .summaryHUDState
-            ).toBeUndefined()
+                    .summaryHUDState.squaddieNameTiles[
+                    ActionTilePosition.ACTOR_NAME
+                ]
+            ).toBeTruthy()
         })
 
-        it("When user clicks out of range", () => {
+        it("Do not make an action if the user clicks out of range", () => {
             selectorClicksOnMapCoordinate(selector, gameEngineState, 0, 4)
             expectNoActionWasMadeAndSelectorIsComplete()
             expect(
@@ -196,7 +201,7 @@ describe("user clicks on the map to move", () => {
             ).toBeTruthy()
         })
 
-        it("When user clicks in range but on invalid terrain", () => {
+        it("Do not make a move action if the user clicks in range but on invalid terrain", () => {
             selectorClicksOnMapCoordinate(selector, gameEngineState, 1, 0)
             expectNoActionWasMadeAndSelectorIsComplete()
             expect(
@@ -207,39 +212,52 @@ describe("user clicks on the map to move", () => {
             ).toBeTruthy()
         })
 
-        it("When User clicks out of range on another squaddie", () => {
-            const anotherPlayer = BattleSquaddieService.new({
-                squaddieTemplateId:
-                    playerSquaddieTemplate.squaddieId.templateId,
-                battleSquaddieId: "another player",
+        describe("When User clicks out of range on another squaddie before acting", () => {
+            let anotherPlayer: BattleSquaddie
+            beforeEach(() => {
+                anotherPlayer = BattleSquaddieService.new({
+                    squaddieTemplateId:
+                        playerSquaddieTemplate.squaddieId.templateId,
+                    battleSquaddieId: "another player",
+                })
+                ObjectRepositoryService.addBattleSquaddie(
+                    repository,
+                    anotherPlayer
+                )
+                MissionMapService.addSquaddie({
+                    missionMap,
+                    squaddieTemplateId: anotherPlayer.squaddieTemplateId,
+                    battleSquaddieId: anotherPlayer.battleSquaddieId,
+                    coordinate: {
+                        q: 2,
+                        r: 2,
+                    },
+                })
+                selectorClicksOnMapCoordinate(selector, gameEngineState, 2, 2)
             })
-            ObjectRepositoryService.addBattleSquaddie(repository, anotherPlayer)
-            MissionMapService.addSquaddie({
-                missionMap,
-                squaddieTemplateId: anotherPlayer.squaddieTemplateId,
-                battleSquaddieId: anotherPlayer.battleSquaddieId,
-                coordinate: {
-                    q: 2,
-                    r: 2,
-                },
-            })
-            selectorClicksOnMapCoordinate(selector, gameEngineState, 2, 2)
-            expectNoActionWasMadeAndSelectorIsComplete()
 
-            SummaryHUDStateService.draw({
-                summaryHUDState:
-                    gameEngineState.battleOrchestratorState.battleHUDState
-                        .summaryHUDState,
-                gameEngineState,
-                resourceHandler: gameEngineState.resourceHandler,
-                graphicsBuffer: mockP5GraphicsContext,
+            it("does not make any actions", () => {
+                expect(
+                    expectNoActionWasMadeAndSelectorIsComplete()
+                ).toBeTruthy()
             })
-            expect(
-                gameEngineState.battleOrchestratorState.battleHUDState
-                    .summaryHUDState.squaddieNameTiles[
-                    ActionTilePosition.ACTOR_NAME
-                ].battleSquaddieId
-            ).toEqual(anotherPlayer.battleSquaddieId)
+
+            it("Will switch focus to another squaddie", () => {
+                SummaryHUDStateService.draw({
+                    summaryHUDState:
+                        gameEngineState.battleOrchestratorState.battleHUDState
+                            .summaryHUDState,
+                    gameEngineState,
+                    resourceHandler: gameEngineState.resourceHandler,
+                    graphicsBuffer: mockP5GraphicsContext,
+                })
+                expect(
+                    gameEngineState.battleOrchestratorState.battleHUDState
+                        .summaryHUDState.squaddieNameTiles[
+                        ActionTilePosition.ACTOR_NAME
+                    ].battleSquaddieId
+                ).toEqual(anotherPlayer.battleSquaddieId)
+            })
         })
 
         const expectNoActionWasMadeAndSelectorIsComplete = () => {
@@ -250,6 +268,7 @@ describe("user clicks on the map to move", () => {
                 )
             ).toBeUndefined()
             expect(selector.hasCompleted(gameEngineState)).toBeFalsy()
+            return true
         }
     })
 
@@ -418,34 +437,6 @@ const getGameEngineState = ({
         }),
         repository,
         campaign: CampaignService.default(),
-    })
-}
-
-const selectorAndHUDClickOnSquaddie = (
-    selector: BattlePlayerSquaddieSelector,
-    gameEngineState: GameEngineState,
-    graphicsContext: GraphicsBuffer
-) => {
-    let { screenX: mouseX, screenY: mouseY } =
-        ConvertCoordinateService.convertMapCoordinatesToScreenLocation({
-            q: 0,
-            r: 0,
-            ...gameEngineState.battleOrchestratorState.battleState.camera.getCoordinates(),
-        })
-    selector.mouseEventHappened(gameEngineState, {
-        eventType: OrchestratorComponentMouseEventType.CLICKED,
-        mouseX,
-        mouseY,
-        mouseButton: MouseButton.ACCEPT,
-    })
-
-    SummaryHUDStateService.draw({
-        summaryHUDState:
-            gameEngineState.battleOrchestratorState.battleHUDState
-                .summaryHUDState,
-        gameEngineState,
-        resourceHandler: gameEngineState.resourceHandler,
-        graphicsBuffer: graphicsContext,
     })
 }
 

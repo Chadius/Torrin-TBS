@@ -14,7 +14,7 @@ import { TIME_TO_MOVE } from "../animation/squaddieMoveAnimationUtils"
 import * as mocks from "../../utils/test/mocks"
 import { MockedP5GraphicsBuffer } from "../../utils/test/mocks"
 import { SquaddieTemplate } from "../../campaign/squaddieTemplate"
-import { BattleStateService } from "../orchestrator/battleState"
+import { BattleStateService } from "../battleState/battleState"
 import {
     GameEngineState,
     GameEngineStateService,

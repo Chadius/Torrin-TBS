@@ -167,15 +167,15 @@ describe("playerCommandHUD", () => {
             .spyOn(ValidityCheckService, "calculateActionValidity")
             .mockReturnValue({
                 [actionNeedsTarget.id]: {
-                    disabled: false,
+                    isValid: true,
                     messages: [],
                 },
                 [actionAlsoNeedsTarget.id]: {
-                    disabled: false,
+                    isValid: true,
                     messages: [],
                 },
                 [actionWillAlwaysBeDisabled.id]: {
-                    disabled: true,
+                    isValid: false,
                     messages: ["blocked by test", "also blocked by test"],
                 },
             })
@@ -276,7 +276,7 @@ describe("playerCommandHUD", () => {
                 actionButtonSpy,
                 "WillAlwaysBeDisabled"
             )
-            expect(disabledButtonCalls[0][0].fade).toBeTruthy()
+            expect(disabledButtonCalls[0][0].disabled).toBeTruthy()
         })
         it("will not draw other actions with a highlight once an action is selected", () => {
             selectPlayer()

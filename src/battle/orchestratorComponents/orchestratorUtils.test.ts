@@ -16,7 +16,7 @@ import {
     BattleOrchestratorState,
     BattleOrchestratorStateService,
 } from "../orchestrator/battleOrchestratorState"
-import { BattleStateService } from "../orchestrator/battleState"
+import { BattleStateService } from "../battleState/battleState"
 import {
     GameEngineState,
     GameEngineStateService,

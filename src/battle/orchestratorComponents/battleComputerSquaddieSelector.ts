@@ -20,7 +20,7 @@ import { HexCoordinate } from "../../hexMap/hexCoordinate/hexCoordinate"
 import { TeamStrategy } from "../teamStrategy/teamStrategy"
 import { DetermineNextDecisionService } from "../teamStrategy/determineNextDecision"
 import { SquaddieAffiliation } from "../../squaddie/squaddieAffiliation"
-import { BattleStateService } from "../orchestrator/battleState"
+import { BattleStateService } from "../battleState/battleState"
 import { GameEngineState } from "../../gameEngine/gameEngine"
 import { ObjectRepositoryService } from "../objectRepository"
 import {

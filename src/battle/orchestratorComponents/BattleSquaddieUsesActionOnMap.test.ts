@@ -7,7 +7,7 @@ import {
 import { SquaddieAffiliation } from "../../squaddie/squaddieAffiliation"
 import { SquaddieMovementService } from "../../squaddie/movement"
 import { BattleSquaddieUsesActionOnMap } from "./battleSquaddieUsesActionOnMap"
-import { BattleStateService } from "../orchestrator/battleState"
+import { BattleStateService } from "../battleState/battleState"
 import {
     GameEngineState,
     GameEngineStateService,

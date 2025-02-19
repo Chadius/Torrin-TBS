@@ -21,7 +21,7 @@ import { MissionMapService } from "../../missionMap/missionMap"
 import { TerrainTileMapService } from "../../hexMap/terrainTileMap"
 import { TraitStatusStorageService } from "../../trait/traitStatusStorage"
 import { DefaultArmyAttributes } from "../../squaddie/armyAttributes"
-import { BattleStateService } from "../orchestrator/battleState"
+import { BattleStateService } from "../battleState/battleState"
 import {
     GameEngineState,
     GameEngineStateService,

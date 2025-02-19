@@ -31,7 +31,7 @@ import { BattlePhaseStateService } from "../battle/orchestratorComponents/battle
 import { BattlePhase } from "../battle/orchestratorComponents/battlePhaseTracker"
 import { BattlePlayerSquaddieTarget } from "../battle/orchestratorComponents/battlePlayerSquaddieTarget"
 import { BattleOrchestratorStateService } from "../battle/orchestrator/battleOrchestratorState"
-import { BattleStateService } from "../battle/orchestrator/battleState"
+import { BattleStateService } from "../battle/battleState/battleState"
 import { BattleCamera } from "../battle/battleCamera"
 import { CampaignService } from "../campaign/campaign"
 import { OrchestratorComponentMouseEventType } from "../battle/orchestrator/battleOrchestratorComponent"

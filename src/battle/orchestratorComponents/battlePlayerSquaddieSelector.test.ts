@@ -14,7 +14,7 @@ import { BattleCamera } from "../battleCamera"
 import { ConvertCoordinateService } from "../../hexMap/convertCoordinates"
 import * as mocks from "../../utils/test/mocks"
 import { MockedP5GraphicsBuffer } from "../../utils/test/mocks"
-import { BattleStateService } from "../orchestrator/battleState"
+import { BattleStateService } from "../battleState/battleState"
 import {
     GameEngineState,
     GameEngineStateService,

@@ -10,7 +10,7 @@ import {
     PlayerSelectionChanges,
     PlayerSelectionChangesService,
 } from "./playerSelectionChanges"
-import { BattleStateService } from "../orchestrator/battleState"
+import { BattleStateService } from "../battleState/battleState"
 import { isValidValue } from "../../utils/validityCheck"
 import { BattleSquaddieTeamService } from "../battleSquaddieTeam"
 import { BattleOrchestratorMode } from "../orchestrator/battleOrchestrator"
@@ -45,6 +45,7 @@ import { SelectorComposite } from "../../utils/behaviorTree/composite/selector/s
 import { BattleSquaddieSelectorService } from "../orchestratorComponents/battleSquaddieSelectorUtils"
 import { SquaddieAffiliation } from "../../squaddie/squaddieAffiliation"
 import { PlayerClicksOnSquaddieSelectorPanel } from "./contextCalculator/playerClicksOnSquaddieSelectorPanel"
+import { PlayerMovesOffMapToCancelConsideredActions } from "./contextCalculator/playerMovesOffMapToCancelConsideredActions"
 
 export interface PlayerContextDataBlob extends DataBlob {
     data: {
@@ -64,7 +65,7 @@ export enum PlayerIntent {
     SQUADDIE_SELECTED_MOVE_SQUADDIE_TO_COORDINATE = "SQUADDIE_SELECTED_MOVE_SQUADDIE_TO_COORDINATE",
     CONSIDER_MOVING_SQUADDIE = "CONSIDER_MOVING_SQUADDIE",
     SQUADDIE_SELECTED_DIFFERENT_SQUADDIE_MID_TURN = "SQUADDIE_SELECTED_DIFFERENT_SQUADDIE_MID_TURN",
-    SQUADDIE_SELECTED_CANCEL_SQUADDIE_SELECTION = "SQUADDIE_SELECTED_CANCEL_SQUADDIE_SELECTION",
+    CANCEL_SQUADDIE_CONSIDERED_ACTIONS = "CANCEL_SQUADDIE_CONSIDERED_ACTIONS",
     PLAYER_SELECTS_AN_ACTION = "PLAYER_SELECTS_AN_ACTION",
     END_SQUADDIE_TURN = "END_SQUADDIE_TURN",
     SQUADDIE_SELECTED_MOVE_SQUADDIE_TO_SQUADDIE_OUT_OF_RANGE = "SQUADDIE_SELECTED_MOVE_SQUADDIE_TO_SQUADDIE_OUT_OF_RANGE",
@@ -144,9 +145,7 @@ export const PlayerSelectionService = {
             ),
             new PlayerClicksOnSquaddieSelectorPanel(dataBlob),
             new PlayerClicksOnTheMapToMoveTheSelectedSquaddieBehavior(dataBlob),
-            new PlayerClicksOffMapToCancelAllSquaddieSelectionBehavior(
-                dataBlob
-            ),
+            new PlayerMovesOffMapToCancelConsideredActions(dataBlob),
             new PlayerHoversOverSquaddieToPeekAtItBehavior(dataBlob),
             new PlayerConsidersMovementForSelectedSquaddie(dataBlob),
             new PlayerClicksOnAnEmptyMapTileBehavior(dataBlob),
@@ -228,9 +227,9 @@ export const PlayerSelectionService = {
                 }
                 gameEngineState.messageBoard.sendMessage(messageSent)
                 return PlayerSelectionChangesService.new({ messageSent })
-            case PlayerIntent.SQUADDIE_SELECTED_CANCEL_SQUADDIE_SELECTION:
+            case PlayerIntent.CANCEL_SQUADDIE_CONSIDERED_ACTIONS:
                 messageSent = {
-                    type: MessageBoardMessageType.PLAYER_CANCELS_SQUADDIE_SELECTION,
+                    type: MessageBoardMessageType.PLAYER_CANCELS_PLAYER_ACTION_CONSIDERATIONS,
                     gameEngineState,
                 }
                 gameEngineState.messageBoard.sendMessage(messageSent)
@@ -294,6 +293,7 @@ export const PlayerSelectionService = {
                     },
                     cancelAction: {
                         movement: context.movement == undefined,
+                        actionTemplate: context.movement != undefined,
                     },
                 }
                 gameEngineState.messageBoard.sendMessage(messageSent)
@@ -301,6 +301,10 @@ export const PlayerSelectionService = {
         }
         return PlayerSelectionChangesService.new({})
     },
+    addPlayerSelectionContextToDataBlob: (
+        dataBlob: PlayerContextDataBlob,
+        playerSelectionContext: PlayerSelectionContext
+    ) => addPlayerSelectionContextToDataBlob(dataBlob, playerSelectionContext),
 }
 
 const playerCanControlAtLeastOneSquaddie = (
@@ -1120,67 +1124,6 @@ class PlayerClicksOnTheMapToMoveTheSelectedSquaddieBehavior
 
     clone(): PlayerClicksOnTheMapToMoveTheSelectedSquaddieBehavior {
         return new PlayerClicksOnTheMapToMoveTheSelectedSquaddieBehavior(
-            this.dataBlob
-        )
-    }
-}
-
-class PlayerClicksOffMapToCancelAllSquaddieSelectionBehavior
-    implements BehaviorTreeTask
-{
-    dataBlob: PlayerContextDataBlob
-
-    constructor(dataBlob: PlayerContextDataBlob) {
-        this.dataBlob = dataBlob
-    }
-
-    run(): boolean {
-        const isSquaddieTakingATurn = DataBlobService.get<boolean>(
-            this.dataBlob,
-            "isSquaddieTakingATurn"
-        )
-
-        const battleSquaddieTryingToStartAnAction: string =
-            DataBlobService.get<string>(
-                this.dataBlob,
-                "battleSquaddieTryingToStartAnAction"
-            )
-
-        const mouseClickLocationIsOnMap = DataBlobService.get<boolean>(
-            this.dataBlob,
-            "mouseClickLocationIsOnMap"
-        )
-
-        const playerSelectionContextCalculationArgs =
-            DataBlobService.get<PlayerSelectionContextCalculationArgs>(
-                this.dataBlob,
-                "playerSelectionContextCalculationArgs"
-            )
-        const { mouseClick } = playerSelectionContextCalculationArgs
-
-        if (
-            !(
-                battleSquaddieTryingToStartAnAction &&
-                !!mouseClick &&
-                !mouseClickLocationIsOnMap &&
-                !isSquaddieTakingATurn
-            )
-        ) {
-            return false
-        }
-
-        addPlayerSelectionContextToDataBlob(
-            this.dataBlob,
-            PlayerSelectionContextService.new({
-                playerIntent:
-                    PlayerIntent.SQUADDIE_SELECTED_CANCEL_SQUADDIE_SELECTION,
-            })
-        )
-        return true
-    }
-
-    clone(): PlayerClicksOffMapToCancelAllSquaddieSelectionBehavior {
-        return new PlayerClicksOffMapToCancelAllSquaddieSelectionBehavior(
             this.dataBlob
         )
     }

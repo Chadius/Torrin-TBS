@@ -24,7 +24,7 @@ import {
     GameEngineStateService,
 } from "../../gameEngine/gameEngine"
 import { BattleOrchestratorStateService } from "../orchestrator/battleOrchestratorState"
-import { BattleStateService } from "../orchestrator/battleState"
+import { BattleStateService } from "../battleState/battleState"
 import { beforeEach, describe, expect, it } from "vitest"
 
 describe("end turn team strategy", () => {

@@ -39,7 +39,7 @@ import {
     CutsceneTrigger,
     TriggeringEvent,
 } from "../../cutscene/cutsceneTrigger"
-import { BattleStateService } from "../orchestrator/battleState"
+import { BattleStateService } from "../battleState/battleState"
 import { DegreeOfSuccess } from "../calculator/actionCalculator/degreeOfSuccess"
 import {
     BattleActionSquaddieChangeService,

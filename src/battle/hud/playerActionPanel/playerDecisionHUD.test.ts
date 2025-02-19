@@ -3,7 +3,7 @@ import {
     GameEngineStateService,
 } from "../../../gameEngine/gameEngine"
 import { BattleOrchestratorStateService } from "../../orchestrator/battleOrchestratorState"
-import { BattleStateService } from "../../orchestrator/battleState"
+import { BattleStateService } from "../../battleState/battleState"
 import { BattlePhase } from "../../orchestratorComponents/battlePhaseTracker"
 import { ObjectRepositoryService } from "../../objectRepository"
 import { MessageBoardMessageType } from "../../../message/messageBoardMessage"
@@ -63,6 +63,7 @@ import { SummaryHUDStateService } from "../summary/summaryHUD"
 import { CampaignService } from "../../../campaign/campaign"
 import { BattleActionDecisionStepService } from "../../actionDecision/battleActionDecisionStep"
 import { MovementDecision } from "../../playerSelectionService/playerSelectionContext"
+import { PlayerConsideredActionsService } from "../../battleState/playerConsideredActions"
 
 describe("Player Decision HUD", () => {
     const differentSquaddiePopup: PopupWindow = PopupWindowService.new({
@@ -208,6 +209,179 @@ describe("Player Decision HUD", () => {
         })
     })
 
+    const createGameEngineState = ({
+        battlePhaseState,
+        battleSquaddieCoordinate,
+        missionMap,
+    }: {
+        battlePhaseState?: BattlePhaseState
+        battleSquaddieCoordinate?: HexCoordinate
+        missionMap?: MissionMap
+    }): {
+        gameEngineState: GameEngineState
+        longswordAction: ActionTemplate
+        healSelfAction: ActionTemplate
+        playerSoldierBattleSquaddie: BattleSquaddie
+        battleSquaddie2: BattleSquaddie
+    } => {
+        const repository = ObjectRepositoryService.new()
+        missionMap =
+            missionMap ??
+            MissionMapService.new({
+                terrainTileMap: TerrainTileMapService.new({
+                    movementCost: ["1 1 1 ", " 1 1 1 ", "  1 1 1 "],
+                }),
+            })
+
+        const playerTeam: BattleSquaddieTeam = {
+            id: "playerTeamId",
+            name: "player controlled team",
+            affiliation: SquaddieAffiliation.PLAYER,
+            battleSquaddieIds: [],
+            iconResourceKey: "icon_player_team",
+        }
+        let teams: BattleSquaddieTeam[] = []
+        const longswordAction = ActionTemplateService.new({
+            name: "longsword",
+            id: "longsword",
+            targetConstraints: TargetConstraintsService.new({
+                minimumRange: 0,
+                maximumRange: 1,
+                coordinateGeneratorShape: CoordinateGeneratorShape.BLOOM,
+            }),
+            actionEffectTemplates: [
+                ActionEffectTemplateService.new({
+                    traits: TraitStatusStorageService.newUsingTraitValues({
+                        [Trait.ALWAYS_SUCCEEDS]: true,
+                        [Trait.ATTACK]: true,
+                    }),
+                    damageDescriptions: {
+                        [DamageType.BODY]: 2,
+                    },
+                }),
+            ],
+        })
+        const healSelfAction = ActionTemplateService.new({
+            id: "self",
+            name: "self",
+            targetConstraints: TargetConstraintsService.new({
+                minimumRange: 0,
+                maximumRange: 0,
+                coordinateGeneratorShape: CoordinateGeneratorShape.BLOOM,
+            }),
+            actionEffectTemplates: [
+                ActionEffectTemplateService.new({
+                    squaddieAffiliationRelation: {
+                        [TargetBySquaddieAffiliationRelation.TARGET_SELF]: true,
+                    },
+                    traits: TraitStatusStorageService.newUsingTraitValues({
+                        HEALING: true,
+                    }),
+                    attributeModifiers: [
+                        AttributeModifierService.new({
+                            type: AttributeType.ARMOR,
+                            amount: 1,
+                            source: AttributeSource.CIRCUMSTANCE,
+                        }),
+                    ],
+                    healingDescriptions: {
+                        [HealingType.LOST_HIT_POINTS]: 1,
+                    },
+                }),
+            ],
+        })
+        teams.push(playerTeam)
+        const { battleSquaddie: playerSoldierBattleSquaddie } =
+            SquaddieRepositoryService.createNewSquaddieAndAddToRepository({
+                name: "Player Soldier",
+                templateId: "player_soldier",
+                battleId: "player_soldier_0",
+                affiliation: SquaddieAffiliation.PLAYER,
+                objectRepository: repository,
+                actionTemplateIds: [longswordAction.id, healSelfAction.id],
+            })
+        BattleSquaddieTeamService.addBattleSquaddieIds(playerTeam, [
+            "player_soldier_0",
+        ])
+
+        MissionMapService.addSquaddie({
+            missionMap: missionMap,
+            squaddieTemplateId: "player_soldier",
+            battleSquaddieId: "player_soldier_0",
+            coordinate: battleSquaddieCoordinate ?? { q: 0, r: 0 },
+        })
+
+        const battleSquaddie2 = BattleSquaddieService.newBattleSquaddie({
+            squaddieTemplateId: "player_soldier",
+            battleSquaddieId: "player_soldier_1",
+            squaddieTurn: SquaddieTurnService.new(),
+        })
+        ObjectRepositoryService.addBattleSquaddie(repository, battleSquaddie2)
+        BattleSquaddieTeamService.addBattleSquaddieIds(playerTeam, [
+            "player_soldier_1",
+        ])
+
+        MissionMapService.addSquaddie({
+            missionMap: missionMap,
+            squaddieTemplateId: "player_soldier",
+            battleSquaddieId: "player_soldier_1",
+            coordinate: { q: 0, r: 1 },
+        })
+
+        const gameEngineState = GameEngineStateService.new({
+            resourceHandler: mocks.mockResourceHandler(
+                new MockedP5GraphicsBuffer()
+            ),
+            battleOrchestratorState: BattleOrchestratorStateService.new({
+                battleHUD: BattleHUDService.new({}),
+                battleState: BattleStateService.newBattleState({
+                    missionId: "test mission",
+                    campaignId: "test campaign",
+                    missionMap,
+                    camera: new BattleCamera(),
+                    battlePhaseState:
+                        battlePhaseState ??
+                        BattlePhaseStateService.new({
+                            currentAffiliation: BattlePhase.PLAYER,
+                            turnCount: 1,
+                        }),
+                    teams,
+                }),
+                battleHUDState: BattleHUDStateService.new({
+                    summaryHUDState: SummaryHUDStateService.new(),
+                }),
+            }),
+            repository,
+            campaign: CampaignService.default(),
+        })
+        ObjectRepositoryService.addActionTemplate(
+            gameEngineState.repository,
+            longswordAction
+        )
+        ObjectRepositoryService.addActionTemplate(
+            gameEngineState.repository,
+            healSelfAction
+        )
+
+        gameEngineState.battleOrchestratorState.battleState.battleActionDecisionStep =
+            BattleActionDecisionStepService.new()
+
+        BattleActionDecisionStepService.setActor({
+            actionDecisionStep:
+                gameEngineState.battleOrchestratorState.battleState
+                    .battleActionDecisionStep,
+            battleSquaddieId: playerSoldierBattleSquaddie.battleSquaddieId,
+        })
+
+        return {
+            gameEngineState,
+            longswordAction,
+            healSelfAction,
+            playerSoldierBattleSquaddie,
+            battleSquaddie2,
+        }
+    }
+
     describe("Player Considers an Action", () => {
         let mockP5GraphicsContext: MockedP5GraphicsBuffer
         let playerDecisionHUDListener: PlayerDecisionHUDListener
@@ -218,183 +392,6 @@ describe("Player Decision HUD", () => {
             mockP5GraphicsContext = new MockedP5GraphicsBuffer()
             mockP5GraphicsContext.textWidth = vi.fn().mockReturnValue(1)
         })
-
-        const createGameEngineState = ({
-            battlePhaseState,
-            battleSquaddieCoordinate,
-            missionMap,
-        }: {
-            battlePhaseState?: BattlePhaseState
-            battleSquaddieCoordinate?: HexCoordinate
-            missionMap?: MissionMap
-        }): {
-            gameEngineState: GameEngineState
-            longswordAction: ActionTemplate
-            healSelfAction: ActionTemplate
-            playerSoldierBattleSquaddie: BattleSquaddie
-            battleSquaddie2: BattleSquaddie
-        } => {
-            const repository = ObjectRepositoryService.new()
-            missionMap =
-                missionMap ??
-                MissionMapService.new({
-                    terrainTileMap: TerrainTileMapService.new({
-                        movementCost: ["1 1 1 ", " 1 1 1 ", "  1 1 1 "],
-                    }),
-                })
-
-            const playerTeam: BattleSquaddieTeam = {
-                id: "playerTeamId",
-                name: "player controlled team",
-                affiliation: SquaddieAffiliation.PLAYER,
-                battleSquaddieIds: [],
-                iconResourceKey: "icon_player_team",
-            }
-            let teams: BattleSquaddieTeam[] = []
-            const longswordAction = ActionTemplateService.new({
-                name: "longsword",
-                id: "longsword",
-                targetConstraints: TargetConstraintsService.new({
-                    minimumRange: 0,
-                    maximumRange: 1,
-                    coordinateGeneratorShape: CoordinateGeneratorShape.BLOOM,
-                }),
-                actionEffectTemplates: [
-                    ActionEffectTemplateService.new({
-                        traits: TraitStatusStorageService.newUsingTraitValues({
-                            [Trait.ALWAYS_SUCCEEDS]: true,
-                            [Trait.ATTACK]: true,
-                        }),
-                        damageDescriptions: {
-                            [DamageType.BODY]: 2,
-                        },
-                    }),
-                ],
-            })
-            const healSelfAction = ActionTemplateService.new({
-                id: "self",
-                name: "self",
-                targetConstraints: TargetConstraintsService.new({
-                    minimumRange: 0,
-                    maximumRange: 0,
-                    coordinateGeneratorShape: CoordinateGeneratorShape.BLOOM,
-                }),
-                actionEffectTemplates: [
-                    ActionEffectTemplateService.new({
-                        squaddieAffiliationRelation: {
-                            [TargetBySquaddieAffiliationRelation.TARGET_SELF]:
-                                true,
-                        },
-                        traits: TraitStatusStorageService.newUsingTraitValues({
-                            HEALING: true,
-                        }),
-                        attributeModifiers: [
-                            AttributeModifierService.new({
-                                type: AttributeType.ARMOR,
-                                amount: 1,
-                                source: AttributeSource.CIRCUMSTANCE,
-                            }),
-                        ],
-                        healingDescriptions: {
-                            [HealingType.LOST_HIT_POINTS]: 1,
-                        },
-                    }),
-                ],
-            })
-            teams.push(playerTeam)
-            const { battleSquaddie: playerSoldierBattleSquaddie } =
-                SquaddieRepositoryService.createNewSquaddieAndAddToRepository({
-                    name: "Player Soldier",
-                    templateId: "player_soldier",
-                    battleId: "player_soldier_0",
-                    affiliation: SquaddieAffiliation.PLAYER,
-                    objectRepository: repository,
-                    actionTemplateIds: [longswordAction.id, healSelfAction.id],
-                })
-            BattleSquaddieTeamService.addBattleSquaddieIds(playerTeam, [
-                "player_soldier_0",
-            ])
-
-            MissionMapService.addSquaddie({
-                missionMap: missionMap,
-                squaddieTemplateId: "player_soldier",
-                battleSquaddieId: "player_soldier_0",
-                coordinate: battleSquaddieCoordinate ?? { q: 0, r: 0 },
-            })
-
-            const battleSquaddie2 = BattleSquaddieService.newBattleSquaddie({
-                squaddieTemplateId: "player_soldier",
-                battleSquaddieId: "player_soldier_1",
-                squaddieTurn: SquaddieTurnService.new(),
-            })
-            ObjectRepositoryService.addBattleSquaddie(
-                repository,
-                battleSquaddie2
-            )
-            BattleSquaddieTeamService.addBattleSquaddieIds(playerTeam, [
-                "player_soldier_1",
-            ])
-
-            MissionMapService.addSquaddie({
-                missionMap: missionMap,
-                squaddieTemplateId: "player_soldier",
-                battleSquaddieId: "player_soldier_1",
-                coordinate: { q: 0, r: 1 },
-            })
-
-            const gameEngineState = GameEngineStateService.new({
-                resourceHandler: mocks.mockResourceHandler(
-                    new MockedP5GraphicsBuffer()
-                ),
-                battleOrchestratorState: BattleOrchestratorStateService.new({
-                    battleHUD: BattleHUDService.new({}),
-                    battleState: BattleStateService.newBattleState({
-                        missionId: "test mission",
-                        campaignId: "test campaign",
-                        missionMap,
-                        camera: new BattleCamera(),
-                        battlePhaseState:
-                            battlePhaseState ??
-                            BattlePhaseStateService.new({
-                                currentAffiliation: BattlePhase.PLAYER,
-                                turnCount: 1,
-                            }),
-                        teams,
-                    }),
-                    battleHUDState: BattleHUDStateService.new({
-                        summaryHUDState: SummaryHUDStateService.new(),
-                    }),
-                }),
-                repository,
-                campaign: CampaignService.default(),
-            })
-            ObjectRepositoryService.addActionTemplate(
-                gameEngineState.repository,
-                longswordAction
-            )
-            ObjectRepositoryService.addActionTemplate(
-                gameEngineState.repository,
-                healSelfAction
-            )
-
-            gameEngineState.battleOrchestratorState.battleState.battleActionDecisionStep =
-                BattleActionDecisionStepService.new()
-
-            BattleActionDecisionStepService.setActor({
-                actionDecisionStep:
-                    gameEngineState.battleOrchestratorState.battleState
-                        .battleActionDecisionStep,
-                battleSquaddieId: playerSoldierBattleSquaddie.battleSquaddieId,
-            })
-
-            return {
-                gameEngineState,
-                longswordAction,
-                healSelfAction,
-                playerSoldierBattleSquaddie,
-                battleSquaddie2,
-            }
-        }
 
         beforeEach(() => {
             ;({ gameEngineState, longswordAction } = createGameEngineState({}))
@@ -578,6 +575,62 @@ describe("Player Decision HUD", () => {
                         .playerConsideredActions.movement
                 ).toBeUndefined()
             })
+        })
+    })
+
+    describe("Player Cancels Considered Actions", () => {
+        let gameEngineState: GameEngineState
+        let playerDecisionHUDListener: PlayerDecisionHUDListener
+        let mockP5GraphicsContext: MockedP5GraphicsBuffer
+        let battleSquaddie: BattleSquaddie
+
+        beforeEach(() => {
+            mockP5GraphicsContext = new MockedP5GraphicsBuffer()
+            ;({ gameEngineState, playerSoldierBattleSquaddie: battleSquaddie } =
+                createGameEngineState({
+                    missionMap: MissionMapService.new({
+                        terrainTileMap: TerrainTileMapService.new({
+                            movementCost: ["1 1 1 1 "],
+                        }),
+                    }),
+                }))
+
+            playerDecisionHUDListener = new PlayerDecisionHUDListener(
+                "PlayerDecisionHUDListener"
+            )
+            gameEngineState.messageBoard.addListener(
+                playerDecisionHUDListener,
+                MessageBoardMessageType.PLAYER_CANCELS_PLAYER_ACTION_CONSIDERATIONS
+            )
+            SummaryHUDStateService.draw({
+                summaryHUDState:
+                    gameEngineState.battleOrchestratorState.battleHUDState
+                        .summaryHUDState,
+                gameEngineState,
+                resourceHandler: gameEngineState.resourceHandler,
+                graphicsBuffer: mockP5GraphicsContext,
+            })
+        })
+
+        it("cancels player consideration", () => {
+            gameEngineState.battleOrchestratorState.battleState.playerConsideredActions =
+                PlayerConsideredActionsService.new()
+            gameEngineState.battleOrchestratorState.battleState.playerConsideredActions.movement =
+                {
+                    coordinates: [],
+                    destination: { q: 0, r: 3 },
+                    actionPointCost: 1,
+                }
+
+            gameEngineState.messageBoard.sendMessage({
+                type: MessageBoardMessageType.PLAYER_CANCELS_PLAYER_ACTION_CONSIDERATIONS,
+                gameEngineState,
+            })
+
+            expect(
+                gameEngineState.battleOrchestratorState.battleState
+                    .playerConsideredActions.movement
+            ).toBeUndefined()
         })
     })
 })

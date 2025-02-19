@@ -27,7 +27,7 @@ import { SquaddieSkipsAnimationAnimator } from "../animation/squaddieSkipsAnimat
 import { SquaddieTemplate } from "../../campaign/squaddieTemplate"
 import { InBattleAttributesService } from "../stats/inBattleAttributes"
 import { SquaddieTurnService } from "../../squaddie/turn"
-import { BattleStateService } from "../orchestrator/battleState"
+import { BattleStateService } from "../battleState/battleState"
 import {
     GameEngineState,
     GameEngineStateService,

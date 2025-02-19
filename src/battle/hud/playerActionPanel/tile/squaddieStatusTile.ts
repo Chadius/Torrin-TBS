@@ -46,8 +46,11 @@ import {
 } from "../../horizontalBar/drawHorizontalMeterAction"
 import { DEFAULT_ACTION_POINTS_PER_TURN } from "../../../../squaddie/turn"
 import { GameEngineState } from "../../../../gameEngine/gameEngine"
-import { PlayerConsideredActions } from "../../../orchestrator/battleState"
 import { BattleActionDecisionStepService } from "../../../actionDecision/battleActionDecisionStep"
+import {
+    PlayerConsideredActions,
+    PlayerConsideredActionsService,
+} from "../../../battleState/playerConsideredActions"
 
 export interface SquaddieStatusTile {
     data: DataBlob
@@ -501,13 +504,15 @@ const getContextVariablesThatDependOnActorSquaddie = (
         actionPoints: {
             actionPointsRemaining,
             actionPointsMarked:
-                getExpectedMarkedActionPointsBasedOnPlayerConsideration({
-                    objectRepository: gameEngineState.repository,
-                    playerConsideredActions:
-                        gameEngineState.battleOrchestratorState.battleState
-                            .playerConsideredActions,
-                    battleSquaddie,
-                }),
+                PlayerConsideredActionsService.getExpectedMarkedActionPointsBasedOnPlayerConsideration(
+                    {
+                        objectRepository: gameEngineState.repository,
+                        playerConsideredActions:
+                            gameEngineState.battleOrchestratorState.battleState
+                                .playerConsideredActions,
+                        battleSquaddie,
+                    }
+                ),
         },
     }
 }
@@ -1188,13 +1193,15 @@ class IsActionPointsCorrectCondition implements BehaviorTreeTask {
         )
 
         let expectedMarkedActionPoints =
-            getExpectedMarkedActionPointsBasedOnPlayerConsideration({
-                objectRepository: this.gameEngineState.repository,
-                playerConsideredActions:
-                    this.gameEngineState.battleOrchestratorState.battleState
-                        .playerConsideredActions,
-                battleSquaddie,
-            })
+            PlayerConsideredActionsService.getExpectedMarkedActionPointsBasedOnPlayerConsideration(
+                {
+                    objectRepository: this.gameEngineState.repository,
+                    playerConsideredActions:
+                        this.gameEngineState.battleOrchestratorState.battleState
+                            .playerConsideredActions,
+                    battleSquaddie,
+                }
+            )
 
         return (
             context.actionPoints?.actionPointsRemaining ===
@@ -1209,30 +1216,6 @@ class IsActionPointsCorrectCondition implements BehaviorTreeTask {
             this.dataBlob,
             this.gameEngineState
         )
-    }
-}
-
-const getExpectedMarkedActionPointsBasedOnPlayerConsideration = ({
-    objectRepository,
-    playerConsideredActions,
-    battleSquaddie,
-}: {
-    objectRepository: ObjectRepository
-    playerConsideredActions: PlayerConsideredActions
-    battleSquaddie: BattleSquaddie
-}): number => {
-    switch (true) {
-        case !!playerConsideredActions?.movement:
-            return playerConsideredActions.movement.actionPointCost
-        case !!playerConsideredActions?.endTurn:
-            return battleSquaddie.squaddieTurn.remainingActionPoints
-        case !!playerConsideredActions?.actionTemplateId:
-            return ObjectRepositoryService.getActionTemplateById(
-                objectRepository,
-                playerConsideredActions.actionTemplateId
-            ).resourceCost.actionPoints
-        default:
-            return 0
     }
 }
 

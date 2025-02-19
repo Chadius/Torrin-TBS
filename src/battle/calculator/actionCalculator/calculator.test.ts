@@ -19,7 +19,7 @@ import {
 } from "../../missionStatistics/missionStatistics"
 import { SquaddieMovementService } from "../../../squaddie/movement"
 import { InBattleAttributesService } from "../../stats/inBattleAttributes"
-import { BattleStateService } from "../../orchestrator/battleState"
+import { BattleStateService } from "../../battleState/battleState"
 import { HexCoordinate } from "../../../hexMap/hexCoordinate/hexCoordinate"
 import { StreamNumberGenerator } from "../../numberGenerator/stream"
 import { NumberGeneratorStrategy } from "../../numberGenerator/strategy"

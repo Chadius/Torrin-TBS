@@ -1,4 +1,4 @@
-import { BattleState, BattleStateService } from "./battleState"
+import { BattleState, BattleStateService } from "../battleState/battleState"
 import { BattlePhase } from "../orchestratorComponents/battlePhaseTracker"
 import { BattleCompletionStatus } from "./missionObjectivesAndCutscenes"
 import { NumberGeneratorStrategy } from "../numberGenerator/strategy"

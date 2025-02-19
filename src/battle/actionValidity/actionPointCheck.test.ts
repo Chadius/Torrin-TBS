@@ -1,4 +1,4 @@
-import { ObjectRepository, ObjectRepositoryService } from "../objectRepository"
+import { ObjectRepositoryService } from "../objectRepository"
 import { ActionTemplateService } from "../../action/template/actionTemplate"
 import { SquaddieService } from "../../squaddie/squaddieService"
 import { SquaddieAffiliation } from "../../squaddie/squaddieAffiliation"
@@ -10,7 +10,10 @@ import {
 import { ActionPointCheck } from "./actionPointCheck"
 import { ActionResourceCostService } from "../../action/actionResourceCost"
 import { beforeEach, describe, expect, it } from "vitest"
-import { BattleSquaddie } from "../battleSquaddie"
+import {
+    PlayerConsideredActions,
+    PlayerConsideredActionsService,
+} from "../battleState/playerConsideredActions"
 
 describe("Action Point Checker", () => {
     const testNotEnoughActionPoints = [
@@ -60,31 +63,12 @@ describe("Action Point Checker", () => {
             startingActionPoints,
             expectedMessage,
         }) => {
-            const objectRepository = ObjectRepositoryService.new()
-            ObjectRepositoryService.addActionTemplate(
-                objectRepository,
-                ActionTemplateService.new({
-                    id: actionTemplateId,
-                    name: actionTemplateId,
-                    resourceCost: ActionResourceCostService.new({
-                        actionPoints: actionPointCost,
-                    }),
+            const { objectRepository, battleSquaddie, squaddieTemplate } =
+                setup({
+                    actionTemplateId: actionTemplateId,
+                    actionPointCost: actionPointCost,
+                    startingActionPoints: startingActionPoints,
                 })
-            )
-
-            const { battleSquaddie, squaddieTemplate } =
-                SquaddieRepositoryService.createNewSquaddieAndAddToRepository({
-                    affiliation: SquaddieAffiliation.PLAYER,
-                    battleId: "battleId",
-                    templateId: "squaddieTemplateId",
-                    name: "squaddieName",
-                    objectRepository: objectRepository,
-                    actionTemplateIds: [actionTemplateId],
-                })
-            SquaddieTurnService.spendActionPoints(
-                battleSquaddie.squaddieTurn,
-                3 - startingActionPoints
-            )
             expect(
                 SquaddieService.getNumberOfActionPoints({
                     battleSquaddie,
@@ -98,6 +82,7 @@ describe("Action Point Checker", () => {
                     battleSquaddie,
                     actionTemplateId,
                     objectRepository,
+                    playerConsideredActions: undefined,
                 })
             ).toEqual({
                 isValid: false,
@@ -143,30 +128,12 @@ describe("Action Point Checker", () => {
     it.each(testHasEnoughActionPoints)(
         `$actionTemplateId $startingActionPoints is possible`,
         ({ actionTemplateId, actionPointCost, startingActionPoints }) => {
-            const objectRepository = ObjectRepositoryService.new()
-            ObjectRepositoryService.addActionTemplate(
-                objectRepository,
-                ActionTemplateService.new({
-                    id: actionTemplateId,
-                    name: actionTemplateId,
-                    resourceCost: ActionResourceCostService.new({
-                        actionPoints: actionPointCost,
-                    }),
+            const { objectRepository, battleSquaddie, squaddieTemplate } =
+                setup({
+                    actionTemplateId: actionTemplateId,
+                    actionPointCost: actionPointCost,
+                    startingActionPoints: startingActionPoints,
                 })
-            )
-            const { battleSquaddie, squaddieTemplate } =
-                SquaddieRepositoryService.createNewSquaddieAndAddToRepository({
-                    affiliation: SquaddieAffiliation.PLAYER,
-                    battleId: "battleId",
-                    templateId: "squaddieTemplateId",
-                    name: "squaddieName",
-                    objectRepository: objectRepository,
-                    actionTemplateIds: [actionTemplateId],
-                })
-            SquaddieTurnService.spendActionPoints(
-                battleSquaddie.squaddieTurn,
-                3 - startingActionPoints
-            )
             expect(
                 SquaddieService.getNumberOfActionPoints({
                     battleSquaddie,
@@ -180,10 +147,122 @@ describe("Action Point Checker", () => {
                     battleSquaddie,
                     actionTemplateId,
                     objectRepository,
+                    playerConsideredActions: undefined,
                 })
             ).toEqual({
                 isValid: true,
             })
         }
     )
+
+    describe("Player is considering an action while checking highlighted actions", () => {
+        let playerConsideredActions: PlayerConsideredActions
+        beforeEach(() => {
+            playerConsideredActions = PlayerConsideredActionsService.new()
+        })
+
+        it("You can afford the action if you have more than the action point cost + considered action points", () => {
+            const { objectRepository, battleSquaddie } = setup({
+                actionTemplateId: "action1PointCost",
+                actionPointCost: 1,
+                startingActionPoints: 3,
+            })
+            playerConsideredActions.movement = {
+                actionPointCost: 1,
+                coordinates: [],
+                destination: { q: 0, r: 0 },
+            }
+            expect(
+                ActionPointCheck.canAfford({
+                    battleSquaddie,
+                    actionTemplateId: "action1PointCost",
+                    objectRepository,
+                    playerConsideredActions,
+                })
+            ).toEqual({
+                isValid: true,
+            })
+        })
+        it("You can afford if too many action points are considered but there will be a warning", () => {
+            const { objectRepository, battleSquaddie } = setup({
+                actionTemplateId: "action1PointCost",
+                actionPointCost: 1,
+                startingActionPoints: 1,
+            })
+            playerConsideredActions.movement = {
+                actionPointCost: 1,
+                coordinates: [],
+                destination: { q: 0, r: 0 },
+            }
+            expect(
+                ActionPointCheck.canAfford({
+                    battleSquaddie,
+                    actionTemplateId: "action1PointCost",
+                    objectRepository,
+                    playerConsideredActions,
+                })
+            ).toEqual(
+                expect.objectContaining({
+                    isValid: true,
+                    reason: ActionPerformFailureReason.CAN_PERFORM_BUT_TOO_MANY_CONSIDERED_ACTION_POINTS,
+                })
+            )
+        })
+        it("The marked action points are ignored if it's marked because of this action", () => {
+            const { objectRepository, battleSquaddie } = setup({
+                actionTemplateId: "action1PointCost",
+                actionPointCost: 1,
+                startingActionPoints: 1,
+            })
+            playerConsideredActions.actionTemplateId = "action1PointCost"
+            expect(
+                ActionPointCheck.canAfford({
+                    battleSquaddie,
+                    actionTemplateId: "action1PointCost",
+                    objectRepository,
+                    playerConsideredActions,
+                })
+            ).toEqual(
+                expect.objectContaining({
+                    isValid: true,
+                })
+            )
+        })
+    })
 })
+
+const setup = ({
+    actionTemplateId,
+    actionPointCost,
+    startingActionPoints,
+}: {
+    actionTemplateId: string
+    actionPointCost: number
+    startingActionPoints: number
+}) => {
+    const objectRepository = ObjectRepositoryService.new()
+    ObjectRepositoryService.addActionTemplate(
+        objectRepository,
+        ActionTemplateService.new({
+            id: actionTemplateId,
+            name: actionTemplateId,
+            resourceCost: ActionResourceCostService.new({
+                actionPoints: actionPointCost,
+            }),
+        })
+    )
+    const { battleSquaddie, squaddieTemplate } =
+        SquaddieRepositoryService.createNewSquaddieAndAddToRepository({
+            affiliation: SquaddieAffiliation.PLAYER,
+            battleId: "battleId",
+            templateId: "squaddieTemplateId",
+            name: "squaddieName",
+            objectRepository: objectRepository,
+            actionTemplateIds: [actionTemplateId],
+        })
+    SquaddieTurnService.spendActionPoints(
+        battleSquaddie.squaddieTurn,
+        3 - startingActionPoints
+    )
+    return { objectRepository, battleSquaddie, squaddieTemplate }
+}

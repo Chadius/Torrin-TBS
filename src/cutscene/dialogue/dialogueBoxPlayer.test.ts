@@ -4,7 +4,7 @@ import {
     BattleOrchestratorStateService,
 } from "../../battle/orchestrator/battleOrchestratorState"
 import { BattlePhase } from "../../battle/orchestratorComponents/battlePhaseTracker"
-import { BattleStateService } from "../../battle/orchestrator/battleState"
+import { BattleStateService } from "../../battle/battleState/battleState"
 import { Dialogue, DialogueService } from "./dialogue"
 import { RectAreaService } from "../../ui/rectArea"
 import { ScreenDimensions } from "../../utils/graphics/graphicsConfig"

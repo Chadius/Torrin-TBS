@@ -13,7 +13,7 @@ import {
     BattleOrchestratorState,
     BattleOrchestratorStateService,
 } from "../battle/orchestrator/battleOrchestratorState"
-import { BattleStateService } from "../battle/orchestrator/battleState"
+import { BattleStateService } from "../battle/battleState/battleState"
 import { SplashScreen, SplashScreenService } from "./splashScreen"
 import { Dialogue, DialogueService } from "./dialogue/dialogue"
 import {

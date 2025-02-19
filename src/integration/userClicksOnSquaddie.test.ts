@@ -20,7 +20,7 @@ import {
     GameEngineStateService,
 } from "../gameEngine/gameEngine"
 import { BattleOrchestratorStateService } from "../battle/orchestrator/battleOrchestratorState"
-import { BattleStateService } from "../battle/orchestrator/battleState"
+import { BattleStateService } from "../battle/battleState/battleState"
 import { BattleCamera } from "../battle/battleCamera"
 import * as mocks from "../utils/test/mocks"
 import { MockedP5GraphicsBuffer } from "../utils/test/mocks"

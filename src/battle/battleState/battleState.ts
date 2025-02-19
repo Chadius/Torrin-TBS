@@ -2,7 +2,7 @@ import {
     BattleCompletionStatus,
     MissionObjectivesAndCutscenes,
     MissionObjectivesAndCutscenesHelper,
-} from "./missionObjectivesAndCutscenes"
+} from "../orchestrator/missionObjectivesAndCutscenes"
 import { MissionMap } from "../../missionMap/missionMap"
 import { SquaddieAffiliation } from "../../squaddie/squaddieAffiliation"
 import {
@@ -18,7 +18,7 @@ import {
     MissionStatistics,
     MissionStatisticsService,
 } from "../missionStatistics/missionStatistics"
-import { MissionCutsceneCollection } from "./missionCutsceneCollection"
+import { MissionCutsceneCollection } from "../orchestrator/missionCutsceneCollection"
 import { CutsceneTrigger } from "../../cutscene/cutsceneTrigger"
 import { MissionObjective } from "../missionResult/missionObjective"
 import { NullMissionMap } from "../../utils/test/battleOrchestratorState"
@@ -51,18 +51,15 @@ import { DrawSquaddieUtilities } from "../animation/drawSquaddie"
 import { SquaddieStatusTileService } from "../hud/playerActionPanel/tile/squaddieStatusTile"
 import { ActionTilePosition } from "../hud/playerActionPanel/tile/actionTilePosition"
 import { MapDataBlob } from "../../hexMap/mapLayer/mapDataBlob"
-import { MovementDecision } from "../playerSelectionService/playerSelectionContext"
+import {
+    PlayerConsideredActions,
+    PlayerConsideredActionsService,
+} from "./playerConsideredActions"
 
 export enum BattleStateValidityMissingComponent {
     MISSION_MAP = "MISSION_MAP",
     TEAMS = "TEAMS",
     MISSION_OBJECTIVE = "MISSION_OBJECTIVE",
-}
-
-export interface PlayerConsideredActions {
-    actionTemplateId?: string
-    movement?: MovementDecision
-    endTurn?: boolean
 }
 
 export interface BattleState extends MissionObjectivesAndCutscenes {
@@ -260,11 +257,7 @@ const newBattleState = ({
         mapDataBlob: missionMap
             ? new MapDataBlob(missionMap.terrainTileMap)
             : undefined,
-        playerConsideredActions: {
-            actionTemplateId: undefined,
-            movement: undefined,
-            endTurn: undefined,
-        },
+        playerConsideredActions: PlayerConsideredActionsService.new(),
     }
 }
 
@@ -388,7 +381,7 @@ const squaddieTurnEnds = (message: MessageBoardMessageSquaddieTurnEnds) => {
     gameEngineState.battleOrchestratorState.battleHUDState.summaryHUDState =
         undefined
     gameEngineState.battleOrchestratorState.battleState.playerConsideredActions =
-        {}
+        PlayerConsideredActionsService.new()
 }
 
 const updateSummaryHUDAfterFinishingAnimation = (

@@ -31,7 +31,7 @@ export type MessageBoardMessage =
     | MessageBoardMessageSquaddiePhaseEnds
     | MessageBoardMessageSelectAndLockNextSquaddie
     | MessageBoardMessageMoveSquaddieToCoordinate
-    | MessageBoardMessagePlayerCancelsSquaddieSelection
+    | MessageBoardMessagePlayerCancelsPlayerActionConsiderations
     | MessageBoardMessagePlayerSelectsEmptyTile
     | MessageBoardMessagePlayerSelectsActionWithKnownTargets
     | MessageBoardMessagePlayerConfirmsDecisionStepActor
@@ -65,7 +65,7 @@ export enum MessageBoardMessageType {
     SQUADDIE_PHASE_ENDS = "SQUADDIE_PHASE_ENDS",
     SELECT_AND_LOCK_NEXT_SQUADDIE = "SELECT_AND_LOCK_NEXT_SQUADDIE",
     MOVE_SQUADDIE_TO_COORDINATE = "MOVE_SQUADDIE_TO_COORDINATE",
-    PLAYER_CANCELS_SQUADDIE_SELECTION = "PLAYER_CANCELS_SQUADDIE_SELECTION",
+    PLAYER_CANCELS_PLAYER_ACTION_CONSIDERATIONS = "PLAYER_CANCELS_PLAYER_ACTION_CONSIDERATIONS",
     PLAYER_SELECTS_EMPTY_TILE = "PLAYER_SELECTS_EMPTY_TILE",
     PLAYER_CONFIRMS_DECISION_STEP_ACTOR = "PLAYER_CONFIRMS_DECISION_STEP_ACTOR",
     PLAYER_CONTROLLED_SQUADDIE_NEEDS_NEXT_ACTION = "PLAYER_CONTROLLED_SQUADDIE_NEEDS_NEXT_ACTION",
@@ -199,8 +199,8 @@ export interface MessageBoardMessageMoveSquaddieToCoordinate {
     gameEngineState: GameEngineState
 }
 
-export interface MessageBoardMessagePlayerCancelsSquaddieSelection {
-    type: MessageBoardMessageType.PLAYER_CANCELS_SQUADDIE_SELECTION
+export interface MessageBoardMessagePlayerCancelsPlayerActionConsiderations {
+    type: MessageBoardMessageType.PLAYER_CANCELS_PLAYER_ACTION_CONSIDERATIONS
     gameEngineState: GameEngineState
 }
 

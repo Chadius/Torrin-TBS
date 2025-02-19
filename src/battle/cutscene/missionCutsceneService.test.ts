@@ -24,7 +24,7 @@ import { MissionStartOfPhaseCutsceneTrigger } from "./missionStartOfPhaseCutscen
 import { BattleOrchestratorMode } from "../orchestrator/battleOrchestrator"
 import { MissionConditionType } from "../missionResult/missionCondition"
 import { MissionMapService } from "../../missionMap/missionMap"
-import { BattleStateService } from "../orchestrator/battleState"
+import { BattleStateService } from "../battleState/battleState"
 import { BattlePhase } from "../orchestratorComponents/battlePhaseTracker"
 import {
     GameEngineState,
