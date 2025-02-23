@@ -53,6 +53,7 @@ export const ActionPointCheck = {
 
         return {
             isValid: true,
+            warning: true,
             reason: ActionPerformFailureReason.CAN_PERFORM_BUT_TOO_MANY_CONSIDERED_ACTION_POINTS,
         }
     },

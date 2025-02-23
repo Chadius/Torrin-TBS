@@ -194,6 +194,8 @@ export const BattleHUDService = {
 
         gameEngineState.battleOrchestratorState.battleHUDState.summaryHUDState =
             SummaryHUDStateService.new()
+        gameEngineState.battleOrchestratorState.battleState.playerConsideredActions =
+            PlayerConsideredActionsService.new()
 
         const { squaddieTemplate, battleSquaddie } = getResultOrThrowError(
             ObjectRepositoryService.getSquaddieByBattleId(

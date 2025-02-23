@@ -105,6 +105,7 @@ describe("validity checker", () => {
 
             expect(actionStatus[actionTemplateId]).toEqual({
                 isValid: false,
+                warning: false,
                 messages: expectedMessages,
             })
 
@@ -138,6 +139,7 @@ describe("validity checker", () => {
 
         expect(actionStatus[actionTemplateId]).toEqual({
             isValid: false,
+            warning: false,
             messages: [
                 "Need 1 action point",
                 "Will have no effect on squaddieName",
@@ -155,6 +157,7 @@ describe("validity checker", () => {
         const actionPointCheckSpy = vi.spyOn(ActionPointCheck, "canAfford")
         actionPointCheckSpy.mockReturnValue({
             isValid: true,
+            warning: true,
             reason: ActionPerformFailureReason.CAN_PERFORM_BUT_TOO_MANY_CONSIDERED_ACTION_POINTS,
         })
 
@@ -171,6 +174,7 @@ describe("validity checker", () => {
 
         expect(actionStatus[actionTemplateId]).toEqual({
             isValid: true,
+            warning: true,
             messages: [],
         })
 

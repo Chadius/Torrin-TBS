@@ -566,6 +566,19 @@ describe("Battle HUD", () => {
             ).toEqual(battleSquaddie.battleSquaddieId)
         })
 
+        it("will clear player considerations", () => {
+            gameEngineState.battleOrchestratorState.battleState.playerConsideredActions =
+                PlayerConsideredActionsService.new()
+            gameEngineState.battleOrchestratorState.battleState.playerConsideredActions.actionTemplateId =
+                "WOW COOL ACTION ID"
+            gameEngineState.battleOrchestratorState.battleState.playerConsideredActions.markedActionPoints = 2
+            sendMessageViaMouseClick()
+            expect(
+                gameEngineState.battleOrchestratorState.battleState
+                    .playerConsideredActions
+            ).toEqual(PlayerConsideredActionsService.new())
+        })
+
         describe("Player selects squaddie they cannot control because it is an enemy", () => {
             let gameEngineState: GameEngineState
             let enemyBattleSquaddie: BattleSquaddie

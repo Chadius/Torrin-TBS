@@ -516,12 +516,17 @@ const drawActionButtons = ({
             : actionButton.actionTemplateOverride.name ===
               consideredActionTemplateId
 
+        const actionHasAWarning: boolean = actionButton.actionTemplate
+            ? actionValidity[actionButton.actionTemplate.id]?.warning
+            : false
+
         ActionButtonService.draw({
             actionButton,
             graphicsBuffer,
             resourceHandler,
             disabled: !actionIsEnabled,
             selected: actionIsConsidered || actionIsSelected,
+            warning: actionHasAWarning,
         })
     })
 }

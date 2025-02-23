@@ -42,6 +42,11 @@ interface ActionButtonLayout {
         fillAlphaRange: number[]
         pulsePeriod: number
     }
+    warning: {
+        fillColor: number[]
+        fillAlphaRange: number[]
+        pulsePeriod: number
+    }
 }
 
 interface ActionButtonUIObjects {
@@ -135,6 +140,11 @@ export const ActionButtonService = {
                     fillAlphaRange: [192 - 8, 192 + 8],
                     pulsePeriod: 10000,
                 },
+                warning: {
+                    fillColor: [60, 30, 30],
+                    fillAlphaRange: [192 - 8, 192 + 8],
+                    pulsePeriod: 5000,
+                },
             },
         }
     },
@@ -170,21 +180,25 @@ export const ActionButtonService = {
         resourceHandler,
         selected,
         disabled,
+        warning,
     }: {
         actionButton: ActionButton
         graphicsBuffer: GraphicsBuffer
         resourceHandler: ResourceHandler
         selected?: boolean
         disabled?: boolean
+        warning?: boolean
     }) {
         drawButtonIcon(actionButton, graphicsBuffer, resourceHandler)
         drawActionName(actionButton, graphicsBuffer)
-        if (selected || disabled) {
+        const drawADecoration = selected || disabled || warning
+        if (drawADecoration) {
             drawDecorator({
                 actionButton: actionButton,
                 graphicsBuffer: graphicsBuffer,
                 selected: selected,
                 disabled: disabled,
+                warning,
             })
         }
     },
@@ -288,11 +302,13 @@ const drawDecorator = ({
     graphicsBuffer,
     selected,
     disabled,
+    warning,
 }: {
     actionButton: ActionButton
     graphicsBuffer: GraphicsBuffer
     selected: boolean
     disabled: boolean
+    warning: boolean
 }) => {
     const strokeBrightness: number = ColorUtils.calculatePulseValueOverTime({
         low: actionButton.layout.selectedBorder.strokeBrightnessRange[0],
@@ -304,6 +320,20 @@ const drawDecorator = ({
         high: actionButton.layout.disabled.fillAlphaRange[1],
         periodInMilliseconds: actionButton.layout.disabled.pulsePeriod,
     })
+
+    let fillColor: number[]
+    switch (true) {
+        case disabled:
+            fillColor = [...actionButton.layout.disabled.fillColor, fillAlpha]
+            break
+        case warning:
+            fillColor = [...actionButton.layout.warning.fillColor, fillAlpha]
+            break
+        default:
+            fillColor = undefined
+    }
+
+    let noFill: boolean = !disabled && !warning
 
     actionButton.uiObjects.decorator = RectangleService.new({
         area: actionButton.uiObjects.buttonIcon.drawArea,
@@ -318,10 +348,8 @@ const drawDecorator = ({
                   strokeBrightness,
               ]
             : undefined,
-        noFill: !disabled,
-        fillColor: disabled
-            ? [...actionButton.layout.disabled.fillColor, fillAlpha]
-            : undefined,
+        noFill,
+        fillColor,
     })
 
     RectangleService.draw(actionButton.uiObjects.decorator, graphicsBuffer)

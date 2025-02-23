@@ -8,11 +8,13 @@ import { GameEngineState } from "../../gameEngine/gameEngine"
 
 export type ActionValidityStatus = {
     isValid: boolean
+    warning: boolean
     messages: string[]
 }
 
 export type ActionCheckResult = {
     isValid: boolean
+    warning?: boolean
     reason?: ActionPerformFailureReason
     message?: string
 }
@@ -38,6 +40,10 @@ export const ValidityCheckService = {
                 currentStatus.isValid = false
             }
 
+            if (actionCheckResult.warning) {
+                currentStatus.warning = true
+            }
+
             if (actionCheckResult.message) {
                 currentStatus.messages.push(actionCheckResult.message)
             }
@@ -58,6 +64,7 @@ export const ValidityCheckService = {
             (actionTemplateId: string) => {
                 overallStatus[actionTemplateId] = {
                     isValid: true,
+                    warning: false,
                     messages: [],
                 }
 

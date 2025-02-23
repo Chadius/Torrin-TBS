@@ -62,6 +62,7 @@ describe("playerCommandHUD", () => {
 
     let actionNeedsTarget: ActionTemplate
     let actionAlsoNeedsTarget: ActionTemplate
+    let actionHasAWarning: ActionTemplate
     let actionWillAlwaysBeDisabled: ActionTemplate
 
     beforeEach(() => {
@@ -99,7 +100,7 @@ describe("playerCommandHUD", () => {
         )
 
         actionAlsoNeedsTarget = ActionTemplateService.new({
-            id: "actionTemplate1",
+            id: "actionAlsoNeedsTarget",
             name: "AlsoNeedsTarget",
             targetConstraints: TargetConstraintsService.new({
                 minimumRange: 1,
@@ -116,6 +117,26 @@ describe("playerCommandHUD", () => {
         ObjectRepositoryService.addActionTemplate(
             objectRepository,
             actionAlsoNeedsTarget
+        )
+
+        actionHasAWarning = ActionTemplateService.new({
+            id: "actionHasAWarning",
+            name: "ActionHasAWarning",
+            targetConstraints: TargetConstraintsService.new({
+                minimumRange: 1,
+                maximumRange: 2,
+            }),
+            actionEffectTemplates: [
+                ActionEffectTemplateService.new({
+                    squaddieAffiliationRelation: {
+                        [TargetBySquaddieAffiliationRelation.TARGET_FOE]: true,
+                    },
+                }),
+            ],
+        })
+        ObjectRepositoryService.addActionTemplate(
+            objectRepository,
+            actionHasAWarning
         )
 
         actionWillAlwaysBeDisabled = ActionTemplateService.new({
@@ -151,6 +172,7 @@ describe("playerCommandHUD", () => {
                 actionNeedsTarget.id,
                 actionAlsoNeedsTarget.id,
                 actionWillAlwaysBeDisabled.id,
+                actionHasAWarning.id,
             ],
         })
 
@@ -168,14 +190,22 @@ describe("playerCommandHUD", () => {
             .mockReturnValue({
                 [actionNeedsTarget.id]: {
                     isValid: true,
+                    warning: false,
                     messages: [],
                 },
                 [actionAlsoNeedsTarget.id]: {
                     isValid: true,
+                    warning: false,
+                    messages: [],
+                },
+                [actionHasAWarning.id]: {
+                    isValid: true,
+                    warning: true,
                     messages: [],
                 },
                 [actionWillAlwaysBeDisabled.id]: {
                     isValid: false,
+                    warning: false,
                     messages: ["blocked by test", "also blocked by test"],
                 },
             })
@@ -277,6 +307,15 @@ describe("playerCommandHUD", () => {
                 "WillAlwaysBeDisabled"
             )
             expect(disabledButtonCalls[0][0].disabled).toBeTruthy()
+        })
+        it("will draw buttons with warnings with a warning decoration", () => {
+            const actionButtonSpy = vi.spyOn(ActionButtonService, "draw")
+            selectPlayer()
+            const disabledButtonCalls = getAllDrawCallsForActionButton(
+                actionButtonSpy,
+                "actionHasAWarning"
+            )
+            expect(disabledButtonCalls[0][0].warning).toBeTruthy()
         })
         it("will not draw other actions with a highlight once an action is selected", () => {
             selectPlayer()
