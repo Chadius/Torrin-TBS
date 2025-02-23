@@ -14,10 +14,12 @@ export const BattlePlayerActionTargetSpec = {
         gameEngineState: GameEngineState
     }) => {
         targeting.mouseEventHappened(gameEngineState, {
-            eventType: OrchestratorComponentMouseEventType.CLICKED,
-            mouseX: (ScreenDimensions.SCREEN_WIDTH * 13) / 24,
-            mouseY: ScreenDimensions.SCREEN_HEIGHT,
-            mouseButton: MouseButton.ACCEPT,
+            eventType: OrchestratorComponentMouseEventType.RELEASE,
+            mouseRelease: {
+                x: (ScreenDimensions.SCREEN_WIDTH * 13) / 24,
+                y: ScreenDimensions.SCREEN_HEIGHT,
+                button: MouseButton.ACCEPT,
+            },
         })
     },
     clickOnMapAtCoordinates: ({
@@ -38,10 +40,12 @@ export const BattlePlayerActionTargetSpec = {
                 ...gameEngineState.battleOrchestratorState.battleState.camera.getCoordinates(),
             })
         targeting.mouseEventHappened(gameEngineState, {
-            eventType: OrchestratorComponentMouseEventType.CLICKED,
-            mouseX,
-            mouseY,
-            mouseButton: MouseButton.ACCEPT,
+            eventType: OrchestratorComponentMouseEventType.RELEASE,
+            mouseRelease: {
+                x: mouseX,
+                y: mouseY,
+                button: MouseButton.ACCEPT,
+            },
         })
     },
 }

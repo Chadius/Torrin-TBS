@@ -1,5 +1,5 @@
 import { GameEngineState } from "./gameEngine"
-import { MouseButton } from "../utils/mouseConfig"
+import { MousePress, MouseRelease } from "../utils/mouseConfig"
 import { GameEngineChanges, GameEngineComponent } from "./gameEngineComponent"
 import {
     MissionLoader,
@@ -142,11 +142,16 @@ export class GameEngineGameLoader implements GameEngineComponent {
         // Required by inheritance
     }
 
-    mouseClicked(
+    mousePressed(
         _gameEngineState: GameEngineState,
-        _mouseButton: MouseButton,
-        _mouseX: number,
-        _mouseY: number
+        _mousePress: MousePress
+    ): void {
+        // Required by inheritance
+    }
+
+    mouseReleased(
+        _gameEngineState: GameEngineState,
+        _mouseRelease: MouseRelease
     ): void {
         // Required by inheritance
     }

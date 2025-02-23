@@ -40,7 +40,7 @@ export class SquaddieSkipsAnimationAnimator implements SquaddieActionAnimator {
         mouseEvent: OrchestratorComponentMouseEvent
     ): void {
         if (
-            mouseEvent.eventType === OrchestratorComponentMouseEventType.CLICKED
+            mouseEvent.eventType === OrchestratorComponentMouseEventType.RELEASE
         ) {
             this.userCanceledAction = true
         }

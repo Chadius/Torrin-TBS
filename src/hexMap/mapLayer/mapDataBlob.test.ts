@@ -1,4 +1,4 @@
-import { describe, beforeEach, it, expect } from "vitest"
+import { beforeEach, describe, expect, it } from "vitest"
 import { TerrainTileMap, TerrainTileMapService } from "../terrainTileMap"
 import { MapDataBlob } from "./mapDataBlob"
 

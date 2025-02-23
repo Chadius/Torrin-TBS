@@ -16,7 +16,7 @@ import {
 import { DataBlobService } from "../../../../utils/dataBlob/dataBlob"
 import { GraphicsBuffer } from "../../../../utils/graphics/graphicsRenderer"
 import { ResourceHandler } from "../../../../resource/resourceHandler"
-import { MouseClick } from "../../../../utils/mouseConfig"
+import { MousePress } from "../../../../utils/mouseConfig"
 import { GameEngineState } from "../../../../gameEngine/gameEngine"
 import { MessageBoardMessageType } from "../../../../message/messageBoardMessage"
 
@@ -116,7 +116,7 @@ export const SquaddieSelectorPanelService = {
     },
     getClickedButton: (
         squaddieSelectorPanel: SquaddieSelectorPanel,
-        mouseClick: MouseClick
+        mouseClick: MousePress
     ): SquaddieSelectorPanelButton =>
         getClickedButton(squaddieSelectorPanel, mouseClick),
     mouseClicked: ({
@@ -125,7 +125,7 @@ export const SquaddieSelectorPanelService = {
         gameEngineState,
     }: {
         squaddieSelectorPanel: SquaddieSelectorPanel
-        mouseClick: MouseClick
+        mouseClick: MousePress
         gameEngineState: GameEngineState
     }) => {
         const clickedButton = getClickedButton(
@@ -199,7 +199,7 @@ const selectSquaddie = (
 
 const getClickedButton = (
     squaddieSelectorPanel: SquaddieSelectorPanel,
-    mouseClick: MouseClick
+    mouseClick: MousePress
 ): SquaddieSelectorPanelButton => {
     const selectedButton = squaddieSelectorPanel.buttons.find(
         (button) =>

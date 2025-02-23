@@ -29,7 +29,7 @@ import {
 } from "./squaddieSelectorPanelButton"
 import { RectArea, RectAreaService } from "../../../../../ui/rectArea"
 import { ScreenDimensions } from "../../../../../utils/graphics/graphicsConfig"
-import { MouseButton, MouseClick } from "../../../../../utils/mouseConfig"
+import { MouseButton, MousePress } from "../../../../../utils/mouseConfig"
 
 describe("Squaddie Selector Panel Button", () => {
     let objectRepository: ObjectRepository
@@ -428,7 +428,7 @@ describe("Squaddie Selector Panel Button", () => {
                 objectRepository,
             })
 
-            const selectingMouseClick: MouseClick = {
+            const selectingMouseClick: MousePress = {
                 button: MouseButton.ACCEPT,
                 x: RectAreaService.centerX(button.data.uiObjects.drawingArea),
                 y: RectAreaService.centerY(button.data.uiObjects.drawingArea),
@@ -449,7 +449,7 @@ describe("Squaddie Selector Panel Button", () => {
                 squaddieIsSelected: true,
             })
 
-            const selectingMouseClick: MouseClick = {
+            const selectingMouseClick: MousePress = {
                 button: MouseButton.ACCEPT,
                 x: 0,
                 y: 0,
@@ -522,7 +522,7 @@ describe("Squaddie Selector Panel Button", () => {
                         objectRepository,
                     })
 
-                    const selectingMouseClick: MouseClick = {
+                    const selectingMouseClick: MousePress = {
                         button: mouseButton,
                         ...getMouseLocation(button.data.uiObjects.drawingArea),
                     }

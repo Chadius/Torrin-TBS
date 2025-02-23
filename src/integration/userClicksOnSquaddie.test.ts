@@ -270,10 +270,12 @@ describe("User clicks on a squaddie", () => {
                     ...gameEngineState.battleOrchestratorState.battleState.camera.getCoordinates(),
                 })
             selector.mouseEventHappened(gameEngineState, {
-                eventType: OrchestratorComponentMouseEventType.CLICKED,
-                mouseX,
-                mouseY,
-                mouseButton: MouseButton.ACCEPT,
+                eventType: OrchestratorComponentMouseEventType.RELEASE,
+                mouseRelease: {
+                    x: mouseX,
+                    y: mouseY,
+                    button: MouseButton.ACCEPT,
+                },
             })
         }
 
@@ -358,10 +360,12 @@ describe("User clicks on a squaddie", () => {
                 ...gameEngineState.battleOrchestratorState.battleState.camera.getCoordinates(),
             })
         selector.mouseEventHappened(gameEngineState, {
-            eventType: OrchestratorComponentMouseEventType.CLICKED,
-            mouseX,
-            mouseY,
-            mouseButton: MouseButton.ACCEPT,
+            eventType: OrchestratorComponentMouseEventType.RELEASE,
+            mouseRelease: {
+                x: mouseX,
+                y: mouseY,
+                button: MouseButton.ACCEPT,
+            },
         })
         ;({ screenX: mouseX, screenY: mouseY } =
             ConvertCoordinateService.convertMapCoordinatesToScreenLocation({
@@ -370,10 +374,12 @@ describe("User clicks on a squaddie", () => {
                 ...gameEngineState.battleOrchestratorState.battleState.camera.getCoordinates(),
             }))
         selector.mouseEventHappened(gameEngineState, {
-            eventType: OrchestratorComponentMouseEventType.CLICKED,
-            mouseX,
-            mouseY,
-            mouseButton: MouseButton.ACCEPT,
+            eventType: OrchestratorComponentMouseEventType.RELEASE,
+            mouseRelease: {
+                x: mouseX,
+                y: mouseY,
+                button: MouseButton.ACCEPT,
+            },
         })
 
         expect(
@@ -410,9 +416,11 @@ describe("User clicks on a squaddie", () => {
                     ...gameEngineState.battleOrchestratorState.battleState.camera.getCoordinates(),
                 })
             selector.mouseEventHappened(gameEngineState, {
-                eventType: OrchestratorComponentMouseEventType.MOVED,
-                mouseX: screenX,
-                mouseY: screenY,
+                eventType: OrchestratorComponentMouseEventType.LOCATION,
+                mouseLocation: {
+                    x: screenX,
+                    y: screenY,
+                },
             })
 
             SummaryHUDStateService.draw({
@@ -519,10 +527,12 @@ describe("User clicks on a squaddie", () => {
                     ...gameEngineState.battleOrchestratorState.battleState.camera.getCoordinates(),
                 })
             selector.mouseEventHappened(gameEngineState, {
-                eventType: OrchestratorComponentMouseEventType.CLICKED,
-                mouseX: screenX,
-                mouseY: screenY,
-                mouseButton: MouseButton.ACCEPT,
+                eventType: OrchestratorComponentMouseEventType.RELEASE,
+                mouseRelease: {
+                    x: screenX,
+                    y: screenY,
+                    button: MouseButton.ACCEPT,
+                },
             })
             ;({ screenX: screenX, screenY: screenY } =
                 ConvertCoordinateService.convertMapCoordinatesToScreenLocation({
@@ -531,16 +541,20 @@ describe("User clicks on a squaddie", () => {
                     ...gameEngineState.battleOrchestratorState.battleState.camera.getCoordinates(),
                 }))
             selector.mouseEventHappened(gameEngineState, {
-                eventType: OrchestratorComponentMouseEventType.MOVED,
-                mouseX: screenX,
-                mouseY: screenY,
+                eventType: OrchestratorComponentMouseEventType.LOCATION,
+                mouseLocation: {
+                    x: screenX,
+                    y: screenY,
+                },
             })
 
             selector.mouseEventHappened(gameEngineState, {
-                eventType: OrchestratorComponentMouseEventType.CLICKED,
-                mouseX: screenX,
-                mouseY: screenY,
-                mouseButton: MouseButton.ACCEPT,
+                eventType: OrchestratorComponentMouseEventType.RELEASE,
+                mouseRelease: {
+                    x: screenX,
+                    y: screenY,
+                    button: MouseButton.ACCEPT,
+                },
             })
 
             SummaryHUDStateService.draw({

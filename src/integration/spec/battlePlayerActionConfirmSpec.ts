@@ -17,10 +17,20 @@ export const BattlePlayerActionConfirmSpec = {
         gameEngineState: GameEngineState
     }) => {
         confirm.mouseEventHappened(gameEngineState, {
-            eventType: OrchestratorComponentMouseEventType.CLICKED,
-            mouseX: (ScreenDimensions.SCREEN_WIDTH * 13) / 24,
-            mouseY: ScreenDimensions.SCREEN_HEIGHT,
-            mouseButton: MouseButton.ACCEPT,
+            eventType: OrchestratorComponentMouseEventType.PRESS,
+            mousePress: {
+                x: (ScreenDimensions.SCREEN_WIDTH * 13) / 24,
+                y: ScreenDimensions.SCREEN_HEIGHT,
+                button: MouseButton.ACCEPT,
+            },
+        })
+        confirm.mouseEventHappened(gameEngineState, {
+            eventType: OrchestratorComponentMouseEventType.RELEASE,
+            mouseRelease: {
+                x: (ScreenDimensions.SCREEN_WIDTH * 13) / 24,
+                y: ScreenDimensions.SCREEN_HEIGHT,
+                button: MouseButton.ACCEPT,
+            },
         })
     },
     clickOnConfirmTarget: ({
@@ -30,14 +40,22 @@ export const BattlePlayerActionConfirmSpec = {
         confirm: BattlePlayerActionConfirm
         gameEngineState: GameEngineState
     }) => {
-        const confirmSelectionClick: OrchestratorComponentMouseEvent = {
-            eventType: OrchestratorComponentMouseEventType.CLICKED,
-            mouseX: (ScreenDimensions.SCREEN_WIDTH * 13) / 24,
-            mouseY: ScreenDimensions.SCREEN_HEIGHT * 0.9,
-            mouseButton: MouseButton.ACCEPT,
-        }
-
-        confirm.mouseEventHappened(gameEngineState, confirmSelectionClick)
+        confirm.mouseEventHappened(gameEngineState, {
+            eventType: OrchestratorComponentMouseEventType.PRESS,
+            mousePress: {
+                x: (ScreenDimensions.SCREEN_WIDTH * 13) / 24,
+                y: ScreenDimensions.SCREEN_HEIGHT * 0.9,
+                button: MouseButton.ACCEPT,
+            },
+        })
+        confirm.mouseEventHappened(gameEngineState, {
+            eventType: OrchestratorComponentMouseEventType.RELEASE,
+            mouseRelease: {
+                x: (ScreenDimensions.SCREEN_WIDTH * 13) / 24,
+                y: ScreenDimensions.SCREEN_HEIGHT * 0.9,
+                button: MouseButton.ACCEPT,
+            },
+        })
     },
     clickCancelButton: ({
         confirm,
@@ -47,10 +65,20 @@ export const BattlePlayerActionConfirmSpec = {
         gameEngineState: GameEngineState
     }) => {
         confirm.mouseEventHappened(gameEngineState, {
-            eventType: OrchestratorComponentMouseEventType.CLICKED,
-            mouseX: 0,
-            mouseY: 0,
-            mouseButton: MouseButton.CANCEL,
+            eventType: OrchestratorComponentMouseEventType.PRESS,
+            mousePress: {
+                x: 0,
+                y: 0,
+                button: MouseButton.CANCEL,
+            },
+        })
+        confirm.mouseEventHappened(gameEngineState, {
+            eventType: OrchestratorComponentMouseEventType.RELEASE,
+            mouseRelease: {
+                x: 0,
+                y: 0,
+                button: MouseButton.CANCEL,
+            },
         })
     },
     pressCancelKey: ({

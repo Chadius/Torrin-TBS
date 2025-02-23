@@ -226,10 +226,20 @@ describe("User cancels the previewed action", () => {
                 name: "mouse clicks CANCEL",
                 action: () => {
                     targeting.mouseEventHappened(gameEngineState, {
-                        eventType: OrchestratorComponentMouseEventType.CLICKED,
-                        mouseX: 0,
-                        mouseY: 0,
-                        mouseButton: MouseButton.CANCEL,
+                        eventType: OrchestratorComponentMouseEventType.PRESS,
+                        mousePress: {
+                            x: 0,
+                            y: 0,
+                            button: MouseButton.CANCEL,
+                        },
+                    })
+                    targeting.mouseEventHappened(gameEngineState, {
+                        eventType: OrchestratorComponentMouseEventType.RELEASE,
+                        mouseRelease: {
+                            x: 0,
+                            y: 0,
+                            button: MouseButton.CANCEL,
+                        },
                     })
                 },
             },
@@ -467,10 +477,20 @@ describe("User cancels the previewed action", () => {
                 ...gameEngineState.battleOrchestratorState.battleState.camera.getCoordinates(),
             })
         targeting.mouseEventHappened(gameEngineState, {
-            eventType: OrchestratorComponentMouseEventType.CLICKED,
-            mouseX,
-            mouseY,
-            mouseButton: MouseButton.ACCEPT,
+            eventType: OrchestratorComponentMouseEventType.PRESS,
+            mousePress: {
+                x: mouseX,
+                y: mouseY,
+                button: MouseButton.ACCEPT,
+            },
+        })
+        targeting.mouseEventHappened(gameEngineState, {
+            eventType: OrchestratorComponentMouseEventType.RELEASE,
+            mouseRelease: {
+                x: mouseX,
+                y: mouseY,
+                button: MouseButton.ACCEPT,
+            },
         })
         targeting.update({
             gameEngineState,

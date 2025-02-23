@@ -214,10 +214,12 @@ describe("BattleActionConfirm", () => {
 
     const clickOnConfirm = () => {
         const confirmSelectionClick: OrchestratorComponentMouseEvent = {
-            eventType: OrchestratorComponentMouseEventType.CLICKED,
-            mouseX: (ScreenDimensions.SCREEN_WIDTH * 6.5) / 12,
-            mouseY: (ScreenDimensions.SCREEN_HEIGHT * 4) / 5,
-            mouseButton: MouseButton.ACCEPT,
+            eventType: OrchestratorComponentMouseEventType.RELEASE,
+            mouseRelease: {
+                x: (ScreenDimensions.SCREEN_WIDTH * 6.5) / 12,
+                y: (ScreenDimensions.SCREEN_HEIGHT * 4) / 5,
+                button: MouseButton.ACCEPT,
+            },
         }
 
         playerActionConfirm.mouseEventHappened(
@@ -228,10 +230,12 @@ describe("BattleActionConfirm", () => {
 
     const clickOnCancel = () => {
         const cancelTargetClick: OrchestratorComponentMouseEvent = {
-            eventType: OrchestratorComponentMouseEventType.CLICKED,
-            mouseX: (ScreenDimensions.SCREEN_WIDTH * 13) / 24,
-            mouseY: ScreenDimensions.SCREEN_HEIGHT,
-            mouseButton: MouseButton.ACCEPT,
+            eventType: OrchestratorComponentMouseEventType.RELEASE,
+            mouseRelease: {
+                x: (ScreenDimensions.SCREEN_WIDTH * 13) / 24,
+                y: ScreenDimensions.SCREEN_HEIGHT,
+                button: MouseButton.ACCEPT,
+            },
         }
 
         playerActionConfirm.mouseEventHappened(

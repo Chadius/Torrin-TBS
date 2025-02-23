@@ -228,14 +228,28 @@ describe("User ends their turn", () => {
                 .summaryHUDState
         const endTurnButton = getEndTurnButton(summaryHUDState)
         selector.mouseEventHappened(gameEngineState, {
-            eventType: OrchestratorComponentMouseEventType.CLICKED,
-            mouseX: RectAreaService.centerX(
-                endTurnButton.uiObjects.buttonIcon.drawArea
-            ),
-            mouseY: RectAreaService.centerY(
-                endTurnButton.uiObjects.buttonIcon.drawArea
-            ),
-            mouseButton: MouseButton.ACCEPT,
+            eventType: OrchestratorComponentMouseEventType.PRESS,
+            mousePress: {
+                x: RectAreaService.centerX(
+                    endTurnButton.uiObjects.buttonIcon.drawArea
+                ),
+                y: RectAreaService.centerY(
+                    endTurnButton.uiObjects.buttonIcon.drawArea
+                ),
+                button: MouseButton.ACCEPT,
+            },
+        })
+        selector.mouseEventHappened(gameEngineState, {
+            eventType: OrchestratorComponentMouseEventType.RELEASE,
+            mouseRelease: {
+                x: RectAreaService.centerX(
+                    endTurnButton.uiObjects.buttonIcon.drawArea
+                ),
+                y: RectAreaService.centerY(
+                    endTurnButton.uiObjects.buttonIcon.drawArea
+                ),
+                button: MouseButton.ACCEPT,
+            },
         })
 
         expect(
@@ -261,14 +275,28 @@ describe("User ends their turn", () => {
                 .summaryHUDState
         const endTurnButton = getEndTurnButton(summaryHUDState)
         selector.mouseEventHappened(gameEngineState, {
-            eventType: OrchestratorComponentMouseEventType.CLICKED,
-            mouseX: RectAreaService.centerX(
-                endTurnButton.uiObjects.buttonIcon.drawArea
-            ),
-            mouseY: RectAreaService.centerY(
-                endTurnButton.uiObjects.buttonIcon.drawArea
-            ),
-            mouseButton: MouseButton.ACCEPT,
+            eventType: OrchestratorComponentMouseEventType.PRESS,
+            mousePress: {
+                x: RectAreaService.centerX(
+                    endTurnButton.uiObjects.buttonIcon.drawArea
+                ),
+                y: RectAreaService.centerY(
+                    endTurnButton.uiObjects.buttonIcon.drawArea
+                ),
+                button: MouseButton.ACCEPT,
+            },
+        })
+        selector.mouseEventHappened(gameEngineState, {
+            eventType: OrchestratorComponentMouseEventType.RELEASE,
+            mouseRelease: {
+                x: RectAreaService.centerX(
+                    endTurnButton.uiObjects.buttonIcon.drawArea
+                ),
+                y: RectAreaService.centerY(
+                    endTurnButton.uiObjects.buttonIcon.drawArea
+                ),
+                button: MouseButton.ACCEPT,
+            },
         })
 
         const endTurnBattleAction = BattleActionService.new({
@@ -300,14 +328,28 @@ describe("User ends their turn", () => {
                     .summaryHUDState
             const endTurnButton = getEndTurnButton(summaryHUDState)
             selector.mouseEventHappened(gameEngineState, {
-                eventType: OrchestratorComponentMouseEventType.CLICKED,
-                mouseX: RectAreaService.centerX(
-                    endTurnButton.uiObjects.buttonIcon.drawArea
-                ),
-                mouseY: RectAreaService.centerY(
-                    endTurnButton.uiObjects.buttonIcon.drawArea
-                ),
-                mouseButton: MouseButton.ACCEPT,
+                eventType: OrchestratorComponentMouseEventType.PRESS,
+                mousePress: {
+                    x: RectAreaService.centerX(
+                        endTurnButton.uiObjects.buttonIcon.drawArea
+                    ),
+                    y: RectAreaService.centerY(
+                        endTurnButton.uiObjects.buttonIcon.drawArea
+                    ),
+                    button: MouseButton.ACCEPT,
+                },
+            })
+            selector.mouseEventHappened(gameEngineState, {
+                eventType: OrchestratorComponentMouseEventType.RELEASE,
+                mouseRelease: {
+                    x: RectAreaService.centerX(
+                        endTurnButton.uiObjects.buttonIcon.drawArea
+                    ),
+                    y: RectAreaService.centerY(
+                        endTurnButton.uiObjects.buttonIcon.drawArea
+                    ),
+                    button: MouseButton.ACCEPT,
+                },
             })
         })
 

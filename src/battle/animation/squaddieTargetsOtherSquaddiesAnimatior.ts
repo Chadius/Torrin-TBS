@@ -98,7 +98,7 @@ export class SquaddieTargetsOtherSquaddiesAnimator
         mouseEvent: OrchestratorComponentMouseEvent
     ) {
         if (
-            mouseEvent.eventType === OrchestratorComponentMouseEventType.CLICKED
+            mouseEvent.eventType === OrchestratorComponentMouseEventType.RELEASE
         ) {
             this._userRequestedAnimationSkip = true
             if (this.startedShowingResults === false) {

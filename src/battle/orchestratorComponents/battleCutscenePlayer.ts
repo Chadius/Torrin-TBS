@@ -34,31 +34,34 @@ export class BattleCutscenePlayer implements BattleOrchestratorComponent {
     }
 
     mouseEventHappened(
-        state: GameEngineState,
+        gameEngineState: GameEngineState,
         event: OrchestratorComponentMouseEvent
     ): void {
         if (
-            event.eventType === OrchestratorComponentMouseEventType.MOVED &&
+            event.eventType === OrchestratorComponentMouseEventType.LOCATION &&
             this.currentCutscene &&
             CutsceneService.isInProgress(this.currentCutscene)
         ) {
             CutsceneService.mouseMoved(
                 this.currentCutscene,
-                event.mouseX,
-                event.mouseY
+                event.mouseLocation.x,
+                event.mouseLocation.y
             )
             return
         }
         if (
-            event.eventType === OrchestratorComponentMouseEventType.CLICKED &&
+            event.eventType === OrchestratorComponentMouseEventType.RELEASE &&
             this.currentCutscene &&
             CutsceneService.isInProgress(this.currentCutscene)
         ) {
             CutsceneService.mouseClicked(
                 this.currentCutscene,
-                event.mouseX,
-                event.mouseY,
-                { battleOrchestratorState: state.battleOrchestratorState }
+                event.mouseRelease.x,
+                event.mouseRelease.y,
+                {
+                    battleOrchestratorState:
+                        gameEngineState.battleOrchestratorState,
+                }
             )
         }
     }

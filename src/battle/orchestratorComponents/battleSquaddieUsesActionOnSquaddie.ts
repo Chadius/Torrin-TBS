@@ -60,7 +60,7 @@ export class BattleSquaddieUsesActionOnSquaddie
         return this._squaddieTargetsOtherSquaddiesAnimator
     }
 
-    hasCompleted(state: GameEngineState): boolean {
+    hasCompleted(_state: GameEngineState): boolean {
         return this.sawResultAftermath
     }
 
@@ -68,7 +68,7 @@ export class BattleSquaddieUsesActionOnSquaddie
         gameEngineState: GameEngineState,
         event: OrchestratorComponentMouseEvent
     ): void {
-        if (event.eventType === OrchestratorComponentMouseEventType.CLICKED) {
+        if (event.eventType === OrchestratorComponentMouseEventType.RELEASE) {
             this.setSquaddieActionAnimatorBasedOnAction(gameEngineState)
             this.squaddieActionAnimator.mouseEventHappened(
                 gameEngineState,

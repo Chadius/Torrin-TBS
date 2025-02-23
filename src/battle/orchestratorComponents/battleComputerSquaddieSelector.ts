@@ -90,7 +90,7 @@ export class BattleComputerSquaddieSelector
         event: OrchestratorComponentMouseEvent
     ): void {
         if (
-            event.eventType === OrchestratorComponentMouseEventType.CLICKED &&
+            event.eventType === OrchestratorComponentMouseEventType.RELEASE &&
             !this.pauseToShowSquaddieSelectionCompleted(state)
         ) {
             this.clickedToSkipActionDescription = true

@@ -152,31 +152,7 @@ describe("SquaddieSkipsAnimationAnimator", () => {
     })
 
     it("will complete at the end of the display time", () => {
-        vi.spyOn(Date, "now").mockImplementation(() => 0)
-        const gameEngineState: GameEngineState = GameEngineStateService.new({
-            resourceHandler: mockResourceHandler,
-            battleOrchestratorState: BattleOrchestratorStateService.new({
-                battleState: BattleStateService.newBattleState({
-                    missionId: "test mission",
-                    campaignId: "test campaign",
-                }),
-            }),
-            repository: objectRepository,
-        })
-        BattleActionRecorderService.addReadyToAnimateBattleAction(
-            gameEngineState.battleOrchestratorState.battleState
-                .battleActionRecorder,
-            monkMeditatesBattleAction
-        )
-
-        animator.reset(gameEngineState)
-        animator.update({
-            gameEngineState,
-            graphicsContext: mockedP5GraphicsContext,
-            resourceHandler: gameEngineState.resourceHandler,
-        })
-        expect(animator.hasCompleted(gameEngineState)).toBeFalsy()
-
+        const gameEngineState = setupAnimationAtTime0()
         vi.spyOn(Date, "now").mockImplementation(
             () => ANIMATE_TEXT_WINDOW_WAIT_TIME
         )
@@ -189,7 +165,7 @@ describe("SquaddieSkipsAnimationAnimator", () => {
         expect(animator.hasCompleted(gameEngineState)).toBeTruthy()
     })
 
-    it("will skip displaying the results if the user clicks", () => {
+    const setupAnimationAtTime0 = () => {
         vi.spyOn(Date, "now").mockImplementation(() => 0)
         const gameEngineState: GameEngineState = GameEngineStateService.new({
             resourceHandler: mockResourceHandler,
@@ -214,12 +190,19 @@ describe("SquaddieSkipsAnimationAnimator", () => {
             resourceHandler: gameEngineState.resourceHandler,
         })
         expect(animator.hasCompleted(gameEngineState)).toBeFalsy()
+        return gameEngineState
+    }
+
+    it("will skip displaying the results if the user clicks", () => {
+        const gameEngineState = setupAnimationAtTime0()
 
         const mouseEvent: OrchestratorComponentMouseEvent = {
-            eventType: OrchestratorComponentMouseEventType.CLICKED,
-            mouseX: 0,
-            mouseY: 0,
-            mouseButton: MouseButton.ACCEPT,
+            eventType: OrchestratorComponentMouseEventType.RELEASE,
+            mouseRelease: {
+                button: MouseButton.ACCEPT,
+                x: 0,
+                y: 0,
+            },
         }
         animator.mouseEventHappened(gameEngineState, mouseEvent)
 

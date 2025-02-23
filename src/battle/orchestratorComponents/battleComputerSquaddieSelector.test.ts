@@ -772,10 +772,12 @@ describe("BattleComputerSquaddieSelector", () => {
                 })
 
                 const mouseEvent: OrchestratorComponentMouseEvent = {
-                    eventType: OrchestratorComponentMouseEventType.CLICKED,
-                    mouseX: 0,
-                    mouseY: 0,
-                    mouseButton: MouseButton.ACCEPT,
+                    eventType: OrchestratorComponentMouseEventType.RELEASE,
+                    mouseRelease: {
+                        x: 0,
+                        y: 0,
+                        button: MouseButton.ACCEPT,
+                    },
                 }
 
                 selector.mouseEventHappened(gameEngineState, mouseEvent)

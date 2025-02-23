@@ -1,36 +1,39 @@
-import { FileState } from "../../gameEngine/fileState"
 import { BehaviorTreeTask } from "../../utils/behaviorTree/task"
 import { DataBlob, DataBlobService } from "../../utils/dataBlob/dataBlob"
+import {
+    TitleScreenContext,
+    TitleScreenLayout,
+    TitleScreenUIObjects,
+} from "../titleScreen"
+import { Label, LabelService } from "../../ui/label"
+import { RectAreaService } from "../../ui/rectArea"
 import {
     HORIZONTAL_ALIGN,
     VERTICAL_ALIGN,
     WINDOW_SPACING,
 } from "../../ui/constants"
-import { LabelService } from "../../ui/label"
-import { RectAreaService } from "../../ui/rectArea"
-import { LoadSaveStateService } from "../../dataLoader/playerData/loadSaveState"
-import { MessageBoardMessageType } from "../../message/messageBoardMessage"
-import {
-    TitleScreen,
-    TitleScreenContext,
-    TitleScreenLayout,
-    TitleScreenMenuSelection,
-    TitleScreenUIObjects,
-} from "../titleScreen"
-import { DEPRECATEDButton } from "../../ui/buttonDEPRECATED/DEPRECATEDButton"
 import { ButtonStatus } from "../../ui/button/buttonStatus"
+import {
+    AllLabelButtonDataBlob,
+    AllLabelButtonDrawTask,
+    AllLabelButtonUIObjects,
+} from "../../ui/button/style/AllLabelStyle/allLabelStyle"
+import { Button } from "../../ui/button/button"
+import { ButtonLogicChangeOnRelease } from "../../ui/button/logic/buttonLogicChangeOnRelease"
+import { LoadSaveStateService } from "../../dataLoader/playerData/loadSaveState"
+import { FileState } from "../../gameEngine/fileState"
 
-export const TITLE_SCREEN_FILE_MESSAGE_DISPLAY_DURATION = 2000
+const TITLE_SCREEN_CONTINUE_BUTTON_ID = "TITLE_SCREEN_CONTINUE_BUTTON_ID"
 
-export class ShouldCreateUpdateGameButtonAction implements BehaviorTreeTask {
+export class ShouldCreateContinueGameButtonAction implements BehaviorTreeTask {
     dataBlob: DataBlob
 
     constructor(data: DataBlob) {
         this.dataBlob = data
     }
 
-    clone(): ShouldCreateUpdateGameButtonAction {
-        return new ShouldCreateUpdateGameButtonAction(this.dataBlob)
+    clone(): ShouldCreateContinueGameButtonAction {
+        return new ShouldCreateContinueGameButtonAction(this.dataBlob)
     }
 
     run() {
@@ -39,11 +42,12 @@ export class ShouldCreateUpdateGameButtonAction implements BehaviorTreeTask {
                 this.dataBlob,
                 "uiObjects"
             )
+        const continueGameButton = uiObjects.continueGameButton
+
+        if (continueGameButton == undefined) return true
+
         const context: TitleScreenContext =
             DataBlobService.get<TitleScreenContext>(this.dataBlob, "context")
-        if (uiObjects.continueGameButton == undefined) {
-            return true
-        }
 
         const { buttonText, isError } = getContinueGameButtonText(context)
         if (
@@ -59,22 +63,29 @@ export class ShouldCreateUpdateGameButtonAction implements BehaviorTreeTask {
             context.errorDuringLoadingDisplayStartTimestamp = undefined
         }
 
+        const readyButtonLabel: Label =
+            DataBlobService.get<AllLabelButtonUIObjects>(
+                uiObjects.continueGameButton.buttonStyle.dataBlob,
+                "uiObjects"
+            )?.buttonLabelsByStatus[ButtonStatus.READY]
+        if (readyButtonLabel == undefined) return true
+
         return (
             errorMessageTimeoutReached ||
-            uiObjects.continueGameButton.readyLabel.textBox.text !== buttonText
+            readyButtonLabel.textBox.text !== buttonText
         )
     }
 }
 
-export class CreateUpdateGameButtonAction implements BehaviorTreeTask {
+export class CreateContinueGameButtonAction implements BehaviorTreeTask {
     dataBlob: DataBlob
 
     constructor(data: DataBlob) {
         this.dataBlob = data
     }
 
-    clone(): CreateUpdateGameButtonAction {
-        return new CreateUpdateGameButtonAction(this.dataBlob)
+    clone(): CreateContinueGameButtonAction {
+        return new CreateContinueGameButtonAction(this.dataBlob)
     }
 
     run() {
@@ -89,63 +100,83 @@ export class CreateUpdateGameButtonAction implements BehaviorTreeTask {
 
         const context: TitleScreenContext =
             DataBlobService.get<TitleScreenContext>(this.dataBlob, "context")
-        const messageBoard = context.messageBoard
-        const fileState = context.fileState
 
         const { buttonText } = getContinueGameButtonText(context)
         const buttonFontSize = WINDOW_SPACING.SPACING2
         const playButtonHorizontalAlignment = HORIZONTAL_ALIGN.CENTER
 
-        uiObjects.continueGameButton = new DEPRECATEDButton({
-            activeLabel: LabelService.new({
-                text: "Now loading...",
-                fillColor: layout.colors.playButtonActive,
-                area: RectAreaService.new(layout.continueGameButton.buttonArea),
-                fontSize: buttonFontSize,
-                fontColor: layout.colors.playButtonText,
-                textBoxMargin: WINDOW_SPACING.SPACING1,
-                horizAlign: HORIZONTAL_ALIGN.CENTER,
-                vertAlign: VERTICAL_ALIGN.CENTER,
-                strokeColor: layout.colors.playButtonStroke,
-            }),
-            readyLabel: LabelService.new({
-                text: buttonText,
-                fillColor: layout.colors.playButton,
-                area: RectAreaService.new(layout.continueGameButton.buttonArea),
-                fontSize: buttonFontSize,
-                fontColor: layout.colors.playButtonText,
-                textBoxMargin: WINDOW_SPACING.SPACING1,
-                horizAlign: playButtonHorizontalAlignment,
-                vertAlign: VERTICAL_ALIGN.CENTER,
-                strokeColor: layout.colors.playButtonStroke,
-            }),
-            initialStatus: ButtonStatus.READY,
-            onClickHandler(
-                _mouseX: number,
-                _mouseY: number,
-                button: DEPRECATEDButton,
-                _caller: TitleScreen
-            ): {} {
-                if (context.menuSelection === TitleScreenMenuSelection.NONE) {
-                    context.menuSelection =
-                        TitleScreenMenuSelection.CONTINUE_GAME
-
-                    LoadSaveStateService.reset(fileState.loadSaveState)
-                    messageBoard.sendMessage({
-                        type: MessageBoardMessageType.PLAYER_DATA_LOAD_USER_REQUEST,
-                        loadSaveState: fileState.loadSaveState,
-                    })
-
-                    button.setStatus(ButtonStatus.ACTIVE)
-                }
-                return {}
-            },
+        const buttonLogic = new ButtonLogicChangeOnRelease({
+            dataBlob: context.buttonStatusChangeEventDataBlob,
         })
-        DataBlobService.add<TitleScreenContext>(
-            this.dataBlob,
-            "context",
-            context
-        )
+        const allLabelButtonDataBlob: AllLabelButtonDataBlob = {
+            data: {
+                layout: {
+                    labelByButtonStatus: {
+                        [ButtonStatus.READY]: LabelService.new({
+                            text: buttonText,
+                            fillColor: layout.colors.playButton,
+                            area: RectAreaService.new(
+                                layout.continueGameButton.buttonArea
+                            ),
+                            fontSize: buttonFontSize,
+                            fontColor: layout.colors.playButtonText,
+                            textBoxMargin: WINDOW_SPACING.SPACING1,
+                            horizAlign: playButtonHorizontalAlignment,
+                            vertAlign: VERTICAL_ALIGN.CENTER,
+                            strokeColor: layout.colors.playButtonStroke,
+                        }),
+                        [ButtonStatus.HOVER]: LabelService.new({
+                            text: "Click to open a file",
+                            fillColor: layout.colors.playButtonActive,
+                            area: RectAreaService.new(
+                                layout.continueGameButton.buttonArea
+                            ),
+                            fontSize: buttonFontSize,
+                            fontColor: layout.colors.playButtonText,
+                            textBoxMargin: WINDOW_SPACING.SPACING1,
+                            horizAlign: HORIZONTAL_ALIGN.CENTER,
+                            vertAlign: VERTICAL_ALIGN.CENTER,
+                            strokeColor: layout.colors.playButtonStroke,
+                        }),
+                        [ButtonStatus.ACTIVE]: LabelService.new({
+                            text: "Now loading...",
+                            fillColor: layout.colors.playButtonActive,
+                            area: RectAreaService.new(
+                                layout.continueGameButton.buttonArea
+                            ),
+                            fontSize: buttonFontSize,
+                            fontColor: layout.colors.playButtonText,
+                            textBoxMargin: WINDOW_SPACING.SPACING1,
+                            horizAlign: HORIZONTAL_ALIGN.CENTER,
+                            vertAlign: VERTICAL_ALIGN.CENTER,
+                            strokeColor: layout.colors.playButtonStroke,
+                        }),
+                        [ButtonStatus.DISABLED]: LabelService.new({
+                            area: RectAreaService.new({
+                                left: 30,
+                                top: 30,
+                                width: 30,
+                                height: 20,
+                            }),
+                            text: "Disabled",
+                            textBoxMargin: undefined,
+                            fontColor: [0, 0, 0],
+                            fontSize: 10,
+                        }),
+                    },
+                },
+            },
+        }
+        const drawTask = new AllLabelButtonDrawTask({
+            buttonLogic: buttonLogic,
+            dataBlob: allLabelButtonDataBlob,
+        })
+
+        uiObjects.continueGameButton = new Button({
+            id: TITLE_SCREEN_CONTINUE_BUTTON_ID,
+            drawTask,
+            buttonLogic,
+        })
 
         return true
     }
@@ -177,7 +208,8 @@ const getContinueGameButtonText = (
     }
 
     switch (true) {
-        case !wasLoadingEngaged(context.fileState):
+        case !wasLoadingEngaged(context.fileState) ||
+            isErrorMessageTimeoutReached(context):
             return {
                 buttonText: "Load file and continue",
                 isError: false,
@@ -185,11 +217,6 @@ const getContinueGameButtonText = (
         case userIsWaitingForLoadToFinish(context.fileState):
             return {
                 buttonText: "Now loading...",
-                isError: false,
-            }
-        case isErrorMessageTimeoutReached(context):
-            return {
-                buttonText: "Load file and continue",
                 isError: false,
             }
         case context.fileState.loadSaveState.applicationErroredWhileLoading:
@@ -209,6 +236,8 @@ const getContinueGameButtonText = (
             }
     }
 }
+
+export const TITLE_SCREEN_FILE_MESSAGE_DISPLAY_DURATION = 2000
 const isErrorMessageTimeoutReached = (context: TitleScreenContext): boolean => {
     return (
         context.errorDuringLoadingDisplayStartTimestamp !== undefined &&

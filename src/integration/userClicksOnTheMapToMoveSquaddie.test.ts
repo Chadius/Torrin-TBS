@@ -453,9 +453,19 @@ const selectorClicksOnMapCoordinate = (
             ...gameEngineState.battleOrchestratorState.battleState.camera.getCoordinates(),
         })
     selector.mouseEventHappened(gameEngineState, {
-        eventType: OrchestratorComponentMouseEventType.CLICKED,
-        mouseX,
-        mouseY,
-        mouseButton: MouseButton.ACCEPT,
+        eventType: OrchestratorComponentMouseEventType.PRESS,
+        mousePress: {
+            x: mouseX,
+            y: mouseY,
+            button: MouseButton.ACCEPT,
+        },
+    })
+    selector.mouseEventHappened(gameEngineState, {
+        eventType: OrchestratorComponentMouseEventType.RELEASE,
+        mouseRelease: {
+            x: mouseX,
+            y: mouseY,
+            button: MouseButton.ACCEPT,
+        },
     })
 }

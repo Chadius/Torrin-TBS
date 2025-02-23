@@ -248,10 +248,12 @@ describe("BattleSquaddieTarget", () => {
                 ...gameEngineState.battleOrchestratorState.battleState.camera.getCoordinates(),
             })
         const mouseEvent: OrchestratorComponentMouseEvent = {
-            eventType: OrchestratorComponentMouseEventType.CLICKED,
-            mouseX,
-            mouseY,
-            mouseButton: MouseButton.ACCEPT,
+            eventType: OrchestratorComponentMouseEventType.RELEASE,
+            mouseRelease: {
+                x: mouseX,
+                y: mouseY,
+                button: MouseButton.ACCEPT,
+            },
         }
 
         targetComponent.mouseEventHappened(gameEngineState, mouseEvent)
@@ -320,10 +322,12 @@ describe("BattleSquaddieTarget", () => {
             "should cancel target if the user clicks on the cancel button",
             ({ mouseX, mouseY }) => {
                 const mouseEvent: OrchestratorComponentMouseEvent = {
-                    eventType: OrchestratorComponentMouseEventType.CLICKED,
-                    mouseX,
-                    mouseY,
-                    mouseButton: MouseButton.ACCEPT,
+                    eventType: OrchestratorComponentMouseEventType.RELEASE,
+                    mouseRelease: {
+                        x: mouseX,
+                        y: mouseY,
+                        button: MouseButton.ACCEPT,
+                    },
                 }
 
                 targetComponent.mouseEventHappened(gameEngineState, mouseEvent)
@@ -356,10 +360,12 @@ describe("BattleSquaddieTarget", () => {
             })
 
         const mouseEvent: OrchestratorComponentMouseEvent = {
-            eventType: OrchestratorComponentMouseEventType.CLICKED,
-            mouseX,
-            mouseY,
-            mouseButton: MouseButton.ACCEPT,
+            eventType: OrchestratorComponentMouseEventType.RELEASE,
+            mouseRelease: {
+                x: mouseX,
+                y: mouseY,
+                button: MouseButton.ACCEPT,
+            },
         }
 
         targetComponent.mouseEventHappened(gameEngineState, mouseEvent)
@@ -555,9 +561,11 @@ describe("BattleSquaddieTarget", () => {
             })
 
         const mouseEvent: OrchestratorComponentMouseEvent = {
-            eventType: OrchestratorComponentMouseEventType.MOVED,
-            mouseX,
-            mouseY,
+            eventType: OrchestratorComponentMouseEventType.LOCATION,
+            mouseLocation: {
+                x: mouseX,
+                y: mouseY,
+            },
         }
 
         targetComponent.mouseEventHappened(gameEngineState, mouseEvent)

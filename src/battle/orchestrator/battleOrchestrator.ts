@@ -24,7 +24,7 @@ import {
     GameEngineChanges,
     GameEngineComponent,
 } from "../../gameEngine/gameEngineComponent"
-import { MouseButton } from "../../utils/mouseConfig"
+import { MousePress, MouseRelease } from "../../utils/mouseConfig"
 import { GameEngineState } from "../../gameEngine/gameEngine"
 import {
     MissionObjective,
@@ -362,31 +362,51 @@ export class BattleOrchestrator implements GameEngineComponent {
         }
     }
 
-    public mouseClicked(
-        state: GameEngineState,
-        mouseButton: MouseButton,
-        mouseX: number,
-        mouseY: number
-    ) {
+    public mouseReleased(
+        gameEngineState: GameEngineState,
+        mouseRelease: MouseRelease
+    ): void {
         const mouseEvent: OrchestratorComponentMouseEvent = {
-            eventType: OrchestratorComponentMouseEventType.CLICKED,
-            mouseX,
-            mouseY,
-            mouseButton,
+            eventType: OrchestratorComponentMouseEventType.RELEASE,
+            mouseRelease,
         }
 
-        this.getCurrentComponent().mouseEventHappened(state, mouseEvent)
+        this.getCurrentComponent().mouseEventHappened(
+            gameEngineState,
+            mouseEvent
+        )
 
         if (this.uiControlSettings.letMouseScrollCamera === true) {
-            this.mapDisplay.mouseEventHappened(state, mouseEvent)
+            this.mapDisplay.mouseEventHappened(gameEngineState, mouseEvent)
+        }
+    }
+
+    public mousePressed(
+        gameEngineState: GameEngineState,
+        mousePress: MousePress
+    ) {
+        const mouseEvent: OrchestratorComponentMouseEvent = {
+            eventType: OrchestratorComponentMouseEventType.PRESS,
+            mousePress,
+        }
+
+        this.getCurrentComponent().mouseEventHappened(
+            gameEngineState,
+            mouseEvent
+        )
+
+        if (this.uiControlSettings.letMouseScrollCamera === true) {
+            this.mapDisplay.mouseEventHappened(gameEngineState, mouseEvent)
         }
     }
 
     public mouseMoved(state: GameEngineState, mouseX: number, mouseY: number) {
         const mouseEvent: OrchestratorComponentMouseEvent = {
-            eventType: OrchestratorComponentMouseEventType.MOVED,
-            mouseX,
-            mouseY,
+            eventType: OrchestratorComponentMouseEventType.LOCATION,
+            mouseLocation: {
+                x: mouseX,
+                y: mouseY,
+            },
         }
 
         this.getCurrentComponent().mouseEventHappened(state, mouseEvent)

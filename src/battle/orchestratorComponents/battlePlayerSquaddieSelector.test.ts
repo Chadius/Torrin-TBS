@@ -514,9 +514,11 @@ describe("BattleSquaddieSelector", () => {
             }))
 
             selector.mouseEventHappened(gameEngineState, {
-                eventType: OrchestratorComponentMouseEventType.MOVED,
-                mouseX: battleSquaddieScreenPositionX,
-                mouseY: battleSquaddieScreenPositionY,
+                eventType: OrchestratorComponentMouseEventType.LOCATION,
+                mouseLocation: {
+                    x: battleSquaddieScreenPositionX,
+                    y: battleSquaddieScreenPositionY,
+                },
             })
         })
 
@@ -1101,16 +1103,20 @@ const clickOnMapCoordinate = ({
             ...camera.getCoordinates(),
         })
     selector.mouseEventHappened(gameEngineState, {
-        eventType: OrchestratorComponentMouseEventType.MOVED,
-        mouseX: destinationScreenX,
-        mouseY: destinationScreenY,
+        eventType: OrchestratorComponentMouseEventType.LOCATION,
+        mouseLocation: {
+            x: destinationScreenX,
+            y: destinationScreenY,
+        },
     })
 
     selector.mouseEventHappened(gameEngineState, {
-        eventType: OrchestratorComponentMouseEventType.CLICKED,
-        mouseX: destinationScreenX,
-        mouseY: destinationScreenY,
-        mouseButton: MouseButton.ACCEPT,
+        eventType: OrchestratorComponentMouseEventType.RELEASE,
+        mouseRelease: {
+            x: destinationScreenX,
+            y: destinationScreenY,
+            button: MouseButton.ACCEPT,
+        },
     })
 }
 

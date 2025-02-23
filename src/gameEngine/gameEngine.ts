@@ -232,13 +232,20 @@ export class GameEngine {
         )
     }
 
-    mouseClicked(mouseButton: MouseButton, mouseX: number, mouseY: number) {
-        this.component.mouseClicked(
-            this.gameEngineState,
-            mouseButton,
-            mouseX,
-            mouseY
-        )
+    mousePressed(mouseButton: MouseButton, mouseX: number, mouseY: number) {
+        this.component.mousePressed(this.gameEngineState, {
+            button: mouseButton,
+            x: mouseX,
+            y: mouseY,
+        })
+    }
+
+    mouseReleased(mouseButton: MouseButton, mouseX: number, mouseY: number) {
+        this.component.mouseReleased(this.gameEngineState, {
+            button: mouseButton,
+            x: mouseX,
+            y: mouseY,
+        })
     }
 
     mouseMoved(mouseX: number, mouseY: number) {

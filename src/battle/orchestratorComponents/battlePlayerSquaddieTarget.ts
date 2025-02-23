@@ -6,8 +6,7 @@ import {
     OrchestratorComponentKeyEvent,
     OrchestratorComponentKeyEventType,
     OrchestratorComponentMouseEvent,
-    OrchestratorComponentMouseEventClicked,
-    OrchestratorComponentMouseEventMoved,
+    OrchestratorComponentMouseEventChangeLocation,
     OrchestratorComponentMouseEventType,
 } from "../orchestrator/battleOrchestratorComponent"
 import { HexCoordinate } from "../../hexMap/hexCoordinate/hexCoordinate"
@@ -86,14 +85,15 @@ export class BattlePlayerSquaddieTarget implements BattleOrchestratorComponent {
         mouseEvent: OrchestratorComponentMouseEvent
     ): void {
         if (
-            mouseEvent.eventType === OrchestratorComponentMouseEventType.MOVED
+            mouseEvent.eventType ===
+            OrchestratorComponentMouseEventType.LOCATION
         ) {
             sendMessageIfUserPeeksOnASquaddie({ gameEngineState, mouseEvent })
             return
         }
 
         if (
-            mouseEvent.eventType !== OrchestratorComponentMouseEventType.CLICKED
+            mouseEvent.eventType !== OrchestratorComponentMouseEventType.RELEASE
         ) {
             return
         }
@@ -176,7 +176,7 @@ export class BattlePlayerSquaddieTarget implements BattleOrchestratorComponent {
         keyboardEvent,
     }: {
         gameEngineState: GameEngineState
-        mouseEvent?: OrchestratorComponentMouseEventClicked
+        mouseEvent?: OrchestratorComponentMouseEvent
         keyboardEvent?: OrchestratorComponentKeyEvent
     }) {
         if (
@@ -211,18 +211,23 @@ export class BattlePlayerSquaddieTarget implements BattleOrchestratorComponent {
             return
         }
 
+        if (
+            mouseEvent.eventType !== OrchestratorComponentMouseEventType.RELEASE
+        ) {
+            return
+        }
+
         const mouseClickedAccept: boolean =
-            isValidValue(mouseEvent) &&
-            mouseEvent.mouseButton === MouseButton.ACCEPT
+            mouseEvent.mouseRelease.button === MouseButton.ACCEPT
         if (!mouseClickedAccept) {
             return
         }
 
         this.tryToSelectValidTarget({
-            mouseX: mouseEvent.mouseX,
-            mouseY: mouseEvent.mouseY,
+            mouseX: mouseEvent.mouseRelease.x,
+            mouseY: mouseEvent.mouseRelease.y,
             gameEngineState,
-            mouseButton: mouseEvent.mouseButton,
+            mouseButton: mouseEvent.mouseRelease.button,
         })
     }
 
@@ -348,13 +353,13 @@ const sendMessageIfUserPeeksOnASquaddie = ({
     mouseEvent,
     gameEngineState,
 }: {
-    mouseEvent: OrchestratorComponentMouseEventMoved
+    mouseEvent: OrchestratorComponentMouseEventChangeLocation
     gameEngineState: GameEngineState
 }) => {
     const { q, r } =
         ConvertCoordinateService.convertScreenLocationToMapCoordinates({
-            screenX: mouseEvent.mouseX,
-            screenY: mouseEvent.mouseY,
+            screenX: mouseEvent.mouseLocation.x,
+            screenY: mouseEvent.mouseLocation.y,
             ...gameEngineState.battleOrchestratorState.battleState.camera.getCoordinates(),
         })
 
@@ -373,10 +378,7 @@ const sendMessageIfUserPeeksOnASquaddie = ({
         gameEngineState,
         battleSquaddieSelectedId: battleSquaddieId,
         selectionMethod: {
-            mouse: {
-                x: mouseEvent.mouseX,
-                y: mouseEvent.mouseY,
-            },
+            mouse: mouseEvent.mouseLocation,
         },
     })
 }
@@ -388,17 +390,20 @@ const didUserCancelTargetCoordinate = ({
     playerInputState,
 }: {
     targetComponent: BattlePlayerSquaddieTarget
-    mouseEvent?: OrchestratorComponentMouseEventClicked
+    mouseEvent?: OrchestratorComponentMouseEvent
     keyboardEvent?: OrchestratorComponentKeyEvent
     playerInputState: PlayerInputState
 }): boolean => {
-    if (isValidValue(mouseEvent)) {
+    if (
+        isValidValue(mouseEvent) &&
+        mouseEvent.eventType === OrchestratorComponentMouseEventType.RELEASE
+    ) {
         return (
-            mouseEvent.mouseButton === MouseButton.CANCEL ||
+            mouseEvent.mouseRelease.button === MouseButton.CANCEL ||
             RectAreaService.isInside(
                 targetComponent.cancelButton.rectangle.area,
-                mouseEvent.mouseX,
-                mouseEvent.mouseY
+                mouseEvent.mouseRelease.x,
+                mouseEvent.mouseRelease.y
             )
         )
     }

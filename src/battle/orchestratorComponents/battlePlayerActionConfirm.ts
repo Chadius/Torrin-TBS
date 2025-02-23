@@ -11,7 +11,7 @@ import {
     OrchestratorComponentKeyEvent,
     OrchestratorComponentKeyEventType,
     OrchestratorComponentMouseEvent,
-    OrchestratorComponentMouseEventClicked,
+    OrchestratorComponentMouseEventRelease,
     OrchestratorComponentMouseEventType,
 } from "../orchestrator/battleOrchestratorComponent"
 import { UIControlSettings } from "../orchestrator/uiControlSettings"
@@ -74,7 +74,7 @@ export class BattlePlayerActionConfirm implements BattleOrchestratorComponent {
         mouseEvent: OrchestratorComponentMouseEvent
     ): void {
         if (
-            mouseEvent.eventType !== OrchestratorComponentMouseEventType.CLICKED
+            mouseEvent.eventType !== OrchestratorComponentMouseEventType.RELEASE
         ) {
             return
         }
@@ -155,7 +155,7 @@ export class BattlePlayerActionConfirm implements BattleOrchestratorComponent {
         keyboardEvent,
     }: {
         gameEngineState: GameEngineState
-        mouseEvent?: OrchestratorComponentMouseEventClicked
+        mouseEvent?: OrchestratorComponentMouseEventRelease
         keyboardEvent?: OrchestratorComponentKeyEvent
     }) {
         if (
@@ -254,7 +254,7 @@ const didUserCancelActionConfirmation = ({
     cancelButtonArea,
     playerInputState,
 }: {
-    mouseEvent?: OrchestratorComponentMouseEventClicked
+    mouseEvent?: OrchestratorComponentMouseEventRelease
     keyboardEvent?: OrchestratorComponentKeyEvent
     cancelButtonArea: RectArea
     playerInputState: PlayerInputState
@@ -267,14 +267,14 @@ const didUserCancelActionConfirmation = ({
         : []
     switch (true) {
         case isValidValue(mouseEvent) &&
-            mouseEvent.mouseButton === MouseButton.CANCEL:
+            mouseEvent.mouseRelease.button === MouseButton.CANCEL:
             return true
         case isValidValue(mouseEvent) &&
-            mouseEvent.mouseButton === MouseButton.ACCEPT &&
+            mouseEvent.mouseRelease.button === MouseButton.ACCEPT &&
             RectAreaService.isInside(
                 cancelButtonArea,
-                mouseEvent.mouseX,
-                mouseEvent.mouseY
+                mouseEvent.mouseRelease.x,
+                mouseEvent.mouseRelease.y
             ):
             return true
         case isValidValue(keyboardEvent) &&
@@ -291,7 +291,7 @@ const didUserConfirmActionConfirmation = ({
     confirmButtonArea,
     playerInputState,
 }: {
-    mouseEvent?: OrchestratorComponentMouseEventClicked
+    mouseEvent?: OrchestratorComponentMouseEventRelease
     keyboardEvent?: OrchestratorComponentKeyEvent
     confirmButtonArea: RectArea
     playerInputState: PlayerInputState
@@ -304,11 +304,11 @@ const didUserConfirmActionConfirmation = ({
         : []
     switch (true) {
         case isValidValue(mouseEvent) &&
-            mouseEvent.mouseButton === MouseButton.ACCEPT &&
+            mouseEvent.mouseRelease.button === MouseButton.ACCEPT &&
             RectAreaService.isInside(
                 confirmButtonArea,
-                mouseEvent.mouseX,
-                mouseEvent.mouseY
+                mouseEvent.mouseRelease.x,
+                mouseEvent.mouseRelease.y
             ):
             return true
         case isValidValue(keyboardEvent) &&

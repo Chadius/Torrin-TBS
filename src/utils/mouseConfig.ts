@@ -22,7 +22,15 @@ export interface ScreenLocation {
     y: number
 }
 
-export interface MouseClick extends ScreenLocation {
+export interface MousePress extends ScreenLocation {
+    button: MouseButton
+}
+
+export interface MouseRelease extends ScreenLocation {
+    button: MouseButton
+}
+
+export interface MouseRelease extends ScreenLocation {
     button: MouseButton
 }
 
@@ -35,7 +43,7 @@ export const MouseClickService = {
         x: number
         y: number
         button: MouseButton
-    }): MouseClick => {
+    }): MousePress => {
         return {
             x,
             y,

@@ -1,6 +1,6 @@
 import * as mocks from "../utils/test/mocks"
 import { MockedP5GraphicsBuffer } from "../utils/test/mocks"
-import { TitleScreen } from "./titleScreen"
+import { TitleScreen, TitleScreenUIObjects } from "./titleScreen"
 import { TitleScreenState } from "./titleScreenState"
 import { GameModeEnum } from "../utils/startupConfig"
 import { MouseButton } from "../utils/mouseConfig"
@@ -18,8 +18,8 @@ import { MessageBoardMessageType } from "../message/messageBoardMessage"
 import { PlayerDataMessageListener } from "../dataLoader/playerData/playerDataMessageListener"
 import { DataBlobService } from "../utils/dataBlob/dataBlob"
 import { WindowService } from "../utils/graphics/window"
+import { Button } from "../ui/button/button"
 import { TITLE_SCREEN_FILE_MESSAGE_DISPLAY_DURATION } from "./components/continueGameButton"
-import { DEPRECATEDButton } from "../ui/buttonDEPRECATED/DEPRECATEDButton"
 
 describe("Title Screen", () => {
     let gameEngineState: GameEngineState
@@ -70,32 +70,31 @@ describe("Title Screen", () => {
         expect(titleScreenState).not.toBeUndefined()
     })
 
-    it("will declare itself complete when the user clicks on the start button and the button is drawn active", () => {
+    it("will declare itself complete when the user clicks and releases on the start button and the button is drawn active", () => {
         expect(titleScreen.hasCompleted(gameEngineState)).toBeFalsy()
         titleScreen.update(gameEngineState, mockedP5GraphicsContext)
         expect(titleScreen.hasCompleted(gameEngineState)).toBeFalsy()
-        const startNewGameButton: DEPRECATEDButton = DataBlobService.get<{
-            startNewGameButton: DEPRECATEDButton
-        }>(titleScreen.data, "uiObjects").startNewGameButton
 
-        titleScreen.mouseClicked(
-            gameEngineState,
-            MouseButton.ACCEPT,
-            RectAreaService.centerX(startNewGameButton.readyLabel.textBox.area),
-            RectAreaService.centerY(startNewGameButton.readyLabel.textBox.area)
-        )
+        const startGameButton: Button =
+            DataBlobService.get<TitleScreenUIObjects>(
+                titleScreen.data,
+                "uiObjects"
+            ).startGameButton
+
+        titleScreen.mousePressed(gameEngineState, {
+            button: MouseButton.ACCEPT,
+            x: RectAreaService.centerX(startGameButton.getArea()),
+            y: RectAreaService.centerY(startGameButton.getArea()),
+        })
+
         expect(titleScreen.hasCompleted(gameEngineState)).toBeTruthy()
-        let textSpy = vi.spyOn(mockedP5GraphicsContext.mockedP5, "text")
-        titleScreen.update(gameEngineState, mockedP5GraphicsContext)
-        expect(titleScreen.hasCompleted(gameEngineState)).toBeTruthy()
-        expect(textSpy).toBeCalled()
-        expect(textSpy).toBeCalledWith(
-            "Now loading...",
-            expect.anything(),
-            expect.anything(),
-            expect.anything(),
-            expect.anything()
-        )
+        expect(
+            expectTitleScreenToStartLoading({
+                mockedP5GraphicsContext: mockedP5GraphicsContext,
+                titleScreen: titleScreen,
+                gameEngineState: gameEngineState,
+            })
+        ).toBeTruthy()
     })
 
     it("will declare itself complete when the user presses the enter key", () => {
@@ -112,17 +111,13 @@ describe("Title Screen", () => {
             PlayerInputTestService.pressAcceptKey().keyCode
         )
         expect(titleScreen.hasCompleted(gameEngineState)).toBeTruthy()
-        let textSpy = vi.spyOn(mockedP5GraphicsContext.mockedP5, "text")
-        titleScreen.update(gameEngineState, mockedP5GraphicsContext)
-        expect(titleScreen.hasCompleted(gameEngineState)).toBeTruthy()
-        expect(textSpy).toBeCalled()
-        expect(textSpy).toBeCalledWith(
-            "Now loading...",
-            expect.anything(),
-            expect.anything(),
-            expect.anything(),
-            expect.anything()
-        )
+        expect(
+            expectTitleScreenToStartLoading({
+                mockedP5GraphicsContext: mockedP5GraphicsContext,
+                titleScreen: titleScreen,
+                gameEngineState: gameEngineState,
+            })
+        ).toBeTruthy()
     })
 
     it("will upon completion recommend the loading battle state", () => {
@@ -219,19 +214,7 @@ describe("Title Screen", () => {
                 gameEngineState.messageBoard,
                 "sendMessage"
             )
-            const continueGameButton: DEPRECATEDButton = DataBlobService.get<{
-                continueGameButton: DEPRECATEDButton
-            }>(titleScreen.data, "uiObjects").continueGameButton
-            titleScreen.mouseClicked(
-                gameEngineState,
-                MouseButton.ACCEPT,
-                RectAreaService.centerX(
-                    continueGameButton.readyLabel.textBox.area
-                ),
-                RectAreaService.centerY(
-                    continueGameButton.readyLabel.textBox.area
-                )
-            )
+            mousePressContinueButton(titleScreen, gameEngineState)
             expect(titleScreen.hasCompleted(gameEngineState)).toBeTruthy()
             expect(loadGame).toBeCalled()
 
@@ -252,27 +235,14 @@ describe("Title Screen", () => {
         })
         it("should ignore other inputs while loading", () => {
             titleScreen.update(gameEngineState, mockedP5GraphicsContext)
-            const continueGameButton: DEPRECATEDButton = DataBlobService.get<{
-                continueGameButton: DEPRECATEDButton
-            }>(titleScreen.data, "uiObjects").continueGameButton
-            titleScreen.mouseClicked(
-                gameEngineState,
-                MouseButton.ACCEPT,
-                RectAreaService.centerX(
-                    continueGameButton.readyLabel.textBox.area
-                ),
-                RectAreaService.centerY(
-                    continueGameButton.readyLabel.textBox.area
-                )
-            )
+            mousePressContinueButton(titleScreen, gameEngineState)
             expect(titleScreen.newGameSelected).toBeFalsy()
 
-            titleScreen.mouseClicked(
-                gameEngineState,
-                MouseButton.ACCEPT,
-                ScreenDimensions.SCREEN_WIDTH / 2,
-                ScreenDimensions.SCREEN_HEIGHT - 1
-            )
+            titleScreen.mousePressed(gameEngineState, {
+                button: MouseButton.ACCEPT,
+                x: ScreenDimensions.SCREEN_WIDTH / 2,
+                y: ScreenDimensions.SCREEN_HEIGHT - 1,
+            })
             expect(titleScreen.newGameSelected).toBeFalsy()
         })
         describe("should show an error message when nothing is loaded", () => {
@@ -319,20 +289,7 @@ describe("Title Screen", () => {
                         "sendMessage"
                     )
                     titleScreen.update(gameEngineState, mockedP5GraphicsContext)
-                    const continueGameButton: DEPRECATEDButton =
-                        DataBlobService.get<{
-                            continueGameButton: DEPRECATEDButton
-                        }>(titleScreen.data, "uiObjects").continueGameButton
-                    titleScreen.mouseClicked(
-                        gameEngineState,
-                        MouseButton.ACCEPT,
-                        RectAreaService.centerX(
-                            continueGameButton.readyLabel.textBox.area
-                        ),
-                        RectAreaService.centerY(
-                            continueGameButton.readyLabel.textBox.area
-                        )
-                    )
+                    mousePressContinueButton(titleScreen, gameEngineState)
                     loadSaveStateChange(gameEngineState.fileState.loadSaveState)
 
                     const textSpy = vi.spyOn(
@@ -385,19 +342,7 @@ describe("Title Screen", () => {
                 "sendMessage"
             )
             titleScreen.update(gameEngineState, mockedP5GraphicsContext)
-            const continueGameButton: DEPRECATEDButton = DataBlobService.get<{
-                continueGameButton: DEPRECATEDButton
-            }>(titleScreen.data, "uiObjects").continueGameButton
-            titleScreen.mouseClicked(
-                gameEngineState,
-                MouseButton.ACCEPT,
-                RectAreaService.centerX(
-                    continueGameButton.readyLabel.textBox.area
-                ),
-                RectAreaService.centerY(
-                    continueGameButton.readyLabel.textBox.area
-                )
-            )
+            mousePressContinueButton(titleScreen, gameEngineState)
             gameEngineState.fileState.loadSaveState.applicationErroredWhileLoading =
                 true
 
@@ -439,19 +384,7 @@ describe("Title Screen", () => {
         it("should mark as completed and recommend the battle loader", () => {
             expect(titleScreen.hasCompleted(gameEngineState)).toBeFalsy()
             titleScreen.update(gameEngineState, mockedP5GraphicsContext)
-            const continueGameButton: DEPRECATEDButton = DataBlobService.get<{
-                continueGameButton: DEPRECATEDButton
-            }>(titleScreen.data, "uiObjects").continueGameButton
-            titleScreen.mouseClicked(
-                gameEngineState,
-                MouseButton.ACCEPT,
-                RectAreaService.centerX(
-                    continueGameButton.readyLabel.textBox.area
-                ),
-                RectAreaService.centerY(
-                    continueGameButton.readyLabel.textBox.area
-                )
-            )
+            mousePressContinueButton(titleScreen, gameEngineState)
             expect(titleScreen.hasCompleted(gameEngineState)).toBeTruthy()
             expect(
                 titleScreen.recommendStateChanges(gameEngineState).nextMode
@@ -472,3 +405,40 @@ describe("Title Screen", () => {
         )
     })
 })
+
+const expectTitleScreenToStartLoading = ({
+    mockedP5GraphicsContext,
+    titleScreen,
+    gameEngineState,
+}: {
+    mockedP5GraphicsContext: MockedP5GraphicsBuffer
+    titleScreen: TitleScreen
+    gameEngineState: GameEngineState
+}) => {
+    let textSpy = vi.spyOn(mockedP5GraphicsContext.mockedP5, "text")
+    titleScreen.update(gameEngineState, mockedP5GraphicsContext)
+    expect(titleScreen.hasCompleted(gameEngineState)).toBeTruthy()
+    expect(textSpy).toBeCalled()
+    expect(textSpy).toBeCalledWith(
+        "Now loading...",
+        expect.anything(),
+        expect.anything(),
+        expect.anything(),
+        expect.anything()
+    )
+    return true
+}
+
+const mousePressContinueButton = (
+    titleScreen: TitleScreen,
+    gameEngineState: GameEngineState
+) => {
+    const continueGameButton: Button = DataBlobService.get<{
+        continueGameButton: Button
+    }>(titleScreen.data, "uiObjects").continueGameButton
+    titleScreen.mousePressed(gameEngineState, {
+        button: MouseButton.ACCEPT,
+        x: RectAreaService.centerX(continueGameButton.getArea()),
+        y: RectAreaService.centerY(continueGameButton.getArea()),
+    })
+}

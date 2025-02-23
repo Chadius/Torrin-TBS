@@ -3,7 +3,7 @@ import {
     GameEngineChanges,
     GameEngineComponent,
 } from "../gameEngine/gameEngineComponent"
-import { MouseButton } from "../utils/mouseConfig"
+import { MousePress, MouseRelease, ScreenLocation } from "../utils/mouseConfig"
 import { GameEngineState } from "../gameEngine/gameEngine"
 import { GameModeEnum } from "../utils/startupConfig"
 import { WINDOW_SPACING } from "../ui/constants"
@@ -24,9 +24,6 @@ import { SequenceComposite } from "../utils/behaviorTree/composite/sequence/sequ
 import { FileState } from "../gameEngine/fileState"
 import { MessageBoard } from "../message/messageBoard"
 import { DoesObjectHaveKeyExistCondition } from "../utils/behaviorTree/condition/doesObjectHaveKeyExistCondition"
-import { DrawTextBoxesAction } from "../ui/textBox/drawTextBoxesAction"
-import { DrawRectangleAction } from "../ui/rectangle/drawRectangleAction"
-import { DrawImagesAction } from "../ui/imageUI/drawImagesAction"
 import { InverterDecorator } from "../utils/behaviorTree/decorator/inverter/inverter"
 import { TitleScreenCreateBackgroundAction } from "./components/backgroundAction"
 import { TitleScreenCreateTitleBannerAction } from "./components/banner"
@@ -34,10 +31,6 @@ import { TitleScreenCreateTitleTextAction } from "./components/titleText"
 import { TitleScreenCreateByLineAction } from "./components/byLine"
 import { TitleScreenCreateGameDescriptionAction } from "./components/gameDescription"
 import { TitleScreenCreateVersionTextBoxAction } from "./components/version"
-import {
-    CreateStartGameButtonAction,
-    ShouldCreateStartGameButtonAction,
-} from "./components/startButton"
 import {
     TitleScreenAreCharacterIntroductionElementsLoaded,
     TitleScreenIsCharacterIntroductionImageInitialized,
@@ -60,11 +53,21 @@ import {
     TitleScreenCreateDemonLocustCharacterIntroductionIcon,
 } from "./components/characterIntroduction/demonLocust"
 import {
-    CreateUpdateGameButtonAction,
-    ShouldCreateUpdateGameButtonAction,
+    CreateStartGameButtonAction,
+    ShouldCreateStartGameButtonAction,
+} from "./components/startButton"
+import { ButtonStatus } from "../ui/button/buttonStatus"
+import { ButtonStatusChangeEventByButtonId } from "../ui/button/logic/base"
+import { Button } from "../ui/button/button"
+import {
+    CreateContinueGameButtonAction,
+    ShouldCreateContinueGameButtonAction,
 } from "./components/continueGameButton"
-import { DEPRECATEDButton } from "../ui/buttonDEPRECATED/DEPRECATEDButton"
-import { DrawDEPRECATEDButtonsAction } from "../ui/buttonDEPRECATED/drawDEPRECATEDButtonsAction"
+import { LoadSaveStateService } from "../dataLoader/playerData/loadSaveState"
+import { MessageBoardMessageType } from "../message/messageBoardMessage"
+import { DrawRectangleAction } from "../ui/rectangle/drawRectangleAction"
+import { DrawTextBoxesAction } from "../ui/textBox/drawTextBoxesAction"
+import { DrawImagesAction } from "../ui/imageUI/drawImagesAction"
 
 export enum TitleScreenMenuSelection {
     NONE = "NONE",
@@ -169,17 +172,17 @@ export interface TitleScreenLayout {
 
 export interface TitleScreenContext {
     startLoadingResources: boolean
-    continueGameButtonLabel: string
     errorDuringLoadingDisplayStartTimestamp: number
     menuSelection: TitleScreenMenuSelection
     version: string
     fileState: FileState
     messageBoard: MessageBoard
+    buttonStatusChangeEventDataBlob: ButtonStatusChangeEventByButtonId
 }
 
 export interface TitleScreenUIObjects {
-    continueGameButton: DEPRECATEDButton
-    startNewGameButton: DEPRECATEDButton
+    startGameButton: Button
+    continueGameButton: Button
     byLine: TextBox
     titleText: TextBox
     gameDescription: TextBox
@@ -347,6 +350,12 @@ export class TitleScreen implements GameEngineComponent {
             graphicsContext,
             gameEngineState.resourceHandler
         )
+        const uiObjects = DataBlobService.get<TitleScreenUIObjects>(
+            this.data,
+            "uiObjects"
+        )
+        uiObjects.startGameButton?.clearStatus()
+        uiObjects.continueGameButton?.clearStatus()
     }
 
     keyPressed(gameEngineState: GameEngineState, keyCode: number): void {
@@ -356,36 +365,104 @@ export class TitleScreen implements GameEngineComponent {
                 keyCode
             )
 
-        const uiObjects: TitleScreenUIObjects =
-            DataBlobService.get<TitleScreenUIObjects>(this.data, "uiObjects")
         if (actions.includes(PlayerInputAction.ACCEPT)) {
-            uiObjects.startNewGameButton.onClickHandler(
-                0,
-                0,
-                uiObjects.startNewGameButton,
-                this
+            const uiObjects = DataBlobService.get<TitleScreenUIObjects>(
+                this.data,
+                "uiObjects"
+            )
+            const context = DataBlobService.get<TitleScreenContext>(
+                this.data,
+                "context"
+            )
+
+            uiObjects.startGameButton.changeStatus({
+                newStatus: ButtonStatus.ACTIVE,
+            })
+
+            this.reactToStartGameButtonStatusChangeEvent(
+                context,
+                uiObjects.startGameButton
+            )
+            this.reactToContinueGameButtonStatusChangeEvent(
+                context,
+                uiObjects.continueGameButton
             )
         }
     }
 
-    mouseClicked(
+    mousePressed(
         _gameEngineState: GameEngineState,
-        _mouseButton: MouseButton,
-        mouseX: number,
-        mouseY: number
+        mouseClick: MousePress
     ): void {
-        const uiObjects: TitleScreenUIObjects =
-            DataBlobService.get<TitleScreenUIObjects>(this.data, "uiObjects")
-        uiObjects.startNewGameButton.mouseClicked(mouseX, mouseY, this)
-        uiObjects.continueGameButton.mouseClicked(mouseX, mouseY, this)
+        const mouseX = mouseClick.x
+        const mouseY = mouseClick.y
+        const mouseButton = mouseClick.button
+
+        const buttons = this.getButtons()
+        buttons.forEach((button) => {
+            button.mousePressed({
+                mousePress: {
+                    button: mouseButton,
+                    x: mouseX,
+                    y: mouseY,
+                },
+            })
+        })
+        this.reactToButtonStatusChangeEvents()
     }
 
-    mouseMoved(
+    mouseReleased(
         _gameEngineState: GameEngineState,
-        _mouseX: number,
-        _mouseY: number
+        mouseRelease: MouseRelease
     ): void {
-        // Required by inheritance
+        const buttons = this.getButtons()
+        buttons.forEach((button) => {
+            button.mouseReleased({
+                mouseRelease: mouseRelease,
+            })
+        })
+        this.reactToButtonStatusChangeEvents()
+    }
+
+    mouseMoved(_gameEngineState: GameEngineState, x: number, y: number): void {
+        const mouseLocation: ScreenLocation = {
+            x: x,
+            y: y,
+        }
+
+        const buttons = this.getButtons()
+        buttons.forEach((button) => {
+            button.mouseMoved({
+                mouseLocation,
+            })
+        })
+        this.reactToButtonStatusChangeEvents()
+    }
+
+    private getButtons() {
+        const uiObjects: TitleScreenUIObjects =
+            DataBlobService.get<TitleScreenUIObjects>(this.data, "uiObjects")
+        return [uiObjects.startGameButton, uiObjects.continueGameButton].filter(
+            (x) => x
+        )
+    }
+
+    private reactToButtonStatusChangeEvents() {
+        const uiObjects: TitleScreenUIObjects =
+            DataBlobService.get<TitleScreenUIObjects>(this.data, "uiObjects")
+
+        const context = DataBlobService.get<TitleScreenContext>(
+            this.data,
+            "context"
+        )
+        this.reactToStartGameButtonStatusChangeEvent(
+            context,
+            uiObjects.startGameButton
+        )
+        this.reactToContinueGameButtonStatusChangeEvent(
+            context,
+            uiObjects.continueGameButton
+        )
     }
 
     hasCompleted(_: GameEngineState): boolean {
@@ -432,6 +509,16 @@ export class TitleScreen implements GameEngineComponent {
         DataBlobService.add<TitleScreenContext>(this.data, "context", context)
 
         this.drawUIObjectsBehaviorTree.run()
+        ;[uiObjects.startGameButton, uiObjects.continueGameButton]
+            .filter((x) => x)
+            .forEach((button) => {
+                DataBlobService.add<GraphicsBuffer>(
+                    button.buttonStyle.dataBlob,
+                    "graphicsContext",
+                    graphicsContext
+                )
+                button.draw()
+            })
     }
 
     private resetContext() {
@@ -443,11 +530,11 @@ export class TitleScreen implements GameEngineComponent {
         const context: TitleScreenContext = {
             startLoadingResources: false,
             errorDuringLoadingDisplayStartTimestamp: undefined,
-            continueGameButtonLabel: undefined,
             menuSelection: TitleScreenMenuSelection.NONE,
             version: existingContext?.version,
             fileState: undefined,
             messageBoard: undefined,
+            buttonStatusChangeEventDataBlob: DataBlobService.new(),
         }
         DataBlobService.add<TitleScreenContext>(this.data, "context", context)
         return context
@@ -474,7 +561,7 @@ export class TitleScreen implements GameEngineComponent {
             },
             byLine: undefined,
             titleText: undefined,
-            startNewGameButton: undefined,
+            startGameButton: undefined,
             continueGameButton: undefined,
             gameDescription: undefined,
             background: undefined,
@@ -500,18 +587,8 @@ export class TitleScreen implements GameEngineComponent {
                 new CreateStartGameButtonAction(this.data),
             ]),
             new SequenceComposite(this.data, [
-                new DoesObjectHaveKeyExistCondition({
-                    data: this.data,
-                    dataObjectName: "context",
-                    objectKey: "fileState",
-                }),
-                new DoesObjectHaveKeyExistCondition({
-                    data: this.data,
-                    dataObjectName: "context",
-                    objectKey: "messageBoard",
-                }),
-                new ShouldCreateUpdateGameButtonAction(this.data),
-                new CreateUpdateGameButtonAction(this.data),
+                new ShouldCreateContinueGameButtonAction(this.data),
+                new CreateContinueGameButtonAction(this.data),
             ]),
             new SequenceComposite(this.data, [
                 new InverterDecorator(
@@ -668,21 +745,6 @@ export class TitleScreen implements GameEngineComponent {
                     getGraphicsContext,
                     getResourceHandler
                 ),
-                new DrawDEPRECATEDButtonsAction(
-                    this.data,
-                    (dataBlob: DataBlob) => {
-                        const uiObjects: TitleScreenUIObjects =
-                            DataBlobService.get<TitleScreenUIObjects>(
-                                dataBlob,
-                                "uiObjects"
-                            )
-                        return [
-                            uiObjects.startNewGameButton,
-                            uiObjects.continueGameButton,
-                        ].filter((x) => x)
-                    },
-                    getGraphicsContext
-                ),
             ]),
         ])
 
@@ -690,6 +752,39 @@ export class TitleScreen implements GameEngineComponent {
             createOrUpdateUIObjects,
             drawUIObjects,
         ])
+    }
+
+    reactToStartGameButtonStatusChangeEvent(
+        context: TitleScreenContext,
+        startButton: Button
+    ) {
+        const titleScreenStatusChange = startButton.getStatusChangeEvent()
+        if (titleScreenStatusChange?.newStatus != ButtonStatus.ACTIVE) return
+        if (context.menuSelection === TitleScreenMenuSelection.NONE) {
+            context.menuSelection = TitleScreenMenuSelection.NEW_GAME
+        }
+    }
+
+    reactToContinueGameButtonStatusChangeEvent(
+        context: TitleScreenContext,
+        continueGameButton: Button
+    ) {
+        const titleScreenStatusChange =
+            continueGameButton.getStatusChangeEvent()
+        if (titleScreenStatusChange?.newStatus != ButtonStatus.ACTIVE) return
+
+        const messageBoard = context.messageBoard
+        const fileState = context.fileState
+
+        if (context.menuSelection === TitleScreenMenuSelection.NONE) {
+            context.menuSelection = TitleScreenMenuSelection.CONTINUE_GAME
+
+            LoadSaveStateService.reset(fileState.loadSaveState)
+            messageBoard.sendMessage({
+                type: MessageBoardMessageType.PLAYER_DATA_LOAD_USER_REQUEST,
+                loadSaveState: fileState.loadSaveState,
+            })
+        }
     }
 }
 

@@ -1,4 +1,4 @@
-import { MouseClick, ScreenLocation } from "../../utils/mouseConfig"
+import { MousePress, ScreenLocation } from "../../utils/mouseConfig"
 import { GameEngineState } from "../../gameEngine/gameEngine"
 import { OrchestratorUtilities } from "../orchestratorComponents/orchestratorUtils"
 import {
@@ -73,7 +73,7 @@ export enum PlayerIntent {
 
 export interface PlayerSelectionContextCalculationArgs {
     gameEngineState: GameEngineState
-    mouseClick?: MouseClick
+    mouseClick?: MousePress
     mouseMovement?: ScreenLocation
     actionTemplateId?: string
     endTurnSelected?: boolean
@@ -90,7 +90,7 @@ export const PlayerSelectionContextCalculationArgsService = {
         playerInputActions,
     }: {
         gameEngineState: GameEngineState
-        mouseClick?: MouseClick
+        mouseClick?: MousePress
         mouseMovement?: ScreenLocation
         actionTemplateId?: string
         endTurnSelected?: boolean
@@ -328,7 +328,7 @@ const getSquaddiePlayerClickedOn = ({
     mouseClick,
 }: {
     gameEngineState: GameEngineState
-    mouseClick: MouseClick
+    mouseClick: MousePress
 }): {
     clickedOnSquaddie: boolean
     squaddieIsNormallyControllableByPlayer: boolean

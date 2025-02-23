@@ -1,4 +1,4 @@
-import { MouseButton } from "../utils/mouseConfig"
+import { MousePress, MouseRelease } from "../utils/mouseConfig"
 import { GameEngineState } from "./gameEngine"
 import { GameModeEnum } from "../utils/startupConfig"
 import { GraphicsBuffer } from "../utils/graphics/graphicsRenderer"
@@ -12,20 +12,24 @@ export interface GameEngineComponent {
 
     keyPressed(gameEngineState: GameEngineState, keyCode: number): void
 
-    mouseClicked(
-        state: GameEngineState,
-        mouseButton: MouseButton,
+    mousePressed(gameEngineState: GameEngineState, mousePress: MousePress): void
+
+    mouseReleased(
+        gameEngineState: GameEngineState,
+        mouseRelease: MouseRelease
+    ): void
+
+    mouseMoved(
+        gameEngineState: GameEngineState,
         mouseX: number,
         mouseY: number
     ): void
 
-    mouseMoved(state: GameEngineState, mouseX: number, mouseY: number): void
-
-    hasCompleted(state: GameEngineState): boolean
+    hasCompleted(gameEngineState: GameEngineState): boolean
 
     recommendStateChanges(
         gameEngineState: GameEngineState
     ): GameEngineChanges | undefined
 
-    reset(state: GameEngineState): void
+    reset(gameEngineState: GameEngineState): void
 }

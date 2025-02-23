@@ -12,8 +12,8 @@ import { GameEngineState } from "../../gameEngine/gameEngine"
 import { FileAccessHUDService } from "../hud/fileAccess/fileAccessHUD"
 import {
     MouseButton,
-    MouseClick,
     MouseClickService,
+    MousePress,
 } from "../../utils/mouseConfig"
 import {
     MessageBoardMessage,
@@ -60,17 +60,21 @@ export class BattlePlayerSquaddieSelector
         gameEngineState: GameEngineState,
         event: OrchestratorComponentMouseEvent
     ): void {
-        if (event.eventType === OrchestratorComponentMouseEventType.CLICKED) {
+        if (event.eventType === OrchestratorComponentMouseEventType.RELEASE) {
             this.mouseClicked({
-                mouseX: event.mouseX,
-                mouseY: event.mouseY,
-                mouseButton: event.mouseButton,
+                mouseX: event.mouseRelease.x,
+                mouseY: event.mouseRelease.y,
+                mouseButton: event.mouseRelease.button,
                 gameEngineState,
             })
         }
 
-        if (event.eventType === OrchestratorComponentMouseEventType.MOVED) {
-            this.mouseMoved(gameEngineState, event.mouseX, event.mouseY)
+        if (event.eventType === OrchestratorComponentMouseEventType.LOCATION) {
+            this.mouseMoved(
+                gameEngineState,
+                event.mouseLocation.x,
+                event.mouseLocation.y
+            )
         }
     }
 
@@ -312,7 +316,7 @@ const processPlayerCommandSelection = ({
 }: {
     gameEngineState: GameEngineState
     playerCommandSelection: PlayerCommandSelection
-    mouseClick: MouseClick
+    mouseClick: MousePress
 }): {
     didUserClickOnSummaryHUD: boolean
     changes: PlayerSelectionChanges

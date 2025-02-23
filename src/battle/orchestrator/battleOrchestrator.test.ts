@@ -1287,11 +1287,13 @@ describe("Battle Orchestrator", () => {
             expect(component.mouseEventHappened).toBeCalledTimes(1)
             expect(mockMapDisplay.mouseEventHappened).toBeCalledTimes(1)
 
-            squaddieSelectorOrchestratorShouldDisplayMap.mouseClicked(
+            squaddieSelectorOrchestratorShouldDisplayMap.mousePressed(
                 stateWantsToDisplayTheMap,
-                MouseButton.ACCEPT,
-                0,
-                0
+                {
+                    button: MouseButton.ACCEPT,
+                    x: 0,
+                    y: 0,
+                }
             )
             expect(component.mouseEventHappened).toBeCalledTimes(2)
             expect(mockMapDisplay.mouseEventHappened).toBeCalledTimes(2)

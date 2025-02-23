@@ -1,31 +1,39 @@
 import { BattleOrchestratorMode } from "./battleOrchestrator"
 import { UIControlSettings } from "./uiControlSettings"
 import { GameEngineState } from "../../gameEngine/gameEngine"
-import { MouseButton } from "../../utils/mouseConfig"
+import {
+    MousePress,
+    MouseRelease,
+    ScreenLocation,
+} from "../../utils/mouseConfig"
 import { GraphicsBuffer } from "../../utils/graphics/graphicsRenderer"
 import { ResourceHandler } from "../../resource/resourceHandler"
 
 export enum OrchestratorComponentMouseEventType {
     UNKNOWN,
-    CLICKED,
-    MOVED,
+    PRESS,
+    RELEASE,
+    LOCATION,
 }
 
 export type OrchestratorComponentMouseEvent =
-    | OrchestratorComponentMouseEventClicked
-    | OrchestratorComponentMouseEventMoved
+    | OrchestratorComponentMouseEventPress
+    | OrchestratorComponentMouseEventRelease
+    | OrchestratorComponentMouseEventChangeLocation
 
-export type OrchestratorComponentMouseEventClicked = {
-    eventType: OrchestratorComponentMouseEventType.CLICKED
-    mouseX: number
-    mouseY: number
-    mouseButton: MouseButton
+export type OrchestratorComponentMouseEventPress = {
+    eventType: OrchestratorComponentMouseEventType.PRESS
+    mousePress: MousePress
 }
 
-export type OrchestratorComponentMouseEventMoved = {
-    eventType: OrchestratorComponentMouseEventType.MOVED
-    mouseX: number
-    mouseY: number
+export type OrchestratorComponentMouseEventRelease = {
+    eventType: OrchestratorComponentMouseEventType.RELEASE
+    mouseRelease: MouseRelease
+}
+
+export type OrchestratorComponentMouseEventChangeLocation = {
+    eventType: OrchestratorComponentMouseEventType.LOCATION
+    mouseLocation: ScreenLocation
 }
 
 export enum OrchestratorComponentKeyEventType {

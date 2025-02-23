@@ -59,9 +59,11 @@ describe("battleMapDisplay", () => {
             }),
         })
         battleMapDisplay.mouseEventHappened(state, {
-            eventType: OrchestratorComponentMouseEventType.MOVED,
-            mouseX: 0,
-            mouseY: 0,
+            eventType: OrchestratorComponentMouseEventType.LOCATION,
+            mouseLocation: {
+                x: 0,
+                y: 0,
+            },
         })
         expect(camera.setXVelocity).toBeCalled()
         expect(camera.setYVelocity).toBeCalled()
@@ -126,9 +128,11 @@ describe("battleMapDisplay", () => {
             )
 
             battleMapDisplay.mouseEventHappened(gameEngineState, {
-                eventType: OrchestratorComponentMouseEventType.MOVED,
-                mouseX: 0,
-                mouseY: 0,
+                eventType: OrchestratorComponentMouseEventType.LOCATION,
+                mouseLocation: {
+                    x: 0,
+                    y: 0,
+                },
             })
             expect(camera.setXVelocity).not.toBeCalled()
             expect(camera.setYVelocity).not.toBeCalled()

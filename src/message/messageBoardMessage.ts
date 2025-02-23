@@ -2,7 +2,7 @@ import { GameEngineState } from "../gameEngine/gameEngine"
 import { BattleAction } from "../battle/history/battleAction/battleAction"
 import { HexCoordinate } from "../hexMap/hexCoordinate/hexCoordinate"
 import { BattlePhase } from "../battle/orchestratorComponents/battlePhaseTracker"
-import { MouseClick, ScreenLocation } from "../utils/mouseConfig"
+import { MousePress, ScreenLocation } from "../utils/mouseConfig"
 import { BattleOrchestratorMode } from "../battle/orchestrator/battleOrchestrator"
 import { PopupWindow } from "../battle/hud/popupWindow/popupWindow"
 import { GraphicsBuffer } from "../utils/graphics/graphicsRenderer"
@@ -122,7 +122,7 @@ export interface MessageBoardMessagePlayerEndsTurn {
 }
 
 export type SquaddieSelectionMethod = {
-    mouse?: MouseClick | ScreenLocation
+    mouse?: MousePress | ScreenLocation
     mapCoordinate?: HexCoordinate
 }
 

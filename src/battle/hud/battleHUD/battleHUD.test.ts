@@ -2031,7 +2031,6 @@ describe("Battle HUD", () => {
             )
         })
 
-        // TODO need to clear movement based considerations when off map
         it("clears player considerations", () => {
             gameEngineState.battleOrchestratorState.battleState.playerConsideredActions =
                 PlayerConsideredActionsService.new()

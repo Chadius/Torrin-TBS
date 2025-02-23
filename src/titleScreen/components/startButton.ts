@@ -3,21 +3,27 @@ import { DataBlob, DataBlobService } from "../../utils/dataBlob/dataBlob"
 import { WindowService } from "../../utils/graphics/window"
 import { ScreenDimensions } from "../../utils/graphics/graphicsConfig"
 import {
-    TitleScreen,
     TitleScreenContext,
     TitleScreenLayout,
-    TitleScreenMenuSelection,
     TitleScreenUIObjects,
 } from "../titleScreen"
-import { LabelService } from "../../ui/label"
+import { Label, LabelService } from "../../ui/label"
 import { RectAreaService } from "../../ui/rectArea"
 import {
     HORIZONTAL_ALIGN,
     VERTICAL_ALIGN,
     WINDOW_SPACING,
 } from "../../ui/constants"
-import { DEPRECATEDButton } from "../../ui/buttonDEPRECATED/DEPRECATEDButton"
 import { ButtonStatus } from "../../ui/button/buttonStatus"
+import {
+    AllLabelButtonDataBlob,
+    AllLabelButtonDrawTask,
+    AllLabelButtonUIObjects,
+} from "../../ui/button/style/AllLabelStyle/allLabelStyle"
+import { Button } from "../../ui/button/button"
+import { ButtonLogicChangeOnRelease } from "../../ui/button/logic/buttonLogicChangeOnRelease"
+
+const TITLE_SCREEN_START_BUTTON_ID = "TITLE_SCREEN_START_BUTTON_ID"
 
 export class ShouldCreateStartGameButtonAction implements BehaviorTreeTask {
     dataBlob: DataBlob
@@ -36,6 +42,9 @@ export class ShouldCreateStartGameButtonAction implements BehaviorTreeTask {
                 this.dataBlob,
                 "uiObjects"
             )
+        const startGameButton = uiObjects.startGameButton
+
+        if (startGameButton == undefined) return true
 
         const { width: windowWidth, height: windowHeight } =
             WindowService.getDimensions()
@@ -44,25 +53,26 @@ export class ShouldCreateStartGameButtonAction implements BehaviorTreeTask {
             windowWidth < ScreenDimensions.SCREEN_WIDTH ||
             windowHeight < ScreenDimensions.SCREEN_HEIGHT
 
+        if (windowIsTooSmall) return true
+
         const layout: TitleScreenLayout =
             DataBlobService.get<TitleScreenLayout>(this.dataBlob, "layout")
 
         const playButtonHasBeenClicked: boolean =
-            uiObjects.startNewGameButton &&
-            uiObjects.startNewGameButton.getStatus() === ButtonStatus.ACTIVE
+            startGameButton?.getStatus() === ButtonStatus.ACTIVE
 
-        switch (true) {
-            case uiObjects.startNewGameButton == undefined:
-                return true
-            case windowIsTooSmall:
-                return true
-            case !playButtonHasBeenClicked &&
-                uiObjects.startNewGameButton.readyLabel.textBox.text !==
-                    layout.startGameButton.playGameMessage:
-                return true
-            default:
-                return false
-        }
+        const readyButtonLabel: Label =
+            DataBlobService.get<AllLabelButtonUIObjects>(
+                uiObjects.startGameButton.buttonStyle.dataBlob,
+                "uiObjects"
+            )?.buttonLabelsByStatus[ButtonStatus.READY]
+        if (readyButtonLabel == undefined) return true
+
+        return (
+            !playButtonHasBeenClicked &&
+            readyButtonLabel.textBox.text !==
+                layout.startGameButton.playGameMessage
+        )
     }
 }
 
@@ -87,51 +97,86 @@ export class CreateStartGameButtonAction implements BehaviorTreeTask {
         const layout: TitleScreenLayout =
             DataBlobService.get<TitleScreenLayout>(this.dataBlob, "layout")
 
+        const context: TitleScreenContext =
+            DataBlobService.get<TitleScreenContext>(this.dataBlob, "context")
+
         const {
             buttonFontSize,
             readyLabelText,
             playButtonHorizontalAlignment,
         } = this.calculateReadyLabelText()
 
-        const context: TitleScreenContext =
-            DataBlobService.get<TitleScreenContext>(this.dataBlob, "context")
-
-        uiObjects.startNewGameButton = new DEPRECATEDButton({
-            activeLabel: LabelService.new({
-                text: "Now loading...",
-                fillColor: layout.colors.playButtonActive,
-                area: RectAreaService.new(layout.startGameButton.buttonArea),
-                fontSize: buttonFontSize,
-                fontColor: layout.colors.playButtonText,
-                textBoxMargin: WINDOW_SPACING.SPACING1,
-                horizAlign: HORIZONTAL_ALIGN.CENTER,
-                vertAlign: VERTICAL_ALIGN.CENTER,
-                strokeColor: layout.colors.playButtonStroke,
-            }),
-            readyLabel: LabelService.new({
-                text: readyLabelText,
-                fillColor: layout.colors.playButton,
-                area: RectAreaService.new(layout.startGameButton.buttonArea),
-                fontSize: buttonFontSize,
-                fontColor: layout.colors.playButtonText,
-                textBoxMargin: WINDOW_SPACING.SPACING1,
-                horizAlign: playButtonHorizontalAlignment,
-                vertAlign: VERTICAL_ALIGN.CENTER,
-                strokeColor: layout.colors.playButtonStroke,
-            }),
-            initialStatus: ButtonStatus.READY,
-            onClickHandler(
-                _mouseX: number,
-                _mouseY: number,
-                button: DEPRECATEDButton,
-                _caller: TitleScreen
-            ): {} {
-                if (context.menuSelection === TitleScreenMenuSelection.NONE) {
-                    context.menuSelection = TitleScreenMenuSelection.NEW_GAME
-                    button.setStatus(ButtonStatus.ACTIVE)
-                }
-                return {}
+        const buttonLogic = new ButtonLogicChangeOnRelease({
+            dataBlob: context.buttonStatusChangeEventDataBlob,
+        })
+        const allLabelButtonDataBlob: AllLabelButtonDataBlob = {
+            data: {
+                layout: {
+                    labelByButtonStatus: {
+                        [ButtonStatus.READY]: LabelService.new({
+                            text: readyLabelText,
+                            fillColor: layout.colors.playButton,
+                            area: RectAreaService.new(
+                                layout.startGameButton.buttonArea
+                            ),
+                            fontSize: buttonFontSize,
+                            fontColor: layout.colors.playButtonText,
+                            textBoxMargin: WINDOW_SPACING.SPACING1,
+                            horizAlign: playButtonHorizontalAlignment,
+                            vertAlign: VERTICAL_ALIGN.CENTER,
+                            strokeColor: layout.colors.playButtonStroke,
+                        }),
+                        [ButtonStatus.HOVER]: LabelService.new({
+                            text: "Click to play!",
+                            fillColor: layout.colors.playButtonActive,
+                            area: RectAreaService.new(
+                                layout.startGameButton.buttonArea
+                            ),
+                            fontSize: buttonFontSize,
+                            fontColor: layout.colors.playButtonText,
+                            textBoxMargin: WINDOW_SPACING.SPACING1,
+                            horizAlign: HORIZONTAL_ALIGN.CENTER,
+                            vertAlign: VERTICAL_ALIGN.CENTER,
+                            strokeColor: layout.colors.playButtonStroke,
+                        }),
+                        [ButtonStatus.ACTIVE]: LabelService.new({
+                            text: "Now loading...",
+                            fillColor: layout.colors.playButtonActive,
+                            area: RectAreaService.new(
+                                layout.startGameButton.buttonArea
+                            ),
+                            fontSize: buttonFontSize,
+                            fontColor: layout.colors.playButtonText,
+                            textBoxMargin: WINDOW_SPACING.SPACING1,
+                            horizAlign: HORIZONTAL_ALIGN.CENTER,
+                            vertAlign: VERTICAL_ALIGN.CENTER,
+                            strokeColor: layout.colors.playButtonStroke,
+                        }),
+                        [ButtonStatus.DISABLED]: LabelService.new({
+                            area: RectAreaService.new({
+                                left: 30,
+                                top: 30,
+                                width: 30,
+                                height: 20,
+                            }),
+                            text: "Disabled",
+                            textBoxMargin: undefined,
+                            fontColor: [0, 0, 0],
+                            fontSize: 10,
+                        }),
+                    },
+                },
             },
+        }
+        const drawTask = new AllLabelButtonDrawTask({
+            buttonLogic: buttonLogic,
+            dataBlob: allLabelButtonDataBlob,
+        })
+
+        uiObjects.startGameButton = new Button({
+            id: TITLE_SCREEN_START_BUTTON_ID,
+            drawTask,
+            buttonLogic,
         })
 
         return true

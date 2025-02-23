@@ -184,10 +184,12 @@ describe("SquaddieTargetsOtherSquaddiesAnimation", () => {
                 name: "when mouse clicks ACCEPT",
                 action: (gameEngineState: GameEngineState) => {
                     const mouseEvent: OrchestratorComponentMouseEvent = {
-                        eventType: OrchestratorComponentMouseEventType.CLICKED,
-                        mouseX: 0,
-                        mouseY: 0,
-                        mouseButton: MouseButton.ACCEPT,
+                        eventType: OrchestratorComponentMouseEventType.RELEASE,
+                        mouseRelease: {
+                            x: 0,
+                            y: 0,
+                            button: MouseButton.ACCEPT,
+                        },
                     }
 
                     animator.mouseEventHappened(gameEngineState, mouseEvent)
@@ -197,10 +199,12 @@ describe("SquaddieTargetsOtherSquaddiesAnimation", () => {
                 name: "when mouse clicks CANCEL",
                 action: (gameEngineState: GameEngineState) => {
                     const mouseEvent: OrchestratorComponentMouseEvent = {
-                        eventType: OrchestratorComponentMouseEventType.CLICKED,
-                        mouseX: 0,
-                        mouseY: 0,
-                        mouseButton: MouseButton.CANCEL,
+                        eventType: OrchestratorComponentMouseEventType.RELEASE,
+                        mouseRelease: {
+                            x: 0,
+                            y: 0,
+                            button: MouseButton.CANCEL,
+                        },
                     }
 
                     animator.mouseEventHappened(gameEngineState, mouseEvent)

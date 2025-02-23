@@ -61,6 +61,8 @@ export const sketch = (p: p5) => {
 
     p.mousePressed = () => {
         mousePressedTracker[p.mouseButton] = true
+        let configuredMouseButton: MouseButton = GetMouseButton(p.mouseButton)
+        gameEngine.mousePressed(configuredMouseButton, p.mouseX, p.mouseY)
     }
 
     p.mouseReleased = () => {
@@ -70,7 +72,7 @@ export const sketch = (p: p5) => {
 
         mousePressedTracker[p.mouseButton] = false
         let configuredMouseButton: MouseButton = GetMouseButton(p.mouseButton)
-        gameEngine.mouseClicked(configuredMouseButton, p.mouseX, p.mouseY)
+        gameEngine.mouseReleased(configuredMouseButton, p.mouseX, p.mouseY)
     }
 
     p.mouseMoved = () => {

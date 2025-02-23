@@ -103,13 +103,15 @@ describe("Game Engine", () => {
 
         function expectMouseClicked(newGameEngine: GameEngine) {
             const mouseClickedSpy = vi
-                .spyOn(newGameEngine.component, "mouseClicked")
+                .spyOn(newGameEngine.component, "mousePressed")
                 .mockImplementation(() => {})
-            newGameEngine.mouseClicked(MouseButton.ACCEPT, 100, 200)
+            newGameEngine.mousePressed(MouseButton.ACCEPT, 100, 200)
             expect(mouseClickedSpy).toBeCalled()
-            expect(mouseClickedSpy.mock.calls[0][1]).toBe(MouseButton.ACCEPT)
-            expect(mouseClickedSpy.mock.calls[0][2]).toBe(100)
-            expect(mouseClickedSpy.mock.calls[0][3]).toBe(200)
+            expect(mouseClickedSpy.mock.calls[0][1]).toEqual({
+                button: MouseButton.ACCEPT,
+                x: 100,
+                y: 200,
+            })
         }
 
         function expectMouseMoved(newGameEngine: GameEngine) {
@@ -146,20 +148,25 @@ describe("Game Engine", () => {
             expectKeyPressed(newGameEngine)
             expectMouseClicked(newGameEngine)
             expectMouseMoved(newGameEngine)
+            return true
         }
 
         it("works on title screen", async () => {
-            await loadAndExpect({
-                startupMode: GameModeEnum.TITLE_SCREEN,
-                componentType: TitleScreen,
-            })
+            expect(
+                await loadAndExpect({
+                    startupMode: GameModeEnum.TITLE_SCREEN,
+                    componentType: TitleScreen,
+                })
+            ).toBeTruthy()
         })
 
         it("battle mode starts the battle orchestrator", async () => {
-            await loadAndExpect({
-                startupMode: GameModeEnum.BATTLE,
-                componentType: BattleOrchestrator,
-            })
+            expect(
+                await loadAndExpect({
+                    startupMode: GameModeEnum.BATTLE,
+                    componentType: BattleOrchestrator,
+                })
+            ).toBeTruthy()
         })
 
         it("battle mode sets up message board", async () => {
@@ -181,10 +188,12 @@ describe("Game Engine", () => {
         })
 
         it("works on loading battle", async () => {
-            await loadAndExpect({
-                startupMode: GameModeEnum.LOADING_BATTLE,
-                componentType: GameEngineGameLoader,
-            })
+            expect(
+                await loadAndExpect({
+                    startupMode: GameModeEnum.LOADING_BATTLE,
+                    componentType: GameEngineGameLoader,
+                })
+            ).toBeTruthy()
         })
     })
 

@@ -22,7 +22,7 @@ import { UpdateSquaddieSelectorPanelButtonName } from "./behaviorTreeTask/update
 import { DoesObjectHaveKeyExistCondition } from "../../../../../utils/behaviorTree/condition/doesObjectHaveKeyExistCondition"
 import { DrawRectangleAction } from "../../../../../ui/rectangle/drawRectangleAction"
 import { UpdateSquaddieSelectorPanelButtonBackground } from "./behaviorTreeTask/updateSquaddieSelectorPanelButtonBackground"
-import { MouseButton, MouseClick } from "../../../../../utils/mouseConfig"
+import { MouseButton, MousePress } from "../../../../../utils/mouseConfig"
 import { SquaddieAffiliation } from "../../../../../squaddie/squaddieAffiliation"
 import { ActionTilePositionService } from "../../tile/actionTilePosition"
 
@@ -225,7 +225,7 @@ export const SquaddieSelectorPanelButtonService = {
         mouseClick,
     }: {
         button: SquaddieSelectorPanelButton
-        mouseClick: MouseClick
+        mouseClick: MousePress
     }): boolean => {
         if (mouseClick.button != MouseButton.ACCEPT) return false
         let uiObjects: SquaddieSelectorPanelButtonObjects =

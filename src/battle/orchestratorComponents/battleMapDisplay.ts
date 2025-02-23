@@ -103,25 +103,25 @@ export class BattleMapDisplay implements BattleOrchestratorComponent {
     }
 
     mouseEventHappened(
-        state: GameEngineState,
+        gameEngineState: GameEngineState,
         event: OrchestratorComponentMouseEvent
     ): void {
-        if (event.eventType === OrchestratorComponentMouseEventType.CLICKED) {
+        if (event.eventType === OrchestratorComponentMouseEventType.RELEASE) {
             TerrainTileGraphicsService.mouseClicked({
                 terrainTileMap:
-                    state.battleOrchestratorState.battleState.missionMap
-                        .terrainTileMap,
-                mouseX: event.mouseX,
-                mouseY: event.mouseY,
-                mouseButton: event.mouseButton,
-                ...state.battleOrchestratorState.battleState.camera.getCoordinates(),
+                    gameEngineState.battleOrchestratorState.battleState
+                        .missionMap.terrainTileMap,
+                mouseX: event.mouseRelease.x,
+                mouseY: event.mouseRelease.y,
+                mouseButton: event.mouseRelease.button,
+                ...gameEngineState.battleOrchestratorState.battleState.camera.getCoordinates(),
             })
         }
-        if (event.eventType === OrchestratorComponentMouseEventType.MOVED) {
+        if (event.eventType === OrchestratorComponentMouseEventType.LOCATION) {
             this.moveCameraBasedOnMouseMovement(
-                state.battleOrchestratorState,
-                event.mouseX,
-                event.mouseY
+                gameEngineState.battleOrchestratorState,
+                event.mouseLocation.x,
+                event.mouseLocation.y
             )
         }
     }
