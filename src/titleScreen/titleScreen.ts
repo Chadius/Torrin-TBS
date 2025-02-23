@@ -455,14 +455,19 @@ export class TitleScreen implements GameEngineComponent {
             this.data,
             "context"
         )
-        this.reactToStartGameButtonStatusChangeEvent(
-            context,
-            uiObjects.startGameButton
-        )
-        this.reactToContinueGameButtonStatusChangeEvent(
-            context,
-            uiObjects.continueGameButton
-        )
+
+        if (uiObjects.startGameButton) {
+            this.reactToStartGameButtonStatusChangeEvent(
+                context,
+                uiObjects.startGameButton
+            )
+        }
+        if (uiObjects.continueGameButton) {
+            this.reactToContinueGameButtonStatusChangeEvent(
+                context,
+                uiObjects.continueGameButton
+            )
+        }
     }
 
     hasCompleted(_: GameEngineState): boolean {
