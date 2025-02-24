@@ -28,7 +28,7 @@ import {
 import {
     SquaddieStatusTile,
     SquaddieStatusTileService,
-} from "../playerActionPanel/tile/squaddieStatusTile"
+} from "../playerActionPanel/tile/squaddieStatusTile/squaddieStatusTile"
 import {
     ActionSelectedTile,
     ActionSelectedTileService,

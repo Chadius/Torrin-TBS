@@ -1,36 +1,39 @@
 import {
     ObjectRepository,
     ObjectRepositoryService,
-} from "../../../objectRepository"
-import { SquaddieAffiliation } from "../../../../squaddie/squaddieAffiliation"
-import { SquaddieTemplateService } from "../../../../campaign/squaddieTemplate"
-import { SquaddieIdService } from "../../../../squaddie/id"
-import { BattleSquaddie, BattleSquaddieService } from "../../../battleSquaddie"
-import * as mocks from "../../../../utils/test/mocks"
+} from "../../../../objectRepository"
+import { SquaddieAffiliation } from "../../../../../squaddie/squaddieAffiliation"
+import { SquaddieTemplateService } from "../../../../../campaign/squaddieTemplate"
+import { SquaddieIdService } from "../../../../../squaddie/id"
+import {
+    BattleSquaddie,
+    BattleSquaddieService,
+} from "../../../../battleSquaddie"
+import * as mocks from "../../../../../utils/test/mocks"
 import {
     MockedGraphicsBufferService,
     MockedP5GraphicsBuffer,
-} from "../../../../utils/test/mocks"
-import { ResourceHandler } from "../../../../resource/resourceHandler"
-import { HUE_BY_SQUADDIE_AFFILIATION } from "../../../../graphicsConstants"
-import { ActionTilePosition } from "./actionTilePosition"
+} from "../../../../../utils/test/mocks"
+import { ResourceHandler } from "../../../../../resource/resourceHandler"
+import { HUE_BY_SQUADDIE_AFFILIATION } from "../../../../../graphicsConstants"
+import { ActionTilePosition } from "../actionTilePosition"
 import {
     SquaddieStatusTile,
     SquaddieStatusTileService,
     SquaddieStatusTileUIObjects,
 } from "./squaddieStatusTile"
-import { DamageType } from "../../../../squaddie/squaddieService"
-import { InBattleAttributesService } from "../../../stats/inBattleAttributes"
+import { DamageType } from "../../../../../squaddie/squaddieService"
+import { InBattleAttributesService } from "../../../../stats/inBattleAttributes"
 import {
     AttributeModifierService,
     AttributeSource,
-} from "../../../../squaddie/attribute/attributeModifier"
-import { SquaddieTurnService } from "../../../../squaddie/turn"
+} from "../../../../../squaddie/attribute/attributeModifier"
+import { SquaddieTurnService } from "../../../../../squaddie/turn"
 import {
     MissionMap,
     MissionMapService,
-} from "../../../../missionMap/missionMap"
-import { TerrainTileMapService } from "../../../../hexMap/terrainTileMap"
+} from "../../../../../missionMap/missionMap"
+import { TerrainTileMapService } from "../../../../../hexMap/terrainTileMap"
 import {
     afterEach,
     beforeEach,
@@ -40,23 +43,25 @@ import {
     MockInstance,
     vi,
 } from "vitest"
-import { ProficiencyLevel } from "../../../../squaddie/armyAttributes"
-import { AttributeType } from "../../../../squaddie/attribute/attributeType"
-import { DataBlobService } from "../../../../utils/dataBlob/dataBlob"
+import { ProficiencyLevel } from "../../../../../squaddie/armyAttributes"
+import { AttributeType } from "../../../../../squaddie/attribute/attributeType"
+import { DataBlobService } from "../../../../../utils/dataBlob/dataBlob"
 import {
     GameEngineState,
     GameEngineStateService,
-} from "../../../../gameEngine/gameEngine"
-import { CampaignService } from "../../../../campaign/campaign"
-import { BattleStateService } from "../../../battleState/battleState"
-import { BattlePhase } from "../../../orchestratorComponents/battlePhaseTracker"
-import { BattleOrchestratorStateService } from "../../../orchestrator/battleOrchestratorState"
+} from "../../../../../gameEngine/gameEngine"
+import { CampaignService } from "../../../../../campaign/campaign"
+import { BattleStateService } from "../../../../battleState/battleState"
+import { BattlePhase } from "../../../../orchestratorComponents/battlePhaseTracker"
+import { BattleOrchestratorStateService } from "../../../../orchestrator/battleOrchestratorState"
 import {
     ActionTemplate,
     ActionTemplateService,
-} from "../../../../action/template/actionTemplate"
-import { ActionResourceCostService } from "../../../../action/actionResourceCost"
-import { BattleActionDecisionStepService } from "../../../actionDecision/battleActionDecisionStep"
+} from "../../../../../action/template/actionTemplate"
+import { ActionResourceCostService } from "../../../../../action/actionResourceCost"
+import { BattleActionDecisionStepService } from "../../../../actionDecision/battleActionDecisionStep"
+import { RectArea, RectAreaService } from "../../../../../ui/rectArea"
+import { DrawHorizontalMeterActionDataBlob } from "../../../horizontalBar/drawHorizontalMeterAction"
 
 describe("Squaddie Status Tile", () => {
     let objectRepository: ObjectRepository
@@ -203,6 +208,325 @@ describe("Squaddie Status Tile", () => {
                 expect.anything(),
                 expect.anything()
             )
+        })
+        const drawMeter = () => {
+            const tile = SquaddieStatusTileService.new({
+                gameEngineState,
+                battleSquaddieId: "battleJoeTheSoldier",
+                horizontalPosition: ActionTilePosition.ACTOR_STATUS,
+            })
+
+            SquaddieStatusTileService.updateTileUsingSquaddie({
+                tile,
+                gameEngineState,
+            })
+
+            SquaddieStatusTileService.draw({
+                tile,
+                graphicsContext: mockP5GraphicsContext,
+                resourceHandler,
+            })
+            return tile
+        }
+        describe("hit point meter", () => {
+            it("should draw a meter representing the current and maximum hit points", () => {
+                battleSquaddie.inBattleAttributes.currentHitPoints = 1
+                const tile = drawMeter()
+
+                const uiObjects =
+                    DataBlobService.get<SquaddieStatusTileUIObjects>(
+                        tile.data,
+                        "uiObjects"
+                    )
+
+                const dataBlob = uiObjects.hitPoints.actionPointMeterDataBlob
+                expect(
+                    DataBlobService.get<number>(dataBlob, "currentValue")
+                ).toEqual(1)
+                expect(
+                    DataBlobService.get<number>(dataBlob, "maxValue")
+                ).toEqual(
+                    battleSquaddie.inBattleAttributes.armyAttributes
+                        .maxHitPoints
+                )
+            })
+
+            it("should not glow when above 50% hit points", () => {
+                battleSquaddie.inBattleAttributes.currentHitPoints = 10
+                battleSquaddie.inBattleAttributes.armyAttributes.maxHitPoints = 10
+                const tile = drawMeter()
+                const uiObjects =
+                    DataBlobService.get<SquaddieStatusTileUIObjects>(
+                        tile.data,
+                        "uiObjects"
+                    )
+
+                const currentValueFillAlphaPeriod = DataBlobService.get<number>(
+                    uiObjects.hitPoints.actionPointMeterDataBlob,
+                    "currentValueFillAlphaPeriod"
+                )
+                expect(currentValueFillAlphaPeriod).toBeUndefined()
+            })
+
+            const currentValueGlowsTests = [
+                {
+                    name: "pulse slowly when at or under 50% hit points",
+                    currentHitPoints: 5,
+                    maxHitPoints: 10,
+                    shouldGlowQuickly: false,
+                },
+                {
+                    name: "pulse quickly when at or under 20% hit points",
+                    currentHitPoints: 2,
+                    maxHitPoints: 10,
+                    shouldGlowQuickly: true,
+                },
+                {
+                    name: "pulse slowly when when max hit points is less than 5 and current is not at full",
+                    currentHitPoints: 4,
+                    maxHitPoints: 5,
+                    shouldGlowQuickly: false,
+                },
+                {
+                    name: "pulse quickly when max hit points is less than 5 and current is very low",
+                    currentHitPoints: 1,
+                    maxHitPoints: 3,
+                    shouldGlowQuickly: true,
+                },
+            ]
+
+            it.each(currentValueGlowsTests)(
+                `$name`,
+                ({ currentHitPoints, maxHitPoints }) => {
+                    battleSquaddie.inBattleAttributes.currentHitPoints =
+                        currentHitPoints
+                    battleSquaddie.inBattleAttributes.armyAttributes.maxHitPoints =
+                        maxHitPoints
+                    const dateSpy = vi.spyOn(Date, "now").mockReturnValue(500)
+                    const tile = drawMeter()
+                    const uiObjects =
+                        DataBlobService.get<SquaddieStatusTileUIObjects>(
+                            tile.data,
+                            "uiObjects"
+                        )
+
+                    const currentValueFillAlphaPeriod =
+                        DataBlobService.get<number>(
+                            uiObjects.hitPoints.actionPointMeterDataBlob,
+                            "currentValueFillAlphaPeriod"
+                        )
+
+                    expect(currentValueFillAlphaPeriod).not.toBeUndefined()
+                    expect(dateSpy).toBeCalled()
+                    dateSpy.mockRestore()
+                }
+            )
+            it("will glow at different speeds", () => {
+                const glowValues = currentValueGlowsTests.map((testInfo) => {
+                    const {
+                        name,
+                        currentHitPoints,
+                        maxHitPoints,
+                        shouldGlowQuickly,
+                    } = testInfo
+                    battleSquaddie.inBattleAttributes.currentHitPoints =
+                        currentHitPoints
+                    battleSquaddie.inBattleAttributes.armyAttributes.maxHitPoints =
+                        maxHitPoints
+                    const tile = drawMeter()
+                    const uiObjects =
+                        DataBlobService.get<SquaddieStatusTileUIObjects>(
+                            tile.data,
+                            "uiObjects"
+                        )
+
+                    const currentValueFillAlphaPeriod =
+                        DataBlobService.get<number>(
+                            uiObjects.hitPoints.actionPointMeterDataBlob,
+                            "currentValueFillAlphaPeriod"
+                        )
+
+                    return {
+                        name,
+                        currentValueFillAlphaPeriod,
+                        shouldGlowQuickly,
+                    }
+                })
+                const glowsQuickly = glowValues.filter(
+                    (val) => val.shouldGlowQuickly
+                )
+                const glowsSlowly = glowValues.filter(
+                    (val) => !val.shouldGlowQuickly
+                )
+
+                const quickerGlowsSlowerThanSlow = glowsQuickly.reduce(
+                    (errors, glowQuick) => {
+                        const slowIsFasterThanQuickly = glowsSlowly.filter(
+                            (glowSlow) =>
+                                glowSlow.currentValueFillAlphaPeriod <=
+                                glowQuick.currentValueFillAlphaPeriod
+                        )
+                        if (slowIsFasterThanQuickly.length === 0) return errors
+                        return [
+                            ...errors,
+                            ...slowIsFasterThanQuickly.map((glowSlow) => ({
+                                shouldBeQuicker: {
+                                    name: glowQuick.name,
+                                    period: glowQuick.currentValueFillAlphaPeriod,
+                                },
+                                butSlowerThan: {
+                                    name: glowSlow.name,
+                                    period: glowSlow.currentValueFillAlphaPeriod,
+                                },
+                            })),
+                        ]
+                    },
+                    []
+                )
+
+                expect(quickerGlowsSlowerThanSlow).toHaveLength(0)
+            })
+
+            const segmentValueTests = [
+                {
+                    name: "1 HP should always have a segment divider",
+                    currentHitPoints: 1,
+                    maxHitPoints: 3,
+                    expectedVerticalLineValueLocations: [1],
+                },
+                {
+                    name: "Less than 10 Max HP has 1 per HP",
+                    currentHitPoints: 10,
+                    maxHitPoints: 10,
+                    expectedVerticalLineValueLocations: [
+                        1, 2, 3, 4, 5, 6, 7, 8, 9,
+                    ],
+                },
+                {
+                    name: "More than 10 HP will have a segment per 5 until the last 5",
+                    currentHitPoints: 7,
+                    maxHitPoints: 15,
+                    expectedVerticalLineValueLocations: [
+                        1, 5, 10, 11, 12, 13, 14,
+                    ],
+                },
+            ]
+
+            it.each(segmentValueTests)(
+                `$name`,
+                ({
+                    currentHitPoints,
+                    maxHitPoints,
+                    expectedVerticalLineValueLocations,
+                }) => {
+                    battleSquaddie.inBattleAttributes.currentHitPoints =
+                        currentHitPoints
+                    battleSquaddie.inBattleAttributes.armyAttributes.maxHitPoints =
+                        maxHitPoints
+                    const tile = drawMeter()
+
+                    const uiObjects =
+                        DataBlobService.get<SquaddieStatusTileUIObjects>(
+                            tile.data,
+                            "uiObjects"
+                        )
+
+                    const drawingArea = DataBlobService.get<RectArea>(
+                        uiObjects.hitPoints.actionPointMeterDataBlob,
+                        "drawingArea"
+                    )
+                    const outlineStrokeBorder =
+                        DataBlobService.get<number>(
+                            uiObjects.hitPoints.actionPointMeterDataBlob,
+                            "outlineStrokeWeight"
+                        ) ?? 0
+
+                    const topOfLine =
+                        RectAreaService.top(drawingArea) + outlineStrokeBorder
+
+                    const getXValuesOfVerticalLineCalls = (): number[] =>
+                        graphicsBufferSpies["line"].mock.calls
+                            .filter(
+                                (args) =>
+                                    args.length == 4 &&
+                                    args[0] == args[2] &&
+                                    args[1] == topOfLine
+                            )
+                            .map((args) => args[0])
+
+                    const verticalLines = getXValuesOfVerticalLineCalls()
+
+                    const expectedHorizontalPositions =
+                        expectedVerticalLineValueLocations.map((value) => {
+                            const left = RectAreaService.left(drawingArea)
+                            const width = RectAreaService.width(drawingArea)
+                            return left + (width * value) / maxHitPoints
+                        })
+
+                    expect(verticalLines).toHaveLength(
+                        expectedHorizontalPositions.length
+                    )
+                    for (let i = 0; i < verticalLines.length; i++) {
+                        expect(verticalLines[i]).toBeCloseTo(
+                            expectedHorizontalPositions[i]
+                        )
+                    }
+                }
+            )
+        })
+
+        describe("will draw a bar for absorb hit points", () => {
+            let absorbBar: DrawHorizontalMeterActionDataBlob
+            let hitPointBar: DrawHorizontalMeterActionDataBlob
+            let maxHitPoints: number = 5
+            let absorbPoints: number = 2
+
+            beforeEach(() => {
+                battleSquaddie.inBattleAttributes.currentHitPoints =
+                    maxHitPoints
+                battleSquaddie.inBattleAttributes.armyAttributes.maxHitPoints =
+                    maxHitPoints
+                InBattleAttributesService.addActiveAttributeModifier(
+                    battleSquaddie.inBattleAttributes,
+                    AttributeModifierService.new({
+                        type: AttributeType.ABSORB,
+                        amount: absorbPoints,
+                        source: AttributeSource.CIRCUMSTANCE,
+                    })
+                )
+                const tile = drawMeter()
+                const uiObjects =
+                    DataBlobService.get<SquaddieStatusTileUIObjects>(
+                        tile.data,
+                        "uiObjects"
+                    )
+                absorbBar = uiObjects.hitPoints.absorbBar
+                hitPointBar = uiObjects.hitPoints.actionPointMeterDataBlob
+            })
+            it("will expect the width to be proportional to the hit point bar", () => {
+                const absorbBarDrawingArea = DataBlobService.get<RectArea>(
+                    absorbBar,
+                    "drawingArea"
+                )
+
+                const hitPointBarDrawingArea = DataBlobService.get<RectArea>(
+                    hitPointBar,
+                    "drawingArea"
+                )
+                expect(RectAreaService.width(absorbBarDrawingArea)).toBeCloseTo(
+                    (RectAreaService.width(hitPointBarDrawingArea) *
+                        absorbPoints) /
+                        maxHitPoints
+                )
+            })
+            it("will draw 1 vertical segment per absorb", () => {
+                expect(
+                    DataBlobService.get<number>(
+                        absorbBar,
+                        "currentValueSegmentDivisionInterval"
+                    )
+                ).toEqual(1)
+            })
         })
     })
 

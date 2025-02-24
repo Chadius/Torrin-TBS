@@ -48,7 +48,7 @@ import {
 } from "../history/battleAction/battleActionRecorder"
 import { BattleActionService } from "../history/battleAction/battleAction"
 import { DrawSquaddieUtilities } from "../animation/drawSquaddie"
-import { SquaddieStatusTileService } from "../hud/playerActionPanel/tile/squaddieStatusTile"
+import { SquaddieStatusTileService } from "../hud/playerActionPanel/tile/squaddieStatusTile/squaddieStatusTile"
 import { ActionTilePosition } from "../hud/playerActionPanel/tile/actionTilePosition"
 import { MapDataBlob } from "../../hexMap/mapLayer/mapDataBlob"
 import {

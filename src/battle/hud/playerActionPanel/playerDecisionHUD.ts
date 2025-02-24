@@ -13,7 +13,7 @@ import {
     PopupWindowService,
     PopupWindowStatus,
 } from "../popupWindow/popupWindow"
-import { SquaddieStatusTileService } from "./tile/squaddieStatusTile"
+import { SquaddieStatusTileService } from "./tile/squaddieStatusTile/squaddieStatusTile"
 import { ActionTilePosition } from "./tile/actionTilePosition"
 
 const INVALID_SELECTION_POP_UP_DURATION_MS = 2000

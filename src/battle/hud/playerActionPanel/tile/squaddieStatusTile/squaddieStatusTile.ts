@@ -1,63 +1,77 @@
 import {
     ObjectRepository,
     ObjectRepositoryService,
-} from "../../../objectRepository"
-import { getResultOrThrowError } from "../../../../utils/ResultOrError"
-import { ResourceHandler } from "../../../../resource/resourceHandler"
-import { GraphicsBuffer } from "../../../../utils/graphics/graphicsRenderer"
-import { SquaddieAffiliation } from "../../../../squaddie/squaddieAffiliation"
+} from "../../../../objectRepository"
+import { getResultOrThrowError } from "../../../../../utils/ResultOrError"
+import { ResourceHandler } from "../../../../../resource/resourceHandler"
+import { GraphicsBuffer } from "../../../../../utils/graphics/graphicsRenderer"
+import { SquaddieAffiliation } from "../../../../../squaddie/squaddieAffiliation"
 import {
     ActionTilePosition,
     ActionTilePositionService,
-} from "./actionTilePosition"
-import { InBattleAttributesService } from "../../../stats/inBattleAttributes"
-import { TextBox, TextBoxService } from "../../../../ui/textBox/textBox"
-import { RectArea, RectAreaService } from "../../../../ui/rectArea"
-import { WINDOW_SPACING } from "../../../../ui/constants"
-import { HUE_BY_SQUADDIE_AFFILIATION } from "../../../../graphicsConstants"
-import { BattleSquaddie } from "../../../battleSquaddie"
+} from "../actionTilePosition"
+import { InBattleAttributesService } from "../../../../stats/inBattleAttributes"
+import { TextBox, TextBoxService } from "../../../../../ui/textBox/textBox"
+import { RectAreaService } from "../../../../../ui/rectArea"
+import { WINDOW_SPACING } from "../../../../../ui/constants"
+import { HUE_BY_SQUADDIE_AFFILIATION } from "../../../../../graphicsConstants"
+import { BattleSquaddie } from "../../../../battleSquaddie"
 import {
     SquaddieMovementExplanation,
     SquaddieService,
-} from "../../../../squaddie/squaddieService"
-import { SquaddieTemplate } from "../../../../campaign/squaddieTemplate"
+} from "../../../../../squaddie/squaddieService"
+import { SquaddieTemplate } from "../../../../../campaign/squaddieTemplate"
 import {
     MissionMap,
     MissionMapService,
-} from "../../../../missionMap/missionMap"
-import { CalculateAgainstArmor } from "../../../calculator/actionCalculator/calculateAgainstArmor"
-import { ImageUI, ImageUILoadingBehavior } from "../../../../ui/imageUI/imageUI"
+} from "../../../../../missionMap/missionMap"
+import { CalculateAgainstArmor } from "../../../../calculator/actionCalculator/calculateAgainstArmor"
+import {
+    ImageUI,
+    ImageUILoadingBehavior,
+} from "../../../../../ui/imageUI/imageUI"
 import {
     AttributeType,
     AttributeTypeAndAmount,
     AttributeTypeService,
-} from "../../../../squaddie/attribute/attributeType"
-import { DataBlob, DataBlobService } from "../../../../utils/dataBlob/dataBlob"
-import { BehaviorTreeTask } from "../../../../utils/behaviorTree/task"
-import { SequenceComposite } from "../../../../utils/behaviorTree/composite/sequence/sequence"
-import { InverterDecorator } from "../../../../utils/behaviorTree/decorator/inverter/inverter"
-import { ExecuteAllComposite } from "../../../../utils/behaviorTree/composite/executeAll/executeAll"
-import { DrawTextBoxesAction } from "../../../../ui/textBox/drawTextBoxesAction"
-import { HexCoordinate } from "../../../../hexMap/hexCoordinate/hexCoordinate"
-import { DrawImagesAction } from "../../../../ui/imageUI/drawImagesAction"
+} from "../../../../../squaddie/attribute/attributeType"
 import {
-    DrawHorizontalMeterAction,
-    DrawHorizontalMeterActionDataBlob,
-} from "../../horizontalBar/drawHorizontalMeterAction"
-import { DEFAULT_ACTION_POINTS_PER_TURN } from "../../../../squaddie/turn"
-import { GameEngineState } from "../../../../gameEngine/gameEngine"
-import { BattleActionDecisionStepService } from "../../../actionDecision/battleActionDecisionStep"
+    DataBlob,
+    DataBlobService,
+} from "../../../../../utils/dataBlob/dataBlob"
+import { BehaviorTreeTask } from "../../../../../utils/behaviorTree/task"
+import { SequenceComposite } from "../../../../../utils/behaviorTree/composite/sequence/sequence"
+import { InverterDecorator } from "../../../../../utils/behaviorTree/decorator/inverter/inverter"
+import { ExecuteAllComposite } from "../../../../../utils/behaviorTree/composite/executeAll/executeAll"
+import { DrawTextBoxesAction } from "../../../../../ui/textBox/drawTextBoxesAction"
+import { HexCoordinate } from "../../../../../hexMap/hexCoordinate/hexCoordinate"
+import { DrawImagesAction } from "../../../../../ui/imageUI/drawImagesAction"
+import { DrawHorizontalMeterActionDataBlob } from "../../../horizontalBar/drawHorizontalMeterAction"
+import { GameEngineState } from "../../../../../gameEngine/gameEngine"
+import { BattleActionDecisionStepService } from "../../../../actionDecision/battleActionDecisionStep"
 import {
     PlayerConsideredActions,
     PlayerConsideredActionsService,
-} from "../../../battleState/playerConsideredActions"
+} from "../../../../battleState/playerConsideredActions"
+import {
+    SquaddieStatusTileDrawHitPointsPointsMeterAction,
+    SquaddieStatusTileIsHitPointsCorrectCondition,
+    SquaddieStatusTileUpdateHitPointsContextAction,
+    SquaddieStatusTileUpdateHitPointsUIObjectsAction,
+} from "./uiObjects/hitPoints"
+import {
+    DrawActionPointsMeterAction,
+    IsActionPointsCorrectCondition,
+    UpdateActionPointsContextAction,
+    UpdateActionPointsUIObjectsAction,
+} from "./uiObjects/actionPoints"
 
 export interface SquaddieStatusTile {
     data: DataBlob
     drawBehaviorTree: BehaviorTreeTask
 }
 
-interface SquaddieStatusTileUILayout {
+export interface SquaddieStatusTileUILayout {
     rowSize: number
     armor: {
         row: number
@@ -70,6 +84,40 @@ interface SquaddieStatusTileUILayout {
         fontSize: number
         fontSaturation: number
         fontBrightness: number
+        hitPointMeter: {
+            emptyColor: number[]
+            currentValueFillColor: number[]
+            currentValueSegmentColor: number[]
+            currentValueSegmentStrokeWeight: number
+
+            dangerLevelHitPoints: {
+                currentValueFillAlphaRange: number[]
+                currentValueFillAlphaPeriod: number
+            }
+            perilLevelHitPoints: {
+                currentValueFillAlphaRange: number[]
+                currentValueFillAlphaPeriod: number
+            }
+
+            highlightedValueFillColor: number[]
+            highlightedValueFillAlphaRange: number[]
+            highlightedValueFillAlphaPeriod: number
+
+            outlineStrokeWeight: number
+            outlineStrokeColor: number[]
+
+            absorbBar: {
+                emptyColor: number[]
+                currentValueFillColor: number[]
+                currentValueSegmentColor: number[]
+                currentValueSegmentStrokeWeight: number
+                currentValueFillAlphaRange: number[]
+                currentValueFillAlphaPeriod: number
+
+                outlineStrokeWeight: number
+                outlineStrokeColor: number[]
+            }
+        }
     }
     actionPoints: {
         row: number
@@ -141,6 +189,8 @@ export interface SquaddieStatusTileUIObjects {
     }
     hitPoints: {
         textBox?: TextBox
+        actionPointMeterDataBlob?: DrawHorizontalMeterActionDataBlob
+        absorbBar?: DrawHorizontalMeterActionDataBlob
     }
     movement: {
         textBox?: TextBox
@@ -159,7 +209,7 @@ export interface SquaddieStatusTileUIObjects {
     }
 }
 
-interface SquaddieStatusTileContext {
+export interface SquaddieStatusTileContext {
     squaddieAffiliation: SquaddieAffiliation
     horizontalPosition: ActionTilePosition
     battleSquaddieId: string
@@ -235,6 +285,39 @@ export const SquaddieStatusTileService = {
                 fontSize: 16,
                 fontSaturation: 7,
                 fontBrightness: 112,
+                hitPointMeter: {
+                    emptyColor: [5, 65, 8],
+                    currentValueFillColor: [5, 74, 69],
+                    currentValueSegmentColor: [0, 20, 10],
+                    currentValueSegmentStrokeWeight: 2,
+                    dangerLevelHitPoints: {
+                        currentValueFillAlphaRange: [192, 256],
+                        currentValueFillAlphaPeriod: 2000,
+                    },
+                    perilLevelHitPoints: {
+                        currentValueFillAlphaRange: [128, 256],
+                        currentValueFillAlphaPeriod: 1000,
+                    },
+
+                    highlightedValueFillColor: [0, 40, 60],
+                    highlightedValueFillAlphaRange: [0, 100],
+                    highlightedValueFillAlphaPeriod: 2000,
+
+                    outlineStrokeWeight: 2,
+                    outlineStrokeColor: [0, 20, 10],
+
+                    absorbBar: {
+                        emptyColor: [0, 0, 0],
+                        currentValueFillColor: [9, 23, 82],
+                        currentValueSegmentColor: [9, 65, 8],
+                        currentValueSegmentStrokeWeight: 8,
+                        currentValueFillAlphaRange: [256 - 32, 256],
+                        currentValueFillAlphaPeriod: 1000,
+
+                        outlineStrokeWeight: 1,
+                        outlineStrokeColor: [9, 9, 90],
+                    },
+                },
             },
             actionPoints: {
                 row: 2,
@@ -243,8 +326,8 @@ export const SquaddieStatusTileService = {
                 fontBrightness: 112,
                 meter: {
                     emptyColor: [0, 0, 12],
-                    currentValueFillColor: [0, 2, 60],
-                    currentValueSegmentColor: [0, 2, 30],
+                    currentValueFillColor: [5, 6, 69],
+                    currentValueSegmentColor: [0, 2, 10],
                     currentValueSegmentStrokeWeight: 2,
 
                     highlightedValueFillColor: [0, 2, 60],
@@ -252,7 +335,7 @@ export const SquaddieStatusTileService = {
                     highlightedValueFillAlphaPeriod: 2000,
 
                     outlineStrokeWeight: 2,
-                    outlineStrokeColor: [0, 0, 30],
+                    outlineStrokeColor: [0, 2, 10],
                 },
             },
             movement: {
@@ -360,6 +443,148 @@ export const SquaddieStatusTileService = {
             gameEngineState,
         })
     },
+    calculateHitPoints: (
+        battleSquaddie: BattleSquaddie,
+        squaddieTemplate: SquaddieTemplate
+    ) => {
+        let { currentHitPoints, maxHitPoints } = SquaddieService.getHitPoints({
+            battleSquaddie,
+            squaddieTemplate,
+        })
+
+        const currentAttributes =
+            InBattleAttributesService.calculateCurrentAttributeModifiers(
+                battleSquaddie.inBattleAttributes
+            )
+
+        const absorbAttribute = currentAttributes.find(
+            (attributeTypeAndAmount) =>
+                attributeTypeAndAmount.type === AttributeType.ABSORB
+        )
+        let currentAbsorb = 0
+        if (absorbAttribute) {
+            currentAbsorb = absorbAttribute.amount
+        }
+
+        return {
+            currentHitPoints,
+            maxHitPoints,
+            currentAbsorb,
+        }
+    },
+    createTextBoxOnLeftSideOfRow: ({
+        actionTilePosition,
+        text,
+        fontSize,
+        fontColor,
+        topOffset,
+        graphicsContext,
+    }: {
+        actionTilePosition: ActionTilePosition
+        fontColor: number[]
+        text: string
+        fontSize: number
+        topOffset: number
+        graphicsContext: GraphicsBuffer
+    }): TextBox => {
+        const overallBoundingBox =
+            ActionTilePositionService.getBoundingBoxBasedOnActionTilePosition(
+                actionTilePosition
+            )
+        graphicsContext.push()
+        graphicsContext.textSize(fontSize)
+        const textBox = TextBoxService.new({
+            text,
+            fontSize: fontSize,
+            fontColor,
+            area: RectAreaService.new({
+                left:
+                    RectAreaService.left(overallBoundingBox) +
+                    WINDOW_SPACING.SPACING1,
+                top:
+                    RectAreaService.top(overallBoundingBox) +
+                    topOffset +
+                    WINDOW_SPACING.SPACING1,
+                width:
+                    graphicsContext.textWidth(text) + WINDOW_SPACING.SPACING1,
+                height: fontSize,
+            }),
+        })
+        graphicsContext.pop()
+        return textBox
+    },
+    calculateActionPoints: (
+        battleSquaddie: BattleSquaddie,
+        squaddieTemplate: SquaddieTemplate
+    ) => {
+        let { actionPointsRemaining } = SquaddieService.getNumberOfActionPoints(
+            {
+                battleSquaddie,
+                squaddieTemplate,
+            }
+        )
+
+        return {
+            actionPointsRemaining,
+        }
+    },
+    getContextVariablesThatDependOnTargetSquaddie: (
+        gameEngineState: GameEngineState,
+        battleSquaddieId: string
+    ) => {
+        const { squaddieTemplate, battleSquaddie } = getResultOrThrowError(
+            ObjectRepositoryService.getSquaddieByBattleId(
+                gameEngineState.repository,
+                battleSquaddieId
+            )
+        )
+
+        const { actionPointsRemaining } =
+            SquaddieStatusTileService.calculateActionPoints(
+                battleSquaddie,
+                squaddieTemplate
+            )
+
+        return {
+            actionPoints: {
+                actionPointsRemaining,
+                actionPointsMarked: 0,
+            },
+        }
+    },
+    getContextVariablesThatDependOnActorSquaddie: (
+        gameEngineState: GameEngineState,
+        battleSquaddieId: string
+    ) => {
+        const { squaddieTemplate, battleSquaddie } = getResultOrThrowError(
+            ObjectRepositoryService.getSquaddieByBattleId(
+                gameEngineState.repository,
+                battleSquaddieId
+            )
+        )
+
+        const { actionPointsRemaining } =
+            SquaddieStatusTileService.calculateActionPoints(
+                battleSquaddie,
+                squaddieTemplate
+            )
+
+        return {
+            actionPoints: {
+                actionPointsRemaining,
+                actionPointsMarked:
+                    PlayerConsideredActionsService.getExpectedMarkedActionPointsBasedOnPlayerConsideration(
+                        {
+                            objectRepository: gameEngineState.repository,
+                            playerConsideredActions:
+                                gameEngineState.battleOrchestratorState
+                                    .battleState.playerConsideredActions,
+                            battleSquaddie,
+                        }
+                    ),
+            },
+        }
+    },
 }
 
 const calculateAttributeTopLeftCorner = ({
@@ -395,47 +620,6 @@ const calculateAttributeTopLeftCorner = ({
     return { attributeLeft, attributeTop }
 }
 
-const createTextBoxOnLeftSideOfRow = ({
-    actionTilePosition,
-    text,
-    fontSize,
-    fontColor,
-    topOffset,
-    graphicsContext,
-}: {
-    actionTilePosition: ActionTilePosition
-    fontColor: number[]
-    text: string
-    fontSize: number
-    topOffset: number
-    graphicsContext: GraphicsBuffer
-}): TextBox => {
-    const overallBoundingBox =
-        ActionTilePositionService.getBoundingBoxBasedOnActionTilePosition(
-            actionTilePosition
-        )
-    graphicsContext.push()
-    graphicsContext.textSize(fontSize)
-    const textBox = TextBoxService.new({
-        text,
-        fontSize: fontSize,
-        fontColor,
-        area: RectAreaService.new({
-            left:
-                RectAreaService.left(overallBoundingBox) +
-                WINDOW_SPACING.SPACING1,
-            top:
-                RectAreaService.top(overallBoundingBox) +
-                topOffset +
-                WINDOW_SPACING.SPACING1,
-            width: graphicsContext.textWidth(text) + WINDOW_SPACING.SPACING1,
-            height: fontSize,
-        }),
-    })
-    graphicsContext.pop()
-    return textBox
-}
-
 const createContext = ({
     battleSquaddieId,
     horizontalPosition,
@@ -458,11 +642,11 @@ const createContext = ({
 
     const squaddieIsTheActor = battleSquaddieId === actorBattleSquaddieId
     const actorSquaddieDependentContext = squaddieIsTheActor
-        ? getContextVariablesThatDependOnActorSquaddie(
+        ? SquaddieStatusTileService.getContextVariablesThatDependOnActorSquaddie(
               gameEngineState,
               battleSquaddieId
           )
-        : getContextVariablesThatDependOnTargetSquaddie(
+        : SquaddieStatusTileService.getContextVariablesThatDependOnTargetSquaddie(
               gameEngineState,
               battleSquaddieId
           )
@@ -476,68 +660,16 @@ const createContext = ({
                 .playerConsideredActions,
         },
         armor: { ...calculateArmorClass(battleSquaddie, squaddieTemplate) },
-        hitPoints: { ...calculateHitPoints(battleSquaddie, squaddieTemplate) },
+        hitPoints: {
+            ...SquaddieStatusTileService.calculateHitPoints(
+                battleSquaddie,
+                squaddieTemplate
+            ),
+        },
         movement: { ...calculateMovement(battleSquaddie, squaddieTemplate) },
         coordinates: { q: 0, r: 0 },
         attributeModifiers: calculateAttributeModifiers(battleSquaddie),
         ...actorSquaddieDependentContext,
-    }
-}
-
-const getContextVariablesThatDependOnActorSquaddie = (
-    gameEngineState: GameEngineState,
-    battleSquaddieId: string
-) => {
-    const { squaddieTemplate, battleSquaddie } = getResultOrThrowError(
-        ObjectRepositoryService.getSquaddieByBattleId(
-            gameEngineState.repository,
-            battleSquaddieId
-        )
-    )
-
-    const { actionPointsRemaining } = calculateActionPoints(
-        battleSquaddie,
-        squaddieTemplate
-    )
-
-    return {
-        actionPoints: {
-            actionPointsRemaining,
-            actionPointsMarked:
-                PlayerConsideredActionsService.getExpectedMarkedActionPointsBasedOnPlayerConsideration(
-                    {
-                        objectRepository: gameEngineState.repository,
-                        playerConsideredActions:
-                            gameEngineState.battleOrchestratorState.battleState
-                                .playerConsideredActions,
-                        battleSquaddie,
-                    }
-                ),
-        },
-    }
-}
-
-const getContextVariablesThatDependOnTargetSquaddie = (
-    gameEngineState: GameEngineState,
-    battleSquaddieId: string
-) => {
-    const { squaddieTemplate, battleSquaddie } = getResultOrThrowError(
-        ObjectRepositoryService.getSquaddieByBattleId(
-            gameEngineState.repository,
-            battleSquaddieId
-        )
-    )
-
-    const { actionPointsRemaining } = calculateActionPoints(
-        battleSquaddie,
-        squaddieTemplate
-    )
-
-    return {
-        actionPoints: {
-            actionPointsRemaining,
-            actionPointsMarked: 0,
-        },
     }
 }
 
@@ -570,50 +702,6 @@ const calculateAttributeModifiers = (
         (attributeTypeAndAmount) =>
             ![AttributeType.ABSORB].includes(attributeTypeAndAmount.type)
     )
-
-const calculateActionPoints = (
-    battleSquaddie: BattleSquaddie,
-    squaddieTemplate: SquaddieTemplate
-) => {
-    let { actionPointsRemaining } = SquaddieService.getNumberOfActionPoints({
-        battleSquaddie,
-        squaddieTemplate,
-    })
-
-    return {
-        actionPointsRemaining,
-    }
-}
-
-const calculateHitPoints = (
-    battleSquaddie: BattleSquaddie,
-    squaddieTemplate: SquaddieTemplate
-) => {
-    let { currentHitPoints, maxHitPoints } = SquaddieService.getHitPoints({
-        battleSquaddie,
-        squaddieTemplate,
-    })
-
-    const currentAttributes =
-        InBattleAttributesService.calculateCurrentAttributeModifiers(
-            battleSquaddie.inBattleAttributes
-        )
-
-    const absorbAttribute = currentAttributes.find(
-        (attributeTypeAndAmount) =>
-            attributeTypeAndAmount.type === AttributeType.ABSORB
-    )
-    let currentAbsorb = 0
-    if (absorbAttribute) {
-        currentAbsorb = absorbAttribute.amount
-    }
-
-    return {
-        currentHitPoints,
-        maxHitPoints,
-        currentAbsorb,
-    }
-}
 
 const calculateArmorClass = (
     battleSquaddie: BattleSquaddie,
@@ -674,9 +762,15 @@ const updateContext = ({
         new DoesUIObjectExistCondition(dataBlob, "hitPoints"),
         new InverterDecorator(
             dataBlob,
-            new IsHitPointsCorrectCondition(dataBlob, objectRepository)
+            new SquaddieStatusTileIsHitPointsCorrectCondition(
+                dataBlob,
+                objectRepository
+            )
         ),
-        new UpdateHitPointsContextAction(dataBlob, objectRepository),
+        new SquaddieStatusTileUpdateHitPointsContextAction(
+            dataBlob,
+            objectRepository
+        ),
     ])
 
     const updateActionPoints = new SequenceComposite(dataBlob, [
@@ -741,7 +835,10 @@ const updateUIObjects = ({
     ])
 
     const updateHitPoints = new SequenceComposite(dataBlob, [
-        new UpdateHitPointsUIObjectsAction(dataBlob, graphicsContext),
+        new SquaddieStatusTileUpdateHitPointsUIObjectsAction(
+            dataBlob,
+            graphicsContext
+        ),
     ])
 
     const updateActionPoints = new SequenceComposite(dataBlob, [
@@ -836,6 +933,10 @@ const createDrawingTree = ({
         drawTextBoxTreeAction,
         drawImagesAction,
         new DrawActionPointsMeterAction(dataBlob, graphicsContext),
+        new SquaddieStatusTileDrawHitPointsPointsMeterAction(
+            dataBlob,
+            graphicsContext
+        ),
     ])
 }
 
@@ -980,18 +1081,19 @@ class UpdateArmorUIObjectsAction implements BehaviorTreeTask {
             "layout"
         )
 
-        uiObjects.armor.textBox = createTextBoxOnLeftSideOfRow({
-            actionTilePosition: context.horizontalPosition,
-            text: armorText,
-            fontSize: layout.armor.fontSize,
-            fontColor: [
-                squaddieAffiliationHue,
-                layout.armor.fontSaturation,
-                layout.armor.fontBrightness,
-            ],
-            topOffset: layout.armor.row * layout.rowSize,
-            graphicsContext: this.graphicsContext,
-        })
+        uiObjects.armor.textBox =
+            SquaddieStatusTileService.createTextBoxOnLeftSideOfRow({
+                actionTilePosition: context.horizontalPosition,
+                text: armorText,
+                fontSize: layout.armor.fontSize,
+                fontColor: [
+                    squaddieAffiliationHue,
+                    layout.armor.fontSaturation,
+                    layout.armor.fontBrightness,
+                ],
+                topOffset: layout.armor.row * layout.rowSize,
+                graphicsContext: this.graphicsContext,
+            })
         DataBlobService.add<SquaddieStatusTileUIObjects>(
             this.dataBlob,
             "uiObjects",
@@ -1003,557 +1105,6 @@ class UpdateArmorUIObjectsAction implements BehaviorTreeTask {
 
     clone(): BehaviorTreeTask {
         return new UpdateArmorUIObjectsAction(
-            this.dataBlob,
-            this.graphicsContext
-        )
-    }
-}
-
-class IsHitPointsCorrectCondition implements BehaviorTreeTask {
-    dataBlob: DataBlob
-    objectRepository: ObjectRepository
-
-    constructor(blackboard: DataBlob, objectRepository: ObjectRepository) {
-        this.dataBlob = blackboard
-        this.objectRepository = objectRepository
-    }
-
-    run(): boolean {
-        const context = DataBlobService.get<SquaddieStatusTileContext>(
-            this.dataBlob,
-            "context"
-        )
-
-        const battleSquaddieId = context.battleSquaddieId
-        const { battleSquaddie, squaddieTemplate } = getResultOrThrowError(
-            ObjectRepositoryService.getSquaddieByBattleId(
-                this.objectRepository,
-                battleSquaddieId
-            )
-        )
-
-        const { currentHitPoints, currentAbsorb, maxHitPoints } =
-            calculateHitPoints(battleSquaddie, squaddieTemplate)
-
-        return (
-            context.hitPoints?.currentHitPoints === currentHitPoints &&
-            context.hitPoints?.currentAbsorb === currentAbsorb &&
-            context.hitPoints?.maxHitPoints === maxHitPoints
-        )
-    }
-
-    clone(): BehaviorTreeTask {
-        return new IsHitPointsCorrectCondition(
-            this.dataBlob,
-            this.objectRepository
-        )
-    }
-}
-
-class UpdateHitPointsContextAction implements BehaviorTreeTask {
-    dataBlob: DataBlob
-    objectRepository: ObjectRepository
-
-    constructor(dataBlob: DataBlob, objectRepository: ObjectRepository) {
-        this.dataBlob = dataBlob
-        this.objectRepository = objectRepository
-    }
-
-    run(): boolean {
-        const context = DataBlobService.get<SquaddieStatusTileContext>(
-            this.dataBlob,
-            "context"
-        )
-
-        const battleSquaddieId = context.battleSquaddieId
-        const { battleSquaddie, squaddieTemplate } = getResultOrThrowError(
-            ObjectRepositoryService.getSquaddieByBattleId(
-                this.objectRepository,
-                battleSquaddieId
-            )
-        )
-
-        const { currentHitPoints, currentAbsorb, maxHitPoints } =
-            calculateHitPoints(battleSquaddie, squaddieTemplate)
-
-        context.hitPoints ||= {
-            currentHitPoints: 0,
-            maxHitPoints: 0,
-            currentAbsorb: 0,
-        }
-        context.hitPoints.currentHitPoints = currentHitPoints
-        context.hitPoints.maxHitPoints = maxHitPoints
-        context.hitPoints.currentAbsorb = currentAbsorb
-        DataBlobService.add<SquaddieStatusTileContext>(
-            this.dataBlob,
-            "context",
-            context
-        )
-        return true
-    }
-
-    clone(): BehaviorTreeTask {
-        return new UpdateHitPointsContextAction(
-            this.dataBlob,
-            this.objectRepository
-        )
-    }
-}
-
-class UpdateHitPointsUIObjectsAction implements BehaviorTreeTask {
-    dataBlob: DataBlob
-    graphicsContext: GraphicsBuffer
-
-    constructor(dataBlob: DataBlob, graphicsContext: GraphicsBuffer) {
-        this.dataBlob = dataBlob
-        this.graphicsContext = graphicsContext
-    }
-
-    run(): boolean {
-        const context = DataBlobService.get<SquaddieStatusTileContext>(
-            this.dataBlob,
-            "context"
-        )
-
-        const uiObjects = DataBlobService.get<SquaddieStatusTileUIObjects>(
-            this.dataBlob,
-            "uiObjects"
-        )
-
-        let hitPointText = `HP ${context.hitPoints.currentHitPoints}`
-        if (context.hitPoints.currentAbsorb) {
-            hitPointText += ` + ${context.hitPoints.currentAbsorb}`
-        }
-        hitPointText += `/${context.hitPoints.maxHitPoints}`
-
-        const squaddieAffiliationHue: number =
-            HUE_BY_SQUADDIE_AFFILIATION[context.squaddieAffiliation]
-
-        const layout = DataBlobService.get<SquaddieStatusTileUILayout>(
-            this.dataBlob,
-            "layout"
-        )
-
-        uiObjects.hitPoints.textBox = createTextBoxOnLeftSideOfRow({
-            actionTilePosition: context.horizontalPosition,
-            text: hitPointText,
-            fontSize: layout.hitPoints.fontSize,
-            fontColor: [
-                squaddieAffiliationHue,
-                layout.hitPoints.fontSaturation,
-                layout.hitPoints.fontBrightness,
-            ],
-            topOffset: layout.hitPoints.row * layout.rowSize,
-            graphicsContext: this.graphicsContext,
-        })
-
-        DataBlobService.add<SquaddieStatusTileUIObjects>(
-            this.dataBlob,
-            "uiObjects",
-            uiObjects
-        )
-
-        return true
-    }
-
-    clone(): BehaviorTreeTask {
-        return new UpdateHitPointsUIObjectsAction(
-            this.dataBlob,
-            this.graphicsContext
-        )
-    }
-}
-
-class IsActionPointsCorrectCondition implements BehaviorTreeTask {
-    dataBlob: DataBlob
-    gameEngineState: GameEngineState
-
-    constructor(dataBlob: DataBlob, gameEngineState: GameEngineState) {
-        this.dataBlob = dataBlob
-        this.gameEngineState = gameEngineState
-    }
-
-    run(): boolean {
-        const context = DataBlobService.get<SquaddieStatusTileContext>(
-            this.dataBlob,
-            "context"
-        )
-
-        const battleSquaddieId = context.battleSquaddieId
-        const { battleSquaddie, squaddieTemplate } = getResultOrThrowError(
-            ObjectRepositoryService.getSquaddieByBattleId(
-                this.gameEngineState.repository,
-                battleSquaddieId
-            )
-        )
-
-        const { actionPointsRemaining } = calculateActionPoints(
-            battleSquaddie,
-            squaddieTemplate
-        )
-
-        let expectedMarkedActionPoints =
-            PlayerConsideredActionsService.getExpectedMarkedActionPointsBasedOnPlayerConsideration(
-                {
-                    objectRepository: this.gameEngineState.repository,
-                    playerConsideredActions:
-                        this.gameEngineState.battleOrchestratorState.battleState
-                            .playerConsideredActions,
-                    battleSquaddie,
-                }
-            )
-
-        return (
-            context.actionPoints?.actionPointsRemaining ===
-                actionPointsRemaining &&
-            context.actionPoints?.actionPointsMarked ===
-                expectedMarkedActionPoints
-        )
-    }
-
-    clone(): BehaviorTreeTask {
-        return new IsActionPointsCorrectCondition(
-            this.dataBlob,
-            this.gameEngineState
-        )
-    }
-}
-
-class UpdateActionPointsContextAction implements BehaviorTreeTask {
-    dataBlob: DataBlob
-    gameEngineState: GameEngineState
-
-    constructor(blackboard: DataBlob, gameEngineState: GameEngineState) {
-        this.dataBlob = blackboard
-        this.gameEngineState = gameEngineState
-    }
-
-    run(): boolean {
-        const context = DataBlobService.get<SquaddieStatusTileContext>(
-            this.dataBlob,
-            "context"
-        )
-
-        const battleSquaddieId = context.battleSquaddieId
-        const actorBattleSquaddieId = BattleActionDecisionStepService.getActor(
-            this.gameEngineState.battleOrchestratorState.battleState
-                .battleActionDecisionStep
-        )?.battleSquaddieId
-
-        const squaddieIsTheActor = battleSquaddieId === actorBattleSquaddieId
-        const actorSquaddieDependentContext = squaddieIsTheActor
-            ? getContextVariablesThatDependOnActorSquaddie(
-                  this.gameEngineState,
-                  battleSquaddieId
-              )
-            : getContextVariablesThatDependOnTargetSquaddie(
-                  this.gameEngineState,
-                  battleSquaddieId
-              )
-
-        context.actionPoints ||= {
-            actionPointsRemaining: 0,
-            actionPointsMarked: 0,
-        }
-        context.actionPoints.actionPointsRemaining =
-            actorSquaddieDependentContext.actionPoints.actionPointsRemaining
-        context.actionPoints.actionPointsMarked =
-            actorSquaddieDependentContext.actionPoints.actionPointsMarked
-
-        DataBlobService.add<SquaddieStatusTileContext>(
-            this.dataBlob,
-            "context",
-            context
-        )
-
-        return true
-    }
-
-    clone(): BehaviorTreeTask {
-        return new UpdateActionPointsContextAction(
-            this.dataBlob,
-            this.gameEngineState
-        )
-    }
-}
-
-class UpdateActionPointsUIObjectsAction implements BehaviorTreeTask {
-    dataBlob: DataBlob
-    graphicsContext: GraphicsBuffer
-
-    constructor(dataBlob: DataBlob, graphicsContext: GraphicsBuffer) {
-        this.dataBlob = dataBlob
-        this.graphicsContext = graphicsContext
-    }
-
-    run(): boolean {
-        this.updateTextBoxes()
-        this.updateActionPointMeter()
-        return true
-    }
-
-    private updateTextBoxes() {
-        const context = DataBlobService.get<SquaddieStatusTileContext>(
-            this.dataBlob,
-            "context"
-        )
-
-        const uiObjects = DataBlobService.get<SquaddieStatusTileUIObjects>(
-            this.dataBlob,
-            "uiObjects"
-        )
-
-        let actionPointText = `AP ${context.actionPoints.actionPointsRemaining}`
-
-        const squaddieAffiliationHue: number =
-            HUE_BY_SQUADDIE_AFFILIATION[context.squaddieAffiliation]
-
-        const layout = DataBlobService.get<SquaddieStatusTileUILayout>(
-            this.dataBlob,
-            "layout"
-        )
-
-        uiObjects.actionPoints.textBox = createTextBoxOnLeftSideOfRow({
-            actionTilePosition: context.horizontalPosition,
-            text: actionPointText,
-            fontSize: layout.actionPoints.fontSize,
-            fontColor: [
-                squaddieAffiliationHue,
-                layout.actionPoints.fontSaturation,
-                layout.actionPoints.fontBrightness,
-            ],
-            topOffset: layout.actionPoints.row * layout.rowSize,
-            graphicsContext: this.graphicsContext,
-        })
-
-        DataBlobService.add<SquaddieStatusTileUIObjects>(
-            this.dataBlob,
-            "uiObjects",
-            uiObjects
-        )
-    }
-
-    private updateActionPointMeter() {
-        const context = DataBlobService.get<SquaddieStatusTileContext>(
-            this.dataBlob,
-            "context"
-        )
-
-        const uiObjects = DataBlobService.get<SquaddieStatusTileUIObjects>(
-            this.dataBlob,
-            "uiObjects"
-        )
-
-        let actionPointMeterDataBlob =
-            uiObjects.actionPoints.actionPointMeterDataBlob ??
-            this.createDrawingActionPointsHorizontalMeterData()
-
-        DataBlobService.add<number>(
-            actionPointMeterDataBlob,
-            "currentValue",
-            context.actionPoints.actionPointsRemaining
-        )
-
-        this.addHighlightedActionPoints({
-            actionPointMeterDataBlob: actionPointMeterDataBlob,
-            context: context,
-        })
-
-        let highlightedValueFillStartTime = DataBlobService.get<number>(
-            actionPointMeterDataBlob,
-            "highlightedValueFillStartTime"
-        )
-        if (context.actionPoints.actionPointsMarked === 0) {
-            DataBlobService.add<number>(
-                actionPointMeterDataBlob,
-                "highlightedValueFillStartTime",
-                undefined
-            )
-        } else if (highlightedValueFillStartTime == undefined) {
-            DataBlobService.add<number>(
-                actionPointMeterDataBlob,
-                "highlightedValueFillStartTime",
-                Date.now()
-            )
-        }
-        uiObjects.actionPoints.actionPointMeterDataBlob =
-            actionPointMeterDataBlob
-
-        DataBlobService.add<SquaddieStatusTileUIObjects>(
-            this.dataBlob,
-            "uiObjects",
-            uiObjects
-        )
-    }
-
-    private addHighlightedActionPoints({
-        actionPointMeterDataBlob,
-        context,
-    }: {
-        actionPointMeterDataBlob: DrawHorizontalMeterActionDataBlob
-        context: SquaddieStatusTileContext
-    }) {
-        DataBlobService.add<number>(
-            actionPointMeterDataBlob,
-            "highlightedValue",
-            context.actionPoints.actionPointsMarked
-        )
-    }
-
-    private createDrawingActionPointsHorizontalMeterData(): DrawHorizontalMeterActionDataBlob {
-        const context = DataBlobService.get<SquaddieStatusTileContext>(
-            this.dataBlob,
-            "context"
-        )
-        const layout = DataBlobService.get<SquaddieStatusTileUILayout>(
-            this.dataBlob,
-            "layout"
-        )
-        const uiObjects = DataBlobService.get<SquaddieStatusTileUIObjects>(
-            this.dataBlob,
-            "uiObjects"
-        )
-        const overallBoundingBox =
-            ActionTilePositionService.getBoundingBoxBasedOnActionTilePosition(
-                context.horizontalPosition
-            )
-
-        const actionPointMeterDataBlob: DrawHorizontalMeterActionDataBlob =
-            DataBlobService.new() as DrawHorizontalMeterActionDataBlob
-        DataBlobService.add<RectArea>(
-            actionPointMeterDataBlob,
-            "drawingArea",
-            RectAreaService.new(
-                RectAreaService.new({
-                    left:
-                        RectAreaService.right(
-                            uiObjects.actionPoints.textBox.area
-                        ) + WINDOW_SPACING.SPACING1,
-                    top: RectAreaService.top(
-                        uiObjects.actionPoints.textBox.area
-                    ),
-                    right:
-                        RectAreaService.right(overallBoundingBox) -
-                        WINDOW_SPACING.SPACING1,
-                    height: layout.actionPoints.fontSize,
-                })
-            )
-        )
-        DataBlobService.add<number>(
-            actionPointMeterDataBlob,
-            "maxValue",
-            DEFAULT_ACTION_POINTS_PER_TURN
-        )
-        DataBlobService.add<number[]>(
-            actionPointMeterDataBlob,
-            "emptyColor",
-            layout.actionPoints.meter.emptyColor
-        )
-
-        DataBlobService.add<number[]>(
-            actionPointMeterDataBlob,
-            "currentValueFillColor",
-            layout.actionPoints.meter.currentValueFillColor
-        )
-        DataBlobService.add<number[]>(
-            actionPointMeterDataBlob,
-            "currentValueSegmentColor",
-            layout.actionPoints.meter.currentValueSegmentColor
-        )
-        DataBlobService.add<number>(
-            actionPointMeterDataBlob,
-            "currentValueSegmentStrokeWeight",
-            layout.actionPoints.meter.currentValueSegmentStrokeWeight
-        )
-
-        DataBlobService.add<number[]>(
-            actionPointMeterDataBlob,
-            "highlightedValueFillColor",
-            layout.actionPoints.meter.highlightedValueFillColor
-        )
-        DataBlobService.add<number[]>(
-            actionPointMeterDataBlob,
-            "highlightedValueFillAlphaRange",
-            layout.actionPoints.meter.highlightedValueFillAlphaRange
-        )
-        DataBlobService.add<number>(
-            actionPointMeterDataBlob,
-            "highlightedValueFillAlphaPeriod",
-            layout.actionPoints.meter.highlightedValueFillAlphaPeriod
-        )
-
-        DataBlobService.add<number>(
-            actionPointMeterDataBlob,
-            "outlineStrokeWeight",
-            layout.actionPoints.meter.outlineStrokeWeight
-        )
-        DataBlobService.add<number[]>(
-            actionPointMeterDataBlob,
-            "outlineStrokeColor",
-            layout.actionPoints.meter.outlineStrokeColor
-        )
-
-        DataBlobService.add<number>(
-            actionPointMeterDataBlob,
-            "currentValue",
-            context.actionPoints.actionPointsRemaining
-        )
-        DataBlobService.add<number>(
-            actionPointMeterDataBlob,
-            "currentValueSegmentDivisionInterval",
-            1
-        )
-        DataBlobService.add<number>(
-            actionPointMeterDataBlob,
-            "highlightedValue",
-            context.actionPoints.actionPointsMarked
-        )
-        DataBlobService.add<number>(
-            actionPointMeterDataBlob,
-            "highlightedValueFillStartTime",
-            Date.now()
-        )
-
-        uiObjects.actionPoints.actionPointMeterDataBlob =
-            actionPointMeterDataBlob
-        return actionPointMeterDataBlob
-    }
-
-    clone(): UpdateActionPointsUIObjectsAction {
-        return new UpdateActionPointsUIObjectsAction(
-            this.dataBlob,
-            this.graphicsContext
-        )
-    }
-}
-
-class DrawActionPointsMeterAction implements BehaviorTreeTask {
-    dataBlob: DataBlob
-    graphicsContext: GraphicsBuffer
-
-    constructor(dataBlob: DataBlob, graphicsContext: GraphicsBuffer) {
-        this.dataBlob = dataBlob
-        this.graphicsContext = graphicsContext
-    }
-
-    run(): boolean {
-        const uiObjects = DataBlobService.get<SquaddieStatusTileUIObjects>(
-            this.dataBlob,
-            "uiObjects"
-        )
-
-        const meterDataBlob: DrawHorizontalMeterActionDataBlob =
-            uiObjects.actionPoints.actionPointMeterDataBlob
-
-        const drawAction = new DrawHorizontalMeterAction(
-            meterDataBlob,
-            this.graphicsContext
-        )
-        return drawAction.run()
-    }
-
-    clone(): DrawActionPointsMeterAction {
-        return new DrawActionPointsMeterAction(
             this.dataBlob,
             this.graphicsContext
         )
@@ -1687,18 +1238,19 @@ class UpdateMovementUIObjectsAction implements BehaviorTreeTask {
             "layout"
         )
 
-        uiObjects.movement.textBox = createTextBoxOnLeftSideOfRow({
-            actionTilePosition: context.horizontalPosition,
-            text: movementText,
-            fontSize: layout.movement.fontSize,
-            fontColor: [
-                squaddieAffiliationHue,
-                layout.movement.fontSaturation,
-                layout.movement.fontBrightness,
-            ],
-            topOffset: layout.movement.row * layout.rowSize,
-            graphicsContext: this.graphicsContext,
-        })
+        uiObjects.movement.textBox =
+            SquaddieStatusTileService.createTextBoxOnLeftSideOfRow({
+                actionTilePosition: context.horizontalPosition,
+                text: movementText,
+                fontSize: layout.movement.fontSize,
+                fontColor: [
+                    squaddieAffiliationHue,
+                    layout.movement.fontSaturation,
+                    layout.movement.fontBrightness,
+                ],
+                topOffset: layout.movement.row * layout.rowSize,
+                graphicsContext: this.graphicsContext,
+            })
 
         DataBlobService.add<SquaddieStatusTileUIObjects>(
             this.dataBlob,

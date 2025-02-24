@@ -144,133 +144,173 @@ describe("Horizontal Meter", () => {
         )
     })
 
-    it("will draw a rectangle representing the current value", () => {
-        DataBlobService.add<RectArea>(
-            horizontalBarData,
-            "drawingArea",
-            RectAreaService.new({
-                left: 10,
-                top: 20,
-                width: 360,
-                height: 30,
-            })
-        )
+    const getXValuesOfVerticalLineCalls = (): number[] =>
+        graphicsBufferSpies["line"].mock.calls
+            .filter((args) => args.length == 4 && args[0] == args[2])
+            .map((args) => args[0])
 
-        DataBlobService.add<number[]>(
-            horizontalBarData,
-            "emptyColor",
-            [0, 1, 2]
-        )
+    describe("current value", () => {
+        beforeEach(() => {
+            DataBlobService.add<RectArea>(
+                horizontalBarData,
+                "drawingArea",
+                RectAreaService.new({
+                    left: 10,
+                    top: 20,
+                    width: 360,
+                    height: 30,
+                })
+            )
 
-        DataBlobService.add<number[]>(
-            horizontalBarData,
-            "currentValueFillColor",
-            [10, 11, 12]
-        )
+            DataBlobService.add<number[]>(
+                horizontalBarData,
+                "emptyColor",
+                [0, 1, 2]
+            )
 
-        DataBlobService.add<number>(horizontalBarData, "maxValue", 5)
-        DataBlobService.add<number>(horizontalBarData, "currentValue", 1)
-        const drawBehavior = new DrawHorizontalMeterAction(
-            horizontalBarData,
-            graphicsContext
-        )
+            DataBlobService.add<number[]>(
+                horizontalBarData,
+                "currentValueFillColor",
+                [10, 11, 12]
+            )
 
-        drawBehavior.run()
-        expect(graphicsBufferSpies["fill"]).toHaveBeenCalledWith(10, 11, 12)
-        expect(graphicsBufferSpies["rect"]).toHaveBeenCalledWith(
-            10,
-            20,
-            360 / 5,
-            30
-        )
+            DataBlobService.add<number>(horizontalBarData, "maxValue", 5)
+        })
+
+        it("will draw a rectangle representing the current value", () => {
+            DataBlobService.add<number>(horizontalBarData, "currentValue", 1)
+            const drawBehavior = new DrawHorizontalMeterAction(
+                horizontalBarData,
+                graphicsContext
+            )
+
+            drawBehavior.run()
+            expect(graphicsBufferSpies["fill"]).toHaveBeenCalledWith(10, 11, 12)
+            expect(graphicsBufferSpies["rect"]).toHaveBeenCalledWith(
+                10,
+                20,
+                360 / 5,
+                30
+            )
+        })
+
+        it("will draw a rectangle representing the current value", () => {
+            DataBlobService.add<number>(horizontalBarData, "currentValue", 1)
+            DataBlobService.add<number[]>(
+                horizontalBarData,
+                "currentValueFillAlphaRange",
+                [0, 100]
+            )
+            DataBlobService.add<number>(
+                horizontalBarData,
+                "currentValueFillAlphaPeriod",
+                1000
+            )
+            const dateSpy = vi.spyOn(Date, "now").mockReturnValue(500)
+            const drawBehavior = new DrawHorizontalMeterAction(
+                horizontalBarData,
+                graphicsContext
+            )
+
+            drawBehavior.run()
+            expect(graphicsBufferSpies["fill"]).toHaveBeenCalledWith(
+                10,
+                11,
+                12,
+                expect.any(Number)
+            )
+            expect(dateSpy).toHaveBeenCalled()
+            dateSpy.mockRestore()
+        })
     })
 
-    it("will draw segments per value", () => {
-        DataBlobService.add<RectArea>(
-            horizontalBarData,
-            "drawingArea",
-            RectAreaService.new({
-                left: 10,
-                top: 20,
-                width: 360,
-                height: 30,
-            })
-        )
+    describe("drawing segments", () => {
+        beforeEach(() => {
+            DataBlobService.add<RectArea>(
+                horizontalBarData,
+                "drawingArea",
+                RectAreaService.new({
+                    left: 10,
+                    top: 20,
+                    width: 360,
+                    height: 30,
+                })
+            )
 
-        DataBlobService.add<number[]>(
-            horizontalBarData,
-            "emptyColor",
-            [0, 1, 2]
-        )
+            DataBlobService.add<number[]>(
+                horizontalBarData,
+                "emptyColor",
+                [0, 1, 2]
+            )
 
-        DataBlobService.add<number[]>(
-            horizontalBarData,
-            "currentValueSegmentColor",
-            [7, 8, 9]
-        )
-        DataBlobService.add<number>(
-            horizontalBarData,
-            "currentValueSegmentStrokeWeight",
-            13
-        )
-        DataBlobService.add<number>(
-            horizontalBarData,
-            "currentValueSegmentDivisionInterval",
-            2
-        )
+            DataBlobService.add<number[]>(
+                horizontalBarData,
+                "currentValueSegmentColor",
+                [7, 8, 9]
+            )
+            DataBlobService.add<number>(
+                horizontalBarData,
+                "currentValueSegmentStrokeWeight",
+                13
+            )
 
-        DataBlobService.add<number[]>(
-            horizontalBarData,
-            "currentValueFillColor",
-            [10, 11, 12]
-        )
+            DataBlobService.add<number[]>(
+                horizontalBarData,
+                "currentValueFillColor",
+                [10, 11, 12]
+            )
+        })
 
-        DataBlobService.add<number>(horizontalBarData, "maxValue", 10)
-        DataBlobService.add<number>(horizontalBarData, "currentValue", 5)
-        const drawBehavior = new DrawHorizontalMeterAction(
-            horizontalBarData,
-            graphicsContext
-        )
+        it("can draw segments at fixed intervals up to the max value", () => {
+            DataBlobService.add<number>(
+                horizontalBarData,
+                "currentValueSegmentDivisionInterval",
+                2
+            )
+            DataBlobService.add<number>(horizontalBarData, "maxValue", 10)
+            DataBlobService.add<number>(horizontalBarData, "currentValue", 5)
+            const drawBehavior = new DrawHorizontalMeterAction(
+                horizontalBarData,
+                graphicsContext
+            )
 
-        drawBehavior.run()
-        expect(graphicsBufferSpies["stroke"]).toHaveBeenCalledWith(7, 8, 9)
-        expect(graphicsBufferSpies["strokeWeight"]).toHaveBeenCalledWith(13)
-        expect(graphicsBufferSpies["line"]).not.toHaveBeenCalledWith(
-            10,
-            20,
-            10,
-            50 - 1
-        )
-        expect(graphicsBufferSpies["line"]).toHaveBeenCalledWith(
-            10 + (360 * 2) / 10,
-            20,
-            10 + (360 * 2) / 10,
-            50 - 1
-        )
-        expect(graphicsBufferSpies["line"]).toHaveBeenCalledWith(
-            10 + (360 * 4) / 10,
-            20,
-            10 + (360 * 4) / 10,
-            50 - 1
-        )
-        expect(graphicsBufferSpies["line"]).toHaveBeenCalledWith(
-            10 + (360 * 6) / 10,
-            20,
-            10 + (360 * 6) / 10,
-            50 - 1
-        )
-        expect(graphicsBufferSpies["line"]).toHaveBeenCalledWith(
-            10 + (360 * 8) / 10,
-            20,
-            10 + (360 * 8) / 10,
-            50 - 1
-        )
-        expect(graphicsBufferSpies["line"]).not.toHaveBeenCalledWith(
-            10 + 360,
-            20,
-            10 + 360,
-            50 - 1
-        )
+            drawBehavior.run()
+            expect(graphicsBufferSpies["stroke"]).toHaveBeenCalledWith(7, 8, 9)
+            expect(graphicsBufferSpies["strokeWeight"]).toHaveBeenCalledWith(13)
+
+            const lineXValues = getXValuesOfVerticalLineCalls()
+            expect(lineXValues.includes(10)).toBeFalsy()
+            expect(lineXValues.includes(10 + (360 * 2) / 10)).toBeTruthy()
+            expect(lineXValues.includes(10 + (360 * 4) / 10)).toBeTruthy()
+            expect(lineXValues.includes(10 + (360 * 6) / 10)).toBeTruthy()
+            expect(lineXValues.includes(10 + (360 * 8) / 10)).toBeTruthy()
+            expect(lineXValues.includes(10 + 360)).toBeFalsy()
+        })
+
+        it("can draw segments at intervals based on a function", () => {
+            DataBlobService.add<number>(
+                horizontalBarData,
+                "currentValueSegmentDivisionInterval",
+                2
+            )
+            DataBlobService.add<number>(horizontalBarData, "maxValue", 10)
+            DataBlobService.add<number>(horizontalBarData, "currentValue", 5)
+            const drawBehavior = new DrawHorizontalMeterAction(
+                horizontalBarData,
+                graphicsContext,
+                {
+                    currentValueSegment: (
+                        _: DrawHorizontalMeterActionDataBlob
+                    ) => [1],
+                }
+            )
+
+            drawBehavior.run()
+
+            const lineXValues = getXValuesOfVerticalLineCalls()
+            expect(lineXValues).toHaveLength(1)
+            expect(lineXValues.includes(10 + 360 / 10)).toBeTruthy()
+        })
     })
 
     it("will draw a rectangle representing the highlighted value that glows over time", () => {

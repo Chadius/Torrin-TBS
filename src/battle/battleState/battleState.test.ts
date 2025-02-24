@@ -45,7 +45,7 @@ import { BattleActionsDuringTurnService } from "../history/battleAction/battleAc
 import { DrawSquaddieUtilities } from "../animation/drawSquaddie"
 import { CampaignService } from "../../campaign/campaign"
 import { ArmyAttributesService } from "../../squaddie/armyAttributes"
-import { SquaddieStatusTileService } from "../hud/playerActionPanel/tile/squaddieStatusTile"
+import { SquaddieStatusTileService } from "../hud/playerActionPanel/tile/squaddieStatusTile/squaddieStatusTile"
 import { ActionTilePosition } from "../hud/playerActionPanel/tile/actionTilePosition"
 import { SummaryHUDStateService } from "../hud/summary/summaryHUD"
 import { MockedP5GraphicsBuffer } from "../../utils/test/mocks"
