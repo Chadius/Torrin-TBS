@@ -7,7 +7,6 @@ import {
 } from "../campaign/campaignResources"
 
 export interface CampaignLoaderContext {
-    resourcesPendingLoading: string[]
     campaignIdToLoad: string
 }
 
@@ -45,7 +44,6 @@ export const CampaignLoaderService = {
     },
     newLoaderContext: (): CampaignLoaderContext => {
         return {
-            resourcesPendingLoading: [],
             campaignIdToLoad: undefined,
         }
     },

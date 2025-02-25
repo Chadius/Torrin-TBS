@@ -40,6 +40,7 @@ import {
     MissionFileFormat,
 } from "../dataLoader/missionLoader"
 import { PlayerArmy } from "../campaign/playerArmy"
+import { ResourceHandlerBlocker } from "../dataLoader/loadBlocker/resourceHandlerBlocker"
 
 export enum TransitionAction {
     REVERT_BACKUPS = "REVERT_BACKUPS",
@@ -47,7 +48,6 @@ export enum TransitionAction {
     CLEAR_LOADED_DATA = "CLEAR_LOADED_DATA",
     LOAD_BATTLE_SAVE_STATE = "LOAD_BATTLE_SAVE_STATE",
     UPDATE_CAMPAIGN_IS_ALREADY_LOADED = "UPDATE_CAMPAIGN_IS_ALREADY_LOADED",
-    CLEAR_CAMPAIGN_IS_ALREADY_LOADED = "CLEAR_CAMPAIGN_IS_ALREADY_LOADED",
     LOAD_CAMPAIGN = "LOAD_CAMPAIGN",
     LOAD_PLAYER_ARMY = "LOAD_PLAYER_ARMY",
     LOAD_MISSION = "LOAD_MISSION",
@@ -82,6 +82,7 @@ export class GameEngineGameLoader implements GameEngineComponent {
         appliedContext: boolean
         campaignIsAlreadyLoaded: boolean
     }
+    loadBlocker: ResourceHandlerBlocker
 
     constructor(campaignIdToLoad: string) {
         this.resetInternalFields()
@@ -114,7 +115,9 @@ export class GameEngineGameLoader implements GameEngineComponent {
         return (
             campaignHasFinishedLoading &&
             missionHasFinishedLoading &&
-            this.status.success
+            this.status.success &&
+            this.status.completedLoadingResources &&
+            this.loadBlocker.finishesLoading
         )
     }
 
@@ -381,8 +384,6 @@ export class GameEngineGameLoader implements GameEngineComponent {
                     return await this.loadBattleSaveState(gameEngineState)
                 case TransitionAction.UPDATE_CAMPAIGN_IS_ALREADY_LOADED:
                     return this.updateCampaignIsAlreadyLoaded(gameEngineState)
-                case TransitionAction.CLEAR_CAMPAIGN_IS_ALREADY_LOADED:
-                    return this.clearCampaignIsAlreadyLoaded()
                 case TransitionAction.LOAD_PLAYER_ARMY:
                     return await this.loadPlayerArmy()
                 case TransitionAction.LOAD_CAMPAIGN:
@@ -468,11 +469,6 @@ export class GameEngineGameLoader implements GameEngineComponent {
         return success
     }
 
-    private clearCampaignIsAlreadyLoaded() {
-        this.status.campaignIsAlreadyLoaded = false
-        return true
-    }
-
     private async loadCampaign(gameEngineState: GameEngineState) {
         let campaignId: string
         switch (true) {
@@ -499,6 +495,10 @@ export class GameEngineGameLoader implements GameEngineComponent {
         }
         this.loadedData.campaign = campaignData
         this.campaignLoaderContext.campaignIdToLoad = campaignId
+        this.loadBlocker = new ResourceHandlerBlocker(
+            gameEngineState.resourceHandler,
+            gameEngineState.messageBoard
+        )
         return true
     }
 
@@ -556,6 +556,7 @@ export class GameEngineGameLoader implements GameEngineComponent {
     }
 
     private async beginLoadingResources(gameEngineState: GameEngineState) {
+        if (this.loadBlocker.startsLoading) return
         if (isValidValue(gameEngineState.repository)) {
             ObjectRepositoryService.reset(gameEngineState.repository)
         }
@@ -566,32 +567,7 @@ export class GameEngineGameLoader implements GameEngineComponent {
             resources: campaignResources,
         } = this.getCampaignInfo(gameEngineState)
 
-        gameEngineState.resourceHandler.loadResources(
-            Object.values(campaignResources.missionMapMovementIconResourceKeys)
-        )
-        gameEngineState.resourceHandler.loadResources(
-            Object.values(campaignResources.missionMapAttackIconResourceKeys)
-        )
-        gameEngineState.resourceHandler.loadResources(
-            Object.values(campaignResources.missionAttributeIconResourceKeys)
-        )
-        gameEngineState.resourceHandler.loadResources(
-            Object.values(
-                campaignResources.actionEffectSquaddieTemplateButtonIcons
-            )
-        )
-        gameEngineState.resourceHandler.loadResources(
-            campaignResources.mapTiles.resourceKeys
-        )
-        gameEngineState.resourceHandler.loadResources(
-            Object.values(campaignResources.attributeIcons)
-        )
-        gameEngineState.resourceHandler.loadResources(
-            Object.values(campaignResources.attributeComparisons)
-        )
-
-        this.campaignLoaderContext.resourcesPendingLoading = [
-            ...this.campaignLoaderContext.resourcesPendingLoading,
+        this.loadBlocker.queueResourceToLoad([
             ...Object.values(
                 campaignResources.missionMapMovementIconResourceKeys
             ),
@@ -607,19 +583,19 @@ export class GameEngineGameLoader implements GameEngineComponent {
             ...campaignResources.mapTiles.resourceKeys,
             ...Object.values(campaignResources.attributeIcons),
             ...Object.values(campaignResources.attributeComparisons),
-        ]
+        ])
 
         await MissionLoader.applyMissionData({
             missionData: this.loadedData.mission,
             missionLoaderContext: this.missionLoaderContext,
-            resourceHandler: gameEngineState.resourceHandler,
             objectRepository: gameEngineState.repository,
+            loadBlocker: this.loadBlocker,
         })
         await MissionLoader.loadPlayerSquaddieTemplatesFile({
             playerArmyData: this.loadedData.playerArmy,
-            resourceHandler: gameEngineState.resourceHandler,
             missionLoaderContext: this.missionLoaderContext,
             objectRepository: gameEngineState.repository,
+            loadBlocker: this.loadBlocker,
         })
         await MissionLoader.createAndAddBattleSquaddies({
             playerArmyData: this.loadedData.playerArmy,
@@ -628,15 +604,11 @@ export class GameEngineGameLoader implements GameEngineComponent {
 
         gameEngineState.campaignIdThatWasLoaded = id
         gameEngineState.campaign = campaign
+        this.loadBlocker.beginLoading()
         return true
     }
 
     private isLoadingFinished(gameEngineState: GameEngineState) {
-        MissionLoader.updateStatusOnMissionLoaderContextResources({
-            missionLoaderContext: this.missionLoaderContext,
-            resourceHandler: gameEngineState.resourceHandler,
-        })
-
         if (!this.loadedData.playerArmy) {
             return false
         }
@@ -649,21 +621,14 @@ export class GameEngineGameLoader implements GameEngineComponent {
                         template
                     ) != undefined
             )
-        const missionIsStillLoadingResources =
-            this.missionLoaderContext.resourcesPendingLoading.length > 0
         const missionIsStillLoadingCutscenes =
             this.missionLoaderContext.cutsceneInfo.cutsceneCollection ===
             undefined
         const missionIsStillWaiting =
-            !playerArmyHasLoaded ||
-            missionIsStillLoadingResources ||
-            missionIsStillLoadingCutscenes
+            !playerArmyHasLoaded || missionIsStillLoadingCutscenes
 
-        const resourceHandlerFinishedLoading =
-            gameEngineState.resourceHandler.areAllResourcesLoaded(
-                this.campaignLoaderContext.resourcesPendingLoading
-            )
-
+        this.loadBlocker.updateLoadingStatus()
+        const resourceHandlerFinishedLoading = this.loadBlocker.finishesLoading
         return !missionIsStillWaiting && resourceHandlerFinishedLoading
     }
 

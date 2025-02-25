@@ -70,7 +70,7 @@ describe("Title Screen", () => {
         expect(titleScreenState).not.toBeUndefined()
     })
 
-    it("will declare itself complete when the user clicks and releases on the start button and the button is drawn active", () => {
+    it("will declare itself complete when all resources finish loading and user clicks and releases on the start button and the button is drawn active", () => {
         expect(titleScreen.hasCompleted(gameEngineState)).toBeFalsy()
         titleScreen.update(gameEngineState, mockedP5GraphicsContext)
         expect(titleScreen.hasCompleted(gameEngineState)).toBeFalsy()
@@ -87,9 +87,8 @@ describe("Title Screen", () => {
             y: RectAreaService.centerY(startGameButton.getArea()),
         })
 
-        expect(titleScreen.hasCompleted(gameEngineState)).toBeTruthy()
         expect(
-            expectTitleScreenToStartLoading({
+            expectTitleScreenToStartLoadingWhenResourcesAreReady({
                 mockedP5GraphicsContext: mockedP5GraphicsContext,
                 titleScreen: titleScreen,
                 gameEngineState: gameEngineState,
@@ -110,9 +109,9 @@ describe("Title Screen", () => {
             gameEngineState,
             PlayerInputTestService.pressAcceptKey().keyCode
         )
-        expect(titleScreen.hasCompleted(gameEngineState)).toBeTruthy()
+
         expect(
-            expectTitleScreenToStartLoading({
+            expectTitleScreenToStartLoadingWhenResourcesAreReady({
                 mockedP5GraphicsContext: mockedP5GraphicsContext,
                 titleScreen: titleScreen,
                 gameEngineState: gameEngineState,
@@ -206,33 +205,6 @@ describe("Title Screen", () => {
     })
 
     describe("user clicks the load button", () => {
-        it("will begin the loading process when the user clicks the button", () => {
-            expect(titleScreen.hasCompleted(gameEngineState)).toBeFalsy()
-            titleScreen.update(gameEngineState, mockedP5GraphicsContext)
-            expect(titleScreen.hasCompleted(gameEngineState)).toBeFalsy()
-            const loadGame = vi.spyOn(
-                gameEngineState.messageBoard,
-                "sendMessage"
-            )
-            mousePressContinueButton(titleScreen, gameEngineState)
-            expect(titleScreen.hasCompleted(gameEngineState)).toBeTruthy()
-            expect(loadGame).toBeCalled()
-
-            expect(
-                gameEngineState.fileState.loadSaveState.userRequestedLoad
-            ).toBeTruthy()
-
-            let textSpy = vi.spyOn(mockedP5GraphicsContext.mockedP5, "text")
-            titleScreen.update(gameEngineState, mockedP5GraphicsContext)
-            expect(textSpy).toBeCalled()
-            expect(textSpy).toBeCalledWith(
-                "Now loading...",
-                expect.anything(),
-                expect.anything(),
-                expect.anything(),
-                expect.anything()
-            )
-        })
         it("should ignore other inputs while loading", () => {
             titleScreen.update(gameEngineState, mockedP5GraphicsContext)
             mousePressContinueButton(titleScreen, gameEngineState)
@@ -385,10 +357,16 @@ describe("Title Screen", () => {
             expect(titleScreen.hasCompleted(gameEngineState)).toBeFalsy()
             titleScreen.update(gameEngineState, mockedP5GraphicsContext)
             mousePressContinueButton(titleScreen, gameEngineState)
+            expect(titleScreen.hasCompleted(gameEngineState)).toBeFalsy()
+            const resourcesSpy = vi
+                .spyOn(titleScreen, "allResourcesAreLoaded")
+                .mockReturnValue(true)
             expect(titleScreen.hasCompleted(gameEngineState)).toBeTruthy()
             expect(
                 titleScreen.recommendStateChanges(gameEngineState).nextMode
             ).toBe(GameModeEnum.LOADING_BATTLE)
+            expect(resourcesSpy).toBeCalled()
+            resourcesSpy.mockRestore()
         })
     })
 
@@ -406,7 +384,7 @@ describe("Title Screen", () => {
     })
 })
 
-const expectTitleScreenToStartLoading = ({
+const expectTitleScreenToStartLoadingWhenResourcesAreReady = ({
     mockedP5GraphicsContext,
     titleScreen,
     gameEngineState,
@@ -415,6 +393,10 @@ const expectTitleScreenToStartLoading = ({
     titleScreen: TitleScreen
     gameEngineState: GameEngineState
 }) => {
+    expect(titleScreen.hasCompleted(gameEngineState)).toBeFalsy()
+    const resourcesSpy = vi
+        .spyOn(titleScreen, "allResourcesAreLoaded")
+        .mockReturnValue(true)
     let textSpy = vi.spyOn(mockedP5GraphicsContext.mockedP5, "text")
     titleScreen.update(gameEngineState, mockedP5GraphicsContext)
     expect(titleScreen.hasCompleted(gameEngineState)).toBeTruthy()
@@ -426,6 +408,8 @@ const expectTitleScreenToStartLoading = ({
         expect.anything(),
         expect.anything()
     )
+    expect(resourcesSpy).toBeCalled()
+    resourcesSpy.mockRestore()
     return true
 }
 

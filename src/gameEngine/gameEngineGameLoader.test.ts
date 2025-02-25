@@ -151,24 +151,36 @@ describe("GameEngineGameLoader", () => {
                         ),
                     ]
 
-                    expect(
-                        loader.campaignLoaderContext.resourcesPendingLoading
-                    ).toEqual(expect.arrayContaining(expectedResourceKeys))
-                    expect(
-                        loader.campaignLoaderContext.resourcesPendingLoading
-                    ).toHaveLength(expectedResourceKeys.length)
+                    expect(loader.loadBlocker.resourceKeysToLoad).toEqual(
+                        expect.arrayContaining(expectedResourceKeys)
+                    )
                 })
             })
 
             describe("when the resources are loaded", () => {
+                let messageSpy: MockInstance
+
                 beforeEach(async () => {
+                    messageSpy = vi.spyOn(
+                        gameEngineState.messageBoard,
+                        "sendMessage"
+                    )
                     await loader.update(gameEngineState)
                 })
 
+                afterEach(() => {
+                    messageSpy.mockRestore()
+                })
+
                 it("knows the resources have been loaded", () => {
-                    expect(
-                        loader.missionLoaderContext.resourcesPendingLoading
-                    ).toHaveLength(0)
+                    expect(messageSpy).toBeCalledWith({
+                        type: MessageBoardMessageType.LOAD_BLOCKER_FINISHES_LOADING_RESOURCES,
+                    })
+                    expect(loader.loadBlocker.startsLoading).toBeTruthy()
+                    expect(loader.loadBlocker.finishesLoading).toBeTruthy()
+                    expect(loader.loadBlocker.resourceKeysToLoad).toHaveLength(
+                        0
+                    )
                 })
 
                 describe("when the loaded files are applied to the context", () => {
@@ -516,24 +528,7 @@ describe("GameEngineGameLoader", () => {
             )
             currentState.campaignIdThatWasLoaded =
                 originalState.campaignIdThatWasLoaded
-            const playerDataMessageListener: PlayerDataMessageListener =
-                new PlayerDataMessageListener("listener")
-            currentState.messageBoard.addListener(
-                playerDataMessageListener,
-                MessageBoardMessageType.PLAYER_DATA_LOAD_USER_REQUEST
-            )
-            currentState.messageBoard.addListener(
-                playerDataMessageListener,
-                MessageBoardMessageType.PLAYER_DATA_LOAD_BEGIN
-            )
-            currentState.messageBoard.addListener(
-                playerDataMessageListener,
-                MessageBoardMessageType.PLAYER_DATA_LOAD_COMPLETE
-            )
-            currentState.messageBoard.sendMessage({
-                type: MessageBoardMessageType.PLAYER_DATA_LOAD_USER_REQUEST,
-                loadSaveState: currentState.fileState.loadSaveState,
-            })
+            setupMessageBoardForSaveStateChanges(currentState)
         })
 
         afterEach(() => {
@@ -568,9 +563,7 @@ describe("GameEngineGameLoader", () => {
                 await loader.update(currentState)
             }
 
-            expect(
-                loader.missionLoaderContext.resourcesPendingLoading
-            ).toHaveLength(0)
+            expect(loader.loadBlocker.resourceKeysToLoad).toHaveLength(0)
             expect(
                 currentState.battleOrchestratorState.battleState
                     .cutsceneTriggers.length
@@ -867,24 +860,7 @@ describe("GameEngineGameLoader", () => {
                 resourceHandler: originalState.resourceHandler,
                 previousMode: GameModeEnum.TITLE_SCREEN,
             })
-            const playerDataMessageListener: PlayerDataMessageListener =
-                new PlayerDataMessageListener("listener")
-            currentState.messageBoard.addListener(
-                playerDataMessageListener,
-                MessageBoardMessageType.PLAYER_DATA_LOAD_USER_REQUEST
-            )
-            currentState.messageBoard.addListener(
-                playerDataMessageListener,
-                MessageBoardMessageType.PLAYER_DATA_LOAD_BEGIN
-            )
-            currentState.messageBoard.addListener(
-                playerDataMessageListener,
-                MessageBoardMessageType.PLAYER_DATA_LOAD_COMPLETE
-            )
-            currentState.messageBoard.sendMessage({
-                type: MessageBoardMessageType.PLAYER_DATA_LOAD_USER_REQUEST,
-                loadSaveState: currentState.fileState.loadSaveState,
-            })
+            setupMessageBoardForSaveStateChanges(currentState)
         })
 
         it("will be complete and return to title screen mode if there is an error", async () => {
@@ -1001,4 +977,27 @@ const createLoaderSpyThatCanThrowError = (
                 filename
             )
         })
+}
+
+const setupMessageBoardForSaveStateChanges = (
+    currentState: GameEngineState
+) => {
+    const playerDataMessageListener: PlayerDataMessageListener =
+        new PlayerDataMessageListener("listener")
+    currentState.messageBoard.addListener(
+        playerDataMessageListener,
+        MessageBoardMessageType.PLAYER_DATA_LOAD_USER_REQUEST
+    )
+    currentState.messageBoard.addListener(
+        playerDataMessageListener,
+        MessageBoardMessageType.PLAYER_DATA_LOAD_BEGIN
+    )
+    currentState.messageBoard.addListener(
+        playerDataMessageListener,
+        MessageBoardMessageType.PLAYER_DATA_LOAD_COMPLETE
+    )
+    currentState.messageBoard.sendMessage({
+        type: MessageBoardMessageType.PLAYER_DATA_LOAD_USER_REQUEST,
+        loadSaveState: currentState.fileState.loadSaveState,
+    })
 }

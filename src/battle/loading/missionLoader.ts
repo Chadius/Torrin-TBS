@@ -42,6 +42,7 @@ import {
 } from "../../action/template/actionTemplate"
 import { ImageUI, ImageUILoadingBehavior } from "../../ui/imageUI/imageUI"
 import { ScreenDimensions } from "../../utils/graphics/graphicsConfig"
+import { ResourceHandlerBlocker } from "../../dataLoader/loadBlocker/resourceHandlerBlocker"
 
 export interface MissionLoaderCompletionProgress {
     started: boolean
@@ -52,7 +53,6 @@ export interface MissionLoaderContext {
     id: string
     objectives: MissionObjective[]
     missionMap: MissionMap | undefined
-    resourcesPendingLoading: string[]
     completionProgress: MissionLoaderCompletionProgress
     squaddieData: {
         teams: BattleSquaddieTeam[]
@@ -75,7 +75,6 @@ export const MissionLoader = {
             id: "",
             missionMap: undefined,
             objectives: [],
-            resourcesPendingLoading: [],
             completionProgress: {
                 started: false,
                 loadedFileData: false,
@@ -103,13 +102,13 @@ export const MissionLoader = {
     applyMissionData: async ({
         missionData,
         missionLoaderContext,
-        resourceHandler,
         objectRepository,
+        loadBlocker,
     }: {
         missionData: MissionFileFormat
         missionLoaderContext: MissionLoaderContext
-        resourceHandler: ResourceHandler
         objectRepository: ObjectRepository
+        loadBlocker: ResourceHandlerBlocker
     }) => {
         missionLoaderContext.completionProgress.started = true
         missionLoaderContext.id = missionData.id
@@ -140,17 +139,13 @@ export const MissionLoader = {
                 (missionLoaderContext.squaddieData.templates[id] = undefined)
         )
 
-        const loaderLock = {
-            locked: false,
-        }
         await loadActionTemplates({
             objectRepository,
         })
         await loadAndPrepareNPCTemplateData({
-            missionLoaderContext: missionLoaderContext,
-            resourceHandler,
+            missionLoaderContext,
             repository: objectRepository,
-            loaderLock,
+            loadBlocker,
         })
 
         createPlayerSquaddieTeam(missionLoaderContext, missionData)
@@ -169,35 +164,14 @@ export const MissionLoader = {
             missionLoaderContext,
             missionData,
             objectRepository,
-            resourceHandler
+            loadBlocker
         )
-        loadTeamIcons(
-            missionLoaderContext,
-            missionData,
-            objectRepository,
-            resourceHandler
-        )
+        loadTeamIcons(missionData, objectRepository, loadBlocker)
         loadCutscenes({
             missionLoaderContext,
             missionData,
-            resourceHandler,
+            loadBlocker,
         })
-    },
-    updateStatusOnMissionLoaderContextResources: ({
-        missionLoaderContext,
-        resourceHandler,
-    }: {
-        missionLoaderContext: MissionLoaderContext
-        resourceHandler: ResourceHandler
-    }) => {
-        missionLoaderContext.resourcesPendingLoading =
-            missionLoaderContext.resourcesPendingLoading.filter(
-                (resourceKey) => {
-                    return (
-                        resourceHandler.isResourceLoaded(resourceKey) !== true
-                    )
-                }
-            )
     },
     assignResourceHandlerResources: ({
         repository,
@@ -217,14 +191,14 @@ export const MissionLoader = {
     },
     loadPlayerSquaddieTemplatesFile: async ({
         playerArmyData,
-        resourceHandler,
         missionLoaderContext,
         objectRepository,
+        loadBlocker,
     }: {
         playerArmyData: PlayerArmy
-        resourceHandler: ResourceHandler
         missionLoaderContext: MissionLoaderContext
         objectRepository: ObjectRepository
+        loadBlocker: ResourceHandlerBlocker
     }) => {
         const baseSquaddieTemplates: SquaddieTemplate[] = []
         for (const build of playerArmyData.squaddieBuilds) {
@@ -245,13 +219,19 @@ export const MissionLoader = {
         baseSquaddieTemplates.forEach((squaddieTemplate) => {
             loadSquaddieTemplateResources({
                 template: squaddieTemplate,
-                missionLoaderContext,
-                resourceHandler,
                 objectRepository,
+                loadBlocker,
             })
         })
 
         baseSquaddieTemplates.forEach((squaddieTemplate) => {
+            if (
+                ObjectRepositoryService.hasSquaddieByTemplateId(
+                    objectRepository,
+                    squaddieTemplate.squaddieId.templateId
+                )
+            )
+                return
             ObjectRepositoryService.addSquaddieTemplate(
                 objectRepository,
                 squaddieTemplate
@@ -283,6 +263,13 @@ export const MissionLoader = {
                 squaddieTemplate,
             })
 
+            if (
+                ObjectRepositoryService.hasSquaddieByBattleId(
+                    objectRepository,
+                    battleSquaddie.battleSquaddieId
+                )
+            )
+                return
             ObjectRepositoryService.addBattleSquaddie(
                 objectRepository,
                 battleSquaddie
@@ -292,22 +279,17 @@ export const MissionLoader = {
 }
 
 const loadSquaddieTemplateResources = ({
-    missionLoaderContext,
-    resourceHandler,
     template,
     objectRepository,
+    loadBlocker,
 }: {
-    missionLoaderContext: MissionLoaderContext
-    resourceHandler: ResourceHandler
     template: SquaddieTemplate
     objectRepository: ObjectRepository
+    loadBlocker: ResourceHandlerBlocker
 }) => {
     const squaddieTemplateResourceKeys =
         SquaddieTemplateService.getResourceKeys(template, objectRepository)
-    resourceHandler.loadResources(squaddieTemplateResourceKeys)
-    missionLoaderContext.resourcesPendingLoading.push(
-        ...squaddieTemplateResourceKeys
-    )
+    loadBlocker.queueResourceToLoad(squaddieTemplateResourceKeys)
 }
 
 const initializeCameraPosition = ({
@@ -407,11 +389,11 @@ const initializeCutscenes = ({
 const loadCutscenes = ({
     missionLoaderContext,
     missionData,
-    resourceHandler,
+    loadBlocker,
 }: {
     missionLoaderContext: MissionLoaderContext
-    resourceHandler: ResourceHandler
     missionData: MissionFileFormat
+    loadBlocker: ResourceHandlerBlocker
 }) => {
     const cutsceneById = Object.fromEntries(
         Object.entries(missionData.cutscene.cutsceneById).map(
@@ -431,11 +413,7 @@ const loadCutscenes = ({
             return cutscene.allResourceKeys
         })
         .flat()
-    resourceHandler.loadResources(cutsceneResourceKeys)
-    missionLoaderContext.resourcesPendingLoading = [
-        ...missionLoaderContext.resourcesPendingLoading,
-        ...cutsceneResourceKeys,
-    ]
+    loadBlocker.queueResourceToLoad(cutsceneResourceKeys)
 
     const cutsceneTriggers: CutsceneTrigger[] =
         missionData.cutscene.cutsceneTriggers
@@ -466,21 +444,13 @@ const loadNPCTemplatesFromFile = async (
 
 const loadAndPrepareNPCTemplateData = async ({
     missionLoaderContext,
-    resourceHandler,
     repository,
-    loaderLock,
+    loadBlocker,
 }: {
     missionLoaderContext: MissionLoaderContext
-    resourceHandler: ResourceHandler
     repository: ObjectRepository
-    loaderLock: {
-        locked: boolean
-    }
+    loadBlocker: ResourceHandlerBlocker
 }) => {
-    if (loaderLock.locked) {
-        return
-    }
-    loaderLock.locked = true
     const loadedNPCTemplatesById = await loadNPCTemplatesFromFile(
         Object.keys(missionLoaderContext.squaddieData.templates)
     )
@@ -500,11 +470,14 @@ const loadAndPrepareNPCTemplateData = async ({
     Object.values(loadedTemplatesById).forEach((template) => {
         const squaddieTemplateResourceKeys =
             SquaddieTemplateService.getResourceKeys(template, repository)
-        resourceHandler.loadResources(squaddieTemplateResourceKeys)
-        missionLoaderContext.resourcesPendingLoading.push(
-            ...squaddieTemplateResourceKeys
+        loadBlocker.queueResourceToLoad(squaddieTemplateResourceKeys)
+        if (
+            !ObjectRepositoryService.hasSquaddieByTemplateId(
+                repository,
+                template.squaddieId.templateId
+            )
         )
-        ObjectRepositoryService.addSquaddieTemplate(repository, template)
+            ObjectRepositoryService.addSquaddieTemplate(repository, template)
     })
 }
 
@@ -527,14 +500,21 @@ const spawnNPCSquaddiesAndAddToMap = ({
         deployment.mapPlacements.forEach((mapPlacement) => {
             let { coordinate, battleSquaddieId, squaddieTemplateId } =
                 mapPlacement
-            ObjectRepositoryService.addBattleSquaddie(
-                repository,
-                BattleSquaddieService.newBattleSquaddie({
-                    battleSquaddieId,
-                    squaddieTemplateId,
-                    squaddieTurn: SquaddieTurnService.new(),
-                })
-            )
+            if (
+                !ObjectRepositoryService.hasSquaddieByBattleId(
+                    repository,
+                    battleSquaddieId
+                )
+            ) {
+                ObjectRepositoryService.addBattleSquaddie(
+                    repository,
+                    BattleSquaddieService.newBattleSquaddie({
+                        battleSquaddieId,
+                        squaddieTemplateId,
+                        squaddieTurn: SquaddieTurnService.new(),
+                    })
+                )
+            }
             MissionMapService.addSquaddie({
                 missionMap: missionLoaderContext.missionMap,
                 squaddieTemplateId,
@@ -628,7 +608,7 @@ const loadPhaseAffiliationBanners = (
     missionLoaderContext: MissionLoaderContext,
     missionData: MissionFileFormat,
     repository: ObjectRepository,
-    resourceHandler: ResourceHandler
+    loadBlocker: ResourceHandlerBlocker
 ) => {
     missionLoaderContext.phaseBannersByAffiliation = {
         ...missionData.phaseBannersByAffiliation,
@@ -644,17 +624,15 @@ const loadPhaseAffiliationBanners = (
             repository.uiElements.phaseBannersByAffiliation[affiliation] =
                 resourceKeyName
 
-            resourceHandler.loadResource(resourceKeyName)
-            missionLoaderContext.resourcesPendingLoading.push(resourceKeyName)
+            loadBlocker.queueResourceToLoad(resourceKeyName)
         }
     )
 }
 
 const loadTeamIcons = (
-    missionLoaderContext: MissionLoaderContext,
     missionData: MissionFileFormat,
     repository: ObjectRepository,
-    resourceHandler: ResourceHandler
+    loadBlocker: ResourceHandlerBlocker
 ) => {
     repository.uiElements.teamAffiliationIcons = {}
 
@@ -665,10 +643,7 @@ const loadTeamIcons = (
     ) {
         repository.uiElements.teamAffiliationIcons[missionData.player.teamId] =
             playerTeamIconResourceKey
-        resourceHandler.loadResource(playerTeamIconResourceKey)
-        missionLoaderContext.resourcesPendingLoading.push(
-            playerTeamIconResourceKey
-        )
+        loadBlocker.queueResourceToLoad(playerTeamIconResourceKey)
     }
 
     const deployments: NpcTeamMissionDeployment[] = [
@@ -688,10 +663,7 @@ const loadTeamIcons = (
                 const teamIconResourceKey = team.iconResourceKey
                 repository.uiElements.teamAffiliationIcons[team.id] =
                     teamIconResourceKey
-                resourceHandler.loadResource(teamIconResourceKey)
-                missionLoaderContext.resourcesPendingLoading.push(
-                    teamIconResourceKey
-                )
+                loadBlocker.queueResourceToLoad(teamIconResourceKey)
             })
     )
 }
@@ -728,6 +700,13 @@ const loadActionTemplates = async ({
 
     ;[...npcActionTemplatesFromFile, ...playerActionTemplatesFromFile].forEach(
         (actionTemplate) => {
+            if (
+                ObjectRepositoryService.hasActionTemplateId(
+                    objectRepository,
+                    actionTemplate.id
+                )
+            )
+                return
             ObjectRepositoryService.addActionTemplate(
                 objectRepository,
                 ActionTemplateService.sanitize(actionTemplate)

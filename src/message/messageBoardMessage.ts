@@ -43,6 +43,8 @@ export type MessageBoardMessage =
     | MessageBoardMessagePlayerDataLoadErrorDuring
     | MessageBoardMessagePlayerDataLoadUserCancel
     | MessageBoardMessagePlayerDataLoadFinishRequest
+    | MessageBoardMessageTypeLoadBlockerBeginsLoadingResources
+    | MessageBoardMessageTypeLoadBlockerFinishesLoadingResources
 
 export enum MessageBoardMessageType {
     BASE = "BASE",
@@ -76,6 +78,8 @@ export enum MessageBoardMessageType {
     PLAYER_DATA_LOAD_ERROR_DURING = "PLAYER_DATA_LOAD_ERROR_DURING",
     PLAYER_DATA_LOAD_USER_CANCEL = "PLAYER_DATA_LOAD_USER_CANCEL",
     PLAYER_DATA_LOAD_FINISH_REQUEST_LOAD = "PLAYER_DATA_LOAD_FINISH_REQUEST_LOAD",
+    LOAD_BLOCKER_BEGINS_LOADING_RESOURCES = "LOAD_BLOCKER_BEGINS_LOADING_RESOURCES",
+    LOAD_BLOCKER_FINISHES_LOADING_RESOURCES = "LOAD_BLOCKER_FINISHES_LOADING_RESOURCES",
 }
 
 export interface MessageBoardMessageBase {
@@ -269,4 +273,12 @@ export interface MessageBoardMessagePlayerConsidersAction {
         actionTemplate?: boolean
         movement?: boolean
     }
+}
+
+export interface MessageBoardMessageTypeLoadBlockerBeginsLoadingResources {
+    type: MessageBoardMessageType.LOAD_BLOCKER_BEGINS_LOADING_RESOURCES
+}
+
+export interface MessageBoardMessageTypeLoadBlockerFinishesLoadingResources {
+    type: MessageBoardMessageType.LOAD_BLOCKER_FINISHES_LOADING_RESOURCES
 }

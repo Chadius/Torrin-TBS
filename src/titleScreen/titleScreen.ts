@@ -171,7 +171,6 @@ export interface TitleScreenLayout {
 }
 
 export interface TitleScreenContext {
-    startLoadingResources: boolean
     errorDuringLoadingDisplayStartTimestamp: number
     menuSelection: TitleScreenMenuSelection
     version: string
@@ -473,7 +472,29 @@ export class TitleScreen implements GameEngineComponent {
     hasCompleted(_: GameEngineState): boolean {
         const context: TitleScreenContext =
             DataBlobService.get<TitleScreenContext>(this.data, "context")
-        return context?.menuSelection !== TitleScreenMenuSelection.NONE
+        return (
+            context?.menuSelection !== TitleScreenMenuSelection.NONE &&
+            this.allResourcesAreLoaded()
+        )
+    }
+
+    allResourcesAreLoaded() {
+        return this.getAllImages().every((image) => {
+            if (!image) return false
+            return image.isImageLoaded()
+        })
+    }
+
+    private getAllImages() {
+        const uiObjects: TitleScreenUIObjects =
+            DataBlobService.get<TitleScreenUIObjects>(this.data, "uiObjects")
+        return [
+            uiObjects.titleBanner,
+            uiObjects.nahla.icon,
+            uiObjects.sirCamil.icon,
+            uiObjects.demonSlither.icon,
+            uiObjects.demonLocust.icon,
+        ]
     }
 
     reset(_: GameEngineState): void {
@@ -533,7 +554,6 @@ export class TitleScreen implements GameEngineComponent {
         )
 
         const context: TitleScreenContext = {
-            startLoadingResources: false,
             errorDuringLoadingDisplayStartTimestamp: undefined,
             menuSelection: TitleScreenMenuSelection.NONE,
             version: existingContext?.version,
@@ -733,20 +753,7 @@ export class TitleScreen implements GameEngineComponent {
                 ),
                 new DrawImagesAction(
                     this.data,
-                    (dataBlob: DataBlob) => {
-                        const uiObjects: TitleScreenUIObjects =
-                            DataBlobService.get<TitleScreenUIObjects>(
-                                dataBlob,
-                                "uiObjects"
-                            )
-                        return [
-                            uiObjects.titleBanner,
-                            uiObjects.nahla.icon,
-                            uiObjects.sirCamil.icon,
-                            uiObjects.demonSlither.icon,
-                            uiObjects.demonLocust.icon,
-                        ].filter((x) => x)
-                    },
+                    (_: DataBlob) => this.getAllImages().filter((x) => x),
                     getGraphicsContext,
                     getResourceHandler
                 ),
