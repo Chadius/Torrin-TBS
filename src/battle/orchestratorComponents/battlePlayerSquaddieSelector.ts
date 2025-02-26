@@ -11,9 +11,10 @@ import { UIControlSettings } from "../orchestrator/uiControlSettings"
 import { GameEngineState } from "../../gameEngine/gameEngine"
 import { FileAccessHUDService } from "../hud/fileAccess/fileAccessHUD"
 import {
-    MouseButton,
     MouseClickService,
     MousePress,
+    MouseRelease,
+    ScreenLocation,
 } from "../../utils/mouseConfig"
 import {
     MessageBoardMessage,
@@ -61,40 +62,51 @@ export class BattlePlayerSquaddieSelector
         event: OrchestratorComponentMouseEvent
     ): void {
         if (event.eventType === OrchestratorComponentMouseEventType.RELEASE) {
-            this.mouseClicked({
-                mouseX: event.mouseRelease.x,
-                mouseY: event.mouseRelease.y,
-                mouseButton: event.mouseRelease.button,
+            this.mouseReleased({
+                mouseRelease: event.mouseRelease,
+                gameEngineState,
+            })
+        }
+
+        if (event.eventType === OrchestratorComponentMouseEventType.PRESS) {
+            this.mousePressed({
+                mousePress: event.mousePress,
                 gameEngineState,
             })
         }
 
         if (event.eventType === OrchestratorComponentMouseEventType.LOCATION) {
-            this.mouseMoved(
-                gameEngineState,
-                event.mouseLocation.x,
-                event.mouseLocation.y
-            )
+            this.mouseMoved(gameEngineState, event.mouseLocation)
         }
     }
 
-    mouseClicked({
+    mousePressed({
         gameEngineState,
-        mouseX,
-        mouseY,
-        mouseButton,
+        mousePress,
     }: {
         gameEngineState: GameEngineState
-        mouseX: number
-        mouseY: number
-        mouseButton: MouseButton
+        mousePress: MousePress
     }): void {
-        const fileAccessHudWasClicked = FileAccessHUDService.mouseClicked({
+        FileAccessHUDService.mousePressed({
             fileAccessHUD:
                 gameEngineState.battleOrchestratorState.battleHUD.fileAccessHUD,
-            mouseX,
-            mouseY,
-            mouseButton,
+            mousePress,
+            fileState: gameEngineState.fileState,
+            messageBoard: gameEngineState.messageBoard,
+        })
+    }
+
+    mouseReleased({
+        gameEngineState,
+        mouseRelease,
+    }: {
+        gameEngineState: GameEngineState
+        mouseRelease: MouseRelease
+    }): void {
+        const fileAccessHudWasClicked = FileAccessHUDService.mouseReleased({
+            fileAccessHUD:
+                gameEngineState.battleOrchestratorState.battleHUD.fileAccessHUD,
+            mouseRelease,
             fileState: gameEngineState.fileState,
             messageBoard: gameEngineState.messageBoard,
         })
@@ -108,9 +120,9 @@ export class BattlePlayerSquaddieSelector
 
         const playerCommandSelection: PlayerCommandSelection =
             SummaryHUDStateService.mouseClicked({
-                mouseX,
-                mouseY,
-                mouseButton,
+                mouseX: mouseRelease.x,
+                mouseY: mouseRelease.y,
+                mouseButton: mouseRelease.button,
                 gameEngineState,
                 summaryHUDState,
             })
@@ -120,9 +132,7 @@ export class BattlePlayerSquaddieSelector
                 playerCommandSelection,
                 gameEngineState,
                 mouseClick: MouseClickService.new({
-                    x: mouseX,
-                    y: mouseY,
-                    button: mouseButton,
+                    ...mouseRelease,
                 }),
             })
 
@@ -135,9 +145,7 @@ export class BattlePlayerSquaddieSelector
             PlayerSelectionContextCalculationArgsService.new({
                 gameEngineState,
                 mouseClick: {
-                    x: mouseX,
-                    y: mouseY,
-                    button: mouseButton,
+                    ...mouseRelease,
                 },
                 playerInputActions: [],
             })
@@ -150,16 +158,18 @@ export class BattlePlayerSquaddieSelector
 
     mouseMoved(
         gameEngineState: GameEngineState,
-        mouseX: number,
-        mouseY: number
+        mouseLocation: ScreenLocation
     ): void {
+        FileAccessHUDService.mouseMoved({
+            fileAccessHUD:
+                gameEngineState.battleOrchestratorState.battleHUD.fileAccessHUD,
+            mouseLocation,
+        })
+
         const context = PlayerSelectionService.calculateContext(
             PlayerSelectionContextCalculationArgsService.new({
                 gameEngineState,
-                mouseMovement: {
-                    x: mouseX,
-                    y: mouseY,
-                },
+                mouseMovement: mouseLocation,
                 playerInputActions: [],
             })
         )
@@ -179,8 +189,8 @@ export class BattlePlayerSquaddieSelector
             summaryHUDState:
                 gameEngineState.battleOrchestratorState.battleHUDState
                     .summaryHUDState,
-            mouseY,
-            mouseX,
+            mouseX: mouseLocation.x,
+            mouseY: mouseLocation.y,
             gameEngineState,
         })
     }

@@ -32,10 +32,6 @@ export class ShouldCreateStartGameButtonAction implements BehaviorTreeTask {
         this.dataBlob = data
     }
 
-    clone(): ShouldCreateStartGameButtonAction {
-        return new ShouldCreateStartGameButtonAction(this.dataBlob)
-    }
-
     run() {
         const uiObjects: TitleScreenUIObjects =
             DataBlobService.get<TitleScreenUIObjects>(
@@ -81,10 +77,6 @@ export class CreateStartGameButtonAction implements BehaviorTreeTask {
 
     constructor(data: DataBlob) {
         this.dataBlob = data
-    }
-
-    clone(): CreateStartGameButtonAction {
-        return new CreateStartGameButtonAction(this.dataBlob)
     }
 
     run() {

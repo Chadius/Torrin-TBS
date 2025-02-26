@@ -203,15 +203,30 @@ describe("User ends their turn", () => {
             gameEngineState.battleOrchestratorState.battleHUDState
                 .summaryHUDState
         const endTurnButton = getEndTurnButton(summaryHUDState)
-        selector.mouseClicked({
-            mouseX: RectAreaService.centerX(
-                endTurnButton.uiObjects.buttonIcon.drawArea
-            ),
-            mouseY: RectAreaService.centerY(
-                endTurnButton.uiObjects.buttonIcon.drawArea
-            ),
+        selector.mousePressed({
+            mousePress: {
+                button: MouseButton.ACCEPT,
+                x: RectAreaService.centerX(
+                    endTurnButton.uiObjects.buttonIcon.drawArea
+                ),
+                y: RectAreaService.centerY(
+                    endTurnButton.uiObjects.buttonIcon.drawArea
+                ),
+            },
             gameEngineState,
-            mouseButton: MouseButton.ACCEPT,
+        })
+
+        selector.mouseReleased({
+            mouseRelease: {
+                button: MouseButton.ACCEPT,
+                x: RectAreaService.centerX(
+                    endTurnButton.uiObjects.buttonIcon.drawArea
+                ),
+                y: RectAreaService.centerY(
+                    endTurnButton.uiObjects.buttonIcon.drawArea
+                ),
+            },
+            gameEngineState,
         })
 
         expect(

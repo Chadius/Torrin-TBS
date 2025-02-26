@@ -16,9 +16,4 @@ export class SequenceComposite implements BehaviorTreeTask {
         }
         return this.children.every((child: BehaviorTreeTask) => child.run())
     }
-
-    clone(): BehaviorTreeTask {
-        const clonedChildren = this.children.map((child) => child.clone())
-        return new SequenceComposite(this.dataBlob, clonedChildren)
-    }
 }

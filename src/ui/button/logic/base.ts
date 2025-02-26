@@ -12,7 +12,7 @@ export interface ButtonStatusChangeEvent {
     newStatus: ButtonStatus
     mouseLocation?: ScreenLocation
     mousePress?: MousePress
-    mouseRelease?: MousePress
+    mouseRelease?: MouseRelease
 }
 
 export interface ButtonLogic {

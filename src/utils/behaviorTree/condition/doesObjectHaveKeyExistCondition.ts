@@ -20,14 +20,6 @@ export class DoesObjectHaveKeyExistCondition<T> implements BehaviorTreeTask {
         this.objectKey = objectKey
     }
 
-    clone(): DoesObjectHaveKeyExistCondition<T> {
-        return new DoesObjectHaveKeyExistCondition<T>({
-            data: this.dataBlob,
-            dataObjectName: this.dataObjectName,
-            objectKey: this.objectKey,
-        })
-    }
-
     run(): boolean {
         const dataObject = DataBlobService.get<T>(
             this.dataBlob,

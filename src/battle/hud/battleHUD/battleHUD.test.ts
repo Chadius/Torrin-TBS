@@ -305,8 +305,14 @@ describe("Battle HUD", () => {
         beforeEach(() => {
             fileAccessHUDSpy = vi.spyOn(FileAccessHUDService, "enableButtons")
             fileAccessHUD = FileAccessHUDService.new()
-            fileAccessHUD.loadButton.setStatus(ButtonStatus.DISABLED)
-            fileAccessHUD.saveButton.setStatus(ButtonStatus.DISABLED)
+            FileAccessHUDService.draw(fileAccessHUD, mockP5GraphicsContext)
+            fileAccessHUD.data
+                .getUIObjects()
+                .loadButton.changeStatus({ newStatus: ButtonStatus.DISABLED })
+            fileAccessHUD.data
+                .getUIObjects()
+                .saveButton.changeStatus({ newStatus: ButtonStatus.DISABLED })
+
             battleHUDListener = new BattleHUDListener("battleHUDListener")
             listenerSpy = vi.spyOn(battleHUDListener, "receiveMessage")
             messageBoard = new MessageBoard()
@@ -342,12 +348,12 @@ describe("Battle HUD", () => {
             })
 
             expect(listenerSpy).toBeCalled()
-            expect(fileAccessHUD.loadButton.getStatus()).toEqual(
-                ButtonStatus.READY
-            )
-            expect(fileAccessHUD.saveButton.getStatus()).toEqual(
-                ButtonStatus.READY
-            )
+            expect(
+                fileAccessHUD.data.getUIObjects().loadButton.getStatus()
+            ).toEqual(ButtonStatus.READY)
+            expect(
+                fileAccessHUD.data.getUIObjects().saveButton.getStatus()
+            ).toEqual(ButtonStatus.READY)
             expect(fileAccessHUDSpy).toBeCalled()
         })
 
@@ -362,12 +368,14 @@ describe("Battle HUD", () => {
             })
 
             expect(listenerSpy).toBeCalled()
-            expect(fileAccessHUD.loadButton.getStatus()).toEqual(
-                ButtonStatus.READY
-            )
-            expect(fileAccessHUD.saveButton.getStatus()).toEqual(
-                ButtonStatus.READY
-            )
+
+            expect(
+                fileAccessHUD.data.getUIObjects().loadButton.getStatus()
+            ).toEqual(ButtonStatus.READY)
+            expect(
+                fileAccessHUD.data.getUIObjects().saveButton.getStatus()
+            ).toEqual(ButtonStatus.READY)
+
             expect(fileAccessHUDSpy).toBeCalled()
         })
     })

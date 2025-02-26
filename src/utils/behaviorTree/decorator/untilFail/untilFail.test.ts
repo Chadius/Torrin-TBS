@@ -2,7 +2,6 @@ import { beforeEach, describe, expect, it, vi } from "vitest"
 import { DataBlob, DataBlobService } from "../../../dataBlob/dataBlob"
 import { AlwaysTrueCondition } from "../../condition/alwaysTrue"
 import { UntilFailDecorator } from "./untilFail"
-import { AlwaysFalseCondition } from "../../condition/alwaysFalse"
 import { LimitDecorator } from "../limit/limit"
 
 describe("Until Fail decorator", () => {
@@ -31,16 +30,5 @@ describe("Until Fail decorator", () => {
         expect(() => {
             new UntilFailDecorator(blackboard, undefined)
         }).toThrow("[UntilFailDecorator.constructor] must have a child task")
-    })
-
-    it("can be cloned", () => {
-        const original = new UntilFailDecorator(
-            blackboard,
-            new AlwaysFalseCondition(blackboard)
-        )
-        const clone: UntilFailDecorator = original.clone() as UntilFailDecorator
-        expect(clone.dataBlob).toEqual(original.dataBlob)
-        expect(clone.children).toEqual(original.children)
-        expect(clone.children).not.toBe(original.children)
     })
 })

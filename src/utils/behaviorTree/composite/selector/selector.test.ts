@@ -1,5 +1,4 @@
 import { beforeEach, describe, expect, it } from "vitest"
-import { BehaviorTreeTask } from "../../task"
 import { AlwaysTrueCondition } from "../../condition/alwaysTrue"
 import { DataBlob, DataBlobService } from "../../../dataBlob/dataBlob"
 import { AlwaysFalseCondition } from "../../condition/alwaysFalse"
@@ -41,23 +40,5 @@ describe("Selector composite", () => {
         ])
         expect(sequence.run()).toBe(true)
         expect(DataBlobService.get(blackboard, "increment")).toEqual(1)
-    })
-
-    it("can clone recursively", () => {
-        const children: BehaviorTreeTask[] = [
-            new SelectorComposite(blackboard, [
-                new AlwaysFalseCondition(blackboard),
-            ]),
-        ]
-
-        const original = new SelectorComposite(blackboard, children)
-        const clone: SelectorComposite = original.clone()
-
-        expect(clone.children[0].children[0]).toEqual(
-            original.children[0].children[0]
-        )
-        expect(clone.children[0].children[0]).not.toBe(
-            original.children[0].children[0]
-        )
     })
 })

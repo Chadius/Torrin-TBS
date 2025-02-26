@@ -22,8 +22,4 @@ export class UntilFailDecorator implements BehaviorTreeTask {
         }
         return true
     }
-
-    clone(): BehaviorTreeTask {
-        return new UntilFailDecorator(this.dataBlob, this.children[0].clone())
-    }
 }

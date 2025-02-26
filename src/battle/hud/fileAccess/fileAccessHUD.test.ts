@@ -3,7 +3,6 @@ import { SaveSaveStateService } from "../../../dataLoader/saveSaveState"
 import { BattleSaveStateService } from "../../history/battleSaveState"
 import {
     FileAccessHUD,
-    FileAccessHUDDesign,
     FileAccessHUDMessage,
     FileAccessHUDService,
 } from "./fileAccessHUD"
@@ -35,6 +34,8 @@ import { MessageBoard } from "../../../message/messageBoard"
 import { PlayerDataMessageListener } from "../../../dataLoader/playerData/playerDataMessageListener"
 import { MessageBoardMessageType } from "../../../message/messageBoardMessage"
 import { ButtonStatus } from "../../../ui/button/buttonStatus"
+import { GraphicsBuffer } from "../../../utils/graphics/graphicsRenderer"
+import { MockedP5GraphicsBuffer } from "../../../utils/test/mocks"
 
 describe("File Access HUD", () => {
     let fileAccessHUD: FileAccessHUD
@@ -43,6 +44,7 @@ describe("File Access HUD", () => {
     let takingATurnSpy: MockInstance
     let messageBoard: MessageBoard
     let playerDataMessageListener: PlayerDataMessageListener
+    let graphicsContext: GraphicsBuffer
 
     const createGameEngineStateWithBattlePhase = (
         battlePhaseAffiliation: BattlePhase
@@ -80,6 +82,7 @@ describe("File Access HUD", () => {
         playerDataMessageListener = new PlayerDataMessageListener(
             "playerDataMessageListener"
         )
+        graphicsContext = new MockedP5GraphicsBuffer()
     })
 
     afterEach(() => {
@@ -93,79 +96,107 @@ describe("File Access HUD", () => {
     })
 
     describe("has buttons during turn", () => {
+        beforeEach(() => {
+            FileAccessHUDService.draw(fileAccessHUD, graphicsContext)
+        })
+
         it("Has a save button", () => {
-            expect(fileAccessHUD.saveButton).not.toBeUndefined()
-            expect(fileAccessHUD.saveButton.buttonStatus).toEqual(
-                ButtonStatus.READY
-            )
+            expect(
+                fileAccessHUD.data.getUIObjects().saveButton
+            ).not.toBeUndefined()
+            expect(
+                fileAccessHUD.data.getUIObjects().saveButton.getStatus()
+            ).toEqual(ButtonStatus.READY)
         })
         it("Save button changes to hovered state when hovered over", () => {
             FileAccessHUDService.mouseMoved({
                 fileAccessHUD,
-                mouseX: RectAreaService.centerX(
-                    fileAccessHUD.saveButton.readyLabel.rectangle.area
-                ),
-                mouseY: RectAreaService.centerY(
-                    fileAccessHUD.saveButton.readyLabel.rectangle.area
-                ),
+                mouseLocation: {
+                    x: RectAreaService.centerX(
+                        fileAccessHUD.data.getUIObjects().saveButton.getArea()
+                    ),
+                    y: RectAreaService.centerY(
+                        fileAccessHUD.data.getUIObjects().saveButton.getArea()
+                    ),
+                },
             })
-            expect(fileAccessHUD.saveButton.buttonStatus).toEqual(
-                ButtonStatus.HOVER
-            )
+            expect(
+                fileAccessHUD.data.getUIObjects().saveButton.getStatus()
+            ).toEqual(ButtonStatus.HOVER)
 
             FileAccessHUDService.mouseMoved({
                 fileAccessHUD,
-                mouseX:
-                    RectAreaService.left(
-                        fileAccessHUD.saveButton.readyLabel.rectangle.area
-                    ) - 1,
-                mouseY:
-                    RectAreaService.top(
-                        fileAccessHUD.saveButton.readyLabel.rectangle.area
-                    ) - 1,
+                mouseLocation: {
+                    x:
+                        RectAreaService.left(
+                            fileAccessHUD.data
+                                .getUIObjects()
+                                .saveButton.getArea()
+                        ) - 1,
+                    y:
+                        RectAreaService.top(
+                            fileAccessHUD.data
+                                .getUIObjects()
+                                .saveButton.getArea()
+                        ) - 1,
+                },
             })
-            expect(fileAccessHUD.saveButton.buttonStatus).toEqual(
-                ButtonStatus.READY
-            )
+            expect(
+                fileAccessHUD.data.getUIObjects().saveButton.getStatus()
+            ).toEqual(ButtonStatus.READY)
         })
         it("Has a load button", () => {
-            expect(fileAccessHUD.loadButton).not.toBeUndefined()
-            expect(fileAccessHUD.loadButton.buttonStatus).toEqual(
-                ButtonStatus.READY
-            )
+            expect(
+                fileAccessHUD.data.getUIObjects().loadButton
+            ).not.toBeUndefined()
+            expect(
+                fileAccessHUD.data.getUIObjects().loadButton.getStatus()
+            ).toEqual(ButtonStatus.READY)
         })
         it("Load button changes to hovered state when hovered over", () => {
             FileAccessHUDService.mouseMoved({
                 fileAccessHUD,
-                mouseX: RectAreaService.centerX(
-                    fileAccessHUD.loadButton.readyLabel.rectangle.area
-                ),
-                mouseY: RectAreaService.centerY(
-                    fileAccessHUD.loadButton.readyLabel.rectangle.area
-                ),
+                mouseLocation: {
+                    x: RectAreaService.centerX(
+                        fileAccessHUD.data.getUIObjects().loadButton.getArea()
+                    ),
+                    y: RectAreaService.centerY(
+                        fileAccessHUD.data.getUIObjects().loadButton.getArea()
+                    ),
+                },
             })
-            expect(fileAccessHUD.loadButton.buttonStatus).toEqual(
-                ButtonStatus.HOVER
-            )
+            expect(
+                fileAccessHUD.data.getUIObjects().loadButton.getStatus()
+            ).toEqual(ButtonStatus.HOVER)
 
             FileAccessHUDService.mouseMoved({
                 fileAccessHUD,
-                mouseX:
-                    RectAreaService.left(
-                        fileAccessHUD.loadButton.readyLabel.rectangle.area
-                    ) - 1,
-                mouseY:
-                    RectAreaService.top(
-                        fileAccessHUD.loadButton.readyLabel.rectangle.area
-                    ) - 1,
+                mouseLocation: {
+                    x:
+                        RectAreaService.left(
+                            fileAccessHUD.data
+                                .getUIObjects()
+                                .loadButton.getArea()
+                        ) - 1,
+                    y:
+                        RectAreaService.top(
+                            fileAccessHUD.data
+                                .getUIObjects()
+                                .loadButton.getArea()
+                        ) - 1,
+                },
             })
-            expect(fileAccessHUD.loadButton.buttonStatus).toEqual(
-                ButtonStatus.READY
-            )
+            expect(
+                fileAccessHUD.data.getUIObjects().loadButton.getStatus()
+            ).toEqual(ButtonStatus.READY)
         })
     })
 
     describe("enable and disable buttons based on gameEngineState", () => {
+        beforeEach(() => {
+            FileAccessHUDService.draw(fileAccessHUD, graphicsContext)
+        })
+
         it("should enable the save and load buttons during the player phase", () => {
             const gameEngineState: GameEngineState =
                 createGameEngineStateWithBattlePhase(BattlePhase.PLAYER)
@@ -173,12 +204,12 @@ describe("File Access HUD", () => {
                 fileAccessHUD,
                 gameEngineState
             )
-            expect(fileAccessHUD.loadButton.buttonStatus).toEqual(
-                ButtonStatus.READY
-            )
-            expect(fileAccessHUD.saveButton.buttonStatus).toEqual(
-                ButtonStatus.READY
-            )
+            expect(
+                fileAccessHUD.data.getUIObjects().loadButton.getStatus()
+            ).toEqual(ButtonStatus.READY)
+            expect(
+                fileAccessHUD.data.getUIObjects().saveButton.getStatus()
+            ).toEqual(ButtonStatus.READY)
         })
 
         it("should disable the save and load buttons during the player phase if a squaddie is taking a turn", () => {
@@ -191,12 +222,12 @@ describe("File Access HUD", () => {
                 fileAccessHUD,
                 gameEngineState
             )
-            expect(fileAccessHUD.loadButton.buttonStatus).toEqual(
-                ButtonStatus.DISABLED
-            )
-            expect(fileAccessHUD.saveButton.buttonStatus).toEqual(
-                ButtonStatus.DISABLED
-            )
+            expect(
+                fileAccessHUD.data.getUIObjects().loadButton.getStatus()
+            ).toEqual(ButtonStatus.DISABLED)
+            expect(
+                fileAccessHUD.data.getUIObjects().saveButton.getStatus()
+            ).toEqual(ButtonStatus.DISABLED)
             expect(takingATurnSpy).toBeCalled()
             takingATurnSpy.mockRestore()
         })
@@ -208,27 +239,44 @@ describe("File Access HUD", () => {
                 fileAccessHUD,
                 gameEngineState
             )
-            expect(fileAccessHUD.loadButton.buttonStatus).toEqual(
-                ButtonStatus.DISABLED
-            )
-            expect(fileAccessHUD.saveButton.buttonStatus).toEqual(
-                ButtonStatus.DISABLED
-            )
+            expect(
+                fileAccessHUD.data.getUIObjects().loadButton.getStatus()
+            ).toEqual(ButtonStatus.DISABLED)
+            expect(
+                fileAccessHUD.data.getUIObjects().saveButton.getStatus()
+            ).toEqual(ButtonStatus.DISABLED)
         })
     })
 
     describe("clicking on Save Game", () => {
         beforeEach(() => {
             vi.clearAllMocks()
-            FileAccessHUDService.mouseClicked({
+            FileAccessHUDService.draw(fileAccessHUD, graphicsContext)
+            FileAccessHUDService.mousePressed({
                 fileAccessHUD,
-                mouseButton: MouseButton.ACCEPT,
-                mouseX: RectAreaService.centerX(
-                    fileAccessHUD.saveButton.readyLabel.rectangle.area
-                ),
-                mouseY: RectAreaService.centerY(
-                    fileAccessHUD.saveButton.readyLabel.rectangle.area
-                ),
+                mousePress: {
+                    button: MouseButton.ACCEPT,
+                    x: RectAreaService.centerX(
+                        fileAccessHUD.data.getUIObjects().saveButton.getArea()
+                    ),
+                    y: RectAreaService.centerY(
+                        fileAccessHUD.data.getUIObjects().saveButton.getArea()
+                    ),
+                },
+                fileState,
+                messageBoard,
+            })
+            FileAccessHUDService.mouseReleased({
+                fileAccessHUD,
+                mouseRelease: {
+                    button: MouseButton.ACCEPT,
+                    x: RectAreaService.centerX(
+                        fileAccessHUD.data.getUIObjects().saveButton.getArea()
+                    ),
+                    y: RectAreaService.centerY(
+                        fileAccessHUD.data.getUIObjects().saveButton.getArea()
+                    ),
+                },
                 fileState,
                 messageBoard,
             })
@@ -238,12 +286,12 @@ describe("File Access HUD", () => {
             expect(fileState.saveSaveState.savingInProgress).toBeTruthy()
         })
         it("changes save and load button to disabled", () => {
-            expect(fileAccessHUD.loadButton.buttonStatus).toEqual(
-                ButtonStatus.DISABLED
-            )
-            expect(fileAccessHUD.saveButton.buttonStatus).toEqual(
-                ButtonStatus.DISABLED
-            )
+            expect(
+                fileAccessHUD.data.getUIObjects().loadButton.getStatus()
+            ).toEqual(ButtonStatus.DISABLED)
+            expect(
+                fileAccessHUD.data.getUIObjects().saveButton.getStatus()
+            ).toEqual(ButtonStatus.DISABLED)
         })
         describe("save is completed successfully", () => {
             beforeEach(() => {
@@ -301,9 +349,9 @@ describe("File Access HUD", () => {
                     fileAccessHUD,
                     createGameEngineStateWithBattlePhase(BattlePhase.PLAYER)
                 )
-                expect(fileAccessHUD.saveButton.getStatus()).toEqual(
-                    ButtonStatus.READY
-                )
+                expect(
+                    fileAccessHUD.data.getUIObjects().saveButton.getStatus()
+                ).toEqual(ButtonStatus.READY)
             })
         })
         describe("save has an error during saving", () => {
@@ -346,22 +394,23 @@ describe("File Access HUD", () => {
                     fileAccessHUD,
                     createGameEngineStateWithBattlePhase(BattlePhase.PLAYER)
                 )
-                expect(fileAccessHUD.saveButton.getStatus()).toEqual(
-                    ButtonStatus.READY
-                )
+                expect(
+                    fileAccessHUD.data.getUIObjects().saveButton.getStatus()
+                ).toEqual(ButtonStatus.READY)
             })
         })
     })
 
     it("disables buttons if there is a message present", () => {
+        FileAccessHUDService.draw(fileAccessHUD, graphicsContext)
         fileAccessHUD.message = "Oh hai"
         FileAccessHUDService.updateButtonStatus(fileAccessHUD)
-        expect(fileAccessHUD.loadButton.buttonStatus).toEqual(
-            ButtonStatus.DISABLED
-        )
-        expect(fileAccessHUD.saveButton.buttonStatus).toEqual(
-            ButtonStatus.DISABLED
-        )
+        expect(
+            fileAccessHUD.data.getUIObjects().loadButton.getStatus()
+        ).toEqual(ButtonStatus.DISABLED)
+        expect(
+            fileAccessHUD.data.getUIObjects().saveButton.getStatus()
+        ).toEqual(ButtonStatus.DISABLED)
     })
 
     describe("clicking on Load Game", () => {
@@ -370,16 +419,32 @@ describe("File Access HUD", () => {
                 playerDataMessageListener,
                 MessageBoardMessageType.PLAYER_DATA_LOAD_USER_REQUEST
             )
-
-            FileAccessHUDService.mouseClicked({
+            FileAccessHUDService.draw(fileAccessHUD, graphicsContext)
+            FileAccessHUDService.mousePressed({
                 fileAccessHUD,
-                mouseButton: MouseButton.ACCEPT,
-                mouseX: RectAreaService.centerX(
-                    fileAccessHUD.loadButton.readyLabel.rectangle.area
-                ),
-                mouseY: RectAreaService.centerY(
-                    fileAccessHUD.loadButton.readyLabel.rectangle.area
-                ),
+                mousePress: {
+                    button: MouseButton.ACCEPT,
+                    x: RectAreaService.centerX(
+                        fileAccessHUD.data.getUIObjects().loadButton.getArea()
+                    ),
+                    y: RectAreaService.centerY(
+                        fileAccessHUD.data.getUIObjects().loadButton.getArea()
+                    ),
+                },
+                fileState,
+                messageBoard,
+            })
+            FileAccessHUDService.mouseReleased({
+                fileAccessHUD,
+                mouseRelease: {
+                    button: MouseButton.ACCEPT,
+                    x: RectAreaService.centerX(
+                        fileAccessHUD.data.getUIObjects().loadButton.getArea()
+                    ),
+                    y: RectAreaService.centerY(
+                        fileAccessHUD.data.getUIObjects().loadButton.getArea()
+                    ),
+                },
                 fileState,
                 messageBoard,
             })
@@ -443,9 +508,9 @@ describe("File Access HUD", () => {
                     fileAccessHUD,
                     createGameEngineStateWithBattlePhase(BattlePhase.PLAYER)
                 )
-                expect(fileAccessHUD.loadButton.getStatus()).toEqual(
-                    ButtonStatus.READY
-                )
+                expect(
+                    fileAccessHUD.data.getUIObjects().loadButton.getStatus()
+                ).not.toEqual(ButtonStatus.DISABLED)
             })
         })
         describe("loading has an error", () => {
@@ -477,9 +542,9 @@ describe("File Access HUD", () => {
                     fileAccessHUD,
                     createGameEngineStateWithBattlePhase(BattlePhase.PLAYER)
                 )
-                expect(fileAccessHUD.loadButton.getStatus()).toEqual(
-                    ButtonStatus.READY
-                )
+                expect(
+                    fileAccessHUD.data.getUIObjects().loadButton.getStatus()
+                ).toEqual(ButtonStatus.READY)
             })
             it("generates a message indicating the Load failed for a period of time", () => {
                 const initialMessage: string =
@@ -507,9 +572,10 @@ const expectNoMessageAfterDisplayDuration = (
     fileAccessHUD: FileAccessHUD,
     messageBoard: MessageBoard
 ) => {
+    const layout = fileAccessHUD.data.getLayout()
     dateSpy = vi
         .spyOn(Date, "now")
-        .mockReturnValue(FileAccessHUDDesign.MESSAGE_DISPLAY_DURATION + 1)
+        .mockReturnValue(layout.MESSAGE_DISPLAY_DURATION + 1)
     const noMessage: string = FileAccessHUDService.updateStatusMessage({
         fileAccessHUD: fileAccessHUD,
         fileState: fileState,

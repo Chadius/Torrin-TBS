@@ -21,9 +21,4 @@ export class NonSequentialSelectorComposite implements BehaviorTreeTask {
         ).sort(() => Math.random() - 0.5)
         return randomIndexOrder.some((i) => this.children[i].run())
     }
-
-    clone(): BehaviorTreeTask {
-        const clonedChildren = this.children.map((child) => child.clone())
-        return new NonSequentialSelectorComposite(this.dataBlob, clonedChildren)
-    }
 }

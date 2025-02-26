@@ -84,6 +84,7 @@ import { SummaryHUDStateService } from "../hud/summary/summaryHUD"
 import { getResultOrThrowError } from "../../utils/ResultOrError"
 import { SquaddieTurnService } from "../../squaddie/turn"
 import { BattleSquaddieService } from "../battleSquaddie"
+import { FileAccessHUDService } from "../hud/fileAccess/fileAccessHUD"
 
 describe("BattleSquaddieSelector", () => {
     let selector: BattlePlayerSquaddieSelector =
@@ -356,6 +357,10 @@ describe("BattleSquaddieSelector", () => {
                 battlePhaseState,
                 missionMap,
             })
+            FileAccessHUDService.draw(
+                gameEngineState.battleOrchestratorState.battleHUD.fileAccessHUD,
+                mockedP5GraphicsContext
+            )
             gameEngineState.battleOrchestratorState.battleState.battleActionDecisionStep =
                 BattleActionDecisionStepService.new()
 
@@ -1148,10 +1153,20 @@ const selectActionButton = ({
 
     let x = RectAreaService.centerX(actionButton.uiObjects.buttonIcon.drawArea)
     let y = RectAreaService.centerY(actionButton.uiObjects.buttonIcon.drawArea)
-    selector.mouseClicked({
-        mouseX: x,
-        mouseY: y,
-        mouseButton: MouseButton.ACCEPT,
+    selector.mousePressed({
+        mousePress: {
+            x,
+            y,
+            button: MouseButton.ACCEPT,
+        },
+        gameEngineState,
+    })
+    selector.mouseReleased({
+        mouseRelease: {
+            x,
+            y,
+            button: MouseButton.ACCEPT,
+        },
         gameEngineState,
     })
     return { x, y }

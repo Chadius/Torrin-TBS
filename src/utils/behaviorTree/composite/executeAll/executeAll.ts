@@ -17,9 +17,4 @@ export class ExecuteAllComposite implements BehaviorTreeTask {
         this.children.forEach((child: BehaviorTreeTask) => child.run())
         return true
     }
-
-    clone(): BehaviorTreeTask {
-        const clonedChildren = this.children.map((child) => child.clone())
-        return new ExecuteAllComposite(this.dataBlob, clonedChildren)
-    }
 }

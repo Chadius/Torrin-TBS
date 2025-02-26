@@ -37,10 +37,4 @@ export class LimitDecorator implements BehaviorTreeTask {
         this.numberOfTimesRun += 1
         return this.children[0].run()
     }
-
-    clone(): BehaviorTreeTask {
-        return new LimitDecorator(this.dataBlob, this.children[0].clone(), {
-            limit: this.limit,
-        })
-    }
 }

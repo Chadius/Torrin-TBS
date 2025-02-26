@@ -1,4 +1,8 @@
-import { MouseButton } from "../../../utils/mouseConfig"
+import {
+    MousePress,
+    MouseRelease,
+    ScreenLocation,
+} from "../../../utils/mouseConfig"
 import { RectArea, RectAreaService } from "../../../ui/rectArea"
 import { ScreenDimensions } from "../../../utils/graphics/graphicsConfig"
 import { Label, LabelService } from "../../../ui/label"
@@ -18,7 +22,21 @@ import { FileState } from "../../../gameEngine/fileState"
 import { MessageBoard } from "../../../message/messageBoard"
 import { MessageBoardMessageType } from "../../../message/messageBoardMessage"
 import { ButtonStatus } from "../../../ui/button/buttonStatus"
-import { DEPRECATEDButton } from "../../../ui/buttonDEPRECATED/DEPRECATEDButton"
+import { Button } from "../../../ui/button/button"
+import { ResourceHandler } from "../../../resource/resourceHandler"
+import { DataBlob, DataBlobService } from "../../../utils/dataBlob/dataBlob"
+import { BehaviorTreeTask } from "../../../utils/behaviorTree/task"
+import { SequenceComposite } from "../../../utils/behaviorTree/composite/sequence/sequence"
+import { ExecuteAllComposite } from "../../../utils/behaviorTree/composite/executeAll/executeAll"
+import {
+    FileAccessHUDCreateLoadButton,
+    FileAccessHUDShouldCreateLoadButton,
+} from "./loadButton"
+import { ButtonStatusChangeEventByButtonId } from "../../../ui/button/logic/base"
+import {
+    FileAccessHUDCreateSaveButton,
+    FileAccessHUDShouldCreateSaveButton,
+} from "./saveButton"
 
 export enum FileAccessHUDMessage {
     SAVE_SUCCESS = "Saved!",
@@ -27,159 +45,248 @@ export enum FileAccessHUDMessage {
     SAVE_IN_PROGRESS = "Saving...",
 }
 
-export const FileAccessHUDDesign = {
-    MESSAGE_DISPLAY_DURATION: 2000,
-    LOAD_BUTTON: {
-        AREA: {
-            startColumn: 11,
-            endColumn: 11,
-            top: 10,
-            bottom: 40,
-            margin: [0, WINDOW_SPACING.SPACING1, 0, 0],
-        },
-        READY_RECTANGLE: {
-            fillColor: [10, 2, 192],
-            strokeColor: [16, 16, 16],
-            strokeWeight: 2,
-        },
-        ACTIVE_RECTANGLE: {
-            fillColor: [10, 2, 192],
-            strokeColor: [10, 16, 16],
-            strokeWeight: 4,
-        },
-        HOVER_RECTANGLE: {
-            fillColor: [10, 2, 224],
-            strokeColor: [10, 16, 32],
-            strokeWeight: 10,
-        },
-        DISABLED_RECTANGLE: {
-            fillColor: [10, 2, 32],
-            strokeColor: [16, 16, 16],
-            strokeWeight: 2,
-        },
-        FONT_COLOR: [20, 5, 16],
-        PADDING: WINDOW_SPACING.SPACING1,
-        TEXT: "Load",
-        TEXT_SIZE: 14,
-    },
-    SAVE_BUTTON: {
-        AREA: {
-            startColumn: 10,
-            endColumn: 10,
-            top: 10,
-            bottom: 40,
-            margin: [0, WINDOW_SPACING.SPACING1, 0, 0],
-        },
-        READY_RECTANGLE: {
-            fillColor: [10, 2, 192],
-            strokeColor: [16, 16, 16],
-            strokeWeight: 2,
-        },
-        ACTIVE_RECTANGLE: {
-            fillColor: [10, 2, 192],
-            strokeColor: [16, 16, 16],
-            strokeWeight: 4,
-        },
-        HOVER_RECTANGLE: {
-            fillColor: [10, 2, 224],
-            strokeColor: [10, 16, 32],
-            strokeWeight: 10,
-        },
-        DISABLED_RECTANGLE: {
-            fillColor: [10, 2, 32],
-            strokeColor: [16, 16, 16],
-            strokeWeight: 2,
-        },
-        FONT_COLOR: [20, 5, 16],
-        PADDING: WINDOW_SPACING.SPACING1,
-        TEXT: "Save",
-        TEXT_SIZE: 14,
-    },
-    MESSAGE_LABEL: {
-        AREA: {
-            startColumn: 8,
-            endColumn: 9,
-            top: 10,
-            bottom: 60,
-        },
-        RECTANGLE: {
-            noFill: true,
-            noStroke: true,
-        },
-        FONT_COLOR: [0, 0, 100],
-        PADDING: WINDOW_SPACING.SPACING1,
-        TEXT_SIZE: 20,
-    },
+type FileAccessHUDRectangleColorDescription = {
+    fillColor: number[]
+    strokeColor: number[]
+    strokeWeight: number
+}
+
+export interface FileAccessHUDLayout {
+    MESSAGE_DISPLAY_DURATION: number
+    loadButton: {
+        drawingArea: {
+            startColumn: number
+            endColumn: number
+            top: number
+            bottom: number
+            margin: number[]
+        }
+        readyStatusStyle: FileAccessHUDRectangleColorDescription
+        activeStatusStyle: FileAccessHUDRectangleColorDescription
+        hoverStatusStyle: FileAccessHUDRectangleColorDescription
+        disabledStatusStyle: FileAccessHUDRectangleColorDescription
+        fontColor: number[]
+        padding: number
+        text: string
+        fontSize: number
+    }
+    saveButton: {
+        drawingArea: {
+            startColumn: number
+            endColumn: number
+            top: number
+            bottom: number
+            margin: number[]
+        }
+        readyStatusStyle: FileAccessHUDRectangleColorDescription
+        activeStatusStyle: FileAccessHUDRectangleColorDescription
+        hoverStatusStyle: FileAccessHUDRectangleColorDescription
+        disabledStatusStyle: FileAccessHUDRectangleColorDescription
+        fontColor: number[]
+        padding: number
+        text: string
+        fontSize: number
+    }
+    messageLabel: {
+        drawingArea: {
+            startColumn: number
+            endColumn: number
+            top: number
+            bottom: number
+        }
+        rectangleStyle: {
+            noFill: boolean
+            noStroke: boolean
+        }
+        fontColor: number[]
+        padding: number
+        fontSize: number
+    }
+}
+
+export interface FileAccessHUDContext {
+    buttonStatusChangeEventDataBlob: ButtonStatusChangeEventByButtonId
+}
+
+export class FileAccessHUDData implements DataBlob {
+    data: {
+        data: {
+            uiObjects: FileAccessHUDUIObjects
+            layout: FileAccessHUDLayout
+            context: FileAccessHUDContext
+            [key: string]: any
+        }
+    }
+
+    constructor() {
+        this.data = {
+            data: {
+                uiObjects: undefined,
+                layout: undefined,
+                context: undefined,
+            },
+        }
+    }
+
+    getUIObjects(): FileAccessHUDUIObjects {
+        return DataBlobService.get<FileAccessHUDUIObjects>(
+            this.data,
+            "uiObjects"
+        )
+    }
+
+    setUIObjects(uiObjects: FileAccessHUDUIObjects): void {
+        return DataBlobService.add<FileAccessHUDUIObjects>(
+            this.data,
+            "uiObjects",
+            uiObjects
+        )
+    }
+
+    getLayout(): FileAccessHUDLayout {
+        return DataBlobService.get<FileAccessHUDLayout>(this.data, "layout")
+    }
+
+    setLayout(layout: FileAccessHUDLayout): void {
+        return DataBlobService.add<FileAccessHUDLayout>(
+            this.data,
+            "layout",
+            layout
+        )
+    }
+
+    getContext(): FileAccessHUDContext {
+        return DataBlobService.get<FileAccessHUDContext>(this.data, "context")
+    }
+
+    setContext(context: FileAccessHUDContext): void {
+        return DataBlobService.add<FileAccessHUDContext>(
+            this.data,
+            "context",
+            context
+        )
+    }
 }
 
 export interface FileAccessHUD {
-    saveButton: DEPRECATEDButton
-    loadButton: DEPRECATEDButton
+    data: FileAccessHUDData
+    drawUITask: BehaviorTreeTask
     messageLabel: Label
     messageDisplayStartTime: number
     message: string
 }
 
+export interface FileAccessHUDUIObjects {
+    saveButton: Button
+    loadButton: Button
+    graphicsContext?: GraphicsBuffer
+    resourceHandler?: ResourceHandler
+}
+
 export const FileAccessHUDService = {
     new: (): FileAccessHUD => {
         const fileAccessHUD: FileAccessHUD = {
-            loadButton: undefined,
-            saveButton: undefined,
+            data: new FileAccessHUDData(),
+            drawUITask: undefined,
             messageLabel: undefined,
             messageDisplayStartTime: undefined,
             message: undefined,
         }
-        createUIObjects(fileAccessHUD)
+        createContext(fileAccessHUD)
+        createLayout(fileAccessHUD)
+        resetUIObjects(fileAccessHUD)
+        createDrawingTask(fileAccessHUD)
+        createMessageLabel(fileAccessHUD)
         return fileAccessHUD
     },
     mouseMoved: ({
         fileAccessHUD,
-        mouseX,
-        mouseY,
+        mouseLocation,
     }: {
         fileAccessHUD: FileAccessHUD
-        mouseX: number
-        mouseY: number
+        mouseLocation: ScreenLocation
     }) => {
-        fileAccessHUD.loadButton.mouseMoved(mouseX, mouseY, undefined)
-        fileAccessHUD.saveButton.mouseMoved(mouseX, mouseY, undefined)
+        getButtons(fileAccessHUD).forEach((button) => {
+            button.mouseMoved({
+                mouseLocation,
+            })
+        })
     },
-    mouseClicked: ({
+    mousePressed: ({
         fileAccessHUD,
-        mouseButton,
-        mouseX,
-        mouseY,
+        mousePress,
         fileState,
         messageBoard,
     }: {
         fileAccessHUD: FileAccessHUD
-        mouseButton: MouseButton
-        mouseX: number
-        mouseY: number
+        mousePress: MousePress
         fileState: FileState
         messageBoard: MessageBoard
     }): boolean => {
-        if (mouseButton !== MouseButton.ACCEPT) {
-            return
+        getButtons(fileAccessHUD).forEach((button) => {
+            button.mousePressed({
+                mousePress,
+            })
+        })
+
+        const uiObjects: FileAccessHUDUIObjects =
+            fileAccessHUD.data.getUIObjects()
+        const loadButtonWasClicked: boolean =
+            uiObjects.loadButton?.getStatusChangeEvent()?.mousePress !=
+            undefined
+        const saveButtonWasClicked: boolean =
+            uiObjects.saveButton?.getStatusChangeEvent()?.mousePress !=
+            undefined
+
+        if (loadButtonWasClicked) {
+            reactToLoadGameButtonStatusChangeEvent(
+                fileAccessHUD,
+                fileState,
+                messageBoard
+            )
         }
-        const wasLoadButtonClicked = fileAccessHUD.loadButton.mouseClicked(
-            mouseX,
-            mouseY,
-            {
+        if (saveButtonWasClicked) {
+            reactToSaveGameButtonStatusChangeEvent(fileAccessHUD, fileState)
+        }
+        return loadButtonWasClicked || saveButtonWasClicked
+    },
+    mouseReleased: ({
+        fileAccessHUD,
+        mouseRelease,
+        fileState,
+        messageBoard,
+    }: {
+        fileAccessHUD: FileAccessHUD
+        mouseRelease: MouseRelease
+        fileState: FileState
+        messageBoard: MessageBoard
+    }): boolean => {
+        getButtons(fileAccessHUD).forEach((button) => {
+            button.mouseReleased({
+                mouseRelease,
+            })
+        })
+
+        const uiObjects: FileAccessHUDUIObjects =
+            fileAccessHUD.data.getUIObjects()
+        const loadButtonWasClicked: boolean =
+            uiObjects.loadButton?.getStatusChangeEvent()?.mouseRelease !=
+            undefined
+        const saveButtonWasClicked: boolean =
+            uiObjects.saveButton?.getStatusChangeEvent()?.mouseRelease !=
+            undefined
+
+        if (loadButtonWasClicked) {
+            reactToLoadGameButtonStatusChangeEvent(
                 fileAccessHUD,
                 fileState,
-                messageBoard,
-            }
-        )
-        const wasSaveButtonClicked = fileAccessHUD.saveButton.mouseClicked(
-            mouseX,
-            mouseY,
-            {
-                fileAccessHUD,
-                fileState,
-            }
-        )
-        return wasLoadButtonClicked || wasSaveButtonClicked
+                messageBoard
+            )
+        }
+        if (saveButtonWasClicked) {
+            reactToSaveGameButtonStatusChangeEvent(fileAccessHUD, fileState)
+        }
+        return loadButtonWasClicked || saveButtonWasClicked
     },
     updateBasedOnGameEngineState: (
         fileAccessHUD: FileAccessHUD,
@@ -202,7 +309,10 @@ export const FileAccessHUDService = {
             return disableButtons(fileAccessHUD)
         }
 
-        return changeButtonStatusBasedOnMessage(fileAccessHUD)
+        changeButtonStatusBasedOnMessage(fileAccessHUD)
+        getButtons(fileAccessHUD).forEach((button) => {
+            button.clearStatus()
+        })
     },
     updateButtonStatus: (fileAccessHUD: FileAccessHUD) => {
         changeButtonStatusBasedOnMessage(fileAccessHUD)
@@ -223,11 +333,23 @@ export const FileAccessHUDService = {
         })
     },
     draw: (fileAccessHUD: FileAccessHUD, graphicsContext: GraphicsBuffer) => {
-        fileAccessHUD.loadButton.draw(graphicsContext)
-        fileAccessHUD.saveButton.draw(graphicsContext)
         if (isValidValue(fileAccessHUD.messageLabel.textBox.text)) {
             LabelService.draw(fileAccessHUD.messageLabel, graphicsContext)
         }
+        const uiObjects: FileAccessHUDUIObjects =
+            fileAccessHUD.data.getUIObjects()
+        uiObjects.graphicsContext = graphicsContext
+        fileAccessHUD.data.setUIObjects(uiObjects)
+
+        fileAccessHUD.drawUITask.run()
+        getButtons(fileAccessHUD).forEach((button) => {
+            DataBlobService.add<GraphicsBuffer>(
+                button.buttonStyle.dataBlob,
+                "graphicsContext",
+                graphicsContext
+            )
+            button.draw()
+        })
     },
     enableButtons: (fileAccessHUD: FileAccessHUD) => {
         return enableButtons(fileAccessHUD)
@@ -278,237 +400,43 @@ const battleIsCurrentlySavingOrLoading = (caller: {
     caller.fileState.saveSaveState.savingInProgress ||
     caller.fileState.loadSaveState.userRequestedLoad
 
-const clickedOnLoadButton = (
-    _mouseX: number,
-    _mouseY: number,
-    _button: DEPRECATEDButton,
-    caller: {
-        fileAccessHUD: FileAccessHUD
-        fileState: FileState
-        messageBoard: MessageBoard
-    }
-): {} => {
-    if (battleIsCurrentlySavingOrLoading(caller)) {
-        return
-    }
-    caller.messageBoard.sendMessage({
-        type: MessageBoardMessageType.PLAYER_DATA_LOAD_USER_REQUEST,
-        loadSaveState: caller.fileState.loadSaveState,
-    })
-    return undefined
-}
-
-const clickedOnSaveButton = (
-    _mouseX: number,
-    _mouseY: number,
-    _button: DEPRECATEDButton,
-    caller: {
-        fileAccessHUD: FileAccessHUD
-        fileState: FileState
-    }
-): {} => {
-    if (battleIsCurrentlySavingOrLoading(caller)) {
-        return
-    }
-    SaveSaveStateService.userRequestsSave(caller.fileState.saveSaveState)
-    disableButtons(caller.fileAccessHUD)
-    return undefined
-}
-
-const createUIObjects = (fileAccessHUD: FileAccessHUD) => {
-    const loadButtonArea: RectArea = RectAreaService.new({
-        screenWidth: ScreenDimensions.SCREEN_WIDTH,
-        ...FileAccessHUDDesign.LOAD_BUTTON.AREA,
-    })
-    fileAccessHUD.loadButton = new DEPRECATEDButton({
-        onMoveHandler(
-            _mouseX: number,
-            _mouseY: number,
-            _button: DEPRECATEDButton,
-            _caller: any
-        ): {} {
-            return {}
-        },
-        readyLabel: LabelService.new({
-            area: loadButtonArea,
-            fontColor: FileAccessHUDDesign.LOAD_BUTTON.FONT_COLOR,
-            textBoxMargin: FileAccessHUDDesign.LOAD_BUTTON.PADDING,
-            text: FileAccessHUDDesign.LOAD_BUTTON.TEXT,
-            horizAlign: HORIZONTAL_ALIGN.CENTER,
-            vertAlign: VERTICAL_ALIGN.CENTER,
-            fontSize: FileAccessHUDDesign.LOAD_BUTTON.TEXT_SIZE,
-            fillColor:
-                FileAccessHUDDesign.LOAD_BUTTON.READY_RECTANGLE.fillColor,
-            strokeColor:
-                FileAccessHUDDesign.LOAD_BUTTON.READY_RECTANGLE.strokeColor,
-            strokeWeight:
-                FileAccessHUDDesign.LOAD_BUTTON.READY_RECTANGLE.strokeWeight,
-        }),
-        activeLabel: LabelService.new({
-            area: loadButtonArea,
-            fontColor: FileAccessHUDDesign.LOAD_BUTTON.FONT_COLOR,
-            textBoxMargin: FileAccessHUDDesign.LOAD_BUTTON.PADDING,
-            text: FileAccessHUDDesign.LOAD_BUTTON.TEXT,
-            horizAlign: HORIZONTAL_ALIGN.CENTER,
-            vertAlign: VERTICAL_ALIGN.CENTER,
-            fontSize: FileAccessHUDDesign.LOAD_BUTTON.TEXT_SIZE,
-            fillColor:
-                FileAccessHUDDesign.LOAD_BUTTON.ACTIVE_RECTANGLE.fillColor,
-            strokeColor:
-                FileAccessHUDDesign.LOAD_BUTTON.ACTIVE_RECTANGLE.strokeColor,
-            strokeWeight:
-                FileAccessHUDDesign.LOAD_BUTTON.ACTIVE_RECTANGLE.strokeWeight,
-        }),
-        disabledLabel: LabelService.new({
-            area: loadButtonArea,
-            fontColor: FileAccessHUDDesign.LOAD_BUTTON.FONT_COLOR,
-            textBoxMargin: FileAccessHUDDesign.LOAD_BUTTON.PADDING,
-            text: FileAccessHUDDesign.LOAD_BUTTON.TEXT,
-            horizAlign: HORIZONTAL_ALIGN.CENTER,
-            vertAlign: VERTICAL_ALIGN.CENTER,
-            fontSize: FileAccessHUDDesign.LOAD_BUTTON.TEXT_SIZE,
-            fillColor:
-                FileAccessHUDDesign.LOAD_BUTTON.DISABLED_RECTANGLE.fillColor,
-            strokeColor:
-                FileAccessHUDDesign.LOAD_BUTTON.DISABLED_RECTANGLE.strokeColor,
-            strokeWeight:
-                FileAccessHUDDesign.LOAD_BUTTON.DISABLED_RECTANGLE.strokeWeight,
-        }),
-        hoverLabel: LabelService.new({
-            area: loadButtonArea,
-            fontColor: FileAccessHUDDesign.LOAD_BUTTON.FONT_COLOR,
-            textBoxMargin: FileAccessHUDDesign.LOAD_BUTTON.PADDING,
-            text: FileAccessHUDDesign.LOAD_BUTTON.TEXT,
-            horizAlign: HORIZONTAL_ALIGN.CENTER,
-            vertAlign: VERTICAL_ALIGN.CENTER,
-            fontSize: FileAccessHUDDesign.LOAD_BUTTON.TEXT_SIZE,
-            fillColor:
-                FileAccessHUDDesign.LOAD_BUTTON.HOVER_RECTANGLE.fillColor,
-            strokeColor:
-                FileAccessHUDDesign.LOAD_BUTTON.HOVER_RECTANGLE.strokeColor,
-            strokeWeight:
-                FileAccessHUDDesign.LOAD_BUTTON.HOVER_RECTANGLE.strokeWeight,
-        }),
-        onClickHandler(
-            mouseX: number,
-            mouseY: number,
-            button: DEPRECATEDButton,
-            caller: {
-                fileAccessHUD: FileAccessHUD
-                fileState: FileState
-                messageBoard: MessageBoard
-            }
-        ): {} {
-            return clickedOnLoadButton(mouseX, mouseY, button, caller)
-        },
-    })
-
-    const saveButtonArea: RectArea = RectAreaService.new({
-        screenWidth: ScreenDimensions.SCREEN_WIDTH,
-        ...FileAccessHUDDesign.SAVE_BUTTON.AREA,
-    })
-    fileAccessHUD.saveButton = new DEPRECATEDButton({
-        readyLabel: LabelService.new({
-            area: saveButtonArea,
-            fontColor: FileAccessHUDDesign.SAVE_BUTTON.FONT_COLOR,
-            textBoxMargin: FileAccessHUDDesign.SAVE_BUTTON.PADDING,
-            text: FileAccessHUDDesign.SAVE_BUTTON.TEXT,
-            horizAlign: HORIZONTAL_ALIGN.CENTER,
-            vertAlign: VERTICAL_ALIGN.CENTER,
-            fontSize: FileAccessHUDDesign.SAVE_BUTTON.TEXT_SIZE,
-            fillColor:
-                FileAccessHUDDesign.SAVE_BUTTON.READY_RECTANGLE.fillColor,
-            strokeColor:
-                FileAccessHUDDesign.SAVE_BUTTON.READY_RECTANGLE.strokeColor,
-            strokeWeight:
-                FileAccessHUDDesign.SAVE_BUTTON.READY_RECTANGLE.strokeWeight,
-        }),
-        activeLabel: LabelService.new({
-            area: saveButtonArea,
-            fontColor: FileAccessHUDDesign.SAVE_BUTTON.FONT_COLOR,
-            textBoxMargin: FileAccessHUDDesign.SAVE_BUTTON.PADDING,
-            text: FileAccessHUDDesign.SAVE_BUTTON.TEXT,
-            horizAlign: HORIZONTAL_ALIGN.CENTER,
-            vertAlign: VERTICAL_ALIGN.CENTER,
-            fontSize: FileAccessHUDDesign.SAVE_BUTTON.TEXT_SIZE,
-            fillColor:
-                FileAccessHUDDesign.SAVE_BUTTON.ACTIVE_RECTANGLE.fillColor,
-            strokeColor:
-                FileAccessHUDDesign.SAVE_BUTTON.ACTIVE_RECTANGLE.strokeColor,
-            strokeWeight:
-                FileAccessHUDDesign.SAVE_BUTTON.ACTIVE_RECTANGLE.strokeWeight,
-        }),
-        disabledLabel: LabelService.new({
-            area: saveButtonArea,
-            fontColor: FileAccessHUDDesign.SAVE_BUTTON.FONT_COLOR,
-            textBoxMargin: FileAccessHUDDesign.SAVE_BUTTON.PADDING,
-            text: FileAccessHUDDesign.SAVE_BUTTON.TEXT,
-            horizAlign: HORIZONTAL_ALIGN.CENTER,
-            vertAlign: VERTICAL_ALIGN.CENTER,
-            fontSize: FileAccessHUDDesign.SAVE_BUTTON.TEXT_SIZE,
-            fillColor:
-                FileAccessHUDDesign.SAVE_BUTTON.DISABLED_RECTANGLE.fillColor,
-            strokeColor:
-                FileAccessHUDDesign.SAVE_BUTTON.DISABLED_RECTANGLE.strokeColor,
-            strokeWeight:
-                FileAccessHUDDesign.SAVE_BUTTON.DISABLED_RECTANGLE.strokeWeight,
-        }),
-        hoverLabel: LabelService.new({
-            area: saveButtonArea,
-            fontColor: FileAccessHUDDesign.SAVE_BUTTON.FONT_COLOR,
-            textBoxMargin: FileAccessHUDDesign.SAVE_BUTTON.PADDING,
-            text: FileAccessHUDDesign.SAVE_BUTTON.TEXT,
-            horizAlign: HORIZONTAL_ALIGN.CENTER,
-            vertAlign: VERTICAL_ALIGN.CENTER,
-            fontSize: FileAccessHUDDesign.SAVE_BUTTON.TEXT_SIZE,
-            fillColor:
-                FileAccessHUDDesign.SAVE_BUTTON.HOVER_RECTANGLE.fillColor,
-            strokeColor:
-                FileAccessHUDDesign.SAVE_BUTTON.HOVER_RECTANGLE.strokeColor,
-            strokeWeight:
-                FileAccessHUDDesign.SAVE_BUTTON.HOVER_RECTANGLE.strokeWeight,
-        }),
-        onClickHandler(
-            mouseX: number,
-            mouseY: number,
-            button: DEPRECATEDButton,
-            caller: {
-                fileAccessHUD: FileAccessHUD
-                fileState: FileState
-            }
-        ): {} {
-            return clickedOnSaveButton(mouseX, mouseY, button, caller)
-        },
-    })
-    createMessageLabel(fileAccessHUD)
-}
-
 const createMessageLabel = (fileAccessHUD: FileAccessHUD) => {
+    const layout = fileAccessHUD.data.getLayout()
     const messageLabelArea: RectArea = RectAreaService.new({
         screenWidth: ScreenDimensions.SCREEN_WIDTH,
-        ...FileAccessHUDDesign.MESSAGE_LABEL.AREA,
+        ...layout.messageLabel.drawingArea,
     })
     fileAccessHUD.messageLabel = LabelService.new({
         area: messageLabelArea,
-        noFill: FileAccessHUDDesign.MESSAGE_LABEL.RECTANGLE.noFill,
-        noStroke: FileAccessHUDDesign.MESSAGE_LABEL.RECTANGLE.noStroke,
-        textBoxMargin: FileAccessHUDDesign.MESSAGE_LABEL.PADDING,
+        noFill: layout.messageLabel.rectangleStyle.noFill,
+        noStroke: layout.messageLabel.rectangleStyle.noStroke,
+        textBoxMargin: layout.messageLabel.padding,
         text: fileAccessHUD.message,
         horizAlign: HORIZONTAL_ALIGN.CENTER,
         vertAlign: VERTICAL_ALIGN.CENTER,
-        fontSize: FileAccessHUDDesign.MESSAGE_LABEL.TEXT_SIZE,
-        fontColor: FileAccessHUDDesign.MESSAGE_LABEL.FONT_COLOR,
+        fontSize: layout.messageLabel.fontSize,
+        fontColor: layout.messageLabel.fontColor,
     })
 }
 
 const disableButtons = (fileAccessHUD: FileAccessHUD) => {
-    fileAccessHUD.loadButton.setStatus(ButtonStatus.DISABLED)
-    fileAccessHUD.saveButton.setStatus(ButtonStatus.DISABLED)
+    getButtons(fileAccessHUD)
+        .filter((x) => x)
+        .forEach((button) => {
+            button.changeStatus({
+                newStatus: ButtonStatus.DISABLED,
+            })
+        })
 }
 
 const enableButtons = (fileAccessHUD: FileAccessHUD) => {
-    fileAccessHUD.loadButton.setStatus(ButtonStatus.READY)
-    fileAccessHUD.saveButton.setStatus(ButtonStatus.READY)
+    getButtons(fileAccessHUD)
+        .filter((x) => x)
+        .forEach((button) => {
+            button.changeStatus({
+                newStatus: ButtonStatus.READY,
+            })
+        })
 }
 
 const changeButtonStatusBasedOnMessage = (fileAccessHUD: FileAccessHUD) => {
@@ -522,10 +450,10 @@ const didCurrentMessageExpire = (fileAccessHUD: FileAccessHUD) => {
     const messageTimerIsSet: boolean = isValidValue(
         fileAccessHUD.messageDisplayStartTime
     )
+    const layout = fileAccessHUD.data.getLayout()
     const messageExpired =
         Date.now() >
-        fileAccessHUD.messageDisplayStartTime +
-            FileAccessHUDDesign.MESSAGE_DISPLAY_DURATION
+        fileAccessHUD.messageDisplayStartTime + layout.MESSAGE_DISPLAY_DURATION
     return messageIsCurrentlySet && messageTimerIsSet && messageExpired
 }
 
@@ -582,4 +510,177 @@ const clearMessage = (fileAccessHUD: FileAccessHUD) => {
     fileAccessHUD.message = undefined
     fileAccessHUD.messageDisplayStartTime = undefined
     createMessageLabel(fileAccessHUD)
+}
+
+const createLayout = (fileAccessHUD: FileAccessHUD) => {
+    fileAccessHUD.data.setLayout({
+        MESSAGE_DISPLAY_DURATION: 2000,
+        loadButton: {
+            drawingArea: {
+                startColumn: 11,
+                endColumn: 11,
+                top: 10,
+                bottom: 40,
+                margin: [0, WINDOW_SPACING.SPACING1, 0, 0],
+            },
+            readyStatusStyle: {
+                fillColor: [10, 2, 192],
+                strokeColor: [16, 16, 16],
+                strokeWeight: 2,
+            },
+            activeStatusStyle: {
+                fillColor: [10, 2, 192],
+                strokeColor: [10, 16, 16],
+                strokeWeight: 4,
+            },
+            hoverStatusStyle: {
+                fillColor: [10, 2, 224],
+                strokeColor: [10, 16, 32],
+                strokeWeight: 10,
+            },
+            disabledStatusStyle: {
+                fillColor: [10, 2, 32],
+                strokeColor: [16, 16, 16],
+                strokeWeight: 2,
+            },
+            fontColor: [20, 5, 16],
+            padding: WINDOW_SPACING.SPACING1,
+            text: "Load",
+            fontSize: 14,
+        },
+        saveButton: {
+            drawingArea: {
+                startColumn: 10,
+                endColumn: 10,
+                top: 10,
+                bottom: 40,
+                margin: [0, WINDOW_SPACING.SPACING1, 0, 0],
+            },
+            readyStatusStyle: {
+                fillColor: [10, 2, 192],
+                strokeColor: [16, 16, 16],
+                strokeWeight: 2,
+            },
+            activeStatusStyle: {
+                fillColor: [10, 2, 192],
+                strokeColor: [16, 16, 16],
+                strokeWeight: 4,
+            },
+            hoverStatusStyle: {
+                fillColor: [10, 2, 224],
+                strokeColor: [10, 16, 32],
+                strokeWeight: 10,
+            },
+            disabledStatusStyle: {
+                fillColor: [10, 2, 32],
+                strokeColor: [16, 16, 16],
+                strokeWeight: 2,
+            },
+            fontColor: [20, 5, 16],
+            padding: WINDOW_SPACING.SPACING1,
+            text: "Save",
+            fontSize: 14,
+        },
+        messageLabel: {
+            drawingArea: {
+                startColumn: 8,
+                endColumn: 9,
+                top: 10,
+                bottom: 60,
+            },
+            rectangleStyle: {
+                noFill: true,
+                noStroke: true,
+            },
+            fontColor: [0, 0, 100],
+            padding: WINDOW_SPACING.SPACING1,
+            fontSize: 20,
+        },
+    })
+}
+
+const createContext = (fileAccessHUD: FileAccessHUD) => {
+    fileAccessHUD.data.setContext({
+        buttonStatusChangeEventDataBlob: DataBlobService.new(),
+    })
+}
+
+const resetUIObjects = (fileAccessHUD: FileAccessHUD) => {
+    const uiObjects: FileAccessHUDUIObjects = {
+        loadButton: undefined,
+        saveButton: undefined,
+        graphicsContext: undefined,
+        resourceHandler: undefined,
+    }
+    fileAccessHUD.data.setUIObjects(uiObjects)
+}
+
+const createDrawingTask = (fileAccessHUD: FileAccessHUD) => {
+    const createLoadButtonTask = new SequenceComposite(fileAccessHUD.data, [
+        new FileAccessHUDShouldCreateLoadButton(fileAccessHUD.data),
+        new FileAccessHUDCreateLoadButton(fileAccessHUD.data),
+    ])
+
+    const createSaveButtonTask = new SequenceComposite(fileAccessHUD.data, [
+        new FileAccessHUDShouldCreateSaveButton(fileAccessHUD.data),
+        new FileAccessHUDCreateSaveButton(fileAccessHUD.data),
+    ])
+
+    const drawTask = new SequenceComposite(fileAccessHUD.data, [])
+
+    fileAccessHUD.drawUITask = new ExecuteAllComposite(fileAccessHUD.data, [
+        createLoadButtonTask,
+        createSaveButtonTask,
+        drawTask,
+    ])
+}
+
+const reactToLoadGameButtonStatusChangeEvent = (
+    fileAccessHUD: FileAccessHUD,
+    fileState: FileState,
+    messageBoard: MessageBoard
+) => {
+    const uiObjects: FileAccessHUDUIObjects = fileAccessHUD.data.getUIObjects()
+    const loadButton = uiObjects.loadButton
+    const statusChangeEvent = loadButton.getStatusChangeEvent()
+    if (statusChangeEvent?.newStatus != ButtonStatus.ACTIVE) return
+
+    if (
+        battleIsCurrentlySavingOrLoading({
+            fileAccessHUD,
+            fileState,
+        })
+    ) {
+        return
+    }
+    messageBoard.sendMessage({
+        type: MessageBoardMessageType.PLAYER_DATA_LOAD_USER_REQUEST,
+        loadSaveState: fileState.loadSaveState,
+    })
+}
+
+const reactToSaveGameButtonStatusChangeEvent = (
+    fileAccessHUD: FileAccessHUD,
+    fileState: FileState
+) => {
+    const uiObjects: FileAccessHUDUIObjects = fileAccessHUD.data.getUIObjects()
+    const saveButton = uiObjects.saveButton
+    const statusChangeEvent = saveButton.getStatusChangeEvent()
+    if (statusChangeEvent?.newStatus != ButtonStatus.ACTIVE) return
+
+    if (
+        battleIsCurrentlySavingOrLoading({
+            fileAccessHUD,
+            fileState,
+        })
+    ) {
+        return
+    }
+    SaveSaveStateService.userRequestsSave(fileState.saveSaveState)
+    disableButtons(fileAccessHUD)
+}
+
+const getButtons = (fileAccessHUD: FileAccessHUD) => {
+    const uiObjects: FileAccessHUDUIObjects = fileAccessHUD.data.getUIObjects()
+    return [uiObjects.loadButton, uiObjects.saveButton].filter((x) => x)
 }

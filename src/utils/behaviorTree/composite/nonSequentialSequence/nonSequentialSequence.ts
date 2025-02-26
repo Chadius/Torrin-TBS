@@ -16,9 +16,4 @@ export class NonSequentialSequenceComposite implements BehaviorTreeTask {
         }
         return this.children.every((child: BehaviorTreeTask) => child.run())
     }
-
-    clone(): BehaviorTreeTask {
-        const clonedChildren = this.children.map((child) => child.clone())
-        return new NonSequentialSequenceComposite(this.dataBlob, clonedChildren)
-    }
 }

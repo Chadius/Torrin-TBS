@@ -12,11 +12,4 @@ describe("Always True condition", () => {
         const condition = new AlwaysTrueCondition(blackboard)
         expect(condition.run()).toBe(true)
     })
-
-    it("can be cloned", () => {
-        const original = new AlwaysTrueCondition(blackboard)
-        const clone = original.clone()
-        expect(clone.dataBlob).toEqual(original.dataBlob)
-        expect(clone.run()).toBe(true)
-    })
 })

@@ -46,19 +46,4 @@ describe("Limit decorator", () => {
             expect(noLimitGiven.limit).toEqual(1)
         })
     })
-
-    it("can be cloned, will take the limit but not the current number of times run", () => {
-        const original = new LimitDecorator(
-            blackboard,
-            new AlwaysTrueCondition(blackboard),
-            { limit: 1 }
-        )
-        const clone: LimitDecorator = original.clone() as LimitDecorator
-        expect(clone.dataBlob).toEqual(original.dataBlob)
-        expect(clone.limit).toEqual(original.limit)
-
-        expect(original.run()).toBe(true)
-        expect(original.run()).toBe(false)
-        expect(clone.run()).toBe(true)
-    })
 })

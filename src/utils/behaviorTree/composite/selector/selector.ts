@@ -16,9 +16,4 @@ export class SelectorComposite implements BehaviorTreeTask {
         }
         return this.children.some((child: BehaviorTreeTask) => child.run())
     }
-
-    clone(): BehaviorTreeTask {
-        const clonedChildren = this.children.map((child) => child.clone())
-        return new SelectorComposite(this.dataBlob, clonedChildren)
-    }
 }

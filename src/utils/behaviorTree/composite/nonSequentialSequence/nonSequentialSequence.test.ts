@@ -1,5 +1,4 @@
 import { beforeEach, describe, expect, it, vi } from "vitest"
-import { BehaviorTreeTask } from "../../task"
 import { AlwaysTrueCondition } from "../../condition/alwaysTrue"
 import { DataBlob, DataBlobService } from "../../../dataBlob/dataBlob"
 import { AlwaysFalseCondition } from "../../condition/alwaysFalse"
@@ -33,22 +32,5 @@ describe("Non Sequential Selector composite", () => {
         ])
         expect(sequence.run()).toBe(false)
         expect(falseTaskSpy).toHaveBeenCalled()
-    })
-
-    it("can clone recursively", () => {
-        const children: BehaviorTreeTask[] = [
-            new NonSequentialSequenceComposite(blackboard, [
-                new AlwaysFalseCondition(blackboard),
-                new AlwaysTrueCondition(blackboard),
-            ]),
-        ]
-
-        const original = new NonSequentialSequenceComposite(
-            blackboard,
-            children
-        )
-        const clone: NonSequentialSequenceComposite = original.clone()
-        expect(clone.children).toEqual(original.children)
-        expect(clone.children).not.toBe(original.children)
     })
 })

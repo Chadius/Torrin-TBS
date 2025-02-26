@@ -18,8 +18,4 @@ export class InverterDecorator implements BehaviorTreeTask {
     run(): boolean {
         return !this.children[0].run()
     }
-
-    clone(): BehaviorTreeTask {
-        return new InverterDecorator(this.dataBlob, this.children[0].clone())
-    }
 }

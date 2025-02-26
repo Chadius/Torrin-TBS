@@ -35,15 +35,4 @@ describe("Inverter decorator", () => {
             new InverterDecorator(blackboard, undefined)
         }).toThrow("[InverterDecorator.constructor] must have a child task")
     })
-
-    it("can be cloned", () => {
-        const original = new InverterDecorator(
-            blackboard,
-            new AlwaysTrueCondition(blackboard)
-        )
-        const clone: InverterDecorator = original.clone() as InverterDecorator
-        expect(clone.dataBlob).toEqual(original.dataBlob)
-        expect(clone.children).toEqual(original.children)
-        expect(clone.children).not.toBe(original.children)
-    })
 })

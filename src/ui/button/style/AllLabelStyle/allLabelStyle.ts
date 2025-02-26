@@ -93,18 +93,6 @@ export class AllLabelButtonDrawTask implements ButtonStyle {
         return true
     }
 
-    clone(): AllLabelButtonDrawTask {
-        let context = DataBlobService.get<AllLabelButtonContext>(
-            this.dataBlob,
-            "context"
-        )
-
-        return new AllLabelButtonDrawTask({
-            dataBlob: this.dataBlob,
-            buttonLogic: context.buttonLogic,
-        })
-    }
-
     private createUIObjects() {
         let uiObjects =
             DataBlobService.getOrCreateDefault<AllLabelButtonUIObjects>(

@@ -56,7 +56,6 @@ export enum TransitionAction {
     APPLY_LOADED_CONTEXT = "APPLY_LOADED_CONTEXT",
     SET_APPLIED_CONTEXT_FLAG = "SET_APPLIED_CONTEXT_FLAG",
     APPLY_BATTLE_SAVE_STATE = "APPLY_BATTLE_SAVE_STATE",
-    CLEAR_LOADED_BATTLE_SAVE_STATE = "CLEAR_LOADED_BATTLE_SAVE_STATE",
     SET_SUCCESS_STATUS = "SET_SUCCESS_STATUS",
 }
 
@@ -73,7 +72,6 @@ export class GameEngineGameLoader implements GameEngineComponent {
         mission: MissionFileFormat
         playerArmy: PlayerArmy
         campaign: CampaignFileFormat
-        battleSaveState: BattleSaveState
     }
     status: {
         success: boolean
@@ -175,7 +173,7 @@ export class GameEngineGameLoader implements GameEngineComponent {
         }
         let battleOrchestratorState = gameEngineState.battleOrchestratorState
         BattleSaveStateService.applySaveStateToOrchestratorState({
-            battleSaveState: this.loadedData.battleSaveState,
+            battleSaveState: gameEngineState.fileState.loadSaveState.saveState,
             battleOrchestratorState: battleOrchestratorState,
             squaddieRepository: gameEngineState.repository,
         })
@@ -270,7 +268,6 @@ export class GameEngineGameLoader implements GameEngineComponent {
             mission: undefined,
             playerArmy: undefined,
             campaign: undefined,
-            battleSaveState: undefined,
         }
         this.transitionActions = []
         this.status = {
@@ -360,7 +357,6 @@ export class GameEngineGameLoader implements GameEngineComponent {
         if (this.status.appliedContext) {
             return [
                 TransitionAction.APPLY_BATTLE_SAVE_STATE,
-                TransitionAction.CLEAR_LOADED_BATTLE_SAVE_STATE,
                 TransitionAction.SET_SUCCESS_STATUS,
             ]
         }
@@ -402,8 +398,6 @@ export class GameEngineGameLoader implements GameEngineComponent {
                     return this.setAppliedContextFlag(gameEngineState)
                 case TransitionAction.APPLY_BATTLE_SAVE_STATE:
                     return this.applyBattleSaveState(gameEngineState)
-                case TransitionAction.CLEAR_LOADED_BATTLE_SAVE_STATE:
-                    return this.clearLoadedBattleSaveState()
                 case TransitionAction.SET_SUCCESS_STATUS:
                     return this.setSuccessStatus()
                 default:
@@ -433,7 +427,6 @@ export class GameEngineGameLoader implements GameEngineComponent {
             mission: undefined,
             playerArmy: undefined,
             campaign: undefined,
-            battleSaveState: undefined,
         }
         return true
     }
@@ -442,11 +435,10 @@ export class GameEngineGameLoader implements GameEngineComponent {
         let success: boolean = false
         await SaveFile.RetrieveFileContent()
             .then((saveState: BattleSaveState) => {
-                this.loadedData.battleSaveState = saveState
                 gameEngineState.messageBoard.sendMessage({
                     type: MessageBoardMessageType.PLAYER_DATA_LOAD_COMPLETE,
                     loadSaveState: gameEngineState.fileState.loadSaveState,
-                    saveState: this.loadedData.battleSaveState,
+                    saveState,
                 })
                 success = true
             })
@@ -472,8 +464,11 @@ export class GameEngineGameLoader implements GameEngineComponent {
     private async loadCampaign(gameEngineState: GameEngineState) {
         let campaignId: string
         switch (true) {
-            case this.loadedData?.battleSaveState?.campaignId != undefined:
-                campaignId = this.loadedData?.battleSaveState?.campaignId
+            case gameEngineState?.fileState?.loadSaveState?.saveState
+                ?.campaignId != undefined:
+                campaignId =
+                    gameEngineState?.fileState?.loadSaveState?.saveState
+                        ?.campaignId
                 break
             case this.loadedData?.campaign?.id != undefined:
                 campaignId = this.loadedData?.campaign?.id
@@ -686,11 +681,6 @@ export class GameEngineGameLoader implements GameEngineComponent {
         }
     }
 
-    private clearLoadedBattleSaveState() {
-        this.loadedData.battleSaveState = undefined
-        return true
-    }
-
     private setSuccessStatus() {
         this.status.success = true
         return true
@@ -699,7 +689,7 @@ export class GameEngineGameLoader implements GameEngineComponent {
     private updateCampaignIsAlreadyLoaded(gameEngineState: GameEngineState) {
         this.status.campaignIsAlreadyLoaded =
             gameEngineState?.campaign?.id &&
-            this.loadedData.battleSaveState.campaignId ==
+            gameEngineState?.fileState?.loadSaveState?.saveState?.campaignId ==
                 gameEngineState.campaign.id
         return true
     }

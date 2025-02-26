@@ -6,7 +6,6 @@ export interface BehaviorTreeTask {
     dataBlob: DataBlob
     children?: BehaviorTreeTask[]
     run: () => boolean
-    clone: () => BehaviorTreeTask
     addAdditionalParameters?: (parameters: {
         [key: string]: JSONParameter
     }) => void

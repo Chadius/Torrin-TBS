@@ -70,14 +70,29 @@ export const BattlePlayerSquaddieSelectorSpec = {
                     actionTemplateId
             )
 
-        selector.mouseClicked({
-            mouseX: RectAreaService.centerX(
-                attackButton.uiObjects.buttonIcon.drawArea
-            ),
-            mouseY: RectAreaService.centerY(
-                attackButton.uiObjects.buttonIcon.drawArea
-            ),
-            mouseButton: MouseButton.ACCEPT,
+        selector.mousePressed({
+            mousePress: {
+                button: MouseButton.ACCEPT,
+                x: RectAreaService.centerX(
+                    attackButton.uiObjects.buttonIcon.drawArea
+                ),
+                y: RectAreaService.centerY(
+                    attackButton.uiObjects.buttonIcon.drawArea
+                ),
+            },
+            gameEngineState,
+        })
+
+        selector.mouseReleased({
+            mouseRelease: {
+                button: MouseButton.ACCEPT,
+                x: RectAreaService.centerX(
+                    attackButton.uiObjects.buttonIcon.drawArea
+                ),
+                y: RectAreaService.centerY(
+                    attackButton.uiObjects.buttonIcon.drawArea
+                ),
+            },
             gameEngineState,
         })
     },

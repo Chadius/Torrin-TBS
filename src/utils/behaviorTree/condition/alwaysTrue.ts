@@ -11,8 +11,4 @@ export class AlwaysTrueCondition implements BehaviorTreeTask {
     run(): boolean {
         return true
     }
-
-    clone(): BehaviorTreeTask {
-        return new AlwaysTrueCondition(this.dataBlob)
-    }
 }
