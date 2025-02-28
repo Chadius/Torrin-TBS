@@ -2,6 +2,7 @@ import { SquaddieAffiliation } from "./squaddie/squaddieAffiliation"
 
 export const HEX_TILE_RADIUS = 30
 export const HEX_TILE_WIDTH = 30 * Math.sqrt(3)
+export const HEX_TILE_HEIGHT = HEX_TILE_WIDTH
 
 export const HUE_BY_SQUADDIE_AFFILIATION: {
     [affiliation in SquaddieAffiliation]: number

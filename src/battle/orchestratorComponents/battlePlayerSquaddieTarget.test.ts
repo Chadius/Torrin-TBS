@@ -56,6 +56,7 @@ import {
     vi,
 } from "vitest"
 import { HexCoordinate } from "../../hexMap/hexCoordinate/hexCoordinate"
+import { BattleOrchestratorStateTestService } from "../../utils/test/battleOrchestratorState"
 
 describe("BattleSquaddieTarget", () => {
     let objectRepository: ObjectRepository = ObjectRepositoryService.new()
@@ -215,21 +216,11 @@ describe("BattleSquaddieTarget", () => {
             campaign: CampaignService.default(),
         })
 
-        gameEngineState.battleOrchestratorState.battleState.battleActionDecisionStep =
-            BattleActionDecisionStepService.new()
-        BattleActionDecisionStepService.setActor({
-            actionDecisionStep:
-                gameEngineState.battleOrchestratorState.battleState
-                    .battleActionDecisionStep,
-            battleSquaddieId: knightBattleSquaddie.battleSquaddieId,
+        BattleOrchestratorStateTestService.knightUsesLongswordAction({
+            gameEngineState,
+            knightBattleSquaddie,
+            longswordAction,
         })
-        BattleActionDecisionStepService.addAction({
-            actionDecisionStep:
-                gameEngineState.battleOrchestratorState.battleState
-                    .battleActionDecisionStep,
-            actionTemplateId: longswordAction.id,
-        })
-
         gameEngineState.battleOrchestratorState.battleHUDState.summaryHUDState =
             SummaryHUDStateService.new()
 

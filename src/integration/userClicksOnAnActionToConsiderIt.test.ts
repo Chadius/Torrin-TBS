@@ -8,13 +8,9 @@ import {
 } from "../action/template/actionTemplate"
 import { ActionEffectTemplateService } from "../action/template/actionEffectTemplate"
 import { Trait, TraitStatusStorageService } from "../trait/traitStatusStorage"
-import {
-    SquaddieTemplate,
-    SquaddieTemplateService,
-} from "../campaign/squaddieTemplate"
-import { SquaddieIdService } from "../squaddie/id"
+import { SquaddieTemplate } from "../campaign/squaddieTemplate"
 import { SquaddieAffiliation } from "../squaddie/squaddieAffiliation"
-import { BattleSquaddie, BattleSquaddieService } from "../battle/battleSquaddie"
+import { BattleSquaddie } from "../battle/battleSquaddie"
 import {
     BattleSquaddieTeam,
     BattleSquaddieTeamService,
@@ -50,6 +46,7 @@ import { ActionTilePosition } from "../battle/hud/playerActionPanel/tile/actionT
 import { beforeEach, describe, expect, it, vi } from "vitest"
 import { BattleHUDListener } from "../battle/hud/battleHUD/battleHUDListener"
 import { BattlePlayerSquaddieSelectorSpec } from "./spec/battlePlayerSquaddieSelectorSpec"
+import { AddSquaddieToRepositorySpec } from "./spec/addSquaddieToRepositorySpec"
 
 describe("user clicks on an action to consider it", () => {
     let objectRepository: ObjectRepository
@@ -87,32 +84,11 @@ describe("user clicks on an action to consider it", () => {
                 }),
             ],
         })
-        ObjectRepositoryService.addActionTemplate(
-            objectRepository,
-            attackAction
-        )
-
-        playerSquaddieTemplate = SquaddieTemplateService.new({
-            squaddieId: SquaddieIdService.new({
-                name: "player",
-                affiliation: SquaddieAffiliation.PLAYER,
-                templateId: "player",
-            }),
-            actionTemplateIds: [attackAction.id],
-        })
-        ObjectRepositoryService.addSquaddieTemplate(
-            objectRepository,
-            playerSquaddieTemplate
-        )
-
-        playerBattleSquaddie = BattleSquaddieService.new({
-            squaddieTemplateId: playerSquaddieTemplate.squaddieId.templateId,
-            battleSquaddieId: "player 0",
-        })
-        ObjectRepositoryService.addBattleSquaddie(
-            objectRepository,
-            playerBattleSquaddie
-        )
+        ;({ playerSquaddieTemplate, playerBattleSquaddie } =
+            AddSquaddieToRepositorySpec.addSinglePlayerSquaddie(
+                objectRepository,
+                attackAction
+            ))
 
         playerTeam = BattleSquaddieTeamService.new({
             name: "player team",

@@ -4,7 +4,6 @@ import {
     ArmyAttributes,
     DefaultArmyAttributes,
 } from "../squaddie/armyAttributes"
-import { NewDummySquaddieID } from "../utils/test/squaddie"
 import { ActionTemplateService } from "../action/template/actionTemplate"
 import { SquaddieIdService } from "../squaddie/id"
 import { SquaddieResourceService } from "../squaddie/resource"
@@ -26,11 +25,11 @@ describe("Squaddie Template", () => {
         it("will give static squaddie defaults", () => {
             const squaddieWithoutAttributes: SquaddieTemplate =
                 SquaddieTemplateService.new({
-                    squaddieId: NewDummySquaddieID(
-                        "id",
-                        SquaddieAffiliation.PLAYER
-                    ),
-                    attributes: DefaultArmyAttributes(),
+                    squaddieId: SquaddieIdService.new({
+                        templateId: "id",
+                        affiliation: SquaddieAffiliation.PLAYER,
+                        name: "id",
+                    }),
                 })
 
             const defaultAttributes: ArmyAttributes = DefaultArmyAttributes()

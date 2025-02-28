@@ -50,7 +50,7 @@ import {
 } from "../../gameEngine/gameEngine"
 import { BattleHUDService } from "../hud/battleHUD/battleHUD"
 import { PlayerHudController } from "../orchestratorComponents/playerHudController"
-import { BattlePlayerActionConfirm } from "../orchestratorComponents/battlePlayerActionConfirm"
+import { BattlePlayerActionConfirm } from "../orchestratorComponents/playerActionConfirm/battlePlayerActionConfirm"
 import { SquaddieRepositoryService } from "../../utils/test/squaddie"
 import { CutsceneQueueService } from "../cutscene/cutsceneIdQueue"
 import { BattleActionRecorderService } from "../history/battleAction/battleActionRecorder"

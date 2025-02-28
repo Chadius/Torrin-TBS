@@ -45,7 +45,7 @@ import { PlayerHudController } from "../battle/orchestratorComponents/playerHudC
 import { GraphicsBuffer } from "../utils/graphics/graphicsRenderer"
 import { CutsceneMessageListener } from "../battle/cutscene/missionCutsceneService"
 import { BattleStateListener } from "../battle/battleState/battleState"
-import { BattlePlayerActionConfirm } from "../battle/orchestratorComponents/battlePlayerActionConfirm"
+import { BattlePlayerActionConfirm } from "../battle/orchestratorComponents/playerActionConfirm/battlePlayerActionConfirm"
 import { SquaddiePhaseListener } from "../battle/startOfPhase/squaddiePhaseListener"
 import { PlayerDecisionHUDListener } from "../battle/hud/playerActionPanel/playerDecisionHUD"
 import {

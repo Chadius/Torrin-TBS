@@ -186,7 +186,7 @@ describe("Button Logic Change on Release", () => {
         })
 
         describe("releasing the button", () => {
-            it("will change from Active to Hover when released since you are over the mouse", () => {
+            it("will change from Active to Hover when released since you are over the button", () => {
                 button.status = ButtonStatus.ACTIVE
                 button.mouseReleased({
                     buttonId: "new button",
@@ -198,6 +198,21 @@ describe("Button Logic Change on Release", () => {
                     buttonArea,
                 })
                 expect(button.status).toEqual(ButtonStatus.HOVER)
+                expect(changeStatusSpy).toHaveBeenCalled()
+            })
+
+            it("will change from Active to Ready when released since you are not over the button", () => {
+                button.status = ButtonStatus.ACTIVE
+                button.mouseReleased({
+                    buttonId: "new button",
+                    mouseRelease: {
+                        button: MouseButton.ACCEPT,
+                        x: -9001,
+                        y: 9001,
+                    },
+                    buttonArea,
+                })
+                expect(button.status).toEqual(ButtonStatus.READY)
                 expect(changeStatusSpy).toHaveBeenCalled()
             })
 

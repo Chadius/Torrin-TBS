@@ -229,6 +229,9 @@ export const RectAreaService = {
         alignHorizontally(rectArea, params)
         alignVertically(rectArea, params)
     },
+    setLeft: (rectArea: RectArea, left: number) => {
+        rectArea.left = left
+    },
     setRight: (rectArea: RectArea, right: number) => {
         rectArea.left = right - rectArea.width
     },

@@ -210,14 +210,25 @@ export class ButtonLogicChangeOnRelease
     mouseReleasedWhileButtonIsInActiveState({
         buttonId,
         mouseRelease,
+        buttonArea,
     }: {
         buttonId: string
         mouseRelease: MouseRelease
         buttonArea: RectArea
     }) {
+        if (
+            RectAreaService.isInside(buttonArea, mouseRelease.x, mouseRelease.y)
+        ) {
+            return this.changeStatus({
+                buttonId,
+                newStatus: ButtonStatus.HOVER,
+                mouseRelease,
+            })
+        }
+
         this.changeStatus({
             buttonId,
-            newStatus: ButtonStatus.HOVER,
+            newStatus: ButtonStatus.READY,
             mouseRelease,
         })
     }

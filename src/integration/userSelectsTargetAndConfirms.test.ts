@@ -43,7 +43,7 @@ import { DamageType } from "../squaddie/squaddieService"
 import { SquaddieSkipsAnimationAnimator } from "../battle/animation/squaddieSkipsAnimationAnimator"
 import { GraphicsBuffer } from "../utils/graphics/graphicsRenderer"
 import { SummaryHUDStateService } from "../battle/hud/summary/summaryHUD"
-import { BattlePlayerActionConfirm } from "../battle/orchestratorComponents/battlePlayerActionConfirm"
+import { BattlePlayerActionConfirm } from "../battle/orchestratorComponents/playerActionConfirm/battlePlayerActionConfirm"
 import { MessageBoardMessageType } from "../message/messageBoardMessage"
 import {
     BattleActionDecisionStep,
@@ -280,6 +280,11 @@ describe("User Selects Target and Confirms", () => {
                 graphicsContext,
                 resourceHandler,
             }))
+            confirm.update({
+                gameEngineState,
+                graphicsContext,
+                resourceHandler,
+            })
         })
 
         const confirmMethods = [
@@ -573,6 +578,11 @@ describe("User Selects Target and Confirms", () => {
                     graphicsContext,
                     resourceHandler,
                 }))
+                confirm.update({
+                    gameEngineState,
+                    graphicsContext,
+                    resourceHandler,
+                })
                 BattlePlayerActionConfirmSpec.clickOnConfirmTarget({
                     confirm,
                     gameEngineState,

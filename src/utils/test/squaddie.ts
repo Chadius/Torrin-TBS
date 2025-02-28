@@ -1,6 +1,5 @@
 import { SquaddieAffiliation } from "../../squaddie/squaddieAffiliation"
 import { TraitStatusStorageService } from "../../trait/traitStatusStorage"
-import { SquaddieId } from "../../squaddie/id"
 import {
     ObjectRepository,
     ObjectRepositoryService,
@@ -52,25 +51,6 @@ export const SquaddieRepositoryService = {
             actionTemplateIds,
         })
     },
-}
-
-export const NewDummySquaddieID: (
-    id: string,
-    affiliation: SquaddieAffiliation
-) => SquaddieId = (
-    id: string,
-    affiliation: SquaddieAffiliation
-): SquaddieId => {
-    return {
-        templateId: id,
-        name: id,
-        resources: {
-            mapIconResourceKey: "",
-            actionSpritesByEmotion: {},
-        },
-        traits: TraitStatusStorageService.newUsingTraitValues(),
-        affiliation,
-    }
 }
 
 const createNewSquaddieAndAddToRepository: (params: {

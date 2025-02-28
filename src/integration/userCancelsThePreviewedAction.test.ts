@@ -40,7 +40,7 @@ import { ConvertCoordinateService } from "../hexMap/convertCoordinates"
 import { MouseButton } from "../utils/mouseConfig"
 import { MessageBoardMessageType } from "../message/messageBoardMessage"
 import { SummaryHUDStateService } from "../battle/hud/summary/summaryHUD"
-import { BattlePlayerActionConfirm } from "../battle/orchestratorComponents/battlePlayerActionConfirm"
+import { BattlePlayerActionConfirm } from "../battle/orchestratorComponents/playerActionConfirm/battlePlayerActionConfirm"
 import { BattleActionDecisionStepService } from "../battle/actionDecision/battleActionDecisionStep"
 import { BattleActionRecorderService } from "../battle/history/battleAction/battleActionRecorder"
 import { BattleActionService } from "../battle/history/battleAction/battleAction"
@@ -61,6 +61,7 @@ import {
 } from "vitest"
 import { PlayerInputTestService } from "../utils/test/playerInput"
 import { BattleHUDListener } from "../battle/hud/battleHUD/battleHUDListener"
+import { AddSquaddieToRepositorySpec } from "./spec/addSquaddieToRepositorySpec"
 
 describe("User cancels the previewed action", () => {
     let objectRepository: ObjectRepository
@@ -101,32 +102,11 @@ describe("User cancels the previewed action", () => {
                 }),
             ],
         })
-        ObjectRepositoryService.addActionTemplate(
-            objectRepository,
-            attackAction
-        )
-
-        playerSquaddieTemplate = SquaddieTemplateService.new({
-            squaddieId: SquaddieIdService.new({
-                name: "player",
-                affiliation: SquaddieAffiliation.PLAYER,
-                templateId: "player",
-            }),
-            actionTemplateIds: [attackAction.id],
-        })
-        ObjectRepositoryService.addSquaddieTemplate(
-            objectRepository,
-            playerSquaddieTemplate
-        )
-
-        playerBattleSquaddie = BattleSquaddieService.new({
-            squaddieTemplateId: playerSquaddieTemplate.squaddieId.templateId,
-            battleSquaddieId: "player 0",
-        })
-        ObjectRepositoryService.addBattleSquaddie(
-            objectRepository,
-            playerBattleSquaddie
-        )
+        ;({ playerSquaddieTemplate, playerBattleSquaddie } =
+            AddSquaddieToRepositorySpec.addSinglePlayerSquaddie(
+                objectRepository,
+                attackAction
+            ))
 
         graphicsContext = new MockedP5GraphicsBuffer()
         graphicsContext.textWidth = vi.fn().mockReturnValue(1)
@@ -499,6 +479,11 @@ describe("User cancels the previewed action", () => {
 
         expect(targeting.hasSelectedValidTarget).toBeTruthy()
 
+        confirm.update({
+            gameEngineState,
+            graphicsContext,
+            resourceHandler,
+        })
         BattlePlayerActionConfirmSpec.clickOnCancelButton({
             confirm: confirm,
             gameEngineState: gameEngineState,
