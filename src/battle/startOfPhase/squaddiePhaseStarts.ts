@@ -13,12 +13,16 @@ import { DrawSquaddieUtilities } from "../animation/drawSquaddie"
 import { TerrainTileMapService } from "../../hexMap/terrainTileMap"
 
 export const SquaddiePhaseStartsService = {
-    restoreTurnForAllSquaddies: (
-        message: MessageBoardMessageSquaddiePhaseStarts
-    ) => {
+    restoreTurnForAllSquaddies: ({
+        gameEngineState,
+        phase,
+    }: {
+        gameEngineState: GameEngineState
+        phase: BattlePhase
+    }) => {
         doForEachSquaddieOfBattlePhase(
-            message.gameEngineState,
-            message.phase,
+            gameEngineState,
+            phase,
             (battleSquaddie: BattleSquaddie) => {
                 SquaddieTurnService.beginNewRound(battleSquaddie.squaddieTurn)
             }

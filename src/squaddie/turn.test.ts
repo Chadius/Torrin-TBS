@@ -184,4 +184,13 @@ describe("Squaddie battleSquaddie.squaddieTurn and resources", () => {
             ).toBeFalsy()
         })
     })
+
+    it("should give refresh action points at the end of a round", () => {
+        SquaddieTurnService.spendActionPoints(
+            battleSquaddie.squaddieTurn,
+            actionSpends2ActionPoints.resourceCost.actionPoints
+        )
+        SquaddieTurnService.refreshActionPoints(battleSquaddie.squaddieTurn)
+        expect(battleSquaddie.squaddieTurn.remainingActionPoints).toBe(3)
+    })
 })

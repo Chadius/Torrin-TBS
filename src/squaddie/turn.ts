@@ -95,6 +95,9 @@ export const SquaddieTurnService = {
     beginNewRound: (data: SquaddieTurn) => {
         refreshActionPoints(data)
     },
+    refreshActionPoints: (data: SquaddieTurn) => {
+        refreshActionPoints(data)
+    },
     hasActionPointsRemaining: (data: SquaddieTurn): boolean => {
         return data.remainingActionPoints > 0
     },
