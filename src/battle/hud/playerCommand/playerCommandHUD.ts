@@ -449,7 +449,8 @@ const createActionButtons = ({
             defaultButtonIconResourceKey,
             actionTemplateOverride: {
                 name: END_TURN_NAME,
-                buttonIconResourceKey: defaultButtonIconResourceKey,
+                buttonIconResourceKey:
+                    gameEngineState.campaign.resources.endTurnIconResourceKey,
             },
         })
     )

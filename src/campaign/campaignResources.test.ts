@@ -107,5 +107,11 @@ describe("campaign resources", () => {
                 )
             })
         })
+
+        it("end turn resource key", () => {
+            expect(cloned.endTurnIconResourceKey).toEqual(
+                original.endTurnIconResourceKey
+            )
+        })
     })
 })

@@ -45,6 +45,7 @@
     "attributeComparisons": {
       "up": "attribute-up",
       "down": "attribute-down"
-    }
+    },
+    "endTurnIconResourceKey": "decision-button-end"
   }
 }

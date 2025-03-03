@@ -48,6 +48,7 @@ export interface CampaignResources {
     attributeIcons: {
         [t in AttributeType]?: string
     }
+    endTurnIconResourceKey: string
 }
 
 export const CampaignResourcesService = {
@@ -102,9 +103,11 @@ export const CampaignResourcesService = {
                 up: "attribute-up",
                 down: "attribute-down",
             },
+            endTurnIconResourceKey: "decision-button-end",
         }
     },
     clone: (original: CampaignResources): CampaignResources => ({
+        endTurnIconResourceKey: original.endTurnIconResourceKey,
         missionMapMovementIconResourceKeys: {
             ...original.missionMapMovementIconResourceKeys,
         },

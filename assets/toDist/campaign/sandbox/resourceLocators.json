@@ -301,6 +301,11 @@
   },
   {
     "type": "IMAGE",
+    "path": "assets/decisions/decision-button-end-48.png",
+    "key": "decision-button-end"
+  },
+  {
+    "type": "IMAGE",
     "path": "assets/decisions/decision-button-sword-64.png",
     "key": "decision-button-sword"
   },
