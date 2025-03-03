@@ -217,6 +217,26 @@
             "speakerPortraitResourceKey": "tutorial-action-points",
             "speakerPortraitPosition": "LEFT",
             "backgroundColor": [280,6,52]
+          },
+          {
+            "type": "DIALOGUE",
+            "id": "sandbox_1",
+            "speakerName": "SANDBOX",
+            "speakerNamePosition": "LEFT",
+            "dialogueText": "Another text screen",
+            "speakerPortraitResourceKey": "tutorial-action-points",
+            "speakerPortraitPosition": "LEFT",
+            "backgroundColor": [280,6,52]
+          },
+          {
+            "type": "DIALOGUE",
+            "id": "sandbox_2",
+            "speakerName": "SANDBOX",
+            "speakerNamePosition": "LEFT",
+            "dialogueText": "Does fast forward work?",
+            "speakerPortraitResourceKey": "tutorial-action-points",
+            "speakerPortraitPosition": "LEFT",
+            "backgroundColor": [280,6,52]
           }
         ]
       }

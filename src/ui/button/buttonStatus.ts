@@ -3,4 +3,8 @@ export enum ButtonStatus {
     ACTIVE = "ACTIVE",
     DISABLED = "DISABLED",
     HOVER = "HOVER",
+    TOGGLE_ON = "TOGGLE_ON",
+    TOGGLE_ON_HOVER = "TOGGLE_ON_HOVER",
+    TOGGLE_OFF = "TOGGLE_OFF",
+    TOGGLE_OFF_HOVER = "TOGGLE_OFF_HOVER",
 }

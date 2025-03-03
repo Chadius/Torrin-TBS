@@ -5,6 +5,7 @@ import {
 import { Cutscene, CutsceneService } from "./cutscene"
 import { CutsceneDecisionTriggerService } from "./DecisionTrigger"
 import {
+    ResourceHandler,
     ResourceHandlerService,
     ResourceType,
 } from "../resource/resourceHandler"
@@ -24,12 +25,17 @@ import { RectAreaService } from "../ui/rectArea"
 import { beforeEach, describe, expect, it, vi } from "vitest"
 import { PlayerInputTestService } from "../utils/test/playerInput"
 import { PlayerInputStateService } from "../ui/playerInput/playerInputState"
+import { GraphicsBuffer } from "../utils/graphics/graphicsRenderer"
+import { Button } from "../ui/button/button"
+import { MouseButton } from "../utils/mouseConfig"
 
 describe("Cutscene", () => {
     let splash1: SplashScreen
     let splash2: SplashScreen
     let frontDoorGreeting: Dialogue
     let hostGreeting: Dialogue
+    let graphicsContext: GraphicsBuffer
+    let resourceHandler: ResourceHandler
 
     beforeEach(() => {
         splash1 = SplashScreenService.new({
@@ -57,6 +63,8 @@ describe("Cutscene", () => {
             animationDuration: 0,
             speakerPortraitResourceKey: undefined,
         })
+        graphicsContext = new MockedP5GraphicsBuffer()
+        resourceHandler = mockResourceHandler(graphicsContext)
     })
 
     it("should not start upon construction", () => {
@@ -107,7 +115,12 @@ describe("Cutscene", () => {
         )
 
         expect(dinnerDate.currentDirection).toEqual(splash1)
-        CutsceneService.mouseClicked(dinnerDate, 100, 100, {})
+        CutsceneService.draw(dinnerDate, graphicsContext, resourceHandler)
+        CutsceneService.mousePressed({
+            cutscene: dinnerDate,
+            mousePress: { x: 100, y: 100, button: MouseButton.ACCEPT },
+            context: {},
+        })
         expect(dinnerDate.currentDirection).toEqual(splash2)
     })
 
@@ -145,10 +158,18 @@ describe("Cutscene", () => {
         expect(CutsceneService.isInProgress(dinnerDate)).toBeTruthy()
 
         expect(dinnerDate.currentDirection).toEqual(frontDoorGreeting)
-        CutsceneService.mouseClicked(dinnerDate, 100, 100, {})
+        CutsceneService.mousePressed({
+            cutscene: dinnerDate,
+            mousePress: { x: 100, y: 100, button: MouseButton.ACCEPT },
+            context: {},
+        })
 
         expect(dinnerDate.currentDirection).toEqual(hostGreeting)
-        CutsceneService.mouseClicked(dinnerDate, 100, 100, {})
+        CutsceneService.mousePressed({
+            cutscene: dinnerDate,
+            mousePress: { x: 100, y: 100, button: MouseButton.ACCEPT },
+            context: {},
+        })
 
         expect(dinnerDate.currentDirection).toBeUndefined()
         expect(CutsceneService.isInProgress(dinnerDate)).toBeFalsy()
@@ -196,24 +217,20 @@ describe("Cutscene", () => {
                 {}
             )
             expect(purchasePrompt.currentDirection.id).toBe("buy my stuff")
-            CutsceneService.mouseClicked(
-                purchasePrompt,
-                RectAreaService.centerX(
-                    (
-                        purchasePrompt.cutscenePlayerStateById[
-                            dialoguePrompt.id
-                        ] as DialoguePlayerState
-                    ).answerButtons[0].buttonRect
-                ),
-                RectAreaService.centerY(
-                    (
-                        purchasePrompt.cutscenePlayerStateById[
-                            dialoguePrompt.id
-                        ] as DialoguePlayerState
-                    ).answerButtons[0].buttonRect
-                ),
-                {}
-            )
+            const answerButtonRectArea = (
+                purchasePrompt.cutscenePlayerStateById[
+                    dialoguePrompt.id
+                ] as DialoguePlayerState
+            ).answerButtons[0].buttonRect
+            CutsceneService.mousePressed({
+                cutscene: purchasePrompt,
+                mousePress: {
+                    x: RectAreaService.centerX(answerButtonRectArea),
+                    y: RectAreaService.centerY(answerButtonRectArea),
+                    button: MouseButton.ACCEPT,
+                },
+                context: {},
+            })
 
             expect(purchasePrompt.currentDirection.id).toBe("test passes")
         })
@@ -254,24 +271,20 @@ describe("Cutscene", () => {
                 {}
             )
             expect(purchasePrompt.currentDirection.id).toBe("buy my stuff")
-            CutsceneService.mouseClicked(
-                purchasePrompt,
-                RectAreaService.centerX(
-                    (
-                        purchasePrompt.cutscenePlayerStateById[
-                            dialoguePrompt.id
-                        ] as DialoguePlayerState
-                    ).answerButtons[0].buttonRect
-                ),
-                RectAreaService.centerY(
-                    (
-                        purchasePrompt.cutscenePlayerStateById[
-                            dialoguePrompt.id
-                        ] as DialoguePlayerState
-                    ).answerButtons[0].buttonRect
-                ),
-                {}
-            )
+            const answerButtonRectArea = (
+                purchasePrompt.cutscenePlayerStateById[
+                    dialoguePrompt.id
+                ] as DialoguePlayerState
+            ).answerButtons[0].buttonRect
+            CutsceneService.mousePressed({
+                cutscene: purchasePrompt,
+                mousePress: {
+                    x: RectAreaService.centerX(answerButtonRectArea),
+                    y: RectAreaService.centerY(answerButtonRectArea),
+                    button: MouseButton.ACCEPT,
+                },
+                context: {},
+            })
 
             expect(purchasePrompt.currentDirection.id).toBe("test passed")
         })
@@ -310,7 +323,11 @@ describe("Cutscene", () => {
                 {}
             )
             expect(purchasePrompt.currentDirection.id).toBe("act serious")
-            CutsceneService.mouseClicked(purchasePrompt, 100, 100, {})
+            CutsceneService.mousePressed({
+                cutscene: purchasePrompt,
+                mousePress: { x: 100, y: 100, button: MouseButton.ACCEPT },
+                context: {},
+            })
 
             expect(purchasePrompt.currentDirection.id).toBe("test passes")
         })
@@ -366,30 +383,41 @@ describe("Cutscene", () => {
                 {}
             )
             expect(purchasePrompt.currentDirection.id).toBe("buy my stuff")
-            CutsceneService.mouseClicked(
-                purchasePrompt,
-                RectAreaService.centerX(
-                    (
-                        purchasePrompt.cutscenePlayerStateById[
-                            dialoguePrompt.id
-                        ] as DialoguePlayerState
-                    ).answerButtons[1].buttonRect
-                ),
-                RectAreaService.centerY(
-                    (
-                        purchasePrompt.cutscenePlayerStateById[
-                            dialoguePrompt.id
-                        ] as DialoguePlayerState
-                    ).answerButtons[1].buttonRect
-                ),
-                {}
-            )
+            CutsceneService.mousePressed({
+                cutscene: purchasePrompt,
+                mousePress: {
+                    x: RectAreaService.centerX(
+                        (
+                            purchasePrompt.cutscenePlayerStateById[
+                                dialoguePrompt.id
+                            ] as DialoguePlayerState
+                        ).answerButtons[1].buttonRect
+                    ),
+                    y: RectAreaService.centerY(
+                        (
+                            purchasePrompt.cutscenePlayerStateById[
+                                dialoguePrompt.id
+                            ] as DialoguePlayerState
+                        ).answerButtons[1].buttonRect
+                    ),
+                    button: MouseButton.ACCEPT,
+                },
+                context: {},
+            })
 
             expect(purchasePrompt.currentDirection.id).toBe("reconsider")
-            CutsceneService.mouseClicked(purchasePrompt, 0, 0, {})
+            CutsceneService.mousePressed({
+                cutscene: purchasePrompt,
+                mousePress: { x: 0, y: 0, button: MouseButton.ACCEPT },
+                context: {},
+            })
 
             expect(purchasePrompt.currentDirection.id).toBe("buy my stuff")
-            CutsceneService.mouseClicked(purchasePrompt, 0, 0, {})
+            CutsceneService.mousePressed({
+                cutscene: purchasePrompt,
+                mousePress: { x: 0, y: 0, button: MouseButton.ACCEPT },
+                context: {},
+            })
             expect(purchasePrompt.currentDirection.id).toBe("buy my stuff")
         })
     })
@@ -429,30 +457,25 @@ describe("Cutscene", () => {
         })
 
         it("should enter fast-forward mode when you click on the fast forward button", () => {
-            CutsceneService.start(
-                dinnerDate,
-                mockResourceHandler(new MockedP5GraphicsBuffer()),
-                {}
-            )
-            CutsceneService.mouseClicked(
-                dinnerDate,
-                RectAreaService.centerX(
-                    dinnerDate.fastForwardButton.readyLabel.rectangle.area
-                ),
-                RectAreaService.centerY(
-                    dinnerDate.fastForwardButton.readyLabel.rectangle.area
-                ),
-                {}
-            )
+            CutsceneService.start(dinnerDate, resourceHandler, {})
+            CutsceneService.draw(dinnerDate, graphicsContext, resourceHandler)
+            const fastForwardButton = getFastForwardButton(dinnerDate)
+            CutsceneService.mousePressed({
+                cutscene: dinnerDate,
+                mousePress: {
+                    x: RectAreaService.centerX(fastForwardButton.getArea()),
+                    y: RectAreaService.centerY(fastForwardButton.getArea()),
+                    button: MouseButton.ACCEPT,
+                },
+                context: {},
+            })
             expect(CutsceneService.isFastForward(dinnerDate)).toBeTruthy()
         })
 
         it("should enter fast-forward mode when you press the cancel key", () => {
-            CutsceneService.start(
-                dinnerDate,
-                mockResourceHandler(new MockedP5GraphicsBuffer()),
-                {}
-            )
+            CutsceneService.start(dinnerDate, resourceHandler, {})
+            CutsceneService.draw(dinnerDate, graphicsContext, resourceHandler)
+
             CutsceneService.keyboardPressed({
                 cutscene: dinnerDate,
                 event: PlayerInputTestService.pressCancelKey(),
@@ -463,22 +486,20 @@ describe("Cutscene", () => {
         })
 
         it("should auto progress dialog messages when in fast-forward mode", () => {
-            CutsceneService.start(
-                dinnerDate,
-                mockResourceHandler(new MockedP5GraphicsBuffer()),
-                {}
-            )
+            CutsceneService.start(dinnerDate, resourceHandler, {})
+            CutsceneService.draw(dinnerDate, graphicsContext, resourceHandler)
+
             vi.spyOn(Date, "now").mockImplementation(() => 0)
-            CutsceneService.mouseClicked(
-                dinnerDate,
-                RectAreaService.centerX(
-                    dinnerDate.fastForwardButton.readyLabel.rectangle.area
-                ),
-                RectAreaService.centerY(
-                    dinnerDate.fastForwardButton.readyLabel.rectangle.area
-                ),
-                {}
-            )
+            const fastForwardButton = getFastForwardButton(dinnerDate)
+            CutsceneService.mousePressed({
+                cutscene: dinnerDate,
+                mousePress: {
+                    x: RectAreaService.centerX(fastForwardButton.getArea()),
+                    y: RectAreaService.centerY(fastForwardButton.getArea()),
+                    button: MouseButton.ACCEPT,
+                },
+                context: {},
+            })
             expect(CutsceneService.isFastForward(dinnerDate)).toBeTruthy()
             expect(dinnerDate.currentDirection).toEqual(waiterGreets)
 
@@ -488,23 +509,21 @@ describe("Cutscene", () => {
         })
 
         it("should stop fast-forward mode if the dialog is on the last action", () => {
-            CutsceneService.start(
-                dinnerDate,
-                mockResourceHandler(new MockedP5GraphicsBuffer()),
-                {}
-            )
+            CutsceneService.start(dinnerDate, resourceHandler, {})
+            CutsceneService.draw(dinnerDate, graphicsContext, resourceHandler)
+
             vi.spyOn(Date, "now").mockImplementation(() => 0)
             expect(CutsceneService.canFastForward(dinnerDate)).toBeTruthy()
-            CutsceneService.mouseClicked(
-                dinnerDate,
-                RectAreaService.centerX(
-                    dinnerDate.fastForwardButton.readyLabel.rectangle.area
-                ),
-                RectAreaService.centerY(
-                    dinnerDate.fastForwardButton.readyLabel.rectangle.area
-                ),
-                {}
-            )
+            const fastForwardButton = getFastForwardButton(dinnerDate)
+            CutsceneService.mousePressed({
+                cutscene: dinnerDate,
+                mousePress: {
+                    x: RectAreaService.centerX(fastForwardButton.getArea()),
+                    y: RectAreaService.centerY(fastForwardButton.getArea()),
+                    button: MouseButton.ACCEPT,
+                },
+                context: {},
+            })
             vi.spyOn(Date, "now").mockImplementation(() => 101)
             CutsceneService.update(dinnerDate, {})
             vi.spyOn(Date, "now").mockImplementation(() => 202)
@@ -534,23 +553,21 @@ describe("Cutscene", () => {
                 ],
             })
 
-            CutsceneService.start(
-                dinnerDate,
-                mockResourceHandler(new MockedP5GraphicsBuffer()),
-                {}
-            )
+            CutsceneService.start(dinnerDate, resourceHandler, {})
+            CutsceneService.draw(dinnerDate, graphicsContext, resourceHandler)
+
             vi.spyOn(Date, "now").mockImplementation(() => 0)
             expect(dinnerDate.currentDirection.id).toBe("waiterGreets")
-            CutsceneService.mouseClicked(
-                dinnerDate,
-                RectAreaService.centerX(
-                    dinnerDate.fastForwardButton.readyLabel.rectangle.area
-                ),
-                RectAreaService.centerY(
-                    dinnerDate.fastForwardButton.readyLabel.rectangle.area
-                ),
-                {}
-            )
+            const fastForwardButton: Button = getFastForwardButton(dinnerDate)
+            CutsceneService.mousePressed({
+                cutscene: dinnerDate,
+                mousePress: {
+                    x: RectAreaService.centerX(fastForwardButton.getArea()),
+                    y: RectAreaService.centerY(fastForwardButton.getArea()),
+                    button: MouseButton.ACCEPT,
+                },
+                context: {},
+            })
 
             vi.spyOn(Date, "now").mockImplementation(() => 101)
             CutsceneService.update(dinnerDate, {})
@@ -653,3 +670,6 @@ describe("Cutscene", () => {
         })
     })
 })
+
+const getFastForwardButton = (cutscene: Cutscene): Button =>
+    cutscene.uiData.getUIObjects()?.fastForwardButton

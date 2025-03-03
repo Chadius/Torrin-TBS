@@ -12,8 +12,7 @@ import {
     VERTICAL_ALIGN,
     WINDOW_SPACING,
 } from "../ui/constants"
-import { LabelService } from "../ui/label"
-import { RectAreaService } from "../ui/rectArea"
+import { RectArea, RectAreaService } from "../ui/rectArea"
 import {
     ResourceHandler,
     ResourceLocator,
@@ -36,8 +35,19 @@ import {
     PlayerInputStateService,
 } from "../ui/playerInput/playerInputState"
 import { OrchestratorComponentKeyEvent } from "../battle/orchestrator/battleOrchestratorComponent"
-import { DEPRECATEDButton } from "../ui/buttonDEPRECATED/DEPRECATEDButton"
 import { ButtonStatus } from "../ui/button/buttonStatus"
+import { ComponentDataBlob } from "../utils/dataBlob/componentDataBlob"
+import { BehaviorTreeTask } from "../utils/behaviorTree/task"
+import { SequenceComposite } from "../utils/behaviorTree/composite/sequence/sequence"
+import { ExecuteAllComposite } from "../utils/behaviorTree/composite/executeAll/executeAll"
+import { MouseButton, MousePress, ScreenLocation } from "../utils/mouseConfig"
+import { Button } from "../ui/button/button"
+import { DataBlobService } from "../utils/dataBlob/dataBlob"
+import {
+    CutsceneCreateFastForwardButton,
+    CutsceneShouldCreateFastForwardButton,
+} from "./uiComponents/fastForwardButton"
+import { ButtonStatusChangeEventByButtonId } from "../ui/button/logic/base"
 
 const FAST_FORWARD_ACTION_WAIT_TIME_MILLISECONDS = 100
 
@@ -45,6 +55,54 @@ export type CutsceneDirection = Dialogue | SplashScreen
 export type CutsceneDirectionPlayerState =
     | DialoguePlayerState
     | SplashScreenPlayerState
+
+export interface CutsceneLayout {
+    fastForwardButton: {
+        fastForwardIsOff: {
+            drawingArea: RectArea
+            text: string
+            fontSize: number
+            fillColor: number[]
+            fontColor: number[]
+            strokeColor: number[]
+            strokeWeight: number
+            textBoxMargin: number
+            horizAlign: HORIZONTAL_ALIGN
+            vertAlign: VERTICAL_ALIGN
+            hover: {
+                strokeColor: number[]
+                strokeWeight: number
+                text: string
+            }
+        }
+        fastForwardIsOn: {
+            drawingArea: RectArea
+            text: string
+            fontSize: number
+            fillColor: number[]
+            fontColor: number[]
+            strokeColor: number[]
+            strokeWeight: number
+            textBoxMargin: number
+            horizAlign: HORIZONTAL_ALIGN
+            vertAlign: VERTICAL_ALIGN
+            hover: {
+                strokeColor: number[]
+                strokeWeight: number
+                text: string
+            }
+        }
+    }
+}
+
+export interface CutsceneContext {
+    buttonStatusChangeEventDataBlob: ButtonStatusChangeEventByButtonId
+}
+
+export interface CutsceneUIObjects {
+    fastForwardButton: Button
+    graphicsContext?: GraphicsBuffer
+}
 
 export interface Cutscene {
     directions: CutsceneDirection[]
@@ -57,8 +115,13 @@ export interface Cutscene {
 
     decisionTriggers?: CutsceneDecisionTrigger[]
 
-    fastForwardButton?: DEPRECATEDButton
     fastForwardPreviousTimeTick?: number
+    uiData: ComponentDataBlob<
+        CutsceneLayout,
+        CutsceneContext,
+        CutsceneUIObjects
+    >
+    drawUITask: BehaviorTreeTask
 
     allResourceLocators?: ResourceLocator[]
     allResourceKeys?: string[]
@@ -79,11 +142,16 @@ export const CutsceneService = {
                 ? [...decisionTriggers]
                 : [],
             cutscenePlayerStateById: {},
-            fastForwardButton: undefined,
             fastForwardPreviousTimeTick: undefined,
             allResourceKeys: [],
             allResourceLocators: [],
             currentDirection: undefined,
+            uiData: new ComponentDataBlob<
+                CutsceneLayout,
+                CutsceneContext,
+                CutsceneUIObjects
+            >(),
+            drawUITask: undefined,
         }
 
         cutscene.directions = cutscene.directions.map((rawDirection) => {
@@ -120,8 +188,17 @@ export const CutsceneService = {
             }
         })
 
+        cutscene.uiData.setContext({
+            buttonStatusChangeEventDataBlob: DataBlobService.new(),
+        })
+        cutscene.uiData.setUIObjects({
+            fastForwardButton: undefined,
+        })
+        cutscene.fastForwardPreviousTimeTick = undefined
+
         collectResourceLocatorsAndKeys(cutscene)
-        setUpFastForwardButton(cutscene)
+        createLayout(cutscene)
+        createDrawUITask(cutscene)
         return cutscene
     },
     hasLoaded: (
@@ -170,9 +247,34 @@ export const CutsceneService = {
             }
         }
 
+        const uiObjects = cutscene.uiData.getUIObjects()
+        uiObjects.graphicsContext = graphicsContext
+        cutscene.uiData.setUIObjects(uiObjects)
+
+        cutscene.drawUITask.run()
+
         if (canFastForward(cutscene)) {
-            cutscene.fastForwardButton.draw(graphicsContext)
+            DataBlobService.add<GraphicsBuffer>(
+                uiObjects.fastForwardButton.buttonStyle.dataBlob,
+                "graphicsContext",
+                graphicsContext
+            )
+            uiObjects.fastForwardButton.draw()
         }
+        getButtons(cutscene)
+            .filter((button) => button != uiObjects.fastForwardButton)
+            .forEach((button) => {
+                DataBlobService.add<GraphicsBuffer>(
+                    button.buttonStyle.dataBlob,
+                    "graphicsContext",
+                    graphicsContext
+                )
+                button.draw()
+            })
+
+        getButtons(cutscene).forEach((button) => {
+            button.clearStatus()
+        })
     },
     keyboardPressed({
         cutscene,
@@ -191,10 +293,7 @@ export const CutsceneService = {
                 event.keyCode
             )
         if (actions.includes(PlayerInputAction.CANCEL)) {
-            toggleFastForwardAndUpdateFFButton(
-                cutscene,
-                cutscene.fastForwardButton
-            )
+            toggleFastForwardAndUpdateFFButton(cutscene)
             return
         }
 
@@ -231,23 +330,39 @@ export const CutsceneService = {
 
         advanceToNextCutsceneDirectionIfFinished(cutscene, context)
     },
-    mouseMoved: (cutscene: Cutscene, mouseX: number, mouseY: number) => {
-        if (
-            cutscene.fastForwardButton.mouseMoved(mouseX, mouseY, this) === true
-        ) {
-            return
-        }
+    mouseMoved: ({
+        cutscene,
+        mouseLocation,
+    }: {
+        cutscene: Cutscene
+        mouseLocation: ScreenLocation
+    }) => {
+        getButtons(cutscene).forEach((button) => {
+            button.mouseMoved({
+                mouseLocation,
+            })
+        })
     },
-    mouseClicked: (
-        cutscene: Cutscene,
-        mouseX: number,
-        mouseY: number,
+    mousePressed: ({
+        cutscene,
+        mousePress,
+        context,
+    }: {
+        cutscene: Cutscene
+        mousePress: MousePress
         context: TextSubstitutionContext
-    ) => {
+    }) => {
+        getButtons(cutscene).forEach((button) => {
+            button.mousePressed({
+                mousePress,
+            })
+        })
+        const uiObjects = cutscene.uiData.getUIObjects()
         if (
-            cutscene.fastForwardButton.mouseClicked(mouseX, mouseY, this) ===
-            true
+            uiObjects.fastForwardButton?.getStatusChangeEvent()?.mousePress !=
+            undefined
         ) {
+            reactToFastForwardButtonStatusChangeEvent(cutscene)
             return
         }
 
@@ -263,8 +378,8 @@ export const CutsceneService = {
                     cutscene.cutscenePlayerStateById[
                         cutscene.currentDirection.id
                     ] as DialoguePlayerState,
-                    mouseX,
-                    mouseY
+                    mousePress.x,
+                    mousePress.y
                 )
                 break
             case CutsceneActionPlayerType.SPLASH_SCREEN:
@@ -272,8 +387,8 @@ export const CutsceneService = {
                     cutscene.cutscenePlayerStateById[
                         cutscene.currentDirection.id
                     ] as SplashScreenPlayerState,
-                    mouseX,
-                    mouseY
+                    mousePress.x,
+                    mousePress.y
                 )
                 break
         }
@@ -370,7 +485,6 @@ export const CutsceneService = {
     update: (cutscene: Cutscene, context: TextSubstitutionContext) => {
         if (!canFastForward(cutscene)) {
             deactivateFastForwardMode(cutscene)
-            cutscene.fastForwardButton.setStatus(ButtonStatus.READY)
             return
         }
 
@@ -389,10 +503,8 @@ export const CutsceneService = {
                 gotoNextDirection(cutscene)
                 startDirection(cutscene, context)
                 activateFastForwardMode(cutscene)
-                cutscene.fastForwardButton.setStatus(ButtonStatus.ACTIVE)
             } else {
                 deactivateFastForwardMode(cutscene)
-                cutscene.fastForwardButton.setStatus(ButtonStatus.READY)
             }
         }
     },
@@ -540,88 +652,23 @@ const getResourceLocators = (
     }
 }
 
-const toggleFastForwardAndUpdateFFButton = (
-    cutscene: Cutscene,
-    button: DEPRECATEDButton
-) => {
+const toggleFastForwardAndUpdateFFButton = (cutscene: Cutscene) => {
     toggleFastForwardMode(cutscene)
+    const fastForwardButton: Button = getButtons(cutscene).find(
+        (button) => button.id === "CutsceneFastForward"
+    )
+
     if (isFastForward(cutscene)) {
-        button.setStatus(ButtonStatus.ACTIVE)
+        fastForwardButton.changeStatus({
+            newStatus: ButtonStatus.TOGGLE_ON,
+        })
     } else {
-        button.setStatus(ButtonStatus.READY)
+        fastForwardButton.changeStatus({
+            newStatus: ButtonStatus.TOGGLE_OFF,
+        })
     }
 }
 
-const setUpFastForwardButton = (cutscene: Cutscene) => {
-    cutscene.fastForwardPreviousTimeTick = undefined
-
-    const fastForwardButtonLocation = getFastForwardButtonLocation(cutscene)
-    const buttonActivateBackgroundColor: [number, number, number] = [
-        200, 10, 50,
-    ]
-    const buttonDeactivateBackgroundColor: [number, number, number] = [
-        200, 5, 30,
-    ]
-    const buttonTextColor: [number, number, number] = [0, 0, 0]
-
-    const buttonArea = RectAreaService.new({
-        left: fastForwardButtonLocation.left,
-        top: fastForwardButtonLocation.top,
-        width: fastForwardButtonLocation.width,
-        height: fastForwardButtonLocation.height,
-    })
-
-    const handler = (
-        _mouseX: number,
-        _mouseY: number,
-        button: DEPRECATEDButton
-    ): {} => {
-        toggleFastForwardAndUpdateFFButton(cutscene, button)
-        return {}
-    }
-
-    cutscene.fastForwardButton = new DEPRECATEDButton({
-        activeLabel: LabelService.new({
-            text: "Stop FF",
-            fillColor: buttonDeactivateBackgroundColor,
-            area: buttonArea,
-            fontSize: WINDOW_SPACING.SPACING4,
-            fontColor: buttonTextColor,
-            textBoxMargin: WINDOW_SPACING.SPACING1,
-            horizAlign: HORIZONTAL_ALIGN.CENTER,
-            vertAlign: VERTICAL_ALIGN.CENTER,
-        }),
-        readyLabel: LabelService.new({
-            text: "Fast-forward",
-            fillColor: buttonActivateBackgroundColor,
-            area: buttonArea,
-            fontSize: WINDOW_SPACING.SPACING4,
-            fontColor: buttonTextColor,
-            textBoxMargin: WINDOW_SPACING.SPACING1,
-            horizAlign: HORIZONTAL_ALIGN.CENTER,
-            vertAlign: VERTICAL_ALIGN.CENTER,
-        }),
-        hoverLabel: LabelService.new({
-            text: "Click to FF",
-            fillColor: buttonActivateBackgroundColor,
-            area: buttonArea,
-            fontSize: WINDOW_SPACING.SPACING4,
-            fontColor: buttonTextColor,
-            textBoxMargin: WINDOW_SPACING.SPACING1,
-            horizAlign: HORIZONTAL_ALIGN.CENTER,
-            vertAlign: VERTICAL_ALIGN.CENTER,
-        }),
-        initialStatus: ButtonStatus.READY,
-        onClickHandler(
-            mouseX: number,
-            mouseY: number,
-            _button: DEPRECATEDButton,
-            _caller: Cutscene
-        ): {} {
-            return handler(mouseX, mouseY, this)
-        },
-    })
-}
 const getTriggeredAction = (cutscene: Cutscene): CutsceneDecisionTrigger => {
     if (cutscene.currentDirection === undefined) {
         return undefined
@@ -672,11 +719,9 @@ const getFastForwardButtonLocation = (_cutscene: Cutscene) => {
 const toggleFastForwardMode = (cutscene: Cutscene): void => {
     if (isFastForward(cutscene)) {
         deactivateFastForwardMode(cutscene)
-        cutscene.fastForwardButton.setStatus(ButtonStatus.READY)
         return
     }
     activateFastForwardMode(cutscene)
-    cutscene.fastForwardButton.setStatus(ButtonStatus.ACTIVE)
 }
 
 const activateFastForwardMode = (cutscene: Cutscene): void => {
@@ -713,4 +758,96 @@ const advanceToNextCutsceneDirectionIfFinished = (
         gotoNextDirection(cutscene)
         startDirection(cutscene, context)
     }
+}
+
+const createDrawUITask = (cutscene: Cutscene) => {
+    const createOKButtonTask = new SequenceComposite(cutscene.uiData, [
+        new CutsceneShouldCreateFastForwardButton(cutscene.uiData),
+        new CutsceneCreateFastForwardButton(cutscene.uiData),
+    ])
+    cutscene.drawUITask = new ExecuteAllComposite(cutscene.uiData, [
+        createOKButtonTask,
+    ])
+}
+
+const getButtons = (cutscene: Cutscene) => {
+    const uiObjects = cutscene.uiData.getUIObjects()
+    return [uiObjects.fastForwardButton].filter((x) => x)
+}
+
+const reactToFastForwardButtonStatusChangeEvent = (cutscene: Cutscene) => {
+    const uiObjects = cutscene.uiData.getUIObjects()
+    const fastForwardButton = uiObjects.fastForwardButton
+    const statusChangeEvent = fastForwardButton.getStatusChangeEvent()
+    if (!statusChangeEvent) return
+
+    const previouslyOff =
+        statusChangeEvent.previousStatus == ButtonStatus.TOGGLE_OFF_HOVER ||
+        statusChangeEvent.previousStatus == ButtonStatus.TOGGLE_OFF
+    const previouslyOn =
+        statusChangeEvent.previousStatus == ButtonStatus.TOGGLE_ON_HOVER ||
+        statusChangeEvent.previousStatus == ButtonStatus.TOGGLE_ON
+    const newlyOff =
+        statusChangeEvent.newStatus == ButtonStatus.TOGGLE_OFF_HOVER ||
+        statusChangeEvent.newStatus == ButtonStatus.TOGGLE_OFF
+    const newlyOn =
+        statusChangeEvent.newStatus == ButtonStatus.TOGGLE_ON_HOVER ||
+        statusChangeEvent.newStatus == ButtonStatus.TOGGLE_ON
+
+    const activateFastForwardMode = previouslyOff && newlyOn
+    const deactivateFastForwardMode = previouslyOn && newlyOff
+
+    if (activateFastForwardMode || deactivateFastForwardMode) {
+        toggleFastForwardMode(cutscene)
+    }
+}
+
+const createLayout = (cutscene: Cutscene) => {
+    const fastForwardButtonLocation = getFastForwardButtonLocation(cutscene)
+
+    const buttonArea = RectAreaService.new({
+        left: fastForwardButtonLocation.left,
+        top: fastForwardButtonLocation.top,
+        width: fastForwardButtonLocation.width,
+        height: fastForwardButtonLocation.height,
+    })
+
+    cutscene.uiData.setLayout({
+        fastForwardButton: {
+            fastForwardIsOff: {
+                text: "Fast-forward",
+                fontColor: [0, 0, 0],
+                fontSize: WINDOW_SPACING.SPACING4,
+                fillColor: [200, 10, 50],
+                strokeColor: [0, 0, 0],
+                strokeWeight: 2,
+                drawingArea: buttonArea,
+                textBoxMargin: WINDOW_SPACING.SPACING1,
+                horizAlign: HORIZONTAL_ALIGN.CENTER,
+                vertAlign: VERTICAL_ALIGN.CENTER,
+                hover: {
+                    strokeColor: [0, 0, 0],
+                    strokeWeight: 8,
+                    text: "Click to FF",
+                },
+            },
+            fastForwardIsOn: {
+                drawingArea: buttonArea,
+                text: "FF is ON",
+                fontColor: [0, 0, 0],
+                fontSize: WINDOW_SPACING.SPACING4,
+                fillColor: [200, 5, 30],
+                strokeColor: [0, 0, 0],
+                strokeWeight: 2,
+                textBoxMargin: WINDOW_SPACING.SPACING1,
+                horizAlign: HORIZONTAL_ALIGN.CENTER,
+                vertAlign: VERTICAL_ALIGN.CENTER,
+                hover: {
+                    strokeColor: [0, 0, 0],
+                    strokeWeight: 8,
+                    text: "Stop FF",
+                },
+            },
+        },
+    })
 }

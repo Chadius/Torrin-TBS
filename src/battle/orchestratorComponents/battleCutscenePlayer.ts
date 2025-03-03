@@ -42,11 +42,12 @@ export class BattleCutscenePlayer implements BattleOrchestratorComponent {
             this.currentCutscene &&
             CutsceneService.isInProgress(this.currentCutscene)
         ) {
-            CutsceneService.mouseMoved(
-                this.currentCutscene,
-                event.mouseLocation.x,
-                event.mouseLocation.y
-            )
+            CutsceneService.mouseMoved({
+                cutscene: this.currentCutscene,
+                mouseLocation: {
+                    ...event.mouseLocation,
+                },
+            })
             return
         }
         if (
@@ -54,15 +55,16 @@ export class BattleCutscenePlayer implements BattleOrchestratorComponent {
             this.currentCutscene &&
             CutsceneService.isInProgress(this.currentCutscene)
         ) {
-            CutsceneService.mouseClicked(
-                this.currentCutscene,
-                event.mouseRelease.x,
-                event.mouseRelease.y,
-                {
+            CutsceneService.mousePressed({
+                cutscene: this.currentCutscene,
+                mousePress: {
+                    ...event.mouseRelease,
+                },
+                context: {
                     battleOrchestratorState:
                         gameEngineState.battleOrchestratorState,
-                }
-            )
+                },
+            })
         }
     }
 
@@ -126,15 +128,15 @@ export class BattleCutscenePlayer implements BattleOrchestratorComponent {
         }
 
         if (CutsceneService.isInProgress(this.currentCutscene)) {
-            CutsceneService.update(this.currentCutscene, {
-                battleOrchestratorState:
-                    gameEngineState.battleOrchestratorState,
-            })
             CutsceneService.draw(
                 this.currentCutscene,
                 graphicsContext,
                 resourceHandler
             )
+            CutsceneService.update(this.currentCutscene, {
+                battleOrchestratorState:
+                    gameEngineState.battleOrchestratorState,
+            })
         }
     }
 

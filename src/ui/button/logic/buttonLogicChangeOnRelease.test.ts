@@ -360,4 +360,59 @@ describe("Button Logic Change on Release", () => {
             expect(buttonStatusChangeEvent).toBeUndefined()
         })
     })
+
+    describe("valid button states", () => {
+        let buttonLogic: ButtonLogicChangeOnRelease
+        const validStatuses: ButtonStatus[] = [
+            ButtonStatus.READY,
+            ButtonStatus.HOVER,
+            ButtonStatus.ACTIVE,
+            ButtonStatus.DISABLED,
+        ]
+
+        beforeEach(() => {
+            buttonLogic = new ButtonLogicChangeOnRelease({
+                dataBlob,
+            })
+        })
+
+        it("can change to valid statuses", () => {
+            validStatuses.forEach((validStatus) => {
+                buttonLogic.changeStatus({
+                    buttonId: "new buttonLogic",
+                    newStatus: validStatus,
+                })
+                expect(buttonLogic.status).toEqual(validStatus)
+            })
+        })
+
+        it("sends a message when the status is changed", () => {
+            buttonLogic.changeStatus({
+                buttonId: "new button",
+                newStatus: ButtonStatus.DISABLED,
+            })
+            const buttonStatusChangeEvent =
+                DataBlobService.get<ButtonStatusChangeEvent>(
+                    dataBlob,
+                    "new button"
+                )
+            expect(buttonStatusChangeEvent).toEqual({
+                previousStatus: ButtonStatus.READY,
+                newStatus: ButtonStatus.DISABLED,
+            })
+        })
+
+        it("will ignore invalid states", () => {
+            Object.keys(ButtonStatus)
+                .map((keyStr) => keyStr as ButtonStatus)
+                .filter((key) => !validStatuses.includes(key))
+                .forEach((invalidStatus) => {
+                    buttonLogic.changeStatus({
+                        buttonId: "new buttonLogic",
+                        newStatus: invalidStatus,
+                    })
+                    expect(buttonLogic.status).toEqual(ButtonStatus.READY)
+                })
+        })
+    })
 })

@@ -7,7 +7,7 @@ import { RectArea } from "../../../rectArea"
 import { ButtonLogic } from "../../logic/base"
 
 /***
- This button is a very simple button. It immediately switches between 4 labels based on the button's status. There is no transition time.
+ This button is a very simple button. It immediately switches between Labels based on the button's status. There is no transition time.
  */
 export interface AllLabelButtonDataBlob extends DataBlob {
     data: {
@@ -20,13 +20,13 @@ export interface AllLabelButtonDataBlob extends DataBlob {
 
 export interface AllLabelButtonLayout {
     labelByButtonStatus: {
-        [status in ButtonStatus]: Label
+        [status in ButtonStatus]?: Label
     }
 }
 
 export interface AllLabelButtonUIObjects {
     buttonLabelsByStatus: {
-        [status in ButtonStatus]: Label
+        [status in ButtonStatus]?: Label
     }
 }
 
@@ -68,7 +68,7 @@ export class AllLabelButtonDrawTask implements ButtonStyle {
         if (uiObjects == undefined || context == undefined) return undefined
 
         return uiObjects.buttonLabelsByStatus[context.buttonLogic.status]
-            .rectangle.area
+            ?.rectangle.area
     }
 
     run(): boolean {
@@ -86,10 +86,12 @@ export class AllLabelButtonDrawTask implements ButtonStyle {
             "graphicsContext"
         )
 
-        LabelService.draw(
-            uiObjects.buttonLabelsByStatus[context.buttonLogic.status],
-            graphicsContext
-        )
+        if (uiObjects.buttonLabelsByStatus[context.buttonLogic.status]) {
+            LabelService.draw(
+                uiObjects.buttonLabelsByStatus[context.buttonLogic.status],
+                graphicsContext
+            )
+        }
         return true
     }
 
@@ -99,12 +101,13 @@ export class AllLabelButtonDrawTask implements ButtonStyle {
                 this.dataBlob,
                 "uiObjects",
                 {
-                    buttonLabelsByStatus: {
-                        [ButtonStatus.READY]: undefined,
-                        [ButtonStatus.HOVER]: undefined,
-                        [ButtonStatus.ACTIVE]: undefined,
-                        [ButtonStatus.DISABLED]: undefined,
-                    },
+                    buttonLabelsByStatus: Object.fromEntries(
+                        Object.keys(ButtonStatus)
+                            .map((keyStr) => keyStr as ButtonStatus)
+                            .map((key) => {
+                                return [key, undefined]
+                            })
+                    ),
                 }
             )
 
@@ -112,17 +115,15 @@ export class AllLabelButtonDrawTask implements ButtonStyle {
             this.dataBlob,
             "layout"
         )
-        ;[
-            ButtonStatus.READY,
-            ButtonStatus.HOVER,
-            ButtonStatus.ACTIVE,
-            ButtonStatus.DISABLED,
-        ].forEach((status) => {
-            if (!uiObjects.buttonLabelsByStatus[status]) {
-                uiObjects.buttonLabelsByStatus[status] =
-                    layout.labelByButtonStatus[status]
-            }
-        })
+
+        Object.keys(ButtonStatus)
+            .map((keyStr) => keyStr as ButtonStatus)
+            .forEach((status) => {
+                if (!uiObjects.buttonLabelsByStatus[status]) {
+                    uiObjects.buttonLabelsByStatus[status] =
+                        layout.labelByButtonStatus[status]
+                }
+            })
 
         DataBlobService.add<AllLabelButtonUIObjects>(
             this.dataBlob,

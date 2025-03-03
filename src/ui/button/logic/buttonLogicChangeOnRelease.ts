@@ -13,6 +13,14 @@ import {
     ButtonStatusChangeEventByButtonId,
 } from "./base"
 
+const VALID_STATUSES: ButtonStatus[] = [
+    ButtonStatus.READY,
+    ButtonStatus.ACTIVE,
+    ButtonStatus.DISABLED,
+    ButtonStatus.HOVER,
+    ButtonStatus.DISABLED,
+]
+
 export class ButtonLogicChangeOnRelease
     implements ButtonLogic, ButtonLogicClassFunctions
 {
@@ -39,6 +47,7 @@ export class ButtonLogicChangeOnRelease
         mousePress?: MousePress
         mouseRelease?: MouseRelease
     }) {
+        if (!VALID_STATUSES.includes(newStatus)) return
         if (this.status === newStatus) return
 
         const previousStatus = this.status
