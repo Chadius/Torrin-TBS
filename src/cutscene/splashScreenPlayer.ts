@@ -50,11 +50,7 @@ export const SplashScreenPlayerService = {
         splashScreenPlayerState.dialogFinished = false
         splashScreenPlayerState.startTime = Date.now()
     },
-    mouseClicked: (
-        splashScreenPlayerState: SplashScreenPlayerState,
-        mouseX: number,
-        mouseY: number
-    ) => {
+    mouseClicked: (splashScreenPlayerState: SplashScreenPlayerState) => {
         if (
             isTimeExpired(splashScreenPlayerState) &&
             isAnimating(splashScreenPlayerState)

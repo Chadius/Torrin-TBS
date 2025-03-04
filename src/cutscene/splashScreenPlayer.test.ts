@@ -41,7 +41,7 @@ describe("splash screen", () => {
             expect(SplashScreenPlayerService.isAnimating(player)).toBeTruthy()
             expect(SplashScreenPlayerService.isFinished(player)).toBeFalsy()
 
-            SplashScreenPlayerService.mouseClicked(player, 100, 100)
+            SplashScreenPlayerService.mouseClicked(player)
 
             expect(SplashScreenPlayerService.isAnimating(player)).toBeFalsy()
             expect(SplashScreenPlayerService.isFinished(player)).toBeTruthy()
@@ -81,12 +81,12 @@ describe("splash screen", () => {
         expect(SplashScreenPlayerService.isAnimating(player)).toBeTruthy()
         expect(SplashScreenPlayerService.isFinished(player)).toBeFalsy()
 
-        SplashScreenPlayerService.mouseClicked(player, 100, 100)
+        SplashScreenPlayerService.mouseClicked(player)
         expect(SplashScreenPlayerService.isAnimating(player)).toBeTruthy()
         expect(SplashScreenPlayerService.isFinished(player)).toBeFalsy()
 
         vi.spyOn(Date, "now").mockImplementation(() => 501)
-        SplashScreenPlayerService.mouseClicked(player, 100, 100)
+        SplashScreenPlayerService.mouseClicked(player)
 
         expect(SplashScreenPlayerService.isAnimating(player)).toBeFalsy()
         expect(SplashScreenPlayerService.isFinished(player)).toBeTruthy()

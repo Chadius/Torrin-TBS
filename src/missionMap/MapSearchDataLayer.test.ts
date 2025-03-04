@@ -96,8 +96,10 @@ describe("MapSearchDataLayer", () => {
             })
         MapSearchDataLayerService.setValueOfCoordinate({
             mapLayer: mapLayerFilledWithFalse,
-            q: 1,
-            r: 2,
+            mapCoordinate: {
+                q: 1,
+                r: 2,
+            },
             value: true,
         })
         expect(mapLayerFilledWithFalse.valueByCoordinate[1][2]).toBe(true)
@@ -118,8 +120,10 @@ describe("MapSearchDataLayer", () => {
         const shouldThrowError = () => {
             MapSearchDataLayerService.setValueOfCoordinate({
                 mapLayer: mapLayerFilledWithFalse,
-                q: 9001,
-                r: -3,
+                mapCoordinate: {
+                    q: 9001,
+                    r: -3,
+                },
                 value: true,
             })
         }
@@ -145,8 +149,10 @@ describe("MapSearchDataLayer", () => {
                 expect(
                     MapSearchDataLayerService.outOfBounds({
                         mapLayer: mapLayerFilledWithFalse,
-                        q,
-                        r,
+                        mapCoordinate: {
+                            q,
+                            r,
+                        },
                     })
                 ).toBe(false)
             })
@@ -154,29 +160,37 @@ describe("MapSearchDataLayer", () => {
         expect(
             MapSearchDataLayerService.outOfBounds({
                 mapLayer: mapLayerFilledWithFalse,
-                q: -1,
-                r: 0,
+                mapCoordinate: {
+                    q: -1,
+                    r: 0,
+                },
             })
         ).toBe(true)
         expect(
             MapSearchDataLayerService.outOfBounds({
                 mapLayer: mapLayerFilledWithFalse,
-                q: -1,
-                r: mapLayerFilledWithFalse.widthOfWidestRow,
+                mapCoordinate: {
+                    q: -1,
+                    r: mapLayerFilledWithFalse.widthOfWidestRow,
+                },
             })
         ).toBe(true)
         expect(
             MapSearchDataLayerService.outOfBounds({
                 mapLayer: mapLayerFilledWithFalse,
-                q: 0,
-                r: -1,
+                mapCoordinate: {
+                    q: 0,
+                    r: -1,
+                },
             })
         ).toBe(true)
         expect(
             MapSearchDataLayerService.outOfBounds({
                 mapLayer: mapLayerFilledWithFalse,
-                q: mapLayerFilledWithFalse.numberOfRows,
-                r: 0,
+                mapCoordinate: {
+                    q: mapLayerFilledWithFalse.numberOfRows,
+                    r: 0,
+                },
             })
         ).toBe(true)
     })

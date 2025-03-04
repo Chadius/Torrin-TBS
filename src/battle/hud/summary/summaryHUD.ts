@@ -10,7 +10,7 @@ import {
 } from "../playerCommand/playerCommandHUD"
 import { GameEngineState } from "../../../gameEngine/gameEngine"
 import { ResourceHandler } from "../../../resource/resourceHandler"
-import { MouseButton } from "../../../utils/mouseConfig"
+import { MouseRelease, ScreenLocation } from "../../../utils/mouseConfig"
 import { isValidValue } from "../../../utils/validityCheck"
 import {
     SquaddieNameAndPortraitTile,
@@ -131,27 +131,21 @@ export const SummaryHUDStateService = {
                 )
             )
     },
-    mouseClicked: ({
-        mouseX,
-        mouseButton,
-        mouseY,
+    mouseReleased: ({
+        mouseRelease,
         summaryHUDState,
         gameEngineState,
     }: {
-        mouseX: number
-        mouseButton: MouseButton
+        mouseRelease: MouseRelease
         summaryHUDState: SummaryHUDState
         gameEngineState: GameEngineState
-        mouseY: number
     }): PlayerCommandSelection => {
         if (!summaryHUDState?.showAllPlayerActions) {
             return PlayerCommandSelection.PLAYER_COMMAND_SELECTION_NONE
         }
 
-        return PlayerCommandStateService.mouseClicked({
-            mouseX,
-            mouseButton,
-            mouseY,
+        return PlayerCommandStateService.mouseReleased({
+            mouseRelease,
             gameEngineState,
             playerCommandState: summaryHUDState.playerCommandState,
         })
@@ -209,14 +203,12 @@ export const SummaryHUDStateService = {
         })
     },
     mouseMoved: ({
-        mouseY,
-        mouseX,
+        mouseLocation,
         summaryHUDState,
         gameEngineState,
     }: {
-        mouseX: number
+        mouseLocation: ScreenLocation
         summaryHUDState: SummaryHUDState
-        mouseY: number
         gameEngineState: GameEngineState
     }) => {
         if (!summaryHUDState.showAllPlayerActions) {
@@ -224,8 +216,7 @@ export const SummaryHUDStateService = {
         }
 
         PlayerCommandStateService.mouseMoved({
-            mouseX,
-            mouseY,
+            mouseLocation,
             gameEngineState,
             playerCommandState: summaryHUDState.playerCommandState,
         })

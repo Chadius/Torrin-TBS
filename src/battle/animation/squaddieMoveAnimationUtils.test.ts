@@ -1,58 +1,8 @@
-import {
-    getSquaddiePositionAlongPath,
-    lerpSquaddieBetweenPath,
-} from "./squaddieMoveAnimationUtils"
-import { HEX_TILE_WIDTH } from "../../graphicsConstants"
+import { getSquaddiePositionAlongPath } from "./squaddieMoveAnimationUtils"
 import { BattleCamera } from "../battleCamera"
-import { ScreenDimensions } from "../../utils/graphics/graphicsConfig"
 import { HexCoordinate } from "../../hexMap/hexCoordinate/hexCoordinate"
 import { ConvertCoordinateService } from "../../hexMap/convertCoordinates"
 import { beforeEach, describe, expect, it } from "vitest"
-
-describe("lerpSquaddieBetweenPath", () => {
-    it("lerp between two points on a map", () => {
-        const movementPathInfo: HexCoordinate[] = [
-            { q: 0, r: 0 },
-            { q: 0, r: 1 },
-        ]
-
-        const startLocation = lerpSquaddieBetweenPath(
-            movementPathInfo,
-            0,
-            1000,
-            0,
-            0
-        )
-        expect(startLocation).toEqual({
-            screenX: ScreenDimensions.SCREEN_WIDTH / 2,
-            screenY: ScreenDimensions.SCREEN_HEIGHT / 2,
-        })
-
-        const midLocation = lerpSquaddieBetweenPath(
-            movementPathInfo,
-            500,
-            1000,
-            0,
-            0
-        )
-        expect(midLocation).toEqual({
-            screenX: ScreenDimensions.SCREEN_WIDTH / 2 + HEX_TILE_WIDTH / 2,
-            screenY: ScreenDimensions.SCREEN_HEIGHT / 2,
-        })
-
-        const endLocation = lerpSquaddieBetweenPath(
-            movementPathInfo,
-            1000,
-            1000,
-            0,
-            0
-        )
-        expect(endLocation).toEqual({
-            screenX: ScreenDimensions.SCREEN_WIDTH / 2 + HEX_TILE_WIDTH,
-            screenY: ScreenDimensions.SCREEN_HEIGHT / 2,
-        })
-    })
-})
 
 describe("getSquaddiePositionAlongPath", () => {
     let movementPath: HexCoordinate[]
@@ -77,9 +27,11 @@ describe("getSquaddiePositionAlongPath", () => {
         )
         expect(startLocation).toStrictEqual(
             ConvertCoordinateService.convertMapCoordinatesToScreenLocation({
-                q: movementPath[0].q,
-                r: movementPath[0].r,
-                ...camera.getCoordinates(),
+                mapCoordinate: {
+                    q: movementPath[0].q,
+                    r: movementPath[0].r,
+                },
+                cameraLocation: camera.getWorldLocation(),
             })
         )
     })
@@ -92,9 +44,11 @@ describe("getSquaddiePositionAlongPath", () => {
         )
         expect(startLocation).toStrictEqual(
             ConvertCoordinateService.convertMapCoordinatesToScreenLocation({
-                q: movementPath[0].q,
-                r: movementPath[0].r,
-                ...camera.getCoordinates(),
+                mapCoordinate: {
+                    q: movementPath[0].q,
+                    r: movementPath[0].r,
+                },
+                cameraLocation: camera.getWorldLocation(),
             })
         )
     })
@@ -107,9 +61,11 @@ describe("getSquaddiePositionAlongPath", () => {
         )
         expect(startLocation).toStrictEqual(
             ConvertCoordinateService.convertMapCoordinatesToScreenLocation({
-                q: movementPath[0].q,
-                r: movementPath[0].r,
-                ...camera.getCoordinates(),
+                mapCoordinate: {
+                    q: movementPath[0].q,
+                    r: movementPath[0].r,
+                },
+                cameraLocation: camera.getWorldLocation(),
             })
         )
     })
@@ -123,9 +79,11 @@ describe("getSquaddiePositionAlongPath", () => {
         )
         expect(startLocation).toStrictEqual(
             ConvertCoordinateService.convertMapCoordinatesToScreenLocation({
-                q: movementPath[movementPath.length - 1].q,
-                r: movementPath[movementPath.length - 1].r,
-                ...camera.getCoordinates(),
+                mapCoordinate: {
+                    q: movementPath[movementPath.length - 1].q,
+                    r: movementPath[movementPath.length - 1].r,
+                },
+                cameraLocation: camera.getWorldLocation(),
             })
         )
     })
@@ -139,20 +97,24 @@ describe("getSquaddiePositionAlongPath", () => {
         )
         const tile1Coords =
             ConvertCoordinateService.convertMapCoordinatesToScreenLocation({
-                q: movementPath[1].q,
-                r: movementPath[1].r,
-                ...camera.getCoordinates(),
+                mapCoordinate: {
+                    q: movementPath[1].q,
+                    r: movementPath[1].r,
+                },
+                cameraLocation: camera.getWorldLocation(),
             })
         const tile2Coords =
             ConvertCoordinateService.convertMapCoordinatesToScreenLocation({
-                q: movementPath[2].q,
-                r: movementPath[2].r,
-                ...camera.getCoordinates(),
+                mapCoordinate: {
+                    q: movementPath[2].q,
+                    r: movementPath[2].r,
+                },
+                cameraLocation: camera.getWorldLocation(),
             })
 
         expect(startLocation).toEqual({
-            screenX: (tile1Coords.screenX + tile2Coords.screenX) / 2.0,
-            screenY: (tile1Coords.screenY + tile2Coords.screenY) / 2.0,
+            x: (tile1Coords.x + tile2Coords.x) / 2.0,
+            y: (tile1Coords.y + tile2Coords.y) / 2.0,
         })
     })
 })

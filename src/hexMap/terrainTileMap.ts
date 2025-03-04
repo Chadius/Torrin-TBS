@@ -40,19 +40,17 @@ export const TerrainTileMapService = {
     },
     selectCoordinate({
         terrainTileMap,
-        q,
-        r,
+        mapCoordinate,
     }: {
         terrainTileMap: TerrainTileMap
-        q: number
-        r: number
+        mapCoordinate: HexCoordinate
     }) {
         if (
             terrainTileMap.coordinates.some(
-                (tile) => tile.q == q && tile.r == r
+                (tile) => tile.q == mapCoordinate.q && tile.r == mapCoordinate.r
             )
         ) {
-            terrainTileMap.outlineTileCoordinates = { q, r }
+            terrainTileMap.outlineTileCoordinates = { ...mapCoordinate }
         } else {
             terrainTileMap.outlineTileCoordinates = undefined
         }

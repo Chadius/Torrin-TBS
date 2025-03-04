@@ -54,6 +54,7 @@ import { SummaryHUDStateService } from "../battle/hud/summary/summaryHUD"
 import { beforeEach, describe, expect, it, MockInstance, vi } from "vitest"
 import { BattleHUDListener } from "../battle/hud/battleHUD/battleHUDListener"
 import { BattlePlayerSquaddieSelectorSpec } from "./spec/battlePlayerSquaddieSelectorSpec"
+import { HexCoordinate } from "../hexMap/hexCoordinate/hexCoordinate"
 
 describe("user clicks on the map to move", () => {
     let repository: ObjectRepository
@@ -172,15 +173,20 @@ describe("user clicks on the map to move", () => {
         BattlePlayerSquaddieSelectorSpec.clickOnMapAtCoordinates({
             selector,
             gameEngineState,
-            q: 0,
-            r: 0,
+            mapCoordinate: {
+                q: 0,
+                r: 0,
+            },
             graphicsContext: mockP5GraphicsContext,
         })
     })
 
     describe("Invalid coordinates", () => {
         it("Do not make an action if the user clicks off map", () => {
-            selectorClicksOnMapCoordinate(selector, gameEngineState, -10, 9001)
+            selectorClicksOnMapCoordinate(selector, gameEngineState, {
+                q: -10,
+                r: 9001,
+            })
             expect(expectNoActionWasMadeAndSelectorIsComplete()).toBeTruthy()
             expect(
                 gameEngineState.battleOrchestratorState.battleHUDState
@@ -191,7 +197,10 @@ describe("user clicks on the map to move", () => {
         })
 
         it("Do not make an action if the user clicks out of range", () => {
-            selectorClicksOnMapCoordinate(selector, gameEngineState, 0, 4)
+            selectorClicksOnMapCoordinate(selector, gameEngineState, {
+                q: 0,
+                r: 4,
+            })
             expectNoActionWasMadeAndSelectorIsComplete()
             expect(
                 gameEngineState.battleOrchestratorState.battleHUDState
@@ -202,7 +211,10 @@ describe("user clicks on the map to move", () => {
         })
 
         it("Do not make a move action if the user clicks in range but on invalid terrain", () => {
-            selectorClicksOnMapCoordinate(selector, gameEngineState, 1, 0)
+            selectorClicksOnMapCoordinate(selector, gameEngineState, {
+                q: 1,
+                r: 0,
+            })
             expectNoActionWasMadeAndSelectorIsComplete()
             expect(
                 gameEngineState.battleOrchestratorState.battleHUDState
@@ -233,7 +245,10 @@ describe("user clicks on the map to move", () => {
                         r: 2,
                     },
                 })
-                selectorClicksOnMapCoordinate(selector, gameEngineState, 2, 2)
+                selectorClicksOnMapCoordinate(selector, gameEngineState, {
+                    q: 2,
+                    r: 2,
+                })
             })
 
             it("does not make any actions", () => {
@@ -296,7 +311,10 @@ describe("user clicks on the map to move", () => {
                 [playerBattleSquaddie2.battleSquaddieId]
             )
 
-            selectorClicksOnMapCoordinate(selector, gameEngineState, 0, 3)
+            selectorClicksOnMapCoordinate(selector, gameEngineState, {
+                q: 0,
+                r: 3,
+            })
         })
 
         it("Squaddie Selector will create a new route", () => {
@@ -379,7 +397,10 @@ describe("user clicks on the map to move", () => {
         let moveSquaddieAlongPathSpy: MockInstance
 
         beforeEach(() => {
-            selectorClicksOnMapCoordinate(selector, gameEngineState, 0, 3)
+            selectorClicksOnMapCoordinate(selector, gameEngineState, {
+                q: 0,
+                r: 3,
+            })
             mover = new BattleSquaddieMover()
             graphicsContext = new MockedP5GraphicsBuffer()
             moveSquaddieAlongPathSpy = vi.spyOn(
@@ -443,14 +464,13 @@ const getGameEngineState = ({
 const selectorClicksOnMapCoordinate = (
     selector: BattlePlayerSquaddieSelector,
     gameEngineState: GameEngineState,
-    q: number,
-    r: number
+    mapCoordinate: HexCoordinate
 ) => {
-    let { screenX: mouseX, screenY: mouseY } =
+    let { x: mouseX, y: mouseY } =
         ConvertCoordinateService.convertMapCoordinatesToScreenLocation({
-            q,
-            r,
-            ...gameEngineState.battleOrchestratorState.battleState.camera.getCoordinates(),
+            mapCoordinate,
+            cameraLocation:
+                gameEngineState.battleOrchestratorState.battleState.camera.getWorldLocation(),
         })
     selector.mouseEventHappened(gameEngineState, {
         eventType: OrchestratorComponentMouseEventType.PRESS,

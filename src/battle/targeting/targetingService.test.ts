@@ -108,7 +108,9 @@ describe("Targeting Service", () => {
 
         expect(results.coordinatesInRange).toHaveLength(6)
         expect(results.coordinatesInRange).toEqual(
-            expect.arrayContaining(CreateNewNeighboringCoordinates(1, 1))
+            expect.arrayContaining(
+                CreateNewNeighboringCoordinates({ q: 1, r: 1 })
+            )
         )
     })
 
@@ -449,7 +451,9 @@ describe("Targeting Service", () => {
                 TargetingResultsService.highlightTargetRange(gameEngineState)
             expect(actionRange).toHaveLength(6)
             expect(actionRange).toEqual(
-                expect.arrayContaining(CreateNewNeighboringCoordinates(1, 1))
+                expect.arrayContaining(
+                    CreateNewNeighboringCoordinates({ q: 1, r: 1 })
+                )
             )
         })
 

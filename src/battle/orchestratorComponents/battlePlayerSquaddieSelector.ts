@@ -119,10 +119,8 @@ export class BattlePlayerSquaddieSelector
                 .summaryHUDState
 
         const playerCommandSelection: PlayerCommandSelection =
-            SummaryHUDStateService.mouseClicked({
-                mouseX: mouseRelease.x,
-                mouseY: mouseRelease.y,
-                mouseButton: mouseRelease.button,
+            SummaryHUDStateService.mouseReleased({
+                mouseRelease,
                 gameEngineState,
                 summaryHUDState,
             })
@@ -189,8 +187,7 @@ export class BattlePlayerSquaddieSelector
             summaryHUDState:
                 gameEngineState.battleOrchestratorState.battleHUDState
                     .summaryHUDState,
-            mouseX: mouseLocation.x,
-            mouseY: mouseLocation.y,
+            mouseLocation,
             gameEngineState,
         })
     }

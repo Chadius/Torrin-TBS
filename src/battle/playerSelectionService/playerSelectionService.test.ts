@@ -106,8 +106,10 @@ describe("Player Selection Service", () => {
         })
         it("knows what spot the user clicked on", () => {
             const actualContext: PlayerSelectionContext = clickOnMapCoordinate({
-                q: 0,
-                r: 1,
+                mapCoordinate: {
+                    q: 0,
+                    r: 1,
+                },
                 gameEngineState,
             })
 
@@ -115,17 +117,20 @@ describe("Player Selection Service", () => {
                 PlayerIntent.START_OF_TURN_CLICK_ON_EMPTY_TILE
             )
 
-            const { screenX, screenY } =
+            const { x, y } =
                 ConvertCoordinateService.convertMapCoordinatesToScreenLocation({
-                    q: 0,
-                    r: 1,
-                    ...gameEngineState.battleOrchestratorState.battleState.camera.getCoordinates(),
+                    mapCoordinate: {
+                        q: 0,
+                        r: 1,
+                    },
+                    cameraLocation:
+                        gameEngineState.battleOrchestratorState.battleState.camera.getWorldLocation(),
                 })
 
             expect(actualContext.mouseClick).toEqual(
                 MouseClickService.new({
-                    x: screenX,
-                    y: screenY,
+                    x,
+                    y,
                     button: MouseButton.ACCEPT,
                 })
             )
@@ -137,8 +142,10 @@ describe("Player Selection Service", () => {
             let expectedMessage: MessageBoardMessagePlayerSelectsEmptyTile
             beforeEach(() => {
                 actualContext = clickOnMapCoordinate({
-                    q: 0,
-                    r: 1,
+                    mapCoordinate: {
+                        q: 0,
+                        r: 1,
+                    },
                     gameEngineState,
                 })
                 messageSpy = vi.spyOn(
@@ -215,8 +222,10 @@ describe("Player Selection Service", () => {
 
         it("knows the user wants to end the phase", () => {
             const actualContext: PlayerSelectionContext = clickOnMapCoordinate({
-                q: 0,
-                r: 0,
+                mapCoordinate: {
+                    q: 0,
+                    r: 0,
+                },
                 gameEngineState,
             })
 
@@ -225,8 +234,10 @@ describe("Player Selection Service", () => {
 
         it("will suggest BattleOrchestratorMode.COMPUTER_SQUADDIE_SELECTOR next", () => {
             const actualContext: PlayerSelectionContext = clickOnMapCoordinate({
-                q: 0,
-                r: 0,
+                mapCoordinate: {
+                    q: 0,
+                    r: 0,
+                },
                 gameEngineState,
             })
 
@@ -266,8 +277,10 @@ describe("Player Selection Service", () => {
             let actualContext: PlayerSelectionContext
             beforeEach(() => {
                 actualContext = clickOnMapCoordinate({
-                    q: 0,
-                    r: 1,
+                    mapCoordinate: {
+                        q: 0,
+                        r: 1,
+                    },
                     gameEngineState,
                 })
             })
@@ -283,19 +296,22 @@ describe("Player Selection Service", () => {
             })
 
             it("knows where the player clicked", () => {
-                const { screenX, screenY } =
+                const { x, y } =
                     ConvertCoordinateService.convertMapCoordinatesToScreenLocation(
                         {
-                            q: 0,
-                            r: 1,
-                            ...gameEngineState.battleOrchestratorState.battleState.camera.getCoordinates(),
+                            mapCoordinate: {
+                                q: 0,
+                                r: 1,
+                            },
+                            cameraLocation:
+                                gameEngineState.battleOrchestratorState.battleState.camera.getWorldLocation(),
                         }
                     )
 
                 expect(actualContext.mouseClick).toEqual(
                     MouseClickService.new({
-                        x: screenX,
-                        y: screenY,
+                        x,
+                        y,
                         button: MouseButton.ACCEPT,
                     })
                 )
@@ -336,8 +352,10 @@ describe("Player Selection Service", () => {
             let actualContext: PlayerSelectionContext
             beforeEach(() => {
                 actualContext = clickOnMapCoordinate({
-                    q: 0,
-                    r: 0,
+                    mapCoordinate: {
+                        q: 0,
+                        r: 0,
+                    },
                     gameEngineState,
                 })
             })
@@ -353,19 +371,22 @@ describe("Player Selection Service", () => {
             })
 
             it("knows where the player clicked", () => {
-                const { screenX, screenY } =
+                const { x, y } =
                     ConvertCoordinateService.convertMapCoordinatesToScreenLocation(
                         {
-                            q: 0,
-                            r: 0,
-                            ...gameEngineState.battleOrchestratorState.battleState.camera.getCoordinates(),
+                            mapCoordinate: {
+                                q: 0,
+                                r: 0,
+                            },
+                            cameraLocation:
+                                gameEngineState.battleOrchestratorState.battleState.camera.getWorldLocation(),
                         }
                     )
 
                 expect(actualContext.mouseClick).toEqual(
                     MouseClickService.new({
-                        x: screenX,
-                        y: screenY,
+                        x,
+                        y,
                         button: MouseButton.ACCEPT,
                     })
                 )
@@ -426,8 +447,10 @@ describe("Player Selection Service", () => {
                     gameEngineState.battleOrchestratorState.battleHUDState.summaryHUDState =
                         SummaryHUDStateService.new()
                     actualContext = clickOnMapCoordinate({
-                        q: 0,
-                        r: 2,
+                        mapCoordinate: {
+                            q: 0,
+                            r: 2,
+                        },
                         gameEngineState,
                     })
                 })
@@ -590,38 +613,47 @@ describe("Player Selection Service", () => {
 
         it("indicates the player wants to peek at a squaddie", () => {
             const actualContext: PlayerSelectionContext =
-                hoverOverMapCoordinate({ q: 0, r: 0, gameEngineState })
+                hoverOverMapCoordinate({
+                    mapCoordinate: { q: 0, r: 0 },
+                    gameEngineState,
+                })
             expect(actualContext.playerIntent).toEqual(
                 PlayerIntent.PEEK_AT_SQUADDIE
             )
-            const { screenX, screenY } =
+            const { x, y } =
                 ConvertCoordinateService.convertMapCoordinatesToScreenLocation({
-                    q: 0,
-                    r: 0,
-                    ...gameEngineState.battleOrchestratorState.battleState.camera.getCoordinates(),
+                    mapCoordinate: { q: 0, r: 0 },
+                    cameraLocation:
+                        gameEngineState.battleOrchestratorState.battleState.camera.getWorldLocation(),
                 })
 
             expect(actualContext.mouseMovement).toEqual({
-                x: screenX,
-                y: screenY,
+                x,
+                y,
             })
             expect(actualContext.actorBattleSquaddieId).toEqual("PLAYER")
         })
 
         it("sends a message after applying the context", () => {
             const actualContext: PlayerSelectionContext =
-                hoverOverMapCoordinate({ q: 0, r: 0, gameEngineState })
+                hoverOverMapCoordinate({
+                    mapCoordinate: { q: 0, r: 0 },
+                    gameEngineState,
+                })
             const actualChanges =
                 PlayerSelectionService.applyContextToGetChanges({
                     context: actualContext,
                     gameEngineState,
                 })
 
-            const { screenX, screenY } =
+            const { x, y } =
                 ConvertCoordinateService.convertMapCoordinatesToScreenLocation({
-                    q: 0,
-                    r: 0,
-                    ...gameEngineState.battleOrchestratorState.battleState.camera.getCoordinates(),
+                    mapCoordinate: {
+                        q: 0,
+                        r: 0,
+                    },
+                    cameraLocation:
+                        gameEngineState.battleOrchestratorState.battleState.camera.getWorldLocation(),
                 })
 
             const expectedMessage = {
@@ -630,8 +662,8 @@ describe("Player Selection Service", () => {
                 battleSquaddieSelectedId: "PLAYER",
                 selectionMethod: {
                     mouse: {
-                        x: screenX,
-                        y: screenY,
+                        x,
+                        y,
                     },
                 },
             }
@@ -745,7 +777,10 @@ describe("Player Selection Service", () => {
         })
         it("will generate UNKNOWN context if it does not interact with the map or squaddies", () => {
             const actualContext: PlayerSelectionContext =
-                hoverOverMapCoordinate({ q: -10, r: -10, gameEngineState })
+                hoverOverMapCoordinate({
+                    mapCoordinate: { q: -10, r: -10 },
+                    gameEngineState,
+                })
             expect(actualContext.playerIntent).toEqual(PlayerIntent.UNKNOWN)
         })
         it("will not send messages when using an unknown context", () => {
@@ -788,11 +823,14 @@ describe("Player Selection Service", () => {
             })
 
             messageSpy = vi.spyOn(gameEngineState.messageBoard, "sendMessage")
-            ;({ screenX: x, screenY: y } =
+            ;({ x, y } =
                 ConvertCoordinateService.convertMapCoordinatesToScreenLocation({
-                    q: 0,
-                    r: 1,
-                    ...gameEngineState.battleOrchestratorState.battleState.camera.getCoordinates(),
+                    mapCoordinate: {
+                        q: 0,
+                        r: 1,
+                    },
+                    cameraLocation:
+                        gameEngineState.battleOrchestratorState.battleState.camera.getWorldLocation(),
                 }))
         })
         afterEach(() => {
@@ -804,8 +842,10 @@ describe("Player Selection Service", () => {
             beforeEach(() => {
                 actualContext = clickOnMapCoordinate({
                     gameEngineState,
-                    q: 0,
-                    r: 1,
+                    mapCoordinate: {
+                        q: 0,
+                        r: 1,
+                    },
                 })
             })
 
@@ -851,7 +891,7 @@ describe("Player Selection Service", () => {
     describe("user selects an action", () => {
         const setActorSetMessageSpyAndGetOnScreenCoordinate = (
             enemyMapCoordinate: HexCoordinate
-        ): { screenX: number; screenY: number } => {
+        ): { x: number; y: number } => {
             gameEngineState.battleOrchestratorState.battleState.battleActionDecisionStep =
                 BattleActionDecisionStepService.new()
 
@@ -866,8 +906,9 @@ describe("Player Selection Service", () => {
 
             return ConvertCoordinateService.convertMapCoordinatesToScreenLocation(
                 {
-                    ...enemyMapCoordinate,
-                    ...gameEngineState.battleOrchestratorState.battleState.camera.getCoordinates(),
+                    mapCoordinate: enemyMapCoordinate,
+                    cameraLocation:
+                        gameEngineState.battleOrchestratorState.battleState.camera.getWorldLocation(),
                 }
             )
         }
@@ -892,7 +933,7 @@ describe("Player Selection Service", () => {
                     actionTemplateIds: ["ranged", "melee", "heal"],
                 }).battleSquaddie,
             })
-            ;({ screenX: x, screenY: y } =
+            ;({ x, y } =
                 setActorSetMessageSpyAndGetOnScreenCoordinate(
                     enemyMapCoordinate
                 ))
@@ -954,8 +995,10 @@ describe("Player Selection Service", () => {
             beforeEach(() => {
                 actualContext = hoverOverMapCoordinate({
                     gameEngineState,
-                    q: -100,
-                    r: 9001,
+                    mapCoordinate: {
+                        q: -100,
+                        r: 9001,
+                    },
                 })
             })
 
@@ -1019,8 +1062,10 @@ describe("Player Selection Service", () => {
                     "getClosestRouteForSquaddieToReachDestination"
                 )
                 actualContext = hoverOverMapCoordinate({
-                    q: 1,
-                    r: 0,
+                    mapCoordinate: {
+                        q: 1,
+                        r: 0,
+                    },
                     gameEngineState,
                 })
             })
@@ -1041,8 +1086,10 @@ describe("Player Selection Service", () => {
 
             it("will reuse pathfinding results if hovering over the same location", () => {
                 hoverOverMapCoordinate({
-                    q: 1,
-                    r: 0,
+                    mapCoordinate: {
+                        q: 1,
+                        r: 0,
+                    },
                     gameEngineState,
                 })
                 expect(pathfindingSpy).toHaveBeenCalledTimes(1)
@@ -1050,8 +1097,10 @@ describe("Player Selection Service", () => {
 
             it("will calculate more pathfinding results if hovering over a different location", () => {
                 hoverOverMapCoordinate({
-                    q: 1,
-                    r: 1,
+                    mapCoordinate: {
+                        q: 1,
+                        r: 1,
+                    },
                     gameEngineState,
                 })
                 expect(pathfindingSpy).toHaveBeenCalledTimes(2)
@@ -1081,8 +1130,10 @@ describe("Player Selection Service", () => {
         })
         it("if the path is impossible clear the considered movement", () => {
             const actualContext = hoverOverMapCoordinate({
-                q: 0,
-                r: 3,
+                mapCoordinate: {
+                    q: 0,
+                    r: 3,
+                },
                 gameEngineState,
             })
 
@@ -1197,8 +1248,10 @@ describe("Player Selection Service", () => {
             })
 
             clickOnMapCoordinate({
-                q: 0,
-                r: 0,
+                mapCoordinate: {
+                    q: 0,
+                    r: 0,
+                },
                 gameEngineState,
             })
         })
@@ -1305,8 +1358,10 @@ describe("Player Selection Service", () => {
             })
 
             clickOnMapCoordinate({
-                q: 0,
-                r: 0,
+                mapCoordinate: {
+                    q: 0,
+                    r: 0,
+                },
                 gameEngineState,
             })
         })
@@ -1403,8 +1458,10 @@ describe("Player Selection Service", () => {
             })
 
             clickOnMapCoordinate({
-                q: 0,
-                r: 0,
+                mapCoordinate: {
+                    q: 0,
+                    r: 0,
+                },
                 gameEngineState,
             })
         })
@@ -1448,8 +1505,10 @@ describe("Player Selection Service", () => {
                 missionMap,
             })
             clickOnMapCoordinate({
-                q: 0,
-                r: 0,
+                mapCoordinate: {
+                    q: 0,
+                    r: 0,
+                },
                 gameEngineState,
             })
             gameEngineState.battleOrchestratorState.battleState.battleActionDecisionStep =
@@ -1704,26 +1763,24 @@ const createSquaddie = ({
 }
 
 const clickOnMapCoordinate = ({
-    q,
-    r,
+    mapCoordinate,
     gameEngineState,
 }: {
-    q: number
-    r: number
+    mapCoordinate: HexCoordinate
     gameEngineState: GameEngineState
 }): PlayerSelectionContext => {
-    const { screenX, screenY } =
+    const { x, y } =
         ConvertCoordinateService.convertMapCoordinatesToScreenLocation({
-            q,
-            r,
-            ...gameEngineState.battleOrchestratorState.battleState.camera.getCoordinates(),
+            mapCoordinate,
+            cameraLocation:
+                gameEngineState.battleOrchestratorState.battleState.camera.getWorldLocation(),
         })
 
     return PlayerSelectionService.calculateContext({
         gameEngineState,
         mouseClick: MouseClickService.new({
-            x: screenX,
-            y: screenY,
+            x,
+            y,
             button: MouseButton.ACCEPT,
         }),
         playerInputActions: [],
@@ -1731,26 +1788,24 @@ const clickOnMapCoordinate = ({
 }
 
 const hoverOverMapCoordinate = ({
-    q,
-    r,
+    mapCoordinate,
     gameEngineState,
 }: {
-    q: number
-    r: number
+    mapCoordinate: HexCoordinate
     gameEngineState: GameEngineState
 }): PlayerSelectionContext => {
-    const { screenX, screenY } =
+    const { x, y } =
         ConvertCoordinateService.convertMapCoordinatesToScreenLocation({
-            q,
-            r,
-            ...gameEngineState.battleOrchestratorState.battleState.camera.getCoordinates(),
+            mapCoordinate,
+            cameraLocation:
+                gameEngineState.battleOrchestratorState.battleState.camera.getWorldLocation(),
         })
 
     return PlayerSelectionService.calculateContext({
         gameEngineState,
         mouseMovement: {
-            x: screenX,
-            y: screenY,
+            x,
+            y,
         },
         playerInputActions: [],
     })

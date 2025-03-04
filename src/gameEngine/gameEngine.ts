@@ -13,7 +13,7 @@ import { BattleMapDisplay } from "../battle/orchestratorComponents/battleMapDisp
 import { BattlePhaseController } from "../battle/orchestratorComponents/battlePhaseController"
 import { BattlePlayerSquaddieTarget } from "../battle/orchestratorComponents/battlePlayerSquaddieTarget"
 import { BattleSquaddieUsesActionOnSquaddie } from "../battle/orchestratorComponents/battleSquaddieUsesActionOnSquaddie"
-import { MouseButton } from "../utils/mouseConfig"
+import { MousePress, MouseRelease, ScreenLocation } from "../utils/mouseConfig"
 import { GameModeEnum } from "../utils/startupConfig"
 import { GameEngineChanges, GameEngineComponent } from "./gameEngineComponent"
 import { TitleScreen } from "../titleScreen/titleScreen"
@@ -232,24 +232,16 @@ export class GameEngine {
         )
     }
 
-    mousePressed(mouseButton: MouseButton, mouseX: number, mouseY: number) {
-        this.component.mousePressed(this.gameEngineState, {
-            button: mouseButton,
-            x: mouseX,
-            y: mouseY,
-        })
+    mousePressed(mousePress: MousePress) {
+        this.component.mousePressed(this.gameEngineState, mousePress)
     }
 
-    mouseReleased(mouseButton: MouseButton, mouseX: number, mouseY: number) {
-        this.component.mouseReleased(this.gameEngineState, {
-            button: mouseButton,
-            x: mouseX,
-            y: mouseY,
-        })
+    mouseReleased(mouseRelease: MouseRelease) {
+        this.component.mouseReleased(this.gameEngineState, mouseRelease)
     }
 
-    mouseMoved(mouseX: number, mouseY: number) {
-        this.component.mouseMoved(this.gameEngineState, mouseX, mouseY)
+    mouseMoved(mouseLocation: ScreenLocation) {
+        this.component.mouseMoved(this.gameEngineState, mouseLocation)
     }
 
     async update({ graphics }: { graphics: GraphicsBuffer }) {

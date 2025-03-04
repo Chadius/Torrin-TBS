@@ -7,7 +7,11 @@ import { RectArea, RectAreaService } from "../../../ui/rectArea"
 import { ScreenDimensions } from "../../../utils/graphics/graphicsConfig"
 import { GameEngineState } from "../../../gameEngine/gameEngine"
 import { HUE_BY_SQUADDIE_AFFILIATION } from "../../../graphicsConstants"
-import { MouseButton } from "../../../utils/mouseConfig"
+import {
+    MouseButton,
+    MouseRelease,
+    ScreenLocation,
+} from "../../../utils/mouseConfig"
 import { ActionTemplate } from "../../../action/template/actionTemplate"
 import { ResourceHandler } from "../../../resource/resourceHandler"
 import { getResultOrThrowError } from "../../../utils/ResultOrError"
@@ -94,16 +98,12 @@ export const PlayerCommandStateService = {
             battleSquaddieId,
         })
     },
-    mouseClicked: ({
-        mouseX,
-        mouseY,
-        mouseButton,
+    mouseReleased: ({
+        mouseRelease,
         gameEngineState,
         playerCommandState,
     }: {
-        mouseX: number
-        mouseButton: MouseButton
-        mouseY: number
+        mouseRelease: MouseRelease
         gameEngineState: GameEngineState
         playerCommandState: PlayerCommandState
     }): PlayerCommandSelection => {
@@ -111,7 +111,7 @@ export const PlayerCommandStateService = {
             return PlayerCommandSelection.PLAYER_COMMAND_SELECTION_NONE
         }
 
-        if (mouseButton !== MouseButton.ACCEPT) {
+        if (mouseRelease.button !== MouseButton.ACCEPT) {
             return PlayerCommandSelection.PLAYER_COMMAND_SELECTION_NONE
         }
 
@@ -119,11 +119,7 @@ export const PlayerCommandStateService = {
             (actionButton) =>
                 ActionButtonService.shouldSelectActionBecauseOfMouseButton(
                     actionButton,
-                    {
-                        button: mouseButton,
-                        x: mouseX,
-                        y: mouseY,
-                    }
+                    mouseRelease
                 )
         )
 
@@ -153,13 +149,11 @@ export const PlayerCommandStateService = {
         return PlayerCommandSelection.PLAYER_COMMAND_SELECTION_NONE
     },
     mouseMoved: ({
-        mouseX,
-        mouseY,
+        mouseLocation,
         gameEngineState,
         playerCommandState,
     }: {
-        mouseX: number
-        mouseY: number
+        mouseLocation: ScreenLocation
         gameEngineState: GameEngineState
         playerCommandState: PlayerCommandState
     }): void => {
@@ -183,7 +177,7 @@ export const PlayerCommandStateService = {
             (actionButton) =>
                 ActionButtonService.shouldConsiderActionBecauseOfMouseMovement(
                     actionButton,
-                    { x: mouseX, y: mouseY }
+                    mouseLocation
                 )
         )
 

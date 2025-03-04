@@ -24,7 +24,11 @@ import {
     GameEngineChanges,
     GameEngineComponent,
 } from "../../gameEngine/gameEngineComponent"
-import { MousePress, MouseRelease } from "../../utils/mouseConfig"
+import {
+    MousePress,
+    MouseRelease,
+    ScreenLocation,
+} from "../../utils/mouseConfig"
 import { GameEngineState } from "../../gameEngine/gameEngine"
 import {
     MissionObjective,
@@ -400,13 +404,10 @@ export class BattleOrchestrator implements GameEngineComponent {
         }
     }
 
-    public mouseMoved(state: GameEngineState, mouseX: number, mouseY: number) {
+    public mouseMoved(state: GameEngineState, mouseLocation: ScreenLocation) {
         const mouseEvent: OrchestratorComponentMouseEvent = {
             eventType: OrchestratorComponentMouseEventType.LOCATION,
-            mouseLocation: {
-                x: mouseX,
-                y: mouseY,
-            },
+            mouseLocation,
         }
 
         this.getCurrentComponent().mouseEventHappened(state, mouseEvent)

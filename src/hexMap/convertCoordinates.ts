@@ -1,111 +1,85 @@
 import { HEX_TILE_RADIUS, HEX_TILE_WIDTH } from "../graphicsConstants"
 import { ScreenDimensions } from "../utils/graphics/graphicsConfig"
 import { HexCoordinate } from "./hexCoordinate/hexCoordinate"
+import { ScreenLocation } from "../utils/mouseConfig"
 
 export const ConvertCoordinateService = {
     convertMapCoordinatesToScreenLocation: ({
-        q,
-        r,
-        cameraX,
-        cameraY,
+        mapCoordinate,
+        cameraLocation,
     }: {
-        q: number
-        r: number
-        cameraX: number
-        cameraY: number
-    }): { screenX: number; screenY: number } => {
-        const { screenX, screenY } = convertMapCoordinatesToScreenLocation(
-            q,
-            r,
-            cameraX,
-            cameraY
-        )
-        return {
-            screenX,
-            screenY,
-        }
-    },
+        mapCoordinate: HexCoordinate
+        cameraLocation: ScreenLocation
+    }): ScreenLocation =>
+        convertMapCoordinatesToScreenLocation({
+            mapCoordinate,
+            cameraLocation,
+        }),
     convertScreenLocationToMapCoordinates: ({
-        screenX,
-        screenY,
-        cameraX,
-        cameraY,
+        screenLocation,
+        cameraLocation,
     }: {
-        screenX: number
-        screenY: number
-        cameraX: number
-        cameraY: number
-    }): HexCoordinate => {
-        const { q, r } = convertScreenLocationToMapCoordinates(
-            screenX,
-            screenY,
-            cameraX,
-            cameraY
-        )
-        return {
-            q,
-            r,
-        }
-    },
-    convertMapCoordinatesToWorldLocation: (
-        q: number,
-        r: number
-    ): { worldX: number; worldY: number } => {
-        const x = r + q / 2
-        return {
-            worldX: x * HEX_TILE_WIDTH,
-            worldY: (3 * q * HEX_TILE_RADIUS) / 2,
-        }
-    },
+        screenLocation: ScreenLocation
+        cameraLocation: ScreenLocation
+    }): HexCoordinate =>
+        convertScreenLocationToMapCoordinates({
+            screenLocation: screenLocation,
+            cameraLocation: cameraLocation,
+        }),
+    convertMapCoordinatesToWorldLocation: ({
+        mapCoordinate,
+    }: {
+        mapCoordinate: HexCoordinate
+    }): ScreenLocation => ({
+        x: (mapCoordinate.r + mapCoordinate.q / 2) * HEX_TILE_WIDTH,
+        y: (3 * mapCoordinate.q * HEX_TILE_RADIUS) / 2,
+    }),
     convertScreenLocationToWorldLocation: ({
-        screenX,
-        screenY,
-        cameraX,
-        cameraY,
+        screenLocation,
+        cameraLocation,
     }: {
-        screenX: number
-        screenY: number
-        cameraX: number
-        cameraY: number
-    }): { worldX: number; worldY: number } =>
-        convertScreenLocationToWorldLocation(
-            screenX,
-            screenY,
-            cameraX,
-            cameraY
-        ),
-    convertWorldLocationToMapCoordinates: (
-        worldX: number,
-        worldY: number,
-        round: boolean = true
-    ): { q: number; r: number } =>
-        convertWorldLocationToMapCoordinates(worldX, worldY, round),
+        screenLocation: ScreenLocation
+        cameraLocation: ScreenLocation
+    }): ScreenLocation =>
+        convertScreenLocationToWorldLocation({
+            screenLocation: screenLocation,
+            cameraLocation: cameraLocation,
+        }),
+    convertWorldLocationToMapCoordinates: ({
+        worldLocation,
+        round,
+    }: {
+        worldLocation: ScreenLocation
+        round?: boolean
+    }): HexCoordinate =>
+        convertWorldLocationToMapCoordinates({
+            worldLocation: worldLocation,
+            round: round,
+        }),
     convertWorldLocationToScreenLocation: ({
-        worldX,
-        worldY,
-        cameraX,
-        cameraY,
+        worldLocation,
+        cameraLocation,
     }: {
-        worldX: number
-        worldY: number
-        cameraX: number
-        cameraY: number
-    }): { screenX: number; screenY: number } =>
+        worldLocation: ScreenLocation
+        cameraLocation: ScreenLocation
+    }): ScreenLocation =>
         convertWorldLocationToScreenLocation({
-            worldX,
-            worldY,
-            cameraX,
-            cameraY,
+            worldLocation,
+            cameraLocation,
         }),
 }
 
-const convertWorldLocationToMapCoordinates = (
-    worldX: number,
-    worldY: number,
-    round: boolean = true
-): { q: number; r: number } => {
-    const q = (2 * worldY) / (3 * HEX_TILE_RADIUS)
-    const r = (worldX * Math.sqrt(3) - worldY) / (3 * HEX_TILE_RADIUS)
+const convertWorldLocationToMapCoordinates = ({
+    worldLocation,
+    round = true,
+}: {
+    worldLocation: ScreenLocation
+    round?: boolean
+}): HexCoordinate => {
+    const q = (2 * worldLocation.y) / (3 * HEX_TILE_RADIUS)
+    const r =
+        (worldLocation.x * Math.sqrt(3) - worldLocation.y) /
+        (3 * HEX_TILE_RADIUS)
 
     if (round) {
         return { q: Math.round(q), r: Math.round(r) }
@@ -114,61 +88,53 @@ const convertWorldLocationToMapCoordinates = (
 }
 
 const convertWorldLocationToScreenLocation = ({
-    worldX,
-    worldY,
-    cameraX,
-    cameraY,
+    worldLocation,
+    cameraLocation,
 }: {
-    worldX: number
-    worldY: number
-    cameraX: number
-    cameraY: number
-}): { screenX: number; screenY: number } => {
-    const screenX: number = worldX - cameraX + ScreenDimensions.SCREEN_WIDTH / 2
-    const screenY: number =
-        worldY - cameraY + ScreenDimensions.SCREEN_HEIGHT / 2
+    worldLocation: ScreenLocation
+    cameraLocation: ScreenLocation
+}): ScreenLocation => ({
+    x: worldLocation.x - cameraLocation.x + ScreenDimensions.SCREEN_WIDTH / 2,
+    y: worldLocation.y - cameraLocation.y + ScreenDimensions.SCREEN_HEIGHT / 2,
+})
 
-    return { screenX, screenY }
-}
+const convertScreenLocationToWorldLocation = ({
+    screenLocation,
+    cameraLocation,
+}: {
+    screenLocation: ScreenLocation
+    cameraLocation: ScreenLocation
+}): ScreenLocation => ({
+    x: screenLocation.x - ScreenDimensions.SCREEN_WIDTH / 2 + cameraLocation.x,
+    y: screenLocation.y - ScreenDimensions.SCREEN_HEIGHT / 2 + cameraLocation.y,
+})
 
-const convertScreenLocationToWorldLocation = (
-    screenX: number,
-    screenY: number,
-    cameraX: number,
-    cameraY: number
-): { worldX: number; worldY: number } => {
-    const worldX = screenX - ScreenDimensions.SCREEN_WIDTH / 2 + cameraX
-    const worldY = screenY - ScreenDimensions.SCREEN_HEIGHT / 2 + cameraY
-
-    return { worldX, worldY }
-}
-
-const convertMapCoordinatesToScreenLocation = (
-    q: number,
-    r: number,
-    cameraX: number,
-    cameraY: number
-): { screenX: number; screenY: number } => {
-    const worldCoordinates =
-        ConvertCoordinateService.convertMapCoordinatesToWorldLocation(q, r)
+const convertMapCoordinatesToScreenLocation = ({
+    mapCoordinate,
+    cameraLocation,
+}: {
+    mapCoordinate: HexCoordinate
+    cameraLocation: ScreenLocation
+}): ScreenLocation => {
     return convertWorldLocationToScreenLocation({
-        ...worldCoordinates,
-        cameraX,
-        cameraY,
+        worldLocation:
+            ConvertCoordinateService.convertMapCoordinatesToWorldLocation({
+                mapCoordinate: mapCoordinate,
+            }),
+        cameraLocation,
     })
 }
 
-const convertScreenLocationToMapCoordinates = (
-    screenX: number,
-    screenY: number,
-    cameraX: number,
-    cameraY: number
-): { q: number; r: number } => {
-    const { worldX, worldY } = convertScreenLocationToWorldLocation(
-        screenX,
-        screenY,
-        cameraX,
-        cameraY
-    )
-    return convertWorldLocationToMapCoordinates(worldX, worldY)
-}
+const convertScreenLocationToMapCoordinates = ({
+    screenLocation,
+    cameraLocation,
+}: {
+    screenLocation: ScreenLocation
+    cameraLocation: ScreenLocation
+}): HexCoordinate =>
+    convertWorldLocationToMapCoordinates({
+        worldLocation: convertScreenLocationToWorldLocation({
+            screenLocation: screenLocation,
+            cameraLocation: cameraLocation,
+        }),
+    })

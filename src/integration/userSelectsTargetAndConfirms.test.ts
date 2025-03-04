@@ -235,8 +235,10 @@ describe("User Selects Target and Confirms", () => {
         BattlePlayerActionTargetSpec.clickOnMapAtCoordinates({
             targeting,
             gameEngineState,
-            q: 0,
-            r: 2,
+            mapCoordinate: {
+                q: 0,
+                r: 2,
+            },
         })
         targeting.update({ gameEngineState, graphicsContext })
 
@@ -763,8 +765,10 @@ const clickOnEnemy = ({
     BattlePlayerActionTargetSpec.clickOnMapAtCoordinates({
         targeting,
         gameEngineState,
-        q: 0,
-        r: 2,
+        mapCoordinate: {
+            q: 0,
+            r: 2,
+        },
     })
     targeting.update({ gameEngineState, graphicsContext })
 

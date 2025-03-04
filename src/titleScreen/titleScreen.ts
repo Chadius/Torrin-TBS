@@ -423,12 +423,10 @@ export class TitleScreen implements GameEngineComponent {
         this.reactToButtonStatusChangeEvents()
     }
 
-    mouseMoved(_gameEngineState: GameEngineState, x: number, y: number): void {
-        const mouseLocation: ScreenLocation = {
-            x: x,
-            y: y,
-        }
-
+    mouseMoved(
+        _gameEngineState: GameEngineState,
+        mouseLocation: ScreenLocation
+    ): void {
         const buttons = this.getButtons()
         buttons.forEach((button) => {
             button.mouseMoved({

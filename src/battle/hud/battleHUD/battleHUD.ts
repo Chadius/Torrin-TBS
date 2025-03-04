@@ -798,13 +798,15 @@ const panCameraToSquaddie = (
     )
     if (MissionMapSquaddieCoordinateService.isValid(selectedMapCoordinates)) {
         const selectedWorldCoordinates =
-            ConvertCoordinateService.convertMapCoordinatesToWorldLocation(
-                selectedMapCoordinates.mapCoordinate.q,
-                selectedMapCoordinates.mapCoordinate.r
-            )
+            ConvertCoordinateService.convertMapCoordinatesToWorldLocation({
+                mapCoordinate: {
+                    q: selectedMapCoordinates.mapCoordinate.q,
+                    r: selectedMapCoordinates.mapCoordinate.r,
+                },
+            })
         gameEngineState.battleOrchestratorState.battleState.camera.pan({
-            xDestination: selectedWorldCoordinates.worldX,
-            yDestination: selectedWorldCoordinates.worldY,
+            xDestination: selectedWorldCoordinates.x,
+            yDestination: selectedWorldCoordinates.y,
             timeToPan: 500,
             respectConstraints: true,
         })

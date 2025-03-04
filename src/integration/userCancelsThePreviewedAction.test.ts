@@ -450,11 +450,14 @@ describe("User cancels the previewed action", () => {
             graphicsContext,
         })
 
-        let { screenX: mouseX, screenY: mouseY } =
+        let { x: mouseX, y: mouseY } =
             ConvertCoordinateService.convertMapCoordinatesToScreenLocation({
-                q: 0,
-                r: 1,
-                ...gameEngineState.battleOrchestratorState.battleState.camera.getCoordinates(),
+                mapCoordinate: {
+                    q: 0,
+                    r: 1,
+                },
+                cameraLocation:
+                    gameEngineState.battleOrchestratorState.battleState.camera.getWorldLocation(),
             })
         targeting.mouseEventHappened(gameEngineState, {
             eventType: OrchestratorComponentMouseEventType.PRESS,

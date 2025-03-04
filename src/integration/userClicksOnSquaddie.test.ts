@@ -263,11 +263,14 @@ describe("User clicks on a squaddie", () => {
                 MessageBoardMessageType.PLAYER_CONFIRMS_DECISION_STEP_ACTOR
             )
 
-            let { screenX: mouseX, screenY: mouseY } =
+            let { x: mouseX, y: mouseY } =
                 ConvertCoordinateService.convertMapCoordinatesToScreenLocation({
-                    q: 0,
-                    r: 0,
-                    ...gameEngineState.battleOrchestratorState.battleState.camera.getCoordinates(),
+                    mapCoordinate: {
+                        q: 0,
+                        r: 0,
+                    },
+                    cameraLocation:
+                        gameEngineState.battleOrchestratorState.battleState.camera.getWorldLocation(),
                 })
             selector.mouseEventHappened(gameEngineState, {
                 eventType: OrchestratorComponentMouseEventType.RELEASE,
@@ -353,11 +356,14 @@ describe("User clicks on a squaddie", () => {
             MessageBoardMessageType.PLAYER_CONFIRMS_DECISION_STEP_ACTOR
         )
 
-        let { screenX: mouseX, screenY: mouseY } =
+        let { x: mouseX, y: mouseY } =
             ConvertCoordinateService.convertMapCoordinatesToScreenLocation({
-                q: 0,
-                r: 1,
-                ...gameEngineState.battleOrchestratorState.battleState.camera.getCoordinates(),
+                mapCoordinate: {
+                    q: 0,
+                    r: 1,
+                },
+                cameraLocation:
+                    gameEngineState.battleOrchestratorState.battleState.camera.getWorldLocation(),
             })
         selector.mouseEventHappened(gameEngineState, {
             eventType: OrchestratorComponentMouseEventType.RELEASE,
@@ -367,11 +373,14 @@ describe("User clicks on a squaddie", () => {
                 button: MouseButton.ACCEPT,
             },
         })
-        ;({ screenX: mouseX, screenY: mouseY } =
+        ;({ x: mouseX, y: mouseY } =
             ConvertCoordinateService.convertMapCoordinatesToScreenLocation({
-                q: 0,
-                r: 1,
-                ...gameEngineState.battleOrchestratorState.battleState.camera.getCoordinates(),
+                mapCoordinate: {
+                    q: 0,
+                    r: 1,
+                },
+                cameraLocation:
+                    gameEngineState.battleOrchestratorState.battleState.camera.getWorldLocation(),
             }))
         selector.mouseEventHappened(gameEngineState, {
             eventType: OrchestratorComponentMouseEventType.RELEASE,
@@ -409,17 +418,20 @@ describe("User clicks on a squaddie", () => {
                 MessageBoardMessageType.PLAYER_CONFIRMS_DECISION_STEP_ACTOR
             )
 
-            let { screenX, screenY } =
+            let { x, y } =
                 ConvertCoordinateService.convertMapCoordinatesToScreenLocation({
-                    q: 0,
-                    r: 0,
-                    ...gameEngineState.battleOrchestratorState.battleState.camera.getCoordinates(),
+                    mapCoordinate: {
+                        q: 0,
+                        r: 0,
+                    },
+                    cameraLocation:
+                        gameEngineState.battleOrchestratorState.battleState.camera.getWorldLocation(),
                 })
             selector.mouseEventHappened(gameEngineState, {
                 eventType: OrchestratorComponentMouseEventType.LOCATION,
                 mouseLocation: {
-                    x: screenX,
-                    y: screenY,
+                    x,
+                    y,
                 },
             })
 
@@ -520,39 +532,45 @@ describe("User clicks on a squaddie", () => {
                 MessageBoardMessageType.PLAYER_CONFIRMS_DECISION_STEP_ACTOR
             )
 
-            let { screenX, screenY } =
+            let { x, y } =
                 ConvertCoordinateService.convertMapCoordinatesToScreenLocation({
-                    q: 0,
-                    r: 0,
-                    ...gameEngineState.battleOrchestratorState.battleState.camera.getCoordinates(),
+                    mapCoordinate: {
+                        q: 0,
+                        r: 0,
+                    },
+                    cameraLocation:
+                        gameEngineState.battleOrchestratorState.battleState.camera.getWorldLocation(),
                 })
             selector.mouseEventHappened(gameEngineState, {
                 eventType: OrchestratorComponentMouseEventType.RELEASE,
                 mouseRelease: {
-                    x: screenX,
-                    y: screenY,
+                    x,
+                    y,
                     button: MouseButton.ACCEPT,
                 },
             })
-            ;({ screenX: screenX, screenY: screenY } =
+            ;({ x, y } =
                 ConvertCoordinateService.convertMapCoordinatesToScreenLocation({
-                    q: 0,
-                    r: 8,
-                    ...gameEngineState.battleOrchestratorState.battleState.camera.getCoordinates(),
+                    mapCoordinate: {
+                        q: 0,
+                        r: 8,
+                    },
+                    cameraLocation:
+                        gameEngineState.battleOrchestratorState.battleState.camera.getWorldLocation(),
                 }))
             selector.mouseEventHappened(gameEngineState, {
                 eventType: OrchestratorComponentMouseEventType.LOCATION,
                 mouseLocation: {
-                    x: screenX,
-                    y: screenY,
+                    x,
+                    y,
                 },
             })
 
             selector.mouseEventHappened(gameEngineState, {
                 eventType: OrchestratorComponentMouseEventType.RELEASE,
                 mouseRelease: {
-                    x: screenX,
-                    y: screenY,
+                    x,
+                    y,
                     button: MouseButton.ACCEPT,
                 },
             })

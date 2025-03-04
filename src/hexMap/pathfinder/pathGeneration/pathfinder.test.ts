@@ -41,8 +41,10 @@ describe("Pathfinder", () => {
             const path2_0: SearchPath =
                 SearchResultsService.getShortestPathToCoordinate(
                     searchResults,
-                    0,
-                    2
+                    {
+                        q: 0,
+                        r: 2,
+                    }
                 )
             expect(SearchPathService.getTotalMovementCost(path2_0)).toEqual(0)
             expect(SearchPathService.getCoordinates(path2_0)).toHaveLength(1)
@@ -53,8 +55,10 @@ describe("Pathfinder", () => {
             const path1_4: SearchPath =
                 SearchResultsService.getShortestPathToCoordinate(
                     searchResults,
-                    1,
-                    4
+                    {
+                        q: 1,
+                        r: 4,
+                    }
                 )
             expect(SearchPathService.getTotalMovementCost(path1_4)).toEqual(4)
             expect(SearchPathService.getCoordinates(path1_4)).toHaveLength(4)
@@ -111,8 +115,10 @@ describe("Pathfinder", () => {
             const path0_0: SearchPath =
                 SearchResultsService.getShortestPathToCoordinate(
                     searchResults,
-                    0,
-                    0
+                    {
+                        q: 0,
+                        r: 0,
+                    }
                 )
             expect(SearchPathService.getTotalMovementCost(path0_0)).toEqual(0)
             expect(SearchPathService.getCoordinates(path0_0)).toHaveLength(1)
@@ -121,8 +127,10 @@ describe("Pathfinder", () => {
             const path1_4: SearchPath =
                 SearchResultsService.getShortestPathToCoordinate(
                     searchResults,
-                    1,
-                    4
+                    {
+                        q: 1,
+                        r: 4,
+                    }
                 )
             expect(SearchPathService.getTotalMovementCost(path1_4)).toEqual(0)
             expect(SearchPathService.getCoordinates(path1_4)).toHaveLength(1)
@@ -133,8 +141,10 @@ describe("Pathfinder", () => {
             const path0_2: SearchPath =
                 SearchResultsService.getShortestPathToCoordinate(
                     searchResults,
-                    0,
-                    2
+                    {
+                        q: 0,
+                        r: 2,
+                    }
                 )
 
             const route0_2 = SearchPathService.getCoordinates(path0_2)
@@ -149,8 +159,10 @@ describe("Pathfinder", () => {
             const path1_3: SearchPath =
                 SearchResultsService.getShortestPathToCoordinate(
                     searchResults,
-                    1,
-                    3
+                    {
+                        q: 1,
+                        r: 3,
+                    }
                 )
 
             const route1_3 = SearchPathService.getCoordinates(path1_3)

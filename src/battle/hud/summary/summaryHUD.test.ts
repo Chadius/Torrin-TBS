@@ -983,13 +983,17 @@ describe("summaryHUD", () => {
 
             SummaryHUDStateService.mouseMoved({
                 summaryHUDState,
-                mouseX,
-                mouseY,
+                mouseLocation: {
+                    x: mouseX,
+                    y: mouseY,
+                },
                 gameEngineState,
             })
             expect(playerCommandSpy).toBeCalledWith({
-                mouseX,
-                mouseY,
+                mouseLocation: {
+                    x: mouseX,
+                    y: mouseY,
+                },
                 gameEngineState,
                 playerCommandState: summaryHUDState.playerCommandState,
             })
@@ -1005,20 +1009,22 @@ describe("summaryHUD", () => {
 
             const playerCommandSpy: MockInstance = vi.spyOn(
                 PlayerCommandStateService,
-                "mouseClicked"
+                "mouseReleased"
             )
 
-            const selection = SummaryHUDStateService.mouseClicked({
+            const selection = SummaryHUDStateService.mouseReleased({
                 summaryHUDState,
-                mouseButton: MouseButton.ACCEPT,
-                mouseX: RectAreaService.centerX(
-                    summaryHUDState.playerCommandState.actionButtons[0]
-                        .uiObjects.buttonIcon.drawArea
-                ),
-                mouseY: RectAreaService.centerY(
-                    summaryHUDState.playerCommandState.actionButtons[0]
-                        .uiObjects.buttonIcon.drawArea
-                ),
+                mouseRelease: {
+                    button: MouseButton.ACCEPT,
+                    x: RectAreaService.centerX(
+                        summaryHUDState.playerCommandState.actionButtons[0]
+                            .uiObjects.buttonIcon.drawArea
+                    ),
+                    y: RectAreaService.centerY(
+                        summaryHUDState.playerCommandState.actionButtons[0]
+                            .uiObjects.buttonIcon.drawArea
+                    ),
+                },
                 gameEngineState,
             })
             expect(playerCommandSpy).toBeCalled()

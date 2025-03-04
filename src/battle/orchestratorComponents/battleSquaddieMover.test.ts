@@ -126,11 +126,10 @@ describe("BattleSquaddieMover", () => {
         })
 
         const movePath: SearchPath =
-            SearchResultsService.getShortestPathToCoordinate(
-                searchResults,
-                1,
-                1
-            )
+            SearchResultsService.getShortestPathToCoordinate(searchResults, {
+                q: 1,
+                r: 1,
+            })
 
         const gameEngineState: GameEngineState = GameEngineStateService.new({
             repository: objectRepository,
@@ -222,11 +221,10 @@ describe("BattleSquaddieMover", () => {
         })
 
         const movePath: SearchPath =
-            SearchResultsService.getShortestPathToCoordinate(
-                searchResults,
-                1,
-                1
-            )
+            SearchResultsService.getShortestPathToCoordinate(searchResults, {
+                q: 1,
+                r: 1,
+            })
 
         const gameEngineState: GameEngineState = GameEngineStateService.new({
             repository: objectRepository,
@@ -327,8 +325,10 @@ describe("BattleSquaddieMover", () => {
             const movePath: SearchPath =
                 SearchResultsService.getShortestPathToCoordinate(
                     searchResults,
-                    1,
-                    1
+                    {
+                        q: 1,
+                        r: 1,
+                    }
                 )
 
             return BattleOrchestratorStateService.new({

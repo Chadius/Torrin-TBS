@@ -10,64 +10,39 @@ export enum HexDirection {
     DOWN_RIGHT,
 }
 
-export const moveOneTileInDirection = (
-    origin: HexCoordinate,
-    direction: HexDirection
-): HexCoordinate => {
-    switch (direction) {
-        case HexDirection.RIGHT:
-            return { q: origin.q, r: origin.r + 1 }
-        case HexDirection.LEFT:
-            return { q: origin.q, r: origin.r - 1 }
-        case HexDirection.UP_RIGHT:
-            return { q: origin.q - 1, r: origin.r + 1 }
-        case HexDirection.UP_LEFT:
-            return { q: origin.q - 1, r: origin.r }
-        case HexDirection.DOWN_RIGHT:
-            return { q: origin.q + 1, r: origin.r }
-        case HexDirection.DOWN_LEFT:
-            return { q: origin.q + 1, r: origin.r - 1 }
-        case HexDirection.ORIGIN:
-        default:
-            return origin
-    }
-}
-
 export const CreateNewNeighboringCoordinates = (
-    q: number,
-    r: number
+    mapCoordinate: HexCoordinate
 ): HexCoordinate[] => {
     return [
-        MoveCoordinatesInOneDirection(q, r, HexDirection.RIGHT),
-        MoveCoordinatesInOneDirection(q, r, HexDirection.LEFT),
-        MoveCoordinatesInOneDirection(q, r, HexDirection.UP_LEFT),
-        MoveCoordinatesInOneDirection(q, r, HexDirection.UP_RIGHT),
-        MoveCoordinatesInOneDirection(q, r, HexDirection.DOWN_LEFT),
-        MoveCoordinatesInOneDirection(q, r, HexDirection.DOWN_RIGHT),
+        moveCoordinatesInOneDirection(mapCoordinate, HexDirection.RIGHT),
+        moveCoordinatesInOneDirection(mapCoordinate, HexDirection.LEFT),
+        moveCoordinatesInOneDirection(mapCoordinate, HexDirection.UP_LEFT),
+        moveCoordinatesInOneDirection(mapCoordinate, HexDirection.UP_RIGHT),
+        moveCoordinatesInOneDirection(mapCoordinate, HexDirection.DOWN_LEFT),
+        moveCoordinatesInOneDirection(mapCoordinate, HexDirection.DOWN_RIGHT),
     ]
 }
 
-export const MoveCoordinatesInOneDirection = (
-    originQ: number,
-    originR: number,
+const moveCoordinatesInOneDirection = (
+    mapCoordinate: HexCoordinate,
     direction: HexDirection
 ): HexCoordinate => {
     switch (direction) {
         case HexDirection.RIGHT:
-            return { q: originQ, r: originR + 1 }
+            return { q: mapCoordinate.q, r: mapCoordinate.r + 1 }
         case HexDirection.LEFT:
-            return { q: originQ, r: originR - 1 }
+            return { q: mapCoordinate.q, r: mapCoordinate.r - 1 }
         case HexDirection.UP_RIGHT:
-            return { q: originQ - 1, r: originR + 1 }
+            return { q: mapCoordinate.q - 1, r: mapCoordinate.r + 1 }
         case HexDirection.UP_LEFT:
-            return { q: originQ - 1, r: originR }
+            return { q: mapCoordinate.q - 1, r: mapCoordinate.r }
         case HexDirection.DOWN_RIGHT:
-            return { q: originQ + 1, r: originR }
+            return { q: mapCoordinate.q + 1, r: mapCoordinate.r }
         case HexDirection.DOWN_LEFT:
-            return { q: originQ + 1, r: originR - 1 }
+            return { q: mapCoordinate.q + 1, r: mapCoordinate.r - 1 }
         case HexDirection.ORIGIN:
         default:
-            return { q: originQ, r: originR }
+            return { q: mapCoordinate.q, r: mapCoordinate.r }
     }
 }
 
@@ -106,9 +81,8 @@ const getCoordinatesForRingAroundOrigin = (radius: number): HexCoordinate[] => {
         HexDirection.UP_RIGHT,
     ].forEach((currentDirection) => {
         for (let steps = 0; steps < radius; steps++) {
-            currentCoordinate = MoveCoordinatesInOneDirection(
-                currentCoordinate.q,
-                currentCoordinate.r,
+            currentCoordinate = moveCoordinatesInOneDirection(
+                currentCoordinate,
                 currentDirection
             )
             coordinates.push(currentCoordinate)

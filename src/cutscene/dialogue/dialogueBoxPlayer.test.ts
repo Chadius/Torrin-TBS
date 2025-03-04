@@ -23,6 +23,7 @@ import {
 } from "vitest"
 import { PlayerInputTestService } from "../../utils/test/playerInput"
 import { PlayerInputStateService } from "../../ui/playerInput/playerInputState"
+import { MouseButton } from "../../utils/mouseConfig"
 
 describe("dialogue box player", () => {
     describe("dialog box without answers finishes", () => {
@@ -73,7 +74,11 @@ describe("dialogue box player", () => {
                 DialoguePlayerService.isFinished(dialoguePlayerState)
             ).toBeFalsy()
 
-            DialoguePlayerService.mouseClicked(dialoguePlayerState, 0, 0)
+            DialoguePlayerService.mouseClicked(dialoguePlayerState, {
+                x: 0,
+                y: 0,
+                button: MouseButton.ACCEPT,
+            })
             expect(
                 DialoguePlayerService.isAnimating(dialoguePlayerState)
             ).toBeFalsy()
@@ -151,7 +156,11 @@ describe("dialogue box player", () => {
                 DialoguePlayerService.isFinished(dialoguePlayerState)
             ).toBeFalsy()
 
-            DialoguePlayerService.mouseClicked(dialoguePlayerState, 0, 0)
+            DialoguePlayerService.mouseClicked(dialoguePlayerState, {
+                x: 0,
+                y: 0,
+                button: MouseButton.ACCEPT,
+            })
 
             expect(
                 DialoguePlayerService.isAnimating(dialoguePlayerState)
@@ -173,11 +182,11 @@ describe("dialogue box player", () => {
             const buttonLocation =
                 dialoguePlayerState.answerButtons[0].buttonRect
 
-            DialoguePlayerService.mouseClicked(
-                dialoguePlayerState,
-                RectAreaService.centerX(buttonLocation),
-                RectAreaService.centerY(buttonLocation)
-            )
+            DialoguePlayerService.mouseClicked(dialoguePlayerState, {
+                x: RectAreaService.centerX(buttonLocation),
+                y: RectAreaService.centerY(buttonLocation),
+                button: MouseButton.ACCEPT,
+            })
 
             expect(
                 DialoguePlayerService.isAnimating(dialoguePlayerState)
@@ -199,11 +208,11 @@ describe("dialogue box player", () => {
             const buttonLocation =
                 dialoguePlayerState.answerButtons[1].buttonRect
 
-            DialoguePlayerService.mouseClicked(
-                dialoguePlayerState,
-                RectAreaService.centerX(buttonLocation),
-                RectAreaService.centerY(buttonLocation)
-            )
+            DialoguePlayerService.mouseClicked(dialoguePlayerState, {
+                x: RectAreaService.centerX(buttonLocation),
+                y: RectAreaService.centerY(buttonLocation),
+                button: MouseButton.ACCEPT,
+            })
 
             expect(dialoguePlayerState.answerSelected).toBe(1)
         })

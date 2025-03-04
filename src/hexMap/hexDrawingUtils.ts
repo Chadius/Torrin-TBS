@@ -13,6 +13,7 @@ import { GraphicsBuffer } from "../utils/graphics/graphicsRenderer"
 import { HexGridTile } from "./hexGrid"
 import p5 from "p5"
 import { TerrainTileGraphicsService } from "./terrainTileGraphics"
+import { ScreenLocation } from "../utils/mouseConfig"
 
 export enum HighlightPulseColorNames {
     PURPLE = "PURPLE",
@@ -69,21 +70,17 @@ const defaultTerrainResourceKeyByTerrainType: {
 
 const drawHexShape = (
     graphicsContext: GraphicsBuffer,
-    worldX: number,
-    worldY: number,
-    cameraX: number,
-    cameraY: number
+    worldLocation: ScreenLocation,
+    cameraLocation: ScreenLocation
 ) => {
-    let { screenX, screenY } =
+    let { x, y } =
         ConvertCoordinateService.convertWorldLocationToScreenLocation({
-            worldX,
-            worldY,
-            cameraX,
-            cameraY,
+            worldLocation,
+            cameraLocation,
         })
 
     graphicsContext.push()
-    graphicsContext.translate(screenX, screenY)
+    graphicsContext.translate(x, y)
 
     let angle = Math.PI / 3
     graphicsContext.beginShape()
@@ -101,8 +98,7 @@ const drawHexShape = (
 const drawOutlinedTile = (
     graphicsContext: GraphicsBuffer,
     outlineTileCoordinates: HexCoordinate,
-    cameraX: number,
-    cameraY: number
+    cameraLocation: ScreenLocation
 ): void => {
     graphicsContext.push()
     graphicsContext.stroke(
@@ -121,7 +117,7 @@ const drawOutlinedTile = (
         (outlineTileCoordinates.r + outlineTileCoordinates.q * 0.5) *
         HEX_TILE_WIDTH
     let yPos = (outlineTileCoordinates.q * 3 * HEX_TILE_RADIUS) / 2
-    drawHexShape(graphicsContext, xPos, yPos, cameraX, cameraY)
+    drawHexShape(graphicsContext, { x: xPos, y: yPos }, cameraLocation)
     graphicsContext.pop()
 }
 
@@ -173,12 +169,10 @@ export const HexDrawingUtils = {
             })
 
         if (map.outlineTileCoordinates !== undefined) {
-            const { cameraX, cameraY } = camera.getCoordinates()
             drawOutlinedTile(
                 graphics,
                 map.outlineTileCoordinates,
-                cameraX,
-                cameraY
+                camera.getWorldLocation()
             )
         }
     },
@@ -273,13 +267,10 @@ const drawHexTile = ({
     camera: BattleCamera
     image: p5.Image
 }) => {
-    const { cameraX, cameraY } = camera.getCoordinates()
-    let { screenX, screenY } =
+    let { x, y } =
         ConvertCoordinateService.convertMapCoordinatesToScreenLocation({
-            q: coordinate.q,
-            r: coordinate.r,
-            cameraX,
-            cameraY,
+            mapCoordinate: coordinate,
+            cameraLocation: camera.getWorldLocation(),
         })
-    graphics.image(image, screenX - image.width / 2, screenY - image.height / 2)
+    graphics.image(image, x - image.width / 2, y - image.height / 2)
 }

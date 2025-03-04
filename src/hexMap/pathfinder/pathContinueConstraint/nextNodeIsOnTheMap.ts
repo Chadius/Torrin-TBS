@@ -37,8 +37,7 @@ export class NextNodeIsOnTheMap implements PathContinueConstraint {
             SearchPathService.getMostRecentCoordinate(newPath)
         return !MapSearchDataLayerService.outOfBounds({
             mapLayer: this.terrainMapLayer,
-            q: headLocation.hexCoordinate.q,
-            r: headLocation.hexCoordinate.r,
+            mapCoordinate: headLocation.hexCoordinate,
         })
     }
 }

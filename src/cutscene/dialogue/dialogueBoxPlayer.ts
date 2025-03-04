@@ -24,6 +24,7 @@ import {
     PlayerInputState,
     PlayerInputStateService,
 } from "../../ui/playerInput/playerInputState"
+import { MousePress } from "../../utils/mouseConfig"
 
 export interface DialoguePlayerState {
     type: CutsceneActionPlayerType.DIALOGUE
@@ -99,29 +100,27 @@ export const DialoguePlayerService = {
         return !isAnimating(state) || state.dialogFinished
     },
     mouseClicked: (
-        state: DialoguePlayerState,
-        mouseX: number,
-        mouseY: number
+        dialoguePlayerState: DialoguePlayerState,
+        mousePress: MousePress
     ) => {
-        if (DialogueService.asksUserForAnAnswer(state.dialogue)) {
-            const answerSelected: number | null = state.answerButtons.findIndex(
-                (answerButton) => {
-                    return answerButton.buttonWasClicked(mouseX, mouseY)
-                }
-            )
+        if (DialogueService.asksUserForAnAnswer(dialoguePlayerState.dialogue)) {
+            const answerSelected: number | null =
+                dialoguePlayerState.answerButtons.findIndex((answerButton) => {
+                    return answerButton.buttonWasClicked(mousePress)
+                })
 
             if (answerSelected !== -1) {
-                state.dialogFinished = true
-                state.answerSelected = answerSelected
+                dialoguePlayerState.dialogFinished = true
+                dialoguePlayerState.answerSelected = answerSelected
             }
             return
         }
 
         if (
-            isAnimating(state) &&
-            !DialogueService.asksUserForAnAnswer(state.dialogue)
+            isAnimating(dialoguePlayerState) &&
+            !DialogueService.asksUserForAnAnswer(dialoguePlayerState.dialogue)
         ) {
-            state.dialogFinished = true
+            dialoguePlayerState.dialogFinished = true
         }
     },
     draw: (

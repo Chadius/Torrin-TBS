@@ -12,6 +12,7 @@ import {
 } from "../../../cutscene/dialogue/constants"
 import { HEX_TILE_WIDTH } from "../../../graphicsConstants"
 import { TextHandlingService } from "../../../utils/graphics/textHandlingService"
+import { ScreenLocation } from "../../../utils/mouseConfig"
 
 export interface PopupWindow {
     status: PopupWindowStatus
@@ -46,26 +47,23 @@ export const PopupWindowService = {
     newWarningWindow: ({
         text,
         camera,
-        screenX,
-        screenY,
+        screenLocation,
         coordinateSystem,
     }: {
         text: string
         camera: BattleCamera
-        screenX: number
-        screenY: number
+        screenLocation: ScreenLocation
         coordinateSystem: CoordinateSystem
     }): PopupWindow => {
         const worldCoordinates =
             ConvertCoordinateService.convertScreenLocationToWorldLocation({
-                screenX,
-                screenY,
-                ...camera.getCoordinates(),
+                screenLocation,
+                cameraLocation: camera.getWorldLocation(),
             })
         const coordinates =
             coordinateSystem === CoordinateSystem.SCREEN
-                ? { x: screenX, y: screenY }
-                : { x: worldCoordinates.worldX, y: worldCoordinates.worldY }
+                ? screenLocation
+                : { x: worldCoordinates.x, y: worldCoordinates.y }
 
         const popupWidth = TextHandlingService.approximateLengthOfLineOfText({
             text,
@@ -155,19 +153,15 @@ const conformYCoordinateToScreen = (top: number, popup: PopupWindow) => {
 const movePopupOnScreen = (popup: PopupWindow, camera: BattleCamera) => {
     const screenCoordinates =
         ConvertCoordinateService.convertWorldLocationToScreenLocation({
-            worldX: popup.worldLocation.x,
-            worldY: popup.worldLocation.y,
-            ...camera.getCoordinates(),
+            worldLocation: {
+                x: popup.worldLocation.x,
+                y: popup.worldLocation.y,
+            },
+            cameraLocation: camera.getWorldLocation(),
         })
 
-    const xCoordinate = conformXCoordinateToScreen(
-        screenCoordinates.screenX,
-        popup
-    )
-    const yCoordinate = conformYCoordinateToScreen(
-        screenCoordinates.screenY,
-        popup
-    )
+    const xCoordinate = conformXCoordinateToScreen(screenCoordinates.x, popup)
+    const yCoordinate = conformYCoordinateToScreen(screenCoordinates.y, popup)
 
     const textBoxXOffset =
         RectAreaService.left(popup.label.textBox.area) -

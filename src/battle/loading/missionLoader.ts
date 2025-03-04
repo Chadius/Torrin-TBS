@@ -335,15 +335,15 @@ const initializeSquaddieResources = ({
                 battleSquaddie.battleSquaddieId
             )
 
-            let screenX = ScreenDimensions.SCREEN_WIDTH
-            let screenY = ScreenDimensions.SCREEN_HEIGHT
+            let imageLeft = ScreenDimensions.SCREEN_WIDTH
+            let imageTop = ScreenDimensions.SCREEN_HEIGHT
             if (datum.mapCoordinate !== undefined) {
-                ;({ screenX, screenY } =
+                ;({ x: imageLeft, y: imageTop } =
                     ConvertCoordinateService.convertMapCoordinatesToScreenLocation(
                         {
-                            q: datum.mapCoordinate.q,
-                            r: datum.mapCoordinate.r,
-                            ...missionLoaderContext.mapSettings.camera.getCoordinates(),
+                            mapCoordinate: datum.mapCoordinate,
+                            cameraLocation:
+                                missionLoaderContext.mapSettings.camera.getWorldLocation(),
                         }
                     ))
             }
@@ -359,8 +359,8 @@ const initializeSquaddieResources = ({
                             ImageUILoadingBehavior.KEEP_AREA_RESIZE_IMAGE,
                     },
                     area: RectAreaService.new({
-                        left: screenX,
-                        top: screenY,
+                        left: imageLeft,
+                        top: imageTop,
                         width: image.width,
                         height: image.height,
                         horizAlign: HORIZONTAL_ALIGN.CENTER,

@@ -57,16 +57,16 @@ export class PlayerActionConfirmCreateOKButton implements BehaviorTreeTask {
         ).targetCoordinate
         const targetLocation = targetCoordinate
             ? ConvertCoordinateService.convertMapCoordinatesToScreenLocation({
-                  ...targetCoordinate,
-                  ...context.camera.getCoordinates(),
+                  mapCoordinate: targetCoordinate,
+                  cameraLocation: context.camera.getWorldLocation(),
               })
             : undefined
 
         const okButtonArea: RectArea = targetCoordinate
             ? RectAreaService.new({
-                  centerX: targetLocation.screenX,
+                  centerX: targetLocation.x,
                   width: layout.okButton.width,
-                  top: targetLocation.screenY + layout.okButton.topOffset,
+                  top: targetLocation.y + layout.okButton.topOffset,
                   height: layout.okButton.height,
                   margin: layout.okButton.margin,
               })

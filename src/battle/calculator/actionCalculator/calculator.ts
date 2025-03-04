@@ -36,6 +36,7 @@ import {
 } from "../../history/calculatedResult"
 import { BattleActionActorContext } from "../../history/battleAction/battleActionActorContext"
 import { AttributeTypeAndAmount } from "../../../squaddie/attribute/attributeType"
+import { HexCoordinate } from "../../../hexMap/hexCoordinate/hexCoordinate"
 
 export interface CalculatedEffect {
     damage: DamageExplanation
@@ -367,12 +368,12 @@ const maybeUpdateMissionStatistics = ({
 
 const getBattleSquaddieIdsAtGivenCoordinates = ({
     gameEngineState,
-    coordinates,
+    mapCoordinates,
 }: {
-    coordinates: { q: number; r: number }[]
+    mapCoordinates: HexCoordinate[]
     gameEngineState: GameEngineState
 }): string[] => {
-    return coordinates
+    return mapCoordinates
         .map((coordinate) =>
             MissionMapService.getBattleSquaddieAtCoordinate(
                 gameEngineState.battleOrchestratorState.battleState.missionMap,
@@ -549,7 +550,7 @@ const calculateResults = ({
                 const targetedBattleSquaddieIds =
                     getBattleSquaddieIdsAtGivenCoordinates({
                         gameEngineState,
-                        coordinates: [targetCoordinate],
+                        mapCoordinates: [targetCoordinate],
                     })
 
                 let change: ActionEffectChange = actionEffectChangeGenerator({

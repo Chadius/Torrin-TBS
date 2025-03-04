@@ -105,7 +105,11 @@ describe("Game Engine", () => {
             const mouseClickedSpy = vi
                 .spyOn(newGameEngine.component, "mousePressed")
                 .mockImplementation(() => {})
-            newGameEngine.mousePressed(MouseButton.ACCEPT, 100, 200)
+            newGameEngine.mousePressed({
+                button: MouseButton.ACCEPT,
+                x: 100,
+                y: 200,
+            })
             expect(mouseClickedSpy).toBeCalled()
             expect(mouseClickedSpy.mock.calls[0][1]).toEqual({
                 button: MouseButton.ACCEPT,
@@ -118,10 +122,9 @@ describe("Game Engine", () => {
             const mouseMovedSpy = vi
                 .spyOn(newGameEngine.component, "mouseMoved")
                 .mockImplementation(() => {})
-            newGameEngine.mouseMoved(100, 200)
+            newGameEngine.mouseMoved({ x: 100, y: 200 })
             expect(mouseMovedSpy).toBeCalled()
-            expect(mouseMovedSpy.mock.calls[0][1]).toBe(100)
-            expect(mouseMovedSpy.mock.calls[0][2]).toBe(200)
+            expect(mouseMovedSpy.mock.calls[0][1]).toEqual({ x: 100, y: 200 })
         }
 
         const loadAndExpect = async ({

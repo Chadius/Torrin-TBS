@@ -22,6 +22,7 @@ import {
 } from "../../hexMap/mapLayer/mapGraphicsLayer"
 import { BattleActionRecorderService } from "../history/battleAction/battleActionRecorder"
 import { BattleActionDecisionStepService } from "../actionDecision/battleActionDecisionStep"
+import { ScreenLocation } from "../../utils/mouseConfig"
 
 export const OrchestratorUtilities = {
     isSquaddieCurrentlyTakingATurn: (state: GameEngineState): boolean => {
@@ -37,14 +38,12 @@ export const OrchestratorUtilities = {
         return highlightSquaddieRange(gameEngineState, battleSquaddieId)
     },
     getSquaddieAtScreenLocation: ({
-        mouseX,
-        mouseY,
+        screenLocation,
         squaddieRepository,
         camera,
         map,
     }: {
-        mouseX: number
-        mouseY: number
+        screenLocation: ScreenLocation
         squaddieRepository: ObjectRepository
         camera: BattleCamera
         map: MissionMap
@@ -54,8 +53,7 @@ export const OrchestratorUtilities = {
         squaddieMapCoordinate: HexCoordinate
     } => {
         return getSquaddieAtScreenLocation({
-            mouseX,
-            mouseY,
+            screenLocation,
             squaddieRepository,
             camera,
             map,
@@ -259,9 +257,13 @@ const messageAndHighlightPlayableSquaddieTakingATurn = ({
     })
 }
 
-const getSquaddieAtScreenLocation = (param: {
-    mouseX: number
-    mouseY: number
+const getSquaddieAtScreenLocation = ({
+    screenLocation,
+    squaddieRepository,
+    camera,
+    map,
+}: {
+    screenLocation: ScreenLocation
     squaddieRepository: ObjectRepository
     camera: BattleCamera
     map: MissionMap
@@ -270,13 +272,10 @@ const getSquaddieAtScreenLocation = (param: {
     battleSquaddie: BattleSquaddie
     squaddieMapCoordinate: HexCoordinate
 } => {
-    const { mouseX, squaddieRepository, mouseY, camera, map } = param
-
     const clickedCoordinate =
         ConvertCoordinateService.convertScreenLocationToMapCoordinates({
-            screenX: mouseX,
-            screenY: mouseY,
-            ...camera.getCoordinates(),
+            screenLocation: screenLocation,
+            cameraLocation: camera.getWorldLocation(),
         })
 
     return getSquaddieAtMapCoordinate({

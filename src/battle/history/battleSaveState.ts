@@ -185,7 +185,7 @@ export const BattleSaveStateService = {
         )
 
         const cameraCoordinates =
-            battleOrchestratorState.battleState.camera.getCoordinates()
+            battleOrchestratorState.battleState.camera.getWorldLocation()
 
         return {
             campaignId,
@@ -200,8 +200,8 @@ export const BattleSaveStateService = {
                         .turnCount,
             },
             camera: {
-                xCoordinate: cameraCoordinates.cameraX,
-                yCoordinate: cameraCoordinates.cameraY,
+                xCoordinate: cameraCoordinates.x,
+                yCoordinate: cameraCoordinates.y,
             },
             battleActionRecorder:
                 battleOrchestratorState.battleState.battleActionRecorder,

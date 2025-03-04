@@ -251,15 +251,14 @@ describe("BattleComputerSquaddieSelector", () => {
                 .spyOn(DetermineNextDecisionService, "determineNextDecision")
                 .mockReturnValue([movementStep])
 
-            const { worldX, worldY } =
-                ConvertCoordinateService.convertMapCoordinatesToWorldLocation(
-                    0,
-                    0
-                )
-            squaddieLocation = [worldX, worldY]
+            const { x, y } =
+                ConvertCoordinateService.convertMapCoordinatesToWorldLocation({
+                    mapCoordinate: { q: 0, r: 0 },
+                })
+            squaddieLocation = [x, y]
             camera = new BattleCamera(
-                worldX + ScreenDimensions.SCREEN_WIDTH * 2,
-                worldY + ScreenDimensions.SCREEN_HEIGHT * 2
+                x + ScreenDimensions.SCREEN_WIDTH * 2,
+                y + ScreenDimensions.SCREEN_HEIGHT * 2
             )
             gameEngineState = GameEngineStateService.new({
                 repository: objectRepository,
@@ -532,12 +531,11 @@ describe("BattleComputerSquaddieSelector", () => {
                 coordinate: { q: 0, r: 1 },
             })
 
-            const { worldX, worldY } =
-                ConvertCoordinateService.convertMapCoordinatesToWorldLocation(
-                    0,
-                    0
-                )
-            camera = new BattleCamera(worldX, worldY)
+            const { x, y } =
+                ConvertCoordinateService.convertMapCoordinatesToWorldLocation({
+                    mapCoordinate: { q: 0, r: 0 },
+                })
+            camera = new BattleCamera(x, y)
         })
         afterEach(() => {
             addGraphicsLayerSpy.mockRestore()

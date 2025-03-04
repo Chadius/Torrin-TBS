@@ -22,8 +22,10 @@ describe("Terrain Tile Map", () => {
         it("should clear the outlined tile when you click off map", () => {
             TerrainTileMapService.selectCoordinate({
                 terrainTileMap: hexGrid,
-                q: -100,
-                r: 9001,
+                mapCoordinate: {
+                    q: -100,
+                    r: 9001,
+                },
             })
 
             expect(hexGrid.outlineTileCoordinates).toBe(undefined)
@@ -32,8 +34,10 @@ describe("Terrain Tile Map", () => {
         it("selects the tile as outlined", () => {
             TerrainTileMapService.selectCoordinate({
                 terrainTileMap: hexGrid,
-                q: 0,
-                r: 0,
+                mapCoordinate: {
+                    q: 0,
+                    r: 0,
+                },
             })
 
             expect(hexGrid.outlineTileCoordinates).toEqual(

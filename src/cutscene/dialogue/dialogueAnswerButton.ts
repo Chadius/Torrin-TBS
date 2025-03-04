@@ -2,6 +2,7 @@ import { Label, LabelService } from "../../ui/label"
 import { RectArea, RectAreaService } from "../../ui/rectArea"
 import { HORIZONTAL_ALIGN, VERTICAL_ALIGN } from "../../ui/constants"
 import { GraphicsBuffer } from "../../utils/graphics/graphicsRenderer"
+import { MousePress } from "../../utils/mouseConfig"
 
 export class DialogueAnswerButton {
     answerText: string
@@ -25,12 +26,12 @@ export class DialogueAnswerButton {
         LabelService.draw(this.answerLabel, graphicsContext)
     }
 
-    buttonWasClicked(mouseX: number, mouseY: number): boolean {
+    buttonWasClicked(mousePress: MousePress): boolean {
         return (
-            mouseX >= this.buttonRect.left &&
-            mouseX <= this.buttonRect.left + this.buttonRect.width &&
-            mouseY >= this.buttonRect.top &&
-            mouseY <= this.buttonRect.top + this.buttonRect.height
+            mousePress.x >= this.buttonRect.left &&
+            mousePress.x <= this.buttonRect.left + this.buttonRect.width &&
+            mousePress.y >= this.buttonRect.top &&
+            mousePress.y <= this.buttonRect.top + this.buttonRect.height
         )
     }
 

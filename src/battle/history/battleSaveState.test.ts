@@ -306,8 +306,8 @@ describe("BattleSaveState", () => {
             squaddieRepository: newSquaddieRepository,
         })
         const newCameraCoordinates =
-            newBattleState.battleState.camera.getCoordinates()
-        expect(newCameraCoordinates).toEqual({ cameraX: 100, cameraY: 200 })
+            newBattleState.battleState.camera.getWorldLocation()
+        expect(newCameraCoordinates).toEqual({ x: 100, y: 200 })
         expect(
             newBattleState.battleState.camera.mapDimensionBoundaries
         ).toEqual(

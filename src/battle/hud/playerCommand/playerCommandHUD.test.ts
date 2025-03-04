@@ -243,10 +243,12 @@ describe("playerCommandHUD", () => {
     }
 
     const clickActionButton = ({ buttonArea }: { buttonArea: RectArea }) => {
-        return PlayerCommandStateService.mouseClicked({
-            mouseX: RectAreaService.centerX(buttonArea),
-            mouseY: RectAreaService.centerY(buttonArea),
-            mouseButton: MouseButton.ACCEPT,
+        return PlayerCommandStateService.mouseReleased({
+            mouseRelease: {
+                x: RectAreaService.centerX(buttonArea),
+                y: RectAreaService.centerY(buttonArea),
+                button: MouseButton.ACCEPT,
+            },
             gameEngineState,
             playerCommandState,
         })
@@ -258,8 +260,10 @@ describe("playerCommandHUD", () => {
         buttonArea: RectArea
     }) => {
         return PlayerCommandStateService.mouseMoved({
-            mouseX: RectAreaService.centerX(buttonArea),
-            mouseY: RectAreaService.centerY(buttonArea),
+            mouseLocation: {
+                x: RectAreaService.centerX(buttonArea),
+                y: RectAreaService.centerY(buttonArea),
+            },
             gameEngineState,
             playerCommandState,
         })
@@ -400,8 +404,10 @@ describe("playerCommandHUD", () => {
                         disabledActionButton.uiObjects.buttonIcon.drawArea,
                 })
                 PlayerCommandStateService.mouseMoved({
-                    mouseX: -9001,
-                    mouseY: 9001,
+                    mouseLocation: {
+                        x: -9001,
+                        y: 9001,
+                    },
                     gameEngineState,
                     playerCommandState,
                 })
@@ -456,8 +462,10 @@ describe("playerCommandHUD", () => {
                         actionNeedsTargetButton.uiObjects.buttonIcon.drawArea,
                 })
                 PlayerCommandStateService.mouseMoved({
-                    mouseX: -9001,
-                    mouseY: 9001,
+                    mouseLocation: {
+                        x: -9001,
+                        y: 9001,
+                    },
                     gameEngineState,
                     playerCommandState,
                 })
@@ -473,8 +481,10 @@ describe("playerCommandHUD", () => {
             it("will not send a message to cancel consideration if no buttons were considered hovered over", () => {
                 selectPlayer()
                 PlayerCommandStateService.mouseMoved({
-                    mouseX: -9001,
-                    mouseY: 9001,
+                    mouseLocation: {
+                        x: -9001,
+                        y: 9001,
+                    },
                     gameEngineState,
                     playerCommandState,
                 })

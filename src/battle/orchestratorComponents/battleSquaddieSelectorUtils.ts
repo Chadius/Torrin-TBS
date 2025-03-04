@@ -313,8 +313,7 @@ const createSearchPath = (
     const closestRoute: SearchPath =
         SearchResultsService.getShortestPathToCoordinate(
             searchResults,
-            clickedHexCoordinate.q,
-            clickedHexCoordinate.r
+            clickedHexCoordinate
         )
 
     const noDirectRouteToDestination = closestRoute === null

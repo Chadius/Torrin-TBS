@@ -52,27 +52,26 @@ export const PlayerPhaseService = {
         if (MissionMapSquaddieCoordinateService.isValid(mapDatum)) {
             const squaddieScreenLocation =
                 ConvertCoordinateService.convertMapCoordinatesToScreenLocation({
-                    q: mapDatum.mapCoordinate.q,
-                    r: mapDatum.mapCoordinate.r,
-                    ...gameEngineState.battleOrchestratorState.battleState.camera.getCoordinates(),
+                    mapCoordinate: mapDatum.mapCoordinate,
+                    cameraLocation:
+                        gameEngineState.battleOrchestratorState.battleState.camera.getWorldLocation(),
                 })
             if (
                 GraphicsConfig.isCoordinateWithinMiddleThirdOfScreen(
-                    squaddieScreenLocation.screenX,
-                    squaddieScreenLocation.screenY
+                    squaddieScreenLocation.x,
+                    squaddieScreenLocation.y
                 )
             ) {
                 return
             }
 
             const squaddieWorldLocation =
-                ConvertCoordinateService.convertMapCoordinatesToWorldLocation(
-                    mapDatum.mapCoordinate.q,
-                    mapDatum.mapCoordinate.r
-                )
+                ConvertCoordinateService.convertMapCoordinatesToWorldLocation({
+                    mapCoordinate: mapDatum.mapCoordinate,
+                })
             gameEngineState.battleOrchestratorState.battleState.camera.pan({
-                xDestination: squaddieWorldLocation.worldX,
-                yDestination: squaddieWorldLocation.worldY,
+                xDestination: squaddieWorldLocation.x,
+                yDestination: squaddieWorldLocation.y,
                 timeToPan: BANNER_ANIMATION_TIME - 500,
                 respectConstraints: true,
             })

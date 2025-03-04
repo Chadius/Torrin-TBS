@@ -171,8 +171,10 @@ describe("user clicks on an action to consider it", () => {
         BattlePlayerSquaddieSelectorSpec.clickOnMapAtCoordinates({
             selector,
             gameEngineState,
-            q: 0,
-            r: 0,
+            mapCoordinate: {
+                q: 0,
+                r: 0,
+            },
             graphicsContext: mockP5GraphicsContext,
         })
 
@@ -195,8 +197,10 @@ describe("user clicks on an action to consider it", () => {
         BattlePlayerSquaddieSelectorSpec.clickOnMapAtCoordinates({
             selector,
             gameEngineState,
-            q: 0,
-            r: 0,
+            mapCoordinate: {
+                q: 0,
+                r: 0,
+            },
             graphicsContext: mockP5GraphicsContext,
         })
 
@@ -238,8 +242,10 @@ describe("user clicks on an action to consider it", () => {
         BattlePlayerSquaddieSelectorSpec.clickOnMapAtCoordinates({
             selector,
             gameEngineState,
-            q: 0,
-            r: 0,
+            mapCoordinate: {
+                q: 0,
+                r: 0,
+            },
             graphicsContext: mockP5GraphicsContext,
         })
 
@@ -261,8 +267,10 @@ describe("user clicks on an action to consider it", () => {
         BattlePlayerSquaddieSelectorSpec.clickOnMapAtCoordinates({
             selector,
             gameEngineState,
-            q: 0,
-            r: 0,
+            mapCoordinate: {
+                q: 0,
+                r: 0,
+            },
             graphicsContext: mockP5GraphicsContext,
         })
 
@@ -300,8 +308,10 @@ describe("user clicks on an action to consider it", () => {
         BattlePlayerSquaddieSelectorSpec.clickOnMapAtCoordinates({
             selector,
             gameEngineState,
-            q: 0,
-            r: 0,
+            mapCoordinate: {
+                q: 0,
+                r: 0,
+            },
             graphicsContext: mockP5GraphicsContext,
         })
 

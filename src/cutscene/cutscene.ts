@@ -40,7 +40,7 @@ import { ComponentDataBlob } from "../utils/dataBlob/componentDataBlob"
 import { BehaviorTreeTask } from "../utils/behaviorTree/task"
 import { SequenceComposite } from "../utils/behaviorTree/composite/sequence/sequence"
 import { ExecuteAllComposite } from "../utils/behaviorTree/composite/executeAll/executeAll"
-import { MouseButton, MousePress, ScreenLocation } from "../utils/mouseConfig"
+import { MousePress, ScreenLocation } from "../utils/mouseConfig"
 import { Button } from "../ui/button/button"
 import { DataBlobService } from "../utils/dataBlob/dataBlob"
 import {
@@ -378,17 +378,14 @@ export const CutsceneService = {
                     cutscene.cutscenePlayerStateById[
                         cutscene.currentDirection.id
                     ] as DialoguePlayerState,
-                    mousePress.x,
-                    mousePress.y
+                    mousePress
                 )
                 break
             case CutsceneActionPlayerType.SPLASH_SCREEN:
                 SplashScreenPlayerService.mouseClicked(
                     cutscene.cutscenePlayerStateById[
                         cutscene.currentDirection.id
-                    ] as SplashScreenPlayerState,
-                    mousePress.x,
-                    mousePress.y
+                    ] as SplashScreenPlayerState
                 )
                 break
         }

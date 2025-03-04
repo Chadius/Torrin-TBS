@@ -1,5 +1,6 @@
 import { MissionMap } from "./missionMap"
 import { TerrainTileMap, TerrainTileMapService } from "../hexMap/terrainTileMap"
+import { HexCoordinate } from "../hexMap/hexCoordinate/hexCoordinate"
 
 export interface MapSearchDataLayer {
     numberOfRows: number
@@ -66,49 +67,43 @@ export const MapSearchDataLayerService = {
     },
     setValueOfCoordinate: ({
         mapLayer,
-        q,
-        r,
+        mapCoordinate,
         value,
     }: {
         mapLayer: MapSearchDataLayer
-        q: number
-        r: number
+        mapCoordinate: HexCoordinate
         value: boolean | number | undefined
     }) => {
-        if (outOfBounds({ mapLayer, q, r })) {
+        if (outOfBounds({ mapLayer, mapCoordinate })) {
             throw new Error(
-                `(${q}, ${r}) is out of bounds, must be within (${mapLayer.numberOfRows}, ${mapLayer.widthOfWidestRow})`
+                `(${mapCoordinate.q}, ${mapCoordinate.r}) is out of bounds, must be within (${mapLayer.numberOfRows}, ${mapLayer.widthOfWidestRow})`
             )
         }
 
-        mapLayer.valueByCoordinate[q][r] = value
+        mapLayer.valueByCoordinate[mapCoordinate.q][mapCoordinate.r] = value
     },
     outOfBounds: ({
         mapLayer,
-        q,
-        r,
+        mapCoordinate,
     }: {
         mapLayer: MapSearchDataLayer
-        q: number
-        r: number
+        mapCoordinate: HexCoordinate
     }): boolean => {
-        return outOfBounds({ mapLayer, q, r })
+        return outOfBounds({ mapLayer, mapCoordinate })
     },
 }
 
 const outOfBounds = ({
     mapLayer,
-    q,
-    r,
+    mapCoordinate,
 }: {
     mapLayer: MapSearchDataLayer
-    q: number
-    r: number
+    mapCoordinate: HexCoordinate
 }): boolean => {
     return (
-        q < 0 ||
-        q >= mapLayer.numberOfRows ||
-        r < 0 ||
-        r >= mapLayer.widthOfWidestRow
+        mapCoordinate.q < 0 ||
+        mapCoordinate.q >= mapLayer.numberOfRows ||
+        mapCoordinate.r < 0 ||
+        mapCoordinate.r >= mapLayer.widthOfWidestRow
     )
 }

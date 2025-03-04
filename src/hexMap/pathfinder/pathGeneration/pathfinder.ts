@@ -189,8 +189,7 @@ const populateStartingCoordinate = ({
         (startCoordinate) => {
             MapSearchDataLayerService.setValueOfCoordinate({
                 mapLayer: workingState.mapLayers.queued,
-                q: startCoordinate.q,
-                r: startCoordinate.r,
+                mapCoordinate: startCoordinate,
                 value: true,
             })
             const startingPath = SearchPathService.newSearchPath()
@@ -334,8 +333,7 @@ const generateValidPaths = ({
                 workingState.searchPathQueue.enqueue(candidatePath)
                 MapSearchDataLayerService.setValueOfCoordinate({
                     mapLayer: workingState.mapLayers.queued,
-                    q: nextCoordinate.q,
-                    r: nextCoordinate.r,
+                    mapCoordinate: nextCoordinate,
                     value: true,
                 })
             }
@@ -364,16 +362,14 @@ const generateValidPaths = ({
             ).hexCoordinate
         MapSearchDataLayerService.setValueOfCoordinate({
             mapLayer: workingState.mapLayers.visited,
-            q: currentCoordinate.q,
-            r: currentCoordinate.r,
+            mapCoordinate: currentCoordinate,
             value: true,
         })
 
         if (canStopAtCoordinate({ currentSearchPath })) {
             MapSearchDataLayerService.setValueOfCoordinate({
                 mapLayer: workingState.mapLayers.stopped,
-                q: currentCoordinate.q,
-                r: currentCoordinate.r,
+                mapCoordinate: currentCoordinate,
                 value: true,
             })
             workingState.shortestPathByCoordinate[currentCoordinate.q][

@@ -219,8 +219,8 @@ describe("BattleActionConfirm", () => {
                     "convertMapCoordinatesToScreenLocation"
                 )
                 .mockReturnValue({
-                    screenX: screenLocation.x,
-                    screenY: screenLocation.y,
+                    x: screenLocation.x,
+                    y: screenLocation.y,
                 })
 
             attackThiefWithLongsword()
@@ -263,8 +263,8 @@ describe("BattleActionConfirm", () => {
                     "convertMapCoordinatesToScreenLocation"
                 )
                 .mockReturnValue({
-                    screenX: screenLocation.x,
-                    screenY: screenLocation.y,
+                    x: screenLocation.x,
+                    y: screenLocation.y,
                 })
 
             attackThiefWithLongsword()
@@ -287,8 +287,8 @@ describe("BattleActionConfirm", () => {
                     "convertMapCoordinatesToScreenLocation"
                 )
                 .mockReturnValue({
-                    screenX: screenLocation.x,
-                    screenY: screenLocation.y,
+                    x: screenLocation.x,
+                    y: screenLocation.y,
                 })
 
             attackThiefWithLongsword()

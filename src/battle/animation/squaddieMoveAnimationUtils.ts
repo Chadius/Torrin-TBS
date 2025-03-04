@@ -1,6 +1,7 @@
 import { ConvertCoordinateService } from "../../hexMap/convertCoordinates"
 import { BattleCamera } from "../battleCamera"
 import { HexCoordinate } from "../../hexMap/hexCoordinate/hexCoordinate"
+import { ScreenLocation } from "../../utils/mouseConfig"
 
 export const TIME_TO_MOVE = 1000.0
 
@@ -9,19 +10,17 @@ export const getSquaddiePositionAlongPath = (
     timePassed: number,
     timeToMove: number,
     camera: BattleCamera
-): { screenX: number; screenY: number } => {
+): ScreenLocation => {
     if (timePassed < 0) {
         return ConvertCoordinateService.convertMapCoordinatesToScreenLocation({
-            q: tilesTraveled[0].q,
-            r: tilesTraveled[0].r,
-            ...camera.getCoordinates(),
+            mapCoordinate: tilesTraveled[0],
+            cameraLocation: camera.getWorldLocation(),
         })
     }
     if (timePassed > timeToMove) {
         return ConvertCoordinateService.convertMapCoordinatesToScreenLocation({
-            q: tilesTraveled[tilesTraveled.length - 1].q,
-            r: tilesTraveled[tilesTraveled.length - 1].r,
-            ...camera.getCoordinates(),
+            mapCoordinate: tilesTraveled[tilesTraveled.length - 1],
+            cameraLocation: camera.getWorldLocation(),
         })
     }
 
@@ -31,9 +30,8 @@ export const getSquaddiePositionAlongPath = (
     const startTile: HexCoordinate = tilesTraveled[currentStepIndex]
     if (!startTile) {
         return ConvertCoordinateService.convertMapCoordinatesToScreenLocation({
-            q: tilesTraveled[0].q,
-            r: tilesTraveled[0].r,
-            ...camera.getCoordinates(),
+            mapCoordinate: tilesTraveled[0],
+            cameraLocation: camera.getWorldLocation(),
         })
     }
 
@@ -43,7 +41,7 @@ export const getSquaddiePositionAlongPath = (
     }
     const timePerStep: number = timeToMove / tilesTraveled.length
     const timeAtStepStart: number = currentStepIndex * timePerStep
-    const cameraCoordinates = camera.getCoordinates()
+    const cameraCoordinates = camera.getWorldLocation()
     return lerpSquaddieBetweenPath(
         [
             {
@@ -57,28 +55,24 @@ export const getSquaddiePositionAlongPath = (
         ],
         timePassed - timeAtStepStart,
         timePerStep,
-        cameraCoordinates.cameraX,
-        cameraCoordinates.cameraY
+        cameraCoordinates
     )
 }
 
-export const lerpSquaddieBetweenPath = (
+const lerpSquaddieBetweenPath = (
     movementPathInfo: HexCoordinate[],
     timePassed: number,
     totalTravelTime: number,
-    cameraX: number,
-    cameraY: number
-): { screenX: number; screenY: number } => {
-    const { worldX: startX, worldY: startY } =
-        ConvertCoordinateService.convertMapCoordinatesToWorldLocation(
-            movementPathInfo[0].q,
-            movementPathInfo[0].r
-        )
-    const { worldX: endX, worldY: endY } =
-        ConvertCoordinateService.convertMapCoordinatesToWorldLocation(
-            movementPathInfo[1].q,
-            movementPathInfo[1].r
-        )
+    cameraLocation: ScreenLocation
+): ScreenLocation => {
+    const { x: startX, y: startY } =
+        ConvertCoordinateService.convertMapCoordinatesToWorldLocation({
+            mapCoordinate: movementPathInfo[0],
+        })
+    const { x: endX, y: endY } =
+        ConvertCoordinateService.convertMapCoordinatesToWorldLocation({
+            mapCoordinate: movementPathInfo[1],
+        })
 
     const lerpX: number =
         (endX - startX) * (timePassed / totalTravelTime) + startX
@@ -86,9 +80,7 @@ export const lerpSquaddieBetweenPath = (
         (endY - startY) * (timePassed / totalTravelTime) + startY
 
     return ConvertCoordinateService.convertWorldLocationToScreenLocation({
-        worldX: lerpX,
-        worldY: lerpY,
-        cameraX,
-        cameraY,
+        worldLocation: { x: lerpX, y: lerpY },
+        cameraLocation,
     })
 }

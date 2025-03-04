@@ -4,6 +4,7 @@ import { MouseButton } from "../../utils/mouseConfig"
 import { GameEngineState } from "../../gameEngine/gameEngine"
 import { BattlePlayerSquaddieTarget } from "../../battle/orchestratorComponents/battlePlayerSquaddieTarget"
 import { ConvertCoordinateService } from "../../hexMap/convertCoordinates"
+import { HexCoordinate } from "../../hexMap/hexCoordinate/hexCoordinate"
 
 export const BattlePlayerActionTargetSpec = {
     clickOnCancelButton: ({
@@ -25,19 +26,17 @@ export const BattlePlayerActionTargetSpec = {
     clickOnMapAtCoordinates: ({
         targeting,
         gameEngineState,
-        q,
-        r,
+        mapCoordinate,
     }: {
         targeting: BattlePlayerSquaddieTarget
         gameEngineState: GameEngineState
-        q: number
-        r: number
+        mapCoordinate: HexCoordinate
     }) => {
-        let { screenX: mouseX, screenY: mouseY } =
+        let { x: mouseX, y: mouseY } =
             ConvertCoordinateService.convertMapCoordinatesToScreenLocation({
-                q,
-                r,
-                ...gameEngineState.battleOrchestratorState.battleState.camera.getCoordinates(),
+                mapCoordinate,
+                cameraLocation:
+                    gameEngineState.battleOrchestratorState.battleState.camera.getWorldLocation(),
             })
         targeting.mouseEventHappened(gameEngineState, {
             eventType: OrchestratorComponentMouseEventType.RELEASE,

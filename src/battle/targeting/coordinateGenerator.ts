@@ -41,9 +41,7 @@ const generateCoordinatesBloom = ({
 
     for (let i = 0; i < shapeData.distance; i++) {
         let newCoordinatesFound = Object.values(newCoordinates)
-            .map((coordinate) =>
-                CreateNewNeighboringCoordinates(coordinate.q, coordinate.r)
-            )
+            .map((coordinate) => CreateNewNeighboringCoordinates(coordinate))
             .flat()
             .filter(
                 (coordinate) =>

@@ -22,6 +22,7 @@ import { SummaryHUDStateService } from "../hud/summary/summaryHUD"
 import { ResourceHandler } from "../../resource/resourceHandler"
 import { beforeEach, describe, expect, it, MockInstance, vi } from "vitest"
 import { PlayerInputTestService } from "../../utils/test/playerInput"
+import { ScreenLocation } from "../../utils/mouseConfig"
 
 describe("battleMapDisplay", () => {
     let battleMapDisplay: BattleMapDisplay
@@ -120,10 +121,10 @@ describe("battleMapDisplay", () => {
                 graphics: mockedP5GraphicsContext,
                 resourceHandler,
             })
-            expect(camera.getCoordinates().cameraX).toBeCloseTo(
+            expect(camera.getWorldLocation().x).toBeCloseTo(
                 (initialCameraCoordinates[0] + destinationCoordinates[0]) / 2
             )
-            expect(camera.getCoordinates().cameraY).toBeCloseTo(
+            expect(camera.getWorldLocation().y).toBeCloseTo(
                 (initialCameraCoordinates[1] + destinationCoordinates[1]) / 2
             )
 
@@ -143,10 +144,10 @@ describe("battleMapDisplay", () => {
                 graphics: mockedP5GraphicsContext,
                 resourceHandler,
             })
-            expect(camera.getCoordinates().cameraX).toBeCloseTo(
+            expect(camera.getWorldLocation().x).toBeCloseTo(
                 destinationCoordinates[0]
             )
-            expect(camera.getCoordinates().cameraY).toBeCloseTo(
+            expect(camera.getWorldLocation().y).toBeCloseTo(
                 destinationCoordinates[1]
             )
         })
@@ -157,52 +158,32 @@ describe("battleMapDisplay", () => {
                 playerInput: PlayerInputTestService.holdScrollRightKey,
                 expectation: (
                     camera: BattleCamera,
-                    initialCameraCoordinates: {
-                        cameraX: number
-                        cameraY: number
-                    }
-                ) =>
-                    camera.getCoordinates().cameraX >
-                    initialCameraCoordinates.cameraX,
+                    initialCameraCoordinates: ScreenLocation
+                ) => camera.getWorldLocation().x > initialCameraCoordinates.x,
             },
             {
                 direction: "left",
                 playerInput: PlayerInputTestService.holdScrollLeftKey,
                 expectation: (
                     camera: BattleCamera,
-                    initialCameraCoordinates: {
-                        cameraX: number
-                        cameraY: number
-                    }
-                ) =>
-                    camera.getCoordinates().cameraX <
-                    initialCameraCoordinates.cameraX,
+                    initialCameraCoordinates: ScreenLocation
+                ) => camera.getWorldLocation().x < initialCameraCoordinates.x,
             },
             {
                 direction: "up",
                 playerInput: PlayerInputTestService.holdScrollUpKey,
                 expectation: (
                     camera: BattleCamera,
-                    initialCameraCoordinates: {
-                        cameraX: number
-                        cameraY: number
-                    }
-                ) =>
-                    camera.getCoordinates().cameraY <
-                    initialCameraCoordinates.cameraY,
+                    initialCameraCoordinates: ScreenLocation
+                ) => camera.getWorldLocation().y < initialCameraCoordinates.y,
             },
             {
                 direction: "down",
                 playerInput: PlayerInputTestService.holdScrollDownKey,
                 expectation: (
                     camera: BattleCamera,
-                    initialCameraCoordinates: {
-                        cameraX: number
-                        cameraY: number
-                    }
-                ) =>
-                    camera.getCoordinates().cameraY >
-                    initialCameraCoordinates.cameraY,
+                    initialCameraCoordinates: ScreenLocation
+                ) => camera.getWorldLocation().y > initialCameraCoordinates.y,
             },
         ]
 
@@ -219,7 +200,7 @@ describe("battleMapDisplay", () => {
                     ScreenDimensions.SCREEN_HEIGHT
 
                 const initialCameraCoordinates =
-                    gameEngineState.battleOrchestratorState.battleState.camera.getCoordinates()
+                    gameEngineState.battleOrchestratorState.battleState.camera.getWorldLocation()
 
                 const dateSpy = vi.spyOn(Date, "now").mockReturnValue(0)
 
@@ -263,37 +244,44 @@ describe("battleMapDisplay", () => {
 
         type CameraTest = {
             cameraDescription: string
-            mouseX: number
-            mouseY: number
+            mouseLocation: ScreenLocation
             cameraVelocityTest: (camera: BattleCamera) => boolean
         }
 
         const tests: CameraTest[] = [
             {
                 cameraDescription: "move left",
-                mouseX: 0,
-                mouseY: ScreenDimensions.SCREEN_HEIGHT / 2,
+                mouseLocation: {
+                    x: 0,
+                    y: ScreenDimensions.SCREEN_HEIGHT / 2,
+                },
                 cameraVelocityTest: (camera: BattleCamera) =>
                     camera.getVelocity().xVelocity < 0,
             },
             {
                 cameraDescription: "move right",
-                mouseX: ScreenDimensions.SCREEN_WIDTH,
-                mouseY: ScreenDimensions.SCREEN_HEIGHT / 2,
+                mouseLocation: {
+                    x: ScreenDimensions.SCREEN_WIDTH,
+                    y: ScreenDimensions.SCREEN_HEIGHT / 2,
+                },
                 cameraVelocityTest: (camera: BattleCamera) =>
                     camera.getVelocity().xVelocity > 0,
             },
             {
                 cameraDescription: "move up",
-                mouseX: ScreenDimensions.SCREEN_WIDTH / 2,
-                mouseY: 0,
+                mouseLocation: {
+                    x: ScreenDimensions.SCREEN_WIDTH / 2,
+                    y: 0,
+                },
                 cameraVelocityTest: (camera: BattleCamera) =>
                     camera.getVelocity().yVelocity < 0,
             },
             {
                 cameraDescription: "move down",
-                mouseX: ScreenDimensions.SCREEN_WIDTH / 2,
-                mouseY: ScreenDimensions.SCREEN_HEIGHT,
+                mouseLocation: {
+                    x: ScreenDimensions.SCREEN_WIDTH / 2,
+                    y: ScreenDimensions.SCREEN_HEIGHT,
+                },
                 cameraVelocityTest: (camera: BattleCamera) =>
                     camera.getVelocity().yVelocity > 0,
             },
@@ -301,11 +289,10 @@ describe("battleMapDisplay", () => {
 
         it.each(tests)(
             `moving mouse to ($mouseX, $mouseY) will make the camera $cameraDescription`,
-            ({ mouseX, mouseY, cameraVelocityTest }) => {
+            ({ mouseLocation, cameraVelocityTest }) => {
                 battleMapDisplay.moveCameraBasedOnMouseMovement(
                     state,
-                    mouseX,
-                    mouseY
+                    mouseLocation
                 )
                 expect(cameraVelocityTest(camera)).toBeTruthy()
             }
@@ -336,11 +323,10 @@ describe("battleMapDisplay", () => {
             .spyOn(SummaryHUDStateService, "isMouseHoveringOver")
             .mockReturnValue(true)
 
-        battleMapDisplay.moveCameraBasedOnMouseMovement(
-            stateWithOpenedHUD,
-            ScreenDimensions.SCREEN_WIDTH / 2,
-            ScreenDimensions.SCREEN_HEIGHT
-        )
+        battleMapDisplay.moveCameraBasedOnMouseMovement(stateWithOpenedHUD, {
+            x: ScreenDimensions.SCREEN_WIDTH / 2,
+            y: ScreenDimensions.SCREEN_HEIGHT,
+        })
         expect(
             stateWithOpenedHUD.battleState.camera.getVelocity().yVelocity
         ).toBe(0)

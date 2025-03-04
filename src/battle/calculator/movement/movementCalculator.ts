@@ -98,8 +98,7 @@ export const MovementCalculatorService = {
         const closestRoute: SearchPath =
             SearchResultsService.getShortestPathToCoordinate(
                 searchResults,
-                destination.q,
-                destination.r
+                destination
             )
         return isValidValue(closestRoute)
     },

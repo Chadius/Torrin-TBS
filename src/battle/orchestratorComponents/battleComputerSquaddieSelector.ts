@@ -373,22 +373,17 @@ export class BattleComputerSquaddieSelector
             battleSquaddieId
         )
 
-        const {
-            screenX: squaddieScreenLocationX,
-            screenY: squaddieScreenLocationY,
-        } = ConvertCoordinateService.convertMapCoordinatesToScreenLocation({
-            q: datum.mapCoordinate.q,
-            r: datum.mapCoordinate.r,
-            ...gameEngineState.battleOrchestratorState.battleState.camera.getCoordinates(),
-        })
+        const { x: squaddieScreenLocationX, y: squaddieScreenLocationY } =
+            ConvertCoordinateService.convertMapCoordinatesToScreenLocation({
+                mapCoordinate: datum.mapCoordinate,
+                cameraLocation:
+                    gameEngineState.battleOrchestratorState.battleState.camera.getWorldLocation(),
+            })
 
-        const {
-            worldX: squaddieWorldLocationX,
-            worldY: squaddieWorldLocationY,
-        } = ConvertCoordinateService.convertMapCoordinatesToWorldLocation(
-            datum.mapCoordinate.q,
-            datum.mapCoordinate.r
-        )
+        const { x: squaddieWorldLocationX, y: squaddieWorldLocationY } =
+            ConvertCoordinateService.convertMapCoordinatesToWorldLocation({
+                mapCoordinate: datum.mapCoordinate,
+            })
 
         if (
             !GraphicsConfig.isCoordinateOnScreen(

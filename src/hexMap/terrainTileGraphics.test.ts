@@ -20,11 +20,12 @@ describe("Terrain Tile Graphics", () => {
         it("should clear the outlined tile when you click off map", () => {
             TerrainTileGraphicsService.mouseClicked({
                 terrainTileMap: hexGrid,
-                mouseX: -100,
-                mouseY: -100,
-                cameraX: 0,
-                cameraY: 0,
-                mouseButton: MouseButton.ACCEPT,
+                mouseClick: {
+                    button: MouseButton.ACCEPT,
+                    x: -100,
+                    y: -100,
+                },
+                cameraLocation: { x: 0, y: 0 },
             })
 
             expect(hexGrid.outlineTileCoordinates).toBe(undefined)
@@ -47,15 +48,16 @@ describe("Terrain Tile Graphics", () => {
             ({ q, r }) => {
                 TerrainTileGraphicsService.mouseClicked({
                     terrainTileMap: hexGrid,
-                    mouseButton: MouseButton.ACCEPT,
-                    mouseX:
-                        ScreenDimensions.SCREEN_WIDTH / 2 +
-                        HEX_TILE_WIDTH * (r + q * 0.5),
-                    mouseY:
-                        ScreenDimensions.SCREEN_HEIGHT / 2 +
-                        (q * 3 * HEX_TILE_RADIUS) / 2,
-                    cameraX: 0,
-                    cameraY: 0,
+                    mouseClick: {
+                        button: MouseButton.ACCEPT,
+                        x:
+                            ScreenDimensions.SCREEN_WIDTH / 2 +
+                            HEX_TILE_WIDTH * (r + q * 0.5),
+                        y:
+                            ScreenDimensions.SCREEN_HEIGHT / 2 +
+                            (q * 3 * HEX_TILE_RADIUS) / 2,
+                    },
+                    cameraLocation: { x: 0, y: 0 },
                 })
 
                 expect(hexGrid.outlineTileCoordinates).toEqual(
@@ -76,14 +78,10 @@ describe("Terrain Tile Graphics", () => {
 
         it("knows all of the tiles are on screen", () => {
             const centerOfMap =
-                ConvertCoordinateService.convertMapCoordinatesToWorldLocation(
-                    1,
-                    1
-                )
-            const camera = new BattleCamera(
-                centerOfMap.worldX,
-                centerOfMap.worldY
-            )
+                ConvertCoordinateService.convertMapCoordinatesToWorldLocation({
+                    mapCoordinate: { q: 1, r: 1 },
+                })
+            const camera = new BattleCamera(centerOfMap.x, centerOfMap.y)
             expect(
                 TerrainTileGraphicsService.isCoordinateOnScreen({
                     terrainTileMap: map,
@@ -184,13 +182,12 @@ describe("Terrain Tile Graphics", () => {
 
         it("knows when tiles have scrolled off the top of the screen", () => {
             const centerOfMap =
-                ConvertCoordinateService.convertMapCoordinatesToWorldLocation(
-                    1,
-                    1
-                )
+                ConvertCoordinateService.convertMapCoordinatesToWorldLocation({
+                    mapCoordinate: { q: 1, r: 1 },
+                })
             const camera = new BattleCamera(
-                centerOfMap.worldX,
-                centerOfMap.worldY +
+                centerOfMap.x,
+                centerOfMap.y +
                     ScreenDimensions.SCREEN_HEIGHT / 2 +
                     HEX_TILE_WIDTH / 2
             )
@@ -212,13 +209,12 @@ describe("Terrain Tile Graphics", () => {
 
         it("knows when tiles have scrolled off the bottom of the screen", () => {
             const centerOfMap =
-                ConvertCoordinateService.convertMapCoordinatesToWorldLocation(
-                    1,
-                    1
-                )
+                ConvertCoordinateService.convertMapCoordinatesToWorldLocation({
+                    mapCoordinate: { q: 1, r: 1 },
+                })
             const camera = new BattleCamera(
-                centerOfMap.worldX,
-                centerOfMap.worldY -
+                centerOfMap.x,
+                centerOfMap.y -
                     ScreenDimensions.SCREEN_HEIGHT / 2 -
                     HEX_TILE_WIDTH / 2
             )
@@ -240,13 +236,12 @@ describe("Terrain Tile Graphics", () => {
 
         it("knows when tiles have scrolled off the left of the screen", () => {
             const centerOfMap =
-                ConvertCoordinateService.convertMapCoordinatesToWorldLocation(
-                    0,
-                    1
-                )
+                ConvertCoordinateService.convertMapCoordinatesToWorldLocation({
+                    mapCoordinate: { q: 0, r: 1 },
+                })
             const camera = new BattleCamera(
-                centerOfMap.worldX + ScreenDimensions.SCREEN_WIDTH / 2,
-                centerOfMap.worldY
+                centerOfMap.x + ScreenDimensions.SCREEN_WIDTH / 2,
+                centerOfMap.y
             )
             expect(
                 TerrainTileGraphicsService.isCoordinateOnScreen({
@@ -266,15 +261,14 @@ describe("Terrain Tile Graphics", () => {
 
         it("knows when tiles have scrolled off the right of the screen", () => {
             const centerOfMap =
-                ConvertCoordinateService.convertMapCoordinatesToWorldLocation(
-                    0,
-                    1
-                )
+                ConvertCoordinateService.convertMapCoordinatesToWorldLocation({
+                    mapCoordinate: { q: 0, r: 1 },
+                })
             const camera = new BattleCamera(
-                centerOfMap.worldX -
+                centerOfMap.x -
                     ScreenDimensions.SCREEN_WIDTH / 2 -
                     HEX_TILE_WIDTH / 2,
-                centerOfMap.worldY
+                centerOfMap.y
             )
             expect(
                 TerrainTileGraphicsService.isCoordinateOnScreen({

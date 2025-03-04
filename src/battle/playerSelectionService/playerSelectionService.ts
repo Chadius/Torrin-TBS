@@ -173,9 +173,9 @@ export const PlayerSelectionService = {
         let messageSent: MessageBoardMessage
         const { q, r } = context.mouseClick
             ? ConvertCoordinateService.convertScreenLocationToMapCoordinates({
-                  screenX: context.mouseClick.x,
-                  screenY: context.mouseClick.y,
-                  ...gameEngineState.battleOrchestratorState.battleState.camera.getCoordinates(),
+                  screenLocation: context.mouseClick,
+                  cameraLocation:
+                      gameEngineState.battleOrchestratorState.battleState.camera.getWorldLocation(),
               })
             : { q: 0, r: 0 }
         let endTurnBattleAction: BattleAction
@@ -272,8 +272,7 @@ export const PlayerSelectionService = {
                     type: MessageBoardMessageType.PLAYER_SELECTION_IS_INVALID,
                     gameEngineState,
                     popupWindow: PopupWindowService.newWarningWindow({
-                        screenX: context.mouseClick.x,
-                        screenY: context.mouseClick.y,
+                        screenLocation: context.mouseClick,
                         camera: gameEngineState.battleOrchestratorState
                             .battleState.camera,
                         text: `${targetSquaddieTemplate.squaddieId.name} is out of range`,
@@ -414,9 +413,9 @@ const getCoordinateAtLocation = ({
 
     const { q, r } =
         ConvertCoordinateService.convertScreenLocationToMapCoordinates({
-            screenX: screenLocation.x,
-            screenY: screenLocation.y,
-            ...gameEngineState.battleOrchestratorState.battleState.camera.getCoordinates(),
+            screenLocation,
+            cameraLocation:
+                gameEngineState.battleOrchestratorState.battleState.camera.getWorldLocation(),
         })
 
     return { q, r }
@@ -696,10 +695,6 @@ class CollectDataForContext implements BehaviorTreeTask {
             battleSquaddieId,
         }
     }
-
-    clone(): CollectDataForContext {
-        return new CollectDataForContext(this.dataBlob)
-    }
 }
 
 class PlayerSelectsAnActionBehavior implements BehaviorTreeTask {
@@ -790,10 +785,6 @@ class PlayerSelectsAnActionBehavior implements BehaviorTreeTask {
         )
         return true
     }
-
-    clone(): PlayerSelectsAnActionBehavior {
-        return new PlayerSelectsAnActionBehavior(this.dataBlob)
-    }
 }
 
 const addPlayerSelectionContextToDataBlob = (
@@ -838,10 +829,6 @@ class PlayerEndsSquaddieTurnBehavior implements BehaviorTreeTask {
         )
         return true
     }
-
-    clone(): PlayerEndsSquaddieTurnBehavior {
-        return new PlayerEndsSquaddieTurnBehavior(this.dataBlob)
-    }
 }
 
 class EndPhaseIfPlayerLacksControllableSquaddiesBehavior
@@ -871,12 +858,6 @@ class EndPhaseIfPlayerLacksControllableSquaddiesBehavior
             })
         )
         return true
-    }
-
-    clone(): EndPhaseIfPlayerLacksControllableSquaddiesBehavior {
-        return new EndPhaseIfPlayerLacksControllableSquaddiesBehavior(
-            this.dataBlob
-        )
     }
 }
 
@@ -939,12 +920,6 @@ class PlayerClicksOnPlayableSquaddieBeforeTurnStartsBehavior
         )
         return true
     }
-
-    clone(): PlayerClicksOnPlayableSquaddieBeforeTurnStartsBehavior {
-        return new PlayerClicksOnPlayableSquaddieBeforeTurnStartsBehavior(
-            this.dataBlob
-        )
-    }
 }
 
 class PlayerClicksOnUncontrollableSquaddieBeforeTurnStartsBehavior
@@ -1006,12 +981,6 @@ class PlayerClicksOnUncontrollableSquaddieBeforeTurnStartsBehavior
         )
         return true
     }
-
-    clone(): PlayerClicksOnUncontrollableSquaddieBeforeTurnStartsBehavior {
-        return new PlayerClicksOnUncontrollableSquaddieBeforeTurnStartsBehavior(
-            this.dataBlob
-        )
-    }
 }
 
 class AfterSquaddieStartsTurnPlayerClicksADifferentSquaddieBehavior
@@ -1068,12 +1037,6 @@ class AfterSquaddieStartsTurnPlayerClicksADifferentSquaddieBehavior
         )
         return true
     }
-
-    clone(): AfterSquaddieStartsTurnPlayerClicksADifferentSquaddieBehavior {
-        return new AfterSquaddieStartsTurnPlayerClicksADifferentSquaddieBehavior(
-            this.dataBlob
-        )
-    }
 }
 
 class PlayerClicksOnTheMapToMoveTheSelectedSquaddieBehavior
@@ -1121,12 +1084,6 @@ class PlayerClicksOnTheMapToMoveTheSelectedSquaddieBehavior
         )
         return true
     }
-
-    clone(): PlayerClicksOnTheMapToMoveTheSelectedSquaddieBehavior {
-        return new PlayerClicksOnTheMapToMoveTheSelectedSquaddieBehavior(
-            this.dataBlob
-        )
-    }
 }
 
 class PlayerHoversOverSquaddieToPeekAtItBehavior implements BehaviorTreeTask {
@@ -1168,10 +1125,6 @@ class PlayerHoversOverSquaddieToPeekAtItBehavior implements BehaviorTreeTask {
         )
         return true
     }
-
-    clone(): PlayerHoversOverSquaddieToPeekAtItBehavior {
-        return new PlayerHoversOverSquaddieToPeekAtItBehavior(this.dataBlob)
-    }
 }
 
 class PlayerClicksOnAnEmptyMapTileBehavior implements BehaviorTreeTask {
@@ -1207,10 +1160,6 @@ class PlayerClicksOnAnEmptyMapTileBehavior implements BehaviorTreeTask {
         )
         return true
     }
-
-    clone(): PlayerClicksOnAnEmptyMapTileBehavior {
-        return new PlayerClicksOnAnEmptyMapTileBehavior(this.dataBlob)
-    }
 }
 
 class PlayerPressesNextButtonBehavior implements BehaviorTreeTask {
@@ -1241,10 +1190,6 @@ class PlayerPressesNextButtonBehavior implements BehaviorTreeTask {
             })
         )
         return true
-    }
-
-    clone(): PlayerPressesNextButtonBehavior {
-        return new PlayerPressesNextButtonBehavior(this.dataBlob)
     }
 }
 
@@ -1359,9 +1304,5 @@ class PlayerConsidersMovementForSelectedSquaddie implements BehaviorTreeTask {
             movementDecision
         )
         return movementDecision
-    }
-
-    clone(): PlayerConsidersMovementForSelectedSquaddie {
-        return new PlayerConsidersMovementForSelectedSquaddie(this.dataBlob)
     }
 }

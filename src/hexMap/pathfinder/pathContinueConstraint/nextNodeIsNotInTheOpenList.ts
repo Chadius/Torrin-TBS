@@ -42,8 +42,7 @@ export class NextNodeIsNotInTheOpenList implements PathContinueConstraint {
         if (
             MapSearchDataLayerService.outOfBounds({
                 mapLayer: this.enqueuedMapLayer,
-                q: headLocation.hexCoordinate.q,
-                r: headLocation.hexCoordinate.r,
+                mapCoordinate: headLocation.hexCoordinate,
             })
         ) {
             return undefined

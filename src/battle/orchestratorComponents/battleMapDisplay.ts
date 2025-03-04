@@ -26,6 +26,7 @@ import {
     PlayerInputAction,
     PlayerInputStateService,
 } from "../../ui/playerInput/playerInputState"
+import { ScreenLocation } from "../../utils/mouseConfig"
 
 const SCREEN_EDGES = {
     left: [0.1, 0.04, 0.02],
@@ -111,36 +112,33 @@ export class BattleMapDisplay implements BattleOrchestratorComponent {
                 terrainTileMap:
                     gameEngineState.battleOrchestratorState.battleState
                         .missionMap.terrainTileMap,
-                mouseX: event.mouseRelease.x,
-                mouseY: event.mouseRelease.y,
-                mouseButton: event.mouseRelease.button,
-                ...gameEngineState.battleOrchestratorState.battleState.camera.getCoordinates(),
+                mouseClick: event.mouseRelease,
+                cameraLocation:
+                    gameEngineState.battleOrchestratorState.battleState.camera.getWorldLocation(),
             })
         }
         if (event.eventType === OrchestratorComponentMouseEventType.LOCATION) {
             this.moveCameraBasedOnMouseMovement(
                 gameEngineState.battleOrchestratorState,
-                event.mouseLocation.x,
-                event.mouseLocation.y
+                event.mouseLocation
             )
         }
     }
 
     keyEventHappened(
-        gameEngineState: GameEngineState,
-        keyEvent: OrchestratorComponentKeyEvent
+        _gameEngineState: GameEngineState,
+        _keyEvent: OrchestratorComponentKeyEvent
     ): void {
         // Required by Inheritance
     }
 
-    uiControlSettings(state: GameEngineState): UIControlSettings {
+    uiControlSettings(_state: GameEngineState): UIControlSettings {
         return new UIControlSettings({})
     }
 
     moveCameraBasedOnMouseMovement(
         battleOrchestraState: BattleOrchestratorState,
-        mouseX: number,
-        mouseY: number
+        mouseLocation: ScreenLocation
     ) {
         if (battleOrchestraState.battleState.camera.isPanning()) {
             return
@@ -151,24 +149,24 @@ export class BattleMapDisplay implements BattleOrchestratorComponent {
             SummaryHUDStateService.isMouseHoveringOver({
                 summaryHUDState:
                     battleOrchestraState.battleHUDState.summaryHUDState,
-                mouseSelectionLocation: {
-                    x: mouseX,
-                    y: mouseY,
-                },
+                mouseSelectionLocation: mouseLocation,
             })
         ) {
-            moveCameraWhenMouseIsOverSummaryHUD(mouseX, battleOrchestraState)
+            moveCameraWhenMouseIsOverSummaryHUD(
+                mouseLocation.x,
+                battleOrchestraState
+            )
             return
         }
         changeCameraHorizontalSpeedBasedOnMouseLocationOnScreen(
-            mouseX,
+            mouseLocation.x,
             battleOrchestraState
         )
         changeCameraVerticalSpeedBasedOnMouseLocationOnScreen(
-            mouseY,
+            mouseLocation.y,
             battleOrchestraState
         )
-        stopCameraIfMouseIsOffscreen(mouseX, mouseY, battleOrchestraState)
+        stopCameraIfMouseIsOffscreen(mouseLocation, battleOrchestraState)
     }
 
     update({
@@ -306,15 +304,14 @@ const getCurrentlyMovingBattleSquaddieIds = (
 }
 
 const stopCameraIfMouseIsOffscreen = (
-    mouseX: number,
-    mouseY: number,
+    mouseLocation: ScreenLocation,
     battleOrchestraState: BattleOrchestratorState
 ) => {
     if (
-        mouseX < 0 ||
-        mouseX > ScreenDimensions.SCREEN_WIDTH ||
-        mouseY < 0 ||
-        mouseY > ScreenDimensions.SCREEN_HEIGHT
+        mouseLocation.x < 0 ||
+        mouseLocation.x > ScreenDimensions.SCREEN_WIDTH ||
+        mouseLocation.y < 0 ||
+        mouseLocation.y > ScreenDimensions.SCREEN_HEIGHT
     ) {
         battleOrchestraState.battleState.camera.setXVelocity(0)
         battleOrchestraState.battleState.camera.setYVelocity(0)

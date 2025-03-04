@@ -253,8 +253,7 @@ const getClosestSquaddieAndLocationToFollow = ({
             .map((coordinateFromCandidate) => {
                 const path = SearchResultsService.getShortestPathToCoordinate(
                     routesThatEndCloseToCandidate,
-                    coordinateFromCandidate.q,
-                    coordinateFromCandidate.r
+                    coordinateFromCandidate
                 )
                 if (
                     numberOfActions === undefined ||

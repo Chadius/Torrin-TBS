@@ -2,6 +2,7 @@ import { assertsInteger, assertsNonNegativeNumber } from "../utils/mathAssert"
 import { ConvertCoordinateService } from "../hexMap/convertCoordinates"
 import { ScreenDimensions } from "../utils/graphics/graphicsConfig"
 import { RectArea, RectAreaService } from "../ui/rectArea"
+import { ScreenLocation } from "../utils/mouseConfig"
 
 export type PanningInformation = {
     xStartCoordinate: number
@@ -14,9 +15,6 @@ export type PanningInformation = {
 }
 
 export const BattleCameraService = {
-    getCoordinates: (
-        camera: BattleCamera
-    ): { cameraX: number; cameraY: number } => camera.getCoordinates(),
     clone: ({ original }: { original: BattleCamera }): BattleCamera => {
         const newCamera: BattleCamera = new BattleCamera(
             original.xCoordinate,
@@ -62,8 +60,8 @@ export class BattleCamera {
         this.yVelocity = vel
     }
 
-    getCoordinates(): { cameraX: number; cameraY: number } {
-        return { cameraX: this.xCoordinate, cameraY: this.yCoordinate }
+    getWorldLocation(): ScreenLocation {
+        return { x: this.xCoordinate, y: this.yCoordinate }
     }
 
     getVelocity(): { xVelocity: number; yVelocity: number } {
@@ -113,12 +111,12 @@ export class BattleCamera {
             worldLocationOfEndOfLastRow,
         } = this.getCameraBoundaries()
         const mapVerticallyFitsOnScreen =
-            worldLocationOfStartOfFirstRow.worldY >= 0 &&
-            worldLocationOfEndOfLastRow.worldY <= ScreenDimensions.SCREEN_HEIGHT
+            worldLocationOfStartOfFirstRow.y >= 0 &&
+            worldLocationOfEndOfLastRow.y <= ScreenDimensions.SCREEN_HEIGHT
         if (mapVerticallyFitsOnScreen) {
             this.yCoordinate =
-                (worldLocationOfStartOfFirstRow.worldY +
-                    worldLocationOfEndOfLastRow.worldY) /
+                (worldLocationOfStartOfFirstRow.y +
+                    worldLocationOfEndOfLastRow.y) /
                 2
             this.setYVelocity(0)
             return
@@ -147,12 +145,12 @@ export class BattleCamera {
             worldLocationOfEndOfLastRow,
         } = this.getCameraBoundaries()
         const doesMapFitHorizontallyOnScreen =
-            worldLocationOfStartOfFirstRow.worldX >= 0 &&
-            worldLocationOfEndOfLastRow.worldX <= ScreenDimensions.SCREEN_WIDTH
+            worldLocationOfStartOfFirstRow.x >= 0 &&
+            worldLocationOfEndOfLastRow.x <= ScreenDimensions.SCREEN_WIDTH
         if (doesMapFitHorizontallyOnScreen) {
             this.xCoordinate =
-                (worldLocationOfStartOfFirstRow.worldX +
-                    worldLocationOfEndOfLastRow.worldX) /
+                (worldLocationOfStartOfFirstRow.x +
+                    worldLocationOfEndOfLastRow.x) /
                 2
             this.setXVelocity(0)
             return
@@ -281,8 +279,8 @@ export class BattleCamera {
 
     private getCameraBoundaries(): {
         coordinateLimits: RectArea
-        worldLocationOfStartOfFirstRow: { worldX: number; worldY: number }
-        worldLocationOfEndOfLastRow: { worldX: number; worldY: number }
+        worldLocationOfStartOfFirstRow: ScreenLocation
+        worldLocationOfEndOfLastRow: ScreenLocation
     } {
         if (!this.mapDimensionBoundaries) {
             return {
@@ -292,8 +290,8 @@ export class BattleCamera {
                     right: 0,
                     bottom: 0,
                 }),
-                worldLocationOfStartOfFirstRow: { worldX: 0, worldY: 0 },
-                worldLocationOfEndOfLastRow: { worldX: 0, worldY: 0 },
+                worldLocationOfStartOfFirstRow: { x: 0, y: 0 },
+                worldLocationOfEndOfLastRow: { x: 0, y: 0 },
             }
         }
 
@@ -301,26 +299,27 @@ export class BattleCamera {
         const verticalCameraBuffer = ScreenDimensions.SCREEN_HEIGHT / 10
 
         const worldLocationOfStartOfFirstRow =
-            ConvertCoordinateService.convertMapCoordinatesToWorldLocation(0, 0)
+            ConvertCoordinateService.convertMapCoordinatesToWorldLocation({
+                mapCoordinate: { q: 0, r: 0 },
+            })
         const worldLocationOfEndOfLastRow =
-            ConvertCoordinateService.convertMapCoordinatesToWorldLocation(
-                this.mapDimensionBoundaries.numberOfRows,
-                this.mapDimensionBoundaries.widthOfWidestRow
-            )
+            ConvertCoordinateService.convertMapCoordinatesToWorldLocation({
+                mapCoordinate: {
+                    q: this.mapDimensionBoundaries.numberOfRows,
+                    r: this.mapDimensionBoundaries.widthOfWidestRow,
+                },
+            })
 
         return {
             coordinateLimits: RectAreaService.new({
-                left:
-                    worldLocationOfStartOfFirstRow.worldX +
-                    horizontalCameraBuffer,
-                right:
-                    worldLocationOfEndOfLastRow.worldX - horizontalCameraBuffer,
+                left: worldLocationOfStartOfFirstRow.x + horizontalCameraBuffer,
+                right: worldLocationOfEndOfLastRow.x - horizontalCameraBuffer,
                 top:
-                    worldLocationOfStartOfFirstRow.worldY -
+                    worldLocationOfStartOfFirstRow.y -
                     verticalCameraBuffer +
                     ScreenDimensions.SCREEN_HEIGHT / 2,
                 bottom:
-                    worldLocationOfEndOfLastRow.worldY +
+                    worldLocationOfEndOfLastRow.y +
                     verticalCameraBuffer -
                     ScreenDimensions.SCREEN_HEIGHT / 2,
             }),

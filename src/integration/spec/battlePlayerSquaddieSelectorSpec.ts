@@ -7,26 +7,25 @@ import { MouseButton } from "../../utils/mouseConfig"
 import { SummaryHUDStateService } from "../../battle/hud/summary/summaryHUD"
 import { RectAreaService } from "../../ui/rectArea"
 import { ActionButtonService } from "../../battle/hud/playerActionPanel/actionButton/actionButton"
+import { HexCoordinate } from "../../hexMap/hexCoordinate/hexCoordinate"
 
 export const BattlePlayerSquaddieSelectorSpec = {
     clickOnMapAtCoordinates: ({
         selector,
         gameEngineState,
-        q,
-        r,
+        mapCoordinate,
         graphicsContext,
     }: {
         selector: BattlePlayerSquaddieSelector
         gameEngineState: GameEngineState
-        q: number
-        r: number
+        mapCoordinate: HexCoordinate
         graphicsContext: GraphicsBuffer
     }) => {
-        let { screenX: mouseX, screenY: mouseY } =
+        let { x: mouseX, y: mouseY } =
             ConvertCoordinateService.convertMapCoordinatesToScreenLocation({
-                q,
-                r,
-                ...gameEngineState.battleOrchestratorState.battleState.camera.getCoordinates(),
+                mapCoordinate,
+                cameraLocation:
+                    gameEngineState.battleOrchestratorState.battleState.camera.getWorldLocation(),
             })
         selector.mouseEventHappened(gameEngineState, {
             eventType: OrchestratorComponentMouseEventType.PRESS,

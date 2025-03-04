@@ -1,7 +1,7 @@
 import { HexGridTile } from "./hexGrid"
 import { ConvertCoordinateService } from "./convertCoordinates"
 import { HexCoordinate } from "./hexCoordinate/hexCoordinate"
-import { MouseButton } from "../utils/mouseConfig"
+import { MousePress, MouseRelease, ScreenLocation } from "../utils/mouseConfig"
 import { BattleCamera } from "../battle/battleCamera"
 import { HEX_TILE_WIDTH } from "../graphicsConstants"
 import { ScreenDimensions } from "../utils/graphics/graphicsConfig"
@@ -38,31 +38,25 @@ export const TerrainTileGraphicsService = {
         ),
     mouseClicked({
         terrainTileMap,
-        mouseButton,
-        mouseX,
-        mouseY,
-        cameraX,
-        cameraY,
+        mouseClick,
+        cameraLocation,
     }: {
+        mouseClick: MouseRelease | MousePress
         terrainTileMap: TerrainTileMap
-        mouseButton: MouseButton
-        mouseX: number
-        mouseY: number
-        cameraX: number
-        cameraY: number
+        cameraLocation: ScreenLocation
     }) {
-        const { q, r } =
+        const mapCoordinate =
             ConvertCoordinateService.convertScreenLocationToMapCoordinates({
-                screenX: mouseX,
-                screenY: mouseY,
-                cameraX,
-                cameraY,
+                screenLocation: {
+                    x: mouseClick.x,
+                    y: mouseClick.y,
+                },
+                cameraLocation,
             })
 
         TerrainTileMapService.selectCoordinate({
             terrainTileMap,
-            q,
-            r,
+            mapCoordinate,
         })
     },
 }
@@ -82,18 +76,18 @@ const isCoordinateOnScreen = ({
     )
     const tileScreenCoordinates =
         ConvertCoordinateService.convertMapCoordinatesToScreenLocation({
-            ...hexGridTile,
-            ...camera.getCoordinates(),
+            mapCoordinate: hexGridTile,
+            cameraLocation: camera.getWorldLocation(),
         })
 
     const horizontallyOnScreen =
-        tileScreenCoordinates.screenX + HEX_TILE_WIDTH >= 0 &&
-        tileScreenCoordinates.screenX - HEX_TILE_WIDTH <=
+        tileScreenCoordinates.x + HEX_TILE_WIDTH >= 0 &&
+        tileScreenCoordinates.x - HEX_TILE_WIDTH <=
             ScreenDimensions.SCREEN_WIDTH
 
     const verticallyOnScreen =
-        tileScreenCoordinates.screenY + HEX_TILE_WIDTH >= 0 &&
-        tileScreenCoordinates.screenY - HEX_TILE_WIDTH <=
+        tileScreenCoordinates.y + HEX_TILE_WIDTH >= 0 &&
+        tileScreenCoordinates.y - HEX_TILE_WIDTH <=
             ScreenDimensions.SCREEN_HEIGHT
 
     return horizontallyOnScreen && verticallyOnScreen

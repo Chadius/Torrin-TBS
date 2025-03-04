@@ -85,6 +85,7 @@ import { getResultOrThrowError } from "../../utils/ResultOrError"
 import { SquaddieTurnService } from "../../squaddie/turn"
 import { BattleSquaddieService } from "../battleSquaddie"
 import { FileAccessHUDService } from "../hud/fileAccess/fileAccessHUD"
+import { HexCoordinate } from "../../hexMap/hexCoordinate/hexCoordinate"
 
 describe("BattleSquaddieSelector", () => {
     let selector: BattlePlayerSquaddieSelector =
@@ -510,12 +511,12 @@ describe("BattleSquaddieSelector", () => {
             })
             messageSpy = vi.spyOn(gameEngineState.messageBoard, "sendMessage")
             ;({
-                screenX: battleSquaddieScreenPositionX,
-                screenY: battleSquaddieScreenPositionY,
+                x: battleSquaddieScreenPositionX,
+                y: battleSquaddieScreenPositionY,
             } = ConvertCoordinateService.convertMapCoordinatesToScreenLocation({
-                q: 0,
-                r: 0,
-                ...gameEngineState.battleOrchestratorState.battleState.camera.getCoordinates(),
+                mapCoordinate: { q: 0, r: 0 },
+                cameraLocation:
+                    gameEngineState.battleOrchestratorState.battleState.camera.getWorldLocation(),
             }))
 
             selector.mouseEventHappened(gameEngineState, {
@@ -601,20 +602,22 @@ describe("BattleSquaddieSelector", () => {
 
         describe("user clicks on destination to start movement", () => {
             beforeEach(() => {
-                ;({ screenX: x, screenY: y } =
+                ;({ x, y } =
                     ConvertCoordinateService.convertMapCoordinatesToScreenLocation(
                         {
-                            q: 0,
-                            r: 1,
-                            ...gameEngineState.battleOrchestratorState.battleState.camera.getCoordinates(),
+                            mapCoordinate: { q: 0, r: 1 },
+                            cameraLocation:
+                                gameEngineState.battleOrchestratorState.battleState.camera.getWorldLocation(),
                         }
                     ))
 
                 clickOnMapCoordinate({
                     selector,
                     gameEngineState: gameEngineState,
-                    q: 0,
-                    r: 1,
+                    mapCoordinate: {
+                        q: 0,
+                        r: 1,
+                    },
                     camera: new BattleCamera(),
                 })
             })
@@ -668,7 +671,7 @@ describe("BattleSquaddieSelector", () => {
 
         it("Does not make a movement action if you click on the player command HUD", () => {
             const playerCommandSpy = vi
-                .spyOn(PlayerCommandStateService, "mouseClicked")
+                .spyOn(PlayerCommandStateService, "mouseReleased")
                 .mockReturnValue(
                     PlayerCommandSelection.PLAYER_COMMAND_SELECTION_MOVE
                 )
@@ -676,8 +679,10 @@ describe("BattleSquaddieSelector", () => {
             clickOnMapCoordinate({
                 selector,
                 gameEngineState: gameEngineState,
-                q: 0,
-                r: 1,
+                mapCoordinate: {
+                    q: 0,
+                    r: 1,
+                },
                 camera: new BattleCamera(),
             })
 
@@ -1091,21 +1096,18 @@ describe("BattleSquaddieSelector", () => {
 const clickOnMapCoordinate = ({
     selector,
     gameEngineState,
-    q,
-    r,
+    mapCoordinate,
     camera,
 }: {
     selector: BattlePlayerSquaddieSelector
     gameEngineState: GameEngineState
-    q: number
-    r: number
+    mapCoordinate: HexCoordinate
     camera: BattleCamera
 }) => {
-    let { screenX: destinationScreenX, screenY: destinationScreenY } =
+    let { x: destinationScreenX, y: destinationScreenY } =
         ConvertCoordinateService.convertMapCoordinatesToScreenLocation({
-            q,
-            r,
-            ...camera.getCoordinates(),
+            mapCoordinate,
+            cameraLocation: camera.getWorldLocation(),
         })
     selector.mouseEventHappened(gameEngineState, {
         eventType: OrchestratorComponentMouseEventType.LOCATION,

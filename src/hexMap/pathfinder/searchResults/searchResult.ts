@@ -38,11 +38,12 @@ export const SearchResultsService = {
     },
     getShortestPathToCoordinate: (
         searchResults: SearchResult,
-        q: number,
-        r: number
+        mapCoordinate: HexCoordinate
     ): SearchPath => {
-        return isCoordinateReachable(searchResults, q, r)
-            ? searchResults.shortestPathByCoordinate[q][r]
+        return isCoordinateReachable(searchResults, mapCoordinate)
+            ? searchResults.shortestPathByCoordinate[mapCoordinate.q][
+                  mapCoordinate.r
+              ]
             : undefined
     },
     getCoordinatesByNumberOfMoveActions: (
@@ -103,8 +104,9 @@ export const SearchResultsService = {
 
 const isCoordinateReachable = (
     searchResult: SearchResult,
-    q: number,
-    r: number
+    mapCoordinate: HexCoordinate
 ): boolean => {
-    return !!searchResult.shortestPathByCoordinate?.[q]?.[r]
+    return !!searchResult.shortestPathByCoordinate?.[mapCoordinate.q]?.[
+        mapCoordinate.r
+    ]
 }

@@ -19,7 +19,7 @@ import { ConvertCoordinateService } from "../../hexMap/convertCoordinates"
 import { OrchestratorUtilities } from "./orchestratorUtils"
 import { Label, LabelService } from "../../ui/label"
 import { isValidValue } from "../../utils/validityCheck"
-import { MouseButton } from "../../utils/mouseConfig"
+import { MouseButton, MousePress, MouseRelease } from "../../utils/mouseConfig"
 import { GraphicsBuffer } from "../../utils/graphics/graphicsRenderer"
 import { SummaryHUDStateService } from "../hud/summary/summaryHUD"
 import { MessageBoardMessageType } from "../../message/messageBoardMessage"
@@ -224,10 +224,8 @@ export class BattlePlayerSquaddieTarget implements BattleOrchestratorComponent {
         }
 
         this.tryToSelectValidTarget({
-            mouseX: mouseEvent.mouseRelease.x,
-            mouseY: mouseEvent.mouseRelease.y,
+            mouseClick: mouseEvent.mouseRelease,
             gameEngineState,
-            mouseButton: mouseEvent.mouseRelease.button,
         })
     }
 
@@ -246,21 +244,20 @@ export class BattlePlayerSquaddieTarget implements BattleOrchestratorComponent {
     }
 
     private tryToSelectValidTarget({
-        mouseX,
-        mouseY,
-        mouseButton,
+        mouseClick,
         gameEngineState,
     }: {
-        mouseX: number
-        mouseY: number
-        mouseButton: MouseButton
+        mouseClick: MousePress | MouseRelease
         gameEngineState: GameEngineState
     }) {
         const clickedLocation =
             ConvertCoordinateService.convertScreenLocationToMapCoordinates({
-                screenX: mouseX,
-                screenY: mouseY,
-                ...gameEngineState.battleOrchestratorState.battleState.camera.getCoordinates(),
+                screenLocation: {
+                    x: mouseClick.x,
+                    y: mouseClick.y,
+                },
+                cameraLocation:
+                    gameEngineState.battleOrchestratorState.battleState.camera.getWorldLocation(),
             })
 
         if (
@@ -276,8 +273,10 @@ export class BattlePlayerSquaddieTarget implements BattleOrchestratorComponent {
             squaddieTemplate: targetSquaddieTemplate,
             battleSquaddie: targetBattleSquaddie,
         } = OrchestratorUtilities.getSquaddieAtScreenLocation({
-            mouseX,
-            mouseY,
+            screenLocation: {
+                x: mouseClick.x,
+                y: mouseClick.y,
+            },
             camera: gameEngineState.battleOrchestratorState.battleState.camera,
             map: gameEngineState.battleOrchestratorState.battleState.missionMap,
             squaddieRepository: gameEngineState.repository,
@@ -331,14 +330,14 @@ export class BattlePlayerSquaddieTarget implements BattleOrchestratorComponent {
             return
         }
 
+        const cameraLocation =
+            gameEngineState.battleOrchestratorState.battleState.camera.getWorldLocation()
         TerrainTileGraphicsService.mouseClicked({
             terrainTileMap:
                 gameEngineState.battleOrchestratorState.battleState.missionMap
                     .terrainTileMap,
-            mouseX,
-            mouseY,
-            mouseButton,
-            ...gameEngineState.battleOrchestratorState.battleState.camera.getCoordinates(),
+            mouseClick,
+            cameraLocation,
         })
         this.hasSelectedValidTarget = true
         gameEngineState.messageBoard.sendMessage({
@@ -358,9 +357,12 @@ const sendMessageIfUserPeeksOnASquaddie = ({
 }) => {
     const { q, r } =
         ConvertCoordinateService.convertScreenLocationToMapCoordinates({
-            screenX: mouseEvent.mouseLocation.x,
-            screenY: mouseEvent.mouseLocation.y,
-            ...gameEngineState.battleOrchestratorState.battleState.camera.getCoordinates(),
+            screenLocation: {
+                x: mouseEvent.mouseLocation.x,
+                y: mouseEvent.mouseLocation.y,
+            },
+            cameraLocation:
+                gameEngineState.battleOrchestratorState.battleState.camera.getWorldLocation(),
         })
 
     const { battleSquaddieId } =

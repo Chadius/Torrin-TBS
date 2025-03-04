@@ -1,5 +1,6 @@
 import { HexGridMovementCost } from "./hexGridMovementCost"
 import { assertsInteger } from "../utils/mathAssert"
+import { HexCoordinate } from "./hexCoordinate/hexCoordinate"
 
 export type Integer = number & {
     _brand: "Integer"
@@ -12,8 +13,6 @@ export const HexGridTileHelper = {
     },
 }
 
-export interface HexGridTile {
-    q: number
-    r: number
+export interface HexGridTile extends HexCoordinate {
     terrainType: HexGridMovementCost
 }
