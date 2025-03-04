@@ -57,10 +57,12 @@ export const BattleHUDStateService = {
         battleHUDState,
         objectRepository,
         missionMap,
+        selectedBattleSquaddieId,
     }: {
         battleHUDState: BattleHUDState
         objectRepository: ObjectRepository
         missionMap: MissionMap
+        selectedBattleSquaddieId?: string
     }): string => {
         if (battleHUDState?.squaddieListing?.battleSquaddieIds === undefined) {
             return undefined
@@ -77,6 +79,8 @@ export const BattleHUDStateService = {
             battleHUDState.squaddieListing.currentIndex =
                 (battleHUDState.squaddieListing.currentIndex + 1) %
                 battleHUDState.squaddieListing.battleSquaddieIds.length
+
+            if (currentBattleSquaddieId === selectedBattleSquaddieId) continue
 
             const { battleSquaddie, squaddieTemplate } = getResultOrThrowError(
                 ObjectRepositoryService.getSquaddieByBattleId(

@@ -34,7 +34,7 @@ describe("BattleHUDState", () => {
         expect(clone).toEqual(battleHUDState)
     })
 
-    describe("squaddie listing", () => {
+    describe("getting the next squaddie", () => {
         let objectRepository: ObjectRepository
         let missionMap: MissionMap
         let playerTeam: BattleSquaddieTeam
@@ -156,6 +156,17 @@ describe("BattleHUDState", () => {
                     battleHUDState.squaddieSelectorPanel
                 )
             ).toBe("playerSquaddie0")
+        })
+
+        it("skips the currently selected squaddie", () => {
+            expect(
+                BattleHUDStateService.getNextSquaddieId({
+                    battleHUDState,
+                    objectRepository,
+                    missionMap,
+                    selectedBattleSquaddieId: "playerSquaddie0",
+                })
+            ).toEqual("playerSquaddie1")
         })
 
         it("skips any squaddie who took their turn", () => {

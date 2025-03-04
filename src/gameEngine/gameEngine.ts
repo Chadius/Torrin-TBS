@@ -308,7 +308,6 @@ export class GameEngine {
             MessageBoardMessageType.PLAYER_SELECTS_ACTION_WITH_KNOWN_TARGETS,
             MessageBoardMessageType.PLAYER_SELECTS_TARGET_COORDINATE,
             MessageBoardMessageType.PLAYER_CONFIRMS_ACTION,
-            MessageBoardMessageType.SELECT_AND_LOCK_NEXT_SQUADDIE,
             MessageBoardMessageType.MOVE_SQUADDIE_TO_COORDINATE,
             MessageBoardMessageType.PLAYER_SELECTS_EMPTY_TILE,
             MessageBoardMessageType.PLAYER_SELECTS_ACTION_WITH_KNOWN_TARGETS,
@@ -363,6 +362,7 @@ export class GameEngine {
             "playerDecisionHUDListener"
         )
         ;[
+            MessageBoardMessageType.SELECT_AND_LOCK_NEXT_SQUADDIE,
             MessageBoardMessageType.PLAYER_CANCELS_PLAYER_ACTION_CONSIDERATIONS,
             MessageBoardMessageType.PLAYER_CONSIDERS_ACTION,
             MessageBoardMessageType.PLAYER_SELECTION_IS_INVALID,

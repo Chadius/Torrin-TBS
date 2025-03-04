@@ -21,7 +21,15 @@ import {
 } from "./playerDecisionHUD"
 import * as mocks from "../../../utils/test/mocks"
 import { MockedP5GraphicsBuffer } from "../../../utils/test/mocks"
-import { beforeEach, describe, expect, it, MockInstance, vi } from "vitest"
+import {
+    afterEach,
+    beforeEach,
+    describe,
+    expect,
+    it,
+    MockInstance,
+    vi,
+} from "vitest"
 import {
     BattlePhaseState,
     BattlePhaseStateService,
@@ -64,6 +72,10 @@ import { CampaignService } from "../../../campaign/campaign"
 import { BattleActionDecisionStepService } from "../../actionDecision/battleActionDecisionStep"
 import { MovementDecision } from "../../playerSelectionService/playerSelectionContext"
 import { PlayerConsideredActionsService } from "../../battleState/playerConsideredActions"
+import { SquaddieSelectorPanelService } from "./squaddieSelectorPanel/squaddieSelectorPanel"
+import { getResultOrThrowError } from "../../../utils/ResultOrError"
+import { BattleActionRecorderService } from "../../history/battleAction/battleActionRecorder"
+import { BattleActionService } from "../../history/battleAction/battleAction"
 
 describe("Player Decision HUD", () => {
     const differentSquaddiePopup: PopupWindow = PopupWindowService.new({
@@ -631,6 +643,300 @@ describe("Player Decision HUD", () => {
                 gameEngineState.battleOrchestratorState.battleState
                     .playerConsideredActions.movement
             ).toBeUndefined()
+        })
+    })
+
+    // TODO You should skip selected squaddies
+    describe("Player wants to select the next squaddie", () => {
+        let gameEngineState: GameEngineState
+        let playerDecisionHUDListener: PlayerDecisionHUDListener
+        let mockP5GraphicsContext: MockedP5GraphicsBuffer
+        let messageSpy: MockInstance
+
+        beforeEach(() => {
+            mockP5GraphicsContext = new MockedP5GraphicsBuffer()
+            const repository = ObjectRepositoryService.new()
+            const missionMap = MissionMapService.new({
+                terrainTileMap: TerrainTileMapService.new({
+                    movementCost: ["1 1 1 "],
+                }),
+            })
+
+            const playerTeam: BattleSquaddieTeam = {
+                id: "playerTeamId",
+                name: "player controlled team",
+                affiliation: SquaddieAffiliation.PLAYER,
+                battleSquaddieIds: [],
+                iconResourceKey: "icon_player_team",
+            }
+            let teams: BattleSquaddieTeam[] = []
+            teams.push(playerTeam)
+            ;["playerSquaddie0", "playerSquaddie1", "playerSquaddie2"].forEach(
+                (battleSquaddieId, index) => {
+                    SquaddieRepositoryService.createNewSquaddieAndAddToRepository(
+                        {
+                            name: battleSquaddieId,
+                            templateId: "player_soldier",
+                            battleId: battleSquaddieId,
+                            affiliation: SquaddieAffiliation.PLAYER,
+                            objectRepository: repository,
+                            actionTemplateIds: [],
+                        }
+                    )
+                    BattleSquaddieTeamService.addBattleSquaddieIds(playerTeam, [
+                        battleSquaddieId,
+                    ])
+                    MissionMapService.addSquaddie({
+                        missionMap: missionMap,
+                        squaddieTemplateId: "player_soldier",
+                        battleSquaddieId: battleSquaddieId,
+                        coordinate: { q: 0, r: index },
+                    })
+                }
+            )
+
+            gameEngineState = GameEngineStateService.new({
+                battleOrchestratorState: BattleOrchestratorStateService.new({
+                    battleState: BattleStateService.new({
+                        teams,
+                        battlePhaseState: {
+                            turnCount: 0,
+                            currentAffiliation: BattlePhase.PLAYER,
+                        },
+                        missionId: "missionId",
+                        campaignId: "campaignId",
+                        missionMap,
+                        battleActionDecisionStep:
+                            BattleActionDecisionStepService.new(),
+                    }),
+                    battleHUDState: BattleHUDStateService.new({
+                        summaryHUDState: SummaryHUDStateService.new(),
+                    }),
+                }),
+                repository,
+            })
+
+            playerDecisionHUDListener = new PlayerDecisionHUDListener(
+                "PlayerDecisionHUDListener"
+            )
+
+            gameEngineState.messageBoard.addListener(
+                playerDecisionHUDListener,
+                MessageBoardMessageType.SELECT_AND_LOCK_NEXT_SQUADDIE
+            )
+            messageSpy = vi.spyOn(gameEngineState.messageBoard, "sendMessage")
+
+            SummaryHUDStateService.createActorTiles({
+                summaryHUDState:
+                    gameEngineState.battleOrchestratorState.battleHUDState
+                        .summaryHUDState,
+                objectRepository: repository,
+                gameEngineState,
+            })
+
+            SummaryHUDStateService.draw({
+                summaryHUDState:
+                    gameEngineState.battleOrchestratorState.battleHUDState
+                        .summaryHUDState,
+                gameEngineState,
+                resourceHandler: gameEngineState.resourceHandler,
+                graphicsBuffer: mockP5GraphicsContext,
+            })
+        })
+        afterEach(() => {
+            messageSpy.mockRestore()
+        })
+
+        const getPlayerSelectsAndLocksSquaddieCalls = () => {
+            return messageSpy.mock.calls.filter(
+                (c) =>
+                    c[0].type ===
+                    MessageBoardMessageType.PLAYER_SELECTS_AND_LOCKS_SQUADDIE
+            )
+        }
+
+        it("selects the first squaddie in the team and pan the camera towards them", () => {
+            gameEngineState.messageBoard.sendMessage({
+                type: MessageBoardMessageType.SELECT_AND_LOCK_NEXT_SQUADDIE,
+                gameEngineState,
+            })
+
+            expect(messageSpy).toBeCalledWith(
+                expect.objectContaining({
+                    type: MessageBoardMessageType.PLAYER_SELECTS_AND_LOCKS_SQUADDIE,
+                    gameEngineState,
+                })
+            )
+
+            const calls = getPlayerSelectsAndLocksSquaddieCalls()
+            expect(calls[0][0].battleSquaddieSelectedId).toEqual(
+                "playerSquaddie0"
+            )
+
+            expect(
+                gameEngineState.battleOrchestratorState.battleState.camera.isPanning()
+            ).toBeTruthy()
+        })
+
+        it("skips the currently selected squaddie", () => {
+            gameEngineState.battleOrchestratorState.battleState.battleActionDecisionStep =
+                BattleActionDecisionStepService.new()
+
+            BattleActionDecisionStepService.setActor({
+                actionDecisionStep:
+                    gameEngineState.battleOrchestratorState.battleState
+                        .battleActionDecisionStep,
+                battleSquaddieId: "playerSquaddie0",
+            })
+
+            gameEngineState.messageBoard.sendMessage({
+                type: MessageBoardMessageType.SELECT_AND_LOCK_NEXT_SQUADDIE,
+                gameEngineState,
+            })
+
+            const calls = getPlayerSelectsAndLocksSquaddieCalls()
+            expect(calls[0][0].battleSquaddieSelectedId).toEqual(
+                "playerSquaddie1"
+            )
+        })
+
+        it("shows the squaddie selector panel with the first squaddie already selected", () => {
+            gameEngineState.messageBoard.sendMessage({
+                type: MessageBoardMessageType.SELECT_AND_LOCK_NEXT_SQUADDIE,
+                gameEngineState,
+            })
+            expect(
+                SquaddieSelectorPanelService.getSelectedBattleSquaddieId(
+                    gameEngineState.battleOrchestratorState.battleHUDState
+                        .squaddieSelectorPanel
+                )
+            ).toBe("playerSquaddie0")
+        })
+
+        it("rotates through the squaddies if you keep pressing next", () => {
+            gameEngineState.messageBoard.sendMessage({
+                type: MessageBoardMessageType.SELECT_AND_LOCK_NEXT_SQUADDIE,
+                gameEngineState,
+            })
+            gameEngineState.messageBoard.sendMessage({
+                type: MessageBoardMessageType.SELECT_AND_LOCK_NEXT_SQUADDIE,
+                gameEngineState,
+            })
+            expect(
+                SquaddieSelectorPanelService.getSelectedBattleSquaddieId(
+                    gameEngineState.battleOrchestratorState.battleHUDState
+                        .squaddieSelectorPanel
+                )
+            ).toBe("playerSquaddie1")
+
+            gameEngineState.messageBoard.sendMessage({
+                type: MessageBoardMessageType.SELECT_AND_LOCK_NEXT_SQUADDIE,
+                gameEngineState,
+            })
+            expect(
+                SquaddieSelectorPanelService.getSelectedBattleSquaddieId(
+                    gameEngineState.battleOrchestratorState.battleHUDState
+                        .squaddieSelectorPanel
+                )
+            ).toBe("playerSquaddie2")
+
+            gameEngineState.messageBoard.sendMessage({
+                type: MessageBoardMessageType.SELECT_AND_LOCK_NEXT_SQUADDIE,
+                gameEngineState,
+            })
+            expect(
+                SquaddieSelectorPanelService.getSelectedBattleSquaddieId(
+                    gameEngineState.battleOrchestratorState.battleHUDState
+                        .squaddieSelectorPanel
+                )
+            ).toBe("playerSquaddie0")
+
+            const calls = getPlayerSelectsAndLocksSquaddieCalls()
+            expect(calls).toHaveLength(4)
+            expect(calls[1][0].battleSquaddieSelectedId).toEqual(
+                "playerSquaddie1"
+            )
+            expect(calls[2][0].battleSquaddieSelectedId).toEqual(
+                "playerSquaddie2"
+            )
+            expect(calls[3][0].battleSquaddieSelectedId).toEqual(
+                "playerSquaddie0"
+            )
+        })
+
+        it("clears player considerations", () => {
+            gameEngineState.battleOrchestratorState.battleState.playerConsideredActions =
+                PlayerConsideredActionsService.new()
+            gameEngineState.battleOrchestratorState.battleState.playerConsideredActions.movement =
+                {
+                    destination: { q: 1, r: 0 },
+                    coordinates: [],
+                    actionPointCost: 1,
+                }
+
+            gameEngineState.messageBoard.sendMessage({
+                type: MessageBoardMessageType.SELECT_AND_LOCK_NEXT_SQUADDIE,
+                gameEngineState,
+            })
+
+            expect(
+                gameEngineState.battleOrchestratorState.battleState
+                    .playerConsideredActions.movement
+            ).toBeUndefined()
+        })
+
+        it("if a squaddie is taking a turn, they are always next", () => {
+            const { battleSquaddie } = getResultOrThrowError(
+                ObjectRepositoryService.getSquaddieByBattleId(
+                    gameEngineState.repository,
+                    "playerSquaddie2"
+                )
+            )
+
+            BattleActionRecorderService.addReadyToAnimateBattleAction(
+                gameEngineState.battleOrchestratorState.battleState
+                    .battleActionRecorder,
+                BattleActionService.new({
+                    actor: {
+                        actorBattleSquaddieId: battleSquaddie.battleSquaddieId,
+                    },
+                    action: {
+                        isMovement: true,
+                    },
+                    effect: {
+                        movement: {
+                            startCoordinate: { q: 0, r: 0 },
+                            endCoordinate: { q: 0, r: 0 },
+                        },
+                    },
+                })
+            )
+            BattleActionRecorderService.battleActionFinishedAnimating(
+                gameEngineState.battleOrchestratorState.battleState
+                    .battleActionRecorder
+            )
+            messageSpy.mockClear()
+            gameEngineState.messageBoard.sendMessage({
+                type: MessageBoardMessageType.SELECT_AND_LOCK_NEXT_SQUADDIE,
+                gameEngineState,
+            })
+
+            expect(messageSpy).not.toBeCalledWith(
+                expect.objectContaining({
+                    type: MessageBoardMessageType.PLAYER_SELECTS_AND_LOCKS_SQUADDIE,
+                    battleSquaddieSelectedId: "playerSquaddie0",
+                })
+            )
+            expect(messageSpy).toBeCalledWith(
+                expect.objectContaining({
+                    type: MessageBoardMessageType.PLAYER_SELECTS_AND_LOCKS_SQUADDIE,
+                    battleSquaddieSelectedId: "playerSquaddie2",
+                })
+            )
+
+            expect(
+                gameEngineState.battleOrchestratorState.battleState.camera.isPanning()
+            ).toBeTruthy()
         })
     })
 })

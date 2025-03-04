@@ -76,9 +76,6 @@ export class BattleHUDListener implements MessageBoardListener {
                     message
                 )
                 break
-            case MessageBoardMessageType.SELECT_AND_LOCK_NEXT_SQUADDIE:
-                BattleHUDService.selectAndLockNextSquaddie(message)
-                break
             case MessageBoardMessageType.MOVE_SQUADDIE_TO_COORDINATE:
                 BattleHUDService.tryToMoveSquaddieToLocation(message)
                 break

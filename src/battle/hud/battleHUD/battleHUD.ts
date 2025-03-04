@@ -19,14 +19,12 @@ import {
     MessageBoardMessagePlayerSelectsAndLocksSquaddie,
     MessageBoardMessagePlayerSelectsEmptyTile,
     MessageBoardMessagePlayerSelectsTargetCoordinate,
-    MessageBoardMessageSelectAndLockNextSquaddie,
     MessageBoardMessageType,
 } from "../../../message/messageBoardMessage"
 import { GameEngineState } from "../../../gameEngine/gameEngine"
 import { ObjectRepositoryService } from "../../objectRepository"
 import { getResultOrThrowError } from "../../../utils/ResultOrError"
 import { MissionMapService } from "../../../missionMap/missionMap"
-import { ConvertCoordinateService } from "../../../hexMap/convertCoordinates"
 import { OrchestratorUtilities } from "../../orchestratorComponents/orchestratorUtils"
 import {
     BattleActionDecisionStep,
@@ -52,7 +50,6 @@ import {
 } from "../../../hexMap/mapLayer/mapGraphicsLayer"
 import { MapHighlightService } from "../../animation/mapHighlight"
 import { SquaddieAffiliation } from "../../../squaddie/squaddieAffiliation"
-import { MissionMapSquaddieCoordinateService } from "../../../missionMap/squaddieCoordinate"
 import { MovementCalculatorService } from "../../calculator/movement/movementCalculator"
 import { BattleOrchestratorMode } from "../../orchestrator/battleOrchestrator"
 import { SquaddieTemplate } from "../../../campaign/squaddieTemplate"
@@ -61,7 +58,6 @@ import { ActionTemplateService } from "../../../action/template/actionTemplate"
 import { CalculatedResult } from "../../history/calculatedResult"
 import { MapDataBlob } from "../../../hexMap/mapLayer/mapDataBlob"
 import { BattleStateService } from "../../battleState/battleState"
-import { BattleHUDStateService } from "./battleHUDState"
 import { SquaddieSelectorPanelService } from "../playerActionPanel/squaddieSelectorPanel/squaddieSelectorPanel"
 import { PlayerConsideredActionsService } from "../../battleState/playerConsideredActions"
 
@@ -554,51 +550,6 @@ export const BattleHUDService = {
             squaddieTemplate
         )
     },
-    selectAndLockNextSquaddie: (
-        message: MessageBoardMessageSelectAndLockNextSquaddie
-    ) => {
-        const gameEngineState = message.gameEngineState
-
-        createSquaddieSelectorPanel(gameEngineState)
-
-        const squaddieCurrentlyTakingATurn =
-            OrchestratorUtilities.getBattleSquaddieIdCurrentlyTakingATurn({
-                gameEngineState,
-            })
-
-        if (squaddieCurrentlyTakingATurn) {
-            panCameraToSquaddie(gameEngineState, squaddieCurrentlyTakingATurn)
-            gameEngineState.messageBoard.sendMessage({
-                type: MessageBoardMessageType.PLAYER_SELECTS_AND_LOCKS_SQUADDIE,
-                gameEngineState,
-                battleSquaddieSelectedId: squaddieCurrentlyTakingATurn,
-            })
-            return
-        }
-
-        const nextBattleSquaddieId = BattleHUDStateService.getNextSquaddieId({
-            battleHUDState:
-                gameEngineState.battleOrchestratorState.battleHUDState,
-            objectRepository: gameEngineState.repository,
-            missionMap:
-                gameEngineState.battleOrchestratorState.battleState.missionMap,
-        })
-
-        if (nextBattleSquaddieId == undefined) {
-            return
-        }
-
-        panCameraToSquaddie(gameEngineState, nextBattleSquaddieId)
-
-        gameEngineState.battleOrchestratorState.battleState.playerConsideredActions =
-            PlayerConsideredActionsService.new()
-
-        gameEngineState.messageBoard.sendMessage({
-            type: MessageBoardMessageType.PLAYER_SELECTS_AND_LOCKS_SQUADDIE,
-            gameEngineState,
-            battleSquaddieSelectedId: nextBattleSquaddieId,
-        })
-    },
     tryToMoveSquaddieToLocation: (
         message: MessageBoardMessageMoveSquaddieToCoordinate
     ) => {
@@ -788,31 +739,6 @@ const clearAllHoverAndClickedLayersExceptForThisSquaddie = (
     }
 }
 
-const panCameraToSquaddie = (
-    gameEngineState: GameEngineState,
-    nextBattleSquaddieId: string
-) => {
-    const selectedMapCoordinates = MissionMapService.getByBattleSquaddieId(
-        gameEngineState.battleOrchestratorState.battleState.missionMap,
-        nextBattleSquaddieId
-    )
-    if (MissionMapSquaddieCoordinateService.isValid(selectedMapCoordinates)) {
-        const selectedWorldCoordinates =
-            ConvertCoordinateService.convertMapCoordinatesToWorldLocation({
-                mapCoordinate: {
-                    q: selectedMapCoordinates.mapCoordinate.q,
-                    r: selectedMapCoordinates.mapCoordinate.r,
-                },
-            })
-        gameEngineState.battleOrchestratorState.battleState.camera.pan({
-            xDestination: selectedWorldCoordinates.x,
-            yDestination: selectedWorldCoordinates.y,
-            timeToPan: 500,
-            respectConstraints: true,
-        })
-    }
-}
-
 const playerControlledSquaddieNeedsNextAction = (
     message: MessageBoardMessagePlayerControlledSquaddieNeedsNextAction
 ) => {
@@ -930,28 +856,4 @@ const createSquaddieStatusTileForNormallyUncontrollableSquaddie = (
         gameEngineState,
         removeExpirationTime: true,
     })
-}
-
-const createSquaddieSelectorPanel = (gameEngineState: GameEngineState) => {
-    const currentTeam = BattleStateService.getCurrentTeam(
-        gameEngineState.battleOrchestratorState.battleState,
-        gameEngineState.repository
-    )
-
-    if (
-        gameEngineState.battleOrchestratorState.battleHUDState
-            .squaddieListing === undefined ||
-        gameEngineState.battleOrchestratorState.battleHUDState.squaddieListing
-            .teamId != currentTeam.id
-    ) {
-        BattleHUDStateService.resetSquaddieListingForTeam({
-            battleHUDState:
-                gameEngineState.battleOrchestratorState.battleHUDState,
-            team: currentTeam,
-            objectRepository: gameEngineState.repository,
-            battleActionDecisionStep:
-                gameEngineState.battleOrchestratorState.battleState
-                    .battleActionDecisionStep,
-        })
-    }
 }
