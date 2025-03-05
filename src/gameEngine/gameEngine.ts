@@ -248,7 +248,7 @@ export class GameEngine {
         if (!isValidValue(this.component)) {
             return
         }
-        this.component.update(this.gameEngineState, graphics)
+        await this.component.update(this.gameEngineState, graphics)
 
         if (this.gameEngineState.fileState.saveSaveState.savingInProgress) {
             this.saveGameAndDownloadFile()

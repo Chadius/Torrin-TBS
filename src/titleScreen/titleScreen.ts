@@ -340,10 +340,10 @@ export class TitleScreen implements GameEngineComponent {
         return context?.menuSelection === TitleScreenMenuSelection.NEW_GAME
     }
 
-    update(
+    async update(
         gameEngineState: GameEngineState,
         graphicsContext: GraphicsBuffer
-    ): void {
+    ) {
         this.draw(
             gameEngineState,
             graphicsContext,
@@ -470,9 +470,16 @@ export class TitleScreen implements GameEngineComponent {
     hasCompleted(_: GameEngineState): boolean {
         const context: TitleScreenContext =
             DataBlobService.get<TitleScreenContext>(this.data, "context")
+        const continueGameWasLoaded =
+            context?.fileState?.loadSaveState &&
+            context.fileState.loadSaveState.userRequestedLoad &&
+            context.fileState.loadSaveState.applicationCompletedLoad
+        const userClickedOnAButtonThatLeavesTheTitleScreen =
+            context?.menuSelection !== TitleScreenMenuSelection.NONE
         return (
-            context?.menuSelection !== TitleScreenMenuSelection.NONE &&
-            this.allResourcesAreLoaded()
+            this.allResourcesAreLoaded() &&
+            (continueGameWasLoaded ||
+                userClickedOnAButtonThatLeavesTheTitleScreen)
         )
     }
 

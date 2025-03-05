@@ -191,7 +191,7 @@ export class BattleOrchestrator implements GameEngineComponent {
         return this.mode
     }
 
-    public update(
+    public async update(
         gameEngineState: GameEngineState,
         graphicsContext: GraphicsBuffer
     ) {

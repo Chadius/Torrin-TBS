@@ -1,6 +1,10 @@
 import * as mocks from "../utils/test/mocks"
 import { MockedP5GraphicsBuffer } from "../utils/test/mocks"
-import { TitleScreen, TitleScreenUIObjects } from "./titleScreen"
+import {
+    TitleScreen,
+    TitleScreenContext,
+    TitleScreenUIObjects,
+} from "./titleScreen"
 import { TitleScreenState } from "./titleScreenState"
 import { GameModeEnum } from "../utils/startupConfig"
 import { MouseButton } from "../utils/mouseConfig"
@@ -11,7 +15,10 @@ import {
     GameEngineState,
     GameEngineStateService,
 } from "../gameEngine/gameEngine"
-import { LoadSaveState } from "../dataLoader/playerData/loadSaveState"
+import {
+    LoadSaveState,
+    LoadSaveStateService,
+} from "../dataLoader/playerData/loadSaveState"
 import { beforeEach, describe, expect, it, vi } from "vitest"
 import { PlayerInputTestService } from "../utils/test/playerInput"
 import { MessageBoardMessageType } from "../message/messageBoardMessage"
@@ -71,7 +78,6 @@ describe("Title Screen", () => {
     })
 
     it("will declare itself complete when all resources finish loading and user clicks and releases on the start button and the button is drawn active", () => {
-        expect(titleScreen.hasCompleted(gameEngineState)).toBeFalsy()
         titleScreen.update(gameEngineState, mockedP5GraphicsContext)
         expect(titleScreen.hasCompleted(gameEngineState)).toBeFalsy()
 
@@ -102,7 +108,6 @@ describe("Title Screen", () => {
             height: ScreenDimensions.SCREEN_HEIGHT,
         })
 
-        expect(titleScreen.hasCompleted(gameEngineState)).toBeFalsy()
         titleScreen.update(gameEngineState, mockedP5GraphicsContext)
         expect(titleScreen.hasCompleted(gameEngineState)).toBeFalsy()
         titleScreen.keyPressed(
@@ -110,6 +115,29 @@ describe("Title Screen", () => {
             PlayerInputTestService.pressAcceptKey().keyCode
         )
 
+        expect(
+            expectTitleScreenToStartLoadingWhenResourcesAreReady({
+                mockedP5GraphicsContext: mockedP5GraphicsContext,
+                titleScreen: titleScreen,
+                gameEngineState: gameEngineState,
+            })
+        ).toBeTruthy()
+    })
+
+    it("will declare itself complete when the file has loaded and control returns to the title screen", () => {
+        titleScreen.update(gameEngineState, mockedP5GraphicsContext)
+        const context: TitleScreenContext =
+            DataBlobService.get<TitleScreenContext>(titleScreen.data, "context")
+        LoadSaveStateService.userRequestsLoad(context.fileState.loadSaveState)
+        LoadSaveStateService.applicationCompletesLoad(
+            context.fileState.loadSaveState,
+            undefined
+        )
+        DataBlobService.add<TitleScreenContext>(
+            titleScreen.data,
+            "context",
+            context
+        )
         expect(
             expectTitleScreenToStartLoadingWhenResourcesAreReady({
                 mockedP5GraphicsContext: mockedP5GraphicsContext,
@@ -127,12 +155,14 @@ describe("Title Screen", () => {
     })
 
     it("after resetting it will not immediately complete", () => {
+        titleScreen.update(gameEngineState, mockedP5GraphicsContext)
         const spy = vi
             .spyOn(titleScreen, "hasCompleted")
             .mockReturnValueOnce(true)
         expect(titleScreen.hasCompleted(gameEngineState)).toBeTruthy()
         spy.mockClear()
         titleScreen.reset(gameEngineState)
+        titleScreen.update(gameEngineState, mockedP5GraphicsContext)
         expect(titleScreen.hasCompleted(gameEngineState)).toBeFalsy()
     })
 
@@ -354,8 +384,8 @@ describe("Title Screen", () => {
             ).toBeFalsy()
         })
         it("should mark as completed and recommend the battle loader", () => {
-            expect(titleScreen.hasCompleted(gameEngineState)).toBeFalsy()
             titleScreen.update(gameEngineState, mockedP5GraphicsContext)
+            expect(titleScreen.hasCompleted(gameEngineState)).toBeFalsy()
             mousePressContinueButton(titleScreen, gameEngineState)
             expect(titleScreen.hasCompleted(gameEngineState)).toBeFalsy()
             const resourcesSpy = vi

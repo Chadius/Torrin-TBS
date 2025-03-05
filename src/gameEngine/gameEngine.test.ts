@@ -65,7 +65,7 @@ describe("Game Engine", () => {
         })
 
         const nextComponent = newGameEngine.component
-        const updateSpy = vi.spyOn(nextComponent, "update").mockReturnValue()
+        const updateSpy = vi.spyOn(nextComponent, "update").mockResolvedValue()
         const hasCompletedSpy = vi
             .spyOn(nextComponent, "hasCompleted")
             .mockReturnValue(true)
@@ -87,7 +87,7 @@ describe("Game Engine", () => {
         async function expectUpdate(newGameEngine: GameEngine) {
             const updateSpy = vi
                 .spyOn(newGameEngine.component, "update")
-                .mockImplementation(() => {})
+                .mockResolvedValue()
             await newGameEngine.update({ graphics: mockedP5GraphicsBuffer })
             expect(updateSpy).toBeCalled()
         }
@@ -339,12 +339,12 @@ describe("Game Engine", () => {
         afterEach(() => {
             vi.clearAllMocks()
         })
-        it("will switch to loading battle", () => {
-            newGameEngine.update({ graphics: mockedP5GraphicsBuffer })
+        it("will switch to loading battle", async () => {
+            await newGameEngine.update({ graphics: mockedP5GraphicsBuffer })
             expect(newGameEngine.currentMode).toBe(GameModeEnum.LOADING_BATTLE)
         })
-        it("will not reset the battle orchestrator state", () => {
-            newGameEngine.update({ graphics: mockedP5GraphicsBuffer })
+        it("will not reset the battle orchestrator state", async () => {
+            await newGameEngine.update({ graphics: mockedP5GraphicsBuffer })
             expect(
                 newGameEngine.gameEngineState.battleOrchestratorState
                     .battleState.objectives[0].id
@@ -353,7 +353,7 @@ describe("Game Engine", () => {
         it("loader will go to the previous mode upon completion", async () => {
             const loaderUpdateSpy = vi
                 .spyOn(newGameEngine.component, "update")
-                .mockImplementation(() => {})
+                .mockResolvedValue()
             const loaderCompletedSpy = vi
                 .spyOn(newGameEngine.component, "hasCompleted")
                 .mockReturnValue(true)

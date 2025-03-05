@@ -8,7 +8,10 @@ export type GameEngineChanges = {
 }
 
 export interface GameEngineComponent {
-    update(state: GameEngineState, graphicsContext: GraphicsBuffer): void
+    update(
+        state: GameEngineState,
+        graphicsContext: GraphicsBuffer
+    ): Promise<void>
 
     keyPressed(gameEngineState: GameEngineState, keyCode: number): void
 

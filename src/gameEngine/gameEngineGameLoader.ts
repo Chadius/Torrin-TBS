@@ -87,15 +87,15 @@ export class GameEngineGameLoader implements GameEngineComponent {
         this.campaignLoaderContext.campaignIdToLoad = campaignIdToLoad
     }
 
-    async update(gameEngineState: GameEngineState): Promise<void> {
+    async update(gameEngineState: GameEngineState) {
         const actions = this.getTransitionActions(gameEngineState)
-        const successful = await this.performActionsStopOnError(
-            gameEngineState,
-            actions
+        await this.performActionsStopOnError(gameEngineState, actions).then(
+            (successful) => {
+                if (!successful) {
+                    this.status.error = true
+                }
+            }
         )
-        if (!successful) {
-            this.status.error = true
-        }
     }
 
     hasCompleted(state: GameEngineState): boolean {
@@ -687,6 +687,10 @@ export class GameEngineGameLoader implements GameEngineComponent {
             gameEngineState?.campaign?.id &&
             gameEngineState?.fileState?.loadSaveState?.saveState?.campaignId ==
                 gameEngineState.campaign.id
+        this.loadBlocker = new ResourceHandlerBlocker(
+            gameEngineState.resourceHandler,
+            gameEngineState.messageBoard
+        )
         return true
     }
 }
