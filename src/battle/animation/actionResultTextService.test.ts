@@ -319,7 +319,9 @@ describe("Action Result Text Writer", () => {
 
             expect(outputStrings).toHaveLength(2)
             expect(outputStrings[0]).toBe("Knight uses Raise Shield")
-            expect(outputStrings[1]).toBe("Knight Armor +1 (Circumstance)")
+            expect(outputStrings[1]).toBe(
+                "Knight Armor +1 (Circumstance): Harder to hit"
+            )
         })
         it("Shows No Change if there is no change in bonus", () => {
             const armorBonusChanges = [
@@ -449,8 +451,12 @@ describe("Action Result Text Writer", () => {
 
             expect(outputStrings).toHaveLength(3)
             expect(outputStrings[0]).toBe("Knight uses dash")
-            expect(outputStrings[1]).toBe("Knight Movement +1 (Item)")
-            expect(outputStrings[2]).toBe("Knight Hustle (Status)")
+            expect(outputStrings[1]).toBe(
+                "Knight Movement +1 (Item): Travel further per action point"
+            )
+            expect(outputStrings[2]).toBe(
+                "Knight Hustle (Status): Ignore rough terrain movement cost"
+            )
         })
     })
 

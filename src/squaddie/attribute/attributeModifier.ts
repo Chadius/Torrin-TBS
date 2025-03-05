@@ -226,31 +226,22 @@ export const AttributeModifierService = {
                 break
         }
 
-        const attributeSourceToStringMapping: {
-            [t in AttributeSource]?: string
-        } = {
-            [AttributeSource.CIRCUMSTANCE]: "Circumstance",
-            [AttributeSource.ITEM]: "Item",
-            [AttributeSource.PROFICIENCY]: "Proficiency",
-            [AttributeSource.STATUS]: "Status",
-        }
-
-        let attributeSourceAsString: string
-
-        if (
-            attributeModifier.amount === 0 ||
-            attributeModifier.source == undefined
-        ) {
-            attributeSourceAsString = ""
-        } else {
-            attributeSourceAsString = ` (${attributeSourceToStringMapping[attributeModifier.source]})`
-        }
+        let attributeSourceAsString: string =
+            attributeModifier.amount != 0 &&
+            attributeModifier.source != undefined
+                ? ` (${getReadableAttributeSource(attributeModifier.source)})`
+                : ""
 
         const attributeTypeAsString: string = AttributeTypeService.readableName(
             attributeModifier.type
         )
 
-        return `${attributeTypeAsString}${attributeAmountAsString}${attributeSourceAsString}`
+        let attributeTypeDescription: string =
+            attributeModifier.amount !== 0
+                ? `: ${AttributeTypeService.getAttributeTypeDescription(attributeModifier.type)}`
+                : ""
+
+        return `${attributeTypeAsString}${attributeAmountAsString}${attributeSourceAsString}${attributeTypeDescription}`
     },
 }
 
@@ -276,3 +267,17 @@ const newAttributeModifier = ({
     numberOfUses,
     description,
 })
+
+const getReadableAttributeSource = (
+    attributeSource: AttributeSource
+): string => {
+    const attributeSourceToStringMapping: {
+        [t in AttributeSource]?: string
+    } = {
+        [AttributeSource.CIRCUMSTANCE]: "Circumstance",
+        [AttributeSource.ITEM]: "Item",
+        [AttributeSource.PROFICIENCY]: "Proficiency",
+        [AttributeSource.STATUS]: "Status",
+    }
+    return attributeSourceToStringMapping[attributeSource] ?? ""
+}

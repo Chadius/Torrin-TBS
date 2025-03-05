@@ -347,13 +347,15 @@ describe("AttributeModifier", () => {
     describe("knows how to make attribute descriptions", () => {
         const readableDescription: { [t: string]: string } = {
             [`${AttributeType.ARMOR} ${AttributeSource.CIRCUMSTANCE}`]:
-                "Armor -1 (Circumstance)",
-            [AttributeType.ABSORB]: "Absorb +2 (Item)",
+                "Armor -1 (Circumstance): Harder to hit",
+            [AttributeType.ABSORB]: "Absorb +2 (Item): Temporary HP",
             [AttributeType.MOVEMENT]: "Movement NO CHANGE",
-            [AttributeType.HUSTLE]: "Hustle (Circumstance)",
-            [AttributeType.ELUSIVE]: "Elusive (Status)",
+            [AttributeType.HUSTLE]:
+                "Hustle (Circumstance): Ignore rough terrain movement cost",
+            [AttributeType.ELUSIVE]:
+                "Elusive (Status): Can pass through enemies",
             [`${AttributeType.ARMOR} ${AttributeSource.PROFICIENCY}`]:
-                "Armor +4 (Proficiency)",
+                "Armor +4 (Proficiency): Harder to hit",
         }
 
         test.each`
@@ -410,7 +412,7 @@ describe("AttributeModifier", () => {
                     type: AttributeType.ABSORB,
                     amount: 1,
                 })
-            ).toEqual("Absorb +1")
+            ).toEqual("Absorb +1: Temporary HP")
         })
     })
 })
