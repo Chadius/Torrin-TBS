@@ -13,6 +13,9 @@ import { MessageBoardMessageType } from "../../message/messageBoardMessage"
 import { BattleActionService } from "../history/battleAction/battleAction"
 import { BattleActionRecorderService } from "../history/battleAction/battleActionRecorder"
 import { ResourceHandler } from "../../resource/resourceHandler"
+import { ObjectRepositoryService } from "../objectRepository"
+import { getResultOrThrowError } from "../../utils/ResultOrError"
+import { SquaddieService } from "../../squaddie/squaddieService"
 
 export const ACTION_COMPLETED_WAIT_TIME_MS = 500
 
@@ -20,30 +23,32 @@ export class BattleSquaddieUsesActionOnMap
     implements BattleOrchestratorComponent
 {
     animationCompleteStartTime?: number
+    completed: boolean
 
     constructor() {
         this.animationCompleteStartTime = undefined
+        this.completed = false
     }
 
-    hasCompleted(state: GameEngineState): boolean {
-        return animationTimeHasExpired(this.animationCompleteStartTime)
+    hasCompleted(_gameEngineState: GameEngineState): boolean {
+        return this.completed
     }
 
     mouseEventHappened(
-        state: GameEngineState,
-        event: OrchestratorComponentMouseEvent
+        _gameEngineState: GameEngineState,
+        _event: OrchestratorComponentMouseEvent
     ): void {
         // Required by inheritance
     }
 
     keyEventHappened(
-        state: GameEngineState,
-        event: OrchestratorComponentKeyEvent
+        _gameEngineState: GameEngineState,
+        _event: OrchestratorComponentKeyEvent
     ): void {
         // Required by inheritance
     }
 
-    uiControlSettings(state: GameEngineState): UIControlSettings {
+    uiControlSettings(gameEngineState: GameEngineState): UIControlSettings {
         return new UIControlSettings({
             displayMap: true,
             scrollCamera: false,
@@ -74,14 +79,13 @@ export class BattleSquaddieUsesActionOnMap
         }
     }
 
-    reset(gameEngineState: GameEngineState): void {
+    reset(_gameEngineState: GameEngineState): void {
         this.animationCompleteStartTime = undefined
     }
 
     update({
         gameEngineState,
         graphicsContext,
-        resourceHandler,
     }: {
         gameEngineState: GameEngineState
         graphicsContext: GraphicsBuffer
@@ -91,7 +95,10 @@ export class BattleSquaddieUsesActionOnMap
             this.animationCompleteStartTime = Date.now()
         }
 
-        if (!animationTimeHasExpired(this.animationCompleteStartTime)) {
+        if (
+            shouldWaitBeforeFinishing(gameEngineState) &&
+            !animationTimeHasExpired(this.animationCompleteStartTime)
+        ) {
             return
         }
 
@@ -109,7 +116,30 @@ export class BattleSquaddieUsesActionOnMap
             graphicsContext,
             resourceHandler: gameEngineState.resourceHandler,
         })
+
+        this.completed = true
     }
+}
+
+const shouldWaitBeforeFinishing = (
+    gameEngineState: GameEngineState
+): boolean => {
+    const battleAction = BattleActionRecorderService.peekAtAnimationQueue(
+        gameEngineState.battleOrchestratorState.battleState.battleActionRecorder
+    )
+    const { battleSquaddie, squaddieTemplate } = getResultOrThrowError(
+        ObjectRepositoryService.getSquaddieByBattleId(
+            gameEngineState.repository,
+            battleAction.actor.actorBattleSquaddieId
+        )
+    )
+
+    const { squaddieIsNormallyControllableByPlayer } =
+        SquaddieService.canPlayerControlSquaddieRightNow({
+            battleSquaddie,
+            squaddieTemplate,
+        })
+    return squaddieIsNormallyControllableByPlayer
 }
 
 const animationTimeHasExpired = (animationCompleteStartTime: number) =>

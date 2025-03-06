@@ -6,7 +6,10 @@ import {
 } from "../../trait/traitStatusStorage"
 import { SquaddieAffiliation } from "../../squaddie/squaddieAffiliation"
 import { SquaddieMovementService } from "../../squaddie/movement"
-import { BattleSquaddieUsesActionOnMap } from "./battleSquaddieUsesActionOnMap"
+import {
+    ACTION_COMPLETED_WAIT_TIME_MS,
+    BattleSquaddieUsesActionOnMap,
+} from "./battleSquaddieUsesActionOnMap"
 import { BattleStateService } from "../battleState/battleState"
 import {
     GameEngineState,
@@ -46,8 +49,8 @@ describe("BattleSquaddieUsesActionOnMap", () => {
         squaddieRepository = ObjectRepositoryService.new()
         SquaddieRepositoryService.createNewSquaddieAndAddToRepository({
             name: "Nahla",
-            templateId: "static_squaddie",
-            battleId: "dynamic_squaddie",
+            templateId: "player_nahla",
+            battleId: "player_nahla",
             affiliation: SquaddieAffiliation.PLAYER,
             objectRepository: squaddieRepository,
             attributes: ArmyAttributesService.new({
@@ -59,6 +62,16 @@ describe("BattleSquaddieUsesActionOnMap", () => {
                 }),
                 maxHitPoints: 0,
             }),
+            actionTemplateIds: [],
+        })
+
+        SquaddieRepositoryService.createNewSquaddieAndAddToRepository({
+            name: "Enemy",
+            templateId: "enemy_template",
+            battleId: "enemy",
+            affiliation: SquaddieAffiliation.ENEMY,
+            objectRepository: squaddieRepository,
+            attributes: ArmyAttributesService.new({}),
             actionTemplateIds: [],
         })
 
@@ -76,17 +89,6 @@ describe("BattleSquaddieUsesActionOnMap", () => {
                 }),
             }),
         })
-
-        const battleAction: BattleAction = BattleActionService.new({
-            actor: { actorBattleSquaddieId: "dynamic_squaddie" },
-            action: { isEndTurn: true },
-            effect: { endTurn: true },
-        })
-        BattleActionRecorderService.addReadyToAnimateBattleAction(
-            gameEngineState.battleOrchestratorState.battleState
-                .battleActionRecorder,
-            battleAction
-        )
         messageSpy = vi.spyOn(gameEngineState.messageBoard, "sendMessage")
     })
 
@@ -95,7 +97,8 @@ describe("BattleSquaddieUsesActionOnMap", () => {
         messageSpy.mockRestore()
     })
 
-    it("can wait half a second before ending turn", () => {
+    it("will wait before ending player turns", () => {
+        endTurnForSquaddie(gameEngineState, "player_nahla")
         mapAction.update({
             gameEngineState,
             graphicsContext: mockedP5GraphicsContext,
@@ -103,7 +106,7 @@ describe("BattleSquaddieUsesActionOnMap", () => {
         })
         expect(mapAction.animationCompleteStartTime).not.toBeUndefined()
         expect(mapAction.hasCompleted(gameEngineState)).toBeFalsy()
-        dateSpy.mockImplementation(() => 500)
+        dateSpy.mockImplementation(() => ACTION_COMPLETED_WAIT_TIME_MS)
 
         mapAction.update({
             gameEngineState,
@@ -113,7 +116,18 @@ describe("BattleSquaddieUsesActionOnMap", () => {
         expect(mapAction.hasCompleted(gameEngineState)).toBeTruthy()
     })
 
+    it("will not wait before ending non player turns", () => {
+        endTurnForSquaddie(gameEngineState, "enemy")
+        mapAction.update({
+            gameEngineState,
+            graphicsContext: mockedP5GraphicsContext,
+            resourceHandler: gameEngineState.resourceHandler,
+        })
+        expect(mapAction.hasCompleted(gameEngineState)).toBeTruthy()
+    })
+
     it("will go to player hud controller if there are no more actions queued", () => {
+        endTurnForSquaddie(gameEngineState, "player_nahla")
         gameEngineState.battleOrchestratorState.battleState.battleActionRecorder =
             BattleActionRecorderService.new()
         const stateChanges = mapAction.recommendStateChanges(gameEngineState)
@@ -131,12 +145,13 @@ describe("BattleSquaddieUsesActionOnMap", () => {
     })
 
     it("sets the animation as complete", () => {
+        endTurnForSquaddie(gameEngineState, "player_nahla")
         mapAction.update({
             gameEngineState,
             graphicsContext: mockedP5GraphicsContext,
             resourceHandler: gameEngineState.resourceHandler,
         })
-        dateSpy.mockImplementation(() => 500)
+        dateSpy.mockImplementation(() => ACTION_COMPLETED_WAIT_TIME_MS)
         mapAction.update({
             gameEngineState,
             graphicsContext: mockedP5GraphicsContext,
@@ -153,12 +168,13 @@ describe("BattleSquaddieUsesActionOnMap", () => {
     })
 
     it("sends a message noting the animation is complete", () => {
+        endTurnForSquaddie(gameEngineState, "player_nahla")
         mapAction.update({
             gameEngineState,
             graphicsContext: mockedP5GraphicsContext,
             resourceHandler: gameEngineState.resourceHandler,
         })
-        dateSpy.mockImplementation(() => 500)
+        dateSpy.mockImplementation(() => ACTION_COMPLETED_WAIT_TIME_MS)
         mapAction.update({
             gameEngineState,
             graphicsContext: mockedP5GraphicsContext,
@@ -176,13 +192,13 @@ describe("BattleSquaddieUsesActionOnMap", () => {
         let messageSpy: MockInstance
         beforeEach(() => {
             messageSpy = vi.spyOn(gameEngineState.messageBoard, "sendMessage")
-
+            endTurnForSquaddie(gameEngineState, "player_nahla")
             mapAction.update({
                 gameEngineState,
                 graphicsContext: mockedP5GraphicsContext,
                 resourceHandler: gameEngineState.resourceHandler,
             })
-            dateSpy.mockImplementation(() => 500)
+            dateSpy.mockImplementation(() => ACTION_COMPLETED_WAIT_TIME_MS)
             mapAction.update({
                 gameEngineState,
                 graphicsContext: mockedP5GraphicsContext,
@@ -226,3 +242,19 @@ describe("BattleSquaddieUsesActionOnMap", () => {
         })
     })
 })
+
+const endTurnForSquaddie = (
+    gameEngineState: GameEngineState,
+    actorBattleSquaddieId: string
+) => {
+    const battleAction: BattleAction = BattleActionService.new({
+        actor: { actorBattleSquaddieId },
+        action: { isEndTurn: true },
+        effect: { endTurn: true },
+    })
+    BattleActionRecorderService.addReadyToAnimateBattleAction(
+        gameEngineState.battleOrchestratorState.battleState
+            .battleActionRecorder,
+        battleAction
+    )
+}
