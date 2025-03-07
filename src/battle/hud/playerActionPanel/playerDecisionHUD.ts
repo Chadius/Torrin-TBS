@@ -165,13 +165,18 @@ const playerConsidersAction = (
             undefined
     }
 
-    SquaddieStatusTileService.updateTileUsingSquaddie({
-        tile: gameEngineState.battleOrchestratorState.battleHUDState
-            .summaryHUDState.squaddieStatusTiles[
-            ActionTilePosition.ACTOR_STATUS
-        ],
-        gameEngineState,
-    })
+    if (
+        gameEngineState.battleOrchestratorState.battleHUDState.summaryHUDState
+            .squaddieStatusTiles[ActionTilePosition.ACTOR_STATUS]
+    ) {
+        SquaddieStatusTileService.updateTileUsingSquaddie({
+            tile: gameEngineState.battleOrchestratorState.battleHUDState
+                .summaryHUDState.squaddieStatusTiles[
+                ActionTilePosition.ACTOR_STATUS
+            ],
+            gameEngineState,
+        })
+    }
 
     PlayerDecisionHUDService.clearPopupWindow(
         gameEngineState.battleOrchestratorState.playerDecisionHUD,

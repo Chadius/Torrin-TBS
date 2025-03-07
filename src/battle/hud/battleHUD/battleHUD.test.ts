@@ -45,7 +45,7 @@ import {
     TraitStatusStorageService,
 } from "../../../trait/traitStatusStorage"
 import { CampaignService } from "../../../campaign/campaign"
-import { DrawSquaddieUtilities } from "../../animation/drawSquaddie"
+import { DrawSquaddieIconOnMapUtilities } from "../../animation/drawSquaddieIconOnMap/drawSquaddieIconOnMap"
 import { BattleCamera } from "../../battleCamera"
 import {
     BattleSquaddieTeam,
@@ -858,7 +858,7 @@ describe("Battle HUD", () => {
             }))
 
             addGraphicsLayerSpy = vi.spyOn(
-                DrawSquaddieUtilities,
+                DrawSquaddieIconOnMapUtilities,
                 "highlightSquaddieRange"
             )
 

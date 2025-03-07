@@ -9,7 +9,7 @@ import {
 } from "../orchestratorComponents/battlePhaseTracker"
 import { InBattleAttributesService } from "../stats/inBattleAttributes"
 import { BattleSquaddie } from "../battleSquaddie"
-import { DrawSquaddieUtilities } from "../animation/drawSquaddie"
+import { DrawSquaddieIconOnMapUtilities } from "../animation/drawSquaddieIconOnMap/drawSquaddieIconOnMap"
 import { TerrainTileMapService } from "../../hexMap/terrainTileMap"
 
 export const SquaddiePhaseStartsService = {
@@ -75,7 +75,7 @@ export const SquaddiePhaseStartsService = {
             message.gameEngineState,
             message.phase,
             (battleSquaddie: BattleSquaddie) => {
-                DrawSquaddieUtilities.unTintSquaddieMapIcon(
+                DrawSquaddieIconOnMapUtilities.unTintSquaddieMapIcon(
                     message.gameEngineState.repository,
                     battleSquaddie
                 )

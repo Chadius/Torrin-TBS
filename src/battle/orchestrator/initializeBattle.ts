@@ -5,7 +5,7 @@ import {
     OrchestratorComponentKeyEvent,
     OrchestratorComponentMouseEvent,
 } from "./battleOrchestratorComponent"
-import { DrawSquaddieUtilities } from "../animation/drawSquaddie"
+import { DrawSquaddieIconOnMapUtilities } from "../animation/drawSquaddieIconOnMap/drawSquaddieIconOnMap"
 import { SquaddieAffiliation } from "../../squaddie/squaddieAffiliation"
 import { getResultOrThrowError } from "../../utils/ResultOrError"
 import { GameEngineState } from "../../gameEngine/gameEngine"
@@ -55,7 +55,7 @@ export class InitializeBattle implements BattleOrchestratorComponent {
                             battleId
                         )
                     )
-                DrawSquaddieUtilities.tintSquaddieMapIconIfTheyCannotAct(
+                DrawSquaddieIconOnMapUtilities.tintSquaddieMapIconIfTheyCannotAct(
                     battleSquaddie,
                     squaddieTemplate,
                     state.repository

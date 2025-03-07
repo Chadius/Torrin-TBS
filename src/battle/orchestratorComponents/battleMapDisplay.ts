@@ -7,7 +7,7 @@ import {
 } from "../orchestrator/battleOrchestratorComponent"
 import { BattleOrchestratorState } from "../orchestrator/battleOrchestratorState"
 import { HexDrawingUtils } from "../../hexMap/hexDrawingUtils"
-import { DrawSquaddieUtilities } from "../animation/drawSquaddie"
+import { DrawSquaddieIconOnMapUtilities } from "../animation/drawSquaddieIconOnMap/drawSquaddieIconOnMap"
 import { ScreenDimensions } from "../../utils/graphics/graphicsConfig"
 import { UIControlSettings } from "../orchestrator/uiControlSettings"
 import { MissionMapSquaddieCoordinateService } from "../../missionMap/squaddieCoordinate"
@@ -231,11 +231,10 @@ export class BattleMapDisplay implements BattleOrchestratorComponent {
                             battleSquaddieId
                         )
                     if (squaddieIsOnTheMap && !squaddieIsHidden) {
-                        DrawSquaddieUtilities.drawSquaddieMapIconAtMapCoordinate(
+                        DrawSquaddieIconOnMapUtilities.drawSquaddieMapIconAtMapCoordinate(
                             {
                                 graphics: graphicsContext,
                                 squaddieRepository: state.repository,
-                                battleSquaddie: battleSquaddie,
                                 battleSquaddieId: battleSquaddieId,
                                 mapCoordinate: datum.mapCoordinate,
                                 camera: state.battleOrchestratorState

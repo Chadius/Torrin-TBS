@@ -643,11 +643,13 @@ describe("Orchestration Utils", () => {
                     )
                 ).battleSquaddie.squaddieTurn
             )
-            MissionMapService.updateBattleSquaddieCoordinate(
-                gameEngineState.battleOrchestratorState.battleState.missionMap,
-                playerSquaddieIds[1],
-                undefined
-            )
+            MissionMapService.updateBattleSquaddieCoordinate({
+                missionMap:
+                    gameEngineState.battleOrchestratorState.battleState
+                        .missionMap,
+                battleSquaddieId: playerSquaddieIds[1],
+                coordinate: undefined,
+            })
 
             OrchestratorUtilities.generateMessagesIfThePlayerCanActWithANewSquaddie(
                 gameEngineState

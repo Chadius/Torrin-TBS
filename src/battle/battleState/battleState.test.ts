@@ -42,7 +42,7 @@ import {
     BattleActionRecorderService,
 } from "../history/battleAction/battleActionRecorder"
 import { BattleActionsDuringTurnService } from "../history/battleAction/battleActionsDuringTurn"
-import { DrawSquaddieUtilities } from "../animation/drawSquaddie"
+import { DrawSquaddieIconOnMapUtilities } from "../animation/drawSquaddieIconOnMap/drawSquaddieIconOnMap"
 import { CampaignService } from "../../campaign/campaign"
 import { ArmyAttributesService } from "../../squaddie/armyAttributes"
 import { SquaddieStatusTileService } from "../hud/playerActionPanel/tile/squaddieStatusTile/squaddieStatusTile"
@@ -536,13 +536,13 @@ describe("Battle State", () => {
 
             drawReachSpy = vi
                 .spyOn(
-                    DrawSquaddieUtilities,
+                    DrawSquaddieIconOnMapUtilities,
                     "highlightPlayableSquaddieReachIfTheyCanAct"
                 )
                 .mockReturnValue()
             tintSquaddieSpy = vi
                 .spyOn(
-                    DrawSquaddieUtilities,
+                    DrawSquaddieIconOnMapUtilities,
                     "tintSquaddieMapIconIfTheyCannotAct"
                 )
                 .mockReturnValue()

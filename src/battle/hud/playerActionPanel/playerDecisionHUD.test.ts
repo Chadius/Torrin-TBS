@@ -646,7 +646,6 @@ describe("Player Decision HUD", () => {
         })
     })
 
-    // TODO You should skip selected squaddies
     describe("Player wants to select the next squaddie", () => {
         let gameEngineState: GameEngineState
         let playerDecisionHUDListener: PlayerDecisionHUDListener

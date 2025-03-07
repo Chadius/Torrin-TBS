@@ -214,11 +214,11 @@ describe("BattleHUDState", () => {
         })
 
         it("skips any offscreen squaddies", () => {
-            MissionMapService.updateBattleSquaddieCoordinate(
-                missionMap,
-                "playerSquaddie2",
-                undefined
-            )
+            MissionMapService.updateBattleSquaddieCoordinate({
+                missionMap: missionMap,
+                battleSquaddieId: "playerSquaddie2",
+                coordinate: undefined,
+            })
 
             expect(
                 BattleHUDStateService.getNextSquaddieId({

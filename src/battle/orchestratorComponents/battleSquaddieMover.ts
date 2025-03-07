@@ -4,7 +4,7 @@ import {
     OrchestratorComponentKeyEvent,
     OrchestratorComponentMouseEvent,
 } from "../orchestrator/battleOrchestratorComponent"
-import { DrawSquaddieUtilities } from "../animation/drawSquaddie"
+import { DrawSquaddieIconOnMapUtilities } from "../animation/drawSquaddieIconOnMap/drawSquaddieIconOnMap"
 import { getResultOrThrowError } from "../../utils/ResultOrError"
 import { OrchestratorUtilities } from "./orchestratorUtils"
 import { UIControlSettings } from "../orchestrator/uiControlSettings"
@@ -18,6 +18,8 @@ import { TerrainTileMapService } from "../../hexMap/terrainTileMap"
 import { BattleActionService } from "../history/battleAction/battleAction"
 import { BattleActionRecorderService } from "../history/battleAction/battleActionRecorder"
 import { ResourceHandler } from "../../resource/resourceHandler"
+import { SquaddieService } from "../../squaddie/squaddieService"
+import { GraphicsConfig } from "../../utils/graphics/graphicsConfig"
 
 export class BattleSquaddieMover implements BattleOrchestratorComponent {
     animationStartTime?: number
@@ -39,20 +41,20 @@ export class BattleSquaddieMover implements BattleOrchestratorComponent {
     }
 
     mouseEventHappened(
-        state: GameEngineState,
-        event: OrchestratorComponentMouseEvent
+        _gameEngineState: GameEngineState,
+        _event: OrchestratorComponentMouseEvent
     ): void {
         // Required by inheritance
     }
 
     keyEventHappened(
-        state: GameEngineState,
-        event: OrchestratorComponentKeyEvent
+        _gameEngineState: GameEngineState,
+        _event: OrchestratorComponentKeyEvent
     ): void {
         // Required by inheritance
     }
 
-    uiControlSettings(state: GameEngineState): UIControlSettings {
+    uiControlSettings(_gameEngineState: GameEngineState): UIControlSettings {
         return new UIControlSettings({
             scrollCamera: false,
             displayMap: true,
@@ -75,7 +77,8 @@ export class BattleSquaddieMover implements BattleOrchestratorComponent {
         }
 
         if (
-            !DrawSquaddieUtilities.hasMovementAnimationFinished(
+            this.shouldAnimateSquaddieMovement(gameEngineState) &&
+            !DrawSquaddieIconOnMapUtilities.hasMovementAnimationFinished(
                 this.animationStartTime,
                 gameEngineState.battleOrchestratorState.battleState
                     .squaddieMovePath
@@ -136,7 +139,7 @@ export class BattleSquaddieMover implements BattleOrchestratorComponent {
             )
         )
 
-        DrawSquaddieUtilities.moveSquaddieAlongPath({
+        DrawSquaddieIconOnMapUtilities.moveSquaddieAlongPath({
             squaddieRepository: gameEngineState.repository,
             battleSquaddie,
             timeMovementStarted: this.animationStartTime,
@@ -159,11 +162,8 @@ export class BattleSquaddieMover implements BattleOrchestratorComponent {
         gameEngineState: GameEngineState,
         graphicsContext: GraphicsBuffer
     ) {
-        const battleSquaddieId =
-            BattleActionRecorderService.peekAtAnimationQueue(
-                gameEngineState.battleOrchestratorState.battleState
-                    .battleActionRecorder
-            ).actor.actorBattleSquaddieId
+        const { battleSquaddie, battleSquaddieId } =
+            getBattleSquaddieCurrentlyMoving(gameEngineState)
 
         if (!battleSquaddieId) {
             this.finishedCleanup = true
@@ -171,17 +171,12 @@ export class BattleSquaddieMover implements BattleOrchestratorComponent {
                 undefined
             return
         }
-        const { battleSquaddie } = getResultOrThrowError(
-            ObjectRepositoryService.getSquaddieByBattleId(
-                gameEngineState.repository,
-                battleSquaddieId
-            )
-        )
+
         TerrainTileMapService.removeAllGraphicsLayers(
             gameEngineState.battleOrchestratorState.battleState.missionMap
                 .terrainTileMap
         )
-        updateIconAndMapBasedOnWhetherSquaddieCanAct(
+        updateIconLocation(
             gameEngineState,
             battleSquaddie,
             graphicsContext,
@@ -204,9 +199,41 @@ export class BattleSquaddieMover implements BattleOrchestratorComponent {
         gameEngineState.battleOrchestratorState.battleState.squaddieMovePath =
             undefined
     }
+
+    private shouldAnimateSquaddieMovement(
+        gameEngineState: GameEngineState
+    ): boolean {
+        const { battleSquaddie, battleSquaddieId } =
+            getBattleSquaddieCurrentlyMoving(gameEngineState)
+
+        if (!battleSquaddieId || !battleSquaddie) return false
+
+        const { squaddieTemplate } = getResultOrThrowError(
+            ObjectRepositoryService.getSquaddieByBattleId(
+                gameEngineState.repository,
+                battleSquaddie.battleSquaddieId
+            )
+        )
+
+        const { squaddieIsNormallyControllableByPlayer } =
+            SquaddieService.canPlayerControlSquaddieRightNow({
+                squaddieTemplate,
+                battleSquaddie,
+            })
+        if (squaddieIsNormallyControllableByPlayer) return true
+
+        return gameEngineState.battleOrchestratorState.battleState.squaddieMovePath.coordinatesTraveled.some(
+            (coordinate) =>
+                GraphicsConfig.isMapCoordinateOnScreen({
+                    mapCoordinate: coordinate.hexCoordinate,
+                    camera: gameEngineState.battleOrchestratorState.battleState
+                        .camera,
+                })
+        )
+    }
 }
 
-const updateIconAndMapBasedOnWhetherSquaddieCanAct = (
+const updateIconLocation = (
     gameEngineState: GameEngineState,
     battleSquaddie: BattleSquaddie,
     graphicsContext: GraphicsBuffer,
@@ -223,11 +250,36 @@ const updateIconAndMapBasedOnWhetherSquaddieCanAct = (
         gameEngineState.battleOrchestratorState.battleState.battleActionRecorder
     ).effect.movement.endCoordinate
 
-    DrawSquaddieUtilities.updateSquaddieIconLocation({
+    DrawSquaddieIconOnMapUtilities.updateSquaddieIconLocation({
         repository: gameEngineState.repository,
         battleSquaddieId: battleSquaddie.battleSquaddieId,
         destination,
         camera: gameEngineState.battleOrchestratorState.battleState.camera,
     })
     mapIcon.draw({ graphicsContext, resourceHandler })
+}
+
+const getBattleSquaddieCurrentlyMoving = (gameEngineState: GameEngineState) => {
+    const battleSquaddieId = BattleActionRecorderService.peekAtAnimationQueue(
+        gameEngineState.battleOrchestratorState.battleState.battleActionRecorder
+    ).actor.actorBattleSquaddieId
+
+    if (!battleSquaddieId) {
+        return {
+            battleSquaddieId,
+            battleSquaddie: undefined,
+        }
+    }
+
+    const { battleSquaddie } = getResultOrThrowError(
+        ObjectRepositoryService.getSquaddieByBattleId(
+            gameEngineState.repository,
+            battleSquaddieId
+        )
+    )
+
+    return {
+        battleSquaddieId,
+        battleSquaddie,
+    }
 }

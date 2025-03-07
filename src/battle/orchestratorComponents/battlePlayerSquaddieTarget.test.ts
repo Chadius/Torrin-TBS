@@ -379,11 +379,12 @@ describe("BattleSquaddieTarget", () => {
     })
 
     it("should ignore if the target is out of range", () => {
-        MissionMapService.updateBattleSquaddieCoordinate(
-            gameEngineState.battleOrchestratorState.battleState.missionMap,
-            thiefDynamic.battleSquaddieId,
-            { q: 0, r: 0 }
-        )
+        MissionMapService.updateBattleSquaddieCoordinate({
+            missionMap:
+                gameEngineState.battleOrchestratorState.battleState.missionMap,
+            battleSquaddieId: thiefDynamic.battleSquaddieId,
+            coordinate: { q: 0, r: 0 },
+        })
         targetComponent.update({
             gameEngineState,
             graphicsContext: mockedP5GraphicsContext,

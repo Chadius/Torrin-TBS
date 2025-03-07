@@ -587,11 +587,12 @@ export const BattleHUDService = {
             battleSquaddie,
             destination,
         })
-        MissionMapService.updateBattleSquaddieCoordinate(
-            gameEngineState.battleOrchestratorState.battleState.missionMap,
-            battleSquaddie.battleSquaddieId,
-            destination
-        )
+        MissionMapService.updateBattleSquaddieCoordinate({
+            missionMap:
+                gameEngineState.battleOrchestratorState.battleState.missionMap,
+            battleSquaddieId: battleSquaddie.battleSquaddieId,
+            coordinate: destination,
+        })
 
         gameEngineState.messageBoard.sendMessage({
             type: MessageBoardMessageType.PLAYER_CONFIRMS_DECISION_STEP_ACTOR,

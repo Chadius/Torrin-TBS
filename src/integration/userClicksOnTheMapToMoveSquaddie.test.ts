@@ -38,7 +38,7 @@ import { ArmyAttributesService } from "../squaddie/armyAttributes"
 import { SquaddieMovementService } from "../squaddie/movement"
 import { BattleOrchestratorMode } from "../battle/orchestrator/battleOrchestrator"
 import { BattleSquaddieMover } from "../battle/orchestratorComponents/battleSquaddieMover"
-import { DrawSquaddieUtilities } from "../battle/animation/drawSquaddie"
+import { DrawSquaddieIconOnMapUtilities } from "../battle/animation/drawSquaddieIconOnMap/drawSquaddieIconOnMap"
 import { BattleHUDService } from "../battle/hud/battleHUD/battleHUD"
 import { MouseButton } from "../utils/mouseConfig"
 import { GraphicsBuffer } from "../utils/graphics/graphicsRenderer"
@@ -404,7 +404,7 @@ describe("user clicks on the map to move", () => {
             mover = new BattleSquaddieMover()
             graphicsContext = new MockedP5GraphicsBuffer()
             moveSquaddieAlongPathSpy = vi.spyOn(
-                DrawSquaddieUtilities,
+                DrawSquaddieIconOnMapUtilities,
                 "moveSquaddieAlongPath"
             )
         })

@@ -1,9 +1,13 @@
 import { GraphicsConfig, ScreenDimensions } from "./graphicsConfig"
-import { describe, expect, it } from "vitest"
+import { beforeEach, describe, expect, it } from "vitest"
+import { BattleCamera } from "../../battle/battleCamera"
+import { HEX_TILE_HEIGHT, HEX_TILE_WIDTH } from "../../graphicsConstants"
+import { ConvertCoordinateService } from "../../hexMap/convertCoordinates"
+import { HexCoordinate } from "../../hexMap/hexCoordinate/hexCoordinate"
 
 describe("graphics config", () => {
-    describe("isCoordinateOnScreen", () => {
-        const coordinateTests = [
+    describe("isLocationOnScreen", () => {
+        const locationTests = [
             {
                 expected: true,
                 x: 0,
@@ -46,17 +50,17 @@ describe("graphics config", () => {
             },
         ]
 
-        it.each(coordinateTests)(
-            `isCoordinateOnScreen test is $expected coordinates ($x, $y) `,
+        it.each(locationTests)(
+            `isLocationOnScreen test is $expected coordinates ($x, $y) `,
             ({ expected, x, y }) => {
-                expect(GraphicsConfig.isCoordinateOnScreen(x, y)).toEqual(
+                expect(GraphicsConfig.isLocationOnScreen(x, y)).toEqual(
                     expected
                 )
             }
         )
     })
-    describe("isCoordinateWithinMiddleThirdOfScreen", () => {
-        const coordinateTests = [
+    describe("isLocationWithinMiddleThirdOfScreen", () => {
+        const locationTests = [
             {
                 expected: true,
                 x: ScreenDimensions.SCREEN_WIDTH * 0.5,
@@ -104,13 +108,72 @@ describe("graphics config", () => {
             },
         ]
 
-        it.each(coordinateTests)(
-            `isCoordinateWithinMiddleThirdOfScreen test is $expected coordinates ($x, $y) `,
+        it.each(locationTests)(
+            `isLocationWithinMiddleThirdOfScreen test is $expected coordinates ($x, $y) `,
             ({ expected, x, y }) => {
                 expect(
-                    GraphicsConfig.isCoordinateWithinMiddleThirdOfScreen(x, y)
+                    GraphicsConfig.isLocationWithinMiddleThirdOfScreen(x, y)
                 ).toEqual(expected)
             }
         )
+    })
+    describe("isMapCoordinateOnScreen", () => {
+        let camera: BattleCamera
+        const numberOfHorizontalTilesOnScreen =
+            ScreenDimensions.SCREEN_WIDTH / HEX_TILE_WIDTH
+        const numberOfVerticalTilesOnScreen =
+            ScreenDimensions.SCREEN_HEIGHT / HEX_TILE_HEIGHT
+
+        beforeEach(() => {
+            const initialCameraPosition =
+                ConvertCoordinateService.convertMapCoordinatesToWorldLocation({
+                    mapCoordinate: {
+                        q: 0,
+                        r: 0,
+                    },
+                })
+            camera = new BattleCamera(
+                initialCameraPosition.x,
+                initialCameraPosition.y
+            )
+        })
+
+        const coordinateTests = [
+            {
+                name: "is on screen if it is under the camera",
+                mapCoordinate: (): HexCoordinate => ({ q: 0, r: 0 }),
+                expected: true,
+            },
+            {
+                name: "is off screen if it is vertically off screen",
+                mapCoordinate: (): HexCoordinate => ({
+                    q: Math.floor(numberOfVerticalTilesOnScreen) - 1,
+                    r: 0,
+                }),
+                expected: false,
+            },
+            {
+                name: "is off screen if it is horizontally off screen",
+                mapCoordinate: (): HexCoordinate => ({
+                    q: 0,
+                    r: Math.floor(numberOfHorizontalTilesOnScreen) - 1,
+                }),
+                expected: false,
+            },
+            {
+                name: "is off screen if it is vertically off screen",
+                mapCoordinate: (): HexCoordinate => undefined,
+                expected: false,
+            },
+        ]
+
+        it.each(coordinateTests)(`$name`, ({ mapCoordinate, expected }) => {
+            expect(
+                GraphicsConfig.isMapCoordinateOnScreen({
+                    mapCoordinate: mapCoordinate(),
+                    camera,
+                })
+            ).toBe(expected)
+        })
     })
 })

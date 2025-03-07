@@ -47,7 +47,7 @@ import {
     BattleActionRecorderService,
 } from "../history/battleAction/battleActionRecorder"
 import { BattleActionService } from "../history/battleAction/battleAction"
-import { DrawSquaddieUtilities } from "../animation/drawSquaddie"
+import { DrawSquaddieIconOnMapUtilities } from "../animation/drawSquaddieIconOnMap/drawSquaddieIconOnMap"
 import { SquaddieStatusTileService } from "../hud/playerActionPanel/tile/squaddieStatusTile/squaddieStatusTile"
 import { ActionTilePosition } from "../hud/playerActionPanel/tile/actionTilePosition"
 import { MapDataBlob } from "../../hexMap/mapLayer/mapDataBlob"
@@ -320,7 +320,7 @@ const battleActionFinishesAnimation = (
 
     updateSummaryHUDAfterFinishingAnimation(message)
 
-    DrawSquaddieUtilities.highlightPlayableSquaddieReachIfTheyCanAct({
+    DrawSquaddieIconOnMapUtilities.highlightPlayableSquaddieReachIfTheyCanAct({
         battleSquaddie,
         squaddieTemplate,
         missionMap:
@@ -328,7 +328,7 @@ const battleActionFinishesAnimation = (
         repository: gameEngineState.repository,
         campaign: gameEngineState.campaign,
     })
-    DrawSquaddieUtilities.tintSquaddieMapIconIfTheyCannotAct(
+    DrawSquaddieIconOnMapUtilities.tintSquaddieMapIconIfTheyCannotAct(
         battleSquaddie,
         squaddieTemplate,
         gameEngineState.repository

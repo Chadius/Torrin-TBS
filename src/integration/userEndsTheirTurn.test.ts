@@ -49,7 +49,7 @@ import {
     ACTION_COMPLETED_WAIT_TIME_MS,
     BattleSquaddieUsesActionOnMap,
 } from "../battle/orchestratorComponents/battleSquaddieUsesActionOnMap"
-import { DrawSquaddieUtilities } from "../battle/animation/drawSquaddie"
+import { DrawSquaddieIconOnMapUtilities } from "../battle/animation/drawSquaddieIconOnMap/drawSquaddieIconOnMap"
 import { MouseButton } from "../utils/mouseConfig"
 import { GraphicsBuffer } from "../utils/graphics/graphicsRenderer"
 import { MessageBoardMessageType } from "../message/messageBoardMessage"
@@ -456,7 +456,7 @@ describe("User ends their turn", () => {
 
             BattleSquaddieService.endTurn(playerBattleSquaddie)
             tintSpy = vi.spyOn(
-                DrawSquaddieUtilities,
+                DrawSquaddieIconOnMapUtilities,
                 "tintSquaddieMapIconIfTheyCannotAct"
             )
             const battleStateListener = new BattleStateListener(

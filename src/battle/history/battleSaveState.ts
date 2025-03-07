@@ -105,19 +105,19 @@ export const BattleSaveStateService = {
 
         battleSaveState.squaddieMapPlacements.forEach(
             (coordinateData: MissionMapSquaddieCoordinate) =>
-                MissionMapService.updateBattleSquaddieCoordinate(
-                    battleOrchestratorState.battleState.missionMap,
-                    coordinateData.battleSquaddieId,
-                    undefined
-                )
+                MissionMapService.updateBattleSquaddieCoordinate({
+                    missionMap: battleOrchestratorState.battleState.missionMap,
+                    battleSquaddieId: coordinateData.battleSquaddieId,
+                    coordinate: undefined,
+                })
         )
         battleSaveState.squaddieMapPlacements.forEach(
             (coordinateData: MissionMapSquaddieCoordinate) =>
-                MissionMapService.updateBattleSquaddieCoordinate(
-                    battleOrchestratorState.battleState.missionMap,
-                    coordinateData.battleSquaddieId,
-                    coordinateData.mapCoordinate
-                )
+                MissionMapService.updateBattleSquaddieCoordinate({
+                    missionMap: battleOrchestratorState.battleState.missionMap,
+                    battleSquaddieId: coordinateData.battleSquaddieId,
+                    coordinate: coordinateData.mapCoordinate,
+                })
         )
 
         for (let squaddieBattleId in battleSaveState.inBattleAttributesBySquaddieBattleId) {

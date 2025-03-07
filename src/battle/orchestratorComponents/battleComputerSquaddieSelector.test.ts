@@ -43,7 +43,7 @@ import {
     GameEngineStateService,
 } from "../../gameEngine/gameEngine"
 import { OrchestratorUtilities } from "./orchestratorUtils"
-import { DrawSquaddieUtilities } from "../animation/drawSquaddie"
+import { DrawSquaddieIconOnMapUtilities } from "../animation/drawSquaddieIconOnMap/drawSquaddieIconOnMap"
 import { CampaignService } from "../../campaign/campaign"
 import {
     ActionTemplate,
@@ -223,6 +223,14 @@ describe("BattleComputerSquaddieSelector", () => {
         let drawSquaddieUtilitiesSpy: MockInstance
         let squaddieLocation: number[]
 
+        const setupStrategySpy = (
+            battleActionDecisionStep: BattleActionDecisionStep
+        ) => {
+            strategySpy = vi
+                .spyOn(DetermineNextDecisionService, "determineNextDecision")
+                .mockReturnValue([battleActionDecisionStep])
+        }
+
         beforeEach(() => {
             missionMap = MissionMapService.new({
                 terrainTileMap: TerrainTileMapService.new({
@@ -232,34 +240,12 @@ describe("BattleComputerSquaddieSelector", () => {
 
             makeBattlePhaseTrackerWithEnemyTeam(missionMap)
 
-            const movementStep: BattleActionDecisionStep =
-                BattleActionDecisionStepService.new()
-            BattleActionDecisionStepService.setActor({
-                actionDecisionStep: movementStep,
-                battleSquaddieId: enemyDemonBattleSquaddie.battleSquaddieId,
-            })
-            BattleActionDecisionStepService.addAction({
-                actionDecisionStep: movementStep,
-                movement: true,
-            })
-            BattleActionDecisionStepService.setConfirmedTarget({
-                actionDecisionStep: movementStep,
-                targetCoordinate: { q: 0, r: 0 },
-            })
-
-            strategySpy = vi
-                .spyOn(DetermineNextDecisionService, "determineNextDecision")
-                .mockReturnValue([movementStep])
-
             const { x, y } =
                 ConvertCoordinateService.convertMapCoordinatesToWorldLocation({
                     mapCoordinate: { q: 0, r: 0 },
                 })
             squaddieLocation = [x, y]
-            camera = new BattleCamera(
-                x + ScreenDimensions.SCREEN_WIDTH * 2,
-                y + ScreenDimensions.SCREEN_HEIGHT * 2
-            )
+            camera = new BattleCamera(x, y)
             gameEngineState = GameEngineStateService.new({
                 repository: objectRepository,
                 resourceHandler: undefined,
@@ -287,7 +273,7 @@ describe("BattleComputerSquaddieSelector", () => {
             dateSpy = vi.spyOn(Date, "now").mockImplementation(() => 0)
             drawSquaddieUtilitiesSpy = vi
                 .spyOn(
-                    DrawSquaddieUtilities,
+                    DrawSquaddieIconOnMapUtilities,
                     "drawSquaddieMapIconAtMapCoordinate"
                 )
                 .mockImplementation(() => {})
@@ -296,17 +282,46 @@ describe("BattleComputerSquaddieSelector", () => {
         afterEach(() => {
             dateSpy.mockRestore()
             drawSquaddieUtilitiesSpy.mockRestore()
-            strategySpy.mockRestore()
+            if (strategySpy) strategySpy.mockRestore()
         })
 
-        it("moves camera to an uncontrollable squaddie before before moving", () => {
+        const expectCameraDoesNotPanAndComponentIsComplete = () => {
             camera.moveCamera()
             selector.update({
                 gameEngineState,
                 graphicsContext: mockedP5GraphicsContext,
                 resourceHandler: gameEngineState.resourceHandler,
             })
-            expect(strategySpy).toHaveBeenCalled()
+            expect(selector.hasCompleted(gameEngineState)).toBeTruthy()
+            expect(camera.isPanning()).toBeFalsy()
+            return true
+        }
+
+        it("moves camera to an uncontrollable squaddie if the squaddie is off screen and is using an action template", () => {
+            const actionDecisionStep: BattleActionDecisionStep =
+                BattleActionDecisionStepService.new()
+            BattleActionDecisionStepService.setActor({
+                actionDecisionStep: actionDecisionStep,
+                battleSquaddieId: enemyDemonBattleSquaddie.battleSquaddieId,
+            })
+            BattleActionDecisionStepService.addAction({
+                actionTemplateId: "demon_bite",
+                actionDecisionStep: actionDecisionStep,
+            })
+            BattleActionDecisionStepService.setConfirmedTarget({
+                actionDecisionStep: actionDecisionStep,
+                targetCoordinate: { q: 0, r: 0 },
+            })
+            setupStrategySpy(actionDecisionStep)
+            camera.xCoordinate = ScreenDimensions.SCREEN_WIDTH * 2
+            camera.yCoordinate = ScreenDimensions.SCREEN_HEIGHT * 2
+
+            camera.moveCamera()
+            selector.update({
+                gameEngineState,
+                graphicsContext: mockedP5GraphicsContext,
+                resourceHandler: gameEngineState.resourceHandler,
+            })
 
             expect(selector.hasCompleted(gameEngineState)).toBeFalsy()
             expect(camera.isPanning()).toBeTruthy()
@@ -316,18 +331,69 @@ describe("BattleComputerSquaddieSelector", () => {
             expect(panningInfo.yDestination).toBe(squaddieLocation[1])
 
             dateSpy.mockImplementation(() => SQUADDIE_SELECTOR_PANNING_TIME)
-            camera.moveCamera()
-            selector.update({
-                gameEngineState,
-                graphicsContext: mockedP5GraphicsContext,
-                resourceHandler: gameEngineState.resourceHandler,
-            })
+            expect(expectCameraDoesNotPanAndComponentIsComplete()).toBeTruthy()
+        })
 
-            expect(selector.hasCompleted(gameEngineState)).toBeTruthy()
-            expect(camera.isPanning()).toBeFalsy()
+        it("does not move the camera if the squaddie movement is completely offscreen", () => {
+            const movementStep: BattleActionDecisionStep =
+                BattleActionDecisionStepService.new()
+            BattleActionDecisionStepService.setActor({
+                actionDecisionStep: movementStep,
+                battleSquaddieId: enemyDemonBattleSquaddie.battleSquaddieId,
+            })
+            BattleActionDecisionStepService.addAction({
+                actionDecisionStep: movementStep,
+                movement: true,
+            })
+            BattleActionDecisionStepService.setConfirmedTarget({
+                actionDecisionStep: movementStep,
+                targetCoordinate: { q: 0, r: 0 },
+            })
+            setupStrategySpy(movementStep)
+
+            camera.xCoordinate = ScreenDimensions.SCREEN_WIDTH * 2
+            camera.yCoordinate = ScreenDimensions.SCREEN_HEIGHT * 2
+            expect(expectCameraDoesNotPanAndComponentIsComplete()).toBeTruthy()
+        })
+
+        it("does not move the camera if the squaddie ends their turn", () => {
+            const endTurnStep: BattleActionDecisionStep =
+                BattleActionDecisionStepService.new()
+            BattleActionDecisionStepService.setActor({
+                actionDecisionStep: endTurnStep,
+                battleSquaddieId: enemyDemonBattleSquaddie.battleSquaddieId,
+            })
+            BattleActionDecisionStepService.addAction({
+                actionDecisionStep: endTurnStep,
+                endTurn: true,
+            })
+            BattleActionDecisionStepService.setConfirmedTarget({
+                actionDecisionStep: endTurnStep,
+                targetCoordinate: { q: 0, r: 0 },
+            })
+            setupStrategySpy(endTurnStep)
+
+            camera.xCoordinate = ScreenDimensions.SCREEN_WIDTH * 2
+            camera.yCoordinate = ScreenDimensions.SCREEN_HEIGHT * 2
+            expect(expectCameraDoesNotPanAndComponentIsComplete()).toBeTruthy()
         })
 
         it("clears the action builder", () => {
+            const movementStep: BattleActionDecisionStep =
+                BattleActionDecisionStepService.new()
+            BattleActionDecisionStepService.setActor({
+                actionDecisionStep: movementStep,
+                battleSquaddieId: enemyDemonBattleSquaddie.battleSquaddieId,
+            })
+            BattleActionDecisionStepService.addAction({
+                actionDecisionStep: movementStep,
+                movement: true,
+            })
+            BattleActionDecisionStepService.setConfirmedTarget({
+                actionDecisionStep: movementStep,
+                targetCoordinate: { q: 0, r: 0 },
+            })
+            setupStrategySpy(movementStep)
             gameEngineState.battleOrchestratorState.battleState.battleActionDecisionStep =
                 BattleActionDecisionStepService.new()
             selector.update({

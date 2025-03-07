@@ -3,14 +3,8 @@ import {
     ObjectRepositoryService,
 } from "../../battle/objectRepository"
 import { ActionTemplate } from "../../action/template/actionTemplate"
-import {
-    SquaddieTemplate,
-    SquaddieTemplateService,
-} from "../../campaign/squaddieTemplate"
-import {
-    BattleSquaddie,
-    BattleSquaddieService,
-} from "../../battle/battleSquaddie"
+import { SquaddieTemplateService } from "../../campaign/squaddieTemplate"
+import { BattleSquaddieService } from "../../battle/battleSquaddie"
 import { SquaddieIdService } from "../../squaddie/id"
 import { SquaddieAffiliation } from "../../squaddie/squaddieAffiliation"
 

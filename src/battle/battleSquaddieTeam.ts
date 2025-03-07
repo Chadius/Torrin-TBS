@@ -1,7 +1,7 @@
 import { SquaddieAffiliation } from "../squaddie/squaddieAffiliation"
 import { ObjectRepository, ObjectRepositoryService } from "./objectRepository"
 import { getResultOrThrowError } from "../utils/ResultOrError"
-import { DrawSquaddieUtilities } from "./animation/drawSquaddie"
+import { DrawSquaddieIconOnMapUtilities } from "./animation/drawSquaddieIconOnMap/drawSquaddieIconOnMap"
 import { SquaddieService } from "../squaddie/squaddieService"
 import { BattleSquaddieService } from "./battleSquaddie"
 import { isValidValue } from "../utils/validityCheck"
@@ -149,7 +149,7 @@ export const BattleSquaddieTeamService = {
                 )
             )
             BattleSquaddieService.beginNewRound(battleSquaddie)
-            DrawSquaddieUtilities.unTintSquaddieMapIcon(
+            DrawSquaddieIconOnMapUtilities.unTintSquaddieMapIcon(
                 squaddieRepository,
                 battleSquaddie
             )
@@ -167,7 +167,7 @@ export const BattleSquaddieTeamService = {
                 )
             )
             BattleSquaddieService.endTurn(battleSquaddie)
-            DrawSquaddieUtilities.tintSquaddieMapIconIfTheyCannotAct(
+            DrawSquaddieIconOnMapUtilities.tintSquaddieMapIconIfTheyCannotAct(
                 battleSquaddie,
                 squaddieTemplate,
                 objectRepository

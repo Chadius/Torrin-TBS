@@ -109,11 +109,15 @@ export const MissionMapService = {
                   mapCoordinate: undefined,
               }
     },
-    updateBattleSquaddieCoordinate: (
-        missionMap: MissionMap,
-        battleSquaddieId: string,
+    updateBattleSquaddieCoordinate: ({
+        missionMap,
+        battleSquaddieId,
+        coordinate,
+    }: {
+        missionMap: MissionMap
+        battleSquaddieId: string
         coordinate: HexCoordinate
-    ): Error | undefined => {
+    }): Error | undefined => {
         const foundDatum: MissionMapSquaddieCoordinate =
             missionMap.squaddieInfo.find(
                 (datum) => datum.battleSquaddieId === battleSquaddieId

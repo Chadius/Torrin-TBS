@@ -1,40 +1,43 @@
-import { BattleSquaddie } from "../battleSquaddie"
+import { BattleSquaddie } from "../../battleSquaddie"
 import {
     HEX_TILE_WIDTH,
     HUE_BY_SQUADDIE_AFFILIATION,
-} from "../../graphicsConstants"
-import { RectArea, RectAreaService } from "../../ui/rectArea"
-import { Rectangle, RectangleService } from "../../ui/rectangle/rectangle"
-import { BattleCamera } from "../battleCamera"
-import { getResultOrThrowError } from "../../utils/ResultOrError"
-import { ObjectRepository, ObjectRepositoryService } from "../objectRepository"
-import { HORIZONTAL_ALIGN, VERTICAL_ALIGN } from "../../ui/constants"
+} from "../../../graphicsConstants"
+import { RectArea, RectAreaService } from "../../../ui/rectArea"
+import { Rectangle, RectangleService } from "../../../ui/rectangle/rectangle"
+import { BattleCamera } from "../../battleCamera"
+import { getResultOrThrowError } from "../../../utils/ResultOrError"
+import {
+    ObjectRepository,
+    ObjectRepositoryService,
+} from "../../objectRepository"
+import { HORIZONTAL_ALIGN, VERTICAL_ALIGN } from "../../../ui/constants"
 import {
     SearchPath,
     SearchPathService,
-} from "../../hexMap/pathfinder/searchPath"
+} from "../../../hexMap/pathfinder/searchPath"
 import {
     getSquaddiePositionAlongPath,
     TIME_TO_MOVE,
-} from "./squaddieMoveAnimationUtils"
-import { SquaddieService } from "../../squaddie/squaddieService"
-import { GraphicsBuffer } from "../../utils/graphics/graphicsRenderer"
-import { SquaddieTemplate } from "../../campaign/squaddieTemplate"
-import { HexCoordinate } from "../../hexMap/hexCoordinate/hexCoordinate"
-import { MissionMap, MissionMapService } from "../../missionMap/missionMap"
-import { MapHighlightService } from "./mapHighlight"
-import { Campaign } from "../../campaign/campaign"
-import { DEFAULT_ACTION_POINTS_PER_TURN } from "../../squaddie/turn"
-import { isValidValue } from "../../utils/validityCheck"
-import { TerrainTileMapService } from "../../hexMap/terrainTileMap"
+} from "../squaddieMoveAnimationUtils"
+import { SquaddieService } from "../../../squaddie/squaddieService"
+import { GraphicsBuffer } from "../../../utils/graphics/graphicsRenderer"
+import { SquaddieTemplate } from "../../../campaign/squaddieTemplate"
+import { HexCoordinate } from "../../../hexMap/hexCoordinate/hexCoordinate"
+import { MissionMap, MissionMapService } from "../../../missionMap/missionMap"
+import { MapHighlightService } from "../mapHighlight"
+import { Campaign } from "../../../campaign/campaign"
+import { DEFAULT_ACTION_POINTS_PER_TURN } from "../../../squaddie/turn"
+import { isValidValue } from "../../../utils/validityCheck"
+import { TerrainTileMapService } from "../../../hexMap/terrainTileMap"
 import {
     MapGraphicsLayerService,
     MapGraphicsLayerType,
-} from "../../hexMap/mapLayer/mapGraphicsLayer"
-import { ConvertCoordinateService } from "../../hexMap/convertCoordinates"
-import { ImageUI } from "../../ui/imageUI/imageUI"
-import { ResourceHandler } from "../../resource/resourceHandler"
-import { ScreenLocation } from "../../utils/mouseConfig"
+} from "../../../hexMap/mapLayer/mapGraphicsLayer"
+import { ConvertCoordinateService } from "../../../hexMap/convertCoordinates"
+import { ImageUI } from "../../../ui/imageUI/imageUI"
+import { ResourceHandler } from "../../../resource/resourceHandler"
+import { ScreenLocation } from "../../../utils/mouseConfig"
 
 const MAP_ICON_CONSTANTS = {
     ActionPointsBarColors: {
@@ -61,7 +64,7 @@ const MAP_ICON_CONSTANTS = {
     },
 }
 
-export const DrawSquaddieUtilities = {
+export const DrawSquaddieIconOnMapUtilities = {
     hasMovementAnimationFinished: (
         timeMovementStarted: number,
         squaddieMovePath: SearchPath
@@ -178,7 +181,6 @@ export const DrawSquaddieUtilities = {
     drawSquaddieMapIconAtMapCoordinate: ({
         graphics,
         squaddieRepository,
-        battleSquaddie,
         battleSquaddieId,
         mapCoordinate,
         camera,
@@ -186,7 +188,6 @@ export const DrawSquaddieUtilities = {
     }: {
         graphics: GraphicsBuffer
         squaddieRepository: ObjectRepository
-        battleSquaddie: BattleSquaddie
         battleSquaddieId: string
         mapCoordinate: HexCoordinate
         camera: BattleCamera
@@ -195,7 +196,6 @@ export const DrawSquaddieUtilities = {
         return drawSquaddieMapIconAtMapCoordinate(
             graphics,
             squaddieRepository,
-            battleSquaddie,
             battleSquaddieId,
             mapCoordinate,
             camera,
@@ -263,7 +263,6 @@ const unTintSquaddieMapIcon = (
 const drawSquaddieMapIconAtMapCoordinate = (
     graphics: GraphicsBuffer,
     squaddieRepository: ObjectRepository,
-    battleSquaddie: BattleSquaddie,
     battleSquaddieId: string,
     mapCoordinate: HexCoordinate,
     camera: BattleCamera,
@@ -276,14 +275,14 @@ const drawSquaddieMapIconAtMapCoordinate = (
         })
     const mapIcon = ObjectRepositoryService.getImageUIByBattleSquaddieId(
         squaddieRepository,
-        battleSquaddie.battleSquaddieId
+        battleSquaddieId
     )
     setImageToLocation({
         mapIcon,
         screenLocation: { x, y },
     })
     mapIcon.draw({ graphicsContext: graphics, resourceHandler })
-    const { squaddieTemplate } = getResultOrThrowError(
+    const { squaddieTemplate, battleSquaddie } = getResultOrThrowError(
         ObjectRepositoryService.getSquaddieByBattleId(
             squaddieRepository,
             battleSquaddieId
@@ -554,7 +553,7 @@ const highlightPlayableSquaddieReachIfTheyCanAct = ({
         return
     }
 
-    DrawSquaddieUtilities.highlightSquaddieRange({
+    DrawSquaddieIconOnMapUtilities.highlightSquaddieRange({
         missionMap: missionMap,
         battleSquaddieId: battleSquaddie.battleSquaddieId,
         repository: repository,
@@ -576,7 +575,7 @@ const tintSquaddieMapIconIfTheyCannotAct = (
         return
     }
 
-    DrawSquaddieUtilities.tintSquaddieMapIcon({
+    DrawSquaddieIconOnMapUtilities.tintSquaddieMapIcon({
         battleSquaddieId: battleSquaddie.battleSquaddieId,
         repository,
     })

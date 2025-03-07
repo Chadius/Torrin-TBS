@@ -224,14 +224,14 @@ describe("Mission Map", () => {
             squaddieTemplateId: nahlaSquaddie.templateId,
             coordinate: { q: 0, r: 1 },
         })
-        MissionMapService.updateBattleSquaddieCoordinate(
-            missionMap,
-            "dynamic_squaddie_0",
-            {
+        MissionMapService.updateBattleSquaddieCoordinate({
+            missionMap: missionMap,
+            battleSquaddieId: "dynamic_squaddie_0",
+            coordinate: {
                 q: 0,
                 r: 0,
-            }
-        )
+            },
+        })
 
         expect(
             MissionMapService.getBattleSquaddieAtCoordinate(missionMap, {
@@ -267,11 +267,11 @@ describe("Mission Map", () => {
                 r: 1,
             },
         })
-        MissionMapService.updateBattleSquaddieCoordinate(
-            missionMap,
-            "dynamic_squaddie_0",
-            { q: 0, r: 0 }
-        )
+        MissionMapService.updateBattleSquaddieCoordinate({
+            missionMap: missionMap,
+            battleSquaddieId: "dynamic_squaddie_0",
+            coordinate: { q: 0, r: 0 },
+        })
         expect(
             MissionMapService.getBattleSquaddieAtCoordinate(missionMap, {
                 q: 0,
@@ -303,11 +303,11 @@ describe("Mission Map", () => {
             squaddieTemplateId: nahlaSquaddie.templateId,
             coordinate: { q: 0, r: 1 },
         })
-        MissionMapService.updateBattleSquaddieCoordinate(
-            missionMap,
-            "dynamic_squaddie_0",
-            undefined
-        )
+        MissionMapService.updateBattleSquaddieCoordinate({
+            missionMap: missionMap,
+            battleSquaddieId: "dynamic_squaddie_0",
+            coordinate: undefined,
+        })
 
         expect(
             MissionMapService.getSquaddiesThatHaveNoCoordinate(missionMap)
@@ -334,11 +334,11 @@ describe("Mission Map", () => {
         })
 
         let error: Error
-        error = MissionMapService.updateBattleSquaddieCoordinate(
-            missionMap,
-            "does not exist",
-            undefined
-        )
+        error = MissionMapService.updateBattleSquaddieCoordinate({
+            missionMap: missionMap,
+            battleSquaddieId: "does not exist",
+            coordinate: undefined,
+        })
 
         expect(error).toEqual(expect.any(Error))
         expect((error as Error).message.includes(`does not exist`)).toBeTruthy()
@@ -357,14 +357,14 @@ describe("Mission Map", () => {
         })
 
         let error: Error
-        error = MissionMapService.updateBattleSquaddieCoordinate(
-            missionMap,
-            "dynamic_squaddie_0",
-            {
+        error = MissionMapService.updateBattleSquaddieCoordinate({
+            missionMap: missionMap,
+            battleSquaddieId: "dynamic_squaddie_0",
+            coordinate: {
                 q: 999,
                 r: 999,
-            }
-        )
+            },
+        })
 
         expect(error).toEqual(expect.any(Error))
         expect((error as Error).message.includes(`is not on map`)).toBeTruthy()
@@ -391,14 +391,14 @@ describe("Mission Map", () => {
         expect(e).toBeUndefined()
 
         let error: Error
-        error = MissionMapService.updateBattleSquaddieCoordinate(
-            missionMap,
-            "dynamic_squaddie_1",
-            {
+        error = MissionMapService.updateBattleSquaddieCoordinate({
+            missionMap: missionMap,
+            battleSquaddieId: "dynamic_squaddie_1",
+            coordinate: {
                 q: 0,
                 r: 1,
-            }
-        )
+            },
+        })
 
         expect(error).toEqual(expect.any(Error))
         expect(
@@ -419,14 +419,14 @@ describe("Mission Map", () => {
         })
 
         let error: Error
-        error = MissionMapService.updateBattleSquaddieCoordinate(
-            missionMap,
-            "dynamic_squaddie_0",
-            {
+        error = MissionMapService.updateBattleSquaddieCoordinate({
+            missionMap: missionMap,
+            battleSquaddieId: "dynamic_squaddie_0",
+            coordinate: {
                 q: 0,
                 r: 1,
-            }
-        )
+            },
+        })
         expect(error).toBeUndefined()
     })
 

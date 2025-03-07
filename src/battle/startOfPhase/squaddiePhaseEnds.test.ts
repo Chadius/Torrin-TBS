@@ -20,7 +20,7 @@ import { SquaddieTurnService } from "../../squaddie/turn"
 import { MessageBoardMessageType } from "../../message/messageBoardMessage"
 import { getResultOrThrowError } from "../../utils/ResultOrError"
 import { SquaddiePhaseListener } from "./squaddiePhaseListener"
-import { DrawSquaddieUtilities } from "../animation/drawSquaddie"
+import { DrawSquaddieIconOnMapUtilities } from "../animation/drawSquaddieIconOnMap/drawSquaddieIconOnMap"
 import { SquaddieRepositoryService } from "../../utils/test/squaddie"
 import { MissionMapService } from "../../missionMap/missionMap"
 import { TerrainTileMapService } from "../../hexMap/terrainTileMap"
@@ -109,7 +109,7 @@ describe("squaddie phase ends", () => {
     beforeEach(() => {
         repository = ObjectRepositoryService.new()
         drawUtilitiesSpy = vi.spyOn(
-            DrawSquaddieUtilities,
+            DrawSquaddieIconOnMapUtilities,
             "unTintSquaddieMapIcon"
         )
         getImageUISpy = vi

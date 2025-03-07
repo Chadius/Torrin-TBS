@@ -40,13 +40,15 @@ import {
     MockInstance,
     vi,
 } from "vitest"
+import { HexCoordinate } from "../../hexMap/hexCoordinate/hexCoordinate"
+import { GraphicsConfig } from "../../utils/graphics/graphicsConfig"
 
 describe("BattleSquaddieMover", () => {
     let objectRepository: ObjectRepository
     let player1Static: SquaddieTemplate
     let player1BattleSquaddie: BattleSquaddie
-    let enemy1Static: SquaddieTemplate
-    let enemy1Dynamic: BattleSquaddie
+    let enemy1SquaddieTemplate: SquaddieTemplate
+    let enemy1BattleSquaddie: BattleSquaddie
     let map: MissionMap
     let mockedP5GraphicsContext: MockedP5GraphicsBuffer
     let getImageUISpy: MockInstance
@@ -73,95 +75,32 @@ describe("BattleSquaddieMover", () => {
             objectRepository: objectRepository,
             actionTemplateIds: [],
         }))
-        ;({ squaddieTemplate: enemy1Static, battleSquaddie: enemy1Dynamic } =
-            SquaddieRepositoryService.createNewSquaddieAndAddToRepository({
-                name: "Enemy1",
-                templateId: "enemy_1",
-                battleId: "enemy_1",
-                affiliation: SquaddieAffiliation.ENEMY,
-                objectRepository: objectRepository,
-                actionTemplateIds: [],
-            }))
+        ;({
+            squaddieTemplate: enemy1SquaddieTemplate,
+            battleSquaddie: enemy1BattleSquaddie,
+        } = SquaddieRepositoryService.createNewSquaddieAndAddToRepository({
+            name: "Enemy1",
+            templateId: "enemy_1",
+            battleId: "enemy_1",
+            affiliation: SquaddieAffiliation.ENEMY,
+            objectRepository: objectRepository,
+            actionTemplateIds: [],
+        }))
     })
 
     afterEach(() => {
         getImageUISpy.mockRestore()
     })
 
-    it("is complete once enough time passes and the squaddie finishes moving", () => {
-        MissionMapService.addSquaddie({
-            missionMap: map,
-            squaddieTemplateId: "player_1",
-            battleSquaddieId: "player_1",
-            coordinate: { q: 0, r: 0 },
-        })
-
-        const searchResults: SearchResult = PathfinderService.search({
-            searchParameters: SearchParametersService.new({
-                pathGenerators: {
-                    startCoordinates: [{ q: 0, r: 0 }],
-                },
-                pathStopConstraints: {
-                    canStopOnSquaddies: true,
-                },
-                pathSizeConstraints: {
-                    movementPerAction: 99,
-                    numberOfActions: 1,
-                },
-                pathContinueConstraints: {
-                    squaddieAffiliation: {
-                        searchingSquaddieAffiliation:
-                            SquaddieAffiliation.PLAYER,
-                    },
-                    ignoreTerrainCost: false,
-                    canPassOverPits: false,
-                    canPassThroughWalls: false,
-                },
-                goal: {
-                    stopCoordinates: [{ q: 1, r: 1 }],
-                },
-            }),
+    it("is complete once enough time passes and the player squaddie finishes moving", () => {
+        const gameEngineState = moveSquaddieAndGetGameEngineState({
             missionMap: map,
             objectRepository: objectRepository,
+            startCoordinate: { q: 0, r: 0 },
+            endCoordinate: { q: 1, r: 1 },
+            battleSquaddieId: player1BattleSquaddie.battleSquaddieId,
+            squaddieTemplateId: player1Static.squaddieId.templateId,
         })
-
-        const movePath: SearchPath =
-            SearchResultsService.getShortestPathToCoordinate(searchResults, {
-                q: 1,
-                r: 1,
-            })
-
-        const gameEngineState: GameEngineState = GameEngineStateService.new({
-            repository: objectRepository,
-            resourceHandler: undefined,
-            battleOrchestratorState: BattleOrchestratorStateService.new({
-                battleState: BattleStateService.newBattleState({
-                    campaignId: "test campaign",
-                    missionId: "test mission",
-                    missionMap: map,
-                    searchPath: movePath,
-                }),
-            }),
-            campaign: CampaignService.default(),
-        })
-        BattleActionRecorderService.addReadyToAnimateBattleAction(
-            gameEngineState.battleOrchestratorState.battleState
-                .battleActionRecorder,
-            BattleActionService.new({
-                actor: {
-                    actorBattleSquaddieId: "player_1",
-                },
-                action: {
-                    isMovement: true,
-                },
-                effect: {
-                    movement: {
-                        startCoordinate: { q: 0, r: 0 },
-                        endCoordinate: { q: 1, r: 1 },
-                    },
-                },
-            })
-        )
 
         const mover: BattleSquaddieMover = new BattleSquaddieMover()
         vi.spyOn(Date, "now").mockImplementation(() => 1)
@@ -183,80 +122,40 @@ describe("BattleSquaddieMover", () => {
         expect(mover.animationStartTime).toBeUndefined()
     })
 
-    it("sends a message once the squaddie finishes moving", () => {
-        MissionMapService.addSquaddie({
-            missionMap: map,
-            squaddieTemplateId: "player_1",
-            battleSquaddieId: "player_1",
-            coordinate: { q: 0, r: 0 },
-        })
-
-        const searchResults: SearchResult = PathfinderService.search({
-            searchParameters: SearchParametersService.new({
-                pathGenerators: {
-                    startCoordinates: [{ q: 0, r: 0 }],
-                },
-                pathStopConstraints: {
-                    canStopOnSquaddies: true,
-                },
-                pathSizeConstraints: {
-                    movementPerAction: 99,
-                    numberOfActions: 1,
-                },
-                pathContinueConstraints: {
-                    squaddieAffiliation: {
-                        searchingSquaddieAffiliation:
-                            SquaddieAffiliation.PLAYER,
-                    },
-                    ignoreTerrainCost: false,
-                    canPassOverPits: false,
-                    canPassThroughWalls: false,
-                },
-                goal: {
-                    stopCoordinates: [{ q: 1, r: 1 }],
-                },
-            }),
+    it("is complete immediately if the squaddie is not player controlled and its entire path is offscreen", () => {
+        const gameEngineState = moveSquaddieAndGetGameEngineState({
             missionMap: map,
             objectRepository: objectRepository,
+            startCoordinate: { q: 0, r: 0 },
+            endCoordinate: { q: 1, r: 1 },
+            battleSquaddieId: enemy1BattleSquaddie.battleSquaddieId,
+            squaddieTemplateId: enemy1SquaddieTemplate.squaddieId.templateId,
         })
 
-        const movePath: SearchPath =
-            SearchResultsService.getShortestPathToCoordinate(searchResults, {
-                q: 1,
-                r: 1,
-            })
+        const onScreenSpy = vi
+            .spyOn(GraphicsConfig, "isMapCoordinateOnScreen")
+            .mockReturnValue(false)
 
-        const gameEngineState: GameEngineState = GameEngineStateService.new({
-            repository: objectRepository,
-            resourceHandler: undefined,
-            battleOrchestratorState: BattleOrchestratorStateService.new({
-                battleState: BattleStateService.newBattleState({
-                    campaignId: "test campaign",
-                    missionId: "test mission",
-                    missionMap: map,
-                    searchPath: movePath,
-                }),
-            }),
-            campaign: CampaignService.default(),
+        const mover: BattleSquaddieMover = new BattleSquaddieMover()
+        mover.update({
+            gameEngineState,
+            graphicsContext: mockedP5GraphicsContext,
+            resourceHandler: gameEngineState.resourceHandler,
         })
-        BattleActionRecorderService.addReadyToAnimateBattleAction(
-            gameEngineState.battleOrchestratorState.battleState
-                .battleActionRecorder,
-            BattleActionService.new({
-                actor: {
-                    actorBattleSquaddieId: "player_1",
-                },
-                action: {
-                    isMovement: true,
-                },
-                effect: {
-                    movement: {
-                        startCoordinate: { q: 0, r: 0 },
-                        endCoordinate: { q: 1, r: 1 },
-                    },
-                },
-            })
-        )
+        expect(mover.hasCompleted(gameEngineState)).toBeTruthy()
+        expect(onScreenSpy).toHaveBeenCalled()
+        onScreenSpy.mockRestore()
+    })
+
+    it("sends a message once the squaddie finishes moving", () => {
+        const gameEngineState = moveSquaddieAndGetGameEngineState({
+            missionMap: map,
+            objectRepository: objectRepository,
+            startCoordinate: { q: 0, r: 0 },
+            endCoordinate: { q: 1, r: 1 },
+            battleSquaddieId: player1BattleSquaddie.battleSquaddieId,
+            squaddieTemplateId: player1Static.squaddieId.templateId,
+        })
 
         const messageSpy: MockInstance = vi.spyOn(
             gameEngineState.messageBoard,
@@ -418,3 +317,93 @@ describe("BattleSquaddieMover", () => {
         })
     })
 })
+
+const moveSquaddieAndGetGameEngineState = ({
+    missionMap,
+    objectRepository,
+    startCoordinate,
+    endCoordinate,
+    squaddieTemplateId,
+    battleSquaddieId,
+}: {
+    missionMap: MissionMap
+    objectRepository: ObjectRepository
+    startCoordinate: HexCoordinate
+    endCoordinate: HexCoordinate
+    battleSquaddieId: string
+    squaddieTemplateId: string
+}) => {
+    MissionMapService.addSquaddie({
+        missionMap: missionMap,
+        squaddieTemplateId,
+        battleSquaddieId,
+        coordinate: startCoordinate,
+    })
+
+    const searchResults: SearchResult = PathfinderService.search({
+        searchParameters: SearchParametersService.new({
+            pathGenerators: {
+                startCoordinates: [startCoordinate],
+            },
+            pathStopConstraints: {
+                canStopOnSquaddies: true,
+            },
+            pathSizeConstraints: {
+                movementPerAction: 99,
+                numberOfActions: 1,
+            },
+            pathContinueConstraints: {
+                squaddieAffiliation: {
+                    searchingSquaddieAffiliation: SquaddieAffiliation.PLAYER,
+                },
+                ignoreTerrainCost: false,
+                canPassOverPits: false,
+                canPassThroughWalls: false,
+            },
+            goal: {
+                stopCoordinates: [endCoordinate],
+            },
+        }),
+        missionMap: missionMap,
+        objectRepository: objectRepository,
+    })
+
+    const movePath: SearchPath =
+        SearchResultsService.getShortestPathToCoordinate(
+            searchResults,
+            endCoordinate
+        )
+
+    const gameEngineState: GameEngineState = GameEngineStateService.new({
+        repository: objectRepository,
+        resourceHandler: undefined,
+        battleOrchestratorState: BattleOrchestratorStateService.new({
+            battleState: BattleStateService.newBattleState({
+                campaignId: "test campaign",
+                missionId: "test mission",
+                missionMap: missionMap,
+                searchPath: movePath,
+            }),
+        }),
+        campaign: CampaignService.default(),
+    })
+    BattleActionRecorderService.addReadyToAnimateBattleAction(
+        gameEngineState.battleOrchestratorState.battleState
+            .battleActionRecorder,
+        BattleActionService.new({
+            actor: {
+                actorBattleSquaddieId: battleSquaddieId,
+            },
+            action: {
+                isMovement: true,
+            },
+            effect: {
+                movement: {
+                    startCoordinate,
+                    endCoordinate,
+                },
+            },
+        })
+    )
+    return gameEngineState
+}

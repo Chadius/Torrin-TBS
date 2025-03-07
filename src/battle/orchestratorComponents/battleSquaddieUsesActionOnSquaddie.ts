@@ -208,12 +208,13 @@ export class BattleSquaddieUsesActionOnSquaddie
                         .missionMap,
                     result.battleSquaddieId
                 )
-                MissionMapService.updateBattleSquaddieCoordinate(
-                    gameEngineState.battleOrchestratorState.battleState
-                        .missionMap,
-                    result.battleSquaddieId,
-                    undefined
-                )
+                MissionMapService.updateBattleSquaddieCoordinate({
+                    missionMap:
+                        gameEngineState.battleOrchestratorState.battleState
+                            .missionMap,
+                    battleSquaddieId: result.battleSquaddieId,
+                    coordinate: undefined,
+                })
             }
         })
     }

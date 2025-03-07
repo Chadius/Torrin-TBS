@@ -17,7 +17,7 @@ import {
     BattleSaveStateService,
 } from "../battle/history/battleSaveState"
 import { SaveFile } from "../utils/fileHandling/saveFile"
-import { DrawSquaddieUtilities } from "../battle/animation/drawSquaddie"
+import { DrawSquaddieIconOnMapUtilities } from "../battle/animation/drawSquaddieIconOnMap/drawSquaddieIconOnMap"
 import { getResultOrThrowError } from "../utils/ResultOrError"
 import { BattleCompletionStatus } from "../battle/orchestrator/missionObjectivesAndCutscenes"
 import { BattleCameraService } from "../battle/battleCamera"
@@ -285,7 +285,7 @@ export class GameEngineGameLoader implements GameEngineComponent {
                         battleSquaddieId
                     )
                 )
-                DrawSquaddieUtilities.tintSquaddieMapIconIfTheyCannotAct(
+                DrawSquaddieIconOnMapUtilities.tintSquaddieMapIconIfTheyCannotAct(
                     battleSquaddie,
                     squaddieTemplate,
                     repository

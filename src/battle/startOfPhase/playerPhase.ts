@@ -57,7 +57,7 @@ export const PlayerPhaseService = {
                         gameEngineState.battleOrchestratorState.battleState.camera.getWorldLocation(),
                 })
             if (
-                GraphicsConfig.isCoordinateWithinMiddleThirdOfScreen(
+                GraphicsConfig.isLocationWithinMiddleThirdOfScreen(
                     squaddieScreenLocation.x,
                     squaddieScreenLocation.y
                 )

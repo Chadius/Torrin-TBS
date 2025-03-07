@@ -28,7 +28,7 @@ import {
     SearchResultsService,
 } from "../../hexMap/pathfinder/searchResults/searchResult"
 import { PathfinderService } from "../../hexMap/pathfinder/pathGeneration/pathfinder"
-import { DrawSquaddieUtilities } from "../animation/drawSquaddie"
+import { DrawSquaddieIconOnMapUtilities } from "../animation/drawSquaddieIconOnMap/drawSquaddieIconOnMap"
 import { SquaddieTurnService } from "../../squaddie/turn"
 import {
     BattleActionDecisionStep,
@@ -66,23 +66,27 @@ export class BattleComputerSquaddieSelector
     mostRecentDecisionSteps: BattleActionDecisionStep[]
     private showSelectedActionWaitTime?: number
     private clickedToSkipActionDescription: boolean
+    shouldPanToSquaddie: boolean
 
     constructor() {
         this.resetInternalState()
     }
 
-    hasCompleted(state: GameEngineState): boolean {
+    hasCompleted(gameEngineState: GameEngineState): boolean {
         if (
-            this.isPauseToShowSquaddieSelectionRequired(state) &&
+            this.isPauseToShowSquaddieSelectionRequired(gameEngineState) &&
             !(
-                this.pauseToShowSquaddieSelectionCompleted(state) ||
+                this.pauseToShowSquaddieSelectionCompleted(gameEngineState) ||
                 this.clickedToSkipActionDescription
             )
         ) {
             return false
         }
 
-        return !state.battleOrchestratorState.battleState.camera.isPanning()
+        return (
+            !this.shouldPanToSquaddie ||
+            !gameEngineState.battleOrchestratorState.battleState.camera.isPanning()
+        )
     }
 
     mouseEventHappened(
@@ -281,6 +285,7 @@ export class BattleComputerSquaddieSelector
         this.mostRecentDecisionSteps = undefined
         this.showSelectedActionWaitTime = undefined
         this.clickedToSkipActionDescription = false
+        this.shouldPanToSquaddie = false
     }
 
     private askComputerControlSquaddie(gameEngineState: GameEngineState) {
@@ -318,7 +323,11 @@ export class BattleComputerSquaddieSelector
                 gameEngineState,
                 battleActionDecisionSteps
             )
-            this.panToSquaddieIfOffscreen(gameEngineState)
+            this.shouldPanToSquaddie =
+                this.isSquaddieActionWorthShowingToPlayer(gameEngineState)
+            if (this.shouldPanToSquaddie) {
+                this.panToSquaddieIfOffscreen(gameEngineState)
+            }
         } else {
             this.defaultSquaddieToEndTurn(gameEngineState, currentTeam)
         }
@@ -386,7 +395,7 @@ export class BattleComputerSquaddieSelector
             })
 
         if (
-            !GraphicsConfig.isCoordinateOnScreen(
+            !GraphicsConfig.isLocationOnScreen(
                 squaddieScreenLocationX,
                 squaddieScreenLocationY
             )
@@ -493,12 +502,14 @@ export class BattleComputerSquaddieSelector
                     battleActionDecisionStep.action.movement
             )
             .forEach((battleActionDecisionStep) =>
-                MissionMapService.updateBattleSquaddieCoordinate(
-                    gameEngineState.battleOrchestratorState.battleState
-                        .missionMap,
-                    battleSquaddie.battleSquaddieId,
-                    battleActionDecisionStep.target.targetCoordinate
-                )
+                MissionMapService.updateBattleSquaddieCoordinate({
+                    missionMap:
+                        gameEngineState.battleOrchestratorState.battleState
+                            .missionMap,
+                    battleSquaddieId: battleSquaddie.battleSquaddieId,
+                    coordinate:
+                        battleActionDecisionStep.target.targetCoordinate,
+                })
             )
     }
 
@@ -661,6 +672,25 @@ export class BattleComputerSquaddieSelector
             shouldEndTurn: false,
         }
     }
+
+    private isSquaddieActionWorthShowingToPlayer(
+        gameEngineState: GameEngineState
+    ): boolean {
+        return this.mostRecentDecisionSteps.some((step) => {
+            if (step.action.actionTemplateId != undefined) return true
+            if (step.action.endTurn) return false
+            if (!step.action.movement) return true
+
+            return gameEngineState.battleOrchestratorState.battleState.squaddieMovePath.coordinatesTraveled.some(
+                (coordinate) =>
+                    GraphicsConfig.isMapCoordinateOnScreen({
+                        mapCoordinate: coordinate.hexCoordinate,
+                        camera: gameEngineState.battleOrchestratorState
+                            .battleState.camera,
+                    })
+            )
+        })
+    }
 }
 
 const drawSquaddieAtInitialPositionAsCameraPans = (
@@ -672,18 +702,16 @@ const drawSquaddieAtInitialPositionAsCameraPans = (
         gameEngineState.battleOrchestratorState.battleState.battleActionRecorder
     )
     const battleSquaddieId: string = battleAction.actor.actorBattleSquaddieId
-    const startLocation = battleAction.effect.movement.startCoordinate
-    const { battleSquaddie } = getResultOrThrowError(
-        ObjectRepositoryService.getSquaddieByBattleId(
-            gameEngineState.repository,
+    const startLocation =
+        battleAction.effect?.movement?.startCoordinate ??
+        MissionMapService.getByBattleSquaddieId(
+            gameEngineState.battleOrchestratorState.battleState.missionMap,
             battleSquaddieId
-        )
-    )
+        ).mapCoordinate
 
-    DrawSquaddieUtilities.drawSquaddieMapIconAtMapCoordinate({
+    DrawSquaddieIconOnMapUtilities.drawSquaddieMapIconAtMapCoordinate({
         graphics: graphicsContext,
         squaddieRepository: gameEngineState.repository,
-        battleSquaddie: battleSquaddie,
         battleSquaddieId: battleSquaddieId,
         mapCoordinate: startLocation,
         camera: gameEngineState.battleOrchestratorState.battleState.camera,
