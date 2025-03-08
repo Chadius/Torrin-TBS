@@ -59,14 +59,6 @@ export const SearchPathService = {
             ? path.coordinatesTraveled.length - 1
             : 0
     },
-    startNewMovementAction: (
-        path: SearchPath,
-        incrementMoveActionCount: boolean = true
-    ): void => {
-        if (incrementMoveActionCount) {
-            path.currentNumberOfMoveActions++
-        }
-    },
     compare: (a: SearchPath, b: SearchPath) => {
         if (a.totalMovementCost < b.totalMovementCost) {
             return -1

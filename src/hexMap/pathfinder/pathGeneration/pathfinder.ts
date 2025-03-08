@@ -193,7 +193,6 @@ const populateStartingCoordinate = ({
                 value: true,
             })
             const startingPath = SearchPathService.newSearchPath()
-            SearchPathService.startNewMovementAction(startingPath, false)
             SearchPathService.add(
                 startingPath,
                 {
