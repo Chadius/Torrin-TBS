@@ -2,7 +2,6 @@ import {
     AreValidParametersForAddPathCondition,
     PathContinueConstraint,
 } from "./pathContinueConstraint"
-import { SearchPath } from "../searchPath"
 import { SearchParameters } from "../searchParameters"
 import { MissionMap } from "../../../missionMap/missionMap"
 import { ObjectRepository } from "../../../battle/objectRepository"
@@ -11,6 +10,7 @@ import {
     SquaddieAffiliationService,
 } from "../../../squaddie/squaddieAffiliation"
 import { getSquaddieAtEndOfPath } from "../getSquaddieAtEndOfPath"
+import { SearchPathAdapter } from "../../../search/searchPathAdapter/searchPathAdapter"
 
 export class NextNodeHasASquaddie implements PathContinueConstraint {
     missionMap: MissionMap
@@ -31,7 +31,7 @@ export class NextNodeHasASquaddie implements PathContinueConstraint {
         newPath,
         searchParameters,
     }: {
-        newPath: SearchPath
+        newPath: SearchPathAdapter
         searchParameters: SearchParameters
     }): boolean {
         if (!AreValidParametersForAddPathCondition({ newPath })) {

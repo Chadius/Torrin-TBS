@@ -2,7 +2,6 @@ import {
     AreValidParametersForAddPathCondition,
     PathContinueConstraint,
 } from "./pathContinueConstraint"
-import { SearchPath, SearchPathService } from "../searchPath"
 import { SearchParameters } from "../searchParameters"
 import {
     MapSearchDataLayer,
@@ -10,6 +9,10 @@ import {
 } from "../../../missionMap/mapSearchDataLayer"
 import { CoordinateTraveled } from "../coordinateTraveled"
 import { isValidValue } from "../../../utils/validityCheck"
+import {
+    SearchPathAdapter,
+    SearchPathAdapterService,
+} from "../../../search/searchPathAdapter/searchPathAdapter"
 
 export class NextNodeIsNotInTheOpenList implements PathContinueConstraint {
     enqueuedMapLayer: MapSearchDataLayer
@@ -24,9 +27,8 @@ export class NextNodeIsNotInTheOpenList implements PathContinueConstraint {
 
     shouldContinue({
         newPath,
-        searchParameters,
     }: {
-        newPath: SearchPath
+        newPath: SearchPathAdapter
         searchParameters: SearchParameters
     }): boolean {
         if (!AreValidParametersForAddPathCondition({ newPath })) {
@@ -38,7 +40,7 @@ export class NextNodeIsNotInTheOpenList implements PathContinueConstraint {
         }
 
         const headLocation: CoordinateTraveled =
-            SearchPathService.getMostRecentCoordinate(newPath)
+            SearchPathAdapterService.getMostRecentCoordinate(newPath)
         if (
             MapSearchDataLayerService.outOfBounds({
                 mapLayer: this.enqueuedMapLayer,

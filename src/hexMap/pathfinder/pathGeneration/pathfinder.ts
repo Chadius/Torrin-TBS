@@ -32,6 +32,7 @@ import {
     CoordinateGeneratorService,
     CoordinateGeneratorShape,
 } from "../../../battle/targeting/coordinateGenerator"
+import { SearchPathAdapterService } from "../../../search/searchPathAdapter/searchPathAdapter"
 
 interface PathfinderWorkingState {
     searchPathQueue: PriorityQueue<SearchPath>
@@ -61,7 +62,7 @@ const PathfinderWorkingStateHelper = {
     }): PathfinderWorkingState => {
         const workingState: PathfinderWorkingState = {
             searchPathQueue: new PriorityQueue<SearchPath>(
-                SearchPathService.compare
+                SearchPathAdapterService.compare
             ),
             coordinateGeneratorShape:
                 searchParameters.pathGenerators.coordinateGeneratorShape,
@@ -243,10 +244,12 @@ const generateValidPaths = ({
         searchParameters: SearchParameters
     }) => {
         const current: HexCoordinate = {
-            q: SearchPathService.getMostRecentCoordinate(currentSearchPath)
-                .hexCoordinate.q,
-            r: SearchPathService.getMostRecentCoordinate(currentSearchPath)
-                .hexCoordinate.r,
+            q: SearchPathAdapterService.getMostRecentCoordinate(
+                currentSearchPath
+            ).hexCoordinate.q,
+            r: SearchPathAdapterService.getMostRecentCoordinate(
+                currentSearchPath
+            ).hexCoordinate.r,
         }
 
         function makeNewCandidatePath(nextCoordinate: HexCoordinate) {
@@ -297,7 +300,7 @@ const generateValidPaths = ({
                 searchParameters,
             })
 
-            SearchPathService.add(
+            SearchPathAdapterService.add(
                 candidatePath,
                 {
                     hexCoordinate: { ...nextCoordinate },
@@ -356,7 +359,7 @@ const generateValidPaths = ({
         const currentSearchPath: SearchPath =
             workingState.searchPathQueue.dequeue()
         const currentCoordinate: HexCoordinate =
-            SearchPathService.getMostRecentCoordinate(
+            SearchPathAdapterService.getMostRecentCoordinate(
                 currentSearchPath
             ).hexCoordinate
         MapSearchDataLayerService.setValueOfCoordinate({

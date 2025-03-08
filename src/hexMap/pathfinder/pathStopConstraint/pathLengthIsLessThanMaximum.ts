@@ -1,16 +1,19 @@
-import { SearchPath } from "../searchPath"
 import { SearchParameters } from "../searchParameters"
 import {
     AreValidParametersForPathCanStopCondition,
     PathStopConstraint,
 } from "./pathStopConstraint"
+import {
+    SearchPathAdapter,
+    SearchPathAdapterService,
+} from "../../../search/searchPathAdapter/searchPathAdapter"
 
 export class PathLengthIsLessThanMaximum implements PathStopConstraint {
     squaddieCanStopAtTheEndOfThisPath({
         newPath,
         searchParameters,
     }: {
-        newPath: SearchPath
+        newPath: SearchPathAdapter
         searchParameters: SearchParameters
     }): boolean {
         if (!AreValidParametersForPathCanStopCondition({ newPath })) {
@@ -28,6 +31,9 @@ export class PathLengthIsLessThanMaximum implements PathStopConstraint {
         const totalMovementThisRound: number =
             searchParameters.pathSizeConstraints.numberOfActions *
             searchParameters.pathSizeConstraints.movementPerAction
-        return newPath.totalMovementCost <= totalMovementThisRound
+        return (
+            SearchPathAdapterService.getTotalMovementCost(newPath) <=
+            totalMovementThisRound
+        )
     }
 }

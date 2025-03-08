@@ -12,10 +12,7 @@ import {
     ObjectRepositoryService,
 } from "../../objectRepository"
 import { HORIZONTAL_ALIGN, VERTICAL_ALIGN } from "../../../ui/constants"
-import {
-    SearchPath,
-    SearchPathService,
-} from "../../../hexMap/pathfinder/searchPath"
+import { SearchPath } from "../../../hexMap/pathfinder/searchPath"
 import {
     getSquaddiePositionAlongPath,
     TIME_TO_MOVE,
@@ -38,6 +35,7 @@ import { ConvertCoordinateService } from "../../../hexMap/convertCoordinates"
 import { ImageUI } from "../../../ui/imageUI/imageUI"
 import { ResourceHandler } from "../../../resource/resourceHandler"
 import { ScreenLocation } from "../../../utils/mouseConfig"
+import { SearchPathAdapterService } from "../../../search/searchPathAdapter/searchPathAdapter"
 
 const MAP_ICON_CONSTANTS = {
     ActionPointsBarColors: {
@@ -488,7 +486,7 @@ const hasMovementAnimationFinished = (
         return true
     }
 
-    if (SearchPathService.getCoordinates(squaddieMovePath).length <= 1) {
+    if (SearchPathAdapterService.getCoordinates(squaddieMovePath).length <= 1) {
         return true
     }
 
@@ -509,7 +507,7 @@ export const moveSquaddieAlongPath = (
 ) => {
     const timePassed = Date.now() - timeMovementStarted
     const { x, y } = getSquaddiePositionAlongPath(
-        SearchPathService.getCoordinates(squaddieMovePath).map(
+        SearchPathAdapterService.getCoordinates(squaddieMovePath).map(
             (tile) => tile.hexCoordinate
         ),
         timePassed,

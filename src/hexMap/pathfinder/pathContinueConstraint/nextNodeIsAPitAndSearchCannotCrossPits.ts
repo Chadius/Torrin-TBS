@@ -3,11 +3,14 @@ import {
     PathContinueConstraint,
 } from "./pathContinueConstraint"
 import { MissionMap } from "../../../missionMap/missionMap"
-import { SearchPath, SearchPathService } from "../searchPath"
 import { SearchParameters } from "../searchParameters"
 import { TerrainTileMapService } from "../../terrainTileMap"
 import { HexCoordinate } from "../../hexCoordinate/hexCoordinate"
 import { HexGridMovementCost } from "../../hexGridMovementCost"
+import {
+    SearchPathAdapter,
+    SearchPathAdapterService,
+} from "../../../search/searchPathAdapter/searchPathAdapter"
 
 export class NextNodeIsAPitAndSearchCannotCrossPits
     implements PathContinueConstraint
@@ -22,7 +25,7 @@ export class NextNodeIsAPitAndSearchCannotCrossPits
         newPath,
         searchParameters,
     }: {
-        newPath: SearchPath
+        newPath: SearchPathAdapter
         searchParameters: SearchParameters
     }): boolean {
         if (!AreValidParametersForAddPathCondition({ newPath })) {
@@ -34,7 +37,9 @@ export class NextNodeIsAPitAndSearchCannotCrossPits
         }
 
         const coordinate: HexCoordinate =
-            SearchPathService.getMostRecentCoordinate(newPath).hexCoordinate
+            SearchPathAdapterService.getMostRecentCoordinate(
+                newPath
+            ).hexCoordinate
         const terrainType =
             TerrainTileMapService.getTileTerrainTypeAtCoordinate(
                 this.missionMap.terrainTileMap,

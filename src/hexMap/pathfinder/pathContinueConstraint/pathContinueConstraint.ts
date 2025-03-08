@@ -1,13 +1,16 @@
 import { SearchParameters } from "../searchParameters"
-import { SearchPath, SearchPathService } from "../searchPath"
 import { isValidValue } from "../../../utils/validityCheck"
+import {
+    SearchPathAdapter,
+    SearchPathAdapterService,
+} from "../../../search/searchPathAdapter/searchPathAdapter"
 
 export interface PathContinueConstraint {
     shouldContinue({
         newPath,
         searchParameters,
     }: {
-        newPath: SearchPath
+        newPath: SearchPathAdapter
         searchParameters: SearchParameters
     }): boolean
 }
@@ -15,17 +18,19 @@ export interface PathContinueConstraint {
 export const AreValidParametersForAddPathCondition = ({
     newPath,
 }: {
-    newPath: SearchPath
+    newPath: SearchPathAdapter
 }): boolean => {
     if (!isValidValue(newPath)) {
         return false
     }
 
-    if (!isValidValue(SearchPathService.getMostRecentCoordinate(newPath))) {
+    if (
+        !isValidValue(SearchPathAdapterService.getMostRecentCoordinate(newPath))
+    ) {
         return false
     }
 
     return isValidValue(
-        SearchPathService.getMostRecentCoordinate(newPath).hexCoordinate
+        SearchPathAdapterService.getMostRecentCoordinate(newPath).hexCoordinate
     )
 }

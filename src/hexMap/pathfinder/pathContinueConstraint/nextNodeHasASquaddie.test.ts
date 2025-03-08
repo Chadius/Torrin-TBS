@@ -16,10 +16,259 @@ import { InBattleAttributesService } from "../../../battle/stats/inBattleAttribu
 import { SquaddieRepositoryService } from "../../../utils/test/squaddie"
 import { getResultOrThrowError } from "../../../utils/ResultOrError"
 import { describe, expect, it } from "vitest"
+import { SearchConnection } from "../../../search/searchGraph/graph"
+import { HexCoordinate } from "../../hexCoordinate/hexCoordinate"
 
 describe("next node has a squaddie", () => {
+    describe("deprecated SearchPath", () => {
+        it("returns true if squaddies are friendly, false if they are not", () => {
+            const { missionMap, pathAtHead } = setupDeprecatedPath()
+
+            getAllAffiliationPairs().forEach(
+                ({ searchingAffiliation, blockingAffiliation }) => {
+                    const repository: ObjectRepository =
+                        addBlockingSquaddieToMap(
+                            blockingAffiliation,
+                            missionMap
+                        )
+
+                    const searchParameters = SearchParametersService.new({
+                        pathContinueConstraints: {
+                            squaddieAffiliation: {
+                                searchingSquaddieAffiliation:
+                                    searchingAffiliation,
+                            },
+                        },
+                        goal: {},
+                    })
+
+                    const squaddiesAreFriends =
+                        SquaddieAffiliationService.areSquaddieAffiliationsAllies(
+                            {
+                                actingAffiliation: searchingAffiliation,
+                                targetAffiliation: blockingAffiliation,
+                            }
+                        )
+
+                    const condition = new NextNodeHasASquaddie({
+                        missionMap,
+                        objectRepository: repository,
+                    })
+                    expect(
+                        condition.shouldContinue({
+                            newPath: pathAtHead,
+                            searchParameters,
+                        })
+                    ).toBe(squaddiesAreFriends)
+                }
+            )
+        })
+        it("returns true if squaddies are not friendly but one is not alive", () => {
+            const { missionMap, pathAtHead } = setupDeprecatedPath()
+            getAllAffiliationPairs().forEach(
+                ({ searchingAffiliation, blockingAffiliation }) => {
+                    const repository: ObjectRepository =
+                        addBlockingSquaddieToMap(
+                            blockingAffiliation,
+                            missionMap
+                        )
+                    const { battleSquaddie: blockingSquaddieBattle } =
+                        getResultOrThrowError(
+                            ObjectRepositoryService.getSquaddieByBattleId(
+                                repository,
+                                "blocker 0"
+                            )
+                        )
+                    InBattleAttributesService.takeDamage({
+                        inBattleAttributes:
+                            blockingSquaddieBattle.inBattleAttributes,
+                        damageToTake: 9001,
+                        damageType: DamageType.UNKNOWN,
+                    })
+
+                    const searchParameters = SearchParametersService.new({
+                        pathContinueConstraints: {
+                            squaddieAffiliation: {
+                                searchingSquaddieAffiliation:
+                                    searchingAffiliation,
+                            },
+                        },
+                        goal: {},
+                    })
+
+                    const condition = new NextNodeHasASquaddie({
+                        missionMap,
+                        objectRepository: repository,
+                    })
+                    expect(
+                        condition.shouldContinue({
+                            newPath: pathAtHead,
+                            searchParameters,
+                        })
+                    ).toBe(true)
+                }
+            )
+        })
+        it("returns true if squaddies are not friendly but searching squaddie can stop on squaddies anyway", () => {
+            const { missionMap, pathAtHead } = setupDeprecatedPath()
+            getAllAffiliationPairs().forEach(
+                ({ searchingAffiliation, blockingAffiliation }) => {
+                    const repository: ObjectRepository =
+                        addBlockingSquaddieToMap(
+                            blockingAffiliation,
+                            missionMap
+                        )
+
+                    const searchParameters = SearchParametersService.new({
+                        pathContinueConstraints: {
+                            squaddieAffiliation: {
+                                searchingSquaddieAffiliation:
+                                    searchingAffiliation,
+                            },
+                        },
+                        pathStopConstraints: {
+                            canStopOnSquaddies: true,
+                        },
+                        goal: {},
+                    })
+
+                    const condition = new NextNodeHasASquaddie({
+                        missionMap,
+                        objectRepository: repository,
+                    })
+                    expect(
+                        condition.shouldContinue({
+                            newPath: pathAtHead,
+                            searchParameters,
+                        })
+                    ).toBe(true)
+                }
+            )
+        })
+        it("returns true if squaddies are not friendly but searching squaddie can pass through squaddies", () => {
+            const { missionMap, pathAtHead } = setupDeprecatedPath()
+            getAllAffiliationPairs().forEach(
+                ({ searchingAffiliation, blockingAffiliation }) => {
+                    const repository: ObjectRepository =
+                        addBlockingSquaddieToMap(
+                            blockingAffiliation,
+                            missionMap
+                        )
+
+                    const searchParameters = SearchParametersService.new({
+                        pathContinueConstraints: {
+                            squaddieAffiliation: {
+                                searchingSquaddieAffiliation:
+                                    searchingAffiliation,
+                                canCrossThroughUnfriendlySquaddies: true,
+                            },
+                        },
+                        goal: {},
+                    })
+
+                    const condition = new NextNodeHasASquaddie({
+                        missionMap,
+                        objectRepository: repository,
+                    })
+                    expect(
+                        condition.shouldContinue({
+                            newPath: pathAtHead,
+                            searchParameters,
+                        })
+                    ).toBe(true)
+                }
+            )
+        })
+        it("returns true if there is no squaddie at the coordinate", () => {
+            const { missionMap, pathAtHead } = setupDeprecatedPath()
+
+            const repository: ObjectRepository = ObjectRepositoryService.new()
+            const searchParameters = SearchParametersService.new({
+                pathContinueConstraints: {
+                    squaddieAffiliation: {
+                        searchingSquaddieAffiliation:
+                            SquaddieAffiliation.PLAYER,
+                    },
+                },
+                goal: {},
+            })
+
+            const condition = new NextNodeHasASquaddie({
+                missionMap,
+                objectRepository: repository,
+            })
+            expect(
+                condition.shouldContinue({
+                    newPath: pathAtHead,
+                    searchParameters,
+                })
+            ).toBe(true)
+        })
+        it("returns true if the searching squaddie has an unknown affiliation", () => {
+            const { missionMap, pathAtHead } = setupDeprecatedPath()
+
+            const searchingAffiliation: SquaddieAffiliation =
+                SquaddieAffiliation.UNKNOWN
+
+            ;[
+                SquaddieAffiliation.PLAYER,
+                SquaddieAffiliation.ENEMY,
+                SquaddieAffiliation.ALLY,
+                SquaddieAffiliation.NONE,
+            ].forEach((blockingAffiliation) => {
+                const repository: ObjectRepository = addBlockingSquaddieToMap(
+                    blockingAffiliation,
+                    missionMap
+                )
+
+                const searchParameters = SearchParametersService.new({
+                    pathContinueConstraints: {
+                        squaddieAffiliation: {
+                            searchingSquaddieAffiliation: searchingAffiliation,
+                        },
+                    },
+                    goal: {},
+                })
+
+                const condition = new NextNodeHasASquaddie({
+                    missionMap,
+                    objectRepository: repository,
+                })
+                expect(
+                    condition.shouldContinue({
+                        newPath: pathAtHead,
+                        searchParameters,
+                    })
+                ).toBe(true)
+            })
+        })
+        it("returns undefined if there is no path", () => {
+            const missionMap: MissionMap = MissionMapService.new({
+                terrainTileMap: TerrainTileMapService.new({
+                    movementCost: ["1 1 2 1 2 ", " 1 x - 2 1 "],
+                }),
+            })
+
+            const repository: ObjectRepository = ObjectRepositoryService.new()
+            const searchParameters = SearchParametersService.new({
+                goal: {},
+            })
+
+            const condition = new NextNodeHasASquaddie({
+                missionMap,
+                objectRepository: repository,
+            })
+            expect(
+                condition.shouldContinue({
+                    newPath: SearchPathService.newSearchPath(),
+                    searchParameters,
+                })
+            ).toBeUndefined()
+        })
+    })
+
     it("returns true if squaddies are friendly, false if they are not", () => {
-        const { missionMap, pathAtHead } = setupPath()
+        const { missionMap, pathAtHead } = setupSearchConnections()
 
         getAllAffiliationPairs().forEach(
             ({ searchingAffiliation, blockingAffiliation }) => {
@@ -57,7 +306,7 @@ describe("next node has a squaddie", () => {
         )
     })
     it("returns true if squaddies are not friendly but one is not alive", () => {
-        const { missionMap, pathAtHead } = setupPath()
+        const { missionMap, pathAtHead } = setupSearchConnections()
         getAllAffiliationPairs().forEach(
             ({ searchingAffiliation, blockingAffiliation }) => {
                 const repository: ObjectRepository = addBlockingSquaddieToMap(
@@ -101,7 +350,7 @@ describe("next node has a squaddie", () => {
         )
     })
     it("returns true if squaddies are not friendly but searching squaddie can stop on squaddies anyway", () => {
-        const { missionMap, pathAtHead } = setupPath()
+        const { missionMap, pathAtHead } = setupSearchConnections()
         getAllAffiliationPairs().forEach(
             ({ searchingAffiliation, blockingAffiliation }) => {
                 const repository: ObjectRepository = addBlockingSquaddieToMap(
@@ -135,7 +384,7 @@ describe("next node has a squaddie", () => {
         )
     })
     it("returns true if squaddies are not friendly but searching squaddie can pass through squaddies", () => {
-        const { missionMap, pathAtHead } = setupPath()
+        const { missionMap, pathAtHead } = setupSearchConnections()
         getAllAffiliationPairs().forEach(
             ({ searchingAffiliation, blockingAffiliation }) => {
                 const repository: ObjectRepository = addBlockingSquaddieToMap(
@@ -167,7 +416,7 @@ describe("next node has a squaddie", () => {
         )
     })
     it("returns true if there is no squaddie at the coordinate", () => {
-        const { missionMap, pathAtHead } = setupPath()
+        const { missionMap, pathAtHead } = setupSearchConnections()
 
         const repository: ObjectRepository = ObjectRepositoryService.new()
         const searchParameters = SearchParametersService.new({
@@ -191,7 +440,7 @@ describe("next node has a squaddie", () => {
         ).toBe(true)
     })
     it("returns true if the searching squaddie has an unknown affiliation", () => {
-        const { missionMap, pathAtHead } = setupPath()
+        const { missionMap, pathAtHead } = setupSearchConnections()
 
         const searchingAffiliation: SquaddieAffiliation =
             SquaddieAffiliation.UNKNOWN
@@ -246,14 +495,14 @@ describe("next node has a squaddie", () => {
         })
         expect(
             condition.shouldContinue({
-                newPath: SearchPathService.newSearchPath(),
+                newPath: [],
                 searchParameters,
             })
         ).toBeUndefined()
     })
 })
 
-const setupPath = () => {
+const setupDeprecatedPath = () => {
     const missionMap: MissionMap = MissionMapService.new({
         terrainTileMap: TerrainTileMapService.new({
             movementCost: ["1 1 2 1 2 ", " 1 x - 2 1 "],
@@ -281,6 +530,34 @@ const setupPath = () => {
         { hexCoordinate: { q: 1, r: 2 }, cumulativeMovementCost: 2 },
         2
     )
+    return { missionMap, pathAtHead }
+}
+
+const setupSearchConnections = () => {
+    const missionMap: MissionMap = MissionMapService.new({
+        terrainTileMap: TerrainTileMapService.new({
+            movementCost: ["1 1 2 1 2 ", " 1 x - 2 1 "],
+        }),
+    })
+
+    const pathAtHead: SearchConnection<HexCoordinate>[] = [
+        {
+            fromNode: { q: 0, r: 0 },
+            toNode: { q: 1, r: 0 },
+            cost: 1,
+        },
+        {
+            fromNode: { q: 1, r: 0 },
+            toNode: { q: 1, r: 1 },
+            cost: 1,
+        },
+        {
+            fromNode: { q: 1, r: 1 },
+            toNode: { q: 1, r: 2 },
+            cost: 2,
+        },
+    ]
+
     return { missionMap, pathAtHead }
 }
 

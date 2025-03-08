@@ -1,10 +1,13 @@
-import { SearchPath } from "../searchPath"
 import { SearchParameters } from "../searchParameters"
 import { AreValidParametersForAddPathCondition } from "../pathContinueConstraint/pathContinueConstraint"
 import { PathStopConstraint } from "./pathStopConstraint"
 import { MissionMap } from "../../../missionMap/missionMap"
 import { ObjectRepository } from "../../../battle/objectRepository"
 import { getSquaddieAtEndOfPath } from "../getSquaddieAtEndOfPath"
+import {
+    SearchPathAdapter,
+    SearchPathAdapterService,
+} from "../../../search/searchPathAdapter/searchPathAdapter"
 
 export class PathDoesNotEndOnAnotherSquaddie implements PathStopConstraint {
     missionMap: MissionMap
@@ -25,14 +28,14 @@ export class PathDoesNotEndOnAnotherSquaddie implements PathStopConstraint {
         newPath,
         searchParameters,
     }: {
-        newPath: SearchPath
+        newPath: SearchPathAdapter
         searchParameters: SearchParameters
     }): boolean {
         if (!AreValidParametersForAddPathCondition({ newPath })) {
             return undefined
         }
 
-        if (newPath.coordinatesTraveled.length <= 1) {
+        if (SearchPathAdapterService.getCoordinates(newPath).length <= 1) {
             return true
         }
 

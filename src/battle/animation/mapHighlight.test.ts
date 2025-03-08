@@ -42,6 +42,7 @@ import {
 import { InBattleAttributesService } from "../stats/inBattleAttributes"
 import { beforeEach, describe, expect, it } from "vitest"
 import { AttributeType } from "../../squaddie/attribute/attributeType"
+import { SearchPathAdapterService } from "../../search/searchPathAdapter/searchPathAdapter"
 
 describe("map highlight generator", () => {
     let terrainAllSingleMovement: TerrainTileMap
@@ -91,7 +92,7 @@ describe("map highlight generator", () => {
 
     it("can draw a search path based on the number of actions spent", () => {
         const pathToDraw: SearchPath = SearchPathService.newSearchPath()
-        SearchPathService.add(
+        SearchPathAdapterService.add(
             pathToDraw,
             {
                 hexCoordinate: {
@@ -102,7 +103,7 @@ describe("map highlight generator", () => {
             },
             0
         )
-        SearchPathService.add(
+        SearchPathAdapterService.add(
             pathToDraw,
             {
                 hexCoordinate: {
@@ -113,7 +114,7 @@ describe("map highlight generator", () => {
             },
             1
         )
-        SearchPathService.add(
+        SearchPathAdapterService.add(
             pathToDraw,
             {
                 hexCoordinate: {
@@ -124,7 +125,7 @@ describe("map highlight generator", () => {
             },
             2
         )
-        SearchPathService.add(
+        SearchPathAdapterService.add(
             pathToDraw,
             {
                 hexCoordinate: {
@@ -135,7 +136,7 @@ describe("map highlight generator", () => {
             },
             2
         )
-        SearchPathService.add(
+        SearchPathAdapterService.add(
             pathToDraw,
             {
                 hexCoordinate: {
@@ -146,7 +147,7 @@ describe("map highlight generator", () => {
             },
             1
         )
-        SearchPathService.add(
+        SearchPathAdapterService.add(
             pathToDraw,
             {
                 hexCoordinate: {

@@ -1,4 +1,3 @@
-import { SearchPath, SearchPathService } from "./searchPath"
 import { MissionMap, MissionMapService } from "../../missionMap/missionMap"
 import { getResultOrThrowError } from "../../utils/ResultOrError"
 import {
@@ -8,20 +7,24 @@ import {
 import { SquaddieService } from "../../squaddie/squaddieService"
 import { SquaddieTemplate } from "../../campaign/squaddieTemplate"
 import { BattleSquaddie } from "../../battle/battleSquaddie"
+import {
+    SearchPathAdapter,
+    SearchPathAdapterService,
+} from "../../search/searchPathAdapter/searchPathAdapter"
 
 export const getSquaddieAtEndOfPath = ({
     searchPath,
     missionMap,
     objectRepository,
 }: {
-    searchPath: SearchPath
+    searchPath: SearchPathAdapter
     missionMap: MissionMap
     objectRepository: ObjectRepository
 }): {
     squaddieTemplate: SquaddieTemplate
     battleSquaddie: BattleSquaddie
 } => {
-    const head = SearchPathService.getMostRecentCoordinate(searchPath)
+    const head = SearchPathAdapterService.getMostRecentCoordinate(searchPath)
 
     const { battleSquaddieId } =
         MissionMapService.getBattleSquaddieAtCoordinate(missionMap, {

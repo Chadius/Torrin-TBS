@@ -1,5 +1,4 @@
 import { MissionMap } from "../../../missionMap/missionMap"
-import { SearchPath, SearchPathService } from "../searchPath"
 import { SearchParameters } from "../searchParameters"
 import { TerrainTileMapService } from "../../terrainTileMap"
 import { HexCoordinate } from "../../hexCoordinate/hexCoordinate"
@@ -8,6 +7,10 @@ import {
     AreValidParametersForPathCanStopCondition,
     PathStopConstraint,
 } from "./pathStopConstraint"
+import {
+    SearchPathAdapter,
+    SearchPathAdapterService,
+} from "../../../search/searchPathAdapter/searchPathAdapter"
 
 export class PathDoesNotEndOnAWallOrPit implements PathStopConstraint {
     missionMap: MissionMap
@@ -18,9 +21,8 @@ export class PathDoesNotEndOnAWallOrPit implements PathStopConstraint {
 
     squaddieCanStopAtTheEndOfThisPath({
         newPath,
-        searchParameters,
     }: {
-        newPath: SearchPath
+        newPath: SearchPathAdapter
         searchParameters: SearchParameters
     }): boolean {
         if (!AreValidParametersForPathCanStopCondition({ newPath })) {
@@ -28,7 +30,9 @@ export class PathDoesNotEndOnAWallOrPit implements PathStopConstraint {
         }
 
         const coordinate: HexCoordinate =
-            SearchPathService.getMostRecentCoordinate(newPath).hexCoordinate
+            SearchPathAdapterService.getMostRecentCoordinate(
+                newPath
+            ).hexCoordinate
         const terrainType =
             TerrainTileMapService.getTileTerrainTypeAtCoordinate(
                 this.missionMap.terrainTileMap,

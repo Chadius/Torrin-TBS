@@ -2,16 +2,19 @@ import {
     AreValidParametersForAddPathCondition,
     PathContinueConstraint,
 } from "./pathContinueConstraint"
-import { SearchPath } from "../searchPath"
 import { SearchParameters } from "../searchParameters"
 import { isValidValue } from "../../../utils/validityCheck"
+import {
+    SearchPathAdapter,
+    SearchPathAdapterService,
+} from "../../../search/searchPathAdapter/searchPathAdapter"
 
 export class NewPathLengthIsLessThanMaximum implements PathContinueConstraint {
     shouldContinue({
         newPath,
         searchParameters,
     }: {
-        newPath: SearchPath
+        newPath: SearchPathAdapter
         searchParameters: SearchParameters
     }): boolean {
         if (!AreValidParametersForAddPathCondition({ newPath })) {
@@ -27,7 +30,7 @@ export class NewPathLengthIsLessThanMaximum implements PathContinueConstraint {
         }
 
         return (
-            newPath.coordinatesTraveled.length <=
+            SearchPathAdapterService.getCoordinates(newPath).length <=
             searchParameters.pathSizeConstraints.maximumDistanceMoved + 1
         )
     }

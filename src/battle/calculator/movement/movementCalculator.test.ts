@@ -36,6 +36,7 @@ import {
     vi,
 } from "vitest"
 import { AttributeType } from "../../../squaddie/attribute/attributeType"
+import { SearchPathAdapterService } from "../../../search/searchPathAdapter/searchPathAdapter"
 
 describe("movement calculator", () => {
     let pathfinderSpy: MockInstance
@@ -111,7 +112,7 @@ describe("movement calculator", () => {
 
         it("is possible if the pathfinder says it is", () => {
             const validPathToDestination = SearchPathService.newSearchPath()
-            SearchPathService.add(
+            SearchPathAdapterService.add(
                 validPathToDestination,
                 {
                     hexCoordinate: { q: 0, r: 0 },
@@ -119,7 +120,7 @@ describe("movement calculator", () => {
                 },
                 0
             )
-            SearchPathService.add(
+            SearchPathAdapterService.add(
                 validPathToDestination,
                 {
                     hexCoordinate: { q: 0, r: 1 },
@@ -386,7 +387,7 @@ describe("movement calculator", () => {
                 gameEngineState.battleOrchestratorState.battleState
                     .squaddieMovePath
             const coordinatesTraveled =
-                SearchPathService.getCoordinates(squaddieMovePath)
+                SearchPathAdapterService.getCoordinates(squaddieMovePath)
             expect(coordinatesTraveled).toHaveLength(3)
             expect(coordinatesTraveled.map((l) => l.hexCoordinate)).toEqual([
                 { q: 0, r: 0 },
@@ -407,7 +408,7 @@ describe("movement calculator", () => {
                 gameEngineState.battleOrchestratorState.battleState
                     .squaddieMovePath
             const coordinatesTraveled =
-                SearchPathService.getCoordinates(squaddieMovePath)
+                SearchPathAdapterService.getCoordinates(squaddieMovePath)
             expect(coordinatesTraveled).toHaveLength(5)
             expect(coordinatesTraveled.map((l) => l.hexCoordinate)).toEqual([
                 { q: 0, r: 1 },
