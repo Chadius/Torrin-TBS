@@ -217,7 +217,7 @@ describe("Action Preview Tile", () => {
         })
 
         describe("chance of degrees of success", () => {
-            it("will text the chance to crit", () => {
+            it("will text the chance to critically succeed", () => {
                 ActionPreviewTileService.draw({
                     tile: tile,
                     graphicsContext: graphicsBuffer,
@@ -319,7 +319,7 @@ describe("Action Preview Tile", () => {
             })
         })
 
-        it("will not text a forecast for a miss if it has no effect", () => {
+        it("will text a forecast for a miss", () => {
             const forecastSpy = generateForecastSpy([
                 BattleActionSquaddieChangeService.new({
                     battleSquaddieId: "enemy_0",
@@ -353,7 +353,7 @@ describe("Action Preview Tile", () => {
                 graphicsContext: graphicsBuffer,
             })
 
-            expect(getAllDrawnText(graphicsBufferSpies["text"])).not.includes(
+            expect(getAllDrawnText(graphicsBufferSpies["text"])).includes(
                 "50% miss"
             )
             expect(getAllDrawnText(graphicsBufferSpies["text"])).includes(

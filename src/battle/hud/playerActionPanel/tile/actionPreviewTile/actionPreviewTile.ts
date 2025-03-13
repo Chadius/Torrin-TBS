@@ -148,7 +148,6 @@ export interface ActionPreviewTileUIObjects {
 export const ActionPreviewTileService = {
     new: ({
         gameEngineState,
-        objectRepository,
     }: {
         gameEngineState: GameEngineState
         objectRepository: ObjectRepository
@@ -510,9 +509,5 @@ class DoesUIObjectExistCondition implements BehaviorTreeTask {
         return (
             uiObjects[this.uiObjectKey as keyof typeof uiObjects] !== undefined
         )
-    }
-
-    clone(): BehaviorTreeTask {
-        return new DoesUIObjectExistCondition(this.dataBlob, this.uiObjectKey)
     }
 }

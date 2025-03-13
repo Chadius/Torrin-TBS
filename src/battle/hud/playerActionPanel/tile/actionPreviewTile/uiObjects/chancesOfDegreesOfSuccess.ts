@@ -102,10 +102,4 @@ export class CreateNextChancesOfDegreesOfSuccessTextBoxAction
 
         return true
     }
-
-    clone(): BehaviorTreeTask {
-        return new CreateNextChancesOfDegreesOfSuccessTextBoxAction(
-            this.dataBlob
-        )
-    }
 }
