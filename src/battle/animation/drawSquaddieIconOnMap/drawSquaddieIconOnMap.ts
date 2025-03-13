@@ -12,7 +12,6 @@ import {
     ObjectRepositoryService,
 } from "../../objectRepository"
 import { HORIZONTAL_ALIGN, VERTICAL_ALIGN } from "../../../ui/constants"
-import { SearchPath } from "../../../hexMap/pathfinder/searchPath"
 import {
     getSquaddiePositionAlongPath,
     TIME_TO_MOVE,
@@ -35,7 +34,10 @@ import { ConvertCoordinateService } from "../../../hexMap/convertCoordinates"
 import { ImageUI } from "../../../ui/imageUI/imageUI"
 import { ResourceHandler } from "../../../resource/resourceHandler"
 import { ScreenLocation } from "../../../utils/mouseConfig"
-import { SearchPathAdapterService } from "../../../search/searchPathAdapter/searchPathAdapter"
+import {
+    SearchPathAdapter,
+    SearchPathAdapterService,
+} from "../../../search/searchPathAdapter/searchPathAdapter"
 
 const MAP_ICON_CONSTANTS = {
     ActionPointsBarColors: {
@@ -65,7 +67,7 @@ const MAP_ICON_CONSTANTS = {
 export const DrawSquaddieIconOnMapUtilities = {
     hasMovementAnimationFinished: (
         timeMovementStarted: number,
-        squaddieMovePath: SearchPath
+        squaddieMovePath: SearchPathAdapter
     ) => {
         return hasMovementAnimationFinished(
             timeMovementStarted,
@@ -210,7 +212,7 @@ export const DrawSquaddieIconOnMapUtilities = {
         squaddieRepository: ObjectRepository
         battleSquaddie: BattleSquaddie
         timeMovementStarted: number
-        squaddieMovePath: SearchPath
+        squaddieMovePath: SearchPathAdapter
         camera: BattleCamera
     }) => {
         return moveSquaddieAlongPath(
@@ -480,13 +482,15 @@ const updateSquaddieIconLocation = (
 
 const hasMovementAnimationFinished = (
     timeMovementStarted: number,
-    squaddieMovePath: SearchPath
+    squaddieMovePath: SearchPathAdapter
 ) => {
     if (!isValidValue(squaddieMovePath)) {
         return true
     }
 
-    if (SearchPathAdapterService.getCoordinates(squaddieMovePath).length <= 1) {
+    if (
+        SearchPathAdapterService.getNumberOfCoordinates(squaddieMovePath) <= 1
+    ) {
         return true
     }
 
@@ -502,14 +506,12 @@ export const moveSquaddieAlongPath = (
     squaddieRepository: ObjectRepository,
     battleSquaddie: BattleSquaddie,
     timeMovementStarted: number,
-    squaddieMovePath: SearchPath,
+    squaddieMovePath: SearchPathAdapter,
     camera: BattleCamera
 ) => {
     const timePassed = Date.now() - timeMovementStarted
     const { x, y } = getSquaddiePositionAlongPath(
-        SearchPathAdapterService.getCoordinates(squaddieMovePath).map(
-            (tile) => tile.hexCoordinate
-        ),
+        SearchPathAdapterService.getCoordinates(squaddieMovePath),
         timePassed,
         TIME_TO_MOVE,
         camera

@@ -86,6 +86,10 @@ describe("All Label Button Style", () => {
                 fontColor: [0, 0, 0],
                 fontSize: 10,
             }),
+            [ButtonStatus.TOGGLE_OFF]: undefined,
+            [ButtonStatus.TOGGLE_ON]: undefined,
+            [ButtonStatus.TOGGLE_OFF_HOVER]: undefined,
+            [ButtonStatus.TOGGLE_ON_HOVER]: undefined,
         }
         dataBlob = {
             data: {

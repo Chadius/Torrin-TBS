@@ -1,6 +1,5 @@
 import { PriorityQueue } from "./priorityQueue"
 import { CostReportable } from "./costReportable"
-import { SearchPath, SearchPathService } from "../hexMap/pathfinder/searchPath"
 import { describe, expect, it } from "vitest"
 
 class PathWithCost implements CostReportable {
@@ -29,9 +28,6 @@ const comparison = (a: PathWithCost, b: PathWithCost) => {
 
 describe("Priority Queue", () => {
     it("knows when it is empty", () => {
-        const addedFirst: SearchPath = SearchPathService.newSearchPath()
-        addedFirst.totalMovementCost = 0
-
         const pq = new PriorityQueue<PathWithCost>(comparison)
         expect(pq.isEmpty()).toBeTruthy()
         pq.enqueue(new PathWithCost("added first", 0))

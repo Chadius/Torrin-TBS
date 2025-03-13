@@ -2,9 +2,13 @@ import {
     MapPlacement,
     MissionFileFormat,
     MissionFileFormatService,
+    NpcTeamMissionDeployment,
 } from "../src/dataLoader/missionLoader"
 import { TerrainTileMapService } from "../src/hexMap/terrainTileMap"
-import { HexCoordinate } from "../src/hexMap/hexCoordinate/hexCoordinate"
+import {
+    HexCoordinate,
+    HexCoordinateService,
+} from "../src/hexMap/hexCoordinate/hexCoordinate"
 
 export const MissionFileValidationService = {
     validateJSON: (json: string) => {
@@ -204,8 +208,10 @@ const findNpcPlacementsInTheSameCoordinate = (
             let existingCoordinate = squaddiesByLocation.find(
                 (c) =>
                     mapPlacement.coordinate != undefined &&
-                    c.coordinate.q === mapPlacement.coordinate.q &&
-                    c.coordinate.r === mapPlacement.coordinate.r
+                    HexCoordinateService.areEqual(
+                        c.coordinate,
+                        mapPlacement.coordinate
+                    )
             )
             if (!existingCoordinate) {
                 existingCoordinate = {
@@ -229,6 +235,14 @@ const findInvalidTeamBattleSquaddieIds = (
 ): { [teamId: string]: string[] } => {
     const invalidTeamBattleSquaddieIds: { [teamId: string]: string[] } = {}
 
+    const hasBattleSquaddieAlreadyPlaced = (
+        deployment: NpcTeamMissionDeployment,
+        battleSquaddieId: string
+    ) => {
+        return deployment.mapPlacements.some(
+            (mapPlacement) => mapPlacement.battleSquaddieId === battleSquaddieId
+        )
+    }
     ;[
         missionData.npcDeployments.enemy,
         missionData.npcDeployments.ally,
@@ -237,9 +251,9 @@ const findInvalidTeamBattleSquaddieIds = (
         deployment.teams.forEach((team) => {
             const missingBattleSquaddieIds = team.battleSquaddieIds.filter(
                 (battleSquaddieId) =>
-                    deployment.mapPlacements.some(
-                        (mapPlacement) =>
-                            mapPlacement.battleSquaddieId === battleSquaddieId
+                    hasBattleSquaddieAlreadyPlaced(
+                        deployment,
+                        battleSquaddieId
                     ) === false
             )
             if (missingBattleSquaddieIds.length > 0) {

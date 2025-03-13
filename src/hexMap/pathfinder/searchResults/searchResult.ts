@@ -1,12 +1,13 @@
-import { SearchPath } from "../searchPath"
-import { HexCoordinate } from "../../hexCoordinate/hexCoordinate"
-import { isValidValue } from "../../../utils/validityCheck"
+import {
+    HexCoordinate,
+    HexCoordinateService,
+} from "../../hexCoordinate/hexCoordinate"
+import { getValidValueOrDefault } from "../../../utils/validityCheck"
 import { HexGridService } from "../../hexGridDirection"
+import { SearchPathAdapter } from "../../../search/searchPathAdapter/searchPathAdapter"
 
 export type SearchPathByCoordinate = {
-    [q: number]: {
-        [r: number]: SearchPath
-    }
+    [key: string]: SearchPathAdapter
 }
 
 export interface SearchResult {
@@ -22,52 +23,23 @@ export const SearchResultsService = {
         shortestPathByCoordinate: SearchPathByCoordinate
         stopCoordinatesReached?: HexCoordinate[]
     }): SearchResult => {
-        const deepCopySearchPathByCoordinate: SearchPathByCoordinate = {}
-        for (const keyString in shortestPathByCoordinate) {
-            const q: number = Number(keyString)
-            deepCopySearchPathByCoordinate[q] = {
-                ...shortestPathByCoordinate[q],
-            }
-        }
         return {
-            shortestPathByCoordinate: deepCopySearchPathByCoordinate,
-            stopCoordinatesReached: isValidValue(stopCoordinatesReached)
-                ? stopCoordinatesReached
-                : [],
+            shortestPathByCoordinate,
+            stopCoordinatesReached: getValidValueOrDefault(
+                stopCoordinatesReached,
+                []
+            ),
         }
     },
     getShortestPathToCoordinate: (
         searchResults: SearchResult,
         mapCoordinate: HexCoordinate
-    ): SearchPath => {
+    ): SearchPathAdapter => {
         return isCoordinateReachable(searchResults, mapCoordinate)
-            ? searchResults.shortestPathByCoordinate[mapCoordinate.q][
-                  mapCoordinate.r
+            ? searchResults.shortestPathByCoordinate[
+                  HexCoordinateService.toString(mapCoordinate)
               ]
             : undefined
-    },
-    getCoordinatesByNumberOfMoveActions: (
-        searchResults: SearchResult
-    ): { [moveActions: number]: HexCoordinate[] } => {
-        const coordinatesByNumberOfMoveActions: {
-            [moveActions: number]: HexCoordinate[]
-        } = {}
-        for (const qStr in searchResults.shortestPathByCoordinate) {
-            const q = Number(qStr)
-            for (const rStr in searchResults.shortestPathByCoordinate[q]) {
-                const r = Number(rStr)
-                if (
-                    isValidValue(searchResults.shortestPathByCoordinate[q][r])
-                ) {
-                    const moveActions =
-                        searchResults.shortestPathByCoordinate[q][r]
-                            .currentNumberOfMoveActions
-                    coordinatesByNumberOfMoveActions[moveActions] ||= []
-                    coordinatesByNumberOfMoveActions[moveActions].push({ q, r })
-                }
-            }
-        }
-        return coordinatesByNumberOfMoveActions
     },
     getClosestRoutesToCoordinateByDistance: (
         searchResult: SearchResult,
@@ -82,31 +54,30 @@ export const SearchResultsService = {
 
         return possibleCoordinatesThatAreADistanceFromTheCoordinate.filter(
             (candidate) =>
-                !!searchResult.shortestPathByCoordinate?.[candidate.q]?.[
-                    candidate.r
+                !!searchResult.shortestPathByCoordinate?.[
+                    HexCoordinateService.toString(candidate)
                 ]
         )
     },
     getStoppableCoordinates: (searchResult: SearchResult): HexCoordinate[] => {
-        const stoppableCoordinates: HexCoordinate[] = []
-        for (const qStr in searchResult.shortestPathByCoordinate) {
-            const q = Number(qStr)
-            for (const rStr in searchResult.shortestPathByCoordinate[q]) {
-                const r = Number(rStr)
-                if (searchResult.shortestPathByCoordinate[q][r] !== undefined) {
-                    stoppableCoordinates.push({ q, r })
+        return Object.entries(searchResult.shortestPathByCoordinate).reduce(
+            (stoppableCoordinates, [coordinateKey, path]) => {
+                if (path) {
+                    stoppableCoordinates.push(
+                        HexCoordinateService.fromString(coordinateKey)
+                    )
                 }
-            }
-        }
-        return stoppableCoordinates
+                return stoppableCoordinates
+            },
+            []
+        )
     },
 }
 
 const isCoordinateReachable = (
     searchResult: SearchResult,
     mapCoordinate: HexCoordinate
-): boolean => {
-    return !!searchResult.shortestPathByCoordinate?.[mapCoordinate.q]?.[
-        mapCoordinate.r
+): boolean =>
+    !!searchResult.shortestPathByCoordinate[
+        HexCoordinateService.toString(mapCoordinate)
     ]
-}

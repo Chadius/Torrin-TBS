@@ -7,7 +7,6 @@ import {
 } from "../orchestrator/battleOrchestratorComponent"
 import { ConvertCoordinateService } from "../../hexMap/convertCoordinates"
 import { getResultOrThrowError } from "../../utils/ResultOrError"
-import { SearchParametersService } from "../../hexMap/pathfinder/searchParameters"
 import {
     BattleSquaddieTeam,
     BattleSquaddieTeamService,
@@ -19,15 +18,10 @@ import { HIGHLIGHT_PULSE_COLOR } from "../../hexMap/hexDrawingUtils"
 import { HexCoordinate } from "../../hexMap/hexCoordinate/hexCoordinate"
 import { TeamStrategy } from "../teamStrategy/teamStrategy"
 import { DetermineNextDecisionService } from "../teamStrategy/determineNextDecision"
-import { SquaddieAffiliation } from "../../squaddie/squaddieAffiliation"
 import { BattleStateService } from "../battleState/battleState"
 import { GameEngineState } from "../../gameEngine/gameEngine"
 import { ObjectRepositoryService } from "../objectRepository"
-import {
-    SearchResult,
-    SearchResultsService,
-} from "../../hexMap/pathfinder/searchResults/searchResult"
-import { PathfinderService } from "../../hexMap/pathfinder/pathGeneration/pathfinder"
+import { SearchResult } from "../../hexMap/pathfinder/searchResults/searchResult"
 import { DrawSquaddieIconOnMapUtilities } from "../animation/drawSquaddieIconOnMap/drawSquaddieIconOnMap"
 import { SquaddieTurnService } from "../../squaddie/turn"
 import {
@@ -46,7 +40,6 @@ import {
     BattleAction,
     BattleActionService,
 } from "../history/battleAction/battleAction"
-import { CoordinateTraveled } from "../../hexMap/pathfinder/coordinateTraveled"
 import { BattleSquaddieSelectorService } from "./battleSquaddieSelectorUtils"
 import { SquaddieService } from "../../squaddie/squaddieService"
 import { ActionCalculator } from "../calculator/actionCalculator/calculator"
@@ -54,8 +47,11 @@ import { MissionMapService } from "../../missionMap/missionMap"
 import { BattleActionRecorderService } from "../history/battleAction/battleActionRecorder"
 import { isValidValue } from "../../utils/validityCheck"
 import { BattleSquaddie } from "../battleSquaddie"
-import { ActionTemplate } from "../../action/template/actionTemplate"
 import { ResourceHandler } from "../../resource/resourceHandler"
+import { SearchResultAdapterService } from "../../hexMap/pathfinder/searchResults/searchResultAdapter"
+import { MapSearchService } from "../../hexMap/pathfinder/pathGeneration/mapSearch"
+import { SearchLimitService } from "../../hexMap/pathfinder/pathGeneration/searchLimit"
+import { SearchPathAdapterService } from "../../search/searchPathAdapter/searchPathAdapter"
 
 export const SQUADDIE_SELECTOR_PANNING_TIME = 1000
 export const SHOW_SELECTED_ACTION_TIME = 500
@@ -227,41 +223,25 @@ export class BattleComputerSquaddieSelector
 
     private highlightTargetRange(
         gameEngineState: GameEngineState,
-        action: ActionTemplate,
         targetCoordinate: HexCoordinate,
         battleSquaddieId: string
     ) {
-        const searchResult: SearchResult = PathfinderService.search({
-            searchParameters: SearchParametersService.new({
-                pathGenerators: {
-                    startCoordinates: [targetCoordinate],
-                },
-                pathSizeConstraints: {
-                    maximumDistanceMoved: 0,
-                    minimumDistanceMoved: 0,
-                    movementPerAction: action.targetConstraints.maximumRange,
-                    numberOfActions: 1,
-                },
-                pathStopConstraints: {
-                    canStopOnSquaddies: true,
-                },
-                pathContinueConstraints: {
-                    squaddieAffiliation: {
-                        searchingSquaddieAffiliation:
-                            SquaddieAffiliation.UNKNOWN,
-                    },
-                    ignoreTerrainCost: false,
-                    canPassOverPits: false,
-                    canPassThroughWalls: false,
-                },
-                goal: {},
-            }),
-            missionMap:
-                gameEngineState.battleOrchestratorState.battleState.missionMap,
-            objectRepository: gameEngineState.repository,
-        })
+        const searchResult: SearchResult =
+            MapSearchService.calculateAllPossiblePathsFromStartingCoordinate({
+                missionMap:
+                    gameEngineState.battleOrchestratorState.battleState
+                        .missionMap,
+                objectRepository: gameEngineState.repository,
+                startCoordinate: targetCoordinate,
+                searchLimit: SearchLimitService.new({
+                    baseSearchLimit: SearchLimitService.targeting(),
+                    maximumDistance: 0,
+                    minimumDistance: 0,
+                }),
+            })
+
         const tilesTargeted: HexCoordinate[] =
-            SearchResultsService.getStoppableCoordinates(searchResult)
+            SearchResultAdapterService.getCoordinatesWithPaths(searchResult)
 
         const actionRangeOnMap = MapGraphicsLayerService.new({
             id: battleSquaddieId,
@@ -477,15 +457,9 @@ export class BattleComputerSquaddieSelector
             return
         }
 
-        const action = ObjectRepositoryService.getActionTemplateById(
-            gameEngineState.repository,
-            firstActionTemplateDecisionStep.action.actionTemplateId
-        )
-
         this.showSelectedActionWaitTime = Date.now()
         this.highlightTargetRange(
             gameEngineState,
-            action,
             firstActionTemplateDecisionStep.target.targetCoordinate,
             battleSquaddie.battleSquaddieId
         )
@@ -647,7 +621,7 @@ export class BattleComputerSquaddieSelector
                     }
                 )
                 let coordinatesByMoveActions: {
-                    [movementActions: number]: CoordinateTraveled[]
+                    [movementActions: number]: HexCoordinate[]
                 } =
                     SquaddieService.searchPathCoordinatesByNumberOfMovementActions(
                         {
@@ -681,13 +655,15 @@ export class BattleComputerSquaddieSelector
             if (step.action.endTurn) return false
             if (!step.action.movement) return true
 
-            return gameEngineState.battleOrchestratorState.battleState.squaddieMovePath.coordinatesTraveled.some(
-                (coordinate) =>
-                    GraphicsConfig.isMapCoordinateOnScreen({
-                        mapCoordinate: coordinate.hexCoordinate,
-                        camera: gameEngineState.battleOrchestratorState
-                            .battleState.camera,
-                    })
+            return SearchPathAdapterService.getCoordinates(
+                gameEngineState.battleOrchestratorState.battleState
+                    .squaddieMovePath
+            ).some((coordinate) =>
+                GraphicsConfig.isMapCoordinateOnScreen({
+                    mapCoordinate: coordinate,
+                    camera: gameEngineState.battleOrchestratorState.battleState
+                        .camera,
+                })
             )
         })
     }

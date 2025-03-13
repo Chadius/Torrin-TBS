@@ -11,7 +11,6 @@ import {
 } from "../battleSquaddieTeam"
 import { TeamStrategy } from "../teamStrategy/teamStrategy"
 import { BattlePhaseState } from "../orchestratorComponents/battlePhaseController"
-import { SearchPath } from "../../hexMap/pathfinder/searchPath"
 import { BattleCamera } from "../battleCamera"
 import { MissionCompletionStatus } from "../missionResult/missionCompletionStatus"
 import {
@@ -55,6 +54,7 @@ import {
     PlayerConsideredActions,
     PlayerConsideredActionsService,
 } from "./playerConsideredActions"
+import { SearchPathAdapter } from "../../search/searchPathAdapter/searchPathAdapter"
 
 export enum BattleStateValidityMissingComponent {
     MISSION_MAP = "MISSION_MAP",
@@ -68,7 +68,7 @@ export interface BattleState extends MissionObjectivesAndCutscenes {
     teams: BattleSquaddieTeam[]
     teamStrategiesById: { [key: string]: TeamStrategy[] }
     battlePhaseState: BattlePhaseState
-    squaddieMovePath?: SearchPath
+    squaddieMovePath?: SearchPathAdapter
     mapDataBlob?: MapDataBlob
     playerConsideredActions?: PlayerConsideredActions
     camera: BattleCamera
@@ -204,7 +204,7 @@ interface BattleStateConstructorParameters {
     teamStrategiesById?: { [key: string]: TeamStrategy[] }
     missionCompletionStatus?: MissionCompletionStatus
     missionStatistics?: MissionStatistics
-    searchPath?: SearchPath
+    searchPath?: SearchPathAdapter
     battleCompletionStatus?: BattleCompletionStatus
     battleActionRecorder?: BattleActionRecorder
     battleActionDecisionStep?: BattleActionDecisionStep

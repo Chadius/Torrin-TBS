@@ -369,6 +369,8 @@ export const TestMissionData = () => {
                             backgroundColor: [10, 11, 12],
                         },
                     ],
+                    uiData: undefined,
+                    drawUITask: undefined,
                 },
                 [DEFAULT_DEFEAT_CUTSCENE_ID]: {
                     directions: [
@@ -397,6 +399,8 @@ export const TestMissionData = () => {
                             screenImageResourceKey: "splash defeat",
                         },
                     ],
+                    uiData: undefined,
+                    drawUITask: undefined,
                 },
                 introduction: {
                     directions: [
@@ -452,6 +456,8 @@ export const TestMissionData = () => {
                             animationDuration: 0,
                         },
                     ],
+                    uiData: undefined,
+                    drawUITask: undefined,
                 },
                 turn1: {
                     directions: [
@@ -476,8 +482,12 @@ export const TestMissionData = () => {
                             animationDuration: 0,
                         },
                     ],
+                    uiData: undefined,
+                    drawUITask: undefined,
                 },
                 turn2: {
+                    uiData: undefined,
+                    drawUITask: undefined,
                     directions: [
                         {
                             type: CutsceneActionPlayerType.DIALOGUE,
@@ -524,6 +534,8 @@ export const TestMissionData = () => {
                             animationDuration: 0,
                         },
                     ],
+                    uiData: undefined,
+                    drawUITask: undefined,
                 },
                 turn5: {
                     directions: [
@@ -558,6 +570,8 @@ export const TestMissionData = () => {
                             animationDuration: 0,
                         },
                     ],
+                    uiData: undefined,
+                    drawUITask: undefined,
                 },
                 turn7: {
                     directions: [
@@ -591,6 +605,8 @@ export const TestMissionData = () => {
                             animationDuration: 0,
                         },
                     ],
+                    uiData: undefined,
+                    drawUITask: undefined,
                 },
             },
         },
@@ -625,7 +641,6 @@ export const TestMissionData = () => {
                     passThroughWalls: false,
                     crossOverPits: false,
                     ignoreTerrainCost: false,
-                    passThroughSquaddies: false,
                 },
             }),
             actionTemplateIds: ["demon_slither_bite"],
@@ -665,7 +680,6 @@ export const TestMissionData = () => {
                 passThroughWalls: false,
                 crossOverPits: false,
                 ignoreTerrainCost: false,
-                passThroughSquaddies: false,
             },
         }),
         actionTemplateIds: ["short_sword"],
@@ -697,7 +711,6 @@ export const TestMissionData = () => {
                     passThroughWalls: false,
                     crossOverPits: false,
                     ignoreTerrainCost: false,
-                    passThroughSquaddies: false,
                 },
             }),
             actionTemplateIds: ["ignition"],

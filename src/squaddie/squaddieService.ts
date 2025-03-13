@@ -5,8 +5,6 @@ import {
     InBattleAttributes,
     InBattleAttributesService,
 } from "../battle/stats/inBattleAttributes"
-import { SearchPath } from "../hexMap/pathfinder/searchPath"
-import { CoordinateTraveled } from "../hexMap/pathfinder/coordinateTraveled"
 import { getResultOrThrowError } from "../utils/ResultOrError"
 import {
     ObjectRepository,
@@ -21,6 +19,8 @@ import {
     TargetBySquaddieAffiliationRelation,
     VersusSquaddieResistance,
 } from "../action/template/actionEffectTemplate"
+import { SearchPathAdapter } from "../search/searchPathAdapter/searchPathAdapter"
+import { HexCoordinate } from "../hexMap/hexCoordinate/hexCoordinate"
 
 export interface SquaddieActionPointsExplanation {
     actionPointsRemaining: number
@@ -42,14 +42,12 @@ export interface SquaddieMovementExplanation {
         crossOverPits: boolean
         passThroughWalls: boolean
         ignoreTerrainCost: boolean
-        passThroughSquaddies: boolean
     }
     net: {
         movementPerAction: number
         crossOverPits: boolean
         passThroughWalls: boolean
         ignoreTerrainCost: boolean
-        passThroughSquaddies: boolean
     }
 }
 
@@ -85,22 +83,27 @@ export const SquaddieService = {
         battleSquaddieId,
         repository,
     }: {
-        searchPath: SearchPath
+        searchPath: SearchPathAdapter
         battleSquaddieId: string
         repository: ObjectRepository
-    }): { [movementActions: number]: CoordinateTraveled[] } => {
+    }): { [movementActions: number]: HexCoordinate[] } => {
         const coordinatesByMoveAction: {
-            [movementActions: number]: CoordinateTraveled[]
-        } = {}
+            [movementActions: number]: HexCoordinate[]
+        } = {
+            0: [searchPath[0].fromNode],
+        }
         const { squaddieTemplate, battleSquaddie } = getResultOrThrowError(
             ObjectRepositoryService.getSquaddieByBattleId(
                 repository,
                 battleSquaddieId
             )
         )
-        searchPath.coordinatesTraveled.forEach((coordinateDescription) => {
+
+        let cumulativeMovementCost: number = 0
+        searchPath.forEach((coordinateDescription) => {
+            cumulativeMovementCost += coordinateDescription.cost
             let numberOfMovementActions: number = Math.ceil(
-                coordinateDescription.cumulativeMovementCost /
+                cumulativeMovementCost /
                     SquaddieService.getSquaddieMovementAttributes({
                         battleSquaddie,
                         squaddieTemplate,
@@ -108,7 +111,7 @@ export const SquaddieService = {
             )
             coordinatesByMoveAction[numberOfMovementActions] ||= []
             coordinatesByMoveAction[numberOfMovementActions].push(
-                coordinateDescription
+                coordinateDescription.toNode
             )
         })
         return coordinatesByMoveAction
@@ -266,8 +269,6 @@ export const SquaddieService = {
                 }
                 if (attributeModifier.type === AttributeType.HUSTLE)
                     currentMovementAttributes.net.ignoreTerrainCost = true
-                if (attributeModifier.type === AttributeType.ELUSIVE)
-                    currentMovementAttributes.net.passThroughSquaddies = true
                 return currentMovementAttributes
             },
             {
@@ -280,9 +281,6 @@ export const SquaddieService = {
                         squaddieTemplate.attributes.movement.passThroughWalls,
                     ignoreTerrainCost:
                         squaddieTemplate.attributes.movement.ignoreTerrainCost,
-                    passThroughSquaddies:
-                        squaddieTemplate.attributes.movement
-                            .passThroughSquaddies,
                 },
                 net: {
                     movementPerAction:
@@ -293,9 +291,6 @@ export const SquaddieService = {
                         squaddieTemplate.attributes.movement.passThroughWalls,
                     ignoreTerrainCost:
                         squaddieTemplate.attributes.movement.ignoreTerrainCost,
-                    passThroughSquaddies:
-                        squaddieTemplate.attributes.movement
-                            .passThroughSquaddies,
                 },
             }
         )

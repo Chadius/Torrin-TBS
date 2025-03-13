@@ -1,4 +1,3 @@
-import { PathfinderService } from "../../../hexMap/pathfinder/pathGeneration/pathfinder"
 import { SearchResultsService } from "../../../hexMap/pathfinder/searchResults/searchResult"
 import { MovementCalculatorService } from "./movementCalculator"
 import {
@@ -14,7 +13,6 @@ import { ObjectRepositoryService } from "../../objectRepository"
 import { SquaddieAffiliation } from "../../../squaddie/squaddieAffiliation"
 import { BattleOrchestratorStateService } from "../../orchestrator/battleOrchestratorState"
 import { BattleStateService } from "../../battleState/battleState"
-import { SearchPathService } from "../../../hexMap/pathfinder/searchPath"
 import { BattleActionDecisionStepService } from "../../actionDecision/battleActionDecisionStep"
 import { MapGraphicsLayerHighlight } from "../../../hexMap/mapLayer/mapGraphicsLayer"
 import { HIGHLIGHT_PULSE_COLOR } from "../../../hexMap/hexDrawingUtils"
@@ -36,7 +34,13 @@ import {
     vi,
 } from "vitest"
 import { AttributeType } from "../../../squaddie/attribute/attributeType"
-import { SearchPathAdapterService } from "../../../search/searchPathAdapter/searchPathAdapter"
+import {
+    SearchPathAdapter,
+    SearchPathAdapterService,
+} from "../../../search/searchPathAdapter/searchPathAdapter"
+import { MapSearchService } from "../../../hexMap/pathfinder/pathGeneration/mapSearch"
+import { SearchLimit } from "../../../hexMap/pathfinder/pathGeneration/searchLimit"
+import { HexCoordinateService } from "../../../hexMap/hexCoordinate/hexCoordinate"
 
 describe("movement calculator", () => {
     let pathfinderSpy: MockInstance
@@ -90,7 +94,7 @@ describe("movement calculator", () => {
     describe("isMovementPossible", () => {
         it("is not possible if the pathfinder says it is not", () => {
             pathfinderSpy = vi
-                .spyOn(PathfinderService, "search")
+                .spyOn(MapSearchService, "calculatePathsToDestinations")
                 .mockReturnValue(
                     SearchResultsService.new({
                         stopCoordinatesReached: [],
@@ -111,33 +115,22 @@ describe("movement calculator", () => {
         })
 
         it("is possible if the pathfinder says it is", () => {
-            const validPathToDestination = SearchPathService.newSearchPath()
-            SearchPathAdapterService.add(
-                validPathToDestination,
-                {
-                    hexCoordinate: { q: 0, r: 0 },
-                    cumulativeMovementCost: 0,
-                },
-                0
-            )
-            SearchPathAdapterService.add(
-                validPathToDestination,
-                {
-                    hexCoordinate: { q: 0, r: 1 },
-                    cumulativeMovementCost: 0,
-                },
-                1
-            )
+            const validPathToDestination: SearchPathAdapter = []
+            SearchPathAdapterService.add({
+                path: validPathToDestination,
+                newCoordinate: { q: 0, r: 1 },
+                costToMoveToNewCoordinate: 1,
+                startCoordinate: { q: 0, r: 0 },
+            })
 
             pathfinderSpy = vi
-                .spyOn(PathfinderService, "search")
+                .spyOn(MapSearchService, "calculatePathsToDestinations")
                 .mockReturnValue(
                     SearchResultsService.new({
                         stopCoordinatesReached: [],
                         shortestPathByCoordinate: {
-                            0: {
-                                1: validPathToDestination,
-                            },
+                            [HexCoordinateService.toString({ q: 0, r: 1 })]:
+                                validPathToDestination,
                         },
                     })
                 )
@@ -176,7 +169,7 @@ describe("movement calculator", () => {
             )
 
             pathfinderSpy = vi
-                .spyOn(PathfinderService, "search")
+                .spyOn(MapSearchService, "calculatePathsToDestinations")
                 .mockReturnValue(
                     SearchResultsService.new({
                         stopCoordinatesReached: [],
@@ -192,19 +185,14 @@ describe("movement calculator", () => {
             })
 
             expect(pathfinderSpy).toHaveBeenCalled()
-            const searchParameters =
-                pathfinderSpy.mock.calls[0][0].searchParameters
-            expect(searchParameters.pathContinueConstraints).toEqual(
-                expect.objectContaining({
-                    ignoreTerrainCost: true,
-                })
-            )
-            expect(searchParameters.pathSizeConstraints).toEqual(
-                expect.objectContaining({
-                    movementPerAction:
-                        battleSquaddie.inBattleAttributes.armyAttributes
-                            .movement.movementPerAction + 2,
-                })
+            const searchParameters: SearchLimit =
+                pathfinderSpy.mock.calls[0][0].searchLimit
+            expect(searchParameters.ignoreTerrainCost).toBeTruthy()
+            expect(searchParameters.maximumMovementCost).toEqual(
+                battleSquaddie.squaddieTurn.remainingActionPoints *
+                    (battleSquaddie.inBattleAttributes.armyAttributes.movement
+                        .movementPerAction +
+                        2)
             )
         })
     })
@@ -389,7 +377,7 @@ describe("movement calculator", () => {
             const coordinatesTraveled =
                 SearchPathAdapterService.getCoordinates(squaddieMovePath)
             expect(coordinatesTraveled).toHaveLength(3)
-            expect(coordinatesTraveled.map((l) => l.hexCoordinate)).toEqual([
+            expect(coordinatesTraveled).toEqual([
                 { q: 0, r: 0 },
                 { q: 0, r: 1 },
                 { q: 0, r: 2 },
@@ -410,7 +398,7 @@ describe("movement calculator", () => {
             const coordinatesTraveled =
                 SearchPathAdapterService.getCoordinates(squaddieMovePath)
             expect(coordinatesTraveled).toHaveLength(5)
-            expect(coordinatesTraveled.map((l) => l.hexCoordinate)).toEqual([
+            expect(coordinatesTraveled).toEqual([
                 { q: 0, r: 1 },
                 { q: 0, r: 2 },
                 { q: 1, r: 2 },

@@ -9,18 +9,22 @@ import {
 export const AStarSearchService = {
     priorityQueueSearch: <T>({
         getStartNodes,
+        nodesAreEqual,
         earlyStopSearchingCondition,
         graph,
         estimateCostBetweenNodes,
         nodeRecordStorage,
+        shouldAddNeighbor,
     }: {
         getStartNodes: () => T[]
+        nodesAreEqual: (fromNode: T, toNode: T) => boolean
         earlyStopSearchingCondition: (
             nodeRecord: SearchNodeRecord<T>
         ) => boolean
         graph: SearchGraph<T>
         estimateCostBetweenNodes: (fromNode: T) => number
         nodeRecordStorage: NodeRecordStorage<T>
+        shouldAddNeighbor?: (nodeRecord: SearchNodeRecord<T>) => boolean
     }): SearchConnection<T>[] => {
         let priorityQueue: PriorityQueue<string> = new PriorityQueue(
             (a: string, b: string): number =>
@@ -57,6 +61,7 @@ export const AStarSearchService = {
 
                 const endNodeRecord =
                     nodeRecordStorage.getNodeRecordByNode(endNode)
+
                 if (
                     !shouldUpdateEndNodeCostAndOpenToContinueSearching({
                         endNodeRecord,
@@ -72,10 +77,14 @@ export const AStarSearchService = {
                 )
 
                 endNodeRecord.costSoFar = endNodeCost
+                endNodeRecord.lengthSoFar = currentRecord.lengthSoFar + 1
                 endNodeRecord.connection = connection
                 endNodeRecord.estimatedTotalCost =
                     endNodeCost + endNodeHeuristic
+                if (shouldAddNeighbor && !shouldAddNeighbor(endNodeRecord))
+                    return
                 endNodeRecord.status = SearchNodeRecordStatus.OPEN
+
                 priorityQueue.enqueue(graph.getKeyForNode(endNode))
             })
             currentRecord.status = SearchNodeRecordStatus.CLOSED
@@ -85,6 +94,7 @@ export const AStarSearchService = {
                 endNodeRecord: currentRecord,
                 nodeRecordStorage,
                 getStartNodes,
+                nodesAreEqual,
             })
         }
         return []
@@ -93,15 +103,18 @@ export const AStarSearchService = {
         endNodeRecord,
         nodeRecordStorage,
         getStartNodes,
+        nodesAreEqual,
     }: {
         endNodeRecord: SearchNodeRecord<T>
         nodeRecordStorage: NodeRecordStorage<T>
         getStartNodes: () => T[]
+        nodesAreEqual: (fromNode: T, toNode: T) => boolean
     }): SearchConnection<T>[] =>
         constructPathFromNodeRecord<T>({
             endNodeRecord,
             nodeRecordStorage,
             getStartNodes,
+            nodesAreEqual,
         }),
 }
 
@@ -115,6 +128,7 @@ const createStartingNodeRecords = <T>({
     startingNodes.map((startingNode) => ({
         node: startingNode,
         connection: undefined,
+        lengthSoFar: 0,
         costSoFar: 0,
         estimatedTotalCost: estimateCostBetweenNodes(startingNode),
         status: SearchNodeRecordStatus.OPEN,
@@ -178,14 +192,18 @@ const constructPathFromNodeRecord = <T>({
     endNodeRecord,
     nodeRecordStorage,
     getStartNodes,
+    nodesAreEqual,
 }: {
     endNodeRecord: SearchNodeRecord<T>
     nodeRecordStorage: NodeRecordStorage<T>
     getStartNodes: () => T[]
+    nodesAreEqual: (fromNode: T, toNode: T) => boolean
 }): SearchConnection<T>[] => {
     const path: SearchConnection<T>[] = []
     const startNodes = getStartNodes()
-    while (!startNodes.includes(endNodeRecord.node)) {
+    const isInStartNodes = (node: T) =>
+        startNodes.some((startNode) => nodesAreEqual(startNode, node))
+    while (!isInStartNodes(endNodeRecord.node)) {
         path.push(endNodeRecord.connection)
         endNodeRecord = nodeRecordStorage.getNodeRecordByNode(
             endNodeRecord.connection.fromNode

@@ -10,10 +10,7 @@ import {
 import { SquaddieAffiliation } from "../../squaddie/squaddieAffiliation"
 import { TargetingResults, TargetingResultsService } from "./targetingService"
 
-import {
-    HexCoordinate,
-    NewHexCoordinateFromNumberPair,
-} from "../../hexMap/hexCoordinate/hexCoordinate"
+import { HexCoordinate } from "../../hexMap/hexCoordinate/hexCoordinate"
 import { SquaddieTemplate } from "../../campaign/squaddieTemplate"
 import {
     ActionTemplate,
@@ -170,18 +167,10 @@ describe("Targeting Service", () => {
             })
 
         expect(results.coordinatesInRange).toHaveLength(4)
-        expect(results.coordinatesInRange).toContainEqual(
-            NewHexCoordinateFromNumberPair([0, 0])
-        )
-        expect(results.coordinatesInRange).toContainEqual(
-            NewHexCoordinateFromNumberPair([0, 3])
-        )
-        expect(results.coordinatesInRange).toContainEqual(
-            NewHexCoordinateFromNumberPair([1, 3])
-        )
-        expect(results.coordinatesInRange).toContainEqual(
-            NewHexCoordinateFromNumberPair([2, 2])
-        )
+        expect(results.coordinatesInRange).toContainEqual({ q: 0, r: 0 })
+        expect(results.coordinatesInRange).toContainEqual({ q: 0, r: 3 })
+        expect(results.coordinatesInRange).toContainEqual({ q: 1, r: 3 })
+        expect(results.coordinatesInRange).toContainEqual({ q: 2, r: 2 })
     })
 
     const makeSquaddieOfGivenAffiliationAndAddOnMap = ({

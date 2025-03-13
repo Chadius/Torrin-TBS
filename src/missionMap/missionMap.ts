@@ -1,5 +1,8 @@
 import { TerrainTileMap, TerrainTileMapService } from "../hexMap/terrainTileMap"
-import { HexCoordinate } from "../hexMap/hexCoordinate/hexCoordinate"
+import {
+    HexCoordinate,
+    HexCoordinateService,
+} from "../hexMap/hexCoordinate/hexCoordinate"
 import {
     MissionMapSquaddieCoordinate,
     MissionMapSquaddieCoordinateService,
@@ -206,8 +209,7 @@ const getSquaddieAtCoordinate = (
             (datum) =>
                 coordinate &&
                 datum.mapCoordinate &&
-                datum.mapCoordinate.q === coordinate.q &&
-                datum.mapCoordinate.r === coordinate.r
+                HexCoordinateService.areEqual(datum.mapCoordinate, coordinate)
         )
     return foundDatum
         ? MissionMapSquaddieCoordinateService.clone(foundDatum)

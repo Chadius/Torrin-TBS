@@ -9,7 +9,10 @@ import {
     OrchestratorComponentMouseEventChangeLocation,
     OrchestratorComponentMouseEventType,
 } from "../orchestrator/battleOrchestratorComponent"
-import { HexCoordinate } from "../../hexMap/hexCoordinate/hexCoordinate"
+import {
+    HexCoordinate,
+    HexCoordinateService,
+} from "../../hexMap/hexCoordinate/hexCoordinate"
 import { UIControlSettings } from "../orchestrator/uiControlSettings"
 import { BattleOrchestratorMode } from "../orchestrator/battleOrchestrator"
 import { getResultOrThrowError } from "../../utils/ResultOrError"
@@ -250,7 +253,7 @@ export class BattlePlayerSquaddieTarget implements BattleOrchestratorComponent {
         mouseClick: MousePress | MouseRelease
         gameEngineState: GameEngineState
     }) {
-        const clickedLocation =
+        const selectedCoordinate =
             ConvertCoordinateService.convertScreenLocationToMapCoordinates({
                 screenLocation: {
                     x: mouseClick.x,
@@ -261,9 +264,9 @@ export class BattlePlayerSquaddieTarget implements BattleOrchestratorComponent {
             })
 
         if (
-            !this.highlightedTargetRange.some(
-                (tile) =>
-                    tile.q === clickedLocation.q && tile.r === clickedLocation.r
+            !HexCoordinateService.includes(
+                this.highlightedTargetRange,
+                selectedCoordinate
             )
         ) {
             return
@@ -343,7 +346,7 @@ export class BattlePlayerSquaddieTarget implements BattleOrchestratorComponent {
         gameEngineState.messageBoard.sendMessage({
             type: MessageBoardMessageType.PLAYER_SELECTS_TARGET_COORDINATE,
             gameEngineState,
-            targetCoordinate: clickedLocation,
+            targetCoordinate: selectedCoordinate,
         })
     }
 }

@@ -46,6 +46,7 @@ import { BattleSquaddieSelectorService } from "../orchestratorComponents/battleS
 import { SquaddieAffiliation } from "../../squaddie/squaddieAffiliation"
 import { PlayerClicksOnSquaddieSelectorPanel } from "./contextCalculator/playerClicksOnSquaddieSelectorPanel"
 import { PlayerMovesOffMapToCancelConsideredActions } from "./contextCalculator/playerMovesOffMapToCancelConsideredActions"
+import { SearchPathAdapterService } from "../../search/searchPathAdapter/searchPathAdapter"
 
 export interface PlayerContextDataBlob extends DataBlob {
     data: {
@@ -1292,12 +1293,21 @@ class PlayerConsidersMovementForSelectedSquaddie implements BehaviorTreeTask {
             return undefined
         }
 
+        const actionPointCost = SearchPathAdapterService.getNumberOfMoveActions(
+            {
+                path: closestRoute,
+                movementPerAction:
+                    SquaddieService.getSquaddieMovementAttributes({
+                        squaddieTemplate,
+                        battleSquaddie,
+                    }).net.movementPerAction,
+            }
+        )
+
         const movementDecision: MovementDecision = {
-            actionPointCost: closestRoute.currentNumberOfMoveActions,
-            coordinates: closestRoute.coordinatesTraveled.map(
-                (c) => c.hexCoordinate
-            ),
-            destination: closestRoute.destination,
+            actionPointCost,
+            coordinates: SearchPathAdapterService.getCoordinates(closestRoute),
+            destination: SearchPathAdapterService.getHead(closestRoute),
         }
         gameEngineState.battleOrchestratorState.battleState.mapDataBlob.add<MovementDecision>(
             coordinate,

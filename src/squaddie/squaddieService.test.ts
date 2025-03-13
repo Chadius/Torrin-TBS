@@ -638,14 +638,12 @@ describe("Squaddie Service", () => {
                     crossOverPits: false,
                     passThroughWalls: false,
                     ignoreTerrainCost: false,
-                    passThroughSquaddies: false,
                 },
                 net: {
                     movementPerAction: 9001,
                     crossOverPits: false,
                     passThroughWalls: false,
                     ignoreTerrainCost: false,
-                    passThroughSquaddies: false,
                 },
             })
         })
@@ -686,14 +684,12 @@ describe("Squaddie Service", () => {
                     crossOverPits: true,
                     passThroughWalls: true,
                     ignoreTerrainCost: false,
-                    passThroughSquaddies: false,
                 },
                 net: {
                     movementPerAction: 3,
                     crossOverPits: true,
                     passThroughWalls: true,
                     ignoreTerrainCost: false,
-                    passThroughSquaddies: false,
                 },
             })
         })
@@ -734,62 +730,12 @@ describe("Squaddie Service", () => {
                     crossOverPits: false,
                     passThroughWalls: false,
                     ignoreTerrainCost: false,
-                    passThroughSquaddies: false,
                 },
                 net: {
                     movementPerAction: 1,
                     crossOverPits: false,
                     passThroughWalls: false,
                     ignoreTerrainCost: true,
-                    passThroughSquaddies: false,
-                },
-            })
-        })
-
-        it("uses ELUSIVE attribute modifier to modify net movement", () => {
-            const {
-                squaddieTemplate: squaddieTemplateWithIgnoreTerrainCost,
-                battleSquaddie: battleSquaddieWithIgnoreTerrainCost,
-            } = createSquaddieWithSquaddieMovement(
-                SquaddieMovementService.new({
-                    movementPerAction: 1,
-                    traits: TraitStatusStorageService.newUsingTraitValues({
-                        [Trait.CROSS_OVER_PITS]: false,
-                        [Trait.PASS_THROUGH_WALLS]: false,
-                    }),
-                })
-            )
-
-            InBattleAttributesService.addActiveAttributeModifier(
-                battleSquaddieWithIgnoreTerrainCost.inBattleAttributes,
-                AttributeModifierService.new({
-                    type: AttributeType.ELUSIVE,
-                    duration: 1,
-                    amount: 1,
-                    source: AttributeSource.CIRCUMSTANCE,
-                })
-            )
-
-            const squaddieMovementAttributes =
-                SquaddieService.getSquaddieMovementAttributes({
-                    battleSquaddie: battleSquaddieWithIgnoreTerrainCost,
-                    squaddieTemplate: squaddieTemplateWithIgnoreTerrainCost,
-                })
-
-            expect(squaddieMovementAttributes).toEqual({
-                initial: {
-                    movementPerAction: 1,
-                    crossOverPits: false,
-                    passThroughWalls: false,
-                    ignoreTerrainCost: false,
-                    passThroughSquaddies: false,
-                },
-                net: {
-                    movementPerAction: 1,
-                    crossOverPits: false,
-                    passThroughWalls: false,
-                    ignoreTerrainCost: false,
-                    passThroughSquaddies: true,
                 },
             })
         })

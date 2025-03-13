@@ -9,10 +9,6 @@ import {
     TraitStatusStorageService,
 } from "../../trait/traitStatusStorage"
 import {
-    SearchPath,
-    SearchPathService,
-} from "../../hexMap/pathfinder/searchPath"
-import {
     SquaddieTemplate,
     SquaddieTemplateService,
 } from "../../campaign/squaddieTemplate"
@@ -43,6 +39,8 @@ import { InBattleAttributesService } from "../stats/inBattleAttributes"
 import { beforeEach, describe, expect, it } from "vitest"
 import { AttributeType } from "../../squaddie/attribute/attributeType"
 import { SearchPathAdapterService } from "../../search/searchPathAdapter/searchPathAdapter"
+import { SearchConnection } from "../../search/searchGraph/graph"
+import { HexCoordinate } from "../../hexMap/hexCoordinate/hexCoordinate"
 
 describe("map highlight generator", () => {
     let terrainAllSingleMovement: TerrainTileMap
@@ -91,73 +89,51 @@ describe("map highlight generator", () => {
     })
 
     it("can draw a search path based on the number of actions spent", () => {
-        const pathToDraw: SearchPath = SearchPathService.newSearchPath()
-        SearchPathAdapterService.add(
-            pathToDraw,
-            {
-                hexCoordinate: {
-                    q: 0,
-                    r: 0,
-                },
-                cumulativeMovementCost: 0,
+        const pathToDraw: SearchConnection<HexCoordinate>[] = []
+        SearchPathAdapterService.add({
+            path: pathToDraw,
+            newCoordinate: {
+                q: 0,
+                r: 1,
             },
-            0
-        )
-        SearchPathAdapterService.add(
-            pathToDraw,
-            {
-                hexCoordinate: {
-                    q: 0,
-                    r: 1,
-                },
-                cumulativeMovementCost: 1,
+            costToMoveToNewCoordinate: 1,
+            startCoordinate: {
+                q: 0,
+                r: 0,
             },
-            1
-        )
-        SearchPathAdapterService.add(
-            pathToDraw,
-            {
-                hexCoordinate: {
-                    q: 1,
-                    r: 1,
-                },
-                cumulativeMovementCost: 2,
+        })
+        SearchPathAdapterService.add({
+            path: pathToDraw,
+            newCoordinate: {
+                q: 1,
+                r: 1,
             },
-            2
-        )
-        SearchPathAdapterService.add(
-            pathToDraw,
-            {
-                hexCoordinate: {
-                    q: 1,
-                    r: 2,
-                },
-                cumulativeMovementCost: 4,
+            costToMoveToNewCoordinate: 1,
+        })
+        SearchPathAdapterService.add({
+            path: pathToDraw,
+            newCoordinate: {
+                q: 1,
+                r: 2,
             },
-            2
-        )
-        SearchPathAdapterService.add(
-            pathToDraw,
-            {
-                hexCoordinate: {
-                    q: 1,
-                    r: 3,
-                },
-                cumulativeMovementCost: 6,
+            costToMoveToNewCoordinate: 2,
+        })
+        SearchPathAdapterService.add({
+            path: pathToDraw,
+            newCoordinate: {
+                q: 1,
+                r: 3,
             },
-            1
-        )
-        SearchPathAdapterService.add(
-            pathToDraw,
-            {
-                hexCoordinate: {
-                    q: 2,
-                    r: 3,
-                },
-                cumulativeMovementCost: 7,
+            costToMoveToNewCoordinate: 2,
+        })
+        SearchPathAdapterService.add({
+            path: pathToDraw,
+            newCoordinate: {
+                q: 2,
+                r: 3,
             },
-            1
-        )
+            costToMoveToNewCoordinate: 1,
+        })
 
         const squaddieWith2Movement: SquaddieTemplate =
             SquaddieTemplateService.new({

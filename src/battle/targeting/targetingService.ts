@@ -1,7 +1,6 @@
 import { MissionMap, MissionMapService } from "../../missionMap/missionMap"
 import { BattleSquaddie } from "../battleSquaddie"
 import { ObjectRepository, ObjectRepositoryService } from "../objectRepository"
-import { SearchParametersService } from "../../hexMap/pathfinder/searchParameters"
 import { getResultOrThrowError } from "../../utils/ResultOrError"
 import {
     SquaddieAffiliation,
@@ -13,11 +12,7 @@ import {
     MissionMapSquaddieCoordinate,
     MissionMapSquaddieCoordinateService,
 } from "../../missionMap/squaddieCoordinate"
-import {
-    SearchResult,
-    SearchResultsService,
-} from "../../hexMap/pathfinder/searchResults/searchResult"
-import { PathfinderService } from "../../hexMap/pathfinder/pathGeneration/pathfinder"
+import { SearchResult } from "../../hexMap/pathfinder/searchResults/searchResult"
 import {
     ActionEffectTemplate,
     TargetBySquaddieAffiliationRelation,
@@ -32,6 +27,13 @@ import {
 } from "../../hexMap/mapLayer/mapGraphicsLayer"
 import { BattleActionDecisionStepService } from "../actionDecision/battleActionDecisionStep"
 import { BattleActionRecorderService } from "../history/battleAction/battleActionRecorder"
+import { SearchResultAdapterService } from "../../hexMap/pathfinder/searchResults/searchResultAdapter"
+import { MapSearchService } from "../../hexMap/pathfinder/pathGeneration/mapSearch"
+import { SearchLimitService } from "../../hexMap/pathfinder/pathGeneration/searchLimit"
+import {
+    Trait,
+    TraitStatusStorageService,
+} from "../../trait/traitStatusStorage"
 
 export class TargetingResults {
     constructor() {
@@ -202,39 +204,29 @@ const findValidTargets = ({
             : []
     }
 
-    const allLocationsInRange: SearchResult = PathfinderService.search({
-        searchParameters: SearchParametersService.new({
-            pathGenerators: {
-                startCoordinates,
-                coordinateGeneratorShape:
-                    actionTemplate.targetConstraints.coordinateGeneratorShape,
-            },
-            pathStopConstraints: {
-                canStopOnSquaddies: true,
-            },
-            pathContinueConstraints: {
-                squaddieAffiliation: {
-                    searchingSquaddieAffiliation: SquaddieAffiliation.UNKNOWN,
-                },
-                ignoreTerrainCost: true,
-                canPassOverPits: false,
-                canPassThroughWalls: false,
-            },
-            pathSizeConstraints: {
-                minimumDistanceMoved:
-                    actionTemplate.targetConstraints.minimumRange,
-                maximumDistanceMoved:
-                    actionTemplate.targetConstraints.maximumRange,
-            },
-            goal: {},
-        }),
-        missionMap: map,
-        objectRepository: squaddieRepository,
-    })
+    const allLocationsInRange: SearchResult =
+        MapSearchService.calculateAllPossiblePathsFromStartingCoordinate({
+            missionMap: map,
+            objectRepository: squaddieRepository,
+            startCoordinate: startCoordinates[0],
+            searchLimit: SearchLimitService.new({
+                baseSearchLimit: SearchLimitService.targeting(),
+                passThroughWalls: TraitStatusStorageService.getStatus(
+                    actionTemplate.actionEffectTemplates[0].traits,
+                    Trait.PASS_THROUGH_WALLS
+                ),
+                crossOverPits: TraitStatusStorageService.getStatus(
+                    actionTemplate.actionEffectTemplates[0].traits,
+                    Trait.CROSS_OVER_PITS
+                ),
+                minimumDistance: actionTemplate.targetConstraints.minimumRange,
+                maximumDistance: actionTemplate.targetConstraints.maximumRange,
+            }),
+        })
 
     const results = new TargetingResults()
     results.addLocationsInRange(
-        SearchResultsService.getStoppableCoordinates(allLocationsInRange)
+        SearchResultAdapterService.getCoordinatesWithPaths(allLocationsInRange)
     )
 
     addValidTargetsToResult({
@@ -244,7 +236,9 @@ const findValidTargets = ({
         actingSquaddieTemplate,
         actingBattleSquaddie,
         tilesInRange:
-            SearchResultsService.getStoppableCoordinates(allLocationsInRange),
+            SearchResultAdapterService.getCoordinatesWithPaths(
+                allLocationsInRange
+            ),
         map,
         objectRepository: squaddieRepository,
     })

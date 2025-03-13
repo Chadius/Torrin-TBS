@@ -1281,8 +1281,7 @@ describe("Battle Orchestrator", () => {
 
             squaddieSelectorOrchestratorShouldDisplayMap.mouseMoved(
                 stateWantsToDisplayTheMap,
-                0,
-                0
+                { x: 0, y: 0 }
             )
             expect(component.mouseEventHappened).toBeCalledTimes(1)
             expect(mockMapDisplay.mouseEventHappened).toBeCalledTimes(1)

@@ -8,8 +8,6 @@ import {
 import { BattleSquaddieMover } from "./battleSquaddieMover"
 import { MissionMap, MissionMapService } from "../../missionMap/missionMap"
 import { TerrainTileMapService } from "../../hexMap/terrainTileMap"
-import { SearchPath } from "../../hexMap/pathfinder/searchPath"
-import { SearchParametersService } from "../../hexMap/pathfinder/searchParameters"
 import { TIME_TO_MOVE } from "../animation/squaddieMoveAnimationUtils"
 import * as mocks from "../../utils/test/mocks"
 import { MockedP5GraphicsBuffer } from "../../utils/test/mocks"
@@ -19,11 +17,7 @@ import {
     GameEngineState,
     GameEngineStateService,
 } from "../../gameEngine/gameEngine"
-import {
-    SearchResult,
-    SearchResultsService,
-} from "../../hexMap/pathfinder/searchResults/searchResult"
-import { PathfinderService } from "../../hexMap/pathfinder/pathGeneration/pathfinder"
+import { SearchResult } from "../../hexMap/pathfinder/searchResults/searchResult"
 import { CampaignService } from "../../campaign/campaign"
 import { BattleHUDService } from "../hud/battleHUD/battleHUD"
 import { BattlePhase } from "./battlePhaseTracker"
@@ -42,6 +36,10 @@ import {
 } from "vitest"
 import { HexCoordinate } from "../../hexMap/hexCoordinate/hexCoordinate"
 import { GraphicsConfig } from "../../utils/graphics/graphicsConfig"
+import { SearchResultAdapterService } from "../../hexMap/pathfinder/searchResults/searchResultAdapter"
+import { MapSearchService } from "../../hexMap/pathfinder/pathGeneration/mapSearch"
+import { SearchLimitService } from "../../hexMap/pathfinder/pathGeneration/searchLimit"
+import { SearchPathAdapter } from "../../search/searchPathAdapter/searchPathAdapter"
 
 describe("BattleSquaddieMover", () => {
     let objectRepository: ObjectRepository
@@ -192,43 +190,31 @@ describe("BattleSquaddieMover", () => {
         }: {
             squaddieAffiliation: SquaddieAffiliation
         }): BattleOrchestratorState => {
-            const searchResults: SearchResult = PathfinderService.search({
-                searchParameters: SearchParametersService.new({
-                    pathGenerators: {
-                        startCoordinates: [{ q: 0, r: 0 }],
-                    },
-                    pathStopConstraints: {
+            const searchResults: SearchResult =
+                MapSearchService.calculatePathsToDestinations({
+                    missionMap: map,
+                    objectRepository: objectRepository,
+                    destinationCoordinates: [{ q: 1, r: 1 }],
+                    startCoordinate: { q: 0, r: 0 },
+                    searchLimit: SearchLimitService.new({
+                        baseSearchLimit: SearchLimitService.landBasedMovement(),
                         canStopOnSquaddies: true,
-                    },
-                    pathSizeConstraints: {
-                        movementPerAction: 999,
-                        numberOfActions: 1,
-                        minimumDistanceMoved: 0,
-                    },
-                    pathContinueConstraints: {
-                        squaddieAffiliation: {
-                            searchingSquaddieAffiliation: squaddieAffiliation,
-                        },
+                        maximumMovementCost: 999,
+                        squaddieAffiliation,
                         ignoreTerrainCost: false,
-                        canPassOverPits: false,
-                        canPassThroughWalls: false,
-                    },
-                    goal: {
-                        stopCoordinates: [{ q: 1, r: 1 }],
-                    },
-                }),
-                missionMap: map,
-                objectRepository: objectRepository,
-            })
+                        crossOverPits: false,
+                        passThroughWalls: false,
+                    }),
+                })
 
-            const movePath: SearchPath =
-                SearchResultsService.getShortestPathToCoordinate(
-                    searchResults,
-                    {
+            const movePath: SearchPathAdapter =
+                SearchResultAdapterService.getShortestPathToCoordinate({
+                    searchResults: searchResults,
+                    mapCoordinate: {
                         q: 1,
                         r: 1,
-                    }
-                )
+                    },
+                })
 
             return BattleOrchestratorStateService.new({
                 battleHUD: BattleHUDService.new({}),
@@ -340,39 +326,28 @@ const moveSquaddieAndGetGameEngineState = ({
         coordinate: startCoordinate,
     })
 
-    const searchResults: SearchResult = PathfinderService.search({
-        searchParameters: SearchParametersService.new({
-            pathGenerators: {
-                startCoordinates: [startCoordinate],
-            },
-            pathStopConstraints: {
+    const searchResults: SearchResult =
+        MapSearchService.calculatePathsToDestinations({
+            missionMap,
+            objectRepository: objectRepository,
+            destinationCoordinates: [endCoordinate],
+            startCoordinate,
+            searchLimit: SearchLimitService.new({
+                baseSearchLimit: SearchLimitService.landBasedMovement(),
                 canStopOnSquaddies: true,
-            },
-            pathSizeConstraints: {
-                movementPerAction: 99,
-                numberOfActions: 1,
-            },
-            pathContinueConstraints: {
-                squaddieAffiliation: {
-                    searchingSquaddieAffiliation: SquaddieAffiliation.PLAYER,
-                },
+                maximumMovementCost: 99,
+                squaddieAffiliation: SquaddieAffiliation.PLAYER,
                 ignoreTerrainCost: false,
-                canPassOverPits: false,
-                canPassThroughWalls: false,
-            },
-            goal: {
-                stopCoordinates: [endCoordinate],
-            },
-        }),
-        missionMap: missionMap,
-        objectRepository: objectRepository,
-    })
+                crossOverPits: false,
+                passThroughWalls: false,
+            }),
+        })
 
-    const movePath: SearchPath =
-        SearchResultsService.getShortestPathToCoordinate(
-            searchResults,
-            endCoordinate
-        )
+    const movePath: SearchPathAdapter =
+        SearchResultAdapterService.getShortestPathToCoordinate({
+            searchResults: searchResults,
+            mapCoordinate: endCoordinate,
+        })
 
     const gameEngineState: GameEngineState = GameEngineStateService.new({
         repository: objectRepository,

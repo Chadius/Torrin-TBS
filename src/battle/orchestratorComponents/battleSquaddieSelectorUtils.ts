@@ -1,15 +1,12 @@
 import { BattleSquaddie } from "../battleSquaddie"
-import { HexCoordinate } from "../../hexMap/hexCoordinate/hexCoordinate"
+import {
+    HexCoordinate,
+    HexCoordinateService,
+} from "../../hexMap/hexCoordinate/hexCoordinate"
 import { SquaddieService } from "../../squaddie/squaddieService"
 import { getResultOrThrowError } from "../../utils/ResultOrError"
-import { SearchParametersService } from "../../hexMap/pathfinder/searchParameters"
-import { SearchPath } from "../../hexMap/pathfinder/searchPath"
 import { SquaddieTemplate } from "../../campaign/squaddieTemplate"
-import {
-    SearchResult,
-    SearchResultsService,
-} from "../../hexMap/pathfinder/searchResults/searchResult"
-import { PathfinderService } from "../../hexMap/pathfinder/pathGeneration/pathfinder"
+import { SearchResult } from "../../hexMap/pathfinder/searchResults/searchResult"
 import { MapHighlightService } from "../animation/mapHighlight"
 import { GameEngineState } from "../../gameEngine/gameEngine"
 import { TerrainTileMapService } from "../../hexMap/terrainTileMap"
@@ -25,11 +22,15 @@ import {
     Trait,
     TraitStatusStorageService,
 } from "../../trait/traitStatusStorage"
-import {
-    SquaddieAffiliation,
-    SquaddieAffiliationService,
-} from "../../squaddie/squaddieAffiliation"
+import { SquaddieAffiliationService } from "../../squaddie/squaddieAffiliation"
 import { ActionTemplateService } from "../../action/template/actionTemplate"
+import { SearchResultAdapterService } from "../../hexMap/pathfinder/searchResults/searchResultAdapter"
+import {
+    SearchPathAdapter,
+    SearchPathAdapterService,
+} from "../../search/searchPathAdapter/searchPathAdapter"
+import { MapSearchService } from "../../hexMap/pathfinder/pathGeneration/mapSearch"
+import { SearchLimitService } from "../../hexMap/pathfinder/pathGeneration/searchLimit"
 
 export const BattleSquaddieSelectorService = {
     createSearchPathAndHighlightMovementPath: ({
@@ -67,7 +68,7 @@ export const BattleSquaddieSelectorService = {
             maximum: number
         }
         actionPointsRemaining?: number
-    }): SearchPath => {
+    }): SearchPathAdapter => {
         const searchResults = getAllTilesSquaddieCanReach({
             gameEngineState,
             battleSquaddie,
@@ -83,13 +84,14 @@ export const BattleSquaddieSelectorService = {
                 battleSquaddieId: battleSquaddie.battleSquaddieId,
             })
         ) {
-            return searchResults.shortestPathByCoordinate[stopCoordinate.q][
-                stopCoordinate.r
-            ]
+            return SearchResultAdapterService.getShortestPathToCoordinate({
+                searchResults,
+                mapCoordinate: stopCoordinate,
+            })
         }
 
         let coordinateInfo =
-            getReachableCoordinatesByDistanceFromstopCoordinate({
+            getReachableCoordinatesByDistanceFromStopCoordinate({
                 distanceRangeFromDestination,
                 maximumDistanceOfMap: TerrainTileMapService.getMaximumDistance(
                     gameEngineState.battleOrchestratorState.battleState
@@ -98,35 +100,84 @@ export const BattleSquaddieSelectorService = {
                 stopCoordinate,
                 gameEngineState,
                 searchResults,
+                battleSquaddie,
+                squaddieTemplate,
             })
 
         if (
-            coordinateInfo.distancesFromstopCoordinateWithCoordinates.length ===
+            coordinateInfo.distancesFromStopCoordinateWithCoordinates.length ===
             0
         ) {
             return undefined
         }
 
-        coordinateInfo.distancesFromstopCoordinateWithCoordinates.sort()
+        coordinateInfo.distancesFromStopCoordinateWithCoordinates.sort(
+            (a, b) => {
+                switch (true) {
+                    case a < b:
+                        return -1
+                    case a > b:
+                        return 1
+                    default:
+                        return 0
+                }
+            }
+        )
 
         let coordinatesToConsider: HexCoordinate[] =
-            coordinateInfo.coordinatesByDistanceFromstopCoordinate[
-                coordinateInfo.distancesFromstopCoordinateWithCoordinates[
-                    coordinateInfo.distancesFromstopCoordinateWithCoordinates
+            coordinateInfo.coordinatesByDistanceFromStopCoordinate[
+                coordinateInfo.distancesFromStopCoordinateWithCoordinates[
+                    coordinateInfo.distancesFromStopCoordinateWithCoordinates
                         .length - 1
                 ]
             ]
 
         coordinatesToConsider.sort((a, b) => {
-            const searchPathA = searchResults.shortestPathByCoordinate[a.q][a.r]
-            const searchPathB = searchResults.shortestPathByCoordinate[b.q][b.r]
-            return sortByNumberOfMoveActions(searchPathA, searchPathB)
+            const searchPathA =
+                SearchResultAdapterService.getShortestPathToCoordinate({
+                    searchResults,
+                    mapCoordinate: a,
+                })
+            const numberOfMoveActionsA =
+                SearchPathAdapterService.getNumberOfMoveActions({
+                    path: searchPathA,
+                    movementPerAction:
+                        SquaddieService.getSquaddieMovementAttributes({
+                            squaddieTemplate,
+                            battleSquaddie,
+                        }).net.movementPerAction,
+                })
+
+            const searchPathB =
+                SearchResultAdapterService.getShortestPathToCoordinate({
+                    searchResults,
+                    mapCoordinate: b,
+                })
+            const numberOfMoveActionsB =
+                SearchPathAdapterService.getNumberOfMoveActions({
+                    path: searchPathB,
+                    movementPerAction:
+                        SquaddieService.getSquaddieMovementAttributes({
+                            squaddieTemplate,
+                            battleSquaddie,
+                        }).net.movementPerAction,
+                })
+
+            switch (true) {
+                case numberOfMoveActionsA < numberOfMoveActionsB:
+                    return -1
+                case numberOfMoveActionsA > numberOfMoveActionsB:
+                    return 1
+                default:
+                    return 0
+            }
         })
 
         const closestRouteThatCostsFewestActions = coordinatesToConsider[0]
-        return searchResults.shortestPathByCoordinate[
-            closestRouteThatCostsFewestActions.q
-        ][closestRouteThatCostsFewestActions.r]
+        return SearchResultAdapterService.getShortestPathToCoordinate({
+            searchResults,
+            mapCoordinate: closestRouteThatCostsFewestActions,
+        })
     },
     getAttackCoordinates: ({
         objectRepository,
@@ -141,7 +192,7 @@ export const BattleSquaddieSelectorService = {
         missionMap: MissionMap
         actionPointsRemaining: number
     }): HexCoordinate[] => {
-        const { squaddieTemplate } = getResultOrThrowError(
+        const { squaddieTemplate, battleSquaddie } = getResultOrThrowError(
             ObjectRepositoryService.getSquaddieByBattleId(
                 objectRepository,
                 battleSquaddieId
@@ -149,17 +200,18 @@ export const BattleSquaddieSelectorService = {
         )
 
         const allCoordinatesSquaddieCanMoveTo: HexCoordinate[] =
-            SearchResultsService.getStoppableCoordinates(
+            SearchResultAdapterService.getCoordinatesWithPaths(
                 reachableCoordinateSearch
             )
-        return getSquaddieAttackCoordinates(
-            squaddieTemplate,
-            objectRepository,
-            allCoordinatesSquaddieCanMoveTo,
-            reachableCoordinateSearch,
-            actionPointsRemaining,
-            missionMap
-        )
+        return getSquaddieAttackCoordinates({
+            battleSquaddie,
+            squaddieTemplate: squaddieTemplate,
+            repository: objectRepository,
+            allCoordinatesSquaddieCanMoveTo: allCoordinatesSquaddieCanMoveTo,
+            reachableCoordinateSearch: reachableCoordinateSearch,
+            actionPointsRemaining: actionPointsRemaining,
+            missionMap: missionMap,
+        })
     },
     getBestActionAndCoordinateToActFrom: ({
         actorBattleSquaddieId,
@@ -268,7 +320,10 @@ export const BattleSquaddieSelectorService = {
                     return isValidValue(closestRoute)
                         ? {
                               actionTemplateId: actionTemplate.id,
-                              destination: closestRoute.destination,
+                              destination:
+                                  SearchPathAdapterService.getHead(
+                                      closestRoute
+                                  ),
                           }
                         : usableActionInfo
                 },
@@ -310,11 +365,11 @@ const createSearchPath = (
         stopCoordinate: clickedHexCoordinate,
     })
 
-    const closestRoute: SearchPath =
-        SearchResultsService.getShortestPathToCoordinate(
-            searchResults,
-            clickedHexCoordinate
-        )
+    const closestRoute: SearchPathAdapter =
+        SearchResultAdapterService.getShortestPathToCoordinate({
+            searchResults: searchResults,
+            mapCoordinate: clickedHexCoordinate,
+        })
 
     const noDirectRouteToDestination = closestRoute === null
     if (noDirectRouteToDestination) {
@@ -379,69 +434,76 @@ const getAllTilesSquaddieCanReach = ({
         }))
     }
 
-    return PathfinderService.search({
-        searchParameters: SearchParametersService.new({
-            pathGenerators: {
-                startCoordinates: [
-                    {
-                        q: mapCoordinate.q,
-                        r: mapCoordinate.r,
-                    },
-                ],
-            },
-            pathSizeConstraints: {
-                movementPerAction:
-                    SquaddieService.getSquaddieMovementAttributes({
-                        battleSquaddie,
-                        squaddieTemplate,
-                    }).net.movementPerAction,
-                numberOfActions: actionPointsRemaining,
-            },
-            pathContinueConstraints: {
-                squaddieAffiliation: {
-                    searchingSquaddieAffiliation:
-                        squaddieTemplate.squaddieId.affiliation,
-                    canCrossThroughUnfriendlySquaddies:
-                        SquaddieService.getSquaddieMovementAttributes({
-                            battleSquaddie,
-                            squaddieTemplate,
-                        }).net.passThroughSquaddies,
-                },
-                canPassThroughWalls:
-                    SquaddieService.getSquaddieMovementAttributes({
-                        battleSquaddie,
-                        squaddieTemplate,
-                    }).net.passThroughWalls,
-                canPassOverPits: SquaddieService.getSquaddieMovementAttributes({
-                    battleSquaddie,
-                    squaddieTemplate,
-                }).net.crossOverPits,
-                ignoreTerrainCost:
-                    SquaddieService.getSquaddieMovementAttributes({
-                        battleSquaddie,
-                        squaddieTemplate,
-                    }).net.ignoreTerrainCost,
-            },
-            pathStopConstraints: {},
-            goal: {
-                stopCoordinates: stopCoordinate ? [stopCoordinate] : [],
-            },
-        }),
+    return MapSearchService.calculatePathsToDestinations({
         missionMap:
             gameEngineState.battleOrchestratorState.battleState.missionMap,
         objectRepository: gameEngineState.repository,
+        destinationCoordinates: stopCoordinate ? [stopCoordinate] : [],
+        startCoordinate: mapCoordinate,
+        searchLimit: SearchLimitService.new({
+            baseSearchLimit: SearchLimitService.landBasedMovement(),
+            canStopOnSquaddies: true,
+            maximumMovementCost:
+                SquaddieService.getSquaddieMovementAttributes({
+                    battleSquaddie,
+                    squaddieTemplate,
+                }).net.movementPerAction * actionPointsRemaining,
+            squaddieAffiliation: squaddieTemplate.squaddieId.affiliation,
+            ignoreTerrainCost: SquaddieService.getSquaddieMovementAttributes({
+                battleSquaddie,
+                squaddieTemplate,
+            }).net.ignoreTerrainCost,
+            crossOverPits: SquaddieService.getSquaddieMovementAttributes({
+                battleSquaddie,
+                squaddieTemplate,
+            }).net.crossOverPits,
+            passThroughWalls: SquaddieService.getSquaddieMovementAttributes({
+                battleSquaddie,
+                squaddieTemplate,
+            }).net.passThroughWalls,
+        }),
     })
 }
 
-const getSquaddieAttackCoordinates = (
-    squaddieTemplate: SquaddieTemplate,
-    repository: ObjectRepository,
-    allCoordinatesSquaddieCanMoveTo: HexCoordinate[],
-    reachableCoordinateSearch: SearchResult,
-    actionPointsRemaining: number,
+const getSquaddieAttackCoordinates = ({
+    battleSquaddie,
+    squaddieTemplate,
+    repository,
+    allCoordinatesSquaddieCanMoveTo,
+    reachableCoordinateSearch,
+    actionPointsRemaining,
+    missionMap,
+}: {
+    battleSquaddie: BattleSquaddie
+    squaddieTemplate: SquaddieTemplate
+    repository: ObjectRepository
+    allCoordinatesSquaddieCanMoveTo: HexCoordinate[]
+    reachableCoordinateSearch: SearchResult
+    actionPointsRemaining: number
     missionMap: MissionMap
-): HexCoordinate[] => {
+}): HexCoordinate[] => {
     const attackCoordinates: HexCoordinate[] = []
+    const getCoordinatesToAddToAttackCoordinates = (
+        actionRangeResults: SearchResult
+    ) => {
+        return SearchResultAdapterService.getCoordinatesWithPaths(
+            actionRangeResults
+        )
+            .filter(
+                (coordinate) =>
+                    !HexCoordinateService.includes(
+                        attackCoordinates,
+                        coordinate
+                    )
+            )
+            .filter(
+                (coordinate) =>
+                    !HexCoordinateService.includes(
+                        allCoordinatesSquaddieCanMoveTo,
+                        coordinate
+                    )
+            )
+    }
     squaddieTemplate.actionTemplateIds
         .map((id) =>
             ObjectRepositoryService.getActionTemplateById(repository, id)
@@ -449,12 +511,25 @@ const getSquaddieAttackCoordinates = (
         .forEach((actionTemplate) => {
             allCoordinatesSquaddieCanMoveTo
                 .filter((coordinate) => {
-                    const path: SearchPath =
-                        reachableCoordinateSearch.shortestPathByCoordinate[
-                            coordinate.q
-                        ][coordinate.r]
+                    const path: SearchPathAdapter =
+                        SearchResultAdapterService.getShortestPathToCoordinate({
+                            searchResults: reachableCoordinateSearch,
+                            mapCoordinate: coordinate,
+                        })
+
                     const numberOfMoveActionsToReachEndOfPath: number =
-                        isValidValue(path) ? path.currentNumberOfMoveActions : 0
+                        isValidValue(path)
+                            ? SearchPathAdapterService.getNumberOfMoveActions({
+                                  path,
+                                  movementPerAction:
+                                      SquaddieService.getSquaddieMovementAttributes(
+                                          {
+                                              squaddieTemplate,
+                                              battleSquaddie,
+                                          }
+                                      ).net.movementPerAction,
+                              })
+                            : 0
 
                     return (
                         numberOfMoveActionsToReachEndOfPath +
@@ -465,75 +540,40 @@ const getSquaddieAttackCoordinates = (
                 .forEach((coordinate) => {
                     actionTemplate.actionEffectTemplates.forEach(
                         (actionSquaddieEffectTemplate) => {
-                            let uniqueCoordinates: HexCoordinate[] = []
-
-                            const actionRangeResults = PathfinderService.search(
-                                {
-                                    searchParameters:
-                                        SearchParametersService.new({
-                                            pathGenerators: {
-                                                startCoordinates: [coordinate],
-                                                coordinateGeneratorShape:
-                                                    actionTemplate
-                                                        .targetConstraints
-                                                        .coordinateGeneratorShape,
-                                            },
-                                            pathStopConstraints: {
-                                                canStopOnSquaddies: true,
-                                            },
-                                            pathContinueConstraints: {
-                                                canPassOverPits: true,
-                                                canPassThroughWalls:
-                                                    TraitStatusStorageService.getStatus(
-                                                        actionSquaddieEffectTemplate.traits,
-                                                        Trait.PASS_THROUGH_WALLS
-                                                    ),
-                                                ignoreTerrainCost: true,
-                                                squaddieAffiliation: {
-                                                    searchingSquaddieAffiliation:
-                                                        SquaddieAffiliation.UNKNOWN,
-                                                },
-                                            },
-                                            pathSizeConstraints: {
-                                                minimumDistanceMoved:
-                                                    actionTemplate
-                                                        .targetConstraints
-                                                        .minimumRange,
-                                                maximumDistanceMoved:
-                                                    actionTemplate
-                                                        .targetConstraints
-                                                        .maximumRange,
-                                            },
-
-                                            goal: {},
+                            let uniqueCoordinates: HexCoordinate[]
+                            const actionRangeResults =
+                                MapSearchService.calculateAllPossiblePathsFromStartingCoordinate(
+                                    {
+                                        startCoordinate: coordinate,
+                                        missionMap,
+                                        objectRepository: repository,
+                                        searchLimit: SearchLimitService.new({
+                                            baseSearchLimit:
+                                                SearchLimitService.targeting(),
+                                            passThroughWalls:
+                                                TraitStatusStorageService.getStatus(
+                                                    actionSquaddieEffectTemplate.traits,
+                                                    Trait.PASS_THROUGH_WALLS
+                                                ),
+                                            crossOverPits:
+                                                TraitStatusStorageService.getStatus(
+                                                    actionSquaddieEffectTemplate.traits,
+                                                    Trait.CROSS_OVER_PITS
+                                                ),
+                                            minimumDistance:
+                                                actionTemplate.targetConstraints
+                                                    .minimumRange,
+                                            maximumDistance:
+                                                actionTemplate.targetConstraints
+                                                    .maximumRange,
                                         }),
-                                    missionMap,
-                                    objectRepository: repository,
-                                }
-                            )
+                                    }
+                                )
 
                             uniqueCoordinates =
-                                SearchResultsService.getStoppableCoordinates(
+                                getCoordinatesToAddToAttackCoordinates(
                                     actionRangeResults
                                 )
-                                    .filter(
-                                        (coordinate) =>
-                                            !attackCoordinates.some(
-                                                (attackLoc) =>
-                                                    attackLoc.q ===
-                                                        coordinate.q &&
-                                                    attackLoc.r === coordinate.r
-                                            )
-                                    )
-                                    .filter(
-                                        (coordinate) =>
-                                            !allCoordinatesSquaddieCanMoveTo.some(
-                                                (moveLoc) =>
-                                                    moveLoc.q ===
-                                                        coordinate.q &&
-                                                    moveLoc.r === coordinate.r
-                                            )
-                                    )
                             attackCoordinates.push(...uniqueCoordinates)
                         }
                     )
@@ -542,12 +582,14 @@ const getSquaddieAttackCoordinates = (
     return attackCoordinates
 }
 
-const getReachableCoordinatesByDistanceFromstopCoordinate = ({
+const getReachableCoordinatesByDistanceFromStopCoordinate = ({
     distanceRangeFromDestination,
     maximumDistanceOfMap,
     stopCoordinate,
     gameEngineState,
     searchResults,
+    battleSquaddie,
+    squaddieTemplate,
 }: {
     distanceRangeFromDestination: {
         minimum: number
@@ -557,38 +599,40 @@ const getReachableCoordinatesByDistanceFromstopCoordinate = ({
     stopCoordinate: HexCoordinate
     gameEngineState: GameEngineState
     searchResults: SearchResult
+    battleSquaddie: BattleSquaddie
+    squaddieTemplate: SquaddieTemplate
 }): {
-    distancesFromstopCoordinateWithCoordinates: number[]
-    coordinatesByDistanceFromstopCoordinate: {
+    distancesFromStopCoordinateWithCoordinates: number[]
+    coordinatesByDistanceFromStopCoordinate: {
         [key: number]: HexCoordinate[]
     }
 } => {
     let coordinateInfo: {
-        distancesFromstopCoordinateWithCoordinates: number[]
-        coordinatesByDistanceFromstopCoordinate: {
+        distancesFromStopCoordinateWithCoordinates: number[]
+        coordinatesByDistanceFromStopCoordinate: {
             [key: number]: HexCoordinate[]
         }
     } = {
-        distancesFromstopCoordinateWithCoordinates: [],
-        coordinatesByDistanceFromstopCoordinate: {},
+        distancesFromStopCoordinateWithCoordinates: [],
+        coordinatesByDistanceFromStopCoordinate: {},
     }
 
-    let minimumDistanceFromstopCoordinate =
+    let minimumDistanceFromStopCoordinate =
         distanceRangeFromDestination.minimum || 0
-    let maximumDistanceFromstopCoordinate =
+    let maximumDistanceFromStopCoordinate =
         distanceRangeFromDestination?.maximum < maximumDistanceOfMap
             ? distanceRangeFromDestination?.maximum
             : maximumDistanceOfMap
 
     for (
-        let radiusFromstopCoordinate = minimumDistanceFromstopCoordinate;
-        radiusFromstopCoordinate <= maximumDistanceFromstopCoordinate;
-        radiusFromstopCoordinate++
+        let radiusFromStopCoordinate = minimumDistanceFromStopCoordinate;
+        radiusFromStopCoordinate <= maximumDistanceFromStopCoordinate;
+        radiusFromStopCoordinate++
     ) {
-        let coordinatesAtThisDistanceFromstopCoordinate =
+        let coordinatesAtThisDistanceFromStopCoordinate =
             HexGridService.GetCoordinatesForRingAroundCoordinate(
                 stopCoordinate,
-                radiusFromstopCoordinate
+                radiusFromStopCoordinate
             )
                 .filter((coordinate) =>
                     TerrainTileMapService.isCoordinateOnMap(
@@ -598,44 +642,36 @@ const getReachableCoordinatesByDistanceFromstopCoordinate = ({
                     )
                 )
                 .filter(
-                    (coordinate) =>
-                        searchResults.shortestPathByCoordinate?.[
-                            coordinate.q
-                        ]?.[coordinate.r]
+                    (mapCoordinate) =>
+                        SearchResultAdapterService.getShortestPathToCoordinate({
+                            searchResults,
+                            mapCoordinate,
+                        }) &&
+                        SearchPathAdapterService.getNumberOfMoveActions({
+                            path: SearchResultAdapterService.getShortestPathToCoordinate(
+                                {
+                                    searchResults,
+                                    mapCoordinate,
+                                }
+                            ),
+                            movementPerAction:
+                                SquaddieService.getSquaddieMovementAttributes({
+                                    squaddieTemplate,
+                                    battleSquaddie,
+                                }).net.movementPerAction,
+                        }) > 0
                 )
-                .filter(
-                    (coordinate) =>
-                        searchResults.shortestPathByCoordinate[coordinate.q][
-                            coordinate.r
-                        ].currentNumberOfMoveActions > 0
-                )
-        if (coordinatesAtThisDistanceFromstopCoordinate.length > 0) {
-            coordinateInfo.coordinatesByDistanceFromstopCoordinate[
-                radiusFromstopCoordinate
-            ] = coordinatesAtThisDistanceFromstopCoordinate
-            coordinateInfo.distancesFromstopCoordinateWithCoordinates.push(
-                radiusFromstopCoordinate
+        if (coordinatesAtThisDistanceFromStopCoordinate.length > 0) {
+            coordinateInfo.coordinatesByDistanceFromStopCoordinate[
+                radiusFromStopCoordinate
+            ] = coordinatesAtThisDistanceFromStopCoordinate
+            coordinateInfo.distancesFromStopCoordinateWithCoordinates.push(
+                radiusFromStopCoordinate
             )
         }
     }
 
     return coordinateInfo
-}
-
-const sortByNumberOfMoveActions = (
-    searchPathA: SearchPath,
-    searchPathB: SearchPath
-) => {
-    switch (true) {
-        case searchPathA.currentNumberOfMoveActions <
-            searchPathB.currentNumberOfMoveActions:
-            return -1
-        case searchPathA.currentNumberOfMoveActions >
-            searchPathB.currentNumberOfMoveActions:
-            return 1
-        default:
-            return 0
-    }
 }
 
 const isAlreadyAtTheLocation = ({
@@ -685,7 +721,7 @@ const getAsCloseAsPossibleOnlyUsingMovement = (
 
     return {
         useThisActionTemplateId: undefined,
-        moveToThisLocation: closestRoute.destination,
+        moveToThisLocation: SearchPathAdapterService.getHead(closestRoute),
     }
 }
 

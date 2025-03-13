@@ -68,6 +68,7 @@ describe("target a squaddie within reach of actions", () => {
                 ActionEffectTemplateService.new({
                     traits: TraitStatusStorageService.newUsingTraitValues({
                         [Trait.ATTACK]: true,
+                        [Trait.CROSS_OVER_PITS]: true,
                     }),
                     versusSquaddieResistance: VersusSquaddieResistance.ARMOR,
                     squaddieAffiliationRelation: {

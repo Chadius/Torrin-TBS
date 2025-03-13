@@ -11,6 +11,9 @@ import {
     ObjectRepository,
     ObjectRepositoryService,
 } from "../battle/objectRepository"
+import { SquaddieAffiliation } from "../squaddie/squaddieAffiliation"
+import { SquaddieMovementService } from "../squaddie/movement"
+import { Trait, TraitStatusStorageService } from "../trait/traitStatusStorage"
 
 export interface SquaddieTemplate {
     squaddieId: SquaddieId
@@ -28,15 +31,11 @@ export const SquaddieTemplateService = {
         attributes?: ArmyAttributes
         actionTemplateIds?: string[]
     }) => {
-        const data: SquaddieTemplate = {
-            squaddieId,
-            attributes: isValidValue(attributes)
-                ? attributes
-                : ArmyAttributesService.default(),
-            actionTemplateIds: actionTemplateIds || [],
-        }
-        SquaddieTemplateService.sanitize(data)
-        return data
+        return newSquaddieTemplate({
+            squaddieId: squaddieId,
+            attributes: attributes,
+            actionTemplateIds: actionTemplateIds,
+        })
     },
     sanitize: (data: SquaddieTemplate): SquaddieTemplate => {
         return sanitize(data)
@@ -70,6 +69,24 @@ export const SquaddieTemplateService = {
         )
         return resourceKeys
     },
+    getTargetingTemplate: () =>
+        newSquaddieTemplate({
+            squaddieId: SquaddieIdService.new({
+                templateId: "_targetingSquaddieTemplate",
+                name: "_targetingSquaddieTemplate",
+                affiliation: SquaddieAffiliation.UNKNOWN,
+            }),
+            attributes: ArmyAttributesService.new({
+                movement: SquaddieMovementService.new({
+                    movementPerAction: 1,
+                    traits: TraitStatusStorageService.newUsingTraitValues({
+                        [Trait.HUSTLE]: true,
+                        [Trait.ELUSIVE]: true,
+                    }),
+                }),
+            }),
+            actionTemplateIds: [],
+        }),
 }
 
 const sanitize = (data: SquaddieTemplate): SquaddieTemplate => {
@@ -80,5 +97,25 @@ const sanitize = (data: SquaddieTemplate): SquaddieTemplate => {
     data.attributes = isValidValue(data.attributes)
         ? data.attributes
         : DefaultArmyAttributes()
+    return data
+}
+
+const newSquaddieTemplate = ({
+    squaddieId,
+    attributes,
+    actionTemplateIds,
+}: {
+    squaddieId: SquaddieId
+    attributes: ArmyAttributes
+    actionTemplateIds: string[]
+}) => {
+    const data: SquaddieTemplate = {
+        squaddieId,
+        attributes: isValidValue(attributes)
+            ? attributes
+            : ArmyAttributesService.default(),
+        actionTemplateIds: actionTemplateIds || [],
+    }
+    SquaddieTemplateService.sanitize(data)
     return data
 }

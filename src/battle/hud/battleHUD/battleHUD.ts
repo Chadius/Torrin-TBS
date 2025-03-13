@@ -580,6 +580,7 @@ export const BattleHUDService = {
         MovementCalculatorService.spendActionPointsMoving({
             gameEngineState,
             battleSquaddie,
+            squaddieTemplate,
             destination,
         })
         MovementCalculatorService.queueBattleActionToMove({

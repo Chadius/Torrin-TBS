@@ -48,6 +48,7 @@ export const TestCampaignData = () => {
                 up: "attribute-up",
                 down: "attribute-down",
             },
+            endTurnIconResourceKey: "end-turn",
         },
     }
 

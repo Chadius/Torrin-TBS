@@ -44,7 +44,10 @@ import { SequenceComposite } from "../../../../../utils/behaviorTree/composite/s
 import { InverterDecorator } from "../../../../../utils/behaviorTree/decorator/inverter/inverter"
 import { ExecuteAllComposite } from "../../../../../utils/behaviorTree/composite/executeAll/executeAll"
 import { DrawTextBoxesAction } from "../../../../../ui/textBox/drawTextBoxesAction"
-import { HexCoordinate } from "../../../../../hexMap/hexCoordinate/hexCoordinate"
+import {
+    HexCoordinate,
+    HexCoordinateService,
+} from "../../../../../hexMap/hexCoordinate/hexCoordinate"
 import { DrawImagesAction } from "../../../../../ui/imageUI/drawImagesAction"
 import { DrawHorizontalMeterActionDataBlob } from "../../../horizontalBar/drawHorizontalMeterAction"
 import { GameEngineState } from "../../../../../gameEngine/gameEngine"
@@ -958,10 +961,6 @@ class DoesUIObjectExistCondition implements BehaviorTreeTask {
             uiObjects[this.uiObjectKey as keyof typeof uiObjects] !== undefined
         )
     }
-
-    clone(): BehaviorTreeTask {
-        return new DoesUIObjectExistCondition(this.dataBlob, this.uiObjectKey)
-    }
 }
 
 class IsArmorCorrectCondition implements BehaviorTreeTask {
@@ -994,10 +993,6 @@ class IsArmorCorrectCondition implements BehaviorTreeTask {
             context.armor?.net === currentNet &&
             context.armor?.modifier === currentModifier
         )
-    }
-
-    clone(): BehaviorTreeTask {
-        return new IsArmorCorrectCondition(this.dataBlob, this.objectRepository)
     }
 }
 
@@ -1040,13 +1035,6 @@ class UpdateArmorContextAction implements BehaviorTreeTask {
         )
 
         return true
-    }
-
-    clone(): BehaviorTreeTask {
-        return new UpdateArmorContextAction(
-            this.dataBlob,
-            this.objectRepository
-        )
     }
 }
 
@@ -1102,13 +1090,6 @@ class UpdateArmorUIObjectsAction implements BehaviorTreeTask {
 
         return true
     }
-
-    clone(): BehaviorTreeTask {
-        return new UpdateArmorUIObjectsAction(
-            this.dataBlob,
-            this.graphicsContext
-        )
-    }
 }
 
 class IsMovementCorrectCondition implements BehaviorTreeTask {
@@ -1143,13 +1124,6 @@ class IsMovementCorrectCondition implements BehaviorTreeTask {
             context.movement?.initialMovementPerAction ===
                 initialMovementPerAction &&
             context.movement?.movementChange === movementChange
-        )
-    }
-
-    clone(): BehaviorTreeTask {
-        return new IsMovementCorrectCondition(
-            this.dataBlob,
-            this.objectRepository
         )
     }
 }
@@ -1195,13 +1169,6 @@ class UpdateMovementContextAction implements BehaviorTreeTask {
         )
 
         return true
-    }
-
-    clone(): BehaviorTreeTask {
-        return new UpdateMovementContextAction(
-            this.dataBlob,
-            this.objectRepository
-        )
     }
 }
 
@@ -1260,13 +1227,6 @@ class UpdateMovementUIObjectsAction implements BehaviorTreeTask {
 
         return true
     }
-
-    clone(): BehaviorTreeTask {
-        return new UpdateMovementUIObjectsAction(
-            this.dataBlob,
-            this.graphicsContext
-        )
-    }
 }
 
 class IsCoordinatesCorrectCondition implements BehaviorTreeTask {
@@ -1292,14 +1252,7 @@ class IsCoordinatesCorrectCondition implements BehaviorTreeTask {
         if (!coordinates) return false
         if (!context.coordinates) return false
 
-        return (
-            context.coordinates.q === coordinates.q &&
-            context.coordinates.r === coordinates.r
-        )
-    }
-
-    clone(): BehaviorTreeTask {
-        return new IsCoordinatesCorrectCondition(this.dataBlob, this.missionMap)
+        return HexCoordinateService.areEqual(context.coordinates, coordinates)
     }
 }
 
@@ -1328,13 +1281,6 @@ class UpdateCoordinatesContextAction implements BehaviorTreeTask {
             context
         )
         return true
-    }
-
-    clone(): BehaviorTreeTask {
-        return new UpdateCoordinatesContextAction(
-            this.dataBlob,
-            this.missionMap
-        )
     }
 }
 
@@ -1408,13 +1354,6 @@ class UpdateCoordinatesUIObjectsAction implements BehaviorTreeTask {
 
         return true
     }
-
-    clone(): BehaviorTreeTask {
-        return new UpdateCoordinatesUIObjectsAction(
-            this.dataBlob,
-            this.graphicsContext
-        )
-    }
 }
 
 class IsAttributeModifiersCorrectCondition implements BehaviorTreeTask {
@@ -1459,13 +1398,6 @@ class IsAttributeModifiersCorrectCondition implements BehaviorTreeTask {
             )
         )
     }
-
-    clone(): BehaviorTreeTask {
-        return new IsAttributeModifiersCorrectCondition(
-            this.dataBlob,
-            this.objectRepository
-        )
-    }
 }
 
 class UpdateAttributeModifiersContextAction implements BehaviorTreeTask {
@@ -1503,13 +1435,6 @@ class UpdateAttributeModifiersContextAction implements BehaviorTreeTask {
         )
 
         return true
-    }
-
-    clone(): BehaviorTreeTask {
-        return new UpdateAttributeModifiersContextAction(
-            this.dataBlob,
-            this.objectRepository
-        )
     }
 }
 
@@ -1575,14 +1500,6 @@ class UpdateAttributeModifiersUIObjectsAction implements BehaviorTreeTask {
         )
 
         return true
-    }
-
-    clone(): BehaviorTreeTask {
-        return new UpdateAttributeModifiersUIObjectsAction(
-            this.dataBlob,
-            this.graphicsContext,
-            this.resourceHandler
-        )
     }
 
     private updateNumericalAttributeModifiers({

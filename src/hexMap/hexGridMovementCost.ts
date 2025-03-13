@@ -26,6 +26,11 @@ export const convertStringToMovementCost = (
     }
 }
 
+export const HexGridMovementCostService = {
+    movingCostByTerrainType: (cost: HexGridMovementCost) =>
+        MovingCostByTerrainType[cost],
+}
+
 export const MovingCostByTerrainType: { [t in HexGridMovementCost]: number } = {
     [HexGridMovementCost.singleMovement]: 1,
     [HexGridMovementCost.doubleMovement]: 2,

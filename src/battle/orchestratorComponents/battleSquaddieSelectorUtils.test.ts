@@ -24,6 +24,8 @@ import { SquaddieTurnService } from "../../squaddie/turn"
 import { TargetConstraintsService } from "../../action/targetConstraints"
 import { ActionResourceCostService } from "../../action/actionResourceCost"
 import { beforeEach, describe, expect, it } from "vitest"
+import { SearchPathAdapterService } from "../../search/searchPathAdapter/searchPathAdapter"
+import { SquaddieService } from "../../squaddie/squaddieService"
 
 describe("battleSquaddieSelectorUtils", () => {
     let objectRepository: ObjectRepository
@@ -139,8 +141,20 @@ describe("battleSquaddieSelectorUtils", () => {
                     }
                 )
 
-            expect(closestRoute.destination).toEqual({ q: 0, r: 0 })
-            expect(closestRoute.currentNumberOfMoveActions).toEqual(0)
+            expect(SearchPathAdapterService.getHead(closestRoute)).toEqual({
+                q: 0,
+                r: 0,
+            })
+            expect(
+                SearchPathAdapterService.getNumberOfMoveActions({
+                    path: closestRoute,
+                    movementPerAction:
+                        SquaddieService.getSquaddieMovementAttributes({
+                            squaddieTemplate: playerSquaddieTemplate,
+                            battleSquaddie: playerBattleSquaddie,
+                        }).net.movementPerAction,
+                })
+            ).toEqual(0)
         })
         it("will tell the squaddie to get as close to the destination as possible", () => {
             const closestRoute =
@@ -157,8 +171,20 @@ describe("battleSquaddieSelectorUtils", () => {
                     }
                 )
 
-            expect(closestRoute.destination).toEqual({ q: 0, r: 1 })
-            expect(closestRoute.currentNumberOfMoveActions).toEqual(1)
+            expect(SearchPathAdapterService.getHead(closestRoute)).toEqual({
+                q: 0,
+                r: 1,
+            })
+            expect(
+                SearchPathAdapterService.getNumberOfMoveActions({
+                    path: closestRoute,
+                    movementPerAction:
+                        SquaddieService.getSquaddieMovementAttributes({
+                            squaddieTemplate: playerSquaddieTemplate,
+                            battleSquaddie: playerBattleSquaddie,
+                        }).net.movementPerAction,
+                })
+            ).toEqual(1)
         })
         it("will tell the squaddie to get close to the destination if possible", () => {
             const closestRoute =
@@ -175,8 +201,20 @@ describe("battleSquaddieSelectorUtils", () => {
                     }
                 )
 
-            expect(closestRoute.destination).toEqual({ q: 0, r: 6 })
-            expect(closestRoute.currentNumberOfMoveActions).toEqual(3)
+            expect(SearchPathAdapterService.getHead(closestRoute)).toEqual({
+                q: 0,
+                r: 6,
+            })
+            expect(
+                SearchPathAdapterService.getNumberOfMoveActions({
+                    path: closestRoute,
+                    movementPerAction:
+                        SquaddieService.getSquaddieMovementAttributes({
+                            squaddieTemplate: playerSquaddieTemplate,
+                            battleSquaddie: playerBattleSquaddie,
+                        }).net.movementPerAction,
+                })
+            ).toEqual(3)
         })
         it("will not give a route if the destination is out of reach", () => {
             const closestRoute =
@@ -228,8 +266,20 @@ describe("battleSquaddieSelectorUtils", () => {
                     }
                 )
 
-            expect(closestRoute.destination).toEqual({ q: 0, r: 2 })
-            expect(closestRoute.currentNumberOfMoveActions).toEqual(1)
+            expect(SearchPathAdapterService.getHead(closestRoute)).toEqual({
+                q: 0,
+                r: 2,
+            })
+            expect(
+                SearchPathAdapterService.getNumberOfMoveActions({
+                    path: closestRoute,
+                    movementPerAction:
+                        SquaddieService.getSquaddieMovementAttributes({
+                            squaddieTemplate: playerSquaddieTemplate,
+                            battleSquaddie: playerBattleSquaddie,
+                        }).net.movementPerAction,
+                })
+            ).toEqual(1)
         })
         it("will give a route even if the destination is blocked by terrain", () => {
             const missionMapBlockedByAPit: MissionMap = MissionMapService.new({
@@ -260,8 +310,20 @@ describe("battleSquaddieSelectorUtils", () => {
                     }
                 )
 
-            expect(closestRoute.destination).toEqual({ q: 0, r: 1 })
-            expect(closestRoute.currentNumberOfMoveActions).toEqual(1)
+            expect(SearchPathAdapterService.getHead(closestRoute)).toEqual({
+                q: 0,
+                r: 1,
+            })
+            expect(
+                SearchPathAdapterService.getNumberOfMoveActions({
+                    path: closestRoute,
+                    movementPerAction:
+                        SquaddieService.getSquaddieMovementAttributes({
+                            squaddieTemplate: playerSquaddieTemplate,
+                            battleSquaddie: playerBattleSquaddie,
+                        }).net.movementPerAction,
+                })
+            ).toEqual(1)
         })
     })
 

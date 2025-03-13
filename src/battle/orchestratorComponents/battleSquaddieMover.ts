@@ -20,6 +20,7 @@ import { BattleActionRecorderService } from "../history/battleAction/battleActio
 import { ResourceHandler } from "../../resource/resourceHandler"
 import { SquaddieService } from "../../squaddie/squaddieService"
 import { GraphicsConfig } from "../../utils/graphics/graphicsConfig"
+import { SearchPathAdapterService } from "../../search/searchPathAdapter/searchPathAdapter"
 
 export class BattleSquaddieMover implements BattleOrchestratorComponent {
     animationStartTime?: number
@@ -222,13 +223,14 @@ export class BattleSquaddieMover implements BattleOrchestratorComponent {
             })
         if (squaddieIsNormallyControllableByPlayer) return true
 
-        return gameEngineState.battleOrchestratorState.battleState.squaddieMovePath.coordinatesTraveled.some(
-            (coordinate) =>
-                GraphicsConfig.isMapCoordinateOnScreen({
-                    mapCoordinate: coordinate.hexCoordinate,
-                    camera: gameEngineState.battleOrchestratorState.battleState
-                        .camera,
-                })
+        return SearchPathAdapterService.getCoordinates(
+            gameEngineState.battleOrchestratorState.battleState.squaddieMovePath
+        ).some((coordinate) =>
+            GraphicsConfig.isMapCoordinateOnScreen({
+                mapCoordinate: coordinate,
+                camera: gameEngineState.battleOrchestratorState.battleState
+                    .camera,
+            })
         )
     }
 }

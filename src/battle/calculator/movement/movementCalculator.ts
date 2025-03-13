@@ -1,13 +1,7 @@
 import { GameEngineState } from "../../../gameEngine/gameEngine"
 import { SquaddieService } from "../../../squaddie/squaddieService"
-import {
-    SearchResult,
-    SearchResultsService,
-} from "../../../hexMap/pathfinder/searchResults/searchResult"
-import { PathfinderService } from "../../../hexMap/pathfinder/pathGeneration/pathfinder"
-import { SearchParametersService } from "../../../hexMap/pathfinder/searchParameters"
+import { SearchResult } from "../../../hexMap/pathfinder/searchResults/searchResult"
 import { SquaddieAffiliation } from "../../../squaddie/squaddieAffiliation"
-import { SearchPath } from "../../../hexMap/pathfinder/searchPath"
 import { isValidValue } from "../../../utils/validityCheck"
 import { BattleSquaddie } from "../../battleSquaddie"
 import { SquaddieTemplate } from "../../../campaign/squaddieTemplate"
@@ -19,9 +13,12 @@ import {
     BattleActionDecisionStep,
     BattleActionDecisionStepService,
 } from "../../actionDecision/battleActionDecisionStep"
-import { CoordinateTraveled } from "../../../hexMap/pathfinder/coordinateTraveled"
 import { BattleActionRecorderService } from "../../history/battleAction/battleActionRecorder"
 import { MissionMapService } from "../../../missionMap/missionMap"
+import { SearchResultAdapterService } from "../../../hexMap/pathfinder/searchResults/searchResultAdapter"
+import { MapSearchService } from "../../../hexMap/pathfinder/pathGeneration/mapSearch"
+import { SearchLimitService } from "../../../hexMap/pathfinder/pathGeneration/searchLimit"
+import { SearchPathAdapter } from "../../../search/searchPathAdapter/searchPathAdapter"
 
 export const MovementCalculatorService = {
     isMovementPossible: ({
@@ -44,35 +41,30 @@ export const MovementCalculatorService = {
                 squaddieTemplate,
                 battleSquaddie,
             })
-        const searchResults: SearchResult = PathfinderService.search({
-            searchParameters: SearchParametersService.new({
-                pathGenerators: {
-                    startCoordinates: [squaddieDatum.mapCoordinate],
-                },
-                pathSizeConstraints: {
-                    movementPerAction:
+
+        const searchResults: SearchResult =
+            MapSearchService.calculatePathsToDestinations({
+                missionMap:
+                    gameEngineState.battleOrchestratorState.battleState
+                        .missionMap,
+                objectRepository: gameEngineState.repository,
+                startCoordinate: squaddieDatum.mapCoordinate,
+                searchLimit: SearchLimitService.new({
+                    baseSearchLimit: SearchLimitService.landBasedMovement(),
+                    maximumMovementCost:
+                        actionPointsRemaining *
                         SquaddieService.getSquaddieMovementAttributes({
                             battleSquaddie,
                             squaddieTemplate,
                         }).net.movementPerAction,
-                    numberOfActions: actionPointsRemaining,
-                },
-                pathContinueConstraints: {
-                    squaddieAffiliation: {
-                        searchingSquaddieAffiliation:
-                            SquaddieAffiliation.PLAYER,
-                        canCrossThroughUnfriendlySquaddies:
-                            SquaddieService.getSquaddieMovementAttributes({
-                                battleSquaddie,
-                                squaddieTemplate,
-                            }).net.passThroughSquaddies,
-                    },
-                    canPassThroughWalls:
+                    squaddieAffiliation: SquaddieAffiliation.PLAYER,
+                    canStopOnSquaddies: true,
+                    passThroughWalls:
                         SquaddieService.getSquaddieMovementAttributes({
                             battleSquaddie,
                             squaddieTemplate,
                         }).net.passThroughWalls,
-                    canPassOverPits:
+                    crossOverPits:
                         SquaddieService.getSquaddieMovementAttributes({
                             battleSquaddie,
                             squaddieTemplate,
@@ -82,24 +74,15 @@ export const MovementCalculatorService = {
                             battleSquaddie,
                             squaddieTemplate,
                         }).net.ignoreTerrainCost,
-                },
-                pathStopConstraints: {
-                    canStopOnSquaddies: true,
-                },
-                goal: {
-                    stopCoordinates: [destination],
-                },
-            }),
-            missionMap:
-                gameEngineState.battleOrchestratorState.battleState.missionMap,
-            objectRepository: gameEngineState.repository,
-        })
+                }),
+                destinationCoordinates: [destination],
+            })
 
-        const closestRoute: SearchPath =
-            SearchResultsService.getShortestPathToCoordinate(
-                searchResults,
-                destination
-            )
+        const closestRoute: SearchPathAdapter =
+            SearchResultAdapterService.getShortestPathToCoordinate({
+                searchResults: searchResults,
+                mapCoordinate: destination,
+            })
         return isValidValue(closestRoute)
     },
     setBattleActionDecisionStepReadyToAnimate: ({
@@ -205,7 +188,7 @@ const spendActionPointsMoving = ({
     destination: HexCoordinate
 }) => {
     const coordinatesByMoveActions: {
-        [movementActions: number]: CoordinateTraveled[]
+        [movementActions: number]: HexCoordinate[]
     } = SquaddieService.searchPathCoordinatesByNumberOfMovementActions({
         searchPath:
             gameEngineState.battleOrchestratorState.battleState

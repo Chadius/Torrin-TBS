@@ -1,4 +1,7 @@
-import { HexCoordinate } from "../hexCoordinate/hexCoordinate"
+import {
+    HexCoordinate,
+    HexCoordinateService,
+} from "../hexCoordinate/hexCoordinate"
 import { PulseBlendColor } from "../colorUtils"
 import { HighlightCoordinateDescription } from "../terrainTileMap"
 import { isValidValue } from "../../utils/validityCheck"
@@ -113,10 +116,12 @@ export const MapGraphicsLayerService = {
         mapGraphicsLayer: MapGraphicsLayer,
         coordinate: HexCoordinate
     ): boolean => {
-        return mapGraphicsLayer.highlights.some(
-            (highlight) =>
-                highlight.coordinate.q === coordinate.q &&
-                highlight.coordinate.r === coordinate.r
+        return HexCoordinateService.includes(
+            mapGraphicsLayer.highlights.map((highlight) => ({
+                q: highlight.coordinate.q,
+                r: highlight.coordinate.r,
+            })),
+            coordinate
         )
     },
     getCoordinates: (mapGraphicsLayer: MapGraphicsLayer): HexCoordinate[] =>

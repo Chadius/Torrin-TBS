@@ -15,6 +15,7 @@ export enum SearchNodeRecordStatus {
 export interface SearchNodeRecord<T> {
     node: T
     connection: SearchConnection<T>
+    lengthSoFar: number
     costSoFar: number
     estimatedTotalCost: number
     status: SearchNodeRecordStatus

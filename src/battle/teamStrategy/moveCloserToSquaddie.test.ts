@@ -9,9 +9,12 @@ import { SquaddieAffiliation } from "../../squaddie/squaddieAffiliation"
 import { SquaddieMovementService } from "../../squaddie/movement"
 import { TerrainTileMapService } from "../../hexMap/terrainTileMap"
 import { MoveCloserToSquaddie } from "./moveCloserToSquaddie"
-import { BattleSquaddie } from "../battleSquaddie"
+import { BattleSquaddie, BattleSquaddieService } from "../battleSquaddie"
 import { DefaultArmyAttributes } from "../../squaddie/armyAttributes"
-import { SquaddieTemplate } from "../../campaign/squaddieTemplate"
+import {
+    SquaddieTemplate,
+    SquaddieTemplateService,
+} from "../../campaign/squaddieTemplate"
 import { DamageType } from "../../squaddie/squaddieService"
 import { SquaddieRepositoryService } from "../../utils/test/squaddie"
 import {
@@ -28,6 +31,7 @@ import { BattleStateService } from "../battleState/battleState"
 import { BattleActionRecorderService } from "../history/battleAction/battleActionRecorder"
 import { BattleActionService } from "../history/battleAction/battleAction"
 import { beforeEach, describe, expect, it } from "vitest"
+import { SquaddieIdService } from "../../squaddie/id"
 
 describe("move towards closest squaddie in range", () => {
     let repository: ObjectRepository
@@ -507,5 +511,78 @@ describe("move towards closest squaddie in range", () => {
             gameEngineState,
         })
         expect(actualInstruction).toBeUndefined()
+    })
+
+    it("enemy will move towards squaddies it cannot move past", () => {
+        missionMap = MissionMapService.new({
+            terrainTileMap: TerrainTileMapService.new({
+                movementCost: ["1 1 1 1 1 1 1 1 1 "],
+            }),
+        })
+        ObjectRepositoryService.addSquaddieTemplate(
+            repository,
+            SquaddieTemplateService.new({
+                squaddieId: SquaddieIdService.new({
+                    templateId: "enemy",
+                    name: "enemy",
+                    affiliation: SquaddieAffiliation.ENEMY,
+                }),
+            })
+        )
+        ObjectRepositoryService.addBattleSquaddie(
+            repository,
+            BattleSquaddieService.new({
+                squaddieTemplateId: "enemy",
+                battleSquaddieId: "enemy",
+            })
+        )
+
+        MissionMapService.addSquaddie({
+            missionMap,
+            squaddieTemplateId: targetBattleSquaddie.squaddieTemplateId,
+            battleSquaddieId: "target_squaddie_0",
+            coordinate: { q: 0, r: 0 },
+        })
+        MissionMapService.addSquaddie({
+            missionMap,
+            squaddieTemplateId: searchingSquaddieTemplate.squaddieId.templateId,
+            battleSquaddieId: "enemy",
+            coordinate: { q: 0, r: 2 },
+        })
+        const enemyTeam: BattleSquaddieTeam = BattleSquaddieTeamService.new({
+            id: "enemyTeamId",
+            name: "enemyTeam",
+            affiliation: SquaddieAffiliation.ENEMY,
+            battleSquaddieIds: ["enemy"],
+            iconResourceKey: "icon_enemy_team",
+        })
+
+        const movementStep: BattleActionDecisionStep =
+            BattleActionDecisionStepService.new()
+        BattleActionDecisionStepService.setActor({
+            actionDecisionStep: movementStep,
+            battleSquaddieId: "enemy",
+        })
+        BattleActionDecisionStepService.addAction({
+            actionDecisionStep: movementStep,
+            movement: true,
+        })
+        BattleActionDecisionStepService.setConfirmedTarget({
+            actionDecisionStep: movementStep,
+            targetCoordinate: { q: 0, r: 1 },
+        })
+
+        const strategy: MoveCloserToSquaddie = new MoveCloserToSquaddie({
+            desiredBattleSquaddieId: "target_squaddie_0",
+        })
+        gameEngineState.battleOrchestratorState.battleState.missionMap =
+            missionMap
+
+        const actualInstruction = strategy.DetermineNextInstruction({
+            team: enemyTeam,
+            gameEngineState,
+        })
+
+        expect(actualInstruction).toStrictEqual([movementStep])
     })
 })

@@ -8,13 +8,13 @@ import {
 
 export const NodeArrayAStarPathfinder = {
     getLowestCostConnectionsFromStartNodesToEndNode: <T>({
-        startNodes,
+        startNode,
         endNode,
         estimateCostBetweenNodeAndGoal,
         graph,
         nodesAreEqual,
     }: {
-        startNodes: T[]
+        startNode: T
         endNode: T
         estimateCostBetweenNodeAndGoal: (fromNode: T, toNode: T) => number
         graph: SearchGraph<T>
@@ -28,7 +28,8 @@ export const NodeArrayAStarPathfinder = {
         } = convertGraphToNodeRecordMapping(graph, estimateCostBetweenNodes)
 
         return AStarSearchService.priorityQueueSearch({
-            getStartNodes: () => startNodes,
+            getStartNodes: () => [startNode],
+            nodesAreEqual,
             earlyStopSearchingCondition: (nodeRecord: SearchNodeRecord<T>) =>
                 nodesAreEqual(nodeRecord.node, endNode),
             graph,
@@ -66,6 +67,7 @@ export const NodeArrayAStarPathfinder = {
 
         const path = AStarSearchService.priorityQueueSearch({
             getStartNodes: () => startNodes,
+            nodesAreEqual,
             earlyStopSearchingCondition: (nodeRecord: SearchNodeRecord<T>) =>
                 nodesAreEqual(nodeRecord.node, endNode),
             graph,
@@ -82,9 +84,17 @@ export const NodeArrayAStarPathfinder = {
     getPathsToAllReachableNodes: <T>({
         startNode,
         graph,
+        nodesAreEqual,
+        shouldAddNeighbor,
+        earlyStopSearchingCondition,
     }: {
         startNode: T
         graph: SearchGraph<T>
+        nodesAreEqual: (fromNode: T, toNode: T) => boolean
+        shouldAddNeighbor?: (nodeRecord: SearchNodeRecord<T>) => boolean
+        earlyStopSearchingCondition?: (
+            nodeRecord: SearchNodeRecord<T>
+        ) => boolean
     }): { [key: string]: SearchConnection<T>[] } => {
         const estimateCostBetweenNodes = (_: T) => 0
 
@@ -95,9 +105,12 @@ export const NodeArrayAStarPathfinder = {
 
         const getStartNodes = () => [startNode]
 
+        const neverStopEarly = (_: SearchNodeRecord<T>) => false
+
         AStarSearchService.priorityQueueSearch({
             getStartNodes,
-            earlyStopSearchingCondition: (_: SearchNodeRecord<T>) => false,
+            earlyStopSearchingCondition:
+                earlyStopSearchingCondition ?? neverStopEarly,
             graph,
             estimateCostBetweenNodes,
             nodeRecordStorage: createNodeStorageRecord({
@@ -105,6 +118,8 @@ export const NodeArrayAStarPathfinder = {
                 estimateCostBetweenNodes,
                 graph,
             }),
+            nodesAreEqual,
+            shouldAddNeighbor,
         })
 
         return Object.fromEntries(
@@ -125,6 +140,7 @@ export const NodeArrayAStarPathfinder = {
                                 graph,
                             }),
                             getStartNodes,
+                            nodesAreEqual,
                         }),
                     ]
                 })
@@ -149,6 +165,7 @@ const convertGraphToNodeRecordMapping = <T>(
                 node: info.data,
                 connection: undefined,
                 costSoFar: undefined,
+                lengthSoFar: undefined,
                 estimatedTotalCost: estimateCostBetweenNodes(info.data),
                 status: SearchNodeRecordStatus.UNVISITED,
             },
@@ -171,6 +188,7 @@ const createNodeStorageRecord = <T>({
         const key = graph.getKeyForNode(nodeRecord.node)
         nodeRecordMapping[key].status = SearchNodeRecordStatus.OPEN
         nodeRecordMapping[key].costSoFar = 0
+        nodeRecordMapping[key].lengthSoFar = 0
         nodeRecordMapping[key].estimatedTotalCost = estimateCostBetweenNodes(
             nodeRecord.node
         )

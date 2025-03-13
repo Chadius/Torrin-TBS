@@ -10,6 +10,12 @@ export enum HexDirection {
     DOWN_RIGHT,
 }
 
+export const HexGridDirectionService = {
+    createNewNeighboringCoordinates: (
+        mapCoordinate: HexCoordinate
+    ): HexCoordinate[] => CreateNewNeighboringCoordinates(mapCoordinate),
+}
+
 export const CreateNewNeighboringCoordinates = (
     mapCoordinate: HexCoordinate
 ): HexCoordinate[] => {

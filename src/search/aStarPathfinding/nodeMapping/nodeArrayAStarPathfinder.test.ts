@@ -26,7 +26,7 @@ describe("Node Array A* Pathfinder", () => {
             const lowestCostConnections =
                 NodeArrayAStarPathfinder.getLowestCostConnectionsFromStartNodesToEndNode<number>(
                     {
-                        startNodes: [0],
+                        startNode: 0,
                         endNode: 0,
                         estimateCostBetweenNodeAndGoal: (
                             _fromNode: number,
@@ -50,40 +50,7 @@ describe("Node Array A* Pathfinder", () => {
             const lowestCostConnections =
                 NodeArrayAStarPathfinder.getLowestCostConnectionsFromStartNodesToEndNode<string>(
                     {
-                        startNodes: ["A"],
-                        endNode: "C",
-                        estimateCostBetweenNodeAndGoal: (
-                            fromNode: string,
-                            _toNode: string
-                        ) => {
-                            switch (fromNode) {
-                                case "A":
-                                    return 2
-                                case "B1":
-                                case "B2":
-                                    return 1
-                                case "C":
-                                    return 0
-                            }
-                        },
-                        graph,
-                        nodesAreEqual: (fromNode, toNode) => fromNode == toNode,
-                    }
-                )
-
-            expect(lowestCostConnections).toHaveLength(2)
-            const nodeList =
-                NodeArrayAStarPathfinder.getNodesFromSearchConnectionList<string>(
-                    lowestCostConnections
-                )
-            expect(nodeList).toEqual(["A", "B2"])
-        })
-        it("will choose the lowest cost path starting from multiple nodes", () => {
-            const graph = makeGraphWith1SplitPath()
-            const lowestCostConnections =
-                NodeArrayAStarPathfinder.getLowestCostConnectionsFromStartNodesToEndNode<string>(
-                    {
-                        startNodes: ["A", "B1"],
+                        startNode: "A",
                         endNode: "C",
                         estimateCostBetweenNodeAndGoal: (
                             fromNode: string,
@@ -209,6 +176,7 @@ describe("Node Array A* Pathfinder", () => {
                 NodeArrayAStarPathfinder.getPathsToAllReachableNodes<string>({
                     startNode: "A",
                     graph,
+                    nodesAreEqual: (fromNode, toNode) => fromNode === toNode,
                 })
 
             expect(
@@ -234,6 +202,41 @@ describe("Node Array A* Pathfinder", () => {
                     allPaths["C"]
                 )
             ).toEqual(["A", "B2"])
+        })
+        it("can stop searching early", () => {
+            const graph = makeGraphWith1SplitPath()
+            const allPaths =
+                NodeArrayAStarPathfinder.getPathsToAllReachableNodes<string>({
+                    startNode: "A",
+                    graph,
+                    nodesAreEqual: (fromNode, toNode) => fromNode === toNode,
+                    earlyStopSearchingCondition: (
+                        nodeRecord: SearchNodeRecord<string>
+                    ) => nodeRecord.node == "A",
+                })
+
+            expect(allPaths["A"]).toHaveLength(0)
+            expect(allPaths["B1"]).toBeUndefined()
+            expect(allPaths["B2"]).toBeUndefined()
+            expect(allPaths["C"]).toBeUndefined()
+        })
+    })
+    describe("shouldAddNeighbor filter", () => {
+        it("will can filter paths by looking at the node record", () => {
+            const graph = makeGraphWith1SplitPath()
+            const allPaths =
+                NodeArrayAStarPathfinder.getPathsToAllReachableNodes<string>({
+                    startNode: "A",
+                    graph,
+                    nodesAreEqual: (fromNode, toNode) => fromNode === toNode,
+                    shouldAddNeighbor: (
+                        nodeRecord: SearchNodeRecord<string>
+                    ) => {
+                        return nodeRecord.node != "C"
+                    },
+                })
+
+            expect(allPaths["C"]).toBeUndefined()
         })
     })
 })

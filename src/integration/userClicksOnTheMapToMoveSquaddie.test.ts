@@ -55,6 +55,7 @@ import { beforeEach, describe, expect, it, MockInstance, vi } from "vitest"
 import { BattleHUDListener } from "../battle/hud/battleHUD/battleHUDListener"
 import { BattlePlayerSquaddieSelectorSpec } from "./spec/battlePlayerSquaddieSelectorSpec"
 import { HexCoordinate } from "../hexMap/hexCoordinate/hexCoordinate"
+import { SearchPathAdapterService } from "../search/searchPathAdapter/searchPathAdapter"
 
 describe("user clicks on the map to move", () => {
     let repository: ObjectRepository
@@ -325,7 +326,10 @@ describe("user clicks on the map to move", () => {
             const squaddieMovePath =
                 gameEngineState.battleOrchestratorState.battleState
                     .squaddieMovePath
-            expect(squaddieMovePath.destination).toEqual({ q: 0, r: 3 })
+            expect(SearchPathAdapterService.getHead(squaddieMovePath)).toEqual({
+                q: 0,
+                r: 3,
+            })
         })
 
         it("Squaddie Selector will create a Battle Action describing the movement, for the given squaddie", () => {
