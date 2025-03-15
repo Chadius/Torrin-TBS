@@ -116,6 +116,46 @@
   },
   {
     "type": "IMAGE",
+    "path": "assets/tutorial/templeDefense/how-to-play-1.png",
+    "key": "how-to-play-select-squaddie"
+  },
+  {
+    "type": "IMAGE",
+    "path": "assets/tutorial/templeDefense/how-to-play-2-move.png",
+    "key": "how-to-play-move"
+  },
+  {
+    "type": "IMAGE",
+    "path": "assets/tutorial/templeDefense/how-to-play-3-act.png",
+    "key": "how-to-play-act"
+  },
+  {
+    "type": "IMAGE",
+    "path": "assets/tutorial/templeDefense/how-to-play-young-nahla-1.png",
+    "key": "how-to-play-young-nahla-1"
+  },
+  {
+    "type": "IMAGE",
+    "path": "assets/tutorial/templeDefense/how-to-play-young-nahla-2.png",
+    "key": "how-to-play-young-nahla-2"
+  },
+  {
+    "type": "IMAGE",
+    "path": "assets/tutorial/templeDefense/how-to-play-sir-camil-1.png",
+    "key": "how-to-play-sir-camil-1"
+  },
+  {
+    "type": "IMAGE",
+    "path": "assets/tutorial/templeDefense/how-to-play-sir-camil-2.png",
+    "key": "how-to-play-sir-camil-2"
+  },
+  {
+    "type": "IMAGE",
+    "path": "assets/tutorial/templeDefense/how-to-play-demons.png",
+    "key": "how-to-play-demons"
+  },
+  {
+    "type": "IMAGE",
     "path": "assets/npcData/enemy_demon_slither/combat-demon-slither-attack.png",
     "key": "combat-demon-slither-attack"
   },
