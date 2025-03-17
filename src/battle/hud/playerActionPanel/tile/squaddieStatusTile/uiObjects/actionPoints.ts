@@ -72,13 +72,6 @@ export class IsActionPointsCorrectCondition implements BehaviorTreeTask {
                 expectedMarkedActionPoints
         )
     }
-
-    clone(): BehaviorTreeTask {
-        return new IsActionPointsCorrectCondition(
-            this.dataBlob,
-            this.gameEngineState
-        )
-    }
 }
 
 export class UpdateActionPointsContextAction implements BehaviorTreeTask {
@@ -129,13 +122,6 @@ export class UpdateActionPointsContextAction implements BehaviorTreeTask {
         )
 
         return true
-    }
-
-    clone(): BehaviorTreeTask {
-        return new UpdateActionPointsContextAction(
-            this.dataBlob,
-            this.gameEngineState
-        )
     }
 }
 
@@ -381,13 +367,6 @@ export class UpdateActionPointsUIObjectsAction implements BehaviorTreeTask {
             actionPointMeterDataBlob
         return actionPointMeterDataBlob
     }
-
-    clone(): UpdateActionPointsUIObjectsAction {
-        return new UpdateActionPointsUIObjectsAction(
-            this.dataBlob,
-            this.graphicsContext
-        )
-    }
 }
 
 export class DrawActionPointsMeterAction implements BehaviorTreeTask {
@@ -413,12 +392,5 @@ export class DrawActionPointsMeterAction implements BehaviorTreeTask {
             this.graphicsContext
         )
         return drawAction.run()
-    }
-
-    clone(): DrawActionPointsMeterAction {
-        return new DrawActionPointsMeterAction(
-            this.dataBlob,
-            this.graphicsContext
-        )
     }
 }
