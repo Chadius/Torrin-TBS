@@ -1250,52 +1250,90 @@ describe("Battle Orchestrator", () => {
         expect(orchestrator.getCurrentComponent()).toBe(mockPlayerHudController)
     })
 
-    describe("mouse events", () => {
-        it("will call mouse events in battle map display during squaddie selection mode", () => {
-            const orchestrator = createOrchestrator({
+    describe("mouse events will be delegated to components and the map display", () => {
+        let squaddieSelectorOrchestratorShouldDisplayMap: BattleOrchestrator
+        let stateWantsToDisplayTheMap: GameEngineState
+
+        const mouseActions = [
+            {
+                name: "moving the mouse",
+                action: () => {
+                    squaddieSelectorOrchestratorShouldDisplayMap.mouseMoved(
+                        stateWantsToDisplayTheMap,
+                        { x: 0, y: 0 }
+                    )
+                },
+            },
+            {
+                name: "pressing a mouse button",
+                action: () => {
+                    squaddieSelectorOrchestratorShouldDisplayMap.mousePressed(
+                        stateWantsToDisplayTheMap,
+                        {
+                            button: MouseButton.ACCEPT,
+                            x: 0,
+                            y: 0,
+                        }
+                    )
+                },
+            },
+            {
+                name: "releasing a mouse button",
+                action: () => {
+                    squaddieSelectorOrchestratorShouldDisplayMap.mouseReleased(
+                        stateWantsToDisplayTheMap,
+                        {
+                            button: MouseButton.ACCEPT,
+                            x: 0,
+                            y: 0,
+                        }
+                    )
+                },
+            },
+            {
+                name: "scrolling with the mouseWheel",
+                action: () => {
+                    squaddieSelectorOrchestratorShouldDisplayMap.mouseWheel(
+                        stateWantsToDisplayTheMap,
+                        {
+                            x: 0,
+                            y: 0,
+                            deltaX: 10,
+                            deltaY: -20,
+                        }
+                    )
+                },
+            },
+        ]
+
+        beforeEach(() => {
+            squaddieSelectorOrchestratorShouldDisplayMap = createOrchestrator({
                 playerSquaddieSelector: mockPlayerSquaddieSelector,
                 initialMode: BattleOrchestratorMode.PLAYER_SQUADDIE_SELECTOR,
             })
-            orchestrator.uiControlSettings.update(
+            squaddieSelectorOrchestratorShouldDisplayMap.uiControlSettings.update(
                 new UIControlSettings({
                     scrollCamera: true,
                 })
             )
 
-            const squaddieSelectorOrchestratorShouldDisplayMap = orchestrator
-            const component = mockPlayerSquaddieSelector
-
-            const stateWantsToDisplayTheMap: GameEngineState =
-                GameEngineStateService.new({
-                    resourceHandler: undefined,
-                    battleOrchestratorState: BattleOrchestratorStateService.new(
-                        {
-                            battleState: BattleStateService.newBattleState({
-                                missionId: "test mission",
-                                campaignId: "test campaign",
-                            }),
-                        }
-                    ),
-                    repository: undefined,
-                })
-
-            squaddieSelectorOrchestratorShouldDisplayMap.mouseMoved(
-                stateWantsToDisplayTheMap,
-                { x: 0, y: 0 }
-            )
-            expect(component.mouseEventHappened).toBeCalledTimes(1)
+            stateWantsToDisplayTheMap = GameEngineStateService.new({
+                resourceHandler: undefined,
+                battleOrchestratorState: BattleOrchestratorStateService.new({
+                    battleState: BattleStateService.newBattleState({
+                        missionId: "test mission",
+                        campaignId: "test campaign",
+                    }),
+                }),
+                repository: undefined,
+            })
+        })
+        it.each(mouseActions)(`$name`, ({ action }) => {
+            action()
+            expect(
+                mockPlayerSquaddieSelector.mouseEventHappened
+            ).toBeCalledTimes(1)
             expect(mockMapDisplay.mouseEventHappened).toBeCalledTimes(1)
-
-            squaddieSelectorOrchestratorShouldDisplayMap.mousePressed(
-                stateWantsToDisplayTheMap,
-                {
-                    button: MouseButton.ACCEPT,
-                    x: 0,
-                    y: 0,
-                }
-            )
-            expect(component.mouseEventHappened).toBeCalledTimes(2)
-            expect(mockMapDisplay.mouseEventHappened).toBeCalledTimes(2)
         })
     })
 

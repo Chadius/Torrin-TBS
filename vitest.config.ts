@@ -63,6 +63,10 @@ export default defineConfig({
                     modifiers: { shift: true },
                 },
             ]),
+            PLAYER_INPUT_SCROLL_DIRECTION: JSON.stringify({
+                horizontalTracksMouseMovement: true,
+                verticalTracksMouseMovement: true,
+            }),
             PLAYER_INPUT_MODIFIER_KEY_CODES: JSON.stringify({
                 shift: [16],
                 ctrl: [17],

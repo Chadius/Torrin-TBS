@@ -26,7 +26,7 @@ import {
     PlayerInputAction,
     PlayerInputStateService,
 } from "../../ui/playerInput/playerInputState"
-import { ScreenLocation } from "../../utils/mouseConfig"
+import { MouseWheel, ScreenLocation } from "../../utils/mouseConfig"
 
 const SCREEN_EDGES = {
     left: [0.1, 0.04, 0.02],
@@ -40,6 +40,12 @@ const HORIZONTAL_SCROLL_SPEED_PER_UPDATE = JSON.parse(
 const VERTICAL_SCROLL_SPEED_PER_UPDATE = JSON.parse(
     process.env.MAP_KEYBOARD_SCROLL_SPEED_PER_UPDATE
 ).vertical
+const PLAYER_INPUT_SCROLL_DIRECTION_HORIZONTAL = JSON.parse(
+    process.env.PLAYER_INPUT_SCROLL_DIRECTION
+).horizontalTracksMouseMovement
+const PLAYER_INPUT_SCROLL_DIRECTION_VERTICAL = JSON.parse(
+    process.env.PLAYER_INPUT_SCROLL_DIRECTION
+).verticalTracksMouseMovement
 
 export class BattleMapDisplay implements BattleOrchestratorComponent {
     public scrollTime: number
@@ -99,7 +105,7 @@ export class BattleMapDisplay implements BattleOrchestratorComponent {
         )
     }
 
-    hasCompleted(state: GameEngineState): boolean {
+    hasCompleted(_: GameEngineState): boolean {
         return false
     }
 
@@ -107,21 +113,29 @@ export class BattleMapDisplay implements BattleOrchestratorComponent {
         gameEngineState: GameEngineState,
         event: OrchestratorComponentMouseEvent
     ): void {
-        if (event.eventType === OrchestratorComponentMouseEventType.RELEASE) {
-            TerrainTileGraphicsService.mouseClicked({
-                terrainTileMap:
-                    gameEngineState.battleOrchestratorState.battleState
-                        .missionMap.terrainTileMap,
-                mouseClick: event.mouseRelease,
-                cameraLocation:
-                    gameEngineState.battleOrchestratorState.battleState.camera.getWorldLocation(),
-            })
-        }
-        if (event.eventType === OrchestratorComponentMouseEventType.LOCATION) {
-            this.moveCameraBasedOnMouseMovement(
-                gameEngineState.battleOrchestratorState,
-                event.mouseLocation
-            )
+        switch (event.eventType) {
+            case OrchestratorComponentMouseEventType.RELEASE:
+                TerrainTileGraphicsService.mouseClicked({
+                    terrainTileMap:
+                        gameEngineState.battleOrchestratorState.battleState
+                            .missionMap.terrainTileMap,
+                    mouseClick: event.mouseRelease,
+                    cameraLocation:
+                        gameEngineState.battleOrchestratorState.battleState.camera.getWorldLocation(),
+                })
+                break
+            case OrchestratorComponentMouseEventType.LOCATION:
+                this.moveCameraBasedOnMouseMovement(
+                    gameEngineState.battleOrchestratorState,
+                    event.mouseLocation
+                )
+                break
+            case OrchestratorComponentMouseEventType.WHEEL:
+                this.moveCameraBasedOnMouseWheel(
+                    gameEngineState.battleOrchestratorState,
+                    event.mouseWheel
+                )
+                break
         }
     }
 
@@ -169,6 +183,49 @@ export class BattleMapDisplay implements BattleOrchestratorComponent {
         stopCameraIfMouseIsOffscreen(mouseLocation, battleOrchestraState)
     }
 
+    moveCameraBasedOnMouseWheel(
+        battleOrchestratorState: BattleOrchestratorState,
+        mouseWheel: MouseWheel
+    ) {
+        if (battleOrchestratorState.battleState.camera.isPanning()) {
+            return
+        }
+
+        if (
+            !!battleOrchestratorState.battleHUDState.summaryHUDState &&
+            SummaryHUDStateService.isMouseHoveringOver({
+                summaryHUDState:
+                    battleOrchestratorState.battleHUDState.summaryHUDState,
+                mouseSelectionLocation: { ...mouseWheel },
+            })
+        ) {
+            return
+        }
+
+        const { horizontalTracksMouseMovement, verticalTracksMouseMovement } =
+            this.getScrollConfig()
+        const horizontalMultiplier = horizontalTracksMouseMovement ? 1 : -1
+        const verticalMultiplier = verticalTracksMouseMovement ? 1 : -1
+
+        if (mouseWheel.deltaX < 0) {
+            battleOrchestratorState.battleState.camera.xCoordinate -=
+                HORIZONTAL_SCROLL_SPEED_PER_UPDATE * horizontalMultiplier
+        }
+        if (mouseWheel.deltaX > 0) {
+            battleOrchestratorState.battleState.camera.xCoordinate +=
+                HORIZONTAL_SCROLL_SPEED_PER_UPDATE * horizontalMultiplier
+        }
+        if (mouseWheel.deltaY < 0) {
+            battleOrchestratorState.battleState.camera.yCoordinate -=
+                VERTICAL_SCROLL_SPEED_PER_UPDATE * verticalMultiplier
+        }
+        if (mouseWheel.deltaY > 0) {
+            battleOrchestratorState.battleState.camera.yCoordinate +=
+                VERTICAL_SCROLL_SPEED_PER_UPDATE * verticalMultiplier
+        }
+        battleOrchestratorState.battleState.camera.constrainCamera()
+    }
+
     update({
         gameEngineState,
         graphicsContext,
@@ -187,46 +244,49 @@ export class BattleMapDisplay implements BattleOrchestratorComponent {
     }
 
     recommendStateChanges(
-        state: GameEngineState
+        _state: GameEngineState
     ): BattleOrchestratorChanges | undefined {
         return undefined
     }
 
-    reset(gameEngineState: GameEngineState) {
+    reset(_gameEngineState: GameEngineState) {
         this.scrollTime = undefined
     }
 
     private drawSquaddieMapIcons(
-        state: GameEngineState,
+        gameEngineState: GameEngineState,
         graphicsContext: GraphicsBuffer,
         battleSquaddieIdsToOmit: string[],
         resourceHandler: ResourceHandler
     ) {
-        ObjectRepositoryService.getBattleSquaddieIterator(state.repository)
+        ObjectRepositoryService.getBattleSquaddieIterator(
+            gameEngineState.repository
+        )
             .filter(
                 (info) =>
                     info.battleSquaddieId in
-                    state.repository.imageUIByBattleSquaddieId
+                    gameEngineState.repository.imageUIByBattleSquaddieId
             )
             .forEach((info) => {
-                const { battleSquaddie, battleSquaddieId } = info
+                const { battleSquaddieId } = info
 
                 if (!battleSquaddieIdsToOmit.includes(battleSquaddieId)) {
                     const datum = MissionMapService.getByBattleSquaddieId(
-                        state.battleOrchestratorState.battleState.missionMap,
+                        gameEngineState.battleOrchestratorState.battleState
+                            .missionMap,
                         battleSquaddieId
                     )
 
                     const squaddieIsOnTheMap: boolean =
                         MissionMapSquaddieCoordinateService.isValid(datum) &&
                         TerrainTileMapService.isCoordinateOnMap(
-                            state.battleOrchestratorState.battleState.missionMap
-                                .terrainTileMap,
+                            gameEngineState.battleOrchestratorState.battleState
+                                .missionMap.terrainTileMap,
                             datum.mapCoordinate
                         )
                     const squaddieIsHidden: boolean =
                         MissionMapService.isSquaddieHiddenFromDrawing(
-                            state.battleOrchestratorState.battleState
+                            gameEngineState.battleOrchestratorState.battleState
                                 .missionMap,
                             battleSquaddieId
                         )
@@ -234,10 +294,10 @@ export class BattleMapDisplay implements BattleOrchestratorComponent {
                         DrawSquaddieIconOnMapUtilities.drawSquaddieMapIconAtMapCoordinate(
                             {
                                 graphics: graphicsContext,
-                                squaddieRepository: state.repository,
+                                squaddieRepository: gameEngineState.repository,
                                 battleSquaddieId: battleSquaddieId,
                                 mapCoordinate: datum.mapCoordinate,
-                                camera: state.battleOrchestratorState
+                                camera: gameEngineState.battleOrchestratorState
                                     .battleState.camera,
                                 resourceHandler,
                             }
@@ -269,6 +329,14 @@ export class BattleMapDisplay implements BattleOrchestratorComponent {
                 VERTICAL_SCROLL_SPEED_PER_UPDATE
         }
         gameEngineState.battleOrchestratorState.battleState.camera.constrainCamera()
+    }
+
+    getScrollConfig() {
+        return {
+            horizontalTracksMouseMovement:
+                PLAYER_INPUT_SCROLL_DIRECTION_HORIZONTAL,
+            verticalTracksMouseMovement: PLAYER_INPUT_SCROLL_DIRECTION_VERTICAL,
+        }
     }
 }
 

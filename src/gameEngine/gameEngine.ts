@@ -13,7 +13,12 @@ import { BattleMapDisplay } from "../battle/orchestratorComponents/battleMapDisp
 import { BattlePhaseController } from "../battle/orchestratorComponents/battlePhaseController"
 import { BattlePlayerSquaddieTarget } from "../battle/orchestratorComponents/battlePlayerSquaddieTarget"
 import { BattleSquaddieUsesActionOnSquaddie } from "../battle/orchestratorComponents/battleSquaddieUsesActionOnSquaddie"
-import { MousePress, MouseRelease, ScreenLocation } from "../utils/mouseConfig"
+import {
+    MousePress,
+    MouseRelease,
+    MouseWheel,
+    ScreenLocation,
+} from "../utils/mouseConfig"
 import { GameModeEnum } from "../utils/startupConfig"
 import { GameEngineChanges, GameEngineComponent } from "./gameEngineComponent"
 import { TitleScreen } from "../titleScreen/titleScreen"
@@ -242,6 +247,10 @@ export class GameEngine {
 
     mouseMoved(mouseLocation: ScreenLocation) {
         this.component.mouseMoved(this.gameEngineState, mouseLocation)
+    }
+
+    mouseWheel(mouseWheel: MouseWheel) {
+        this.component.mouseWheel(this.gameEngineState, mouseWheel)
     }
 
     async update({ graphics }: { graphics: GraphicsBuffer }) {

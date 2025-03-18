@@ -57,6 +57,11 @@ export default defineConfig(({ mode }) => {
             JSON.stringify(
                 '[{"hold":{"key":40, "delay":100},"modifiers":{"shift":true}}]'
             ),
+        "process.env.PLAYER_INPUT_SCROLL_DIRECTION":
+            JSON.stringify(process.env.PLAYER_INPUT_SCROLL_DIRECTION) ||
+            JSON.stringify(
+                '{"horizontalTracksMouseMovement": true,"verticalTracksMouseMovement": true}'
+            ),
         "process.env.PLAYER_INPUT_MODIFIER_KEY_CODES":
             JSON.stringify(process.env.PLAYER_INPUT_MODIFIER_KEY_CODES) ||
             JSON.stringify(

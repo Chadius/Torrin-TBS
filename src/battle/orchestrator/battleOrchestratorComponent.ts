@@ -4,22 +4,25 @@ import { GameEngineState } from "../../gameEngine/gameEngine"
 import {
     MousePress,
     MouseRelease,
+    MouseWheel,
     ScreenLocation,
 } from "../../utils/mouseConfig"
 import { GraphicsBuffer } from "../../utils/graphics/graphicsRenderer"
 import { ResourceHandler } from "../../resource/resourceHandler"
 
 export enum OrchestratorComponentMouseEventType {
-    UNKNOWN,
-    PRESS,
-    RELEASE,
-    LOCATION,
+    UNKNOWN = "UNKNOWN",
+    PRESS = "PRESS",
+    RELEASE = "RELEASE",
+    LOCATION = "LOCATION",
+    WHEEL = "WHEEL",
 }
 
 export type OrchestratorComponentMouseEvent =
     | OrchestratorComponentMouseEventPress
     | OrchestratorComponentMouseEventRelease
     | OrchestratorComponentMouseEventChangeLocation
+    | OrchestratorComponentMouseEventWheel
 
 export type OrchestratorComponentMouseEventPress = {
     eventType: OrchestratorComponentMouseEventType.PRESS
@@ -34,6 +37,11 @@ export type OrchestratorComponentMouseEventRelease = {
 export type OrchestratorComponentMouseEventChangeLocation = {
     eventType: OrchestratorComponentMouseEventType.LOCATION
     mouseLocation: ScreenLocation
+}
+
+export type OrchestratorComponentMouseEventWheel = {
+    eventType: OrchestratorComponentMouseEventType.WHEEL
+    mouseWheel: MouseWheel
 }
 
 export enum OrchestratorComponentKeyEventType {

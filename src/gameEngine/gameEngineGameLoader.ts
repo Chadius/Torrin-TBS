@@ -1,5 +1,10 @@
 import { GameEngineState } from "./gameEngine"
-import { MousePress, MouseRelease, ScreenLocation } from "../utils/mouseConfig"
+import {
+    MousePress,
+    MouseRelease,
+    MouseWheel,
+    ScreenLocation,
+} from "../utils/mouseConfig"
 import { GameEngineChanges, GameEngineComponent } from "./gameEngineComponent"
 import {
     MissionLoader,
@@ -159,6 +164,13 @@ export class GameEngineGameLoader implements GameEngineComponent {
 
     mouseMoved(_gameEngineState: GameEngineState, _: ScreenLocation): void {
         // Required by inheritance
+    }
+
+    mouseWheel(
+        _gameEngineState: GameEngineState,
+        _mouseWheel: MouseWheel
+    ): void {
+        // required by interface
     }
 
     private applySaveStateToBattleOrchestratorState(

@@ -26,7 +26,7 @@ export class BattleCutscenePlayer implements BattleOrchestratorComponent {
         return this._currentCutsceneId
     }
 
-    hasCompleted(state: GameEngineState): boolean {
+    hasCompleted(_state: GameEngineState): boolean {
         return !(
             this.currentCutscene &&
             CutsceneService.isInProgress(this.currentCutscene)
@@ -87,7 +87,7 @@ export class BattleCutscenePlayer implements BattleOrchestratorComponent {
 
     uiControlSettings(_state: GameEngineState): UIControlSettings {
         return new UIControlSettings({
-            scrollCamera: false,
+            scrollCamera: true,
             pauseTimer: true,
             displayPlayerHUD: false,
         })
@@ -141,12 +141,12 @@ export class BattleCutscenePlayer implements BattleOrchestratorComponent {
     }
 
     recommendStateChanges(
-        state: GameEngineState
+        _state: GameEngineState
     ): BattleOrchestratorChanges | undefined {
         return {}
     }
 
-    reset(state: GameEngineState) {
+    reset(_state: GameEngineState) {
         this._currentCutsceneId = undefined
         this._currentCutscene = undefined
     }

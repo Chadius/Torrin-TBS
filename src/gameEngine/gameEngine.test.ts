@@ -28,6 +28,7 @@ import {
     MockInstance,
     vi,
 } from "vitest"
+import { ScreenDimensions } from "../utils/graphics/graphicsConfig"
 
 const resourceLocators: ResourceLocator[] = [
     {
@@ -84,7 +85,7 @@ describe("Game Engine", () => {
     })
 
     describe("Game Engine component hooks ", () => {
-        async function expectUpdate(newGameEngine: GameEngine) {
+        const expectUpdate = async (newGameEngine: GameEngine) => {
             const updateSpy = vi
                 .spyOn(newGameEngine.component, "update")
                 .mockResolvedValue()
@@ -92,7 +93,7 @@ describe("Game Engine", () => {
             expect(updateSpy).toBeCalled()
         }
 
-        function expectKeyPressed(newGameEngine: GameEngine) {
+        const expectKeyPressed = (newGameEngine: GameEngine) => {
             const keyPressedSpy = vi
                 .spyOn(newGameEngine.component, "keyPressed")
                 .mockImplementation(() => {})
@@ -101,7 +102,7 @@ describe("Game Engine", () => {
             expect(keyPressedSpy.mock.calls[0][1]).toBe(10)
         }
 
-        function expectMouseClicked(newGameEngine: GameEngine) {
+        const expectMouseClicked = (newGameEngine: GameEngine) => {
             const mouseClickedSpy = vi
                 .spyOn(newGameEngine.component, "mousePressed")
                 .mockImplementation(() => {})
@@ -118,7 +119,7 @@ describe("Game Engine", () => {
             })
         }
 
-        function expectMouseMoved(newGameEngine: GameEngine) {
+        const expectMouseMoved = (newGameEngine: GameEngine) => {
             const mouseMovedSpy = vi
                 .spyOn(newGameEngine.component, "mouseMoved")
                 .mockImplementation(() => {})
@@ -127,7 +128,28 @@ describe("Game Engine", () => {
             expect(mouseMovedSpy.mock.calls[0][1]).toEqual({ x: 100, y: 200 })
         }
 
-        const loadAndExpect = async ({
+        const expectMouseWheel = (newGameEngine: GameEngine) => {
+            const mouseMovedSpy = vi
+                .spyOn(newGameEngine.component, "mouseWheel")
+                .mockImplementation(() => {})
+            newGameEngine.mouseWheel({
+                x: ScreenDimensions.SCREEN_WIDTH / 2,
+                y: ScreenDimensions.SCREEN_HEIGHT / 2,
+                deltaX: 30,
+                deltaY: 50,
+                shiftKey: true,
+            })
+            expect(mouseMovedSpy).toBeCalled()
+            expect(mouseMovedSpy.mock.calls[0][1]).toEqual({
+                x: ScreenDimensions.SCREEN_WIDTH / 2,
+                y: ScreenDimensions.SCREEN_HEIGHT / 2,
+                deltaX: 30,
+                deltaY: 50,
+                shiftKey: true,
+            })
+        }
+
+        const expectGameEngineStartsWithFunctionalGameEngineComponent = async ({
             startupMode,
             componentType,
         }: {
@@ -147,16 +169,17 @@ describe("Game Engine", () => {
             expect(newGameEngine.currentMode).toBe(startupMode)
             expect(newGameEngine.component).toBeInstanceOf(componentType)
 
-            expectUpdate(newGameEngine)
+            await expectUpdate(newGameEngine)
             expectKeyPressed(newGameEngine)
             expectMouseClicked(newGameEngine)
             expectMouseMoved(newGameEngine)
+            expectMouseWheel(newGameEngine)
             return true
         }
 
         it("works on title screen", async () => {
             expect(
-                await loadAndExpect({
+                await expectGameEngineStartsWithFunctionalGameEngineComponent({
                     startupMode: GameModeEnum.TITLE_SCREEN,
                     componentType: TitleScreen,
                 })
@@ -165,7 +188,7 @@ describe("Game Engine", () => {
 
         it("battle mode starts the battle orchestrator", async () => {
             expect(
-                await loadAndExpect({
+                await expectGameEngineStartsWithFunctionalGameEngineComponent({
                     startupMode: GameModeEnum.BATTLE,
                     componentType: BattleOrchestrator,
                 })
@@ -192,7 +215,7 @@ describe("Game Engine", () => {
 
         it("works on loading battle", async () => {
             expect(
-                await loadAndExpect({
+                await expectGameEngineStartsWithFunctionalGameEngineComponent({
                     startupMode: GameModeEnum.LOADING_BATTLE,
                     componentType: GameEngineGameLoader,
                 })

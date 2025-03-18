@@ -20,9 +20,17 @@ import { BattleHUDService } from "../hud/battleHUD/battleHUD"
 import { BattleHUDStateService } from "../hud/battleHUD/battleHUDState"
 import { SummaryHUDStateService } from "../hud/summary/summaryHUD"
 import { ResourceHandler } from "../../resource/resourceHandler"
-import { beforeEach, describe, expect, it, MockInstance, vi } from "vitest"
+import {
+    afterEach,
+    beforeEach,
+    describe,
+    expect,
+    it,
+    MockInstance,
+    vi,
+} from "vitest"
 import { PlayerInputTestService } from "../../utils/test/playerInput"
-import { ScreenLocation } from "../../utils/mouseConfig"
+import { MouseWheel, ScreenLocation } from "../../utils/mouseConfig"
 
 describe("battleMapDisplay", () => {
     let battleMapDisplay: BattleMapDisplay
@@ -39,35 +47,6 @@ describe("battleMapDisplay", () => {
 
         mockedP5GraphicsContext = new MockedP5GraphicsBuffer()
         resourceHandler = mocks.mockResourceHandler(mockedP5GraphicsContext)
-    })
-
-    it("will move the camera if the mouse is near the edge of the screen", () => {
-        const initialCameraCoordinates = [0, -ScreenDimensions.SCREEN_HEIGHT]
-        let camera = new BattleCamera(...initialCameraCoordinates)
-        camera.setXVelocity = vi.fn()
-        camera.setYVelocity = vi.fn()
-
-        const state: GameEngineState = GameEngineStateService.new({
-            repository: undefined,
-            resourceHandler: undefined,
-            battleOrchestratorState: BattleOrchestratorStateService.new({
-                battleHUD: BattleHUDService.new({}),
-                battleState: BattleStateService.newBattleState({
-                    campaignId: "test campaign",
-                    missionId: "test mission",
-                    camera,
-                }),
-            }),
-        })
-        battleMapDisplay.mouseEventHappened(state, {
-            eventType: OrchestratorComponentMouseEventType.LOCATION,
-            mouseLocation: {
-                x: 0,
-                y: 0,
-            },
-        })
-        expect(camera.setXVelocity).toBeCalled()
-        expect(camera.setYVelocity).toBeCalled()
     })
 
     describe("panning the camera", () => {
@@ -297,6 +276,163 @@ describe("battleMapDisplay", () => {
                 expect(cameraVelocityTest(camera)).toBeTruthy()
             }
         )
+    })
+
+    describe("it will change the camera position based on the mouse wheel", () => {
+        let battleOrchestratorState: BattleOrchestratorState
+        let camera: BattleCamera
+        let initialCameraCoordinates: number[]
+
+        beforeEach(() => {
+            initialCameraCoordinates = [
+                ScreenDimensions.SCREEN_WIDTH / 2,
+                ScreenDimensions.SCREEN_HEIGHT / 2,
+            ]
+            camera = new BattleCamera(...initialCameraCoordinates)
+
+            battleOrchestratorState = BattleOrchestratorStateService.new({
+                battleHUD: BattleHUDService.new({}),
+                battleState: BattleStateService.newBattleState({
+                    missionId: "test mission",
+                    campaignId: "test campaign",
+                    camera,
+                }),
+            })
+        })
+
+        type CameraTest = {
+            cameraDescription: string
+            mouseWheel: MouseWheel
+            cameraLocationTest: (camera: BattleCamera) => boolean
+        }
+
+        const tests: CameraTest[] = [
+            {
+                cameraDescription: "move left",
+                mouseWheel: {
+                    x: ScreenDimensions.SCREEN_WIDTH / 2,
+                    y: ScreenDimensions.SCREEN_HEIGHT / 2,
+                    deltaX: -10,
+                    deltaY: 0,
+                },
+                cameraLocationTest: (camera: BattleCamera) =>
+                    camera.getWorldLocation().x < initialCameraCoordinates[0],
+            },
+            {
+                cameraDescription: "move right",
+                mouseWheel: {
+                    x: ScreenDimensions.SCREEN_WIDTH / 2,
+                    y: ScreenDimensions.SCREEN_HEIGHT / 2,
+                    deltaX: 10,
+                    deltaY: 0,
+                },
+                cameraLocationTest: (camera: BattleCamera) =>
+                    camera.getWorldLocation().x > initialCameraCoordinates[0],
+            },
+            {
+                cameraDescription: "move up",
+                mouseWheel: {
+                    x: ScreenDimensions.SCREEN_WIDTH / 2,
+                    y: ScreenDimensions.SCREEN_HEIGHT / 2,
+                    deltaX: 0,
+                    deltaY: -10,
+                },
+                cameraLocationTest: (camera: BattleCamera) =>
+                    camera.getWorldLocation().y < initialCameraCoordinates[1],
+            },
+            {
+                cameraDescription: "move down",
+                mouseWheel: {
+                    x: ScreenDimensions.SCREEN_WIDTH / 2,
+                    y: ScreenDimensions.SCREEN_HEIGHT / 2,
+                    deltaX: 0,
+                    deltaY: 10,
+                },
+                cameraLocationTest: (camera: BattleCamera) =>
+                    camera.getWorldLocation().y > initialCameraCoordinates[1],
+            },
+        ]
+
+        it.each(tests)(
+            `($mouseWheel.deltaX, $mouseWheel.deltaY) will make the camera $cameraDescription`,
+            ({ mouseWheel, cameraLocationTest }) => {
+                battleMapDisplay.moveCameraBasedOnMouseWheel(
+                    battleOrchestratorState,
+                    mouseWheel
+                )
+                expect(cameraLocationTest(camera)).toBeTruthy()
+            }
+        )
+
+        describe("invert scroll direction based on config", () => {
+            let scrollConfigSpy: MockInstance
+            beforeEach(() => {
+                scrollConfigSpy = vi
+                    .spyOn(battleMapDisplay, "getScrollConfig")
+                    .mockReturnValue({
+                        horizontalTracksMouseMovement: false,
+                        verticalTracksMouseMovement: false,
+                    })
+            })
+
+            afterEach(() => {
+                scrollConfigSpy.mockRestore()
+            })
+
+            const findTestByCameraDescription = (cameraDescription: string) =>
+                tests.find((t) => t.cameraDescription === cameraDescription)
+
+            const useMouseWheelToMoveCamera = (cameraDescription: string) => {
+                const test = findTestByCameraDescription(cameraDescription)
+
+                battleMapDisplay.moveCameraBasedOnMouseWheel(
+                    battleOrchestratorState,
+                    test.mouseWheel
+                )
+            }
+
+            it("left", () => {
+                useMouseWheelToMoveCamera("move left")
+                expect(
+                    findTestByCameraDescription(
+                        "move right"
+                    ).cameraLocationTest(camera)
+                ).toBeTruthy()
+                expect(scrollConfigSpy).toBeCalled()
+            })
+
+            it("right", () => {
+                useMouseWheelToMoveCamera("move right")
+                expect(
+                    findTestByCameraDescription("move left").cameraLocationTest(
+                        camera
+                    )
+                ).toBeTruthy()
+
+                expect(scrollConfigSpy).toBeCalled()
+            })
+
+            it("down", () => {
+                useMouseWheelToMoveCamera("move down")
+                expect(
+                    findTestByCameraDescription("move up").cameraLocationTest(
+                        camera
+                    )
+                ).toBeTruthy()
+
+                expect(scrollConfigSpy).toBeCalled()
+            })
+
+            it("right", () => {
+                useMouseWheelToMoveCamera("move up")
+                expect(
+                    findTestByCameraDescription("move down").cameraLocationTest(
+                        camera
+                    )
+                ).toBeTruthy()
+                expect(scrollConfigSpy).toBeCalled()
+            })
+        })
     })
 
     it("when hovering over the HUD at the bottom of the screen, do not move the camera", () => {

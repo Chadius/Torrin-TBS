@@ -84,7 +84,7 @@ describe("Player Input State", () => {
         })
 
         it("knows when a key can be held down", () => {
-            let actions: PlayerInputAction[] = []
+            let actions: PlayerInputAction[]
             const dateSpy = vi.spyOn(Date, "now").mockReturnValue(0)
             PlayerInputStateService.keyIsDown(
                 playerInput,

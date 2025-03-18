@@ -34,6 +34,12 @@ export interface MouseRelease extends ScreenLocation {
     button: MouseButton
 }
 
+export interface MouseWheel extends ScreenLocation {
+    deltaX: number
+    deltaY: number
+    shiftKey?: boolean
+}
+
 export const MouseClickService = {
     new: ({
         x,

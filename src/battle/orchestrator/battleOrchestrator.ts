@@ -27,6 +27,7 @@ import {
 import {
     MousePress,
     MouseRelease,
+    MouseWheel,
     ScreenLocation,
 } from "../../utils/mouseConfig"
 import { GameEngineState } from "../../gameEngine/gameEngine"
@@ -414,6 +415,22 @@ export class BattleOrchestrator implements GameEngineComponent {
 
         if (this.uiControlSettings.letMouseScrollCamera === true) {
             this.mapDisplay.mouseEventHappened(state, mouseEvent)
+        }
+    }
+
+    mouseWheel(gameEngineState: GameEngineState, mouseWheel: MouseWheel): void {
+        const mouseEvent: OrchestratorComponentMouseEvent = {
+            eventType: OrchestratorComponentMouseEventType.WHEEL,
+            mouseWheel,
+        }
+
+        this.getCurrentComponent().mouseEventHappened(
+            gameEngineState,
+            mouseEvent
+        )
+
+        if (this.uiControlSettings.letMouseScrollCamera === true) {
+            this.mapDisplay.mouseEventHappened(gameEngineState, mouseEvent)
         }
     }
 

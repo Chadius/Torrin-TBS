@@ -86,6 +86,11 @@ export const sketch = (p: p5) => {
     p.mouseMoved = () => {
         gameEngine.mouseMoved({ x: p.mouseX, y: p.mouseY })
     }
+
+    p.mouseWheel = (event: WheelEvent) => {
+        gameEngine.mouseWheel(event)
+        return false
+    }
 }
 
-export const myp5 = new p5(sketch, document.body)
+export const _ = new p5(sketch, document.body)

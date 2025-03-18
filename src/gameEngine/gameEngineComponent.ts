@@ -1,4 +1,9 @@
-import { MousePress, MouseRelease, ScreenLocation } from "../utils/mouseConfig"
+import {
+    MousePress,
+    MouseRelease,
+    MouseWheel,
+    ScreenLocation,
+} from "../utils/mouseConfig"
 import { GameEngineState } from "./gameEngine"
 import { GameModeEnum } from "../utils/startupConfig"
 import { GraphicsBuffer } from "../utils/graphics/graphicsRenderer"
@@ -26,6 +31,8 @@ export interface GameEngineComponent {
         gameEngineState: GameEngineState,
         mouseLocation: ScreenLocation
     ): void
+
+    mouseWheel(gameEngineState: GameEngineState, mouseWheel: MouseWheel): void
 
     hasCompleted(gameEngineState: GameEngineState): boolean
 

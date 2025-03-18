@@ -3,7 +3,12 @@ import {
     GameEngineChanges,
     GameEngineComponent,
 } from "../gameEngine/gameEngineComponent"
-import { MousePress, MouseRelease, ScreenLocation } from "../utils/mouseConfig"
+import {
+    MousePress,
+    MouseRelease,
+    MouseWheel,
+    ScreenLocation,
+} from "../utils/mouseConfig"
 import { GameEngineState } from "../gameEngine/gameEngine"
 import { GameModeEnum } from "../utils/startupConfig"
 import { WINDOW_SPACING } from "../ui/constants"
@@ -434,6 +439,13 @@ export class TitleScreen implements GameEngineComponent {
             })
         })
         this.reactToButtonStatusChangeEvents()
+    }
+
+    mouseWheel(
+        _gameEngineState: GameEngineState,
+        _mouseWheel: MouseWheel
+    ): void {
+        // required by interface
     }
 
     private getButtons() {
