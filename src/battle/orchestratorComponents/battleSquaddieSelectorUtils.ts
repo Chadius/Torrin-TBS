@@ -288,13 +288,13 @@ export const BattleSquaddieSelectorService = {
                         return usableActionInfo
                     }
 
-                    const actionPointsRemaining =
+                    let unallocatedActionPoints =
                         SquaddieService.getNumberOfActionPoints({
                             squaddieTemplate: actorSquaddieTemplate,
                             battleSquaddie: actorBattleSquaddie,
-                        }).actionPointsRemaining -
+                        }).unallocatedActionPoints -
                         actionTemplate.resourceCost.actionPoints
-                    if (actionPointsRemaining <= 0) {
+                    if (unallocatedActionPoints <= 0) {
                         return usableActionInfo
                     }
 
@@ -313,7 +313,7 @@ export const BattleSquaddieSelectorService = {
                                         actionTemplate.targetConstraints
                                             .maximumRange,
                                 },
-                                actionPointsRemaining: actionPointsRemaining,
+                                actionPointsRemaining: unallocatedActionPoints,
                             }
                         )
 
@@ -428,10 +428,11 @@ const getAllTilesSquaddieCanReach = ({
     ).mapCoordinate
 
     if (actionPointsRemaining === undefined) {
-        ;({ actionPointsRemaining } = SquaddieService.getNumberOfActionPoints({
-            squaddieTemplate,
-            battleSquaddie,
-        }))
+        ;({ unallocatedActionPoints: actionPointsRemaining } =
+            SquaddieService.getNumberOfActionPoints({
+                squaddieTemplate,
+                battleSquaddie,
+            }))
     }
 
     return MapSearchService.calculatePathsToDestinations({

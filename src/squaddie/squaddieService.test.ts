@@ -70,23 +70,25 @@ describe("Squaddie Service", () => {
 
     describe("Turns Remaining", () => {
         it("returns the number of action points", () => {
-            let { actionPointsRemaining } =
+            let { unallocatedActionPoints, movementActionPoints } =
                 SquaddieService.getNumberOfActionPoints({
                     squaddieTemplate: playerSquaddieTemplate,
                     battleSquaddie: playerBattleSquaddie,
                 })
-            expect(actionPointsRemaining).toBe(3)
+            expect(unallocatedActionPoints).toBe(3)
+            expect(movementActionPoints).toBe(0)
 
-            SquaddieTurnService.spendActionPoints(
-                playerBattleSquaddie.squaddieTurn,
-                1
-            )
-            ;({ actionPointsRemaining: actionPointsRemaining } =
+            SquaddieTurnService.spendActionPointsForMovement({
+                squaddieTurn: playerBattleSquaddie.squaddieTurn,
+                actionPoints: 1,
+            })
+            ;({ unallocatedActionPoints, movementActionPoints } =
                 SquaddieService.getNumberOfActionPoints({
                     squaddieTemplate: playerSquaddieTemplate,
                     battleSquaddie: playerBattleSquaddie,
                 }))
-            expect(actionPointsRemaining).toBe(2)
+            expect(unallocatedActionPoints).toBe(2)
+            expect(movementActionPoints).toBe(1)
         })
     })
 
@@ -383,10 +385,10 @@ describe("Squaddie Service", () => {
             expect(isDead).toBeFalsy()
         })
         it("cannot act because it is out of actions", () => {
-            SquaddieTurnService.spendActionPoints(
-                playerBattleSquaddie.squaddieTurn,
-                3
-            )
+            SquaddieTurnService.spendActionPointsAndReservedPoints({
+                data: playerBattleSquaddie.squaddieTurn,
+                endTurn: true,
+            })
             let { canAct, hasActionPointsRemaining } =
                 SquaddieService.canSquaddieActRightNow({
                     squaddieTemplate: playerSquaddieTemplate,
@@ -435,10 +437,10 @@ describe("Squaddie Service", () => {
             expect(squaddieIsNormallyControllableByPlayer).toBeTruthy()
         })
         it("checks when the player controlled squaddie has no actions", () => {
-            SquaddieTurnService.spendActionPoints(
-                playerBattleSquaddie.squaddieTurn,
-                3
-            )
+            SquaddieTurnService.spendActionPointsAndReservedPoints({
+                data: playerBattleSquaddie.squaddieTurn,
+                endTurn: true,
+            })
             let {
                 squaddieHasThePlayerControlledAffiliation,
                 squaddieCanCurrentlyAct,

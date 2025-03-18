@@ -16,7 +16,7 @@ import { SquaddieRepositoryService } from "../utils/test/squaddie"
 import { SquaddieAffiliation } from "./squaddieAffiliation"
 import { ActionPerformFailureReason, SquaddieTurnService } from "./turn"
 
-describe("Squaddie battleSquaddie.squaddieTurn and resources", () => {
+describe("SquaddieTurn and resources", () => {
     let actionSpends2ActionPoints: ActionTemplate
     let battleSquaddie: BattleSquaddie
     let objectRepository: ObjectRepository
@@ -52,145 +52,131 @@ describe("Squaddie battleSquaddie.squaddieTurn and resources", () => {
             }))
     })
 
-    describe("actions", () => {
-        it("should start with 3 action points", () => {
-            expect(battleSquaddie.squaddieTurn.remainingActionPoints).toBe(3)
+    describe("action points before and after the phase", () => {
+        it("is created with 3 action points", () => {
+            expect(battleSquaddie.squaddieTurn.unallocatedActionPoints).toBe(3)
         })
-        it("should spend 1 action by default", () => {
-            SquaddieTurnService.spendActionPoints(
-                battleSquaddie.squaddieTurn,
-                ActionTemplateService.new({
-                    id: "actionSpends1ActionPoint",
-                    name: "Power Attack",
-                    actionEffectTemplates: [
-                        ActionEffectTemplateService.new({
-                            traits: TraitStatusStorageService.newUsingTraitValues(
-                                { [Trait.ATTACK]: true }
-                            ),
+
+        it("should give refresh action points at the end of a round", () => {
+            SquaddieTurnService.spendActionPointsAndReservedPoints({
+                data: battleSquaddie.squaddieTurn,
+                actionTemplate: actionSpends2ActionPoints,
+            })
+            SquaddieTurnService.refreshActionPoints(battleSquaddie.squaddieTurn)
+            expect(battleSquaddie.squaddieTurn.unallocatedActionPoints).toBe(3)
+        })
+    })
+
+    describe("spending action points based on action template", () => {
+        it("should spend 1 action by default if the ActionTemplate does not list a cost", () => {
+            const actionTemplate = ActionTemplateService.new({
+                id: "actionSpends1ActionPoint",
+                name: "Power Attack",
+                actionEffectTemplates: [
+                    ActionEffectTemplateService.new({
+                        traits: TraitStatusStorageService.newUsingTraitValues({
+                            [Trait.ATTACK]: true,
                         }),
-                    ],
-                }).resourceCost.actionPoints
-            )
-            expect(battleSquaddie.squaddieTurn.remainingActionPoints).toBe(2)
-        })
-        it("should spend multiple actions if action uses more", () => {
-            SquaddieTurnService.spendActionPoints(
-                battleSquaddie.squaddieTurn,
-                actionSpends2ActionPoints.resourceCost.actionPoints
-            )
-            expect(battleSquaddie.squaddieTurn.remainingActionPoints).toBe(1)
-        })
-        it("will remove all action when you spend the entire round", () => {
-            SquaddieTurnService.spendActionPoints(
-                battleSquaddie.squaddieTurn,
-                "End Turn"
-            )
-            expect(battleSquaddie.squaddieTurn.remainingActionPoints).toBe(0)
-        })
-        describe("canPerformAction", () => {
-            it("should report when an action cannot be performed because it lacks action points", () => {
-                SquaddieTurnService.spendActionPoints(
-                    battleSquaddie.squaddieTurn,
-                    actionSpends2ActionPoints.resourceCost.actionPoints
-                )
-                const query = SquaddieTurnService.canPerformAction({
-                    actionTemplate: actionSpends2ActionPoints,
-                    battleSquaddie,
-                })
-                expect(query.canPerform).toBeFalsy()
-                expect(query.reason).toBe(
-                    ActionPerformFailureReason.TOO_FEW_ACTIONS_REMAINING
-                )
+                    }),
+                ],
             })
-            it("should report when an action can be performed but there are too many action points considered", () => {
-                const playerConsideredActions =
-                    PlayerConsideredActionsService.new()
-                playerConsideredActions.movement = {
-                    actionPointCost: 2,
-                    coordinates: [],
-                    destination: { q: 0, r: 0 },
-                }
+            SquaddieTurnService.spendActionPointsAndReservedPoints({
+                data: battleSquaddie.squaddieTurn,
+                actionTemplate,
+            })
+            expect(battleSquaddie.squaddieTurn.unallocatedActionPoints).toBe(2)
+        })
+        it("should spend multiple action points if action uses more", () => {
+            SquaddieTurnService.spendActionPointsAndReservedPoints({
+                data: battleSquaddie.squaddieTurn,
+                actionTemplate: actionSpends2ActionPoints,
+            })
+            expect(battleSquaddie.squaddieTurn.unallocatedActionPoints).toBe(1)
+        })
+    })
 
-                const query = SquaddieTurnService.canPerformAction({
-                    actionTemplate: actionSpends2ActionPoints,
-                    playerConsideredActions,
-                    objectRepository,
-                    battleSquaddie,
-                })
-                expect(query.canPerform).toBeTruthy()
-                expect(query.reason).toBe(
-                    ActionPerformFailureReason.CAN_PERFORM_BUT_TOO_MANY_CONSIDERED_ACTION_POINTS
-                )
+    describe("canPerformAction", () => {
+        it("should report when an action cannot be performed because it lacks action points", () => {
+            SquaddieTurnService.spendActionPointsAndReservedPoints({
+                data: battleSquaddie.squaddieTurn,
+                actionTemplate: actionSpends2ActionPoints,
             })
-            it("should report when an action can be performed even if too many points are considered because this action is considered", () => {
-                const playerConsideredActions =
-                    PlayerConsideredActionsService.new()
-                playerConsideredActions.actionTemplateId =
-                    actionSpends2ActionPoints.id
+            const query = SquaddieTurnService.canPerformAction({
+                actionTemplate: actionSpends2ActionPoints,
+                battleSquaddie,
+            })
+            expect(query.canPerform).toBeFalsy()
+            expect(query.reason).toBe(
+                ActionPerformFailureReason.TOO_FEW_ACTIONS_REMAINING
+            )
+        })
+        it("should report when an action can be performed but there are too many action points considered", () => {
+            const playerConsideredActions = PlayerConsideredActionsService.new()
+            playerConsideredActions.movement = {
+                actionPointCost: 2,
+                coordinates: [],
+                destination: { q: 0, r: 0 },
+            }
 
-                const query = SquaddieTurnService.canPerformAction({
-                    actionTemplate: actionSpends2ActionPoints,
-                    playerConsideredActions,
-                    objectRepository,
-                    battleSquaddie,
-                })
-                expect(query.canPerform).toBeTruthy()
+            const query = SquaddieTurnService.canPerformAction({
+                actionTemplate: actionSpends2ActionPoints,
+                playerConsideredActions,
+                objectRepository,
+                battleSquaddie,
             })
-        })
-        it("should give 3 action points upon starting a new round", () => {
-            SquaddieTurnService.spendActionPoints(
-                battleSquaddie.squaddieTurn,
-                actionSpends2ActionPoints.resourceCost.actionPoints
+            expect(query.canPerform).toBeTruthy()
+            expect(query.reason).toBe(
+                ActionPerformFailureReason.CAN_PERFORM_BUT_TOO_MANY_CONSIDERED_ACTION_POINTS
             )
-            SquaddieTurnService.beginNewRound(battleSquaddie.squaddieTurn)
-            expect(battleSquaddie.squaddieTurn.remainingActionPoints).toBe(3)
         })
-        it("can spend arbitrary number of action points", () => {
-            SquaddieTurnService.beginNewRound(battleSquaddie.squaddieTurn)
-            SquaddieTurnService.spendActionPoints(
-                battleSquaddie.squaddieTurn,
-                1
-            )
-            expect(battleSquaddie.squaddieTurn.remainingActionPoints).toBe(2)
+        it("should report when an action can be performed even if too many points are considered because this action is considered", () => {
+            const playerConsideredActions = PlayerConsideredActionsService.new()
+            playerConsideredActions.actionTemplateId =
+                actionSpends2ActionPoints.id
+
+            const query = SquaddieTurnService.canPerformAction({
+                actionTemplate: actionSpends2ActionPoints,
+                playerConsideredActions,
+                objectRepository,
+                battleSquaddie,
+            })
+            expect(query.canPerform).toBeTruthy()
         })
-        it("knows when it is out of action points", () => {
+    })
+
+    describe("spend action points on movement", () => {
+        it("can spend action points on movement", () => {
+            SquaddieTurnService.spendActionPointsForMovement({
+                squaddieTurn: battleSquaddie.squaddieTurn,
+                actionPoints: 1,
+            })
             expect(
-                SquaddieTurnService.hasActionPointsRemaining(
+                SquaddieTurnService.getActionPointsReservedForMovement(
                     battleSquaddie.squaddieTurn
                 )
-            ).toBeTruthy()
-            SquaddieTurnService.spendActionPoints(
-                battleSquaddie.squaddieTurn,
-                3
-            )
+            ).toBe(1)
             expect(
-                SquaddieTurnService.hasActionPointsRemaining(
+                SquaddieTurnService.getUnallocatedActionPoints(
                     battleSquaddie.squaddieTurn
                 )
-            ).toBeFalsy()
-            SquaddieTurnService.beginNewRound(battleSquaddie.squaddieTurn)
+            ).toBe(2)
             expect(
                 SquaddieTurnService.hasActionPointsRemaining(
                     battleSquaddie.squaddieTurn
                 )
             ).toBeTruthy()
         })
-        it("can end its battleSquaddie.squaddieTurn", () => {
+    })
+
+    describe("end turn", () => {
+        it("will not have action points after ending its turn", () => {
             SquaddieTurnService.endTurn(battleSquaddie.squaddieTurn)
             expect(
                 SquaddieTurnService.hasActionPointsRemaining(
                     battleSquaddie.squaddieTurn
                 )
             ).toBeFalsy()
+            expect(battleSquaddie.squaddieTurn.unallocatedActionPoints).toBe(0)
         })
-    })
-
-    it("should give refresh action points at the end of a round", () => {
-        SquaddieTurnService.spendActionPoints(
-            battleSquaddie.squaddieTurn,
-            actionSpends2ActionPoints.resourceCost.actionPoints
-        )
-        SquaddieTurnService.refreshActionPoints(battleSquaddie.squaddieTurn)
-        expect(battleSquaddie.squaddieTurn.remainingActionPoints).toBe(3)
     })
 })

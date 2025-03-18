@@ -36,7 +36,7 @@ export const MovementCalculatorService = {
             gameEngineState.battleOrchestratorState.battleState.missionMap,
             battleSquaddie.battleSquaddieId
         )
-        const { actionPointsRemaining } =
+        const { unallocatedActionPoints } =
             SquaddieService.getNumberOfActionPoints({
                 squaddieTemplate,
                 battleSquaddie,
@@ -52,7 +52,7 @@ export const MovementCalculatorService = {
                 searchLimit: SearchLimitService.new({
                     baseSearchLimit: SearchLimitService.landBasedMovement(),
                     maximumMovementCost:
-                        actionPointsRemaining *
+                        unallocatedActionPoints *
                         SquaddieService.getSquaddieMovementAttributes({
                             battleSquaddie,
                             squaddieTemplate,
@@ -216,8 +216,8 @@ const spendActionPointsMoving = ({
         targetCoordinate: destination,
     })
 
-    SquaddieTurnService.spendActionPoints(
-        battleSquaddie.squaddieTurn,
-        numberOfActionPointsSpentMoving
-    )
+    SquaddieTurnService.spendActionPointsForMovement({
+        squaddieTurn: battleSquaddie.squaddieTurn,
+        actionPoints: numberOfActionPointsSpentMoving,
+    })
 }

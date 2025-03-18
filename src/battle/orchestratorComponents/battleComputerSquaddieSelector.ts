@@ -36,7 +36,6 @@ import {
     MapGraphicsLayerType,
 } from "../../hexMap/mapLayer/mapGraphicsLayer"
 import {
-    ActionPointCost,
     BattleAction,
     BattleActionService,
 } from "../history/battleAction/battleAction"
@@ -52,6 +51,7 @@ import { SearchResultAdapterService } from "../../hexMap/pathfinder/searchResult
 import { MapSearchService } from "../../hexMap/pathfinder/pathGeneration/mapSearch"
 import { SearchLimitService } from "../../hexMap/pathfinder/pathGeneration/searchLimit"
 import { SearchPathAdapterService } from "../../search/searchPathAdapter/searchPathAdapter"
+import { ActionTemplate } from "../../action/template/actionTemplate"
 
 export const SQUADDIE_SELECTOR_PANNING_TIME = 1000
 export const SHOW_SELECTED_ACTION_TIME = 500
@@ -407,7 +407,7 @@ export class BattleComputerSquaddieSelector
                 .terrainTileMap
         )
 
-        const { actionPointCost } =
+        const { endTurn, actionTemplate, movement } =
             this.calculateActionPointsSpentOnDecisionSteps(
                 gameEngineState,
                 battleActionDecisionSteps
@@ -436,10 +436,18 @@ export class BattleComputerSquaddieSelector
             battleSquaddie
         )
 
-        SquaddieTurnService.spendActionPoints(
-            battleSquaddie.squaddieTurn,
-            actionPointCost
-        )
+        if (movement != undefined) {
+            SquaddieTurnService.spendActionPointsForMovement({
+                squaddieTurn: battleSquaddie.squaddieTurn,
+                actionPoints: movement,
+            })
+        }
+
+        SquaddieTurnService.spendActionPointsAndReservedPoints({
+            data: battleSquaddie.squaddieTurn,
+            endTurn,
+            actionTemplate,
+        })
 
         this.mostRecentDecisionSteps = battleActionDecisionSteps
     }
@@ -576,13 +584,13 @@ export class BattleComputerSquaddieSelector
         gameEngineState: GameEngineState,
         battleActionDecisionSteps: BattleActionDecisionStep[]
     ): {
-        shouldEndTurn: boolean
-        actionPointCost: ActionPointCost
+        endTurn?: boolean
+        actionTemplate?: ActionTemplate
+        movement?: number
     } {
         if (battleActionDecisionSteps.some((step) => step.action.endTurn)) {
             return {
-                shouldEndTurn: true,
-                actionPointCost: "End Turn",
+                endTurn: true,
             }
         }
 
@@ -593,8 +601,6 @@ export class BattleComputerSquaddieSelector
             )
         )
 
-        let actionPointCost = 0
-
         let actionTemplateIdUsed: string = battleActionDecisionSteps.find(
             (step) => step.action.actionTemplateId !== undefined
         )?.action.actionTemplateId
@@ -604,9 +610,12 @@ export class BattleComputerSquaddieSelector
                     gameEngineState.repository,
                     actionTemplateIdUsed
                 )
-            actionPointCost += actionTemplate.resourceCost.actionPoints
+            return {
+                actionTemplate,
+            }
         }
 
+        let movementActionPointCost = 0
         battleActionDecisionSteps
             .filter((step) => step.action.movement === true)
             .forEach((movementStep) => {
@@ -638,12 +647,11 @@ export class BattleComputerSquaddieSelector
                             Number(str)
                         )
                     ) || 1
-                actionPointCost += numberOfActionPointsSpentMoving
+                movementActionPointCost += numberOfActionPointsSpentMoving
             })
 
         return {
-            actionPointCost,
-            shouldEndTurn: false,
+            movement: movementActionPointCost,
         }
     }
 

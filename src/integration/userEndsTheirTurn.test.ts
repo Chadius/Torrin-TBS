@@ -374,7 +374,9 @@ describe("User ends their turn", () => {
 
         it("ends the squaddie turn", () => {
             expect(
-                playerBattleSquaddie.squaddieTurn.remainingActionPoints
+                SquaddieTurnService.getUnallocatedActionPoints(
+                    playerBattleSquaddie.squaddieTurn
+                )
             ).toEqual(0)
             expect(
                 SquaddieTurnService.hasActionPointsRemaining(

@@ -300,11 +300,15 @@ describe("map highlight generator", () => {
 
         it("highlights correct coordinates when squaddie has 1 action", () => {
             createSquaddie(SquaddieAffiliation.PLAYER)
-            SquaddieTurnService.spendActionPoints(
-                battleSquaddie.squaddieTurn,
-                2
-            )
-            expect(battleSquaddie.squaddieTurn.remainingActionPoints).toBe(1)
+            SquaddieTurnService.spendActionPointsForMovement({
+                squaddieTurn: battleSquaddie.squaddieTurn,
+                actionPoints: 2,
+            })
+            expect(
+                SquaddieTurnService.getUnallocatedActionPoints(
+                    battleSquaddie.squaddieTurn
+                )
+            ).toBe(1)
 
             const highlightedDescription: HighlightCoordinateDescription[] =
                 MapHighlightService.highlightAllCoordinatesWithinSquaddieRange({
@@ -323,7 +327,11 @@ describe("map highlight generator", () => {
         })
         it("highlights correct coordinates when squaddie has multiple actions", () => {
             createSquaddie(SquaddieAffiliation.PLAYER)
-            expect(battleSquaddie.squaddieTurn.remainingActionPoints).toBe(3)
+            expect(
+                SquaddieTurnService.getUnallocatedActionPoints(
+                    battleSquaddie.squaddieTurn
+                )
+            ).toBe(3)
 
             const highlightedDescription: HighlightCoordinateDescription[] =
                 MapHighlightService.highlightAllCoordinatesWithinSquaddieRange({
@@ -342,10 +350,17 @@ describe("map highlight generator", () => {
         })
         it("highlights correct coordinates when applying the number of actions override", () => {
             createSquaddie(SquaddieAffiliation.PLAYER)
-            expect(battleSquaddie.squaddieTurn.remainingActionPoints).toBe(3)
+            expect(
+                SquaddieTurnService.getUnallocatedActionPoints(
+                    battleSquaddie.squaddieTurn
+                )
+            ).toBe(3)
 
             const turnWith1Action = SquaddieTurnService.new()
-            SquaddieTurnService.spendActionPoints(turnWith1Action, 2)
+            SquaddieTurnService.spendActionPointsForMovement({
+                squaddieTurn: turnWith1Action,
+                actionPoints: 2,
+            })
 
             const highlightedDescription: HighlightCoordinateDescription[] =
                 MapHighlightService.highlightAllCoordinatesWithinSquaddieRange({
@@ -365,7 +380,11 @@ describe("map highlight generator", () => {
         })
         it("highlights correct coordinates when squaddie has to deal with double movement terrain", () => {
             createSquaddie(SquaddieAffiliation.PLAYER)
-            expect(battleSquaddie.squaddieTurn.remainingActionPoints).toBe(3)
+            expect(
+                SquaddieTurnService.getUnallocatedActionPoints(
+                    battleSquaddie.squaddieTurn
+                )
+            ).toBe(3)
 
             const highlightedDescription: HighlightCoordinateDescription[] =
                 MapHighlightService.highlightAllCoordinatesWithinSquaddieRange({
@@ -398,11 +417,15 @@ describe("map highlight generator", () => {
         })
         it("highlights correct coordinates with squaddie can ignore double movement terrain", () => {
             createSquaddie(SquaddieAffiliation.PLAYER)
-            SquaddieTurnService.spendActionPoints(
-                battleSquaddie.squaddieTurn,
-                2
-            )
-            expect(battleSquaddie.squaddieTurn.remainingActionPoints).toBe(1)
+            SquaddieTurnService.spendActionPointsForMovement({
+                squaddieTurn: battleSquaddie.squaddieTurn,
+                actionPoints: 2,
+            })
+            expect(
+                SquaddieTurnService.getUnallocatedActionPoints(
+                    battleSquaddie.squaddieTurn
+                )
+            ).toBe(1)
             InBattleAttributesService.addActiveAttributeModifier(
                 battleSquaddie.inBattleAttributes,
                 AttributeModifierService.new({

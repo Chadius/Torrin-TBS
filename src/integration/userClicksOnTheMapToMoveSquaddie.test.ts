@@ -56,6 +56,7 @@ import { BattleHUDListener } from "../battle/hud/battleHUD/battleHUDListener"
 import { BattlePlayerSquaddieSelectorSpec } from "./spec/battlePlayerSquaddieSelectorSpec"
 import { HexCoordinate } from "../hexMap/hexCoordinate/hexCoordinate"
 import { SearchPathAdapterService } from "../search/searchPathAdapter/searchPathAdapter"
+import { SquaddieTurnService } from "../squaddie/turn"
 
 describe("user clicks on the map to move", () => {
     let repository: ObjectRepository
@@ -372,7 +373,9 @@ describe("user clicks on the map to move", () => {
 
         it("Squaddie spends the action points moving and moves to the new coordinate", () => {
             expect(
-                playerBattleSquaddie.squaddieTurn.remainingActionPoints
+                SquaddieTurnService.getUnallocatedActionPoints(
+                    playerBattleSquaddie.squaddieTurn
+                )
             ).toEqual(0)
 
             const { mapCoordinate } = MissionMapService.getByBattleSquaddieId(

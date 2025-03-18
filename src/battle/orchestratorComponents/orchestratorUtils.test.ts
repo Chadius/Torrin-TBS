@@ -598,15 +598,15 @@ describe("Orchestration Utils", () => {
                 0
             )
 
-            SquaddieTurnService.spendActionPoints(
-                getResultOrThrowError(
+            SquaddieTurnService.spendActionPointsForMovement({
+                squaddieTurn: getResultOrThrowError(
                     ObjectRepositoryService.getSquaddieByBattleId(
                         repository,
                         playerSquaddieIds[0]
                     )
                 ).battleSquaddie.squaddieTurn,
-                1
-            )
+                actionPoints: 1,
+            })
 
             BattleActionRecorderService.addReadyToAnimateBattleAction(
                 gameEngineState.battleOrchestratorState.battleState

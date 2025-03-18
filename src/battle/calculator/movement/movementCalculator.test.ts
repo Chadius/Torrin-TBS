@@ -41,6 +41,7 @@ import {
 import { MapSearchService } from "../../../hexMap/pathfinder/pathGeneration/mapSearch"
 import { SearchLimit } from "../../../hexMap/pathfinder/pathGeneration/searchLimit"
 import { HexCoordinateService } from "../../../hexMap/hexCoordinate/hexCoordinate"
+import { SquaddieTurnService } from "../../../squaddie/turn"
 
 describe("movement calculator", () => {
     let pathfinderSpy: MockInstance
@@ -189,7 +190,9 @@ describe("movement calculator", () => {
                 pathfinderSpy.mock.calls[0][0].searchLimit
             expect(searchParameters.ignoreTerrainCost).toBeTruthy()
             expect(searchParameters.maximumMovementCost).toEqual(
-                battleSquaddie.squaddieTurn.remainingActionPoints *
+                SquaddieTurnService.getUnallocatedActionPoints(
+                    battleSquaddie.squaddieTurn
+                ) *
                     (battleSquaddie.inBattleAttributes.armyAttributes.movement
                         .movementPerAction +
                         2)

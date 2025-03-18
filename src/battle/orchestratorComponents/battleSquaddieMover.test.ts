@@ -40,6 +40,7 @@ import { SearchResultAdapterService } from "../../hexMap/pathfinder/searchResult
 import { MapSearchService } from "../../hexMap/pathfinder/pathGeneration/mapSearch"
 import { SearchLimitService } from "../../hexMap/pathfinder/pathGeneration/searchLimit"
 import { SearchPathAdapter } from "../../search/searchPathAdapter/searchPathAdapter"
+import { SquaddieTurnService } from "../../squaddie/turn"
 
 describe("BattleSquaddieMover", () => {
     let objectRepository: ObjectRepository
@@ -276,7 +277,7 @@ describe("BattleSquaddieMover", () => {
                     })
                 )
 
-                player1BattleSquaddie.squaddieTurn.remainingActionPoints = 0
+                SquaddieTurnService.endTurn(player1BattleSquaddie.squaddieTurn)
 
                 mover = new BattleSquaddieMover()
                 vi.spyOn(Date, "now").mockImplementation(() => 1)

@@ -305,10 +305,10 @@ describe("target a squaddie within reach of actions", () => {
             coordinate: { q: 0, r: 1 },
         })
 
-        SquaddieTurnService.spendActionPoints(
-            enemyBattleSquaddie.squaddieTurn,
-            4 - shortBowAction.resourceCost.actionPoints
-        )
+        SquaddieTurnService.spendActionPointsForMovement({
+            squaddieTurn: enemyBattleSquaddie.squaddieTurn,
+            actionPoints: 4 - shortBowAction.resourceCost.actionPoints,
+        })
 
         const strategy: TargetSquaddieInRange = new TargetSquaddieInRange({
             desiredBattleSquaddieId: playerKnightDynamic.battleSquaddieId,
@@ -376,17 +376,15 @@ describe("target a squaddie within reach of actions", () => {
             ],
         })
 
-        const {
-            squaddieTemplate: enemyBanditStatic2,
-            battleSquaddie: enemyBanditDynamic2,
-        } = SquaddieRepositoryService.createNewSquaddieAndAddToRepository({
-            templateId: "enemy_bandit_2",
-            battleId: "enemy_bandit_2",
-            name: "Bandit",
-            affiliation: SquaddieAffiliation.ENEMY,
-            objectRepository: objectRepository,
-            actionTemplateIds: [longBowAction.id],
-        })
+        const { battleSquaddie: enemyBanditDynamic2 } =
+            SquaddieRepositoryService.createNewSquaddieAndAddToRepository({
+                templateId: "enemy_bandit_2",
+                battleId: "enemy_bandit_2",
+                name: "Bandit",
+                affiliation: SquaddieAffiliation.ENEMY,
+                objectRepository: objectRepository,
+                actionTemplateIds: [longBowAction.id],
+            })
         BattleSquaddieTeamService.addBattleSquaddieIds(enemyTeam, [
             enemyBanditDynamic2.battleSquaddieId,
         ])

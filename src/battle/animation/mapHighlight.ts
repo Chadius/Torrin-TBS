@@ -7,7 +7,7 @@ import { MissionMap } from "../../missionMap/missionMap"
 import { SearchResult } from "../../hexMap/pathfinder/searchResults/searchResult"
 import { HexCoordinate } from "../../hexMap/hexCoordinate/hexCoordinate"
 import { CampaignResources } from "../../campaign/campaignResources"
-import { SquaddieTurn } from "../../squaddie/turn"
+import { SquaddieTurn, SquaddieTurnService } from "../../squaddie/turn"
 import { BattleSquaddieSelectorService } from "../orchestratorComponents/battleSquaddieSelectorUtils"
 import { PulseBlendColor } from "../../hexMap/colorUtils"
 import { SearchResultAdapterService } from "../../hexMap/pathfinder/searchResults/searchResultAdapter"
@@ -110,14 +110,16 @@ export const MapHighlightService = {
             )
         )
 
-        let { actionPointsRemaining } = SquaddieService.getNumberOfActionPoints(
-            {
+        let { unallocatedActionPoints } =
+            SquaddieService.getNumberOfActionPoints({
                 battleSquaddie,
                 squaddieTemplate,
-            }
-        )
+            })
         if (squaddieTurnOverride) {
-            actionPointsRemaining = squaddieTurnOverride.remainingActionPoints
+            unallocatedActionPoints =
+                SquaddieTurnService.getUnallocatedActionPoints(
+                    squaddieTurnOverride
+                )
         }
 
         const reachableCoordinateSearch: SearchResult =
@@ -127,7 +129,7 @@ export const MapHighlightService = {
                 searchLimit: SearchLimitService.new({
                     baseSearchLimit: SearchLimitService.landBasedMovement(),
                     maximumMovementCost:
-                        actionPointsRemaining *
+                        unallocatedActionPoints *
                         SquaddieService.getSquaddieMovementAttributes({
                             battleSquaddie,
                             squaddieTemplate,
@@ -178,7 +180,7 @@ export const MapHighlightService = {
             missionMap,
             campaignResources,
             squaddieIsNormallyControllableByPlayer,
-            actionPointsRemaining,
+            actionPointsRemaining: unallocatedActionPoints,
         })
         if (attackRange && attackRange.coordinates.length > 0) {
             return [...movementRange, attackRange]

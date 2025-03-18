@@ -21,9 +21,11 @@ import {
 } from "../action/template/actionEffectTemplate"
 import { SearchPathAdapter } from "../search/searchPathAdapter/searchPathAdapter"
 import { HexCoordinate } from "../hexMap/hexCoordinate/hexCoordinate"
+import { SquaddieTurnService } from "./turn"
 
 export interface SquaddieActionPointsExplanation {
-    actionPointsRemaining: number
+    unallocatedActionPoints: number
+    movementActionPoints: number
 }
 
 export interface SquaddieArmorExplanation {
@@ -328,8 +330,13 @@ const getNumberOfActionPoints = ({
     battleSquaddie: BattleSquaddie
 }): SquaddieActionPointsExplanation => {
     return {
-        actionPointsRemaining:
-            battleSquaddie.squaddieTurn.remainingActionPoints,
+        unallocatedActionPoints: SquaddieTurnService.getUnallocatedActionPoints(
+            battleSquaddie.squaddieTurn
+        ),
+        movementActionPoints:
+            SquaddieTurnService.getActionPointsReservedForMovement(
+                battleSquaddie.squaddieTurn
+            ),
     }
 }
 
@@ -423,7 +430,7 @@ const canPlayerControlSquaddieRightNow = ({
         battleSquaddie,
     })
 
-    let { actionPointsRemaining } = SquaddieService.getNumberOfActionPoints({
+    let { unallocatedActionPoints } = SquaddieService.getNumberOfActionPoints({
         squaddieTemplate,
         battleSquaddie,
     })
@@ -431,7 +438,7 @@ const canPlayerControlSquaddieRightNow = ({
     const playerControlledAffiliation: boolean =
         squaddieTemplate.squaddieId.affiliation === SquaddieAffiliation.PLAYER
     const squaddieCanCurrentlyAct: boolean =
-        actionPointsRemaining > 0 && squaddieIsAlive
+        unallocatedActionPoints > 0 && squaddieIsAlive
 
     return {
         squaddieHasThePlayerControlledAffiliation: playerControlledAffiliation,
@@ -473,13 +480,13 @@ const canSquaddieActRightNow = ({
         battleSquaddie,
     })
 
-    let { actionPointsRemaining } = SquaddieService.getNumberOfActionPoints({
+    let { unallocatedActionPoints } = SquaddieService.getNumberOfActionPoints({
         squaddieTemplate,
         battleSquaddie,
     })
 
     const hasActionPointsRemaining: boolean =
-        squaddieIsAlive && actionPointsRemaining > 0
+        squaddieIsAlive && unallocatedActionPoints > 0
 
     return {
         canAct: hasActionPointsRemaining,

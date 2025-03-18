@@ -154,10 +154,10 @@ describe("user clicks on an action to consider it", () => {
     })
 
     it("If the action costs too many ActionPoints, do not select it", () => {
-        SquaddieTurnService.spendActionPoints(
-            playerBattleSquaddie.squaddieTurn,
-            2
-        )
+        SquaddieTurnService.spendActionPointsForMovement({
+            squaddieTurn: playerBattleSquaddie.squaddieTurn,
+            actionPoints: 2,
+        })
 
         const attackButtonAction =
             ObjectRepositoryService.getActionTemplateById(
@@ -165,7 +165,9 @@ describe("user clicks on an action to consider it", () => {
                 attackAction.id
             )
         expect(
-            playerBattleSquaddie.squaddieTurn.remainingActionPoints
+            SquaddieTurnService.getUnallocatedActionPoints(
+                playerBattleSquaddie.squaddieTurn
+            )
         ).toBeLessThan(attackButtonAction.resourceCost.actionPoints)
 
         BattlePlayerSquaddieSelectorSpec.clickOnMapAtCoordinates({

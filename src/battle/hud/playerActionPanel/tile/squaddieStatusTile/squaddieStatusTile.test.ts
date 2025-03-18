@@ -576,10 +576,10 @@ describe("Squaddie Status Tile", () => {
             })
         })
         it("should draw the current number of action points", () => {
-            SquaddieTurnService.spendActionPoints(
-                battleSquaddie.squaddieTurn,
-                1
-            )
+            SquaddieTurnService.spendActionPointsForMovement({
+                squaddieTurn: battleSquaddie.squaddieTurn,
+                actionPoints: 1,
+            })
             const tile = SquaddieStatusTileService.new({
                 gameEngineState,
                 battleSquaddieId: "battleJoeTheSoldier",
@@ -605,10 +605,10 @@ describe("Squaddie Status Tile", () => {
             )
         })
         it("should draw a meter representing the current action points when the user considers an action", () => {
-            SquaddieTurnService.spendActionPoints(
-                battleSquaddie.squaddieTurn,
-                1
-            )
+            SquaddieTurnService.spendActionPointsForMovement({
+                squaddieTurn: battleSquaddie.squaddieTurn,
+                actionPoints: 1,
+            })
             gameEngineState.battleOrchestratorState.battleState.playerConsideredActions.actionTemplateId =
                 "action costs 1 action point"
             const tile = SquaddieStatusTileService.new({
@@ -644,10 +644,10 @@ describe("Squaddie Status Tile", () => {
         })
 
         it("should empty the meter when player considers ending the turn", () => {
-            SquaddieTurnService.spendActionPoints(
-                battleSquaddie.squaddieTurn,
-                2
-            )
+            SquaddieTurnService.spendActionPointsForMovement({
+                squaddieTurn: battleSquaddie.squaddieTurn,
+                actionPoints: 2,
+            })
             gameEngineState.battleOrchestratorState.battleState.playerConsideredActions.endTurn =
                 true
             const tile = SquaddieStatusTileService.new({

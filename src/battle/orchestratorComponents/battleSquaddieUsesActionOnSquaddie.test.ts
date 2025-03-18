@@ -277,10 +277,10 @@ describe("BattleSquaddieUsesActionOnSquaddie", () => {
             })
         )
 
-        SquaddieTurnService.spendActionPoints(
-            battleSquaddieBase.squaddieTurn,
-            powerAttackLongswordAction.resourceCost.actionPoints
-        )
+        SquaddieTurnService.spendActionPointsAndReservedPoints({
+            data: battleSquaddieBase.squaddieTurn,
+            actionTemplate: powerAttackLongswordAction,
+        })
         return gameEngineState
     }
 
@@ -347,10 +347,10 @@ describe("BattleSquaddieUsesActionOnSquaddie", () => {
             })
         )
 
-        SquaddieTurnService.spendActionPoints(
-            battleSquaddieBase.squaddieTurn,
-            powerAttackLongswordAction.resourceCost.actionPoints
-        )
+        SquaddieTurnService.spendActionPointsAndReservedPoints({
+            data: battleSquaddieBase.squaddieTurn,
+            actionTemplate: powerAttackLongswordAction,
+        })
         return gameEngineState
     }
 
@@ -420,7 +420,10 @@ describe("BattleSquaddieUsesActionOnSquaddie", () => {
         const gameEngineState = usePowerAttackLongswordAndReturnState({
             missionMap,
         })
-        battleSquaddieBase.squaddieTurn.remainingActionPoints = 1
+        SquaddieTurnService.spendActionPointsForMovement({
+            squaddieTurn: battleSquaddieBase.squaddieTurn,
+            actionPoints: 1,
+        })
 
         vi.spyOn(
             squaddieUsesActionOnSquaddie.squaddieTargetsOtherSquaddiesAnimator,
@@ -463,7 +466,10 @@ describe("BattleSquaddieUsesActionOnSquaddie", () => {
         const gameEngineState = usePowerAttackLongswordAndReturnState({
             missionMap,
         })
-        battleSquaddieBase.squaddieTurn.remainingActionPoints = 1
+        SquaddieTurnService.spendActionPointsForMovement({
+            squaddieTurn: battleSquaddieBase.squaddieTurn,
+            actionPoints: 1,
+        })
 
         const messageSpy: MockInstance = vi.spyOn(
             gameEngineState.messageBoard,

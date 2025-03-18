@@ -1,6 +1,7 @@
 import { MovementDecision } from "../playerSelectionService/playerSelectionContext"
 import { BattleSquaddie } from "../battleSquaddie"
 import { ObjectRepository, ObjectRepositoryService } from "../objectRepository"
+import { SquaddieTurnService } from "../../squaddie/turn"
 
 export interface PlayerConsideredActions {
     actionTemplateId?: string
@@ -29,7 +30,9 @@ export const PlayerConsideredActionsService = {
             case !!playerConsideredActions?.movement:
                 return playerConsideredActions.movement.actionPointCost
             case !!playerConsideredActions?.endTurn:
-                return battleSquaddie.squaddieTurn.remainingActionPoints
+                return SquaddieTurnService.getUnallocatedActionPoints(
+                    battleSquaddie.squaddieTurn
+                )
             case !!playerConsideredActions?.actionTemplateId:
                 return ObjectRepositoryService.getActionTemplateById(
                     objectRepository,

@@ -396,10 +396,12 @@ const getMovementInformationAboutBattleSquaddie = ({
         gameEngineState.battleOrchestratorState.battleState.missionMap,
         battleSquaddieIdToAct
     )
-    const { actionPointsRemaining } = SquaddieService.getNumberOfActionPoints({
-        squaddieTemplate,
-        battleSquaddie,
-    })
+    const { unallocatedActionPoints } = SquaddieService.getNumberOfActionPoints(
+        {
+            squaddieTemplate,
+            battleSquaddie,
+        }
+    )
     const movementPerActionThisRound =
         SquaddieService.getSquaddieMovementAttributes({
             battleSquaddie,
@@ -409,7 +411,7 @@ const getMovementInformationAboutBattleSquaddie = ({
         battleSquaddie,
         squaddieTemplate,
         mapCoordinate,
-        actionPointsRemaining,
+        actionPointsRemaining: unallocatedActionPoints,
         movementPerActionThisRound,
     }
 }

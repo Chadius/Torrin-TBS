@@ -520,15 +520,14 @@ export const SquaddieStatusTileService = {
         battleSquaddie: BattleSquaddie,
         squaddieTemplate: SquaddieTemplate
     ) => {
-        let { actionPointsRemaining } = SquaddieService.getNumberOfActionPoints(
-            {
+        let { unallocatedActionPoints } =
+            SquaddieService.getNumberOfActionPoints({
                 battleSquaddie,
                 squaddieTemplate,
-            }
-        )
+            })
 
         return {
-            actionPointsRemaining,
+            unallocatedActionPoints,
         }
     },
     getContextVariablesThatDependOnTargetSquaddie: (
@@ -542,7 +541,7 @@ export const SquaddieStatusTileService = {
             )
         )
 
-        const { actionPointsRemaining } =
+        const { unallocatedActionPoints: actionPointsRemaining } =
             SquaddieStatusTileService.calculateActionPoints(
                 battleSquaddie,
                 squaddieTemplate
@@ -566,7 +565,7 @@ export const SquaddieStatusTileService = {
             )
         )
 
-        const { actionPointsRemaining } =
+        const { unallocatedActionPoints: actionPointsRemaining } =
             SquaddieStatusTileService.calculateActionPoints(
                 battleSquaddie,
                 squaddieTemplate

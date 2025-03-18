@@ -511,7 +511,10 @@ describe("battleSquaddieSelectorUtils", () => {
             expect(actionInfo).toBeUndefined()
         })
         it("will not recommend movement if the player does not have enough actions to move and act", () => {
-            SquaddieTurnService.spendActionPoints(playerActor.squaddieTurn, 1)
+            SquaddieTurnService.spendActionPointsForMovement({
+                squaddieTurn: playerActor.squaddieTurn,
+                actionPoints: 1,
+            })
 
             MissionMapService.addSquaddie({
                 missionMap: map,

@@ -75,7 +75,8 @@ describe("Action Point Checker", () => {
                     squaddieTemplate,
                 })
             ).toEqual({
-                actionPointsRemaining: startingActionPoints,
+                movementActionPoints: 3 - startingActionPoints,
+                unallocatedActionPoints: startingActionPoints,
             })
             expect(
                 ActionPointCheck.canAfford({
@@ -140,7 +141,8 @@ describe("Action Point Checker", () => {
                     squaddieTemplate,
                 })
             ).toEqual({
-                actionPointsRemaining: startingActionPoints,
+                movementActionPoints: 3 - startingActionPoints,
+                unallocatedActionPoints: startingActionPoints,
             })
             expect(
                 ActionPointCheck.canAfford({
@@ -242,16 +244,14 @@ const setup = ({
     startingActionPoints: number
 }) => {
     const objectRepository = ObjectRepositoryService.new()
-    ObjectRepositoryService.addActionTemplate(
-        objectRepository,
-        ActionTemplateService.new({
-            id: actionTemplateId,
-            name: actionTemplateId,
-            resourceCost: ActionResourceCostService.new({
-                actionPoints: actionPointCost,
-            }),
-        })
-    )
+    const actionTemplate = ActionTemplateService.new({
+        id: actionTemplateId,
+        name: actionTemplateId,
+        resourceCost: ActionResourceCostService.new({
+            actionPoints: actionPointCost,
+        }),
+    })
+    ObjectRepositoryService.addActionTemplate(objectRepository, actionTemplate)
     const { battleSquaddie, squaddieTemplate } =
         SquaddieRepositoryService.createNewSquaddieAndAddToRepository({
             affiliation: SquaddieAffiliation.PLAYER,
@@ -261,9 +261,9 @@ const setup = ({
             objectRepository: objectRepository,
             actionTemplateIds: [actionTemplateId],
         })
-    SquaddieTurnService.spendActionPoints(
-        battleSquaddie.squaddieTurn,
-        3 - startingActionPoints
-    )
+    SquaddieTurnService.spendActionPointsForMovement({
+        squaddieTurn: battleSquaddie.squaddieTurn,
+        actionPoints: 3 - startingActionPoints,
+    })
     return { objectRepository, battleSquaddie, squaddieTemplate }
 }

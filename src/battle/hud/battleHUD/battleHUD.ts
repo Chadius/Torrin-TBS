@@ -485,10 +485,10 @@ export const BattleHUDService = {
             return
         }
 
-        SquaddieTurnService.spendActionPoints(
-            actingBattleSquaddie.squaddieTurn,
-            actionTemplate.resourceCost.actionPoints
-        )
+        SquaddieTurnService.spendActionPointsAndReservedPoints({
+            data: actingBattleSquaddie.squaddieTurn,
+            actionTemplate,
+        })
 
         const targetCoordinate = BattleActionDecisionStepService.getTarget(
             gameEngineState.battleOrchestratorState.battleState
@@ -580,7 +580,6 @@ export const BattleHUDService = {
         MovementCalculatorService.spendActionPointsMoving({
             gameEngineState,
             battleSquaddie,
-            squaddieTemplate,
             destination,
         })
         MovementCalculatorService.queueBattleActionToMove({

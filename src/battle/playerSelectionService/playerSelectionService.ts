@@ -1262,9 +1262,11 @@ class PlayerConsidersMovementForSelectedSquaddie implements BehaviorTreeTask {
             )
         )
 
-        const actionPointsExplanation = SquaddieService.getNumberOfActionPoints(
-            { battleSquaddie, squaddieTemplate }
-        )
+        const { unallocatedActionPoints } =
+            SquaddieService.getNumberOfActionPoints({
+                battleSquaddie,
+                squaddieTemplate,
+            })
 
         const closestRoute =
             BattleSquaddieSelectorService.getClosestRouteForSquaddieToReachDestination(
@@ -1279,7 +1281,7 @@ class PlayerConsidersMovementForSelectedSquaddie implements BehaviorTreeTask {
                     actionPointsRemaining:
                         squaddieTemplate.squaddieId.affiliation ===
                         SquaddieAffiliation.PLAYER
-                            ? actionPointsExplanation.actionPointsRemaining
+                            ? unallocatedActionPoints
                             : 0,
                     stopCoordinate: coordinate,
                 }

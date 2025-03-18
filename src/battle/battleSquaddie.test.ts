@@ -14,6 +14,7 @@ import {
     ProficiencyLevel,
 } from "../squaddie/armyAttributes"
 import { beforeEach, describe, expect, it } from "vitest"
+import { SquaddieTurnService } from "../squaddie/turn"
 
 describe("BattleSquaddie", () => {
     it("throws an error if battle squaddie has no template Id", () => {
@@ -36,7 +37,7 @@ describe("BattleSquaddie", () => {
                 BattleSquaddieService.newBattleSquaddie({
                     squaddieTemplateId: "squaddieTemplateId",
                     battleSquaddieId: "",
-                    squaddieTurn: { remainingActionPoints: 3 },
+                    squaddieTurn: SquaddieTurnService.new(),
                 })
             BattleSquaddieService.assertBattleSquaddie(badBattleSquaddie)
         }

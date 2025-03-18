@@ -1102,8 +1102,9 @@ describe("Battle HUD", () => {
                     )
                 ).toEqual(endTurnBattleAction)
                 expect(
-                    playerSoldierBattleSquaddie.squaddieTurn
-                        .remainingActionPoints
+                    SquaddieTurnService.getUnallocatedActionPoints(
+                        playerSoldierBattleSquaddie.squaddieTurn
+                    )
                 ).toEqual(0)
             })
 
@@ -1562,12 +1563,12 @@ describe("Battle HUD", () => {
                 )
             )
 
-            const { actionPointsRemaining } =
+            const { unallocatedActionPoints } =
                 SquaddieService.getNumberOfActionPoints({
                     squaddieTemplate,
                     battleSquaddie: playerSoldierBattleSquaddie,
                 })
-            expect(actionPointsRemaining).toBe(
+            expect(unallocatedActionPoints).toBe(
                 3 - longswordAction.resourceCost.actionPoints
             )
         })
@@ -2043,7 +2044,9 @@ describe("Battle HUD", () => {
 
             it("consumes the squaddie actions", () => {
                 expect(
-                    battleSquaddie.squaddieTurn.remainingActionPoints
+                    SquaddieTurnService.getUnallocatedActionPoints(
+                        battleSquaddie.squaddieTurn
+                    )
                 ).toEqual(DEFAULT_ACTION_POINTS_PER_TURN - 1)
             })
 
@@ -2176,7 +2179,9 @@ describe("Battle HUD", () => {
                     mapCoordinate: { q: 0, r: 2 },
                 })
                 expect(
-                    battleSquaddie.squaddieTurn.remainingActionPoints
+                    SquaddieTurnService.getUnallocatedActionPoints(
+                        battleSquaddie.squaddieTurn
+                    )
                 ).toEqual(DEFAULT_ACTION_POINTS_PER_TURN - 1)
                 expect(
                     BattleActionRecorderService.peekAtAnimationQueue(

@@ -82,14 +82,18 @@ describe("Player Considered Actions", () => {
                         playerConsideredActions: endTurnConsideration,
                     }
                 )
-            ).toEqual(battleSquaddie.squaddieTurn.remainingActionPoints)
+            ).toEqual(
+                SquaddieTurnService.getUnallocatedActionPoints(
+                    battleSquaddie.squaddieTurn
+                )
+            )
         })
 
         it("will expect to consume remaining action points even after spending some", () => {
-            SquaddieTurnService.spendActionPoints(
-                battleSquaddie.squaddieTurn,
-                1
-            )
+            SquaddieTurnService.spendActionPointsForMovement({
+                squaddieTurn: battleSquaddie.squaddieTurn,
+                actionPoints: 1,
+            })
             expect(
                 PlayerConsideredActionsService.getExpectedMarkedActionPointsBasedOnPlayerConsideration(
                     {
@@ -98,7 +102,11 @@ describe("Player Considered Actions", () => {
                         playerConsideredActions: endTurnConsideration,
                     }
                 )
-            ).toEqual(battleSquaddie.squaddieTurn.remainingActionPoints)
+            ).toEqual(
+                SquaddieTurnService.getUnallocatedActionPoints(
+                    battleSquaddie.squaddieTurn
+                )
+            )
         })
     })
 

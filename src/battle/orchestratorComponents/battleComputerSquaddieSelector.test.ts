@@ -854,12 +854,12 @@ describe("BattleComputerSquaddieSelector", () => {
             })
 
             it("should consume the squaddie action points", () => {
-                const { actionPointsRemaining } =
+                const { unallocatedActionPoints } =
                     SquaddieService.getNumberOfActionPoints({
                         squaddieTemplate: enemyDemonTemplate,
                         battleSquaddie: enemyDemonBattleSquaddie,
                     })
-                expect(actionPointsRemaining).toBe(
+                expect(unallocatedActionPoints).toBe(
                     3 - demonBiteAction.resourceCost.actionPoints
                 )
             })

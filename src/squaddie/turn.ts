@@ -1,6 +1,4 @@
 import { ActionTemplate } from "../action/template/actionTemplate"
-
-import { ActionPointCost } from "../battle/history/battleAction/battleAction"
 import {
     PlayerConsideredActions,
     PlayerConsideredActionsService,
@@ -19,25 +17,35 @@ export enum ActionPerformFailureReason {
 }
 
 export interface SquaddieTurn {
-    remainingActionPoints: number
+    movementActionPoints: number
+    unallocatedActionPoints: number
 }
 
 export const SquaddieTurnService = {
     new: (): SquaddieTurn => {
         return {
-            remainingActionPoints: DEFAULT_ACTION_POINTS_PER_TURN,
+            movementActionPoints: 0,
+            unallocatedActionPoints: DEFAULT_ACTION_POINTS_PER_TURN,
         }
     },
-    spendActionPoints: (
-        data: SquaddieTurn,
-        actionPointCost: ActionPointCost
-    ) => {
-        if (actionPointCost === "End Turn") {
-            data.remainingActionPoints = 0
+    spendActionPointsAndReservedPoints: ({
+        data,
+        endTurn,
+        actionTemplate,
+    }: {
+        data: SquaddieTurn
+        endTurn?: boolean
+        actionTemplate?: ActionTemplate
+    }) => {
+        if (endTurn) {
+            consumeAllActionPointsAtEndOfTurn(data)
             return
         }
-        data.remainingActionPoints =
-            data.remainingActionPoints - actionPointCost
+        if (actionTemplate) {
+            data.unallocatedActionPoints =
+                data.unallocatedActionPoints -
+                actionTemplate.resourceCost.actionPoints
+        }
     },
     canPerformAction: ({
         actionTemplate,
@@ -54,7 +62,7 @@ export const SquaddieTurnService = {
         reason: ActionPerformFailureReason
     } => {
         const actionPointsToSpend =
-            battleSquaddie.squaddieTurn.remainingActionPoints
+            battleSquaddie.squaddieTurn.unallocatedActionPoints
 
         let actionPointsAlreadyConsidered = 0
         if (playerConsideredActions?.actionTemplateId !== actionTemplate.id) {
@@ -99,13 +107,30 @@ export const SquaddieTurnService = {
         refreshActionPoints(data)
     },
     hasActionPointsRemaining: (data: SquaddieTurn): boolean => {
-        return data.remainingActionPoints > 0
+        return data.unallocatedActionPoints > 0
     },
-    endTurn: (data: SquaddieTurn) => {
-        data.remainingActionPoints = 0
+    endTurn: (data: SquaddieTurn) => consumeAllActionPointsAtEndOfTurn(data),
+    getActionPointsReservedForMovement: (squaddieTurn: SquaddieTurn) =>
+        squaddieTurn.movementActionPoints,
+    getUnallocatedActionPoints: (squaddieTurn: SquaddieTurn) =>
+        squaddieTurn.unallocatedActionPoints,
+    spendActionPointsForMovement: ({
+        squaddieTurn,
+        actionPoints,
+    }: {
+        squaddieTurn: SquaddieTurn
+        actionPoints: number
+    }) => {
+        squaddieTurn.unallocatedActionPoints =
+            squaddieTurn.unallocatedActionPoints - actionPoints
+        squaddieTurn.movementActionPoints = actionPoints
     },
 }
 
 const refreshActionPoints = (data: SquaddieTurn) => {
-    data.remainingActionPoints = DEFAULT_ACTION_POINTS_PER_TURN
+    data.unallocatedActionPoints = DEFAULT_ACTION_POINTS_PER_TURN
+}
+
+const consumeAllActionPointsAtEndOfTurn = (data: SquaddieTurn) => {
+    data.unallocatedActionPoints = 0
 }
