@@ -2,6 +2,7 @@ import { BattleOrchestratorMode } from "./battleOrchestrator"
 import { UIControlSettings } from "./uiControlSettings"
 import { GameEngineState } from "../../gameEngine/gameEngine"
 import {
+    MouseDrag,
     MousePress,
     MouseRelease,
     MouseWheel,
@@ -16,6 +17,7 @@ export enum OrchestratorComponentMouseEventType {
     RELEASE = "RELEASE",
     LOCATION = "LOCATION",
     WHEEL = "WHEEL",
+    DRAG = "DRAG",
 }
 
 export type OrchestratorComponentMouseEvent =
@@ -23,6 +25,7 @@ export type OrchestratorComponentMouseEvent =
     | OrchestratorComponentMouseEventRelease
     | OrchestratorComponentMouseEventChangeLocation
     | OrchestratorComponentMouseEventWheel
+    | OrchestratorComponentMouseEventDrag
 
 export type OrchestratorComponentMouseEventPress = {
     eventType: OrchestratorComponentMouseEventType.PRESS
@@ -42,6 +45,11 @@ export type OrchestratorComponentMouseEventChangeLocation = {
 export type OrchestratorComponentMouseEventWheel = {
     eventType: OrchestratorComponentMouseEventType.WHEEL
     mouseWheel: MouseWheel
+}
+
+export type OrchestratorComponentMouseEventDrag = {
+    eventType: OrchestratorComponentMouseEventType.DRAG
+    mouseDrag: MouseDrag
 }
 
 export enum OrchestratorComponentKeyEventType {

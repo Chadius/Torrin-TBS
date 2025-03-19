@@ -62,6 +62,11 @@ export default defineConfig(({ mode }) => {
             JSON.stringify(
                 '{"horizontalTracksMouseMovement": true,"verticalTracksMouseMovement": true}'
             ),
+        "process.env.PLAYER_INPUT_DRAG_DIRECTION":
+            JSON.stringify(process.env.PLAYER_INPUT_DRAG_DIRECTION) ||
+            JSON.stringify(
+                '{"horizontalTracksMouseDrag": true,"verticalTracksMouseDrag": true}'
+            ),
         "process.env.PLAYER_INPUT_MODIFIER_KEY_CODES":
             JSON.stringify(process.env.PLAYER_INPUT_MODIFIER_KEY_CODES) ||
             JSON.stringify(

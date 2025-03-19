@@ -91,19 +91,21 @@ describe("Game Engine", () => {
                 .mockResolvedValue()
             await newGameEngine.update({ graphics: mockedP5GraphicsBuffer })
             expect(updateSpy).toBeCalled()
+            updateSpy.mockRestore()
         }
 
         const expectKeyPressed = (newGameEngine: GameEngine) => {
-            const keyPressedSpy = vi
+            const eventSpy = vi
                 .spyOn(newGameEngine.component, "keyPressed")
                 .mockImplementation(() => {})
             newGameEngine.keyPressed(10)
-            expect(keyPressedSpy).toBeCalled()
-            expect(keyPressedSpy.mock.calls[0][1]).toBe(10)
+            expect(eventSpy).toBeCalled()
+            expect(eventSpy.mock.calls[0][1]).toBe(10)
+            eventSpy.mockRestore()
         }
 
-        const expectMouseClicked = (newGameEngine: GameEngine) => {
-            const mouseClickedSpy = vi
+        const expectMousePressed = (newGameEngine: GameEngine) => {
+            const eventSpy = vi
                 .spyOn(newGameEngine.component, "mousePressed")
                 .mockImplementation(() => {})
             newGameEngine.mousePressed({
@@ -111,25 +113,49 @@ describe("Game Engine", () => {
                 x: 100,
                 y: 200,
             })
-            expect(mouseClickedSpy).toBeCalled()
-            expect(mouseClickedSpy.mock.calls[0][1]).toEqual({
+            expect(eventSpy).toBeCalled()
+            expect(eventSpy.mock.calls[0][1]).toEqual({
                 button: MouseButton.ACCEPT,
                 x: 100,
                 y: 200,
             })
+            eventSpy.mockRestore()
+        }
+
+        const expectMouseDragged = (newGameEngine: GameEngine) => {
+            const eventSpy = vi
+                .spyOn(newGameEngine.component, "mouseDragged")
+                .mockImplementation(() => {})
+            newGameEngine.mouseDragged({
+                button: MouseButton.ACCEPT,
+                x: 30,
+                y: 50,
+                movementX: 0,
+                movementY: 0,
+            })
+            expect(eventSpy).toBeCalled()
+            expect(eventSpy.mock.calls[0][1]).toEqual({
+                button: MouseButton.ACCEPT,
+                x: 30,
+                y: 50,
+                movementX: 0,
+                movementY: 0,
+            })
+            eventSpy.mockRestore()
         }
 
         const expectMouseMoved = (newGameEngine: GameEngine) => {
-            const mouseMovedSpy = vi
+            const eventSpy = vi
                 .spyOn(newGameEngine.component, "mouseMoved")
                 .mockImplementation(() => {})
             newGameEngine.mouseMoved({ x: 100, y: 200 })
-            expect(mouseMovedSpy).toBeCalled()
-            expect(mouseMovedSpy.mock.calls[0][1]).toEqual({ x: 100, y: 200 })
+            expect(eventSpy).toBeCalled()
+            expect(eventSpy.mock.calls[0][1]).toEqual({ x: 100, y: 200 })
+            eventSpy.mockRestore()
         }
 
         const expectMouseWheel = (newGameEngine: GameEngine) => {
-            const mouseMovedSpy = vi
+            const eventSpy = vi
                 .spyOn(newGameEngine.component, "mouseWheel")
                 .mockImplementation(() => {})
             newGameEngine.mouseWheel({
@@ -139,14 +165,15 @@ describe("Game Engine", () => {
                 deltaY: 50,
                 shiftKey: true,
             })
-            expect(mouseMovedSpy).toBeCalled()
-            expect(mouseMovedSpy.mock.calls[0][1]).toEqual({
+            expect(eventSpy).toBeCalled()
+            expect(eventSpy.mock.calls[0][1]).toEqual({
                 x: ScreenDimensions.SCREEN_WIDTH / 2,
                 y: ScreenDimensions.SCREEN_HEIGHT / 2,
                 deltaX: 30,
                 deltaY: 50,
                 shiftKey: true,
             })
+            eventSpy.mockRestore()
         }
 
         const expectGameEngineStartsWithFunctionalGameEngineComponent = async ({
@@ -171,9 +198,10 @@ describe("Game Engine", () => {
 
             await expectUpdate(newGameEngine)
             expectKeyPressed(newGameEngine)
-            expectMouseClicked(newGameEngine)
+            expectMousePressed(newGameEngine)
             expectMouseMoved(newGameEngine)
             expectMouseWheel(newGameEngine)
+            expectMouseDragged(newGameEngine)
             return true
         }
 

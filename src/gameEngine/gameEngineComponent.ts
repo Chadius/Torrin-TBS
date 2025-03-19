@@ -1,4 +1,5 @@
 import {
+    MouseDrag,
     MousePress,
     MouseRelease,
     MouseWheel,
@@ -33,6 +34,8 @@ export interface GameEngineComponent {
     ): void
 
     mouseWheel(gameEngineState: GameEngineState, mouseWheel: MouseWheel): void
+
+    mouseDragged(gameEngineState: GameEngineState, mouseDrag: MouseDrag): void
 
     hasCompleted(gameEngineState: GameEngineState): boolean
 

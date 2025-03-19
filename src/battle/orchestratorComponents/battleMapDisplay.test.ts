@@ -30,7 +30,12 @@ import {
     vi,
 } from "vitest"
 import { PlayerInputTestService } from "../../utils/test/playerInput"
-import { MouseWheel, ScreenLocation } from "../../utils/mouseConfig"
+import {
+    MouseButton,
+    MouseDrag,
+    MouseWheel,
+    ScreenLocation,
+} from "../../utils/mouseConfig"
 
 describe("battleMapDisplay", () => {
     let battleMapDisplay: BattleMapDisplay
@@ -367,12 +372,7 @@ describe("battleMapDisplay", () => {
         describe("invert scroll direction based on config", () => {
             let scrollConfigSpy: MockInstance
             beforeEach(() => {
-                scrollConfigSpy = vi
-                    .spyOn(battleMapDisplay, "getScrollConfig")
-                    .mockReturnValue({
-                        horizontalTracksMouseMovement: false,
-                        verticalTracksMouseMovement: false,
-                    })
+                scrollConfigSpy = getScrollConfigSpy(battleMapDisplay)
             })
 
             afterEach(() => {
@@ -435,6 +435,179 @@ describe("battleMapDisplay", () => {
         })
     })
 
+    describe("it will change the camera position when the mouse drags", () => {
+        let battleOrchestratorState: BattleOrchestratorState
+        let camera: BattleCamera
+        let initialCameraCoordinates: number[]
+
+        beforeEach(() => {
+            initialCameraCoordinates = [
+                ScreenDimensions.SCREEN_WIDTH / 2,
+                ScreenDimensions.SCREEN_HEIGHT / 2,
+            ]
+            camera = new BattleCamera(...initialCameraCoordinates)
+
+            battleOrchestratorState = BattleOrchestratorStateService.new({
+                battleHUD: BattleHUDService.new({}),
+                battleState: BattleStateService.newBattleState({
+                    missionId: "test mission",
+                    campaignId: "test campaign",
+                    camera,
+                }),
+            })
+        })
+
+        type CameraTest = {
+            cameraDescription: string
+            mouseDrag: MouseDrag
+            cameraLocationTest: (camera: BattleCamera) => boolean
+        }
+
+        const tests: CameraTest[] = [
+            {
+                cameraDescription: "move left",
+                mouseDrag: {
+                    button: MouseButton.ACCEPT,
+                    x: ScreenDimensions.SCREEN_WIDTH / 2,
+                    y: ScreenDimensions.SCREEN_HEIGHT / 2,
+                    movementX: -1,
+                    movementY: 0,
+                },
+                cameraLocationTest: (camera: BattleCamera) =>
+                    camera.getWorldLocation().x < initialCameraCoordinates[0],
+            },
+            {
+                cameraDescription: "move right",
+                mouseDrag: {
+                    button: MouseButton.ACCEPT,
+                    x: ScreenDimensions.SCREEN_WIDTH / 2,
+                    y: ScreenDimensions.SCREEN_HEIGHT / 2,
+                    movementX: 1,
+                    movementY: 0,
+                },
+                cameraLocationTest: (camera: BattleCamera) =>
+                    camera.getWorldLocation().x > initialCameraCoordinates[0],
+            },
+            {
+                cameraDescription: "move up",
+                mouseDrag: {
+                    button: MouseButton.ACCEPT,
+                    x: ScreenDimensions.SCREEN_WIDTH / 2,
+                    y: ScreenDimensions.SCREEN_HEIGHT / 2,
+                    movementX: 0,
+                    movementY: -1,
+                },
+                cameraLocationTest: (camera: BattleCamera) =>
+                    camera.getWorldLocation().y < initialCameraCoordinates[1],
+            },
+            {
+                cameraDescription: "move down",
+                mouseDrag: {
+                    button: MouseButton.ACCEPT,
+                    x: ScreenDimensions.SCREEN_WIDTH / 2,
+                    y: ScreenDimensions.SCREEN_HEIGHT / 2,
+                    movementX: 0,
+                    movementY: 1,
+                },
+                cameraLocationTest: (camera: BattleCamera) =>
+                    camera.getWorldLocation().y > initialCameraCoordinates[1],
+            },
+        ]
+
+        it.each(tests)(
+            `($mouseDrag.movementX, $mouseDrag.movementY) will make the camera $cameraDescription`,
+            ({ mouseDrag, cameraLocationTest }) => {
+                battleMapDisplay.moveCameraBasedOnMouseDrag(
+                    battleOrchestratorState,
+                    mouseDrag
+                )
+                expect(cameraLocationTest(camera)).toBeTruthy()
+            }
+        )
+
+        it("will not scroll unless a button is pressed", () => {
+            const moveLeftTest = tests.find(
+                (test) => test.cameraDescription == "move left"
+            )
+            const dragWithNoButton = {
+                ...moveLeftTest.mouseDrag,
+                button: MouseButton.NONE,
+            }
+            battleMapDisplay.moveCameraBasedOnMouseDrag(
+                battleOrchestratorState,
+                dragWithNoButton
+            )
+            expect(camera.getWorldLocation().x).toEqual(
+                initialCameraCoordinates[0]
+            )
+        })
+
+        describe("invert scroll direction based on config", () => {
+            let scrollConfigSpy: MockInstance
+            beforeEach(() => {
+                scrollConfigSpy = getScrollConfigSpy(battleMapDisplay)
+            })
+
+            afterEach(() => {
+                scrollConfigSpy.mockRestore()
+            })
+
+            const findTestByCameraDescription = (cameraDescription: string) =>
+                tests.find((t) => t.cameraDescription === cameraDescription)
+
+            const useMouseDragToMoveCamera = (cameraDescription: string) => {
+                const test = findTestByCameraDescription(cameraDescription)
+
+                battleMapDisplay.moveCameraBasedOnMouseDrag(
+                    battleOrchestratorState,
+                    test.mouseDrag
+                )
+            }
+
+            it("left", () => {
+                useMouseDragToMoveCamera("move left")
+                expect(
+                    findTestByCameraDescription(
+                        "move right"
+                    ).cameraLocationTest(camera)
+                ).toBeTruthy()
+                expect(scrollConfigSpy).toBeCalled()
+            })
+
+            it("right", () => {
+                useMouseDragToMoveCamera("move right")
+                expect(
+                    findTestByCameraDescription("move left").cameraLocationTest(
+                        camera
+                    )
+                ).toBeTruthy()
+
+                expect(scrollConfigSpy).toBeCalled()
+            })
+
+            it("down", () => {
+                useMouseDragToMoveCamera("move down")
+                expect(
+                    findTestByCameraDescription("move up").cameraLocationTest(
+                        camera
+                    )
+                ).toBeTruthy()
+
+                expect(scrollConfigSpy).toBeCalled()
+            })
+
+            it("right", () => {
+                useMouseDragToMoveCamera("move up")
+                expect(
+                    findTestByCameraDescription("move down").cameraLocationTest(
+                        camera
+                    )
+                ).toBeTruthy()
+                expect(scrollConfigSpy).toBeCalled()
+            })
+        })
+    })
+
     it("when hovering over the HUD at the bottom of the screen, do not move the camera", () => {
         let initialCameraCoordinates: number[] = [
             0,
@@ -470,3 +643,14 @@ describe("battleMapDisplay", () => {
         mouseHoverSpy.mockRestore()
     })
 })
+
+const getScrollConfigSpy = (battleMapDisplay: BattleMapDisplay) => {
+    return vi
+        .spyOn(battleMapDisplay, "getMouseDirectionConfig")
+        .mockReturnValue({
+            horizontalTracksMouseMovement: false,
+            verticalTracksMouseMovement: false,
+            horizontalTracksMouseDrag: false,
+            verticalTracksMouseDrag: false,
+        })
+}

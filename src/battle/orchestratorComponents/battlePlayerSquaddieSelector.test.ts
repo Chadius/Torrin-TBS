@@ -23,7 +23,7 @@ import { CampaignService } from "../../campaign/campaign"
 import { ActionTemplateService } from "../../action/template/actionTemplate"
 import { BattlePhaseState } from "./battlePhaseController"
 import { BattleHUDService } from "../hud/battleHUD/battleHUD"
-import { MouseButton, MouseClickService } from "../../utils/mouseConfig"
+import { MouseButton, MouseConfigService } from "../../utils/mouseConfig"
 import { BattleActionDecisionStepService } from "../actionDecision/battleActionDecisionStep"
 import { MessageBoardMessageType } from "../../message/messageBoardMessage"
 import { RectAreaService } from "../../ui/rectArea"
@@ -839,7 +839,7 @@ describe("BattleSquaddieSelector", () => {
                     expectedPlayerSelectionContextCalculationArgs:
                         PlayerSelectionContextCalculationArgsService.new({
                             gameEngineState,
-                            mouseClick: MouseClickService.new({
+                            mouseClick: MouseConfigService.newMouseClick({
                                 x: x,
                                 y: y,
                                 button: MouseButton.ACCEPT,
@@ -852,7 +852,7 @@ describe("BattleSquaddieSelector", () => {
                             playerIntent: PlayerIntent.PLAYER_SELECTS_AN_ACTION,
                             actorBattleSquaddieId: "battleSquaddieId",
                             actionTemplateId: "self",
-                            mouseClick: MouseClickService.new({
+                            mouseClick: MouseConfigService.newMouseClick({
                                 x: x,
                                 y: y,
                                 button: MouseButton.ACCEPT,
@@ -940,7 +940,7 @@ describe("BattleSquaddieSelector", () => {
                     expectedPlayerSelectionContextCalculationArgs:
                         PlayerSelectionContextCalculationArgsService.new({
                             gameEngineState,
-                            mouseClick: MouseClickService.new({
+                            mouseClick: MouseConfigService.newMouseClick({
                                 x: x,
                                 y: y,
                                 button: MouseButton.ACCEPT,
@@ -953,7 +953,7 @@ describe("BattleSquaddieSelector", () => {
                             playerIntent: PlayerIntent.PLAYER_SELECTS_AN_ACTION,
                             actorBattleSquaddieId: "battleSquaddieId",
                             actionTemplateId: "melee",
-                            mouseClick: MouseClickService.new({
+                            mouseClick: MouseConfigService.newMouseClick({
                                 x: x,
                                 y: y,
                                 button: MouseButton.ACCEPT,

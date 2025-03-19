@@ -1,7 +1,7 @@
 import p5 from "p5"
 import { ScreenDimensions } from "./utils/graphics/graphicsConfig"
 import { GameEngine } from "./gameEngine/gameEngine"
-import { GetMouseButton, MouseButton } from "./utils/mouseConfig"
+import { MouseButton, MouseConfigService } from "./utils/mouseConfig"
 import { GameModeEnum } from "./utils/startupConfig"
 
 let gameEngine: GameEngine
@@ -61,7 +61,8 @@ export const sketch = (p: p5) => {
 
     p.mousePressed = () => {
         mousePressedTracker[p.mouseButton] = true
-        let configuredMouseButton: MouseButton = GetMouseButton(p.mouseButton)
+        let configuredMouseButton: MouseButton =
+            MouseConfigService.getMouseButton(p.mouseButton)
         gameEngine.mousePressed({
             button: configuredMouseButton,
             x: p.mouseX,
@@ -75,7 +76,8 @@ export const sketch = (p: p5) => {
         }
 
         mousePressedTracker[p.mouseButton] = false
-        let configuredMouseButton: MouseButton = GetMouseButton(p.mouseButton)
+        let configuredMouseButton: MouseButton =
+            MouseConfigService.getMouseButton(p.mouseButton)
         gameEngine.mouseReleased({
             button: configuredMouseButton,
             x: p.mouseX,
@@ -89,6 +91,13 @@ export const sketch = (p: p5) => {
 
     p.mouseWheel = (event: WheelEvent) => {
         gameEngine.mouseWheel(event)
+        return false
+    }
+
+    p.mouseDragged = (event: DragEvent) => {
+        const mouseDrag =
+            MouseConfigService.convertBrowserMouseEventToMouseDrag(event)
+        gameEngine.mouseDragged(mouseDrag)
         return false
     }
 }

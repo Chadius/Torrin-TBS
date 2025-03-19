@@ -11,7 +11,7 @@ import { UIControlSettings } from "../orchestrator/uiControlSettings"
 import { GameEngineState } from "../../gameEngine/gameEngine"
 import { FileAccessHUDService } from "../hud/fileAccess/fileAccessHUD"
 import {
-    MouseClickService,
+    MouseConfigService,
     MousePress,
     MouseRelease,
     ScreenLocation,
@@ -129,7 +129,7 @@ export class BattlePlayerSquaddieSelector
             const { didUserClickOnSummaryHUD } = processPlayerCommandSelection({
                 playerCommandSelection,
                 gameEngineState,
-                mouseClick: MouseClickService.new({
+                mouseClick: MouseConfigService.newMouseClick({
                     ...mouseRelease,
                 }),
             })

@@ -1,5 +1,6 @@
 import { GameEngineState } from "./gameEngine"
 import {
+    MouseDrag,
     MousePress,
     MouseRelease,
     MouseWheel,
@@ -171,6 +172,13 @@ export class GameEngineGameLoader implements GameEngineComponent {
         _mouseWheel: MouseWheel
     ): void {
         // required by interface
+    }
+
+    mouseDragged(
+        _gameEngineState: GameEngineState,
+        _mouseDrag: MouseDrag
+    ): void {
+        // Required by inheritance
     }
 
     private applySaveStateToBattleOrchestratorState(

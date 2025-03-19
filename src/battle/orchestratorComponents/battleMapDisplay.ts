@@ -26,7 +26,12 @@ import {
     PlayerInputAction,
     PlayerInputStateService,
 } from "../../ui/playerInput/playerInputState"
-import { MouseWheel, ScreenLocation } from "../../utils/mouseConfig"
+import {
+    MouseButton,
+    MouseDrag,
+    MouseWheel,
+    ScreenLocation,
+} from "../../utils/mouseConfig"
 
 const SCREEN_EDGES = {
     left: [0.1, 0.04, 0.02],
@@ -46,6 +51,12 @@ const PLAYER_INPUT_SCROLL_DIRECTION_HORIZONTAL = JSON.parse(
 const PLAYER_INPUT_SCROLL_DIRECTION_VERTICAL = JSON.parse(
     process.env.PLAYER_INPUT_SCROLL_DIRECTION
 ).verticalTracksMouseMovement
+const PLAYER_INPUT_DRAG_DIRECTION_HORIZONTAL = JSON.parse(
+    process.env.PLAYER_INPUT_DRAG_DIRECTION
+).horizontalTracksMouseDrag
+const PLAYER_INPUT_DRAG_DIRECTION_VERTICAL = JSON.parse(
+    process.env.PLAYER_INPUT_DRAG_DIRECTION
+).verticalTracksMouseDrag
 
 export class BattleMapDisplay implements BattleOrchestratorComponent {
     public scrollTime: number
@@ -136,6 +147,12 @@ export class BattleMapDisplay implements BattleOrchestratorComponent {
                     event.mouseWheel
                 )
                 break
+            case OrchestratorComponentMouseEventType.DRAG:
+                this.moveCameraBasedOnMouseDrag(
+                    gameEngineState.battleOrchestratorState,
+                    event.mouseDrag
+                )
+                break
         }
     }
 
@@ -203,7 +220,7 @@ export class BattleMapDisplay implements BattleOrchestratorComponent {
         }
 
         const { horizontalTracksMouseMovement, verticalTracksMouseMovement } =
-            this.getScrollConfig()
+            this.getMouseDirectionConfig()
         const horizontalMultiplier = horizontalTracksMouseMovement ? 1 : -1
         const verticalMultiplier = verticalTracksMouseMovement ? 1 : -1
 
@@ -223,6 +240,43 @@ export class BattleMapDisplay implements BattleOrchestratorComponent {
             battleOrchestratorState.battleState.camera.yCoordinate +=
                 VERTICAL_SCROLL_SPEED_PER_UPDATE * verticalMultiplier
         }
+        battleOrchestratorState.battleState.camera.constrainCamera()
+    }
+
+    moveCameraBasedOnMouseDrag(
+        battleOrchestratorState: BattleOrchestratorState,
+        mouseDrag: MouseDrag
+    ) {
+        if (battleOrchestratorState.battleState.camera.isPanning()) {
+            return
+        }
+
+        if (mouseDrag.button == MouseButton.NONE) return
+
+        if (
+            !!battleOrchestratorState.battleHUDState.summaryHUDState &&
+            SummaryHUDStateService.isMouseHoveringOver({
+                summaryHUDState:
+                    battleOrchestratorState.battleHUDState.summaryHUDState,
+                mouseSelectionLocation: { ...mouseDrag },
+            })
+        ) {
+            return
+        }
+
+        const { horizontalTracksMouseDrag, verticalTracksMouseDrag } =
+            this.getMouseDirectionConfig()
+        const horizontalMultiplier = horizontalTracksMouseDrag ? 1 : -1
+        const verticalMultiplier = verticalTracksMouseDrag ? 1 : -1
+
+        battleOrchestratorState.battleState.camera.xCoordinate +=
+            HORIZONTAL_SCROLL_SPEED_PER_UPDATE *
+            mouseDrag.movementX *
+            horizontalMultiplier
+        battleOrchestratorState.battleState.camera.yCoordinate +=
+            VERTICAL_SCROLL_SPEED_PER_UPDATE *
+            mouseDrag.movementY *
+            verticalMultiplier
         battleOrchestratorState.battleState.camera.constrainCamera()
     }
 
@@ -331,11 +385,13 @@ export class BattleMapDisplay implements BattleOrchestratorComponent {
         gameEngineState.battleOrchestratorState.battleState.camera.constrainCamera()
     }
 
-    getScrollConfig() {
+    getMouseDirectionConfig() {
         return {
             horizontalTracksMouseMovement:
                 PLAYER_INPUT_SCROLL_DIRECTION_HORIZONTAL,
             verticalTracksMouseMovement: PLAYER_INPUT_SCROLL_DIRECTION_VERTICAL,
+            horizontalTracksMouseDrag: PLAYER_INPUT_DRAG_DIRECTION_HORIZONTAL,
+            verticalTracksMouseDrag: PLAYER_INPUT_DRAG_DIRECTION_VERTICAL,
         }
     }
 }

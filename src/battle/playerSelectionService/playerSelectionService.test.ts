@@ -23,7 +23,7 @@ import {
 import { CampaignService } from "../../campaign/campaign"
 import { BattleOrchestratorStateService } from "../orchestrator/battleOrchestratorState"
 import { BattleStateService } from "../battleState/battleState"
-import { MouseButton, MouseClickService } from "../../utils/mouseConfig"
+import { MouseButton, MouseConfigService } from "../../utils/mouseConfig"
 import { ConvertCoordinateService } from "../../hexMap/convertCoordinates"
 import { PlayerIntent, PlayerSelectionService } from "./playerSelectionService"
 import { SquaddieTurnService } from "../../squaddie/turn"
@@ -128,7 +128,7 @@ describe("Player Selection Service", () => {
                 })
 
             expect(actualContext.mouseClick).toEqual(
-                MouseClickService.new({
+                MouseConfigService.newMouseClick({
                     x,
                     y,
                     button: MouseButton.ACCEPT,
@@ -309,7 +309,7 @@ describe("Player Selection Service", () => {
                     )
 
                 expect(actualContext.mouseClick).toEqual(
-                    MouseClickService.new({
+                    MouseConfigService.newMouseClick({
                         x,
                         y,
                         button: MouseButton.ACCEPT,
@@ -384,7 +384,7 @@ describe("Player Selection Service", () => {
                     )
 
                 expect(actualContext.mouseClick).toEqual(
-                    MouseClickService.new({
+                    MouseConfigService.newMouseClick({
                         x,
                         y,
                         button: MouseButton.ACCEPT,
@@ -861,7 +861,7 @@ describe("Player Selection Service", () => {
 
             it("knows where the player wants to move the squaddie", () => {
                 expect(actualContext.mouseClick).toEqual(
-                    MouseClickService.new({
+                    MouseConfigService.newMouseClick({
                         button: MouseButton.ACCEPT,
                         x,
                         y,
@@ -1174,7 +1174,7 @@ describe("Player Selection Service", () => {
         return PlayerSelectionService.calculateContext({
             gameEngineState,
             actionTemplateId: actionTemplateId,
-            mouseClick: MouseClickService.new({
+            mouseClick: MouseConfigService.newMouseClick({
                 x: 0,
                 y: 0,
                 button: MouseButton.ACCEPT,
@@ -1212,7 +1212,7 @@ describe("Player Selection Service", () => {
         return PlayerSelectionService.calculateContext({
             gameEngineState,
             actionTemplateId: actionTemplateId,
-            mouseClick: MouseClickService.new({
+            mouseClick: MouseConfigService.newMouseClick({
                 x: 0,
                 y: 0,
                 button: MouseButton.ACCEPT,
@@ -1313,7 +1313,7 @@ describe("Player Selection Service", () => {
                 actualContext = PlayerSelectionService.calculateContext({
                     gameEngineState,
                     actionTemplateId: meleeActionId,
-                    mouseClick: MouseClickService.new({
+                    mouseClick: MouseConfigService.newMouseClick({
                         x: 0,
                         y: 0,
                         button: MouseButton.ACCEPT,
@@ -1413,7 +1413,7 @@ describe("Player Selection Service", () => {
                 actualContext = PlayerSelectionService.calculateContext({
                     gameEngineState,
                     actionTemplateId: "self",
-                    mouseClick: MouseClickService.new({
+                    mouseClick: MouseConfigService.newMouseClick({
                         x: 0,
                         y: 0,
                         button: MouseButton.ACCEPT,
@@ -1524,7 +1524,7 @@ describe("Player Selection Service", () => {
             actualContext = PlayerSelectionService.calculateContext({
                 gameEngineState,
                 endTurnSelected: true,
-                mouseClick: MouseClickService.new({
+                mouseClick: MouseConfigService.newMouseClick({
                     x: 0,
                     y: 0,
                     button: MouseButton.ACCEPT,
@@ -1778,7 +1778,7 @@ const clickOnMapCoordinate = ({
 
     return PlayerSelectionService.calculateContext({
         gameEngineState,
-        mouseClick: MouseClickService.new({
+        mouseClick: MouseConfigService.newMouseClick({
             x,
             y,
             button: MouseButton.ACCEPT,
@@ -1901,7 +1901,7 @@ const clickOnScreenAndCalculateChangesAndMessage = ({
     const actualContext = PlayerSelectionContextService.new({
         playerIntent,
         actorBattleSquaddieId: "PLAYER",
-        mouseClick: MouseClickService.new({
+        mouseClick: MouseConfigService.newMouseClick({
             button: MouseButton.ACCEPT,
             x,
             y,

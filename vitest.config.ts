@@ -67,6 +67,10 @@ export default defineConfig({
                 horizontalTracksMouseMovement: true,
                 verticalTracksMouseMovement: true,
             }),
+            PLAYER_INPUT_DRAG_DIRECTION: JSON.stringify({
+                horizontalTracksMouseDrag: true,
+                verticalTracksMouseDrag: true,
+            }),
             PLAYER_INPUT_MODIFIER_KEY_CODES: JSON.stringify({
                 shift: [16],
                 ctrl: [17],

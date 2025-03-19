@@ -25,6 +25,7 @@ import {
     GameEngineComponent,
 } from "../../gameEngine/gameEngineComponent"
 import {
+    MouseDrag,
     MousePress,
     MouseRelease,
     MouseWheel,
@@ -422,6 +423,22 @@ export class BattleOrchestrator implements GameEngineComponent {
         const mouseEvent: OrchestratorComponentMouseEvent = {
             eventType: OrchestratorComponentMouseEventType.WHEEL,
             mouseWheel,
+        }
+
+        this.getCurrentComponent().mouseEventHappened(
+            gameEngineState,
+            mouseEvent
+        )
+
+        if (this.uiControlSettings.letMouseScrollCamera === true) {
+            this.mapDisplay.mouseEventHappened(gameEngineState, mouseEvent)
+        }
+    }
+
+    mouseDragged(gameEngineState: GameEngineState, mouseDrag: MouseDrag): void {
+        const mouseEvent: OrchestratorComponentMouseEvent = {
+            eventType: OrchestratorComponentMouseEventType.DRAG,
+            mouseDrag,
         }
 
         this.getCurrentComponent().mouseEventHappened(

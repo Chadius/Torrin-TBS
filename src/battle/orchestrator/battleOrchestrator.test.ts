@@ -1304,6 +1304,21 @@ describe("Battle Orchestrator", () => {
                     )
                 },
             },
+            {
+                name: "dragging the mouse with the info button",
+                action: () => {
+                    squaddieSelectorOrchestratorShouldDisplayMap.mouseDragged(
+                        stateWantsToDisplayTheMap,
+                        {
+                            x: 0,
+                            y: 0,
+                            movementX: -1,
+                            movementY: 1,
+                            button: MouseButton.INFO,
+                        }
+                    )
+                },
+            },
         ]
 
         beforeEach(() => {

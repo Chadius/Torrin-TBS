@@ -14,6 +14,7 @@ import { BattlePhaseController } from "../battle/orchestratorComponents/battlePh
 import { BattlePlayerSquaddieTarget } from "../battle/orchestratorComponents/battlePlayerSquaddieTarget"
 import { BattleSquaddieUsesActionOnSquaddie } from "../battle/orchestratorComponents/battleSquaddieUsesActionOnSquaddie"
 import {
+    MouseDrag,
     MousePress,
     MouseRelease,
     MouseWheel,
@@ -251,6 +252,10 @@ export class GameEngine {
 
     mouseWheel(mouseWheel: MouseWheel) {
         this.component.mouseWheel(this.gameEngineState, mouseWheel)
+    }
+
+    mouseDragged(mouseDrag: MouseDrag) {
+        this.component.mouseDragged(this.gameEngineState, mouseDrag)
     }
 
     async update({ graphics }: { graphics: GraphicsBuffer }) {
