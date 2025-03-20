@@ -1,7 +1,7 @@
 import { HexGridTile } from "./hexGrid"
 import {
-    convertStringToMovementCost,
     HexGridMovementCost,
+    HexGridMovementCostService,
 } from "./hexGridMovementCost"
 import { PulseBlendColor } from "./colorUtils"
 import { HexCoordinate } from "./hexCoordinate/hexCoordinate"
@@ -193,7 +193,10 @@ const convertMovementCostToTiles = (movementCost: string[]): HexGridTile[] => {
                 costStringIndex,
                 costStringIndex + 2
             )
-            let movementCostType = convertStringToMovementCost(stringToConvert)
+            let movementCostType =
+                HexGridMovementCostService.convertStringToMovementCost(
+                    stringToConvert
+                )
             newTiles.push({
                 q: qIndex,
                 r: rIndex,

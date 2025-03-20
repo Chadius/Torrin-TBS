@@ -15,7 +15,7 @@ export interface GraphicsBuffer {
         alphaMaximumValue: number
     ): void
 
-    createImage(height: number, width: number): p5.Image
+    createImage(width: number, height: number): p5.Image
 
     fill(
         hue: number,
@@ -49,6 +49,8 @@ export interface GraphicsBuffer {
     push(): void
 
     rect(left: number, top: number, width: number, height: number): void
+
+    circle(x: number, y: number, d: number): void
 
     stroke(hue: number, saturation: number, brightness: number): void
 

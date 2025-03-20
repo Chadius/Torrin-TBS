@@ -32,6 +32,7 @@ import {
     MouseWheel,
     ScreenLocation,
 } from "../../utils/mouseConfig"
+import p5 from "p5"
 
 const SCREEN_EDGES = {
     left: [0.1, 0.04, 0.02],
@@ -60,6 +61,7 @@ const PLAYER_INPUT_DRAG_DIRECTION_VERTICAL = JSON.parse(
 
 export class BattleMapDisplay implements BattleOrchestratorComponent {
     public scrollTime: number
+    public mapImage: p5.Image
 
     draw({
         gameEngineState,
@@ -80,13 +82,44 @@ export class BattleMapDisplay implements BattleOrchestratorComponent {
                 gameEngineState.battleOrchestratorState.battleState.missionMap
                     .terrainTileMap
             )
-            HexDrawingUtils.drawHexMap({
+
+            if (!this.mapImage) {
+                this.mapImage = HexDrawingUtils.createMapImage({
+                    graphicsBuffer: graphics,
+                    resourceHandler,
+                    terrainTileMap:
+                        gameEngineState.battleOrchestratorState.battleState
+                            .missionMap.terrainTileMap,
+                })
+            }
+            if (this.mapImage) {
+                HexDrawingUtils.drawMapOnScreen({
+                    mapImage: this.mapImage,
+                    screenGraphicsBuffer: graphics,
+                    camera: gameEngineState.battleOrchestratorState.battleState
+                        .camera,
+                })
+            }
+
+            TerrainTileMapService.sortGraphicsLayersByType(
+                gameEngineState.battleOrchestratorState.battleState.missionMap
+                    .terrainTileMap
+            )
+
+            HexDrawingUtils.drawHighlightedTiles({
                 graphics,
                 map: gameEngineState.battleOrchestratorState.battleState
                     .missionMap.terrainTileMap,
                 camera: gameEngineState.battleOrchestratorState.battleState
                     .camera,
-                resourceHandler: gameEngineState.resourceHandler,
+            })
+
+            HexDrawingUtils.drawOutlinedTile({
+                graphics,
+                map: gameEngineState.battleOrchestratorState.battleState
+                    .missionMap.terrainTileMap,
+                camera: gameEngineState.battleOrchestratorState.battleState
+                    .camera,
             })
         }
 

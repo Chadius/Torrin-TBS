@@ -295,7 +295,12 @@ export class BattleOrchestrator implements GameEngineComponent {
         graphicsContext: GraphicsBuffer
     ) {
         if (this.uiControlSettings.displayBattleMap !== true) return
-        this.displayBattleMap(gameEngineState, graphicsContext)
+        this.mapDisplay.update({
+            gameEngineState,
+            graphicsContext,
+            resourceHandler: gameEngineState.resourceHandler,
+        })
+
         PlayerDecisionHUDService.draw(
             gameEngineState.battleOrchestratorState.playerDecisionHUD,
             graphicsContext
@@ -627,17 +632,6 @@ export class BattleOrchestrator implements GameEngineComponent {
         }
 
         return undefined
-    }
-
-    private displayBattleMap(
-        gameEngineState: GameEngineState,
-        graphicsContext: GraphicsBuffer
-    ) {
-        this.mapDisplay.update({
-            gameEngineState,
-            graphicsContext,
-            resourceHandler: gameEngineState.resourceHandler,
-        })
     }
 
     private resetInternalState() {

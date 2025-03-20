@@ -1,4 +1,8 @@
-import { HEX_TILE_RADIUS, HEX_TILE_WIDTH } from "../graphicsConstants"
+import {
+    HEX_TILE_HEIGHT,
+    HEX_TILE_RADIUS,
+    HEX_TILE_WIDTH,
+} from "../graphicsConstants"
 import { HexGridMovementCost } from "./hexGridMovementCost"
 import {
     ResourceHandler,
@@ -70,17 +74,17 @@ const defaultTerrainResourceKeyByTerrainType: {
 
 const drawHexShape = (
     graphicsContext: GraphicsBuffer,
-    worldLocation: ScreenLocation,
+    mapCoordinate: HexCoordinate,
     cameraLocation: ScreenLocation
 ) => {
     let { x, y } =
-        ConvertCoordinateService.convertWorldLocationToScreenLocation({
-            worldLocation,
+        ConvertCoordinateService.convertMapCoordinatesToScreenLocation({
+            mapCoordinate,
             cameraLocation,
         })
 
     graphicsContext.push()
-    graphicsContext.translate(x, y)
+    graphicsContext.translate(x + 1, y + 5)
 
     let angle = Math.PI / 3
     graphicsContext.beginShape()
@@ -113,35 +117,27 @@ const drawOutlinedTile = (
     graphicsContext.strokeWeight(2)
     graphicsContext.noFill()
 
-    let xPos =
-        (outlineTileCoordinates.r + outlineTileCoordinates.q * 0.5) *
-        HEX_TILE_WIDTH
-    let yPos = (outlineTileCoordinates.q * 3 * HEX_TILE_RADIUS) / 2
-    drawHexShape(graphicsContext, { x: xPos, y: yPos }, cameraLocation)
+    drawHexShape(graphicsContext, outlineTileCoordinates, cameraLocation)
     graphicsContext.pop()
 }
 
 export const HexDrawingUtils = {
-    drawHexMap: ({
+    drawHighlightedTiles: ({
         graphics,
         map,
         camera,
-        resourceHandler,
     }: {
         graphics: GraphicsBuffer
         map: TerrainTileMap
         camera: BattleCamera
-        resourceHandler: ResourceHandler
     }) => {
         const onScreenTiles: HexGridTile[] =
             TerrainTileGraphicsService.getAllOnscreenTerrainTiles({
                 terrainTileMap: map,
                 camera,
             })
-        onScreenTiles.forEach((tile) => {
-            drawHexTileTerrain({ graphics, tile, camera, resourceHandler })
-        })
 
+        graphics.push()
         TerrainTileMapService.computeHighlightedTiles(map)
             .filter((highlight) =>
                 onScreenTiles.find(
@@ -151,23 +147,50 @@ export const HexDrawingUtils = {
                 )
             )
             .forEach((highlight) => {
-                const terrainType = onScreenTiles.find(
-                    (onScreenTile) =>
-                        onScreenTile.q === highlight.coordinate.q &&
-                        onScreenTile.r === highlight.coordinate.r
-                ).terrainType
+                const blendColor: BlendColor =
+                    ColorUtils.pulseBlendColorToBlendColor(highlight.pulseColor)
 
-                drawHexTileTerrainAndHighlight({
-                    graphics,
-                    coordinate: highlight.coordinate,
-                    terrainType,
-                    camera,
-                    resourceHandler,
-                    pulseBlendColor: highlight.pulseColor,
-                    overlayImageResourceKey: highlight.overlayImageResourceName,
-                })
+                graphics.fill(
+                    blendColor[0],
+                    blendColor[1],
+                    blendColor[2],
+                    blendColor[3]
+                )
+                graphics.noStroke()
+                let { x, y } =
+                    ConvertCoordinateService.convertMapCoordinatesToScreenLocation(
+                        {
+                            mapCoordinate: { ...highlight.coordinate },
+                            cameraLocation: camera.getWorldLocation(),
+                        }
+                    )
+                graphics.circle(x + 1, y + 3, HEX_TILE_WIDTH / 2)
             })
-
+        graphics.pop()
+    },
+    drawMapTilesOntoImage: ({
+        mapImage,
+        terrainTileMap,
+        resourceHandler,
+    }: {
+        mapImage: p5.Image
+        terrainTileMap: TerrainTileMap
+        resourceHandler: ResourceHandler
+    }) =>
+        drawMapTilesOntoImage({
+            mapImage,
+            terrainTileMap,
+            resourceHandler,
+        }),
+    drawOutlinedTile: ({
+        graphics,
+        camera,
+        map,
+    }: {
+        graphics: GraphicsBuffer
+        camera: BattleCamera
+        map: TerrainTileMap
+    }) => {
         if (map.outlineTileCoordinates !== undefined) {
             drawOutlinedTile(
                 graphics,
@@ -176,101 +199,100 @@ export const HexDrawingUtils = {
             )
         }
     },
+    createMapImage: ({
+        graphicsBuffer,
+        terrainTileMap,
+        resourceHandler,
+    }: {
+        graphicsBuffer: GraphicsBuffer
+        terrainTileMap: TerrainTileMap
+        resourceHandler: ResourceHandler
+    }): p5.Image =>
+        createMapImage({ graphicsBuffer, terrainTileMap, resourceHandler }),
+    drawMapOnScreen: ({
+        mapImage,
+        screenGraphicsBuffer,
+        camera,
+    }: {
+        mapImage: p5.Image
+        screenGraphicsBuffer: GraphicsBuffer
+        camera: BattleCamera
+    }) => {
+        let { x: centerOfTileX, y: centerOfTileY } =
+            ConvertCoordinateService.convertMapCoordinatesToScreenLocation({
+                mapCoordinate: { q: 0, r: 0 },
+                cameraLocation: camera.getWorldLocation(),
+            })
+
+        screenGraphicsBuffer.image(
+            mapImage,
+            centerOfTileX - HEX_TILE_WIDTH / 2,
+            centerOfTileY - HEX_TILE_HEIGHT / 2
+        )
+    },
 }
 
-const drawHexTileTerrain = ({
-    graphics,
-    tile,
-    camera,
+const drawMapTilesOntoImage = ({
+    mapImage,
+    terrainTileMap,
     resourceHandler,
 }: {
-    graphics: GraphicsBuffer
-    tile: HexGridTile
-    camera: BattleCamera
+    mapImage: p5.Image
+    terrainTileMap: TerrainTileMap
     resourceHandler: ResourceHandler
 }) => {
-    const imageResourceKey =
-        defaultTerrainResourceKeyByTerrainType[tile.terrainType]
-    const terrainImage = ResourceHandlerService.getResource(
-        resourceHandler,
-        imageResourceKey
-    )
-    drawHexTile({
-        graphics,
-        coordinate: { q: tile.q, r: tile.r },
-        camera,
-        image: terrainImage,
+    terrainTileMap.coordinates.forEach((hexGridTile) => {
+        const imageResourceKey =
+            defaultTerrainResourceKeyByTerrainType[hexGridTile.terrainType]
+        const terrainImage = ResourceHandlerService.getResource(
+            resourceHandler,
+            imageResourceKey
+        )
+        let { x, y } =
+            ConvertCoordinateService.convertMapCoordinatesToWorldLocation({
+                mapCoordinate: { ...hexGridTile },
+            })
+
+        mapImage.copy(
+            terrainImage,
+            0,
+            0,
+            terrainImage.width,
+            terrainImage.height,
+            x,
+            y,
+            terrainImage.width,
+            terrainImage.height
+        )
     })
 }
 
-const drawHexTileTerrainAndHighlight = ({
-    graphics,
-    terrainType,
-    coordinate,
-    camera,
+const createMapImage = ({
+    graphicsBuffer,
+    terrainTileMap,
     resourceHandler,
-    pulseBlendColor,
-    overlayImageResourceKey,
 }: {
-    graphics: GraphicsBuffer
-    terrainType: HexGridMovementCost
-    coordinate: HexCoordinate
-    camera: BattleCamera
+    graphicsBuffer: GraphicsBuffer
+    terrainTileMap: TerrainTileMap
     resourceHandler: ResourceHandler
-    pulseBlendColor: PulseBlendColor
-    overlayImageResourceKey?: string
-}) => {
-    const terrainImage = ResourceHandlerService.getResource(
-        resourceHandler,
-        defaultTerrainResourceKeyByTerrainType[terrainType]
-    )
-    graphics.push()
-    const blendColor: BlendColor =
-        ColorUtils.pulseBlendColorToBlendColor(pulseBlendColor)
-    graphics.tint(blendColor[0], blendColor[1], blendColor[2], blendColor[3])
-    drawHexTile({
-        graphics,
-        coordinate: coordinate,
-        camera,
-        image: terrainImage,
-    })
-    graphics.noTint()
-    graphics.pop()
+}): p5.Image => {
+    const { widthOfWidestRow, numberOfRows } =
+        TerrainTileMapService.getDimensions(terrainTileMap)
 
-    if (
-        overlayImageResourceKey === "" ||
-        overlayImageResourceKey === undefined
-    ) {
-        return
-    }
-
-    const overlayImage = ResourceHandlerService.getResource(
-        resourceHandler,
-        overlayImageResourceKey
-    )
-    drawHexTile({
-        graphics,
-        coordinate: coordinate,
-        camera,
-        image: overlayImage,
-    })
-}
-
-const drawHexTile = ({
-    graphics,
-    coordinate,
-    camera,
-    image,
-}: {
-    graphics: GraphicsBuffer
-    coordinate: HexCoordinate
-    camera: BattleCamera
-    image: p5.Image
-}) => {
-    let { x, y } =
-        ConvertCoordinateService.convertMapCoordinatesToScreenLocation({
-            mapCoordinate: coordinate,
-            cameraLocation: camera.getWorldLocation(),
+    let { x: mapPixelWidth, y: mapPixelHeight } =
+        ConvertCoordinateService.convertMapCoordinatesToWorldLocation({
+            mapCoordinate: {
+                q: numberOfRows + 1,
+                r: widthOfWidestRow + 1,
+            },
         })
-    graphics.image(image, x - image.width / 2, y - image.height / 2)
+
+    const mapImage = graphicsBuffer.createImage(mapPixelWidth, mapPixelHeight)
+
+    HexDrawingUtils.drawMapTilesOntoImage({
+        mapImage,
+        terrainTileMap,
+        resourceHandler,
+    })
+    return mapImage
 }

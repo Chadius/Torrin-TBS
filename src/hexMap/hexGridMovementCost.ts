@@ -5,9 +5,7 @@ export enum HexGridMovementCost {
     wall = "wall",
 }
 
-export const convertStringToMovementCost = (
-    text: string
-): HexGridMovementCost => {
+const convertStringToMovementCost = (text: string): HexGridMovementCost => {
     switch (true) {
         case text.length === 0:
             return HexGridMovementCost.wall
@@ -29,6 +27,7 @@ export const convertStringToMovementCost = (
 export const HexGridMovementCostService = {
     movingCostByTerrainType: (cost: HexGridMovementCost) =>
         MovingCostByTerrainType[cost],
+    convertStringToMovementCost,
 }
 
 export const MovingCostByTerrainType: { [t in HexGridMovementCost]: number } = {

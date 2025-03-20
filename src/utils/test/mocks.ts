@@ -13,6 +13,7 @@ vi.mock("p5", () => {
                 loadPixels: vi.fn(),
                 width: 1,
                 height: 1,
+                copy: vi.fn(),
             }),
             fill: vi.fn(),
             image: vi.fn(),
@@ -24,6 +25,7 @@ vi.mock("p5", () => {
             pop: vi.fn(),
             push: vi.fn(),
             rect: vi.fn(),
+            circle: vi.fn(),
             stroke: vi.fn(),
             strokeWeight: vi.fn(),
             text: vi.fn(),
@@ -71,14 +73,6 @@ export class MockedP5GraphicsBuffer implements GraphicsBuffer {
     }
 
     get width(): number {
-        return this.mockedP5.windowWidth
-    }
-
-    get windowHeight(): number {
-        return this.mockedP5.windowHeight
-    }
-
-    get windowWidth(): number {
         return this.mockedP5.windowWidth
     }
 
@@ -169,6 +163,10 @@ export class MockedP5GraphicsBuffer implements GraphicsBuffer {
         this.mockedP5.rect(left, top, width, height)
     }
 
+    circle(x: number, y: number, d: number): void {
+        this.mockedP5.circle(x, y, d)
+    }
+
     stroke(hue: number, saturation: number, brightness: number): void {
         this.mockedP5.stroke(hue, saturation, brightness)
     }
@@ -227,8 +225,15 @@ export const MockedGraphicsBufferService = {
         graphicsBufferSpies["image"] = vi
             .spyOn(mockP5GraphicsContext, "image")
             .mockReturnValue()
+        graphicsBufferSpies["createImage"] = vi.spyOn(
+            mockP5GraphicsContext,
+            "createImage"
+        )
         graphicsBufferSpies["rect"] = vi
             .spyOn(mockP5GraphicsContext, "rect")
+            .mockReturnValue()
+        graphicsBufferSpies["circle"] = vi
+            .spyOn(mockP5GraphicsContext, "circle")
             .mockReturnValue()
         graphicsBufferSpies["fill"] = vi
             .spyOn(mockP5GraphicsContext, "fill")

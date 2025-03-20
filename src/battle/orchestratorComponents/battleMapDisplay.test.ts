@@ -65,7 +65,9 @@ describe("battleMapDisplay", () => {
 
             gameEngineState = GameEngineStateService.new({
                 repository: undefined,
-                resourceHandler: undefined,
+                resourceHandler: mocks.mockResourceHandler(
+                    mockedP5GraphicsContext
+                ),
                 battleOrchestratorState: BattleOrchestratorStateService.new({
                     battleHUD: BattleHUDService.new({}),
                     battleState: BattleStateService.newBattleState({
