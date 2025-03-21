@@ -603,4 +603,19 @@ describe("RectArea", () => {
         expect(RectAreaService.height(rect)).toBe(30)
         expect(RectAreaService.width(rect)).toBe(20)
     })
+    it("can set the top side of the RectArea", () => {
+        const rect = RectAreaService.new({
+            top: 0,
+            left: 0,
+            height: 30,
+            width: 20,
+        })
+
+        RectAreaService.setTop(rect, 100)
+
+        expect(RectAreaService.left(rect)).toBe(0)
+        expect(RectAreaService.top(rect)).toBe(100)
+        expect(RectAreaService.height(rect)).toBe(30)
+        expect(RectAreaService.width(rect)).toBe(20)
+    })
 })

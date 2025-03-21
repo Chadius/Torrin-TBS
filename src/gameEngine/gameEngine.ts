@@ -138,7 +138,7 @@ export class GameEngine {
         return this._titleScreen
     }
 
-    get component(): GameEngineComponent {
+    get gameEngineComponent(): GameEngineComponent {
         switch (this.currentMode) {
             case GameModeEnum.TITLE_SCREEN:
                 return this.titleScreen
@@ -148,7 +148,7 @@ export class GameEngine {
                 return this.battleOrchestrator
             default:
                 throw new Error(
-                    `Cannot find component for Game Engine mode ${this.currentMode}`
+                    `Cannot find game engine component for ${this.currentMode}`
                 )
         }
     }
@@ -219,7 +219,7 @@ export class GameEngine {
     }
 
     keyPressed(keyCode: number) {
-        this.component.keyPressed(this.gameEngineState, keyCode)
+        this.gameEngineComponent.keyPressed(this.gameEngineState, keyCode)
     }
 
     keyIsDown(keyCode: number) {
@@ -239,38 +239,43 @@ export class GameEngine {
     }
 
     mousePressed(mousePress: MousePress) {
-        this.component.mousePressed(this.gameEngineState, mousePress)
+        this.gameEngineComponent.mousePressed(this.gameEngineState, mousePress)
     }
 
     mouseReleased(mouseRelease: MouseRelease) {
-        this.component.mouseReleased(this.gameEngineState, mouseRelease)
+        this.gameEngineComponent.mouseReleased(
+            this.gameEngineState,
+            mouseRelease
+        )
     }
 
     mouseMoved(mouseLocation: ScreenLocation) {
-        this.component.mouseMoved(this.gameEngineState, mouseLocation)
+        this.gameEngineComponent.mouseMoved(this.gameEngineState, mouseLocation)
     }
 
     mouseWheel(mouseWheel: MouseWheel) {
-        this.component.mouseWheel(this.gameEngineState, mouseWheel)
+        this.gameEngineComponent.mouseWheel(this.gameEngineState, mouseWheel)
     }
 
     mouseDragged(mouseDrag: MouseDrag) {
-        this.component.mouseDragged(this.gameEngineState, mouseDrag)
+        this.gameEngineComponent.mouseDragged(this.gameEngineState, mouseDrag)
     }
 
     async update({ graphics }: { graphics: GraphicsBuffer }) {
-        if (!isValidValue(this.component)) {
+        if (!isValidValue(this.gameEngineComponent)) {
             return
         }
-        await this.component.update(this.gameEngineState, graphics)
+        await this.gameEngineComponent.update(this.gameEngineState, graphics)
 
         if (this.gameEngineState.fileState.saveSaveState.savingInProgress) {
             this.saveGameAndDownloadFile()
         }
 
-        if (this.component.hasCompleted(this.gameEngineState)) {
+        if (this.gameEngineComponent.hasCompleted(this.gameEngineState)) {
             const orchestrationChanges: GameEngineChanges =
-                this.component.recommendStateChanges(this.gameEngineState)
+                this.gameEngineComponent.recommendStateChanges(
+                    this.gameEngineState
+                )
             if (
                 !(
                     orchestrationChanges.nextMode ===
@@ -278,7 +283,7 @@ export class GameEngine {
                     this.currentMode === GameModeEnum.BATTLE
                 )
             ) {
-                this.component.reset(this.gameEngineState)
+                this.gameEngineComponent.reset(this.gameEngineState)
             }
 
             if (orchestrationChanges.nextMode === GameModeEnum.LOADING_BATTLE) {

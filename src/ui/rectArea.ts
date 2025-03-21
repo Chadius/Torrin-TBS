@@ -235,6 +235,9 @@ export const RectAreaService = {
     setRight: (rectArea: RectArea, right: number) => {
         rectArea.left = right - rectArea.width
     },
+    setTop: (rectArea: RectArea, top: number) => {
+        rectArea.top = top
+    },
     setBottom: (rectArea: RectArea, bottom: number) => {
         rectArea.top = bottom - rectArea.height
     },

@@ -491,10 +491,15 @@ export class BattleOrchestrator implements GameEngineComponent {
             this.phaseController,
             this.squaddieUsesActionOnSquaddie,
         ]
-            .filter((component: BattleOrchestratorComponent) => component)
-            .forEach((component: BattleOrchestratorComponent) => {
-                component.reset(state)
-            })
+            .filter(
+                (battleOrchestratorComponent: BattleOrchestratorComponent) =>
+                    battleOrchestratorComponent
+            )
+            .forEach(
+                (battleOrchestratorComponent: BattleOrchestratorComponent) => {
+                    battleOrchestratorComponent.reset(state)
+                }
+            )
 
         this.resetInternalState()
     }

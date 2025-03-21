@@ -188,7 +188,7 @@ describe("BattleSquaddieUsesActionOnMap", () => {
         })
     })
 
-    describe("reset the component", () => {
+    describe("reset the battle orchestrator component", () => {
         let messageSpy: MockInstance
         beforeEach(() => {
             messageSpy = vi.spyOn(gameEngineState.messageBoard, "sendMessage")

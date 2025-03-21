@@ -90,6 +90,19 @@ export class PlayerActionConfirmCreateOKButton implements BehaviorTreeTask {
             )
         }
 
+        if (RectAreaService.top(okButtonArea) < 0) {
+            RectAreaService.setTop(okButtonArea, WINDOW_SPACING.SPACING1)
+        }
+        if (
+            RectAreaService.bottom(okButtonArea) >
+            ScreenDimensions.SCREEN_HEIGHT
+        ) {
+            RectAreaService.setBottom(
+                okButtonArea,
+                ScreenDimensions.SCREEN_HEIGHT - WINDOW_SPACING.SPACING1
+            )
+        }
+
         const buttonLogic = new ButtonLogicChangeOnRelease({
             dataBlob: context.buttonStatusChangeEventDataBlob,
         })

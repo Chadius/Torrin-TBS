@@ -491,7 +491,7 @@ describe("User ends their turn", () => {
             messageSpy.mockRestore()
         })
 
-        it("component is completed", () => {
+        it("battle orchestrator component is completed", () => {
             expect(mapAction.hasCompleted(gameEngineState)).toBeTruthy()
         })
         it("It sends a message indicating the animation is complete", () => {

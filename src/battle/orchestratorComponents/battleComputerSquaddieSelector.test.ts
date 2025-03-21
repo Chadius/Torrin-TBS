@@ -771,7 +771,7 @@ describe("BattleComputerSquaddieSelector", () => {
                 ).toStrictEqual({ q: 0, r: 1 })
             })
 
-            it("waits and then completes the component", () => {
+            it("waits and then completes the battle orchestrator component", () => {
                 expect(selector.hasCompleted(gameEngineState)).toBeFalsy()
                 selector.update({
                     gameEngineState,
@@ -827,7 +827,7 @@ describe("BattleComputerSquaddieSelector", () => {
                 )
             })
 
-            it("player can click to complete the component if an action is selected", () => {
+            it("player can click to complete the battle orchestrator component if an action is selected", () => {
                 expect(selector.hasCompleted(gameEngineState)).toBeFalsy()
                 selector.update({
                     gameEngineState,

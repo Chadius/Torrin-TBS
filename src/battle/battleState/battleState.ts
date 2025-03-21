@@ -280,7 +280,11 @@ const getMissingComponents = (
 
     return Object.keys(expectedComponents)
         .map((str) => str as BattleStateValidityMissingComponent)
-        .filter((component) => expectedComponents[component] === false)
+        .filter(
+            (battleStateValidityMissingComponent) =>
+                expectedComponents[battleStateValidityMissingComponent] ===
+                false
+        )
 }
 
 export class BattleStateListener implements MessageBoardListener {

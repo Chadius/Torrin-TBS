@@ -668,7 +668,7 @@ describe("Battle Orchestrator", () => {
             return true
         }
 
-        describe("knows which component to load based on the state", () => {
+        describe("knows which battle orchestrator component to load based on the state", () => {
             for (const modeStr in BattleOrchestratorMode) {
                 if (
                     modeStr === BattleOrchestratorMode.UNKNOWN ||
@@ -684,7 +684,7 @@ describe("Battle Orchestrator", () => {
                     | BattleOrchestratorMode.INITIALIZED
                     | BattleOrchestratorMode.PLAYER_HUD_CONTROLLER
                 >
-                it(`using the ${mode} mode will use the expected component`, () => {
+                it(`using the ${mode} mode will use the expected battle orchestrator component`, () => {
                     const tests: {
                         [mode in Exclude<
                             BattleOrchestratorMode,
@@ -1367,7 +1367,7 @@ describe("Battle Orchestrator", () => {
 
             const expectKeyEventsWillGoToMapDisplay = (
                 squaddieSelectorOrchestratorShouldDisplayMap: BattleOrchestrator,
-                component: BattleOrchestratorComponent
+                battleOrchestratorComponent: BattleOrchestratorComponent
             ) => {
                 const stateWantsToDisplayTheMap: GameEngineState =
                     GameEngineStateService.new({
@@ -1386,14 +1386,18 @@ describe("Battle Orchestrator", () => {
                     stateWantsToDisplayTheMap,
                     0
                 )
-                expect(component.keyEventHappened).toBeCalledTimes(1)
+                expect(
+                    battleOrchestratorComponent.keyEventHappened
+                ).toBeCalledTimes(1)
                 expect(mockMapDisplay.keyEventHappened).toBeCalledTimes(1)
 
                 squaddieSelectorOrchestratorShouldDisplayMap.keyPressed(
                     stateWantsToDisplayTheMap,
                     0
                 )
-                expect(component.keyEventHappened).toBeCalledTimes(2)
+                expect(
+                    battleOrchestratorComponent.keyEventHappened
+                ).toBeCalledTimes(2)
                 expect(mockMapDisplay.keyEventHappened).toBeCalledTimes(2)
             }
 

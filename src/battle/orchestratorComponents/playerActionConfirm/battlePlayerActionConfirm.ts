@@ -302,7 +302,7 @@ export class BattlePlayerActionConfirm implements BattleOrchestratorComponent {
 
     uiControlSettings(_state: GameEngineState): UIControlSettings {
         return new UIControlSettings({
-            scrollCamera: false,
+            scrollCamera: true,
             displayMap: true,
             pauseTimer: false,
             displayPlayerHUD: true,

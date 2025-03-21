@@ -76,7 +76,12 @@ export class BattleOrchestratorState {
 
         return Object.keys(expectedComponents)
             .map((str) => str as BattleOrchestratorStateValidityReason)
-            .filter((component) => expectedComponents[component] === false)
+            .filter(
+                (battleOrchestratorStateValidityReason) =>
+                    expectedComponents[
+                        battleOrchestratorStateValidityReason
+                    ] === false
+            )
     }
 
     public clone(): BattleOrchestratorState {

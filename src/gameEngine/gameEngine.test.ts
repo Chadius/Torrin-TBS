@@ -54,7 +54,7 @@ describe("Game Engine", () => {
             .mockResolvedValue(resourceLocators)
     })
 
-    it("Will call the new mode based on the component recommendations", async () => {
+    it("Will call the new mode based on the game engine component recommendations", async () => {
         const newGameEngine = new GameEngine({
             startupMode: GameModeEnum.TITLE_SCREEN,
             graphicsBuffer: mockedP5GraphicsBuffer,
@@ -65,7 +65,7 @@ describe("Game Engine", () => {
             version: "TEST",
         })
 
-        const nextComponent = newGameEngine.component
+        const nextComponent = newGameEngine.gameEngineComponent
         const updateSpy = vi.spyOn(nextComponent, "update").mockResolvedValue()
         const hasCompletedSpy = vi
             .spyOn(nextComponent, "hasCompleted")
@@ -81,13 +81,15 @@ describe("Game Engine", () => {
         expect(hasCompletedSpy).toBeCalled()
         expect(recommendedSpy).toBeCalled()
 
-        expect(newGameEngine.component).toBeInstanceOf(BattleOrchestrator)
+        expect(newGameEngine.gameEngineComponent).toBeInstanceOf(
+            BattleOrchestrator
+        )
     })
 
     describe("Game Engine component hooks ", () => {
         const expectUpdate = async (newGameEngine: GameEngine) => {
             const updateSpy = vi
-                .spyOn(newGameEngine.component, "update")
+                .spyOn(newGameEngine.gameEngineComponent, "update")
                 .mockResolvedValue()
             await newGameEngine.update({ graphics: mockedP5GraphicsBuffer })
             expect(updateSpy).toBeCalled()
@@ -96,7 +98,7 @@ describe("Game Engine", () => {
 
         const expectKeyPressed = (newGameEngine: GameEngine) => {
             const eventSpy = vi
-                .spyOn(newGameEngine.component, "keyPressed")
+                .spyOn(newGameEngine.gameEngineComponent, "keyPressed")
                 .mockImplementation(() => {})
             newGameEngine.keyPressed(10)
             expect(eventSpy).toBeCalled()
@@ -106,7 +108,7 @@ describe("Game Engine", () => {
 
         const expectMousePressed = (newGameEngine: GameEngine) => {
             const eventSpy = vi
-                .spyOn(newGameEngine.component, "mousePressed")
+                .spyOn(newGameEngine.gameEngineComponent, "mousePressed")
                 .mockImplementation(() => {})
             newGameEngine.mousePressed({
                 button: MouseButton.ACCEPT,
@@ -124,7 +126,7 @@ describe("Game Engine", () => {
 
         const expectMouseDragged = (newGameEngine: GameEngine) => {
             const eventSpy = vi
-                .spyOn(newGameEngine.component, "mouseDragged")
+                .spyOn(newGameEngine.gameEngineComponent, "mouseDragged")
                 .mockImplementation(() => {})
             newGameEngine.mouseDragged({
                 button: MouseButton.ACCEPT,
@@ -146,7 +148,7 @@ describe("Game Engine", () => {
 
         const expectMouseMoved = (newGameEngine: GameEngine) => {
             const eventSpy = vi
-                .spyOn(newGameEngine.component, "mouseMoved")
+                .spyOn(newGameEngine.gameEngineComponent, "mouseMoved")
                 .mockImplementation(() => {})
             newGameEngine.mouseMoved({ x: 100, y: 200 })
             expect(eventSpy).toBeCalled()
@@ -156,7 +158,7 @@ describe("Game Engine", () => {
 
         const expectMouseWheel = (newGameEngine: GameEngine) => {
             const eventSpy = vi
-                .spyOn(newGameEngine.component, "mouseWheel")
+                .spyOn(newGameEngine.gameEngineComponent, "mouseWheel")
                 .mockImplementation(() => {})
             newGameEngine.mouseWheel({
                 x: ScreenDimensions.SCREEN_WIDTH / 2,
@@ -194,7 +196,9 @@ describe("Game Engine", () => {
             })
             expect(loadFileIntoFormatSpy).toBeCalled()
             expect(newGameEngine.currentMode).toBe(startupMode)
-            expect(newGameEngine.component).toBeInstanceOf(componentType)
+            expect(newGameEngine.gameEngineComponent).toBeInstanceOf(
+                componentType
+            )
 
             await expectUpdate(newGameEngine)
             expectKeyPressed(newGameEngine)
@@ -403,10 +407,10 @@ describe("Game Engine", () => {
         })
         it("loader will go to the previous mode upon completion", async () => {
             const loaderUpdateSpy = vi
-                .spyOn(newGameEngine.component, "update")
+                .spyOn(newGameEngine.gameEngineComponent, "update")
                 .mockResolvedValue()
             const loaderCompletedSpy = vi
-                .spyOn(newGameEngine.component, "hasCompleted")
+                .spyOn(newGameEngine.gameEngineComponent, "hasCompleted")
                 .mockReturnValue(true)
             await newGameEngine.update({ graphics: mockedP5GraphicsBuffer })
             expect(loaderUpdateSpy).toBeCalled()

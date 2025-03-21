@@ -1060,7 +1060,7 @@ describe("BattleSquaddieSelector", () => {
         })
     })
 
-    it("will mark the component complete and recommend the message", () => {
+    it("will mark the battle orchestrator component complete and recommend the message", () => {
         let gameEngineState: GameEngineState
 
         const battlePhaseState =

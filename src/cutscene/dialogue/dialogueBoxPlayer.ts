@@ -208,13 +208,13 @@ const createUIObjects = (
         text: SubstituteText(state.dialogue.dialogueText, context),
         position: state.dialogue.dialogueTextPosition,
         fontStyle: state.dialogue.dialogueTextFontStyle,
-        component: DialogueComponent.DIALOGUE_BOX,
+        dialogueComponent: DialogueComponent.DIALOGUE_BOX,
     })
     state.speakerNameBox = new DialogueTextBox({
         text: state.dialogue.speakerName,
         position: state.dialogue.speakerNamePosition,
         fontStyle: state.dialogue.speakerNameFontStyle,
-        component: DialogueComponent.SPEAKER_NAME,
+        dialogueComponent: DialogueComponent.SPEAKER_NAME,
     })
 
     const answerButtonPositions: RectArea[] = getAnswerButtonPositions(state)

@@ -20,36 +20,36 @@ export class DialogueTextBox {
     dialogueTextLabel: Label
     position: DialoguePosition
     fontStyle: DialogueFontStyle
-    component: DialogueComponent
+    dialogueComponent: DialogueComponent
 
     constructor({
         text,
         position,
-        component,
+        dialogueComponent,
         fontStyle,
     }: {
         text: string
         position: DialoguePosition
         fontStyle: DialogueFontStyle
-        component: DialogueComponent
+        dialogueComponent: DialogueComponent
     }) {
         this.dialogueText = text
         this.position = position || DialoguePosition.CENTER
         this.fontStyle = fontStyle || DialogueFontStyle.BLACK
-        this.component = component
+        this.dialogueComponent = dialogueComponent
 
-        this.createUIObjects(this.component)
+        this.createUIObjects(this.dialogueComponent)
     }
 
     draw(graphicsContext: GraphicsBuffer) {
         LabelService.draw(this.dialogueTextLabel, graphicsContext)
     }
 
-    private createUIObjects(component: DialogueComponent) {
+    private createUIObjects(dialogueComponent: DialogueComponent) {
         let rectStyle: StyleTextBoxConstants
-        if (component === DialogueComponent.DIALOGUE_BOX) {
+        if (dialogueComponent === DialogueComponent.DIALOGUE_BOX) {
             rectStyle = DIALOGUE_TEXT_BOX_STYLE_CONSTANTS[this.position]
-        } else if (component === DialogueComponent.SPEAKER_NAME) {
+        } else if (dialogueComponent === DialogueComponent.SPEAKER_NAME) {
             rectStyle = DIALOGUE_SPEAKER_NAME_BOX_STYLE_CONSTANTS[this.position]
         }
 
@@ -63,13 +63,13 @@ export class DialogueTextBox {
         )
 
         let dialogueBoxHeight: number = 0
-        if (component === DialogueComponent.DIALOGUE_BOX) {
+        if (dialogueComponent === DialogueComponent.DIALOGUE_BOX) {
             rectStyle = DIALOGUE_TEXT_BOX_STYLE_CONSTANTS[this.position]
             dialogueBoxHeight =
                 (textToDraw.length + 1) * fontStyle.fontSize +
                 rectStyle.textBoxMargin[0] +
                 rectStyle.textBoxMargin[2]
-        } else if (component === DialogueComponent.SPEAKER_NAME) {
+        } else if (dialogueComponent === DialogueComponent.SPEAKER_NAME) {
             rectStyle = DIALOGUE_SPEAKER_NAME_BOX_STYLE_CONSTANTS[this.position]
             dialogueBoxHeight = fontStyle.fontSize * 1.5
         }
