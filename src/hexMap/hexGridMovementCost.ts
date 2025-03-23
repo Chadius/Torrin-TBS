@@ -1,3 +1,5 @@
+import { HexCoordinate } from "./hexCoordinate/hexCoordinate"
+
 export enum HexGridMovementCost {
     singleMovement = "singleMovement",
     doubleMovement = "doubleMovement",
@@ -35,4 +37,8 @@ export const MovingCostByTerrainType: { [t in HexGridMovementCost]: number } = {
     [HexGridMovementCost.doubleMovement]: 2,
     [HexGridMovementCost.pit]: 1,
     [HexGridMovementCost.wall]: 1,
+}
+
+export interface HexGridTile extends HexCoordinate {
+    terrainType: HexGridMovementCost
 }

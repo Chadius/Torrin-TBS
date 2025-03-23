@@ -3,7 +3,6 @@ import {
     HexCoordinateService,
 } from "../../hexCoordinate/hexCoordinate"
 import { getValidValueOrDefault } from "../../../utils/validityCheck"
-import { HexGridService } from "../../hexGridDirection"
 import { SearchPathAdapter } from "../../../search/searchPathAdapter/searchPathAdapter"
 
 export type SearchPathByCoordinate = {
@@ -47,7 +46,7 @@ export const SearchResultsService = {
         distanceFromCoordinate: number
     ): HexCoordinate[] => {
         const possibleCoordinatesThatAreADistanceFromTheCoordinate: HexCoordinate[] =
-            HexGridService.GetCoordinatesForRingAroundCoordinate(
+            HexCoordinateService.getCoordinatesForRingAroundCoordinate(
                 coordinate,
                 distanceFromCoordinate
             )

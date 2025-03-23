@@ -3,7 +3,7 @@ import {
     HEX_TILE_RADIUS,
     HEX_TILE_WIDTH,
 } from "../graphicsConstants"
-import { HexGridMovementCost } from "./hexGridMovementCost"
+import { HexGridMovementCost, HexGridTile } from "./hexGridMovementCost"
 import {
     ResourceHandler,
     ResourceHandlerService,
@@ -14,7 +14,6 @@ import { BlendColor, ColorUtils, PulseBlendColor } from "./colorUtils"
 import { HexCoordinate } from "./hexCoordinate/hexCoordinate"
 import { BattleCamera } from "../battle/battleCamera"
 import { GraphicsBuffer } from "../utils/graphics/graphicsRenderer"
-import { HexGridTile } from "./hexGrid"
 import p5 from "p5"
 import { TerrainTileGraphicsService } from "./terrainTileGraphics"
 import { ScreenLocation } from "../utils/mouseConfig"

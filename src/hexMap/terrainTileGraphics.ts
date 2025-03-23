@@ -1,4 +1,3 @@
-import { HexGridTile } from "./hexGrid"
 import { ConvertCoordinateService } from "./convertCoordinates"
 import { HexCoordinate } from "./hexCoordinate/hexCoordinate"
 import { MousePress, MouseRelease, ScreenLocation } from "../utils/mouseConfig"
@@ -6,6 +5,7 @@ import { BattleCamera } from "../battle/battleCamera"
 import { HEX_TILE_WIDTH } from "../graphicsConstants"
 import { ScreenDimensions } from "../utils/graphics/graphicsConfig"
 import { TerrainTileMap, TerrainTileMapService } from "./terrainTileMap"
+import { HexGridTile } from "./hexGridMovementCost"
 
 export const TerrainTileGraphicsService = {
     isCoordinateOnScreen: ({

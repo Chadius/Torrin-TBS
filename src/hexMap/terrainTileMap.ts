@@ -1,7 +1,7 @@
-import { HexGridTile } from "./hexGrid"
 import {
     HexGridMovementCost,
     HexGridMovementCostService,
+    HexGridTile,
 } from "./hexGridMovementCost"
 import { PulseBlendColor } from "./colorUtils"
 import { HexCoordinate } from "./hexCoordinate/hexCoordinate"

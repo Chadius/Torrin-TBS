@@ -1,4 +1,3 @@
-import { assertsInteger, assertsNonNegativeNumber } from "../utils/mathAssert"
 import { ConvertCoordinateService } from "../hexMap/convertCoordinates"
 import { ScreenDimensions } from "../utils/graphics/graphicsConfig"
 import { RectArea, RectAreaService } from "../ui/rectArea"
@@ -169,12 +168,6 @@ export class BattleCamera {
     }
 
     setMapDimensionBoundaries(widthOfWidestRow: number, numberOfRows: number) {
-        assertsNonNegativeNumber(widthOfWidestRow)
-        assertsInteger(widthOfWidestRow)
-
-        assertsNonNegativeNumber(numberOfRows)
-        assertsInteger(numberOfRows)
-
         this.mapDimensionBoundaries = {
             widthOfWidestRow,
             numberOfRows,

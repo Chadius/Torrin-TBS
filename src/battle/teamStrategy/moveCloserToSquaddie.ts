@@ -8,7 +8,10 @@ import { ObjectRepository, ObjectRepositoryService } from "../objectRepository"
 import { BattleSquaddieTeam } from "../battleSquaddieTeam"
 import { TeamStrategyOptions } from "./teamStrategy"
 import { SearchResult } from "../../hexMap/pathfinder/searchResults/searchResult"
-import { HexCoordinate } from "../../hexMap/hexCoordinate/hexCoordinate"
+import {
+    HexCoordinate,
+    HexCoordinateService,
+} from "../../hexMap/hexCoordinate/hexCoordinate"
 import { MissionMap, MissionMapService } from "../../missionMap/missionMap"
 import { BattleSquaddie } from "../battleSquaddie"
 import { isValidValue } from "../../utils/validityCheck"
@@ -28,7 +31,6 @@ import {
 } from "../../search/searchPathAdapter/searchPathAdapter"
 import { MapSearchService } from "../../hexMap/pathfinder/pathGeneration/mapSearch"
 import { SearchLimitService } from "../../hexMap/pathfinder/pathGeneration/searchLimit"
-import { HexGridService } from "../../hexMap/hexGridDirection"
 
 export class MoveCloserToSquaddie implements TeamStrategyCalculator {
     desiredBattleSquaddieId: string
@@ -291,7 +293,7 @@ const getPathsThatLeadToDistanceFromLocation = (
         possibleMovementsForThisSquaddie: SearchResult
     }
 ) =>
-    HexGridService.GetCoordinatesForRingAroundCoordinate(
+    HexCoordinateService.getCoordinatesForRingAroundCoordinate(
         targetMapCoordinate,
         radiusFromTargetMapCoordinate
     )

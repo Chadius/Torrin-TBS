@@ -1,7 +1,6 @@
 import { MissionMap, MissionMapService } from "../../missionMap/missionMap"
 import { BattleSquaddie } from "../battleSquaddie"
 import { ObjectRepository, ObjectRepositoryService } from "../objectRepository"
-import { CreateNewNeighboringCoordinates } from "../../hexMap/hexGridDirection"
 import { TerrainTileMapService } from "../../hexMap/terrainTileMap"
 import {
     Trait,
@@ -10,7 +9,10 @@ import {
 import { SquaddieAffiliation } from "../../squaddie/squaddieAffiliation"
 import { TargetingResults, TargetingResultsService } from "./targetingService"
 
-import { HexCoordinate } from "../../hexMap/hexCoordinate/hexCoordinate"
+import {
+    HexCoordinate,
+    HexCoordinateService,
+} from "../../hexMap/hexCoordinate/hexCoordinate"
 import { SquaddieTemplate } from "../../campaign/squaddieTemplate"
 import {
     ActionTemplate,
@@ -106,7 +108,10 @@ describe("Targeting Service", () => {
         expect(results.coordinatesInRange).toHaveLength(6)
         expect(results.coordinatesInRange).toEqual(
             expect.arrayContaining(
-                CreateNewNeighboringCoordinates({ q: 1, r: 1 })
+                HexCoordinateService.createNewNeighboringCoordinates({
+                    q: 1,
+                    r: 1,
+                })
             )
         )
     })
@@ -441,7 +446,10 @@ describe("Targeting Service", () => {
             expect(actionRange).toHaveLength(6)
             expect(actionRange).toEqual(
                 expect.arrayContaining(
-                    CreateNewNeighboringCoordinates({ q: 1, r: 1 })
+                    HexCoordinateService.createNewNeighboringCoordinates({
+                        q: 1,
+                        r: 1,
+                    })
                 )
             )
         })

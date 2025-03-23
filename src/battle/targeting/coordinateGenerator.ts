@@ -1,5 +1,7 @@
-import { HexCoordinate } from "../../hexMap/hexCoordinate/hexCoordinate"
-import { CreateNewNeighboringCoordinates } from "../../hexMap/hexGridDirection"
+import {
+    HexCoordinate,
+    HexCoordinateService,
+} from "../../hexMap/hexCoordinate/hexCoordinate"
 
 export enum CoordinateGeneratorShape {
     BLOOM = "BLOOM",
@@ -28,7 +30,6 @@ export const CoordinateGeneratorService = {
 
 const generateCoordinatesBloom = ({
     origin,
-    shape,
     shapeData,
 }: {
     origin: HexCoordinate
@@ -41,7 +42,9 @@ const generateCoordinatesBloom = ({
 
     for (let i = 0; i < shapeData.distance; i++) {
         let newCoordinatesFound = Object.values(newCoordinates)
-            .map((coordinate) => CreateNewNeighboringCoordinates(coordinate))
+            .map((coordinate) =>
+                HexCoordinateService.createNewNeighboringCoordinates(coordinate)
+            )
             .flat()
             .filter(
                 (coordinate) =>

@@ -14,7 +14,6 @@ import {
     MapGraphicsLayerService,
     MapGraphicsLayerType,
 } from "../../hexMap/mapLayer/mapGraphicsLayer"
-import { HexGridService } from "../../hexMap/hexGridDirection"
 import { ObjectRepository, ObjectRepositoryService } from "../objectRepository"
 import { MissionMap, MissionMapService } from "../../missionMap/missionMap"
 import { isValidValue } from "../../utils/validityCheck"
@@ -631,7 +630,7 @@ const getReachableCoordinatesByDistanceFromStopCoordinate = ({
         radiusFromStopCoordinate++
     ) {
         let coordinatesAtThisDistanceFromStopCoordinate =
-            HexGridService.GetCoordinatesForRingAroundCoordinate(
+            HexCoordinateService.getCoordinatesForRingAroundCoordinate(
                 stopCoordinate,
                 radiusFromStopCoordinate
             )

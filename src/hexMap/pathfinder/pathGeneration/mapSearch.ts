@@ -12,7 +12,6 @@ import {
     SearchConnection,
     SearchGraph,
 } from "../../../search/searchGraph/graph"
-import { HexGridDirectionService } from "../../hexGridDirection"
 import { SearchNodeRecord } from "../../../search/nodeRecord/nodeRecord"
 import { NodeArrayAStarPathfinder } from "../../../search/aStarPathfinding/nodeMapping/nodeArrayAStarPathfinder"
 import {
@@ -181,7 +180,7 @@ const convertTerrainTileMapToSearchGraph = ({
 
     const allConnections: SearchConnection<HexCoordinate>[] = []
     allHexCoordinates.forEach((coordinate) => {
-        HexGridDirectionService.createNewNeighboringCoordinates(coordinate)
+        HexCoordinateService.createNewNeighboringCoordinates(coordinate)
             .filter((neighborCoordinate: HexCoordinate) =>
                 TerrainTileMapService.isCoordinateOnMap(
                     tiles,
