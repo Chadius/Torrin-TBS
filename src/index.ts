@@ -51,19 +51,19 @@ export const sketch = (p: p5) => {
     }
 
     p.keyPressed = () => {
-        gameEngine.keyPressed(p.keyCode)
-        gameEngine.keyIsDown(p.keyCode)
+        gameEngine?.keyPressed(p.keyCode)
+        gameEngine?.keyIsDown(p.keyCode)
     }
 
     p.keyReleased = () => {
-        gameEngine.keyIsUp(p.keyCode)
+        gameEngine?.keyIsUp(p.keyCode)
     }
 
     p.mousePressed = () => {
         mousePressedTracker[p.mouseButton] = true
         let configuredMouseButton: MouseButton =
             MouseConfigService.getMouseButton(p.mouseButton)
-        gameEngine.mousePressed({
+        gameEngine?.mousePressed({
             button: configuredMouseButton,
             x: p.mouseX,
             y: p.mouseY,
@@ -78,7 +78,7 @@ export const sketch = (p: p5) => {
         mousePressedTracker[p.mouseButton] = false
         let configuredMouseButton: MouseButton =
             MouseConfigService.getMouseButton(p.mouseButton)
-        gameEngine.mouseReleased({
+        gameEngine?.mouseReleased({
             button: configuredMouseButton,
             x: p.mouseX,
             y: p.mouseY,
@@ -86,18 +86,18 @@ export const sketch = (p: p5) => {
     }
 
     p.mouseMoved = () => {
-        gameEngine.mouseMoved({ x: p.mouseX, y: p.mouseY })
+        gameEngine?.mouseMoved({ x: p.mouseX, y: p.mouseY })
     }
 
     p.mouseWheel = (event: WheelEvent) => {
-        gameEngine.mouseWheel(event)
+        gameEngine?.mouseWheel(event)
         return false
     }
 
     p.mouseDragged = (event: DragEvent) => {
         const mouseDrag =
             MouseConfigService.convertBrowserMouseEventToMouseDrag(event)
-        gameEngine.mouseDragged(mouseDrag)
+        gameEngine?.mouseDragged(mouseDrag)
         return false
     }
 }

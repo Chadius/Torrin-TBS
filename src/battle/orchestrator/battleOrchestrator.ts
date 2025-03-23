@@ -382,7 +382,7 @@ export class BattleOrchestrator implements GameEngineComponent {
             mouseRelease,
         }
 
-        this.getCurrentComponent().mouseEventHappened(
+        this.getCurrentComponent()?.mouseEventHappened(
             gameEngineState,
             mouseEvent
         )
@@ -401,7 +401,7 @@ export class BattleOrchestrator implements GameEngineComponent {
             mousePress,
         }
 
-        this.getCurrentComponent().mouseEventHappened(
+        this.getCurrentComponent()?.mouseEventHappened(
             gameEngineState,
             mouseEvent
         )
@@ -417,7 +417,7 @@ export class BattleOrchestrator implements GameEngineComponent {
             mouseLocation,
         }
 
-        this.getCurrentComponent().mouseEventHappened(state, mouseEvent)
+        this.getCurrentComponent()?.mouseEventHappened(state, mouseEvent)
 
         if (this.uiControlSettings.letMouseScrollCamera === true) {
             this.mapDisplay.mouseEventHappened(state, mouseEvent)
@@ -430,7 +430,7 @@ export class BattleOrchestrator implements GameEngineComponent {
             mouseWheel,
         }
 
-        this.getCurrentComponent().mouseEventHappened(
+        this.getCurrentComponent()?.mouseEventHappened(
             gameEngineState,
             mouseEvent
         )
@@ -446,7 +446,7 @@ export class BattleOrchestrator implements GameEngineComponent {
             mouseDrag,
         }
 
-        this.getCurrentComponent().mouseEventHappened(
+        this.getCurrentComponent()?.mouseEventHappened(
             gameEngineState,
             mouseEvent
         )
@@ -461,7 +461,7 @@ export class BattleOrchestrator implements GameEngineComponent {
             eventType: OrchestratorComponentKeyEventType.PRESSED,
             keyCode,
         }
-        this.getCurrentComponent().keyEventHappened(gameEngineState, keyEvent)
+        this.getCurrentComponent()?.keyEventHappened(gameEngineState, keyEvent)
 
         if (this.uiControlSettings.displayBattleMap === true) {
             this.mapDisplay.keyEventHappened(gameEngineState, keyEvent)

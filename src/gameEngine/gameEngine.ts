@@ -219,7 +219,7 @@ export class GameEngine {
     }
 
     keyPressed(keyCode: number) {
-        this.gameEngineComponent.keyPressed(this.gameEngineState, keyCode)
+        this.gameEngineComponent?.keyPressed(this.gameEngineState, keyCode)
     }
 
     keyIsDown(keyCode: number) {
@@ -239,26 +239,29 @@ export class GameEngine {
     }
 
     mousePressed(mousePress: MousePress) {
-        this.gameEngineComponent.mousePressed(this.gameEngineState, mousePress)
+        this.gameEngineComponent?.mousePressed(this.gameEngineState, mousePress)
     }
 
     mouseReleased(mouseRelease: MouseRelease) {
-        this.gameEngineComponent.mouseReleased(
+        this.gameEngineComponent?.mouseReleased(
             this.gameEngineState,
             mouseRelease
         )
     }
 
     mouseMoved(mouseLocation: ScreenLocation) {
-        this.gameEngineComponent.mouseMoved(this.gameEngineState, mouseLocation)
+        this.gameEngineComponent?.mouseMoved(
+            this.gameEngineState,
+            mouseLocation
+        )
     }
 
     mouseWheel(mouseWheel: MouseWheel) {
-        this.gameEngineComponent.mouseWheel(this.gameEngineState, mouseWheel)
+        this.gameEngineComponent?.mouseWheel(this.gameEngineState, mouseWheel)
     }
 
     mouseDragged(mouseDrag: MouseDrag) {
-        this.gameEngineComponent.mouseDragged(this.gameEngineState, mouseDrag)
+        this.gameEngineComponent?.mouseDragged(this.gameEngineState, mouseDrag)
     }
 
     async update({ graphics }: { graphics: GraphicsBuffer }) {
