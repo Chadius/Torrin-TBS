@@ -1,27 +1,37 @@
 import { BehaviorTreeTask } from "../../../utils/behaviorTree/task"
-import { DataBlob, DataBlobService } from "../../../utils/dataBlob/dataBlob"
 import { ImageUI } from "../../../ui/imageUI/imageUI"
-import { TitleScreenUIObjects } from "../../titleScreen"
+import {
+    TitleScreenContext,
+    TitleScreenLayout,
+    TitleScreenUIObjects,
+} from "../../titleScreen"
 import { TextBox } from "../../../ui/textBox/textBox"
+import { ComponentDataBlob } from "../../../utils/dataBlob/componentDataBlob"
 
 export class TitleScreenIsCharacterIntroductionImageLoaded
     implements BehaviorTreeTask
 {
-    dataBlob: DataBlob
+    dataBlob: ComponentDataBlob<
+        TitleScreenLayout,
+        TitleScreenContext,
+        TitleScreenUIObjects
+    >
     uiObjectKey: string
 
-    constructor(dataBlob: DataBlob, uiObjectKey: string) {
+    constructor(
+        dataBlob: ComponentDataBlob<
+            TitleScreenLayout,
+            TitleScreenContext,
+            TitleScreenUIObjects
+        >,
+        uiObjectKey: string
+    ) {
         this.dataBlob = dataBlob
         this.uiObjectKey = uiObjectKey
     }
 
     run(): boolean {
-        const uiObjects: TitleScreenUIObjects =
-            DataBlobService.get<TitleScreenUIObjects>(
-                this.dataBlob,
-                "uiObjects"
-            )
-
+        const uiObjects: TitleScreenUIObjects = this.dataBlob.getUIObjects()
         const characterIntroduction: {
             icon: ImageUI
         } = uiObjects[this.uiObjectKey as keyof typeof uiObjects] as {
@@ -29,32 +39,32 @@ export class TitleScreenIsCharacterIntroductionImageLoaded
         }
         return characterIntroduction?.icon?.isImageLoaded()
     }
-
-    clone(): TitleScreenIsCharacterIntroductionImageLoaded {
-        return new TitleScreenIsCharacterIntroductionImageLoaded(
-            this.dataBlob,
-            this.uiObjectKey
-        )
-    }
 }
 
 export class TitleScreenIsCharacterIntroductionImageInitialized
     implements BehaviorTreeTask
 {
-    dataBlob: DataBlob
+    dataBlob: ComponentDataBlob<
+        TitleScreenLayout,
+        TitleScreenContext,
+        TitleScreenUIObjects
+    >
     uiObjectKey: string
 
-    constructor(dataBlob: DataBlob, uiObjectKey: string) {
+    constructor(
+        dataBlob: ComponentDataBlob<
+            TitleScreenLayout,
+            TitleScreenContext,
+            TitleScreenUIObjects
+        >,
+        uiObjectKey: string
+    ) {
         this.dataBlob = dataBlob
         this.uiObjectKey = uiObjectKey
     }
 
     run(): boolean {
-        const uiObjects: TitleScreenUIObjects =
-            DataBlobService.get<TitleScreenUIObjects>(
-                this.dataBlob,
-                "uiObjects"
-            )
+        const uiObjects: TitleScreenUIObjects = this.dataBlob.getUIObjects()
 
         const characterIntroduction: {
             icon: ImageUI
@@ -63,40 +73,32 @@ export class TitleScreenIsCharacterIntroductionImageInitialized
         }
         return characterIntroduction?.icon != undefined
     }
-
-    clone(): TitleScreenIsCharacterIntroductionImageInitialized {
-        return new TitleScreenIsCharacterIntroductionImageInitialized(
-            this.dataBlob,
-            this.uiObjectKey
-        )
-    }
 }
 
 export class TitleScreenAreCharacterIntroductionElementsLoaded
     implements BehaviorTreeTask
 {
-    dataBlob: DataBlob
+    dataBlob: ComponentDataBlob<
+        TitleScreenLayout,
+        TitleScreenContext,
+        TitleScreenUIObjects
+    >
     uiObjectKeys: string[]
 
-    constructor(dataBlob: DataBlob, uiObjectKeys: string[]) {
+    constructor(
+        dataBlob: ComponentDataBlob<
+            TitleScreenLayout,
+            TitleScreenContext,
+            TitleScreenUIObjects
+        >,
+        uiObjectKeys: string[]
+    ) {
         this.dataBlob = dataBlob
         this.uiObjectKeys = uiObjectKeys
     }
 
-    clone(): TitleScreenAreCharacterIntroductionElementsLoaded {
-        return new TitleScreenAreCharacterIntroductionElementsLoaded(
-            this.dataBlob,
-            this.uiObjectKeys
-        )
-    }
-
     run(): boolean {
-        const uiObjects: TitleScreenUIObjects =
-            DataBlobService.get<TitleScreenUIObjects>(
-                this.dataBlob,
-                "uiObjects"
-            )
-
+        const uiObjects: TitleScreenUIObjects = this.dataBlob.getUIObjects()
         const allIconsAreLoaded: boolean = this.uiObjectKeys.every(
             (uiObjectKey) => {
                 const characterIntroduction: {

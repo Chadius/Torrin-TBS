@@ -1,46 +1,44 @@
 import { BehaviorTreeTask } from "../../../utils/behaviorTree/task"
-import { DataBlob, DataBlobService } from "../../../utils/dataBlob/dataBlob"
 import { RectArea, RectAreaService } from "../../../ui/rectArea"
 import { ScreenDimensions } from "../../../utils/graphics/graphicsConfig"
 import { TextBoxService } from "../../../ui/textBox/textBox"
 import { VERTICAL_ALIGN, WINDOW_SPACING } from "../../../ui/constants"
 import { ImageUI, ImageUILoadingBehavior } from "../../../ui/imageUI/imageUI"
-import { TitleScreenLayout, TitleScreenUIObjects } from "../../titleScreen"
+import {
+    TitleScreenContext,
+    TitleScreenLayout,
+    TitleScreenUIObjects,
+} from "../../titleScreen"
+import { ComponentDataBlob } from "../../../utils/dataBlob/componentDataBlob"
 
 export class TitleScreenCreateNahlaCharacterIntroductionIcon
     implements BehaviorTreeTask
 {
-    dataBlob: DataBlob
+    dataBlob: ComponentDataBlob<
+        TitleScreenLayout,
+        TitleScreenContext,
+        TitleScreenUIObjects
+    >
 
-    constructor(dataBlob: DataBlob) {
+    constructor(
+        dataBlob: ComponentDataBlob<
+            TitleScreenLayout,
+            TitleScreenContext,
+            TitleScreenUIObjects
+        >
+    ) {
         this.dataBlob = dataBlob
     }
 
-    clone(): TitleScreenCreateNahlaCharacterIntroductionIcon {
-        return new TitleScreenCreateNahlaCharacterIntroductionIcon(
-            this.dataBlob
-        )
-    }
-
     run(): boolean {
-        const uiObjects: TitleScreenUIObjects =
-            DataBlobService.get<TitleScreenUIObjects>(
-                this.dataBlob,
-                "uiObjects"
-            )
-
+        const uiObjects: TitleScreenUIObjects = this.dataBlob.getUIObjects()
         uiObjects.nahla.icon = this.createIcon()
-        DataBlobService.add<TitleScreenUIObjects>(
-            this.dataBlob,
-            "uiObjects",
-            uiObjects
-        )
+        this.dataBlob.setUIObjects(uiObjects)
         return true
     }
 
     createIcon() {
-        const layout: TitleScreenLayout =
-            DataBlobService.get<TitleScreenLayout>(this.dataBlob, "layout")
+        const layout: TitleScreenLayout = this.dataBlob.getLayout()
         return new ImageUI({
             imageLoadingBehavior: {
                 resourceKey: layout.nahla.iconImageResourceKey,
@@ -66,38 +64,31 @@ export class TitleScreenCreateNahlaCharacterIntroductionIcon
 export class TitleScreenCreateNahlaCharacterIntroductionDescriptionText
     implements BehaviorTreeTask
 {
-    dataBlob: DataBlob
+    dataBlob: ComponentDataBlob<
+        TitleScreenLayout,
+        TitleScreenContext,
+        TitleScreenUIObjects
+    >
 
-    constructor(dataBlob: DataBlob) {
+    constructor(
+        dataBlob: ComponentDataBlob<
+            TitleScreenLayout,
+            TitleScreenContext,
+            TitleScreenUIObjects
+        >
+    ) {
         this.dataBlob = dataBlob
     }
 
-    clone(): TitleScreenCreateNahlaCharacterIntroductionDescriptionText {
-        return new TitleScreenCreateNahlaCharacterIntroductionDescriptionText(
-            this.dataBlob
-        )
-    }
-
     run(): boolean {
-        const uiObjects: TitleScreenUIObjects =
-            DataBlobService.get<TitleScreenUIObjects>(
-                this.dataBlob,
-                "uiObjects"
-            )
-
+        const uiObjects: TitleScreenUIObjects = this.dataBlob.getUIObjects()
         uiObjects.nahla.descriptionText = this.createDescriptionText()
-        DataBlobService.add<TitleScreenUIObjects>(
-            this.dataBlob,
-            "uiObjects",
-            uiObjects
-        )
+        this.dataBlob.setUIObjects(uiObjects)
         return true
     }
 
     createDescriptionText() {
-        const layout: TitleScreenLayout =
-            DataBlobService.get<TitleScreenLayout>(this.dataBlob, "layout")
-
+        const layout: TitleScreenLayout = this.dataBlob.getLayout()
         const iconArea: RectArea = RectAreaService.new({
             startColumn: layout.nahla.iconArea.startColumn,
             screenWidth: ScreenDimensions.SCREEN_WIDTH,

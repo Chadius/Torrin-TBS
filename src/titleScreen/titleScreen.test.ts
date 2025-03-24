@@ -1,13 +1,9 @@
 import * as mocks from "../utils/test/mocks"
 import { MockedP5GraphicsBuffer } from "../utils/test/mocks"
-import {
-    TitleScreen,
-    TitleScreenContext,
-    TitleScreenUIObjects,
-} from "./titleScreen"
+import { TitleScreen, TitleScreenContext } from "./titleScreen"
 import { TitleScreenState } from "./titleScreenState"
 import { GameModeEnum } from "../utils/startupConfig"
-import { MouseButton } from "../utils/mouseConfig"
+import { MouseButton, ScreenLocation } from "../utils/mouseConfig"
 import { ScreenDimensions } from "../utils/graphics/graphicsConfig"
 import { ResourceHandler } from "../resource/resourceHandler"
 import { RectAreaService } from "../ui/rectArea"
@@ -19,14 +15,23 @@ import {
     LoadSaveState,
     LoadSaveStateService,
 } from "../dataLoader/playerData/loadSaveState"
-import { beforeEach, describe, expect, it, vi } from "vitest"
+import {
+    afterEach,
+    beforeEach,
+    describe,
+    expect,
+    it,
+    Mocked,
+    MockInstance,
+    vi,
+} from "vitest"
 import { PlayerInputTestService } from "../utils/test/playerInput"
 import { MessageBoardMessageType } from "../message/messageBoardMessage"
 import { PlayerDataMessageListener } from "../dataLoader/playerData/playerDataMessageListener"
-import { DataBlobService } from "../utils/dataBlob/dataBlob"
 import { WindowService } from "../utils/graphics/window"
 import { Button } from "../ui/button/button"
 import { TITLE_SCREEN_FILE_MESSAGE_DISPLAY_DURATION } from "./components/continueGameButton"
+import p5 from "p5"
 
 describe("Title Screen", () => {
     let gameEngineState: GameEngineState
@@ -54,6 +59,7 @@ describe("Title Screen", () => {
             .mockReturnValue({ width: 32, height: 32 })
         titleScreen = new TitleScreen({
             version: "TEST",
+            p5Instance: mocks.mockedP5(),
         })
         titleScreenState = titleScreen.setup()
         gameEngineState = GameEngineStateService.new({
@@ -77,15 +83,12 @@ describe("Title Screen", () => {
         expect(titleScreenState).not.toBeUndefined()
     })
 
-    it("will declare itself complete when all resources finish loading and user clicks and releases on the start button and the button is drawn active", () => {
-        titleScreen.update(gameEngineState, mockedP5GraphicsContext)
+    it("will declare itself complete when all resources finish loading and user clicks and releases on the start button and the button is drawn active", async () => {
+        await titleScreen.update(gameEngineState, mockedP5GraphicsContext)
         expect(titleScreen.hasCompleted(gameEngineState)).toBeFalsy()
 
         const startGameButton: Button =
-            DataBlobService.get<TitleScreenUIObjects>(
-                titleScreen.data,
-                "uiObjects"
-            ).startGameButton
+            titleScreen.data.getUIObjects().startGameButton
 
         titleScreen.mousePressed(gameEngineState, {
             button: MouseButton.ACCEPT,
@@ -94,7 +97,7 @@ describe("Title Screen", () => {
         })
 
         expect(
-            expectTitleScreenToStartLoadingWhenResourcesAreReady({
+            await expectTitleScreenToStartLoadingWhenResourcesAreReady({
                 mockedP5GraphicsContext: mockedP5GraphicsContext,
                 titleScreen: titleScreen,
                 gameEngineState: gameEngineState,
@@ -102,13 +105,13 @@ describe("Title Screen", () => {
         ).toBeTruthy()
     })
 
-    it("will declare itself complete when the user presses the enter key", () => {
+    it("will declare itself complete when the user presses the enter key", async () => {
         vi.spyOn(WindowService, "getDimensions").mockReturnValue({
             width: ScreenDimensions.SCREEN_WIDTH,
             height: ScreenDimensions.SCREEN_HEIGHT,
         })
 
-        titleScreen.update(gameEngineState, mockedP5GraphicsContext)
+        await titleScreen.update(gameEngineState, mockedP5GraphicsContext)
         expect(titleScreen.hasCompleted(gameEngineState)).toBeFalsy()
         titleScreen.keyPressed(
             gameEngineState,
@@ -116,7 +119,7 @@ describe("Title Screen", () => {
         )
 
         expect(
-            expectTitleScreenToStartLoadingWhenResourcesAreReady({
+            await expectTitleScreenToStartLoadingWhenResourcesAreReady({
                 mockedP5GraphicsContext: mockedP5GraphicsContext,
                 titleScreen: titleScreen,
                 gameEngineState: gameEngineState,
@@ -124,22 +127,17 @@ describe("Title Screen", () => {
         ).toBeTruthy()
     })
 
-    it("will declare itself complete when the file has loaded and control returns to the title screen", () => {
-        titleScreen.update(gameEngineState, mockedP5GraphicsContext)
-        const context: TitleScreenContext =
-            DataBlobService.get<TitleScreenContext>(titleScreen.data, "context")
+    it("will declare itself complete when the file has loaded and control returns to the title screen", async () => {
+        await titleScreen.update(gameEngineState, mockedP5GraphicsContext)
+        const context: TitleScreenContext = titleScreen.data.getContext()
         LoadSaveStateService.userRequestsLoad(context.fileState.loadSaveState)
         LoadSaveStateService.applicationCompletesLoad(
             context.fileState.loadSaveState,
             undefined
         )
-        DataBlobService.add<TitleScreenContext>(
-            titleScreen.data,
-            "context",
-            context
-        )
+        titleScreen.data.setContext(context)
         expect(
-            expectTitleScreenToStartLoadingWhenResourcesAreReady({
+            await expectTitleScreenToStartLoadingWhenResourcesAreReady({
                 mockedP5GraphicsContext: mockedP5GraphicsContext,
                 titleScreen: titleScreen,
                 gameEngineState: gameEngineState,
@@ -232,6 +230,89 @@ describe("Title Screen", () => {
             expect.anything(),
             expect.anything()
         )
+    })
+
+    describe("Anchor Tags to other pages", () => {
+        let createASpy: MockInstance
+        let anchorTagPositions: ScreenLocation[]
+
+        beforeEach(async () => {
+            createASpy = vi
+                .spyOn(titleScreen.p5Instance, "createA")
+                .mockReturnValue({
+                    position: (x, y) => {
+                        anchorTagPositions.push({ x, y })
+                    },
+                    remove: () => {},
+                } as Mocked<p5.Element>)
+            anchorTagPositions = []
+            await titleScreen.update(gameEngineState, mockedP5GraphicsContext)
+        })
+
+        afterEach(() => {
+            if (createASpy) createASpy.mockRestore()
+        })
+
+        const linkTests = [
+            {
+                website: "itch.io",
+                externalLinkKey: "itchIo",
+            },
+        ]
+
+        describe("drawing the page calls the window instance to create an Anchor tag", () => {
+            it.each(linkTests)(`$website`, ({ externalLinkKey }) => {
+                const layout = titleScreen.data.getLayout()
+                expect(createASpy).toHaveBeenCalledWith(
+                    layout.externalLinks[externalLinkKey].href,
+                    expect.any(String),
+                    layout.externalLinks[externalLinkKey].target
+                )
+            })
+        })
+
+        describe("title screen has a reference to the new Anchor tag", () => {
+            it.each(linkTests)(`$website`, ({ externalLinkKey }) => {
+                expect(
+                    titleScreen.data.getUIObjects().externalLinks[
+                        externalLinkKey
+                    ]
+                ).toBeTruthy()
+            })
+        })
+
+        it("All Anchor tags are in the correct positions", () => {
+            const layout = titleScreen.data.getLayout()
+            const expectedPositions: ScreenLocation[] = Object.values(
+                layout.externalLinks
+            ).map((externalLink) => externalLink.screenLocation)
+            expect(
+                anchorTagPositions.every((position) =>
+                    expectedPositions.some(
+                        (expectedPosition) =>
+                            position.x == expectedPosition.x &&
+                            position.y == expectedPosition.y
+                    )
+                )
+            ).toBeTruthy()
+        })
+
+        describe("Anchor Tags are removed upon reset", () => {
+            it.each(linkTests)(`$website`, ({ externalLinkKey }) => {
+                const anchorTag =
+                    titleScreen.data.getUIObjects().externalLinks[
+                        externalLinkKey
+                    ]
+                const removeSpy = vi.spyOn(anchorTag, "remove")
+                titleScreen.reset(gameEngineState)
+                expect(
+                    titleScreen.data.getUIObjects().externalLinks[
+                        externalLinkKey
+                    ]
+                ).toBeFalsy()
+                expect(removeSpy).toHaveBeenCalled()
+            })
+        })
     })
 
     describe("user clicks the load button", () => {
@@ -414,7 +495,7 @@ describe("Title Screen", () => {
     })
 })
 
-const expectTitleScreenToStartLoadingWhenResourcesAreReady = ({
+const expectTitleScreenToStartLoadingWhenResourcesAreReady = async ({
     mockedP5GraphicsContext,
     titleScreen,
     gameEngineState,
@@ -428,7 +509,7 @@ const expectTitleScreenToStartLoadingWhenResourcesAreReady = ({
         .spyOn(titleScreen, "allResourcesAreLoaded")
         .mockReturnValue(true)
     let textSpy = vi.spyOn(mockedP5GraphicsContext.mockedP5, "text")
-    titleScreen.update(gameEngineState, mockedP5GraphicsContext)
+    await titleScreen.update(gameEngineState, mockedP5GraphicsContext)
     expect(titleScreen.hasCompleted(gameEngineState)).toBeTruthy()
     expect(textSpy).toBeCalled()
     expect(textSpy).toBeCalledWith(
@@ -447,9 +528,8 @@ const mousePressContinueButton = (
     titleScreen: TitleScreen,
     gameEngineState: GameEngineState
 ) => {
-    const continueGameButton: Button = DataBlobService.get<{
-        continueGameButton: Button
-    }>(titleScreen.data, "uiObjects").continueGameButton
+    const continueGameButton: Button =
+        titleScreen.data.getUIObjects().continueGameButton
     titleScreen.mousePressed(gameEngineState, {
         button: MouseButton.ACCEPT,
         x: RectAreaService.centerX(continueGameButton.getArea()),

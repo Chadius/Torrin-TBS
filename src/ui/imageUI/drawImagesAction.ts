@@ -31,13 +31,4 @@ export class DrawImagesAction implements BehaviorTreeTask {
         })
         return true
     }
-
-    clone(): BehaviorTreeTask {
-        return new DrawImagesAction(
-            this.dataBlob,
-            this.getImages,
-            this.getGraphicsContext,
-            this.getResourceHandler
-        )
-    }
 }

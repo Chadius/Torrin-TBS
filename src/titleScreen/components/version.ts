@@ -1,5 +1,4 @@
 import { BehaviorTreeTask } from "../../utils/behaviorTree/task"
-import { DataBlob, DataBlobService } from "../../utils/dataBlob/dataBlob"
 import { TextBoxService } from "../../ui/textBox/textBox"
 import { RectAreaService } from "../../ui/rectArea"
 import { ScreenDimensions } from "../../utils/graphics/graphicsConfig"
@@ -9,30 +8,29 @@ import {
     TitleScreenLayout,
     TitleScreenUIObjects,
 } from "../titleScreen"
+import { ComponentDataBlob } from "../../utils/dataBlob/componentDataBlob"
 
 export class TitleScreenCreateVersionTextBoxAction implements BehaviorTreeTask {
-    dataBlob: DataBlob
+    dataBlob: ComponentDataBlob<
+        TitleScreenLayout,
+        TitleScreenContext,
+        TitleScreenUIObjects
+    >
 
-    constructor(data: DataBlob) {
+    constructor(
+        data: ComponentDataBlob<
+            TitleScreenLayout,
+            TitleScreenContext,
+            TitleScreenUIObjects
+        >
+    ) {
         this.dataBlob = data
     }
 
-    clone(): TitleScreenCreateVersionTextBoxAction {
-        return new TitleScreenCreateVersionTextBoxAction(this.dataBlob)
-    }
-
     run() {
-        const uiObjects: TitleScreenUIObjects =
-            DataBlobService.get<TitleScreenUIObjects>(
-                this.dataBlob,
-                "uiObjects"
-            )
-
-        const context: TitleScreenContext =
-            DataBlobService.get<TitleScreenContext>(this.dataBlob, "context")
-
-        const layout: TitleScreenLayout =
-            DataBlobService.get<TitleScreenLayout>(this.dataBlob, "layout")
+        const uiObjects: TitleScreenUIObjects = this.dataBlob.getUIObjects()
+        const context: TitleScreenContext = this.dataBlob.getContext()
+        const layout: TitleScreenLayout = this.dataBlob.getLayout()
 
         uiObjects.versionTextBox = TextBoxService.new({
             area: RectAreaService.new({
@@ -49,11 +47,7 @@ export class TitleScreenCreateVersionTextBoxAction implements BehaviorTreeTask {
             fontColor: layout.version.fontColor,
         })
 
-        DataBlobService.add<TitleScreenUIObjects>(
-            this.dataBlob,
-            "uiObjects",
-            uiObjects
-        )
+        this.dataBlob.setUIObjects(uiObjects)
         return true
     }
 }

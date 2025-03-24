@@ -140,7 +140,7 @@ export class ResourceHandler {
             imageLoader || new P5ImageLoader(graphics, p5Instance)
         this.imageLoader.setCallbacks(
             this.imageSuccessCallback,
-            (key, handler, p1) => {
+            (key, _handler, _p1) => {
                 console.log(`Failed to load ${key}`)
             }
         )

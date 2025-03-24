@@ -1,5 +1,5 @@
 import { BehaviorTreeTask } from "../../utils/behaviorTree/task"
-import { DataBlob, DataBlobService } from "../../utils/dataBlob/dataBlob"
+import { DataBlobService } from "../../utils/dataBlob/dataBlob"
 import { WindowService } from "../../utils/graphics/window"
 import { ScreenDimensions } from "../../utils/graphics/graphicsConfig"
 import {
@@ -22,22 +22,29 @@ import {
 } from "../../ui/button/style/AllLabelStyle/allLabelStyle"
 import { Button } from "../../ui/button/button"
 import { ButtonLogicChangeOnRelease } from "../../ui/button/logic/buttonLogicChangeOnRelease"
+import { ComponentDataBlob } from "../../utils/dataBlob/componentDataBlob"
 
 const TITLE_SCREEN_START_BUTTON_ID = "TITLE_SCREEN_START_BUTTON_ID"
 
 export class ShouldCreateStartGameButtonAction implements BehaviorTreeTask {
-    dataBlob: DataBlob
+    dataBlob: ComponentDataBlob<
+        TitleScreenLayout,
+        TitleScreenContext,
+        TitleScreenUIObjects
+    >
 
-    constructor(data: DataBlob) {
+    constructor(
+        data: ComponentDataBlob<
+            TitleScreenLayout,
+            TitleScreenContext,
+            TitleScreenUIObjects
+        >
+    ) {
         this.dataBlob = data
     }
 
     run() {
-        const uiObjects: TitleScreenUIObjects =
-            DataBlobService.get<TitleScreenUIObjects>(
-                this.dataBlob,
-                "uiObjects"
-            )
+        const uiObjects: TitleScreenUIObjects = this.dataBlob.getUIObjects()
         const startGameButton = uiObjects.startGameButton
 
         if (startGameButton == undefined) return true
@@ -51,9 +58,7 @@ export class ShouldCreateStartGameButtonAction implements BehaviorTreeTask {
 
         if (windowIsTooSmall) return true
 
-        const layout: TitleScreenLayout =
-            DataBlobService.get<TitleScreenLayout>(this.dataBlob, "layout")
-
+        const layout: TitleScreenLayout = this.dataBlob.getLayout()
         const playButtonHasBeenClicked: boolean =
             startGameButton?.getStatus() === ButtonStatus.ACTIVE
 
@@ -73,24 +78,26 @@ export class ShouldCreateStartGameButtonAction implements BehaviorTreeTask {
 }
 
 export class CreateStartGameButtonAction implements BehaviorTreeTask {
-    dataBlob: DataBlob
+    dataBlob: ComponentDataBlob<
+        TitleScreenLayout,
+        TitleScreenContext,
+        TitleScreenUIObjects
+    >
 
-    constructor(data: DataBlob) {
+    constructor(
+        data: ComponentDataBlob<
+            TitleScreenLayout,
+            TitleScreenContext,
+            TitleScreenUIObjects
+        >
+    ) {
         this.dataBlob = data
     }
 
     run() {
-        const uiObjects: TitleScreenUIObjects =
-            DataBlobService.get<TitleScreenUIObjects>(
-                this.dataBlob,
-                "uiObjects"
-            )
-
-        const layout: TitleScreenLayout =
-            DataBlobService.get<TitleScreenLayout>(this.dataBlob, "layout")
-
-        const context: TitleScreenContext =
-            DataBlobService.get<TitleScreenContext>(this.dataBlob, "context")
+        const uiObjects: TitleScreenUIObjects = this.dataBlob.getUIObjects()
+        const layout: TitleScreenLayout = this.dataBlob.getLayout()
+        const context: TitleScreenContext = this.dataBlob.getContext()
 
         const {
             buttonFontSize,
@@ -170,13 +177,12 @@ export class CreateStartGameButtonAction implements BehaviorTreeTask {
             drawTask,
             buttonLogic,
         })
-
+        this.dataBlob.setUIObjects(uiObjects)
         return true
     }
 
     private calculateReadyLabelText() {
-        const layout: TitleScreenLayout =
-            DataBlobService.get<TitleScreenLayout>(this.dataBlob, "layout")
+        const layout: TitleScreenLayout = this.dataBlob.getLayout()
 
         const { width: windowWidth, height: windowHeight } =
             WindowService.getDimensions()

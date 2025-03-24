@@ -15,6 +15,7 @@ vi.mock("p5", () => {
                 height: 1,
                 copy: vi.fn(),
             }),
+            createA: vi.fn(),
             fill: vi.fn(),
             image: vi.fn(),
             line: vi.fn(),

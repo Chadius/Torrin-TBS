@@ -74,6 +74,16 @@ import { MessageBoardMessageType } from "../message/messageBoardMessage"
 import { DrawRectangleAction } from "../ui/rectangle/drawRectangleAction"
 import { DrawTextBoxesAction } from "../ui/textBox/drawTextBoxesAction"
 import { DrawImagesAction } from "../ui/imageUI/drawImagesAction"
+import p5 from "p5"
+import {
+    TitleScreenDrawExternalLinkButton,
+    TitleScreenP5InstanceIsReady,
+} from "./components/externalLinkButton"
+import { ComponentDataBlob } from "../utils/dataBlob/componentDataBlob"
+
+const EXTERNAL_LINK_ITCH_IO_IMAGE_PATH =
+    "/assets/externalLinks/itchIo-app-icon.png"
+const EXTERNAL_LINK_ITCH_IO_HTML = `<div style="display: flex; flex-direction: row; border: hotpink 2px solid; border-radius: 8px; background-color: lightpink; padding: 8px"><img src=${EXTERNAL_LINK_ITCH_IO_IMAGE_PATH} alt="Button to add game to itch.io collection" height="50"/><span style="padding-left: 8px; align-self: center">Add to Collection</span></div>`
 
 export enum TitleScreenMenuSelection {
     NONE = "NONE",
@@ -174,6 +184,27 @@ export interface TitleScreenLayout {
         bottom: number
         fontColor: [number, number, number]
     }
+    externalLinks: {
+        [key: string]: {
+            screenLocation: {
+                x: number
+                y: number
+            }
+            html: string
+            href: string
+            target?: string
+        }
+        itchIo: {
+            screenLocation: {
+                x: number
+                y: number
+            }
+            html: string
+            href: string
+            target?: string
+        }
+    }
+    htmlGenerator: p5
 }
 
 export interface TitleScreenContext {
@@ -212,19 +243,33 @@ export interface TitleScreenUIObjects {
     }
     graphicsContext?: GraphicsBuffer
     resourceHandler?: ResourceHandler
+    externalLinks: {
+        [key: string]: p5.Element
+        itchIo: p5.Element
+    }
 }
 
 export class TitleScreen implements GameEngineComponent {
-    data: DataBlob
+    data: ComponentDataBlob<
+        TitleScreenLayout,
+        TitleScreenContext,
+        TitleScreenUIObjects
+    >
     drawUIObjectsBehaviorTree: BehaviorTreeTask
+    p5Instance?: p5
 
-    constructor({ version }: { version: string }) {
-        this.data = DataBlobService.new()
+    constructor({ version, p5Instance }: { version: string; p5Instance?: p5 }) {
+        this.p5Instance = p5Instance
+
+        this.data = new ComponentDataBlob<
+            TitleScreenLayout,
+            TitleScreenContext,
+            TitleScreenUIObjects
+        >()
 
         const context: TitleScreenContext = this.resetContext()
         context.version = version
-
-        DataBlobService.add<TitleScreenContext>(this.data, "context", context)
+        this.data.setContext(context)
 
         const layout: TitleScreenLayout = {
             colors: {
@@ -332,8 +377,20 @@ export class TitleScreen implements GameEngineComponent {
                     ScreenDimensions.SCREEN_HEIGHT - WINDOW_SPACING.SPACING1,
                 fontColor: [0, 0, 128],
             },
+            htmlGenerator: this.p5Instance,
+            externalLinks: {
+                itchIo: {
+                    screenLocation: {
+                        x: 200,
+                        y: 700,
+                    },
+                    html: EXTERNAL_LINK_ITCH_IO_HTML,
+                    href: "https://chadius.itch.io/fell-desert/add-to-collection?source=game",
+                    target: "_blank",
+                },
+            },
         }
-        DataBlobService.add<TitleScreenLayout>(this.data, "layout", layout)
+        this.data.setLayout(layout)
 
         this.resetContext()
         this.resetUIObjects()
@@ -341,8 +398,7 @@ export class TitleScreen implements GameEngineComponent {
     }
 
     get newGameSelected(): boolean {
-        const context: TitleScreenContext =
-            DataBlobService.get<TitleScreenContext>(this.data, "context")
+        const context: TitleScreenContext = this.data.getContext()
         return context?.menuSelection === TitleScreenMenuSelection.NEW_GAME
     }
 
@@ -355,10 +411,7 @@ export class TitleScreen implements GameEngineComponent {
             graphicsContext,
             gameEngineState.resourceHandler
         )
-        const uiObjects = DataBlobService.get<TitleScreenUIObjects>(
-            this.data,
-            "uiObjects"
-        )
+        const uiObjects = this.data.getUIObjects()
         uiObjects.startGameButton?.clearStatus()
         uiObjects.continueGameButton?.clearStatus()
     }
@@ -371,14 +424,8 @@ export class TitleScreen implements GameEngineComponent {
             )
 
         if (actions.includes(PlayerInputAction.ACCEPT)) {
-            const uiObjects = DataBlobService.get<TitleScreenUIObjects>(
-                this.data,
-                "uiObjects"
-            )
-            const context = DataBlobService.get<TitleScreenContext>(
-                this.data,
-                "context"
-            )
+            const uiObjects = this.data.getUIObjects()
+            const context = this.data.getContext()
 
             uiObjects.startGameButton.changeStatus({
                 newStatus: ButtonStatus.ACTIVE,
@@ -457,21 +504,15 @@ export class TitleScreen implements GameEngineComponent {
     }
 
     private getButtons() {
-        const uiObjects: TitleScreenUIObjects =
-            DataBlobService.get<TitleScreenUIObjects>(this.data, "uiObjects")
+        const uiObjects: TitleScreenUIObjects = this.data.getUIObjects()
         return [uiObjects.startGameButton, uiObjects.continueGameButton].filter(
             (x) => x
         )
     }
 
     private reactToButtonStatusChangeEvents() {
-        const uiObjects: TitleScreenUIObjects =
-            DataBlobService.get<TitleScreenUIObjects>(this.data, "uiObjects")
-
-        const context = DataBlobService.get<TitleScreenContext>(
-            this.data,
-            "context"
-        )
+        const uiObjects: TitleScreenUIObjects = this.data.getUIObjects()
+        const context = this.data.getContext()
 
         if (uiObjects.startGameButton) {
             this.reactToStartGameButtonStatusChangeEvent(
@@ -488,8 +529,7 @@ export class TitleScreen implements GameEngineComponent {
     }
 
     hasCompleted(_: GameEngineState): boolean {
-        const context: TitleScreenContext =
-            DataBlobService.get<TitleScreenContext>(this.data, "context")
+        const context: TitleScreenContext = this.data.getContext()
         const continueGameWasLoaded =
             context?.fileState?.loadSaveState &&
             context.fileState.loadSaveState.userRequestedLoad &&
@@ -511,8 +551,7 @@ export class TitleScreen implements GameEngineComponent {
     }
 
     private getAllImages() {
-        const uiObjects: TitleScreenUIObjects =
-            DataBlobService.get<TitleScreenUIObjects>(this.data, "uiObjects")
+        const uiObjects: TitleScreenUIObjects = this.data.getUIObjects()
         return [
             uiObjects.titleBanner,
             uiObjects.nahla.icon,
@@ -542,22 +581,20 @@ export class TitleScreen implements GameEngineComponent {
         graphicsContext: GraphicsBuffer,
         resourceHandler: ResourceHandler
     ): void {
-        const uiObjects: TitleScreenUIObjects =
-            DataBlobService.get<TitleScreenUIObjects>(this.data, "uiObjects")
+        const uiObjects: TitleScreenUIObjects = this.data.getUIObjects()
 
         uiObjects.graphicsContext = graphicsContext
         uiObjects.resourceHandler = resourceHandler
-        DataBlobService.add<TitleScreenUIObjects>(
-            this.data,
-            "uiObjects",
-            uiObjects
-        )
-        const context: TitleScreenContext =
-            DataBlobService.get<TitleScreenContext>(this.data, "context")
+        this.data.setUIObjects(uiObjects)
 
+        const context: TitleScreenContext = this.data.getContext()
         context.fileState = gameEngineState.fileState
         context.messageBoard = gameEngineState.messageBoard
-        DataBlobService.add<TitleScreenContext>(this.data, "context", context)
+        this.data.setContext(context)
+
+        const layout: TitleScreenLayout = this.data.getLayout()
+        layout.htmlGenerator = this.p5Instance
+        this.data.setLayout(layout)
 
         this.drawUIObjectsBehaviorTree.run()
         ;[uiObjects.startGameButton, uiObjects.continueGameButton]
@@ -573,10 +610,7 @@ export class TitleScreen implements GameEngineComponent {
     }
 
     private resetContext() {
-        const existingContext: TitleScreenContext = DataBlobService.get(
-            this.data,
-            "context"
-        )
+        const existingContext: TitleScreenContext = this.data.getContext()
 
         const context: TitleScreenContext = {
             errorDuringLoadingDisplayStartTimestamp: undefined,
@@ -586,11 +620,20 @@ export class TitleScreen implements GameEngineComponent {
             messageBoard: undefined,
             buttonStatusChangeEventDataBlob: DataBlobService.new(),
         }
-        DataBlobService.add<TitleScreenContext>(this.data, "context", context)
+        this.data.setContext(context)
         return context
     }
 
     private resetUIObjects() {
+        const uiObjectsToDelete = this.data.getUIObjects()
+        if (uiObjectsToDelete?.externalLinks) {
+            Object.values(uiObjectsToDelete.externalLinks)
+                .filter((x) => x)
+                .forEach((link) => {
+                    link.remove()
+                })
+        }
+
         const uiObjects: TitleScreenUIObjects = {
             titleBanner: undefined,
             demonSlither: {
@@ -616,12 +659,11 @@ export class TitleScreen implements GameEngineComponent {
             gameDescription: undefined,
             background: undefined,
             versionTextBox: undefined,
+            externalLinks: {
+                itchIo: undefined,
+            },
         }
-        DataBlobService.add<TitleScreenUIObjects>(
-            this.data,
-            "uiObjects",
-            uiObjects
-        )
+        this.data.setUIObjects(uiObjects)
     }
 
     private createDrawingTree() {
@@ -734,35 +776,45 @@ export class TitleScreen implements GameEngineComponent {
                     this.data
                 ),
             ]),
+            new SequenceComposite(this.data, [
+                new TitleScreenP5InstanceIsReady(this.data),
+                new TitleScreenDrawExternalLinkButton(this.data, "itchIo"),
+            ]),
         ])
 
         const drawUIObjects = new SequenceComposite(this.data, [
             new DoesObjectHaveKeyExistCondition({
-                data: this.data,
+                data: this.data.data,
                 dataObjectName: "uiObjects",
                 objectKey: "graphicsContext",
             }),
             new ExecuteAllComposite(this.data, [
                 new DrawRectangleAction(
                     this.data,
-                    (dataBlob: DataBlob) => {
+                    (
+                        dataBlob: ComponentDataBlob<
+                            TitleScreenLayout,
+                            TitleScreenContext,
+                            TitleScreenUIObjects
+                        >
+                    ) => {
                         const uiObjects: TitleScreenUIObjects =
-                            DataBlobService.get<TitleScreenUIObjects>(
-                                dataBlob,
-                                "uiObjects"
-                            )
+                            dataBlob.getUIObjects()
                         return uiObjects.background
                     },
                     getGraphicsContext
                 ),
                 new DrawTextBoxesAction(
                     this.data,
-                    (dataBlob: DataBlob) => {
+                    (
+                        dataBlob: ComponentDataBlob<
+                            TitleScreenLayout,
+                            TitleScreenContext,
+                            TitleScreenUIObjects
+                        >
+                    ) => {
                         const uiObjects: TitleScreenUIObjects =
-                            DataBlobService.get<TitleScreenUIObjects>(
-                                dataBlob,
-                                "uiObjects"
-                            )
+                            dataBlob.getUIObjects()
                         return [
                             uiObjects.titleText,
                             uiObjects.byLine,
@@ -825,14 +877,24 @@ export class TitleScreen implements GameEngineComponent {
     }
 }
 
-const getGraphicsContext = (dataBlob: DataBlob): GraphicsBuffer => {
-    const uiObjects: TitleScreenUIObjects =
-        DataBlobService.get<TitleScreenUIObjects>(dataBlob, "uiObjects")
+const getGraphicsContext = (
+    dataBlob: ComponentDataBlob<
+        TitleScreenLayout,
+        TitleScreenContext,
+        TitleScreenUIObjects
+    >
+): GraphicsBuffer => {
+    const uiObjects: TitleScreenUIObjects = dataBlob.getUIObjects()
     return uiObjects.graphicsContext
 }
 
-const getResourceHandler = (dataBlob: DataBlob): ResourceHandler => {
-    const uiObjects: TitleScreenUIObjects =
-        DataBlobService.get<TitleScreenUIObjects>(dataBlob, "uiObjects")
+const getResourceHandler = (
+    dataBlob: ComponentDataBlob<
+        TitleScreenLayout,
+        TitleScreenContext,
+        TitleScreenUIObjects
+    >
+): ResourceHandler => {
+    const uiObjects: TitleScreenUIObjects = dataBlob.getUIObjects()
     return uiObjects.resourceHandler
 }

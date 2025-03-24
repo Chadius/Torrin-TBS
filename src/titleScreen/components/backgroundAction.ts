@@ -1,30 +1,34 @@
 import { BehaviorTreeTask } from "../../utils/behaviorTree/task"
-import { DataBlob, DataBlobService } from "../../utils/dataBlob/dataBlob"
 import { RectangleService } from "../../ui/rectangle/rectangle"
 import { RectAreaService } from "../../ui/rectArea"
 import { ScreenDimensions } from "../../utils/graphics/graphicsConfig"
-import { TitleScreenLayout, TitleScreenUIObjects } from "../titleScreen"
+import {
+    TitleScreenContext,
+    TitleScreenLayout,
+    TitleScreenUIObjects,
+} from "../titleScreen"
+import { ComponentDataBlob } from "../../utils/dataBlob/componentDataBlob"
 
 export class TitleScreenCreateBackgroundAction implements BehaviorTreeTask {
-    dataBlob: DataBlob
+    dataBlob: ComponentDataBlob<
+        TitleScreenLayout,
+        TitleScreenContext,
+        TitleScreenUIObjects
+    >
 
-    constructor(data: DataBlob) {
+    constructor(
+        data: ComponentDataBlob<
+            TitleScreenLayout,
+            TitleScreenContext,
+            TitleScreenUIObjects
+        >
+    ) {
         this.dataBlob = data
     }
 
-    clone(): TitleScreenCreateBackgroundAction {
-        return new TitleScreenCreateBackgroundAction(this.dataBlob)
-    }
-
     run() {
-        const uiObjects: TitleScreenUIObjects =
-            DataBlobService.get<TitleScreenUIObjects>(
-                this.dataBlob,
-                "uiObjects"
-            )
-
-        const layout: TitleScreenLayout =
-            DataBlobService.get<TitleScreenLayout>(this.dataBlob, "layout")
+        const uiObjects: TitleScreenUIObjects = this.dataBlob.getUIObjects()
+        const layout: TitleScreenLayout = this.dataBlob.getLayout()
 
         uiObjects.background = RectangleService.new({
             area: RectAreaService.new({
@@ -36,11 +40,7 @@ export class TitleScreenCreateBackgroundAction implements BehaviorTreeTask {
             fillColor: layout.colors.background,
         })
 
-        DataBlobService.add<TitleScreenUIObjects>(
-            this.dataBlob,
-            "uiObjects",
-            uiObjects
-        )
+        this.dataBlob.setUIObjects(uiObjects)
         return true
     }
 }

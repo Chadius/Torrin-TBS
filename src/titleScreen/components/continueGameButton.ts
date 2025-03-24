@@ -1,5 +1,5 @@
 import { BehaviorTreeTask } from "../../utils/behaviorTree/task"
-import { DataBlob, DataBlobService } from "../../utils/dataBlob/dataBlob"
+import { DataBlobService } from "../../utils/dataBlob/dataBlob"
 import {
     TitleScreenContext,
     TitleScreenLayout,
@@ -22,33 +22,34 @@ import { Button } from "../../ui/button/button"
 import { ButtonLogicChangeOnRelease } from "../../ui/button/logic/buttonLogicChangeOnRelease"
 import { LoadSaveStateService } from "../../dataLoader/playerData/loadSaveState"
 import { FileState } from "../../gameEngine/fileState"
+import { ComponentDataBlob } from "../../utils/dataBlob/componentDataBlob"
 
 const TITLE_SCREEN_CONTINUE_BUTTON_ID = "TITLE_SCREEN_CONTINUE_BUTTON_ID"
 
 export class ShouldCreateContinueGameButtonAction implements BehaviorTreeTask {
-    dataBlob: DataBlob
+    dataBlob: ComponentDataBlob<
+        TitleScreenLayout,
+        TitleScreenContext,
+        TitleScreenUIObjects
+    >
 
-    constructor(data: DataBlob) {
+    constructor(
+        data: ComponentDataBlob<
+            TitleScreenLayout,
+            TitleScreenContext,
+            TitleScreenUIObjects
+        >
+    ) {
         this.dataBlob = data
     }
 
-    clone(): ShouldCreateContinueGameButtonAction {
-        return new ShouldCreateContinueGameButtonAction(this.dataBlob)
-    }
-
     run() {
-        const uiObjects: TitleScreenUIObjects =
-            DataBlobService.get<TitleScreenUIObjects>(
-                this.dataBlob,
-                "uiObjects"
-            )
+        const uiObjects: TitleScreenUIObjects = this.dataBlob.getUIObjects()
         const continueGameButton = uiObjects.continueGameButton
 
         if (continueGameButton == undefined) return true
 
-        const context: TitleScreenContext =
-            DataBlobService.get<TitleScreenContext>(this.dataBlob, "context")
-
+        const context: TitleScreenContext = this.dataBlob.getContext()
         const { buttonText, isError } = getContinueGameButtonText(context)
         if (
             isError &&
@@ -78,28 +79,26 @@ export class ShouldCreateContinueGameButtonAction implements BehaviorTreeTask {
 }
 
 export class CreateContinueGameButtonAction implements BehaviorTreeTask {
-    dataBlob: DataBlob
+    dataBlob: ComponentDataBlob<
+        TitleScreenLayout,
+        TitleScreenContext,
+        TitleScreenUIObjects
+    >
 
-    constructor(data: DataBlob) {
+    constructor(
+        data: ComponentDataBlob<
+            TitleScreenLayout,
+            TitleScreenContext,
+            TitleScreenUIObjects
+        >
+    ) {
         this.dataBlob = data
     }
 
-    clone(): CreateContinueGameButtonAction {
-        return new CreateContinueGameButtonAction(this.dataBlob)
-    }
-
     run() {
-        const uiObjects: TitleScreenUIObjects =
-            DataBlobService.get<TitleScreenUIObjects>(
-                this.dataBlob,
-                "uiObjects"
-            )
-
-        const layout: TitleScreenLayout =
-            DataBlobService.get<TitleScreenLayout>(this.dataBlob, "layout")
-
-        const context: TitleScreenContext =
-            DataBlobService.get<TitleScreenContext>(this.dataBlob, "context")
+        const uiObjects: TitleScreenUIObjects = this.dataBlob.getUIObjects()
+        const layout: TitleScreenLayout = this.dataBlob.getLayout()
+        const context: TitleScreenContext = this.dataBlob.getContext()
 
         const { buttonText } = getContinueGameButtonText(context)
         const buttonFontSize = WINDOW_SPACING.SPACING2
@@ -177,7 +176,7 @@ export class CreateContinueGameButtonAction implements BehaviorTreeTask {
             drawTask,
             buttonLogic,
         })
-
+        this.dataBlob.setUIObjects(uiObjects)
         return true
     }
 }

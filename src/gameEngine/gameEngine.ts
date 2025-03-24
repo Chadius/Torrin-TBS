@@ -206,6 +206,7 @@ export class GameEngine {
 
         this._titleScreen = new TitleScreen({
             version,
+            p5Instance,
         })
         this.gameEngineGameLoader = new GameEngineGameLoader(
             process.env.CAMPAIGN_ID

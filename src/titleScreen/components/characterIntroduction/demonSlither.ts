@@ -1,52 +1,45 @@
 import { BehaviorTreeTask } from "../../../utils/behaviorTree/task"
-import { DataBlob, DataBlobService } from "../../../utils/dataBlob/dataBlob"
 import { ImageUI, ImageUILoadingBehavior } from "../../../ui/imageUI/imageUI"
 import { RectArea, RectAreaService } from "../../../ui/rectArea"
 import { ScreenDimensions } from "../../../utils/graphics/graphicsConfig"
 import { VERTICAL_ALIGN, WINDOW_SPACING } from "../../../ui/constants"
 import { TextBox, TextBoxService } from "../../../ui/textBox/textBox"
-import { TitleScreenLayout, TitleScreenUIObjects } from "../../titleScreen"
+import {
+    TitleScreenContext,
+    TitleScreenLayout,
+    TitleScreenUIObjects,
+} from "../../titleScreen"
+import { ComponentDataBlob } from "../../../utils/dataBlob/componentDataBlob"
 
 export class TitleScreenCreateDemonSlitherCharacterIntroductionIcon
     implements BehaviorTreeTask
 {
-    dataBlob: DataBlob
+    dataBlob: ComponentDataBlob<
+        TitleScreenLayout,
+        TitleScreenContext,
+        TitleScreenUIObjects
+    >
 
-    constructor(dataBlob: DataBlob) {
+    constructor(
+        dataBlob: ComponentDataBlob<
+            TitleScreenLayout,
+            TitleScreenContext,
+            TitleScreenUIObjects
+        >
+    ) {
         this.dataBlob = dataBlob
     }
 
-    clone(): TitleScreenCreateDemonSlitherCharacterIntroductionIcon {
-        return new TitleScreenCreateDemonSlitherCharacterIntroductionIcon(
-            this.dataBlob
-        )
-    }
-
     run(): boolean {
-        const uiObjects: TitleScreenUIObjects =
-            DataBlobService.get<TitleScreenUIObjects>(
-                this.dataBlob,
-                "uiObjects"
-            )
-
+        const uiObjects: TitleScreenUIObjects = this.dataBlob.getUIObjects()
         uiObjects.demonSlither.icon = this.createIcon()
-        DataBlobService.add<TitleScreenUIObjects>(
-            this.dataBlob,
-            "uiObjects",
-            uiObjects
-        )
+        this.dataBlob.setUIObjects(uiObjects)
         return true
     }
 
     createIcon() {
-        const layout: TitleScreenLayout =
-            DataBlobService.get<TitleScreenLayout>(this.dataBlob, "layout")
-        const uiObjects: TitleScreenUIObjects =
-            DataBlobService.get<TitleScreenUIObjects>(
-                this.dataBlob,
-                "uiObjects"
-            )
-
+        const layout: TitleScreenLayout = this.dataBlob.getLayout()
+        const uiObjects: TitleScreenUIObjects = this.dataBlob.getUIObjects()
         return new ImageUI({
             imageLoadingBehavior: {
                 resourceKey: layout.demonSlither.iconImageResourceKey,
@@ -80,42 +73,32 @@ export class TitleScreenCreateDemonSlitherCharacterIntroductionIcon
 export class TitleScreenCreateDemonSlitherCharacterIntroductionDescriptionText
     implements BehaviorTreeTask
 {
-    dataBlob: DataBlob
+    dataBlob: ComponentDataBlob<
+        TitleScreenLayout,
+        TitleScreenContext,
+        TitleScreenUIObjects
+    >
 
-    constructor(dataBlob: DataBlob) {
+    constructor(
+        dataBlob: ComponentDataBlob<
+            TitleScreenLayout,
+            TitleScreenContext,
+            TitleScreenUIObjects
+        >
+    ) {
         this.dataBlob = dataBlob
     }
 
-    clone(): TitleScreenCreateDemonSlitherCharacterIntroductionDescriptionText {
-        return new TitleScreenCreateDemonSlitherCharacterIntroductionDescriptionText(
-            this.dataBlob
-        )
-    }
-
     run(): boolean {
-        const uiObjects: TitleScreenUIObjects =
-            DataBlobService.get<TitleScreenUIObjects>(
-                this.dataBlob,
-                "uiObjects"
-            )
-
+        const uiObjects: TitleScreenUIObjects = this.dataBlob.getUIObjects()
         uiObjects.demonSlither.descriptionText = this.createDescriptionText()
-        DataBlobService.add<TitleScreenUIObjects>(
-            this.dataBlob,
-            "uiObjects",
-            uiObjects
-        )
+        this.dataBlob.setUIObjects(uiObjects)
         return true
     }
 
     createDescriptionText(): TextBox {
-        const layout: TitleScreenLayout =
-            DataBlobService.get<TitleScreenLayout>(this.dataBlob, "layout")
-        const uiObjects: TitleScreenUIObjects =
-            DataBlobService.get<TitleScreenUIObjects>(
-                this.dataBlob,
-                "uiObjects"
-            )
+        const layout: TitleScreenLayout = this.dataBlob.getLayout()
+        const uiObjects: TitleScreenUIObjects = this.dataBlob.getUIObjects()
 
         const imageDrawArea = uiObjects.demonSlither.icon.drawArea
 
