@@ -17,7 +17,7 @@ import {
 } from "../action/template/actionTemplate"
 import { ResourceHandler } from "../resource/resourceHandler"
 import { MissionMap, MissionMapService } from "../missionMap/missionMap"
-import { BattlePlayerSquaddieTarget } from "../battle/orchestratorComponents/battlePlayerSquaddieTarget"
+import { BattlePlayerSquaddieTarget } from "../battle/orchestratorComponents/playerActionTarget/battlePlayerSquaddieTarget"
 import * as mocks from "../utils/test/mocks"
 import { MockedP5GraphicsBuffer } from "../utils/test/mocks"
 import {
@@ -242,7 +242,7 @@ describe("User Selects Target and Confirms", () => {
         })
         targeting.update({ gameEngineState, graphicsContext })
 
-        expect(targeting.hasSelectedValidTarget).toBeTruthy()
+        expect(targeting.data.getContext().hasSelectedValidTarget).toBeTruthy()
         expect(
             BattleActionDecisionStepService.isActorSet(
                 gameEngineState.battleOrchestratorState.battleState

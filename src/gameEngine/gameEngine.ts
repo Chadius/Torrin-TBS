@@ -11,7 +11,7 @@ import { BattleSquaddieUsesActionOnMap } from "../battle/orchestratorComponents/
 import { BattleSquaddieMover } from "../battle/orchestratorComponents/battleSquaddieMover"
 import { BattleMapDisplay } from "../battle/orchestratorComponents/battleMapDisplay"
 import { BattlePhaseController } from "../battle/orchestratorComponents/battlePhaseController"
-import { BattlePlayerSquaddieTarget } from "../battle/orchestratorComponents/battlePlayerSquaddieTarget"
+import { BattlePlayerSquaddieTarget } from "../battle/orchestratorComponents/playerActionTarget/battlePlayerSquaddieTarget"
 import { BattleSquaddieUsesActionOnSquaddie } from "../battle/orchestratorComponents/battleSquaddieUsesActionOnSquaddie"
 import {
     MouseDrag,

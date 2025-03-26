@@ -1,51 +1,56 @@
-import { ObjectRepository, ObjectRepositoryService } from "../objectRepository"
+import {
+    ObjectRepository,
+    ObjectRepositoryService,
+} from "../../objectRepository"
 import { BattlePlayerSquaddieTarget } from "./battlePlayerSquaddieTarget"
-import { BattleSquaddie } from "../battleSquaddie"
-import { TerrainTileMapService } from "../../hexMap/terrainTileMap"
+import { BattleSquaddie } from "../../battleSquaddie"
+import { TerrainTileMapService } from "../../../hexMap/terrainTileMap"
 import {
     Trait,
     TraitStatusStorageService,
-} from "../../trait/traitStatusStorage"
-import { SquaddieAffiliation } from "../../squaddie/squaddieAffiliation"
-import { MissionMap, MissionMapService } from "../../missionMap/missionMap"
-import { BattleOrchestratorStateService } from "../orchestrator/battleOrchestratorState"
-import { ConvertCoordinateService } from "../../hexMap/convertCoordinates"
-import { ScreenDimensions } from "../../utils/graphics/graphicsConfig"
+} from "../../../trait/traitStatusStorage"
+import { SquaddieAffiliation } from "../../../squaddie/squaddieAffiliation"
+import { MissionMap, MissionMapService } from "../../../missionMap/missionMap"
+import { BattleOrchestratorStateService } from "../../orchestrator/battleOrchestratorState"
+import { ConvertCoordinateService } from "../../../hexMap/convertCoordinates"
 import {
     OrchestratorComponentMouseEvent,
     OrchestratorComponentMouseEventType,
-} from "../orchestrator/battleOrchestratorComponent"
-import { BattleOrchestratorMode } from "../orchestrator/battleOrchestrator"
-import { ResourceHandler } from "../../resource/resourceHandler"
-import * as mocks from "../../utils/test/mocks"
-import { MockedP5GraphicsBuffer } from "../../utils/test/mocks"
-import { DamageType } from "../../squaddie/squaddieService"
-import { SquaddieTemplate } from "../../campaign/squaddieTemplate"
-import { SquaddieMovementService } from "../../squaddie/movement"
-import { BattleStateService } from "../battleState/battleState"
+} from "../../orchestrator/battleOrchestratorComponent"
+import { BattleOrchestratorMode } from "../../orchestrator/battleOrchestrator"
+import { ResourceHandler } from "../../../resource/resourceHandler"
+import * as mocks from "../../../utils/test/mocks"
+import {
+    MockedGraphicsBufferService,
+    MockedP5GraphicsBuffer,
+} from "../../../utils/test/mocks"
+import { DamageType } from "../../../squaddie/squaddieService"
+import { SquaddieTemplate } from "../../../campaign/squaddieTemplate"
+import { SquaddieMovementService } from "../../../squaddie/movement"
+import { BattleStateService } from "../../battleState/battleState"
 import {
     GameEngineState,
     GameEngineStateService,
-} from "../../gameEngine/gameEngine"
+} from "../../../gameEngine/gameEngine"
 import {
     ActionTemplate,
     ActionTemplateService,
-} from "../../action/template/actionTemplate"
+} from "../../../action/template/actionTemplate"
 import {
     ActionEffectTemplateService,
     TargetBySquaddieAffiliationRelation,
     VersusSquaddieResistance,
-} from "../../action/template/actionEffectTemplate"
-import { CampaignService } from "../../campaign/campaign"
-import { BattleHUDService } from "../hud/battleHUD/battleHUD"
-import { MouseButton } from "../../utils/mouseConfig"
-import { BattleActionDecisionStepService } from "../actionDecision/battleActionDecisionStep"
-import { MessageBoardMessageType } from "../../message/messageBoardMessage"
-import { SummaryHUDStateService } from "../hud/summary/summaryHUD"
-import { SquaddieRepositoryService } from "../../utils/test/squaddie"
-import { TargetConstraintsService } from "../../action/targetConstraints"
-import { ArmyAttributesService } from "../../squaddie/armyAttributes"
-import { ActionResourceCostService } from "../../action/actionResourceCost"
+} from "../../../action/template/actionEffectTemplate"
+import { CampaignService } from "../../../campaign/campaign"
+import { BattleHUDService } from "../../hud/battleHUD/battleHUD"
+import { MouseButton } from "../../../utils/mouseConfig"
+import { BattleActionDecisionStepService } from "../../actionDecision/battleActionDecisionStep"
+import { MessageBoardMessageType } from "../../../message/messageBoardMessage"
+import { SummaryHUDStateService } from "../../hud/summary/summaryHUD"
+import { SquaddieRepositoryService } from "../../../utils/test/squaddie"
+import { TargetConstraintsService } from "../../../action/targetConstraints"
+import { ArmyAttributesService } from "../../../squaddie/armyAttributes"
+import { ActionResourceCostService } from "../../../action/actionResourceCost"
 import {
     afterEach,
     beforeEach,
@@ -55,8 +60,9 @@ import {
     MockInstance,
     vi,
 } from "vitest"
-import { HexCoordinate } from "../../hexMap/hexCoordinate/hexCoordinate"
-import { BattleOrchestratorStateTestService } from "../../utils/test/battleOrchestratorState"
+import { HexCoordinate } from "../../../hexMap/hexCoordinate/hexCoordinate"
+import { BattleOrchestratorStateTestService } from "../../../utils/test/battleOrchestratorState"
+import { BattlePlayerActionTargetSpec } from "../../../integration/spec/battlePlayerSquaddieTargetSpec"
 
 describe("BattleSquaddieTarget", () => {
     let objectRepository: ObjectRepository = ObjectRepositoryService.new()
@@ -303,106 +309,175 @@ describe("BattleSquaddieTarget", () => {
     })
 
     describe("canceling after selecting action but before selecting target", () => {
-        const tests = [
-            {
-                mouseX: (ScreenDimensions.SCREEN_WIDTH * 6.5) / 12,
-                mouseY: ScreenDimensions.SCREEN_HEIGHT,
-            },
-        ]
-        it.each(tests)(
-            "should cancel target if the user clicks on the cancel button",
-            ({ mouseX, mouseY }) => {
-                const mouseEvent: OrchestratorComponentMouseEvent = {
-                    eventType: OrchestratorComponentMouseEventType.RELEASE,
-                    mouseRelease: {
-                        x: mouseX,
-                        y: mouseY,
-                        button: MouseButton.ACCEPT,
-                    },
-                }
-
-                targetComponent.mouseEventHappened(gameEngineState, mouseEvent)
-
-                expect(
-                    targetComponent.hasCompleted(gameEngineState)
-                ).toBeTruthy()
-                const recommendedInfo =
-                    targetComponent.recommendStateChanges(gameEngineState)
-                expect(recommendedInfo.nextMode).toBe(
-                    BattleOrchestratorMode.PLAYER_HUD_CONTROLLER
-                )
-                expect(messageSpy).toHaveBeenCalledWith({
-                    type: MessageBoardMessageType.PLAYER_CANCELS_TARGET_SELECTION,
-                    gameEngineState,
-                })
-            }
-        )
-    })
-
-    it("should ignore if the user does not click off of the map", () => {
-        const { x: mouseX, y: mouseY } =
-            ConvertCoordinateService.convertMapCoordinatesToScreenLocation({
-                mapCoordinate: {
-                    q:
-                        TerrainTileMapService.getDimensions(
-                            battleMap.terrainTileMap
-                        ).numberOfRows + 1,
-                    r: 0,
-                },
-                cameraLocation:
-                    gameEngineState.battleOrchestratorState.battleState.camera.getWorldLocation(),
+        it("should cancel target if the user clicks on the cancel button", () => {
+            BattlePlayerActionTargetSpec.updateUntilCancelButtonIsReady({
+                targeting: targetComponent,
+                gameEngineState,
+                graphicsContext: mockedP5GraphicsContext,
+            })
+            BattlePlayerActionTargetSpec.clickOnCancelButton({
+                targeting: targetComponent,
+                gameEngineState,
             })
 
-        const mouseEvent: OrchestratorComponentMouseEvent = {
-            eventType: OrchestratorComponentMouseEventType.RELEASE,
-            mouseRelease: {
-                x: mouseX,
-                y: mouseY,
-                button: MouseButton.ACCEPT,
-            },
-        }
+            expect(targetComponent.hasCompleted(gameEngineState)).toBeTruthy()
+            const recommendedInfo =
+                targetComponent.recommendStateChanges(gameEngineState)
+            expect(recommendedInfo.nextMode).toBe(
+                BattleOrchestratorMode.PLAYER_HUD_CONTROLLER
+            )
+            expect(messageSpy).toHaveBeenCalledWith({
+                type: MessageBoardMessageType.PLAYER_CANCELS_TARGET_SELECTION,
+                gameEngineState,
+            })
+        })
+        it("should cancel target if the user clicks the mouse cancel button", () => {
+            BattlePlayerActionTargetSpec.clickCancelButtonOnMouse({
+                targeting: targetComponent,
+                gameEngineState,
+            })
 
-        targetComponent.mouseEventHappened(gameEngineState, mouseEvent)
-        expect(targetComponent.hasCompleted(gameEngineState)).toBeFalsy()
-        expect(
-            BattleActionDecisionStepService.isActionSet(
-                gameEngineState.battleOrchestratorState.battleState
-                    .battleActionDecisionStep
+            expect(targetComponent.hasCompleted(gameEngineState)).toBeTruthy()
+            const recommendedInfo =
+                targetComponent.recommendStateChanges(gameEngineState)
+            expect(recommendedInfo.nextMode).toBe(
+                BattleOrchestratorMode.PLAYER_HUD_CONTROLLER
             )
-        ).toBeTruthy()
-        expect(
-            BattleActionDecisionStepService.isActionSet(
-                gameEngineState.battleOrchestratorState.battleState
-                    .battleActionDecisionStep
-            )
-        ).toBeTruthy()
+            expect(messageSpy).toHaveBeenCalledWith({
+                type: MessageBoardMessageType.PLAYER_CANCELS_TARGET_SELECTION,
+                gameEngineState,
+            })
+        })
     })
 
-    it("should ignore if the target is out of range", () => {
-        MissionMapService.updateBattleSquaddieCoordinate({
-            missionMap:
-                gameEngineState.battleOrchestratorState.battleState.missionMap,
-            battleSquaddieId: thiefDynamic.battleSquaddieId,
-            coordinate: { q: 0, r: 0 },
+    describe("Invalid target selections", () => {
+        const clickOffMap = () => {
+            const { x: mouseX, y: mouseY } =
+                ConvertCoordinateService.convertMapCoordinatesToScreenLocation({
+                    mapCoordinate: {
+                        q:
+                            TerrainTileMapService.getDimensions(
+                                battleMap.terrainTileMap
+                            ).numberOfRows + 1,
+                        r: 0,
+                    },
+                    cameraLocation:
+                        gameEngineState.battleOrchestratorState.battleState.camera.getWorldLocation(),
+                })
+
+            const mouseEvent: OrchestratorComponentMouseEvent = {
+                eventType: OrchestratorComponentMouseEventType.RELEASE,
+                mouseRelease: {
+                    x: mouseX,
+                    y: mouseY,
+                    button: MouseButton.ACCEPT,
+                },
+            }
+
+            targetComponent.mouseEventHappened(gameEngineState, mouseEvent)
+        }
+
+        const clickOnTargetOutOfRange = () => {
+            MissionMapService.updateBattleSquaddieCoordinate({
+                missionMap:
+                    gameEngineState.battleOrchestratorState.battleState
+                        .missionMap,
+                battleSquaddieId: thiefDynamic.battleSquaddieId,
+                coordinate: { q: 0, r: 0 },
+            })
+            targetComponent.update({
+                gameEngineState,
+                graphicsContext: mockedP5GraphicsContext,
+            })
+            clickOnThief()
+        }
+
+        const tests = [
+            {
+                name: "click off map",
+                setup: clickOffMap,
+            },
+            {
+                name: "target is out of range",
+                setup: clickOnTargetOutOfRange,
+            },
+        ]
+        describe("Component is not complete", () => {
+            it.each(tests)(`$name`, ({ setup }) => {
+                setup()
+                expect(
+                    targetComponent.hasCompleted(gameEngineState)
+                ).toBeFalsy()
+            })
         })
-        targetComponent.update({
-            gameEngineState,
-            graphicsContext: mockedP5GraphicsContext,
+        describe("Action is still set", () => {
+            it.each(tests)(`$name`, ({ setup }) => {
+                setup()
+                expect(
+                    targetComponent.hasCompleted(gameEngineState)
+                ).toBeFalsy()
+                expect(
+                    BattleActionDecisionStepService.isActorSet(
+                        gameEngineState.battleOrchestratorState.battleState
+                            .battleActionDecisionStep
+                    )
+                ).toBeTruthy()
+                expect(
+                    BattleActionDecisionStepService.isActionSet(
+                        gameEngineState.battleOrchestratorState.battleState
+                            .battleActionDecisionStep
+                    )
+                ).toBeTruthy()
+            })
         })
-        clickOnThief()
-        expect(targetComponent.hasCompleted(gameEngineState)).toBeFalsy()
-        expect(
-            BattleActionDecisionStepService.isTargetConsidered(
-                gameEngineState.battleOrchestratorState.battleState
-                    .battleActionDecisionStep
-            )
-        ).toBeFalsy()
-        expect(
-            BattleActionDecisionStepService.isTargetConfirmed(
-                gameEngineState.battleOrchestratorState.battleState
-                    .battleActionDecisionStep
-            )
-        ).toBeFalsy()
+        describe("Target is not set", () => {
+            it.each(tests)(`$name`, ({ setup }) => {
+                setup()
+                expect(
+                    targetComponent.hasCompleted(gameEngineState)
+                ).toBeFalsy()
+                expect(
+                    BattleActionDecisionStepService.isTargetConsidered(
+                        gameEngineState.battleOrchestratorState.battleState
+                            .battleActionDecisionStep
+                    )
+                ).toBeFalsy()
+                expect(
+                    BattleActionDecisionStepService.isTargetConfirmed(
+                        gameEngineState.battleOrchestratorState.battleState
+                            .battleActionDecisionStep
+                    )
+                ).toBeFalsy()
+            })
+        })
+        describe("should change the explanation message to indicate the target is out of range", () => {
+            it.each(tests)(`$name`, ({ setup }) => {
+                setup()
+                BattlePlayerActionTargetSpec.updateUntilCancelButtonIsReady({
+                    graphicsContext: mockedP5GraphicsContext,
+                    targeting: targetComponent,
+                    gameEngineState,
+                })
+                const graphicsSpies = MockedGraphicsBufferService.addSpies(
+                    mockedP5GraphicsContext
+                )
+                expect(
+                    targetComponent.data
+                        .getUIObjects()
+                        .explanationLabel.textBox.text.includes("out of range")
+                ).toBeTruthy()
+                targetComponent.update({
+                    gameEngineState,
+                    graphicsContext: mockedP5GraphicsContext,
+                })
+                expect(graphicsSpies["text"]).toHaveBeenCalled()
+                expect(
+                    graphicsSpies["text"].mock.calls[0][0].includes(
+                        "out of range"
+                    )
+                ).toBe(true)
+            })
+        })
     })
 
     describe("user clicks on target with attack", () => {

@@ -12,7 +12,7 @@ import {
     BattlePhaseStateService,
 } from "../orchestratorComponents/battlePhaseController"
 import { BattleSquaddieUsesActionOnMap } from "../orchestratorComponents/battleSquaddieUsesActionOnMap"
-import { BattlePlayerSquaddieTarget } from "../orchestratorComponents/battlePlayerSquaddieTarget"
+import { BattlePlayerSquaddieTarget } from "../orchestratorComponents/playerActionTarget/battlePlayerSquaddieTarget"
 import { ObjectRepositoryService } from "../objectRepository"
 import { SquaddieAffiliation } from "../../squaddie/squaddieAffiliation"
 import { BattleOrchestratorComponent } from "./battleOrchestratorComponent"

@@ -29,7 +29,7 @@ import { MockedP5GraphicsBuffer } from "../utils/test/mocks"
 import { TerrainTileMapService } from "../hexMap/terrainTileMap"
 import { BattlePhaseStateService } from "../battle/orchestratorComponents/battlePhaseController"
 import { BattlePhase } from "../battle/orchestratorComponents/battlePhaseTracker"
-import { BattlePlayerSquaddieTarget } from "../battle/orchestratorComponents/battlePlayerSquaddieTarget"
+import { BattlePlayerSquaddieTarget } from "../battle/orchestratorComponents/playerActionTarget/battlePlayerSquaddieTarget"
 import { BattleOrchestratorStateService } from "../battle/orchestrator/battleOrchestratorState"
 import { BattleStateService } from "../battle/battleState/battleState"
 import { BattleCamera } from "../battle/battleCamera"
@@ -183,9 +183,10 @@ describe("User cancels the previewed action", () => {
                 },
             })
 
-            targeting.update({
+            BattlePlayerActionTargetSpec.updateUntilCancelButtonIsReady({
                 gameEngineState,
                 graphicsContext,
+                targeting,
             })
         })
         afterEach(() => {
@@ -194,7 +195,7 @@ describe("User cancels the previewed action", () => {
 
         const cancelMethods = [
             {
-                name: "mouse clicks ACCEPT on lower right corner",
+                name: "mouse clicks the center of the Cancel button on screen",
                 action: () => {
                     BattlePlayerActionTargetSpec.clickOnCancelButton({
                         targeting: targeting,
@@ -205,21 +206,9 @@ describe("User cancels the previewed action", () => {
             {
                 name: "mouse clicks CANCEL",
                 action: () => {
-                    targeting.mouseEventHappened(gameEngineState, {
-                        eventType: OrchestratorComponentMouseEventType.PRESS,
-                        mousePress: {
-                            x: 0,
-                            y: 0,
-                            button: MouseButton.CANCEL,
-                        },
-                    })
-                    targeting.mouseEventHappened(gameEngineState, {
-                        eventType: OrchestratorComponentMouseEventType.RELEASE,
-                        mouseRelease: {
-                            x: 0,
-                            y: 0,
-                            button: MouseButton.CANCEL,
-                        },
+                    BattlePlayerActionTargetSpec.clickCancelButtonOnMouse({
+                        targeting,
+                        gameEngineState: gameEngineState,
                     })
                 },
             },
@@ -332,9 +321,10 @@ describe("User cancels the previewed action", () => {
             },
         })
 
-        targeting.update({
-            gameEngineState,
-            graphicsContext,
+        BattlePlayerActionTargetSpec.updateUntilCancelButtonIsReady({
+            targeting: targeting,
+            gameEngineState: gameEngineState,
+            graphicsContext: graphicsContext,
         })
         BattlePlayerActionTargetSpec.clickOnCancelButton({
             targeting: targeting,
@@ -480,7 +470,8 @@ describe("User cancels the previewed action", () => {
             graphicsContext,
         })
 
-        expect(targeting.hasSelectedValidTarget).toBeTruthy()
+        const context = targeting.data.getContext()
+        expect(context.hasSelectedValidTarget).toBeTruthy()
 
         confirm.update({
             gameEngineState,
