@@ -4,7 +4,7 @@ import {
     TraitStatusStorageService,
 } from "../trait/traitStatusStorage"
 import { SquaddieAffiliation } from "./squaddieAffiliation"
-import { isValidValue } from "../utils/validityCheck"
+import { isValidValue } from "../utils/objectValidityCheck"
 
 export interface SquaddieId {
     name: string

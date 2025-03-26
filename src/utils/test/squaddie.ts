@@ -18,7 +18,7 @@ import {
     SquaddieTemplateService,
 } from "../../campaign/squaddieTemplate"
 import { ActionTemplate } from "../../action/template/actionTemplate"
-import { getValidValueOrDefault } from "../validityCheck"
+import { getValidValueOrDefault } from "../objectValidityCheck"
 
 export const SquaddieRepositoryService = {
     createNewSquaddieAndAddToRepository: ({

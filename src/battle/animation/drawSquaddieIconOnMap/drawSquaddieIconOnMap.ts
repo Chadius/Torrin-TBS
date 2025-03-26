@@ -24,7 +24,7 @@ import { MissionMap, MissionMapService } from "../../../missionMap/missionMap"
 import { MapHighlightService } from "../mapHighlight"
 import { Campaign } from "../../../campaign/campaign"
 import { DEFAULT_ACTION_POINTS_PER_TURN } from "../../../squaddie/turn"
-import { isValidValue } from "../../../utils/validityCheck"
+import { isValidValue } from "../../../utils/objectValidityCheck"
 import { TerrainTileMapService } from "../../../hexMap/terrainTileMap"
 import {
     MapGraphicsLayerService,

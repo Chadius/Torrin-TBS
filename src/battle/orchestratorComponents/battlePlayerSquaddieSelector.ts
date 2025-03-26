@@ -36,7 +36,7 @@ import {
     PlayerInputStateService,
 } from "../../ui/playerInput/playerInputState"
 import { BattleStateService } from "../battleState/battleState"
-import { isValidValue } from "../../utils/validityCheck"
+import { isValidValue } from "../../utils/objectValidityCheck"
 import { BattleSquaddieTeamService } from "../battleSquaddieTeam"
 import { BattleActionDecisionStepService } from "../actionDecision/battleActionDecisionStep"
 

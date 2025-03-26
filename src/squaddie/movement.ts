@@ -3,7 +3,10 @@ import {
     TraitStatusStorage,
     TraitStatusStorageService,
 } from "../trait/traitStatusStorage"
-import { getValidValueOrDefault, isValidValue } from "../utils/validityCheck"
+import {
+    getValidValueOrDefault,
+    isValidValue,
+} from "../utils/objectValidityCheck"
 
 export interface SquaddieMovement {
     movementPerAction: number

@@ -1,4 +1,4 @@
-import { getValidValueOrDefault } from "../utils/validityCheck"
+import { getValidValueOrDefault } from "../utils/objectValidityCheck"
 
 export interface SaveSaveState {
     errorDuringSaving: boolean

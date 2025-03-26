@@ -18,7 +18,7 @@ import { TeamStrategyOptions } from "./teamStrategy"
 import { MissionMap, MissionMapService } from "../../missionMap/missionMap"
 import { ActionTemplate } from "../../action/template/actionTemplate"
 import { ActionEffectTemplate } from "../../action/template/actionEffectTemplate"
-import { isValidValue } from "../../utils/validityCheck"
+import { isValidValue } from "../../utils/objectValidityCheck"
 import {
     BattleActionDecisionStep,
     BattleActionDecisionStepService,

@@ -42,7 +42,7 @@ import {
     ObjectRepository,
     ObjectRepositoryService,
 } from "../battle/objectRepository"
-import { isValidValue } from "../utils/validityCheck"
+import { isValidValue } from "../utils/objectValidityCheck"
 import { SaveSaveStateService } from "../dataLoader/saveSaveState"
 import { FileState, FileStateService } from "./fileState"
 import { MessageBoard } from "../message/messageBoard"

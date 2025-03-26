@@ -32,7 +32,7 @@ import {
     ObjectRepositoryService,
 } from "../battle/objectRepository"
 import { Campaign, CampaignService } from "../campaign/campaign"
-import { isValidValue } from "../utils/validityCheck"
+import { isValidValue } from "../utils/objectValidityCheck"
 import {
     CampaignLoaderContext,
     CampaignLoaderService,

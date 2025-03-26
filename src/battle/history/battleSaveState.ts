@@ -19,7 +19,7 @@ import { CutsceneTrigger } from "../../cutscene/cutsceneTrigger"
 import { ObjectRepository, ObjectRepositoryService } from "../objectRepository"
 import { getResultOrThrowError } from "../../utils/ResultOrError"
 import { BattlePhase } from "../orchestratorComponents/battlePhaseTracker"
-import { isValidValue } from "../../utils/validityCheck"
+import { isValidValue } from "../../utils/objectValidityCheck"
 import { TerrainTileMapService } from "../../hexMap/terrainTileMap"
 import {
     BattleActionRecorder,

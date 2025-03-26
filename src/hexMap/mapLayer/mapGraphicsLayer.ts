@@ -4,7 +4,7 @@ import {
 } from "../hexCoordinate/hexCoordinate"
 import { PulseBlendColor } from "../colorUtils"
 import { HighlightCoordinateDescription } from "../terrainTileMap"
-import { isValidValue } from "../../utils/validityCheck"
+import { isValidValue } from "../../utils/objectValidityCheck"
 
 export interface MapGraphicsLayerHighlight {
     coordinate: HexCoordinate

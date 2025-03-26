@@ -1,4 +1,4 @@
-import { isValidValue } from "../utils/validityCheck"
+import { isValidValue } from "../utils/objectValidityCheck"
 
 export enum Trait {
     UNKNOWN = "UNKNOWN",

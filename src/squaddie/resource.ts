@@ -1,5 +1,5 @@
 import { SquaddieEmotion } from "../battle/animation/actionAnimation/actionAnimationConstants"
-import { isValidValue } from "../utils/validityCheck"
+import { isValidValue } from "../utils/objectValidityCheck"
 
 export interface SquaddieResource {
     mapIconResourceKey: string

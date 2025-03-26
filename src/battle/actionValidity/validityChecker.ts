@@ -5,6 +5,8 @@ import { BuffSelfCheck } from "./buffSelfCheck"
 import { ActionPerformFailureReason } from "../../squaddie/turn"
 import { PerRoundCheck } from "./perRoundCheck"
 import { GameEngineState } from "../../gameEngine/gameEngine"
+import { CanAttackTargetsCheck } from "./canAttackTargetsCheck"
+import { CanHealTargetCheck } from "./canHealTargetCheck"
 
 export type ActionValidityStatus = {
     isValid: boolean
@@ -76,6 +78,22 @@ export const ValidityCheckService = {
                         playerConsideredActions:
                             gameEngineState.battleOrchestratorState.battleState
                                 .playerConsideredActions,
+                    }),
+                    CanAttackTargetsCheck.targetsAreInRangeOfThisAttack({
+                        missionMap:
+                            gameEngineState.battleOrchestratorState.battleState
+                                .missionMap,
+                        objectRepository,
+                        actionTemplateId,
+                        actorSquaddieId: battleSquaddieId,
+                    }),
+                    CanHealTargetCheck.targetInRangeCanBeAffected({
+                        missionMap:
+                            gameEngineState.battleOrchestratorState.battleState
+                                .missionMap,
+                        objectRepository,
+                        actionTemplateId,
+                        actorSquaddieId: battleSquaddieId,
                     }),
                     BuffSelfCheck.willBuffUser({
                         battleSquaddie,

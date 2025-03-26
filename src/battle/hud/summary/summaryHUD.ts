@@ -11,7 +11,7 @@ import {
 import { GameEngineState } from "../../../gameEngine/gameEngine"
 import { ResourceHandler } from "../../../resource/resourceHandler"
 import { MouseRelease, ScreenLocation } from "../../../utils/mouseConfig"
-import { isValidValue } from "../../../utils/validityCheck"
+import { isValidValue } from "../../../utils/objectValidityCheck"
 import {
     SquaddieNameAndPortraitTile,
     SquaddieNameAndPortraitTileService,

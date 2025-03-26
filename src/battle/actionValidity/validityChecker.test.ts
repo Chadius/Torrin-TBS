@@ -11,6 +11,7 @@ import { BuffSelfCheck } from "./buffSelfCheck"
 import { PerRoundCheck } from "./perRoundCheck"
 import { GameEngineStateService } from "../../gameEngine/gameEngine"
 import { describe, expect, it, MockInstance, vi } from "vitest"
+import { CanHealTargetCheck } from "./canHealTargetCheck"
 
 describe("validity checker", () => {
     const setupSingleSquaddie = () => {
@@ -57,19 +58,6 @@ describe("validity checker", () => {
                 return spy
             },
             expectedMessages: ["Need 1 action point"],
-        },
-        {
-            checkerName: "buffSelfCheck",
-            setupSpy: () => {
-                const spy = vi.spyOn(BuffSelfCheck, "willBuffUser")
-                spy.mockReturnValue({
-                    isValid: false,
-                    reason: ActionPerformFailureReason.BUFF_HAS_NO_EFFECT,
-                    message: "Will have no effect on squaddieName",
-                })
-                return spy
-            },
-            expectedMessages: ["Will have no effect on squaddieName"],
         },
         {
             checkerName: "perRoundCheck",
@@ -131,6 +119,16 @@ describe("validity checker", () => {
             message: "Will have no effect on squaddieName",
         })
 
+        const canHealSpy = vi.spyOn(
+            CanHealTargetCheck,
+            "targetInRangeCanBeAffected"
+        )
+        canHealSpy.mockReturnValue({
+            isValid: false,
+            reason: ActionPerformFailureReason.HEAL_HAS_NO_EFFECT,
+            message: "No targets to heal",
+        })
+
         const actionStatus = ValidityCheckService.calculateActionValidity({
             objectRepository,
             battleSquaddieId,
@@ -142,6 +140,7 @@ describe("validity checker", () => {
             warning: false,
             messages: [
                 "Need 1 action point",
+                "No targets to heal",
                 "Will have no effect on squaddieName",
             ],
         })
@@ -166,6 +165,14 @@ describe("validity checker", () => {
             isValid: true,
         })
 
+        const canHealSpy = vi.spyOn(
+            CanHealTargetCheck,
+            "targetInRangeCanBeAffected"
+        )
+        canHealSpy.mockReturnValue({
+            isValid: true,
+        })
+
         const actionStatus = ValidityCheckService.calculateActionValidity({
             objectRepository,
             battleSquaddieId,
@@ -178,6 +185,7 @@ describe("validity checker", () => {
             messages: [],
         })
 
+        canHealSpy.mockRestore()
         actionPointCheckSpy.mockRestore()
         willBuffUserSpy.mockRestore()
     })

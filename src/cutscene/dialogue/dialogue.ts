@@ -1,5 +1,5 @@
 import { CutsceneActionPlayerType } from "../cutsceneAction"
-import { isValidValue } from "../../utils/validityCheck"
+import { isValidValue } from "../../utils/objectValidityCheck"
 import { ResourceLocator, ResourceType } from "../../resource/resourceHandler"
 import { DialogueFontStyle, DialoguePosition } from "./constants"
 

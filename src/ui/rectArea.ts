@@ -1,6 +1,9 @@
 import * as p5 from "p5"
 import { HORIZONTAL_ALIGN, VERTICAL_ALIGN } from "./constants"
-import { getValidValueOrDefault, isValidValue } from "../utils/validityCheck"
+import {
+    getValidValueOrDefault,
+    isValidValue,
+} from "../utils/objectValidityCheck"
 
 export enum HorizontalAnchor {
     NONE,

@@ -25,7 +25,7 @@ import {
     SplashScreenPlayerService,
     SplashScreenPlayerState,
 } from "./splashScreenPlayer"
-import { isValidValue } from "../utils/validityCheck"
+import { isValidValue } from "../utils/objectValidityCheck"
 import { ScreenDimensions } from "../utils/graphics/graphicsConfig"
 import p5 from "p5"
 import { GraphicsBuffer } from "../utils/graphics/graphicsRenderer"

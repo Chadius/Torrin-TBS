@@ -230,8 +230,10 @@ const findValidTargets = ({
     )
 
     addValidTargetsToResult({
-        squaddieAffiliationRelation:
-            actionEffectTemplate.targetConstraints.squaddieAffiliationRelation,
+        squaddieAffiliationRelation: actionEffectTemplate
+            ? actionEffectTemplate.targetConstraints.squaddieAffiliationRelation
+            : actionTemplate.actionEffectTemplates[0].targetConstraints
+                  .squaddieAffiliationRelation,
         targetingResults: results,
         actingSquaddieTemplate,
         actingBattleSquaddie,

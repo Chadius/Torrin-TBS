@@ -1,4 +1,4 @@
-import { getValidValueOrDefault } from "../../utils/validityCheck"
+import { getValidValueOrDefault } from "../../utils/objectValidityCheck"
 import { BattleActionSquaddieChange } from "./battleAction/battleActionSquaddieChange"
 import { BattleActionActorContext } from "./battleAction/battleActionActorContext"
 

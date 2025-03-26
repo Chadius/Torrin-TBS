@@ -16,7 +16,7 @@ import {
 } from "../../hexMap/mapLayer/mapGraphicsLayer"
 import { ObjectRepository, ObjectRepositoryService } from "../objectRepository"
 import { MissionMap, MissionMapService } from "../../missionMap/missionMap"
-import { isValidValue } from "../../utils/validityCheck"
+import { isValidValue } from "../../utils/objectValidityCheck"
 import {
     Trait,
     TraitStatusStorageService,

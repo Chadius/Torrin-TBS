@@ -7,7 +7,7 @@ import {
     MessageBoardMessageSelectAndLockNextSquaddie,
     MessageBoardMessageType,
 } from "../../../message/messageBoardMessage"
-import { isValidValue } from "../../../utils/validityCheck"
+import { isValidValue } from "../../../utils/objectValidityCheck"
 import { GraphicsBuffer } from "../../../utils/graphics/graphicsRenderer"
 import {
     PopupWindow,

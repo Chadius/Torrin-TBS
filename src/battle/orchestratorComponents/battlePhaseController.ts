@@ -17,7 +17,7 @@ import {
 import { BattleStateService } from "../battleState/battleState"
 import { GameEngineState } from "../../gameEngine/gameEngine"
 import { ObjectRepository } from "../objectRepository"
-import { isValidValue } from "../../utils/validityCheck"
+import { isValidValue } from "../../utils/objectValidityCheck"
 import { MessageBoardMessageType } from "../../message/messageBoardMessage"
 import p5 from "p5"
 import { GraphicsBuffer } from "../../utils/graphics/graphicsRenderer"

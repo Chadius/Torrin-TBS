@@ -11,7 +11,7 @@ import {
     VERTICAL_ALIGN,
     WINDOW_SPACING,
 } from "../../../ui/constants"
-import { isValidValue } from "../../../utils/validityCheck"
+import { isValidValue } from "../../../utils/objectValidityCheck"
 import { SaveSaveStateService } from "../../../dataLoader/saveSaveState"
 import { LoadSaveStateService } from "../../../dataLoader/playerData/loadSaveState"
 import { GameEngineState } from "../../../gameEngine/gameEngine"

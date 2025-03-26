@@ -4,7 +4,7 @@ import { getResultOrThrowError } from "../utils/ResultOrError"
 import { DrawSquaddieIconOnMapUtilities } from "./animation/drawSquaddieIconOnMap/drawSquaddieIconOnMap"
 import { SquaddieService } from "../squaddie/squaddieService"
 import { BattleSquaddieService } from "./battleSquaddie"
-import { isValidValue } from "../utils/validityCheck"
+import { isValidValue } from "../utils/objectValidityCheck"
 
 export interface BattleSquaddieTeam {
     id: string

@@ -1,5 +1,5 @@
 import { HexCoordinate } from "../../hexMap/hexCoordinate/hexCoordinate"
-import { isValidValue } from "../../utils/validityCheck"
+import { isValidValue } from "../../utils/objectValidityCheck"
 
 export interface BattleActionDecisionStep {
     actor: BattleActionDecisionStepActor

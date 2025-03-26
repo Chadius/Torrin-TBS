@@ -2,7 +2,7 @@ import {
     CampaignResources,
     CampaignResourcesService,
 } from "./campaignResources"
-import { isValidValue } from "../utils/validityCheck"
+import { isValidValue } from "../utils/objectValidityCheck"
 
 export interface Campaign {
     id: string

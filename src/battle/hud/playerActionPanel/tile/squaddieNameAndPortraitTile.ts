@@ -8,7 +8,7 @@ import { BattleSquaddieTeam } from "../../../battleSquaddieTeam"
 import {
     getValidValueOrDefault,
     isValidValue,
-} from "../../../../utils/validityCheck"
+} from "../../../../utils/objectValidityCheck"
 import { ResourceHandler } from "../../../../resource/resourceHandler"
 import { RectArea, RectAreaService } from "../../../../ui/rectArea"
 import { TextBox, TextBoxService } from "../../../../ui/textBox/textBox"

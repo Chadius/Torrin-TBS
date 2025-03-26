@@ -42,7 +42,7 @@ import {
 } from "../../action/template/actionEffectTemplate"
 import { DegreeOfSuccess } from "../calculator/actionCalculator/degreeOfSuccess"
 import { OrchestratorUtilities } from "./orchestratorUtils"
-import { isValidValue } from "../../utils/validityCheck"
+import { isValidValue } from "../../utils/objectValidityCheck"
 import { CampaignService } from "../../campaign/campaign"
 import { BattleHUDService } from "../hud/battleHUD/battleHUD"
 import { MouseButton } from "../../utils/mouseConfig"

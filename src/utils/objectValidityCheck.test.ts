@@ -1,4 +1,4 @@
-import { getValidValueOrDefault, isValidValue } from "./validityCheck"
+import { getValidValueOrDefault, isValidValue } from "./objectValidityCheck"
 import { describe, expect, it } from "vitest"
 
 describe("validity test", () => {

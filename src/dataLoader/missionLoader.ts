@@ -10,7 +10,10 @@ import {
     SquaddieDeployment,
     SquaddieDeploymentService,
 } from "../missionMap/squaddieDeployment"
-import { getValidValueOrDefault, isValidValue } from "../utils/validityCheck"
+import {
+    getValidValueOrDefault,
+    isValidValue,
+} from "../utils/objectValidityCheck"
 import { SquaddieAffiliation } from "../squaddie/squaddieAffiliation"
 import { CutsceneTrigger } from "../cutscene/cutsceneTrigger"
 import { Cutscene } from "../cutscene/cutscene"

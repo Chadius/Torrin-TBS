@@ -3,7 +3,7 @@ import {
     BattleActionDecisionStepService,
 } from "./battleActionDecisionStep"
 import { BattleOrchestratorMode } from "../orchestrator/battleOrchestrator"
-import { isValidValue } from "../../utils/validityCheck"
+import { isValidValue } from "../../utils/objectValidityCheck"
 import { ActionDecisionType } from "../../action/template/actionTemplate"
 import { BattleAction } from "../history/battleAction/battleAction"
 import {

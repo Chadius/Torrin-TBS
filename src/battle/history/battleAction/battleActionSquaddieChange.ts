@@ -3,7 +3,7 @@ import {
     InBattleAttributesService,
 } from "../../stats/inBattleAttributes"
 import { DegreeOfSuccess } from "../../calculator/actionCalculator/degreeOfSuccess"
-import { isValidValue } from "../../../utils/validityCheck"
+import { isValidValue } from "../../../utils/objectValidityCheck"
 
 export interface DamageExplanation {
     raw: number

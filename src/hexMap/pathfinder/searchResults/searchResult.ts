@@ -2,7 +2,7 @@ import {
     HexCoordinate,
     HexCoordinateService,
 } from "../../hexCoordinate/hexCoordinate"
-import { getValidValueOrDefault } from "../../../utils/validityCheck"
+import { getValidValueOrDefault } from "../../../utils/objectValidityCheck"
 import { SearchPathAdapter } from "../../../search/searchPathAdapter/searchPathAdapter"
 
 export type SearchPathByCoordinate = {

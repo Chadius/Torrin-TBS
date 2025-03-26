@@ -3,7 +3,7 @@ import {
     TeamStrategyService,
 } from "./teamStrategyCalculator"
 import { BattleSquaddieTeam } from "../battleSquaddieTeam"
-import { isValidValue } from "../../utils/validityCheck"
+import { isValidValue } from "../../utils/objectValidityCheck"
 import {
     BattleActionDecisionStep,
     BattleActionDecisionStepService,

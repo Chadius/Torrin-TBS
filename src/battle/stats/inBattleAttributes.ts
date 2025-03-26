@@ -11,7 +11,7 @@ import {
     DamageExplanation,
     DamageExplanationService,
 } from "../history/battleAction/battleActionSquaddieChange"
-import { isValidValue } from "../../utils/validityCheck"
+import { isValidValue } from "../../utils/objectValidityCheck"
 import {
     AttributeType,
     AttributeTypeAndAmount,

@@ -1,6 +1,6 @@
 import { LoadFileIntoFormat } from "./dataLoader"
 import { CampaignFileFormat } from "../campaign/campaignFileFormat"
-import { isValidValue } from "../utils/validityCheck"
+import { isValidValue } from "../utils/objectValidityCheck"
 import {
     CampaignResources,
     CampaignResourcesService,

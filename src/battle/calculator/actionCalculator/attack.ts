@@ -17,7 +17,7 @@ import {
 } from "../../../trait/traitStatusStorage"
 import { CalculateAgainstArmor } from "./calculateAgainstArmor"
 import { CalculatedEffect, DegreeOfSuccessExplanation } from "./calculator"
-import { isValidValue } from "../../../utils/validityCheck"
+import { isValidValue } from "../../../utils/objectValidityCheck"
 import { DegreeOfSuccess, DegreeOfSuccessService } from "./degreeOfSuccess"
 import { SquaddieTemplate } from "../../../campaign/squaddieTemplate"
 import { DamageType, SquaddieService } from "../../../squaddie/squaddieService"

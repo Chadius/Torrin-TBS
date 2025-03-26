@@ -13,7 +13,7 @@ import {
 } from "./squaddieDeployment"
 import { SquaddieAffiliation } from "../squaddie/squaddieAffiliation"
 import { NullMissionMap } from "../utils/test/battleOrchestratorState"
-import { isValidValue } from "../utils/validityCheck"
+import { isValidValue } from "../utils/objectValidityCheck"
 
 export interface MissionMap {
     playerDeployment: SquaddieDeployment

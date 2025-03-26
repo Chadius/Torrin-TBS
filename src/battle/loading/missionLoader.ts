@@ -34,7 +34,7 @@ import { CutsceneService } from "../../cutscene/cutscene"
 import { LoadFileIntoFormat } from "../../dataLoader/dataLoader"
 import { PlayerArmy } from "../../campaign/playerArmy"
 import { InBattleAttributesService } from "../stats/inBattleAttributes"
-import { isValidValue } from "../../utils/validityCheck"
+import { isValidValue } from "../../utils/objectValidityCheck"
 import p5 from "p5"
 import {
     ActionTemplate,

@@ -1,5 +1,8 @@
 import { SquaddieMovement, SquaddieMovementService } from "./movement"
-import { getValidValueOrDefault, isValidValue } from "../utils/validityCheck"
+import {
+    getValidValueOrDefault,
+    isValidValue,
+} from "../utils/objectValidityCheck"
 import { VersusSquaddieResistance } from "../action/template/actionEffectTemplate"
 
 export enum ProficiencyLevel {

@@ -1,4 +1,4 @@
-import { isValidValue } from "../utils/validityCheck"
+import { isValidValue } from "../utils/objectValidityCheck"
 import { SquaddieBuild, SquaddieBuildService } from "./squaddieBuild"
 
 export interface PlayerArmy {

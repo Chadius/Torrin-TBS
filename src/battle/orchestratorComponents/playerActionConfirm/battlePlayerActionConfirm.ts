@@ -13,7 +13,7 @@ import { UIControlSettings } from "../../orchestrator/uiControlSettings"
 import { BattleOrchestratorMode } from "../../orchestrator/battleOrchestrator"
 import { TargetingResultsService } from "../../targeting/targetingService"
 import { OrchestratorUtilities } from "../orchestratorUtils"
-import { isValidValue } from "../../../utils/validityCheck"
+import { isValidValue } from "../../../utils/objectValidityCheck"
 import {
     MousePress,
     MouseRelease,

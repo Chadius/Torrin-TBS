@@ -18,6 +18,7 @@ import { CalculatedEffect } from "../calculator/actionCalculator/calculator"
 import { ActionPerformFailureReason } from "../../squaddie/turn"
 import { ActionCheckResult } from "./validityChecker"
 import { AttributeTypeAndAmount } from "../../squaddie/attribute/attributeType"
+import { ActionValidityUtils } from "./common"
 
 export const BuffSelfCheck = {
     willBuffUser: ({
@@ -45,7 +46,7 @@ export const BuffSelfCheck = {
         }
 
         if (
-            estimatedHealingOnTarget({
+            ActionValidityUtils.estimatedHealingOnTarget({
                 actionTemplate,
                 squaddieTemplate,
                 battleSquaddie,
@@ -118,39 +119,6 @@ const doesActionTemplateOnlyAffectSelf = (
         targetsSelf(actionEffectSquaddieTemplate)
 
     return actionEffectSquaddieTemplates.every(onlyTargetsSelf)
-}
-
-const estimatedHealingOnTarget = ({
-    actionTemplate,
-    battleSquaddie,
-    squaddieTemplate,
-}: {
-    actionTemplate: ActionTemplate
-    battleSquaddie: BattleSquaddie
-    squaddieTemplate: SquaddieTemplate
-}): number => {
-    const actionEffectSquaddieTemplates =
-        ActionTemplateService.getActionEffectTemplates(actionTemplate)
-
-    const calculatedEffects: CalculatedEffect[] =
-        actionEffectSquaddieTemplates.map((actionEffectTemplate) => {
-            return CalculatorMiscellaneous.calculateEffectBasedOnDegreeOfSuccess(
-                {
-                    actionEffectTemplate,
-                    actorContext: BattleActionActorContextService.new({
-                        actingSquaddieModifiers: [],
-                        targetSquaddieModifiers: {},
-                    }),
-                    degreeOfSuccess: DegreeOfSuccess.SUCCESS,
-                    targetSquaddieTemplate: squaddieTemplate,
-                    targetBattleSquaddie: battleSquaddie,
-                }
-            )
-        })
-
-    return calculatedEffects.reduce((sum, calculatedEffect) => {
-        return sum + calculatedEffect.healingReceived
-    }, 0)
 }
 
 const willAddModifiersToTarget = ({

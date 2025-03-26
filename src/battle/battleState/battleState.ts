@@ -25,7 +25,7 @@ import {
     BattlePhase,
     BattlePhaseService,
 } from "../orchestratorComponents/battlePhaseTracker"
-import { isValidValue } from "../../utils/validityCheck"
+import { isValidValue } from "../../utils/objectValidityCheck"
 import { ObjectRepository, ObjectRepositoryService } from "../objectRepository"
 import {
     BattleActionDecisionStep,

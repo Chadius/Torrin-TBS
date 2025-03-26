@@ -4,7 +4,7 @@ import {
     ArmyAttributesService,
     DefaultArmyAttributes,
 } from "../squaddie/armyAttributes"
-import { isValidValue } from "../utils/validityCheck"
+import { isValidValue } from "../utils/objectValidityCheck"
 import { ActionTemplate } from "../action/template/actionTemplate"
 import { SquaddieResourceService } from "../squaddie/resource"
 import {

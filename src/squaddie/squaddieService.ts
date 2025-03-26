@@ -12,7 +12,7 @@ import {
 } from "../battle/objectRepository"
 import { DamageExplanation } from "../battle/history/battleAction/battleActionSquaddieChange"
 import { ActionTemplateService } from "../action/template/actionTemplate"
-import { isValidValue } from "../utils/validityCheck"
+import { isValidValue } from "../utils/objectValidityCheck"
 import { BonusByProficiencyLevel, ProficiencyLevel } from "./armyAttributes"
 import { AttributeType } from "./attribute/attributeType"
 import {

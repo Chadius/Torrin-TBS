@@ -1,5 +1,5 @@
 import { RectArea } from "../rectArea"
-import { isValidValue } from "../../utils/validityCheck"
+import { isValidValue } from "../../utils/objectValidityCheck"
 import { GraphicsBuffer } from "../../utils/graphics/graphicsRenderer"
 
 type RequiredOptions = {

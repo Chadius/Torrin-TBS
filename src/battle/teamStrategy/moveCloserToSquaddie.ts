@@ -14,7 +14,7 @@ import {
 } from "../../hexMap/hexCoordinate/hexCoordinate"
 import { MissionMap, MissionMapService } from "../../missionMap/missionMap"
 import { BattleSquaddie } from "../battleSquaddie"
-import { isValidValue } from "../../utils/validityCheck"
+import { isValidValue } from "../../utils/objectValidityCheck"
 import { SquaddieTemplate } from "../../campaign/squaddieTemplate"
 import { TerrainTileMapService } from "../../hexMap/terrainTileMap"
 import {

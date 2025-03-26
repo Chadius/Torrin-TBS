@@ -1,4 +1,4 @@
-import { isValidValue } from "../utils/validityCheck"
+import { isValidValue } from "../utils/objectValidityCheck"
 import { CutsceneActionPlayerType } from "./cutsceneAction"
 import { ResourceLocator, ResourceType } from "../resource/resourceHandler"
 

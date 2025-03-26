@@ -16,7 +16,7 @@ import {
 } from "../../campaign/squaddieTemplate"
 import { SquaddieAffiliation } from "../../squaddie/squaddieAffiliation"
 import { PlayerArmy } from "../../campaign/playerArmy"
-import { isValidValue } from "../../utils/validityCheck"
+import { isValidValue } from "../../utils/objectValidityCheck"
 import { CutsceneActionPlayerType } from "../../cutscene/cutsceneAction"
 import { Dialogue } from "../../cutscene/dialogue/dialogue"
 import { SplashScreen } from "../../cutscene/splashScreen"

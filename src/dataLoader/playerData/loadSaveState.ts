@@ -1,5 +1,8 @@
 import { BattleSaveState } from "../../battle/history/battleSaveState"
-import { getValidValueOrDefault, isValidValue } from "../../utils/validityCheck"
+import {
+    getValidValueOrDefault,
+    isValidValue,
+} from "../../utils/objectValidityCheck"
 
 export interface LoadSaveState {
     saveState: BattleSaveState

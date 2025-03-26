@@ -11,7 +11,7 @@ import {
     PlayerSelectionChangesService,
 } from "./playerSelectionChanges"
 import { BattleStateService } from "../battleState/battleState"
-import { isValidValue } from "../../utils/validityCheck"
+import { isValidValue } from "../../utils/objectValidityCheck"
 import { BattleSquaddieTeamService } from "../battleSquaddieTeam"
 import { BattleOrchestratorMode } from "../orchestrator/battleOrchestrator"
 import { ConvertCoordinateService } from "../../hexMap/convertCoordinates"

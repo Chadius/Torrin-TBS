@@ -1,4 +1,7 @@
-import { getValidValueOrDefault, isValidValue } from "../../utils/validityCheck"
+import {
+    getValidValueOrDefault,
+    isValidValue,
+} from "../../utils/objectValidityCheck"
 import {
     Trait,
     TraitStatusStorageService,

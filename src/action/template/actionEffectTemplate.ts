@@ -3,7 +3,10 @@ import {
     Trait,
     TraitStatusStorageService,
 } from "../../trait/traitStatusStorage"
-import { getValidValueOrDefault, isValidValue } from "../../utils/validityCheck"
+import {
+    getValidValueOrDefault,
+    isValidValue,
+} from "../../utils/objectValidityCheck"
 import { AttributeModifier } from "../../squaddie/attribute/attributeModifier"
 import { ActionDecisionType } from "./actionTemplate"
 

@@ -17,7 +17,7 @@ import {
 } from "../../../../ui/imageUI/imageUI"
 import { RectArea, RectAreaService } from "../../../../ui/rectArea"
 import { WINDOW_SPACING } from "../../../../ui/constants"
-import { isValidValue } from "../../../../utils/validityCheck"
+import { isValidValue } from "../../../../utils/objectValidityCheck"
 import { TextBox, TextBoxService } from "../../../../ui/textBox/textBox"
 import { HUE_BY_SQUADDIE_AFFILIATION } from "../../../../graphicsConstants"
 import { TextHandlingService } from "../../../../utils/graphics/textHandlingService"

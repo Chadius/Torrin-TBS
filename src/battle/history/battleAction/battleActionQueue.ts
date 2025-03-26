@@ -1,4 +1,4 @@
-import { isValidValue } from "../../../utils/validityCheck"
+import { isValidValue } from "../../../utils/objectValidityCheck"
 import { BattleAction, BattleActionService } from "./battleAction"
 
 export interface BattleActionQueue {

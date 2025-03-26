@@ -5,7 +5,7 @@ import {
 import {
     getValidValueOrDefault,
     isValidValue,
-} from "../../../utils/validityCheck"
+} from "../../../utils/objectValidityCheck"
 import {
     MessageBoardMessageMoveSquaddieToCoordinate,
     MessageBoardMessagePlayerCancelsPlayerActionConsiderations,

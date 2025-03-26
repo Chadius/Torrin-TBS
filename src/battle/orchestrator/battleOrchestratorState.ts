@@ -3,7 +3,7 @@ import { BattlePhase } from "../orchestratorComponents/battlePhaseTracker"
 import { BattleCompletionStatus } from "./missionObjectivesAndCutscenes"
 import { NumberGeneratorStrategy } from "../numberGenerator/strategy"
 import { RandomNumberGenerator } from "../numberGenerator/random"
-import { getValidValueOrDefault } from "../../utils/validityCheck"
+import { getValidValueOrDefault } from "../../utils/objectValidityCheck"
 import {
     BattleHUDState,
     BattleHUDStateService,

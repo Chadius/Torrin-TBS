@@ -10,7 +10,7 @@ import {
 } from "../../textSubstitution/textSubstitution"
 import { ScreenDimensions } from "../../utils/graphics/graphicsConfig"
 import { Dialogue, DialogueService } from "./dialogue"
-import { isValidValue } from "../../utils/validityCheck"
+import { isValidValue } from "../../utils/objectValidityCheck"
 import p5 from "p5"
 import {
     DIALOGUE_SPEAKER_PORTRAIT_STYLE_CONSTANTS,

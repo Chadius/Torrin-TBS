@@ -86,6 +86,7 @@ import { SquaddieTurnService } from "../../squaddie/turn"
 import { BattleSquaddieService } from "../battleSquaddie"
 import { FileAccessHUDService } from "../hud/fileAccess/fileAccessHUD"
 import { HexCoordinate } from "../../hexMap/hexCoordinate/hexCoordinate"
+import { ValidityCheckService } from "../actionValidity/validityChecker"
 
 describe("BattleSquaddieSelector", () => {
     let selector: BattlePlayerSquaddieSelector =
@@ -97,6 +98,7 @@ describe("BattleSquaddieSelector", () => {
     let messageSpy: MockInstance
     let calculateContextSpy: MockInstance
     let applyContextSpy: MockInstance
+    let validitySpy: MockInstance
 
     beforeEach(() => {
         mockedP5GraphicsContext = new MockedP5GraphicsBuffer()
@@ -120,6 +122,9 @@ describe("BattleSquaddieSelector", () => {
     afterEach(() => {
         if (messageSpy) {
             messageSpy.mockRestore()
+        }
+        if (validitySpy) {
+            validitySpy.mockRestore()
         }
         calculateContextSpy.mockRestore()
         applyContextSpy.mockRestore()
@@ -310,6 +315,26 @@ describe("BattleSquaddieSelector", () => {
             battleSquaddieId: "battleSquaddieId",
             coordinate: { q: 0, r: 0 },
         })
+
+        validitySpy = vi
+            .spyOn(ValidityCheckService, "calculateActionValidity")
+            .mockReturnValue({
+                melee: {
+                    isValid: true,
+                    warning: false,
+                    messages: [],
+                },
+                ranged: {
+                    isValid: true,
+                    warning: false,
+                    messages: [],
+                },
+                self: {
+                    isValid: true,
+                    warning: false,
+                    messages: [],
+                },
+            })
 
         return {
             currentAffiliation: BattlePhase.PLAYER,
@@ -882,6 +907,7 @@ describe("BattleSquaddieSelector", () => {
                 gameEngineState,
                 selector,
             })
+
             expect(messageSpy).toHaveBeenCalledWith({
                 type: MessageBoardMessageType.PLAYER_SELECTS_ACTION_WITH_KNOWN_TARGETS,
                 gameEngineState,
