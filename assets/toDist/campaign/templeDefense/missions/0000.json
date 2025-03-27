@@ -639,13 +639,46 @@
         "directions": [
           {
             "type": "DIALOGUE",
-            "id": "turn3_0",
+            "id": "cameraScroll0",
             "speakerPortraitResourceKey": "young nahla cutscene portrait",
             "speakerPortraitPosition": "LEFT",
             "speakerName": "Nahla",
             "speakerNamePosition": "LEFT",
             "dialogueText": "Move the camera\nby moving the mouse\nto the edge of the screen.",
             "dialogueTextPosition": "LEFT",
+            "animationDuration": 0
+          },
+          {
+            "type": "DIALOGUE",
+            "id": "cameraScroll1",
+            "speakerPortraitResourceKey": "sir camil cutscene portrait",
+            "speakerPortraitPosition": "CENTER",
+            "speakerName": "Sir Camil",
+            "speakerNamePosition": "CENTER",
+            "dialogueText": "Or use the mouse wheel.\nHold shift for side scroll.",
+            "dialogueTextPosition": "CENTER",
+            "animationDuration": 0
+          },
+          {
+            "type": "DIALOGUE",
+            "id": "cameraScroll2",
+            "speakerPortraitResourceKey": "young nahla cutscene portrait",
+            "speakerPortraitPosition": "LEFT",
+            "speakerName": "Nahla",
+            "speakerNamePosition": "LEFT",
+            "dialogueText": "I was going to say that!\nClick and drag the map\nalso works!",
+            "dialogueTextPosition": "LEFT",
+            "animationDuration": 0
+          },
+          {
+            "type": "DIALOGUE",
+            "id": "cameraScroll3",
+            "speakerPortraitResourceKey": "sir camil cutscene portrait",
+            "speakerPortraitPosition": "CENTER",
+            "speakerName": "Sir Camil",
+            "speakerNamePosition": "CENTER",
+            "dialogueText": "Holding Shift\n and the arrow keys\nwill also scroll.",
+            "dialogueTextPosition": "CENTER",
             "animationDuration": 0
           }
         ]
