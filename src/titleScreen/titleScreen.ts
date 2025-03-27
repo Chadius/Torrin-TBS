@@ -82,7 +82,7 @@ import {
 import { ComponentDataBlob } from "../utils/dataBlob/componentDataBlob"
 
 const EXTERNAL_LINK_ITCH_IO_IMAGE_PATH =
-    "/assets/externalLinks/itchIo-app-icon.png"
+    "assets/externalLinks/itchIo-app-icon.png"
 const EXTERNAL_LINK_ITCH_IO_HTML = `<div style="display: flex; flex-direction: row; border: hotpink 2px solid; border-radius: 8px; background-color: lightpink; padding: 8px"><img src=${EXTERNAL_LINK_ITCH_IO_IMAGE_PATH} alt="Button to add game to itch.io collection" height="50"/><span style="padding-left: 8px; align-self: center">Add to Collection</span></div>`
 
 export enum TitleScreenMenuSelection {
