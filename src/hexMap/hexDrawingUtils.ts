@@ -10,7 +10,12 @@ import {
 } from "../resource/resourceHandler"
 import { ConvertCoordinateService } from "./convertCoordinates"
 import { TerrainTileMap, TerrainTileMapService } from "./terrainTileMap"
-import { BlendColor, ColorUtils, PulseBlendColor } from "./colorUtils"
+import {
+    BlendColor,
+    PULSE_COLOR_FORMULA_TYPE,
+    PulseColor,
+    PulseColorService,
+} from "./pulseColor"
 import { HexCoordinate } from "./hexCoordinate/hexCoordinate"
 import { BattleCamera } from "../battle/battleCamera"
 import { GraphicsBuffer } from "../utils/graphics/graphicsRenderer"
@@ -26,40 +31,60 @@ export enum HighlightPulseColorNames {
 }
 
 export const HIGHLIGHT_PULSE_COLOR: {
-    [color in HighlightPulseColorNames]: PulseBlendColor
+    [color in HighlightPulseColorNames]: PulseColor
 } = {
-    PURPLE: {
+    PURPLE: PulseColorService.new({
         hue: 280,
         saturation: 30,
         brightness: 80,
-        lowAlpha: 140,
-        highAlpha: 190,
-        periodAlpha: 2000,
-    },
-    RED: {
+        alpha: {
+            low: 140,
+            high: 190,
+        },
+        pulse: {
+            period: 2000,
+            formula: PULSE_COLOR_FORMULA_TYPE.SINE,
+        },
+    }),
+    RED: PulseColorService.new({
         hue: 0,
         saturation: 100,
         brightness: 100,
-        lowAlpha: 140,
-        highAlpha: 190,
-        periodAlpha: 2000,
-    },
-    BLUE: {
+        alpha: {
+            low: 140,
+            high: 190,
+        },
+        pulse: {
+            period: 2000,
+            formula: PULSE_COLOR_FORMULA_TYPE.SINE,
+        },
+    }),
+    BLUE: PulseColorService.new({
         hue: 240,
         saturation: 100,
         brightness: 100,
-        lowAlpha: 140,
-        highAlpha: 190,
-        periodAlpha: 2000,
-    },
-    PALE_BLUE: {
+        alpha: {
+            low: 140,
+            high: 190,
+        },
+        pulse: {
+            period: 2000,
+            formula: PULSE_COLOR_FORMULA_TYPE.SINE,
+        },
+    }),
+    PALE_BLUE: PulseColorService.new({
         hue: 240,
         saturation: 30,
         brightness: 80,
-        lowAlpha: 140,
-        highAlpha: 190,
-        periodAlpha: 2000,
-    },
+        alpha: {
+            low: 140,
+            high: 190,
+        },
+        pulse: {
+            period: 2000,
+            formula: PULSE_COLOR_FORMULA_TYPE.SINE,
+        },
+    }),
 }
 
 const defaultTerrainResourceKeyByTerrainType: {
@@ -107,10 +132,13 @@ const drawOutlinedTile = (
     graphicsContext.stroke(
         0,
         10,
-        ColorUtils.calculatePulseValueOverTime({
-            low: 50,
-            high: 100,
+        PulseColorService.calculatePulseAmount({
+            range: {
+                low: 50,
+                high: 100,
+            },
             periodInMilliseconds: 2000,
+            formula: PULSE_COLOR_FORMULA_TYPE.SINE,
         })
     )
     graphicsContext.strokeWeight(2)
@@ -147,7 +175,7 @@ export const HexDrawingUtils = {
             )
             .forEach((highlight) => {
                 const blendColor: BlendColor =
-                    ColorUtils.pulseBlendColorToBlendColor(highlight.pulseColor)
+                    PulseColorService.pulseColorToColor(highlight.pulseColor)
 
                 graphics.fill(
                     blendColor[0],

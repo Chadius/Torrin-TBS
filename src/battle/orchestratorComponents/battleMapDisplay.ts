@@ -33,6 +33,7 @@ import {
     ScreenLocation,
 } from "../../utils/mouseConfig"
 import p5 from "p5"
+import { BattleActionDecisionStepService } from "../actionDecision/battleActionDecisionStep"
 
 const SCREEN_EDGES = {
     left: [0.1, 0.04, 0.02],
@@ -354,43 +355,68 @@ export class BattleMapDisplay implements BattleOrchestratorComponent {
                     info.battleSquaddieId in
                     gameEngineState.repository.imageUIByBattleSquaddieId
             )
+            .filter(
+                (info) =>
+                    !battleSquaddieIdsToOmit.includes(info.battleSquaddieId)
+            )
+            .filter((info) => {
+                const datum = MissionMapService.getByBattleSquaddieId(
+                    gameEngineState.battleOrchestratorState.battleState
+                        .missionMap,
+                    info.battleSquaddieId
+                )
+
+                const squaddieIsOnTheMap: boolean =
+                    MissionMapSquaddieCoordinateService.isValid(datum) &&
+                    TerrainTileMapService.isCoordinateOnMap(
+                        gameEngineState.battleOrchestratorState.battleState
+                            .missionMap.terrainTileMap,
+                        datum.mapCoordinate
+                    )
+                const squaddieIsHidden: boolean =
+                    MissionMapService.isSquaddieHiddenFromDrawing(
+                        gameEngineState.battleOrchestratorState.battleState
+                            .missionMap,
+                        info.battleSquaddieId
+                    )
+                return squaddieIsOnTheMap && !squaddieIsHidden
+            })
             .forEach((info) => {
                 const { battleSquaddieId } = info
 
-                if (!battleSquaddieIdsToOmit.includes(battleSquaddieId)) {
-                    const datum = MissionMapService.getByBattleSquaddieId(
-                        gameEngineState.battleOrchestratorState.battleState
-                            .missionMap,
-                        battleSquaddieId
-                    )
+                const datum = MissionMapService.getByBattleSquaddieId(
+                    gameEngineState.battleOrchestratorState.battleState
+                        .missionMap,
+                    battleSquaddieId
+                )
 
-                    const squaddieIsOnTheMap: boolean =
-                        MissionMapSquaddieCoordinateService.isValid(datum) &&
-                        TerrainTileMapService.isCoordinateOnMap(
-                            gameEngineState.battleOrchestratorState.battleState
-                                .missionMap.terrainTileMap,
-                            datum.mapCoordinate
-                        )
-                    const squaddieIsHidden: boolean =
-                        MissionMapService.isSquaddieHiddenFromDrawing(
-                            gameEngineState.battleOrchestratorState.battleState
-                                .missionMap,
-                            battleSquaddieId
-                        )
-                    if (squaddieIsOnTheMap && !squaddieIsHidden) {
-                        DrawSquaddieIconOnMapUtilities.drawSquaddieMapIconAtMapCoordinate(
-                            {
-                                graphics: graphicsContext,
-                                squaddieRepository: gameEngineState.repository,
-                                battleSquaddieId: battleSquaddieId,
-                                mapCoordinate: datum.mapCoordinate,
-                                camera: gameEngineState.battleOrchestratorState
-                                    .battleState.camera,
-                                resourceHandler,
-                            }
-                        )
-                    }
+                if (
+                    BattleActionDecisionStepService.getActor(
+                        gameEngineState.battleOrchestratorState.battleState
+                            .battleActionDecisionStep
+                    )?.battleSquaddieId == battleSquaddieId
+                ) {
+                    DrawSquaddieIconOnMapUtilities.drawPulsingCircleAtMapCoordinate(
+                        {
+                            graphicsContext,
+                            camera: gameEngineState.battleOrchestratorState
+                                .battleState.camera,
+                            mapCoordinate: datum.mapCoordinate,
+                        }
+                    )
                 }
+
+                DrawSquaddieIconOnMapUtilities.drawSquaddieMapIconAtMapCoordinate(
+                    {
+                        graphics: graphicsContext,
+                        squaddieRepository: gameEngineState.repository,
+                        battleSquaddieId,
+                        mapCoordinate: datum.mapCoordinate,
+                        camera: gameEngineState.battleOrchestratorState
+                            .battleState.camera,
+                        resourceHandler,
+                    }
+                )
             })
     }
 

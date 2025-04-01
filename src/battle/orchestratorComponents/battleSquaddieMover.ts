@@ -150,10 +150,10 @@ export class BattleSquaddieMover implements BattleOrchestratorComponent {
             camera: gameEngineState.battleOrchestratorState.battleState.camera,
         })
 
-        const mapIcon = ObjectRepositoryService.getImageUIByBattleSquaddieId(
-            gameEngineState.repository,
-            battleSquaddie.battleSquaddieId
-        )
+        const mapIcon = ObjectRepositoryService.getImageUIByBattleSquaddieId({
+            repository: gameEngineState.repository,
+            battleSquaddieId: battleSquaddie.battleSquaddieId,
+        })
         if (mapIcon) {
             mapIcon.draw({ graphicsContext, resourceHandler })
         }
@@ -241,10 +241,10 @@ const updateIconLocation = (
     graphicsContext: GraphicsBuffer,
     resourceHandler: ResourceHandler
 ) => {
-    const mapIcon = ObjectRepositoryService.getImageUIByBattleSquaddieId(
-        gameEngineState.repository,
-        battleSquaddie.battleSquaddieId
-    )
+    const mapIcon = ObjectRepositoryService.getImageUIByBattleSquaddieId({
+        repository: gameEngineState.repository,
+        battleSquaddieId: battleSquaddie.battleSquaddieId,
+    })
     if (!mapIcon) {
         return
     }

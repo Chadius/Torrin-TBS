@@ -3,7 +3,7 @@ import {
     HexGridMovementCostService,
     HexGridTile,
 } from "./hexGridMovementCost"
-import { PulseBlendColor } from "./colorUtils"
+import { PulseColor } from "./pulseColor"
 import { HexCoordinate } from "./hexCoordinate/hexCoordinate"
 import {
     MapGraphicsLayer,
@@ -14,7 +14,7 @@ import {
 
 export type HighlightCoordinateDescription = {
     coordinates: HexCoordinate[]
-    pulseColor: PulseBlendColor
+    pulseColor: PulseColor
     overlayImageResourceName?: string
 }
 

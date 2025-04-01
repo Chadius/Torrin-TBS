@@ -2,13 +2,13 @@ import {
     HexCoordinate,
     HexCoordinateService,
 } from "../hexCoordinate/hexCoordinate"
-import { PulseBlendColor } from "../colorUtils"
+import { PulseColor } from "../pulseColor"
 import { HighlightCoordinateDescription } from "../terrainTileMap"
 import { isValidValue } from "../../utils/objectValidityCheck"
 
 export interface MapGraphicsLayerHighlight {
     coordinate: HexCoordinate
-    pulseColor: PulseBlendColor
+    pulseColor: PulseColor
     overlayImageResourceName: string
 }
 

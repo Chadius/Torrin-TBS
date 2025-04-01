@@ -180,12 +180,17 @@ export const ObjectRepositoryService = {
     ): boolean => {
         return repository.actionTemplatesById[actionTemplateId] !== undefined
     },
-    getImageUIByBattleSquaddieId: (
-        repository: ObjectRepository,
+    getImageUIByBattleSquaddieId: ({
+        repository,
+        battleSquaddieId,
+        throwErrorIfNotFound = true,
+    }: {
+        repository: ObjectRepository
         battleSquaddieId: string
-    ): ImageUI => {
+        throwErrorIfNotFound?: boolean
+    }): ImageUI => {
         const imageUI = repository.imageUIByBattleSquaddieId[battleSquaddieId]
-        if (imageUI === undefined) {
+        if (imageUI === undefined && throwErrorIfNotFound) {
             throw new Error(
                 `[objectRepository.getImageUIByBattleSquaddieId] '${battleSquaddieId}' not found`
             )

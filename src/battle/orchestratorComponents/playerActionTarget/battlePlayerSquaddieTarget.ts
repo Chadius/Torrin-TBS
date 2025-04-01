@@ -64,6 +64,10 @@ import {
     PlayerActionTargetShouldCreateExplanationLabel,
 } from "./explanation"
 import { RectArea, RectAreaService } from "../../../ui/rectArea"
+import {
+    DRAW_SQUADDIE_ICON_ON_MAP_LAYOUT,
+    DrawSquaddieIconOnMapUtilities,
+} from "../../animation/drawSquaddieIconOnMap/drawSquaddieIconOnMap"
 
 export interface PlayerActionTargetLayout {
     targetExplanationLabel: {
@@ -406,8 +410,31 @@ export class BattlePlayerSquaddieTarget implements BattleOrchestratorComponent {
                 button.draw()
             })
         }
+        this.highlightActorSquaddie(gameEngineState)
+
         this.getButtons().forEach((button) => {
             button.clearStatus()
+        })
+    }
+
+    private highlightActorSquaddie(gameEngineState: GameEngineState) {
+        if (
+            !BattleActionDecisionStepService.isActorSet(
+                gameEngineState.battleOrchestratorState.battleState
+                    .battleActionDecisionStep
+            )
+        ) {
+            return
+        }
+        DrawSquaddieIconOnMapUtilities.tintSquaddieMapIconWithPulseColor({
+            repository: gameEngineState.repository,
+            battleSquaddieId: BattleActionDecisionStepService.getActor(
+                gameEngineState.battleOrchestratorState.battleState
+                    .battleActionDecisionStep
+            ).battleSquaddieId,
+            pulseColor:
+                DRAW_SQUADDIE_ICON_ON_MAP_LAYOUT.actorSquaddie
+                    .pulseColorForMapIcon,
         })
     }
 

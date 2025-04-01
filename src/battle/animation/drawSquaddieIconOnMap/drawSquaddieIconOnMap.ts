@@ -1,5 +1,6 @@
 import { BattleSquaddie } from "../../battleSquaddie"
 import {
+    HEX_TILE_RADIUS,
     HEX_TILE_WIDTH,
     HUE_BY_SQUADDIE_AFFILIATION,
 } from "../../../graphicsConstants"
@@ -38,8 +39,57 @@ import {
     SearchPathAdapter,
     SearchPathAdapterService,
 } from "../../../search/searchPathAdapter/searchPathAdapter"
+import {
+    PULSE_COLOR_FORMULA_TYPE,
+    PulseColor,
+    PulseColorService,
+} from "../../../hexMap/pulseColor"
 
-const MAP_ICON_CONSTANTS = {
+interface DrawSquaddieIconOnMapLayout {
+    ActionPointsBarColors: {
+        strokeColor: [number, number, number]
+        foregroundFillColor: [number, number, number]
+        backgroundFillColor: [number, number, number]
+    }
+    ActionPointsBarRectangle20ths: {
+        left: number
+        top: number
+        width: number
+        height: number
+    }
+    HitPointsBarRectangle20ths: {
+        left: number
+        top: number
+        width: number
+        height: number
+    }
+    HitPointsBarColors: {
+        strokeColor: [number, number, number]
+        foregroundFillColor: [number, number, number]
+        backgroundFillColor: [number, number, number]
+    }
+    mapIconTintWhenCannotAct: {
+        saturation: number
+        brightness: number
+        alpha: number
+    }
+    actorSquaddie: {
+        pulseColorForMapIcon: PulseColor
+        circleHighlight: {
+            radius: {
+                range: {
+                    low: number
+                    high: number
+                }
+                periodInMilliseconds: number
+                formula: PULSE_COLOR_FORMULA_TYPE
+            }
+            pulseColor: PulseColor
+        }
+    }
+}
+
+export const DRAW_SQUADDIE_ICON_ON_MAP_LAYOUT: DrawSquaddieIconOnMapLayout = {
     ActionPointsBarColors: {
         strokeColor: [0, 0, 50],
         foregroundFillColor: [0, 2, 60],
@@ -62,6 +112,49 @@ const MAP_ICON_CONSTANTS = {
         foregroundFillColor: [0, 70, 70],
         backgroundFillColor: [0, 0, 12],
     },
+    mapIconTintWhenCannotAct: {
+        saturation: 50,
+        brightness: 50,
+        alpha: 192,
+    },
+    actorSquaddie: {
+        pulseColorForMapIcon: {
+            hue: 10,
+            saturation: 0,
+            brightness: {
+                low: 100,
+                high: 80,
+            },
+            alpha: 256,
+            pulse: {
+                period: 5000,
+                formula: PULSE_COLOR_FORMULA_TYPE.SINE,
+            },
+        },
+        circleHighlight: {
+            radius: {
+                range: {
+                    low: 0,
+                    high: HEX_TILE_RADIUS,
+                },
+                periodInMilliseconds: 1000,
+                formula: PULSE_COLOR_FORMULA_TYPE.LINEAR,
+            },
+            pulseColor: PulseColorService.new({
+                hue: 0,
+                saturation: 0,
+                brightness: 100,
+                alpha: {
+                    low: 256 * 2,
+                    high: 0,
+                },
+                pulse: {
+                    period: 1000,
+                    formula: PULSE_COLOR_FORMULA_TYPE.LINEAR,
+                },
+            }),
+        },
+    },
 }
 
 export const DrawSquaddieIconOnMapUtilities = {
@@ -74,7 +167,7 @@ export const DrawSquaddieIconOnMapUtilities = {
             squaddieMovePath
         )
     },
-    tintSquaddieMapIcon: ({
+    tintSquaddieMapIconWhenTheyCannotAct: ({
         repository,
         battleSquaddieId,
     }: {
@@ -87,7 +180,11 @@ export const DrawSquaddieIconOnMapUtilities = {
                 battleSquaddieId
             )
         )
-        return tintSquaddieMapIcon(repository, squaddieTemplate, battleSquaddie)
+        return tintSquaddieMapIconWhenTheyCannotAct(
+            repository,
+            squaddieTemplate,
+            battleSquaddie
+        )
     },
     highlightSquaddieRange: ({
         missionMap,
@@ -229,21 +326,79 @@ export const DrawSquaddieIconOnMapUtilities = {
     ) => {
         return unTintSquaddieMapIcon(repository, battleSquaddie)
     },
+    tintSquaddieMapIconWithPulseColor({
+        repository,
+        battleSquaddieId,
+        pulseColor,
+    }: {
+        repository: ObjectRepository
+        battleSquaddieId: string
+        pulseColor: PulseColor
+    }) {
+        const mapIcon = ObjectRepositoryService.getImageUIByBattleSquaddieId({
+            repository: repository,
+            battleSquaddieId: battleSquaddieId,
+            throwErrorIfNotFound: false,
+        })
+        if (!mapIcon) return
+        mapIcon.setTint(...PulseColorService.pulseColorToColor(pulseColor))
+    },
+    drawPulsingCircleAtMapCoordinate: ({
+        graphicsContext,
+        mapCoordinate,
+        camera,
+    }: {
+        graphicsContext: GraphicsBuffer
+        camera: BattleCamera
+        mapCoordinate: HexCoordinate
+    }) => {
+        const circleCenter =
+            ConvertCoordinateService.convertMapCoordinatesToScreenLocation({
+                mapCoordinate,
+                cameraLocation: camera.getWorldLocation(),
+            })
+
+        const circleRadius = PulseColorService.calculatePulseAmount(
+            DRAW_SQUADDIE_ICON_ON_MAP_LAYOUT.actorSquaddie.circleHighlight
+                .radius
+        )
+        const fillColor = PulseColorService.pulseColorToColor(
+            DRAW_SQUADDIE_ICON_ON_MAP_LAYOUT.actorSquaddie.circleHighlight
+                .pulseColor
+        )
+        graphicsContext.push()
+        graphicsContext.noStroke()
+        graphicsContext.fill(
+            fillColor[0],
+            fillColor[1],
+            fillColor[2],
+            fillColor[3]
+        )
+        graphicsContext.circle(circleCenter.x, circleCenter.y, circleRadius * 2)
+        graphicsContext.pop()
+    },
 }
 
-const tintSquaddieMapIcon = (
+const tintSquaddieMapIconWhenTheyCannotAct = (
     squaddieRepository: ObjectRepository,
     squaddieTemplate: SquaddieTemplate,
     battleSquaddie: BattleSquaddie
 ) => {
     const squaddieAffiliationHue: number =
         HUE_BY_SQUADDIE_AFFILIATION[squaddieTemplate.squaddieId.affiliation]
-    const mapIcon = ObjectRepositoryService.getImageUIByBattleSquaddieId(
-        squaddieRepository,
-        battleSquaddie.battleSquaddieId
-    )
+    const mapIcon = ObjectRepositoryService.getImageUIByBattleSquaddieId({
+        repository: squaddieRepository,
+        battleSquaddieId: battleSquaddie.battleSquaddieId,
+    })
     if (mapIcon) {
-        mapIcon.setTint(squaddieAffiliationHue, 50, 50, 192)
+        mapIcon.setTint(
+            squaddieAffiliationHue,
+            DRAW_SQUADDIE_ICON_ON_MAP_LAYOUT.mapIconTintWhenCannotAct
+                .saturation,
+            DRAW_SQUADDIE_ICON_ON_MAP_LAYOUT.mapIconTintWhenCannotAct
+                .brightness,
+            DRAW_SQUADDIE_ICON_ON_MAP_LAYOUT.mapIconTintWhenCannotAct.alpha
+        )
     }
 }
 
@@ -251,10 +406,10 @@ const unTintSquaddieMapIcon = (
     repository: ObjectRepository,
     battleSquaddie: BattleSquaddie
 ) => {
-    const mapIcon = ObjectRepositoryService.getImageUIByBattleSquaddieId(
-        repository,
-        battleSquaddie.battleSquaddieId
-    )
+    const mapIcon = ObjectRepositoryService.getImageUIByBattleSquaddieId({
+        repository: repository,
+        battleSquaddieId: battleSquaddie.battleSquaddieId,
+    })
     if (mapIcon) {
         mapIcon.removeTint()
     }
@@ -273,10 +428,10 @@ const drawSquaddieMapIconAtMapCoordinate = (
             mapCoordinate,
             cameraLocation: camera.getWorldLocation(),
         })
-    const mapIcon = ObjectRepositoryService.getImageUIByBattleSquaddieId(
-        squaddieRepository,
-        battleSquaddieId
-    )
+    const mapIcon = ObjectRepositoryService.getImageUIByBattleSquaddieId({
+        repository: squaddieRepository,
+        battleSquaddieId: battleSquaddieId,
+    })
     setImageToLocation({
         mapIcon,
         screenLocation: { x, y },
@@ -355,20 +510,24 @@ const drawMapIconActionPointsBar = (
         left:
             x +
             (HEX_TILE_WIDTH *
-                MAP_ICON_CONSTANTS.ActionPointsBarRectangle20ths.left) /
+                DRAW_SQUADDIE_ICON_ON_MAP_LAYOUT.ActionPointsBarRectangle20ths
+                    .left) /
                 20,
         top:
             y +
             (HEX_TILE_WIDTH *
-                MAP_ICON_CONSTANTS.ActionPointsBarRectangle20ths.top) /
+                DRAW_SQUADDIE_ICON_ON_MAP_LAYOUT.ActionPointsBarRectangle20ths
+                    .top) /
                 20,
         width:
             (HEX_TILE_WIDTH *
-                MAP_ICON_CONSTANTS.ActionPointsBarRectangle20ths.width) /
+                DRAW_SQUADDIE_ICON_ON_MAP_LAYOUT.ActionPointsBarRectangle20ths
+                    .width) /
             20,
         height:
             (HEX_TILE_WIDTH *
-                MAP_ICON_CONSTANTS.ActionPointsBarRectangle20ths.height) /
+                DRAW_SQUADDIE_ICON_ON_MAP_LAYOUT.ActionPointsBarRectangle20ths
+                    .height) /
             20,
     })
 
@@ -382,10 +541,14 @@ const drawMapIconActionPointsBar = (
             backgroundArea,
             strokeWeight: 1,
             backgroundColor:
-                MAP_ICON_CONSTANTS.ActionPointsBarColors.backgroundFillColor,
-            strokeColor: MAP_ICON_CONSTANTS.ActionPointsBarColors.strokeColor,
+                DRAW_SQUADDIE_ICON_ON_MAP_LAYOUT.ActionPointsBarColors
+                    .backgroundFillColor,
+            strokeColor:
+                DRAW_SQUADDIE_ICON_ON_MAP_LAYOUT.ActionPointsBarColors
+                    .strokeColor,
             foregroundColor:
-                MAP_ICON_CONSTANTS.ActionPointsBarColors.foregroundFillColor,
+                DRAW_SQUADDIE_ICON_ON_MAP_LAYOUT.ActionPointsBarColors
+                    .foregroundFillColor,
         },
     })
 }
@@ -419,20 +582,24 @@ const drawMapIconHitPointBar = (
         left:
             x +
             (HEX_TILE_WIDTH *
-                MAP_ICON_CONSTANTS.HitPointsBarRectangle20ths.left) /
+                DRAW_SQUADDIE_ICON_ON_MAP_LAYOUT.HitPointsBarRectangle20ths
+                    .left) /
                 20,
         top:
             y +
             (HEX_TILE_WIDTH *
-                MAP_ICON_CONSTANTS.HitPointsBarRectangle20ths.top) /
+                DRAW_SQUADDIE_ICON_ON_MAP_LAYOUT.HitPointsBarRectangle20ths
+                    .top) /
                 20,
         width:
             (HEX_TILE_WIDTH *
-                MAP_ICON_CONSTANTS.HitPointsBarRectangle20ths.width) /
+                DRAW_SQUADDIE_ICON_ON_MAP_LAYOUT.HitPointsBarRectangle20ths
+                    .width) /
             20,
         height:
             (HEX_TILE_WIDTH *
-                MAP_ICON_CONSTANTS.HitPointsBarRectangle20ths.height) /
+                DRAW_SQUADDIE_ICON_ON_MAP_LAYOUT.HitPointsBarRectangle20ths
+                    .height) /
             20,
     })
 
@@ -446,16 +613,21 @@ const drawMapIconHitPointBar = (
             backgroundArea,
             strokeWeight: 1,
             backgroundColor:
-                MAP_ICON_CONSTANTS.HitPointsBarColors.backgroundFillColor,
+                DRAW_SQUADDIE_ICON_ON_MAP_LAYOUT.HitPointsBarColors
+                    .backgroundFillColor,
             strokeColor: [
                 squaddieAffiliationHue,
-                MAP_ICON_CONSTANTS.HitPointsBarColors.strokeColor[1],
-                MAP_ICON_CONSTANTS.HitPointsBarColors.strokeColor[2],
+                DRAW_SQUADDIE_ICON_ON_MAP_LAYOUT.HitPointsBarColors
+                    .strokeColor[1],
+                DRAW_SQUADDIE_ICON_ON_MAP_LAYOUT.HitPointsBarColors
+                    .strokeColor[2],
             ],
             foregroundColor: [
                 squaddieAffiliationHue,
-                MAP_ICON_CONSTANTS.HitPointsBarColors.foregroundFillColor[1],
-                MAP_ICON_CONSTANTS.HitPointsBarColors.foregroundFillColor[2],
+                DRAW_SQUADDIE_ICON_ON_MAP_LAYOUT.HitPointsBarColors
+                    .foregroundFillColor[1],
+                DRAW_SQUADDIE_ICON_ON_MAP_LAYOUT.HitPointsBarColors
+                    .foregroundFillColor[2],
             ],
         },
     })
@@ -472,10 +644,10 @@ const updateSquaddieIconLocation = (
             mapCoordinate: destination,
             cameraLocation: camera.getWorldLocation(),
         })
-    const mapIcon = ObjectRepositoryService.getImageUIByBattleSquaddieId(
-        squaddieRepository,
-        battleSquaddie.battleSquaddieId
-    )
+    const mapIcon = ObjectRepositoryService.getImageUIByBattleSquaddieId({
+        repository: squaddieRepository,
+        battleSquaddieId: battleSquaddie.battleSquaddieId,
+    })
 
     setImageToLocation({ mapIcon, screenLocation: { x, y } })
 }
@@ -516,10 +688,10 @@ export const moveSquaddieAlongPath = (
         TIME_TO_MOVE,
         camera
     )
-    const mapIcon = ObjectRepositoryService.getImageUIByBattleSquaddieId(
-        squaddieRepository,
-        battleSquaddie.battleSquaddieId
-    )
+    const mapIcon = ObjectRepositoryService.getImageUIByBattleSquaddieId({
+        repository: squaddieRepository,
+        battleSquaddieId: battleSquaddie.battleSquaddieId,
+    })
     if (mapIcon) {
         setImageToLocation({ mapIcon, screenLocation: { x, y } })
     }
@@ -575,7 +747,7 @@ const tintSquaddieMapIconIfTheyCannotAct = (
         return
     }
 
-    DrawSquaddieIconOnMapUtilities.tintSquaddieMapIcon({
+    DrawSquaddieIconOnMapUtilities.tintSquaddieMapIconWhenTheyCannotAct({
         battleSquaddieId: battleSquaddie.battleSquaddieId,
         repository,
     })

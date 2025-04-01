@@ -9,7 +9,7 @@ import { HexCoordinate } from "../../hexMap/hexCoordinate/hexCoordinate"
 import { CampaignResources } from "../../campaign/campaignResources"
 import { SquaddieTurn, SquaddieTurnService } from "../../squaddie/turn"
 import { BattleSquaddieSelectorService } from "../orchestratorComponents/battleSquaddieSelectorUtils"
-import { PulseBlendColor } from "../../hexMap/colorUtils"
+import { PulseColor } from "../../hexMap/pulseColor"
 import { SearchResultAdapterService } from "../../hexMap/pathfinder/searchResults/searchResultAdapter"
 import { MapSearchService } from "../../hexMap/pathfinder/pathGeneration/mapSearch"
 import { SearchLimitService } from "../../hexMap/pathfinder/pathGeneration/searchLimit"
@@ -202,7 +202,7 @@ const highlightAllCoordinatesWithinSquaddieMovementRange = ({
     squaddieIsNormallyControllableByPlayer: boolean
     movementPerAction: number
 }) => {
-    const pulseMovementColor: PulseBlendColor =
+    const pulseMovementColor: PulseColor =
         squaddieIsNormallyControllableByPlayer
             ? HIGHLIGHT_PULSE_COLOR.BLUE
             : HIGHLIGHT_PULSE_COLOR.PALE_BLUE
@@ -288,10 +288,9 @@ const addAttackRangeOntoMovementRange = ({
             actionPointsRemaining,
         })
 
-    const pulseActionColor: PulseBlendColor =
-        squaddieIsNormallyControllableByPlayer
-            ? HIGHLIGHT_PULSE_COLOR.RED
-            : HIGHLIGHT_PULSE_COLOR.PURPLE
+    const pulseActionColor: PulseColor = squaddieIsNormallyControllableByPlayer
+        ? HIGHLIGHT_PULSE_COLOR.RED
+        : HIGHLIGHT_PULSE_COLOR.PURPLE
 
     return {
         coordinates: attackCoordinates,

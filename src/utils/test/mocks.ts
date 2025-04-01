@@ -257,6 +257,7 @@ export const MockedGraphicsBufferService = {
             mockP5GraphicsContext,
             "strokeWeight"
         )
+        graphicsBufferSpies["tint"] = vi.spyOn(mockP5GraphicsContext, "tint")
         return graphicsBufferSpies
     },
     resetSpies: (graphicsBufferSpies: { [key: string]: MockInstance }) => {

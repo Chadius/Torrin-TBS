@@ -10,7 +10,10 @@ import { GraphicsBuffer } from "../../../../utils/graphics/graphicsRenderer"
 import { ActionTemplate } from "../../../../action/template/actionTemplate"
 import { WINDOW_SPACING } from "../../../../ui/constants"
 import { Rectangle, RectangleService } from "../../../../ui/rectangle/rectangle"
-import { ColorUtils } from "../../../../hexMap/colorUtils"
+import {
+    PULSE_COLOR_FORMULA_TYPE,
+    PulseColorService,
+} from "../../../../hexMap/pulseColor"
 import { TextBox, TextBoxService } from "../../../../ui/textBox/textBox"
 
 interface ActionButtonLayout {
@@ -310,15 +313,21 @@ const drawDecorator = ({
     disabled: boolean
     warning: boolean
 }) => {
-    const strokeBrightness: number = ColorUtils.calculatePulseValueOverTime({
-        low: actionButton.layout.selectedBorder.strokeBrightnessRange[0],
-        high: actionButton.layout.selectedBorder.strokeBrightnessRange[1],
+    const strokeBrightness: number = PulseColorService.calculatePulseAmount({
+        range: {
+            low: actionButton.layout.selectedBorder.strokeBrightnessRange[0],
+            high: actionButton.layout.selectedBorder.strokeBrightnessRange[1],
+        },
         periodInMilliseconds: actionButton.layout.selectedBorder.pulsePeriod,
+        formula: PULSE_COLOR_FORMULA_TYPE.SINE,
     })
-    const fillAlpha: number = ColorUtils.calculatePulseValueOverTime({
-        low: actionButton.layout.disabled.fillAlphaRange[0],
-        high: actionButton.layout.disabled.fillAlphaRange[1],
+    const fillAlpha: number = PulseColorService.calculatePulseAmount({
+        range: {
+            low: actionButton.layout.disabled.fillAlphaRange[0],
+            high: actionButton.layout.disabled.fillAlphaRange[1],
+        },
         periodInMilliseconds: actionButton.layout.disabled.pulsePeriod,
+        formula: PULSE_COLOR_FORMULA_TYPE.SINE,
     })
 
     let fillColor: number[]

@@ -39,6 +39,10 @@ import { BattleStateService } from "../battleState/battleState"
 import { isValidValue } from "../../utils/objectValidityCheck"
 import { BattleSquaddieTeamService } from "../battleSquaddieTeam"
 import { BattleActionDecisionStepService } from "../actionDecision/battleActionDecisionStep"
+import {
+    DRAW_SQUADDIE_ICON_ON_MAP_LAYOUT,
+    DrawSquaddieIconOnMapUtilities,
+} from "../animation/drawSquaddieIconOnMap/drawSquaddieIconOnMap"
 
 export class BattlePlayerSquaddieSelector
     implements BattleOrchestratorComponent, MessageBoardListener
@@ -237,6 +241,28 @@ export class BattlePlayerSquaddieSelector
         if (this.readyToAutomaticallySelectASquaddie(gameEngineState)) {
             this.selectFirstPlayableSquaddie(gameEngineState)
         }
+        this.highlightActorSquaddie(gameEngineState)
+    }
+
+    private highlightActorSquaddie(gameEngineState: GameEngineState) {
+        if (
+            !BattleActionDecisionStepService.isActorSet(
+                gameEngineState.battleOrchestratorState.battleState
+                    .battleActionDecisionStep
+            )
+        ) {
+            return
+        }
+        DrawSquaddieIconOnMapUtilities.tintSquaddieMapIconWithPulseColor({
+            repository: gameEngineState.repository,
+            battleSquaddieId: BattleActionDecisionStepService.getActor(
+                gameEngineState.battleOrchestratorState.battleState
+                    .battleActionDecisionStep
+            ).battleSquaddieId,
+            pulseColor:
+                DRAW_SQUADDIE_ICON_ON_MAP_LAYOUT.actorSquaddie
+                    .pulseColorForMapIcon,
+        })
     }
 
     private readyToAutomaticallySelectASquaddie(

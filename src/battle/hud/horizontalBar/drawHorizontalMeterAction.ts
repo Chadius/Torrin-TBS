@@ -2,7 +2,10 @@ import { DataBlob, DataBlobService } from "../../../utils/dataBlob/dataBlob"
 import { GraphicsBuffer } from "../../../utils/graphics/graphicsRenderer"
 import { BehaviorTreeTask } from "../../../utils/behaviorTree/task"
 import { RectArea, RectAreaService } from "../../../ui/rectArea"
-import { ColorUtils } from "../../../hexMap/colorUtils"
+import {
+    PULSE_COLOR_FORMULA_TYPE,
+    PulseColorService,
+} from "../../../hexMap/pulseColor"
 
 export interface DrawHorizontalMeterActionDataBlob extends DataBlob {
     data: {
@@ -47,13 +50,6 @@ export class DrawHorizontalMeterAction implements BehaviorTreeTask {
         this.dataBlob = dataBlob
         this.graphicsContext = graphicsContext
         this.currentValueSegmentFunction = functions?.currentValueSegment
-    }
-
-    clone(): BehaviorTreeTask {
-        return new DrawHorizontalMeterAction(
-            this.dataBlob,
-            this.graphicsContext
-        )
     }
 
     run(): boolean {
@@ -199,10 +195,13 @@ export class DrawHorizontalMeterAction implements BehaviorTreeTask {
             this.currentValueFillAlphaRange && this.currentValueFillAlphaPeriod
 
         if (hasAlphaValue) {
-            const alphaValue = ColorUtils.calculatePulseValueOverTime({
-                low: this.currentValueFillAlphaRange[0],
-                high: this.currentValueFillAlphaRange[1],
+            const alphaValue = PulseColorService.calculatePulseAmount({
+                range: {
+                    low: this.currentValueFillAlphaRange[0],
+                    high: this.currentValueFillAlphaRange[1],
+                },
                 periodInMilliseconds: this.currentValueFillAlphaPeriod,
+                formula: PULSE_COLOR_FORMULA_TYPE.SINE,
             })
             this.graphicsContext.fill(
                 this.currentValueFillColor[0],
@@ -320,10 +319,13 @@ export class DrawHorizontalMeterAction implements BehaviorTreeTask {
         )
             return
 
-        const alphaValue = ColorUtils.calculatePulseValueOverTime({
-            low: this.highlightedValueFillAlphaRange[0],
-            high: this.highlightedValueFillAlphaRange[1],
+        const alphaValue = PulseColorService.calculatePulseAmount({
+            range: {
+                low: this.highlightedValueFillAlphaRange[0],
+                high: this.highlightedValueFillAlphaRange[1],
+            },
             periodInMilliseconds: this.highlightedValueFillAlphaPeriod,
+            formula: PULSE_COLOR_FORMULA_TYPE.SINE,
         })
 
         this.graphicsContext.fill(
