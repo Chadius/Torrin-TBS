@@ -33,7 +33,10 @@ import {
 import { HIGHLIGHT_PULSE_COLOR } from "../../../hexMap/hexDrawingUtils"
 import { TargetingResultsService } from "../../targeting/targetingService"
 import { BattleSquaddie, BattleSquaddieService } from "../../battleSquaddie"
-import { HexCoordinate } from "../../../hexMap/hexCoordinate/hexCoordinate"
+import {
+    HexCoordinate,
+    HexCoordinateService,
+} from "../../../hexMap/hexCoordinate/hexCoordinate"
 import { SquaddieService } from "../../../squaddie/squaddieService"
 import { SummaryHUDStateService } from "../summary/summaryHUD"
 import {
@@ -561,6 +564,18 @@ export const BattleHUDService = {
             )
         )
         const destination = message.targetCoordinate
+        if (
+            HexCoordinateService.areEqual(
+                destination,
+                MissionMapService.getByBattleSquaddieId(
+                    gameEngineState.battleOrchestratorState.battleState
+                        .missionMap,
+                    battleSquaddie.battleSquaddieId
+                ).mapCoordinate
+            )
+        )
+            return
+
         if (
             !MovementCalculatorService.isMovementPossible({
                 gameEngineState,

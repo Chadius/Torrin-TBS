@@ -61,7 +61,10 @@ import {
     BattleAction,
     BattleActionService,
 } from "../../history/battleAction/battleAction"
-import { HexCoordinate } from "../../../hexMap/hexCoordinate/hexCoordinate"
+import {
+    HexCoordinate,
+    HexCoordinateService,
+} from "../../../hexMap/hexCoordinate/hexCoordinate"
 import {
     DEFAULT_ACTION_POINTS_PER_TURN,
     SquaddieTurnService,
@@ -1921,39 +1924,49 @@ describe("Battle HUD", () => {
             messageSpy = vi.spyOn(gameEngineState.messageBoard, "sendMessage")
         })
         afterEach(() => {
-            movementCalculatorSpy.mockRestore()
+            if (movementCalculatorSpy) {
+                movementCalculatorSpy.mockRestore()
+            }
             messageSpy.mockRestore()
         })
 
-        describe("calculator says the movement is invalid", () => {
-            beforeEach(() => {})
-
-            const sendMessageToMove = () => {
-                gameEngineState.messageBoard.sendMessage({
-                    type: MessageBoardMessageType.MOVE_SQUADDIE_TO_COORDINATE,
-                    gameEngineState,
-                    battleSquaddieId: battleSquaddie.battleSquaddieId,
-                    targetCoordinate: { q: -100, r: 9001 },
-                })
-            }
-
-            it("does not complete the action", () => {
-                movementCalculatorSpy = vi
-                    .spyOn(MovementCalculatorService, "isMovementPossible")
-                    .mockReturnValue(false)
-
-                sendMessageToMove()
-
-                expect(
-                    BattleActionRecorderService.isAnimationQueueEmpty(
-                        gameEngineState.battleOrchestratorState.battleState
-                            .battleActionRecorder
-                    )
-                ).toBeTruthy()
+        it("do not create an action if player selects starting location", () => {
+            gameEngineState.messageBoard.sendMessage({
+                type: MessageBoardMessageType.MOVE_SQUADDIE_TO_COORDINATE,
+                gameEngineState,
+                battleSquaddieId: battleSquaddie.battleSquaddieId,
+                targetCoordinate: { q: 0, r: 0 },
             })
+
+            expect(
+                BattleActionRecorderService.isAnimationQueueEmpty(
+                    gameEngineState.battleOrchestratorState.battleState
+                        .battleActionRecorder
+                )
+            ).toBeTruthy()
         })
 
-        describe("calculator returns a valid path", () => {
+        it("does not complete the action if the movement is invalid", () => {
+            movementCalculatorSpy = vi
+                .spyOn(MovementCalculatorService, "isMovementPossible")
+                .mockReturnValue(false)
+
+            gameEngineState.messageBoard.sendMessage({
+                type: MessageBoardMessageType.MOVE_SQUADDIE_TO_COORDINATE,
+                gameEngineState,
+                battleSquaddieId: battleSquaddie.battleSquaddieId,
+                targetCoordinate: { q: -100, r: 9001 },
+            })
+
+            expect(
+                BattleActionRecorderService.isAnimationQueueEmpty(
+                    gameEngineState.battleOrchestratorState.battleState
+                        .battleActionRecorder
+                )
+            ).toBeTruthy()
+        })
+
+        describe("movement is valid", () => {
             beforeEach(() => {
                 movementCalculatorSpy = vi
                     .spyOn(MovementCalculatorService, "isMovementPossible")
@@ -1969,54 +1982,12 @@ describe("Battle HUD", () => {
 
             it("sets the actor and is ready to animate", () => {
                 expect(
-                    gameEngineState.battleOrchestratorState.battleState
-                        .battleActionDecisionStep
-                ).not.toBeUndefined()
-                expect(
-                    BattleActionDecisionStepService.isActorSet(
-                        gameEngineState.battleOrchestratorState.battleState
-                            .battleActionDecisionStep
+                    expectSquaddieIsMovingToGivenLocation(
+                        gameEngineState,
+                        battleSquaddie,
+                        { q: 0, r: 2 }
                     )
                 ).toBeTruthy()
-                expect(
-                    BattleActionDecisionStepService.getActor(
-                        gameEngineState.battleOrchestratorState.battleState
-                            .battleActionDecisionStep
-                    ).battleSquaddieId
-                ).toEqual(battleSquaddie.battleSquaddieId)
-                expect(
-                    BattleActionDecisionStepService.isActionSet(
-                        gameEngineState.battleOrchestratorState.battleState
-                            .battleActionDecisionStep
-                    )
-                ).toBeTruthy()
-                expect(
-                    BattleActionDecisionStepService.getAction(
-                        gameEngineState.battleOrchestratorState.battleState
-                            .battleActionDecisionStep
-                    ).movement
-                ).toBeTruthy()
-                expect(
-                    BattleActionDecisionStepService.isTargetConsidered(
-                        gameEngineState.battleOrchestratorState.battleState
-                            .battleActionDecisionStep
-                    )
-                ).toBeTruthy()
-                expect(
-                    BattleActionDecisionStepService.isTargetConfirmed(
-                        gameEngineState.battleOrchestratorState.battleState
-                            .battleActionDecisionStep
-                    )
-                ).toBeTruthy()
-                expect(
-                    BattleActionDecisionStepService.getTarget(
-                        gameEngineState.battleOrchestratorState.battleState
-                            .battleActionDecisionStep
-                    ).targetCoordinate
-                ).toEqual({
-                    q: 0,
-                    r: 2,
-                })
             })
 
             it("adds a battle action to the history", () => {
@@ -2132,38 +2103,12 @@ describe("Battle HUD", () => {
 
             it("adds a movement action and confirmed target to the action builder", () => {
                 expect(
-                    BattleActionDecisionStepService.isActionSet(
-                        gameEngineState.battleOrchestratorState.battleState
-                            .battleActionDecisionStep
+                    expectSquaddieIsMovingToGivenLocation(
+                        gameEngineState,
+                        battleSquaddie,
+                        { q: 0, r: 2 }
                     )
                 ).toBeTruthy()
-                expect(
-                    BattleActionDecisionStepService.getAction(
-                        gameEngineState.battleOrchestratorState.battleState
-                            .battleActionDecisionStep
-                    ).movement
-                ).toBeTruthy()
-                expect(
-                    BattleActionDecisionStepService.isTargetConsidered(
-                        gameEngineState.battleOrchestratorState.battleState
-                            .battleActionDecisionStep
-                    )
-                ).toBeTruthy()
-                expect(
-                    BattleActionDecisionStepService.isTargetConfirmed(
-                        gameEngineState.battleOrchestratorState.battleState
-                            .battleActionDecisionStep
-                    )
-                ).toBeTruthy()
-                expect(
-                    BattleActionDecisionStepService.getTarget(
-                        gameEngineState.battleOrchestratorState.battleState
-                            .battleActionDecisionStep
-                    ).targetCoordinate
-                ).toEqual({
-                    q: 0,
-                    r: 2,
-                })
             })
 
             it("will update squaddie coordinate to destination and spend action points", () => {
@@ -2340,3 +2285,60 @@ describe("Battle HUD", () => {
         })
     })
 })
+
+const expectSquaddieIsMovingToGivenLocation = (
+    gameEngineState: GameEngineState,
+    battleSquaddie: BattleSquaddie,
+    destination: HexCoordinate
+) => {
+    expect(
+        gameEngineState.battleOrchestratorState.battleState
+            .battleActionDecisionStep
+    ).not.toBeUndefined()
+    expect(
+        BattleActionDecisionStepService.isActorSet(
+            gameEngineState.battleOrchestratorState.battleState
+                .battleActionDecisionStep
+        )
+    ).toBeTruthy()
+    expect(
+        BattleActionDecisionStepService.getActor(
+            gameEngineState.battleOrchestratorState.battleState
+                .battleActionDecisionStep
+        ).battleSquaddieId
+    ).toEqual(battleSquaddie.battleSquaddieId)
+    expect(
+        BattleActionDecisionStepService.isActionSet(
+            gameEngineState.battleOrchestratorState.battleState
+                .battleActionDecisionStep
+        )
+    ).toBeTruthy()
+    expect(
+        BattleActionDecisionStepService.getAction(
+            gameEngineState.battleOrchestratorState.battleState
+                .battleActionDecisionStep
+        ).movement
+    ).toBeTruthy()
+    expect(
+        BattleActionDecisionStepService.isTargetConsidered(
+            gameEngineState.battleOrchestratorState.battleState
+                .battleActionDecisionStep
+        )
+    ).toBeTruthy()
+    expect(
+        BattleActionDecisionStepService.isTargetConfirmed(
+            gameEngineState.battleOrchestratorState.battleState
+                .battleActionDecisionStep
+        )
+    ).toBeTruthy()
+    expect(
+        HexCoordinateService.areEqual(
+            BattleActionDecisionStepService.getTarget(
+                gameEngineState.battleOrchestratorState.battleState
+                    .battleActionDecisionStep
+            )?.targetCoordinate,
+            destination
+        )
+    ).toBeTruthy()
+    return true
+}
