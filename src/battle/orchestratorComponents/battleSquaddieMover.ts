@@ -177,6 +177,10 @@ export class BattleSquaddieMover implements BattleOrchestratorComponent {
             gameEngineState.battleOrchestratorState.battleState.missionMap
                 .terrainTileMap
         )
+        DrawSquaddieIconOnMapUtilities.unTintSquaddieMapIcon(
+            gameEngineState.repository,
+            battleSquaddie
+        )
         updateIconLocation(
             gameEngineState,
             battleSquaddie,

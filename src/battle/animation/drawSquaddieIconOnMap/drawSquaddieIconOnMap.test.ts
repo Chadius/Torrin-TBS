@@ -128,6 +128,7 @@ describe("DrawSquaddieIconOnMap", () => {
             graphicsContext,
             camera,
             mapCoordinate: { q: 0, r: 0 },
+            circleInfo: DRAW_SQUADDIE_ICON_ON_MAP_LAYOUT.actorSquaddie,
         })
 
         const expectedCircleCenter =

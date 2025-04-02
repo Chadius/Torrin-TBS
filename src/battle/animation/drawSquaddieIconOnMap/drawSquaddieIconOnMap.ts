@@ -87,6 +87,20 @@ interface DrawSquaddieIconOnMapLayout {
             pulseColor: PulseColor
         }
     }
+    targetEnemySquaddie: {
+        pulseColorForMapIcon: PulseColor
+        circleHighlight: {
+            radius: {
+                range: {
+                    low: number
+                    high: number
+                }
+                periodInMilliseconds: number
+                formula: PULSE_COLOR_FORMULA_TYPE
+            }
+            pulseColor: PulseColor
+        }
+    }
 }
 
 export const DRAW_SQUADDIE_ICON_ON_MAP_LAYOUT: DrawSquaddieIconOnMapLayout = {
@@ -137,7 +151,7 @@ export const DRAW_SQUADDIE_ICON_ON_MAP_LAYOUT: DrawSquaddieIconOnMapLayout = {
                     low: 0,
                     high: HEX_TILE_RADIUS,
                 },
-                periodInMilliseconds: 1000,
+                periodInMilliseconds: 2000,
                 formula: PULSE_COLOR_FORMULA_TYPE.LINEAR,
             },
             pulseColor: PulseColorService.new({
@@ -149,7 +163,45 @@ export const DRAW_SQUADDIE_ICON_ON_MAP_LAYOUT: DrawSquaddieIconOnMapLayout = {
                     high: 0,
                 },
                 pulse: {
-                    period: 1000,
+                    period: 2000,
+                    formula: PULSE_COLOR_FORMULA_TYPE.LINEAR,
+                },
+            }),
+        },
+    },
+    targetEnemySquaddie: {
+        pulseColorForMapIcon: {
+            hue: 10,
+            saturation: 60,
+            brightness: {
+                low: 100,
+                high: 50,
+            },
+            alpha: 256,
+            pulse: {
+                period: 5000,
+                formula: PULSE_COLOR_FORMULA_TYPE.SINE,
+            },
+        },
+        circleHighlight: {
+            radius: {
+                range: {
+                    low: 0,
+                    high: HEX_TILE_RADIUS,
+                },
+                periodInMilliseconds: 2000,
+                formula: PULSE_COLOR_FORMULA_TYPE.LINEAR,
+            },
+            pulseColor: PulseColorService.new({
+                hue: 10,
+                saturation: 100,
+                brightness: 80,
+                alpha: {
+                    low: 256 * 2,
+                    high: 0,
+                },
+                pulse: {
+                    period: 2000,
                     formula: PULSE_COLOR_FORMULA_TYPE.LINEAR,
                 },
             }),
@@ -347,10 +399,25 @@ export const DrawSquaddieIconOnMapUtilities = {
         graphicsContext,
         mapCoordinate,
         camera,
+        circleInfo,
     }: {
         graphicsContext: GraphicsBuffer
         camera: BattleCamera
         mapCoordinate: HexCoordinate
+        circleInfo: {
+            pulseColorForMapIcon: PulseColor
+            circleHighlight: {
+                radius: {
+                    range: {
+                        low: number
+                        high: number
+                    }
+                    periodInMilliseconds: number
+                    formula: PULSE_COLOR_FORMULA_TYPE
+                }
+                pulseColor: PulseColor
+            }
+        }
     }) => {
         const circleCenter =
             ConvertCoordinateService.convertMapCoordinatesToScreenLocation({
@@ -359,12 +426,10 @@ export const DrawSquaddieIconOnMapUtilities = {
             })
 
         const circleRadius = PulseColorService.calculatePulseAmount(
-            DRAW_SQUADDIE_ICON_ON_MAP_LAYOUT.actorSquaddie.circleHighlight
-                .radius
+            circleInfo.circleHighlight.radius
         )
         const fillColor = PulseColorService.pulseColorToColor(
-            DRAW_SQUADDIE_ICON_ON_MAP_LAYOUT.actorSquaddie.circleHighlight
-                .pulseColor
+            circleInfo.circleHighlight.pulseColor
         )
         graphicsContext.push()
         graphicsContext.noStroke()
@@ -409,6 +474,7 @@ const unTintSquaddieMapIcon = (
     const mapIcon = ObjectRepositoryService.getImageUIByBattleSquaddieId({
         repository: repository,
         battleSquaddieId: battleSquaddie.battleSquaddieId,
+        throwErrorIfNotFound: false,
     })
     if (mapIcon) {
         mapIcon.removeTint()

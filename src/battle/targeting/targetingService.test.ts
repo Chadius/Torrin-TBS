@@ -209,7 +209,7 @@ describe("Targeting Service", () => {
         })
     }
 
-    it("will highlight unfriendly squaddies if they are in range", () => {
+    it("will select unfriendly squaddies if they are in range", () => {
         let battleMap: MissionMap = MissionMapService.new({
             terrainTileMap: TerrainTileMapService.new({
                 movementCost: ["1 1 1 1 ", " 1 1 x 1 ", "  1 1 1 x "],
@@ -263,7 +263,7 @@ describe("Targeting Service", () => {
         )
     })
 
-    it("will highlight allied squaddies if they are in range", () => {
+    it("will select allied squaddies if they are in range", () => {
         let battleMap: MissionMap = MissionMapService.new({
             terrainTileMap: TerrainTileMapService.new({
                 movementCost: ["1 1 1 1 ", " 1 1 x 1 ", "  1 1 1 x "],

@@ -27,6 +27,7 @@ import { ObjectRepositoryService } from "../objectRepository"
 import { isValidValue } from "../../utils/objectValidityCheck"
 import { MissionMapService } from "../../missionMap/missionMap"
 import { ResourceHandler } from "../../resource/resourceHandler"
+import { DrawSquaddieIconOnMapUtilities } from "../animation/drawSquaddieIconOnMap/drawSquaddieIconOnMap"
 
 export class BattleSquaddieUsesActionOnSquaddie
     implements BattleOrchestratorComponent
@@ -156,13 +157,35 @@ export class BattleSquaddieUsesActionOnSquaddie
         graphicsContext: GraphicsBuffer
     ) {
         this.hideDeadSquaddies(gameEngineState)
-        const battleSquaddieId =
+        const actorBattleSquaddieId =
             BattleActionRecorderService.peekAtAnimationQueue(
                 gameEngineState.battleOrchestratorState.battleState
                     .battleActionRecorder
             ).actor.actorBattleSquaddieId
 
-        if (!battleSquaddieId) {
+        const targetBattleSquaddieIds =
+            BattleActionRecorderService.peekAtAnimationQueue(
+                gameEngineState.battleOrchestratorState.battleState
+                    .battleActionRecorder
+            )?.effect?.squaddie.map((change) => change.battleSquaddieId)
+
+        ;[actorBattleSquaddieId, ...targetBattleSquaddieIds]
+            .filter((x) => x)
+            .forEach((battleSquaddieId) => {
+                const { battleSquaddie } = getResultOrThrowError(
+                    ObjectRepositoryService.getSquaddieByBattleId(
+                        gameEngineState.repository,
+                        battleSquaddieId
+                    )
+                )
+
+                DrawSquaddieIconOnMapUtilities.unTintSquaddieMapIcon(
+                    gameEngineState.repository,
+                    battleSquaddie
+                )
+            })
+
+        if (!actorBattleSquaddieId) {
             this.sawResultAftermath = true
             return
         }

@@ -41,9 +41,17 @@ import {
     PlayerActionConfirmCreateCancelButton,
     PlayerActionConfirmShouldCreateCancelButton,
 } from "./cancelButton"
-import { BattleActionDecisionStep } from "../../actionDecision/battleActionDecisionStep"
+import {
+    BattleActionDecisionStep,
+    BattleActionDecisionStepService,
+} from "../../actionDecision/battleActionDecisionStep"
 import { BattleCamera } from "../../battleCamera"
 import { HEX_TILE_HEIGHT } from "../../../graphicsConstants"
+import {
+    DRAW_SQUADDIE_ICON_ON_MAP_LAYOUT,
+    DrawSquaddieIconOnMapUtilities,
+} from "../../animation/drawSquaddieIconOnMap/drawSquaddieIconOnMap"
+import { MissionMapService } from "../../../missionMap/missionMap"
 
 export interface PlayerActionConfirmLayout {
     okButton: {
@@ -333,9 +341,78 @@ export class BattlePlayerActionConfirm implements BattleOrchestratorComponent {
             button.draw()
         })
 
+        this.highlightActorSquaddie(gameEngineState)
+        this.highlightTargetSquaddies(gameEngineState)
+
         this.getButtons().forEach((button) => {
             button.clearStatus()
         })
+    }
+
+    private highlightActorSquaddie(gameEngineState: GameEngineState) {
+        if (
+            !BattleActionDecisionStepService.isActorSet(
+                gameEngineState.battleOrchestratorState.battleState
+                    .battleActionDecisionStep
+            )
+        ) {
+            return
+        }
+        DrawSquaddieIconOnMapUtilities.tintSquaddieMapIconWithPulseColor({
+            repository: gameEngineState.repository,
+            battleSquaddieId: BattleActionDecisionStepService.getActor(
+                gameEngineState.battleOrchestratorState.battleState
+                    .battleActionDecisionStep
+            ).battleSquaddieId,
+            pulseColor:
+                DRAW_SQUADDIE_ICON_ON_MAP_LAYOUT.actorSquaddie
+                    .pulseColorForMapIcon,
+        })
+    }
+
+    private highlightTargetSquaddies(gameEngineState: GameEngineState) {
+        let squaddiesToHighlight = this.getSquaddiesToHighlight(gameEngineState)
+
+        squaddiesToHighlight
+            .filter((x) => x)
+            .forEach((battleSquaddieId) => {
+                DrawSquaddieIconOnMapUtilities.tintSquaddieMapIconWithPulseColor(
+                    {
+                        repository: gameEngineState.repository,
+                        battleSquaddieId,
+                        pulseColor:
+                            DRAW_SQUADDIE_ICON_ON_MAP_LAYOUT.targetEnemySquaddie
+                                .pulseColorForMapIcon,
+                    }
+                )
+            })
+    }
+
+    private getSquaddiesToHighlight(gameEngineState: GameEngineState) {
+        if (
+            BattleActionDecisionStepService.isTargetConfirmed(
+                gameEngineState.battleOrchestratorState.battleState
+                    .battleActionDecisionStep
+            )
+        ) {
+            return [
+                MissionMapService.getBattleSquaddieAtCoordinate(
+                    gameEngineState.battleOrchestratorState.battleState
+                        .missionMap,
+                    BattleActionDecisionStepService.getTarget(
+                        gameEngineState.battleOrchestratorState.battleState
+                            .battleActionDecisionStep
+                    ).targetCoordinate
+                )?.battleSquaddieId,
+            ]
+        }
+        return [
+            MissionMapService.getBattleSquaddieAtCoordinate(
+                gameEngineState.battleOrchestratorState.battleState.missionMap,
+                this.data.getContext().battleActionDecisionStep.target
+                    .targetCoordinate
+            )?.battleSquaddieId,
+        ]
     }
 
     private updateUIObjectsDuringDraw(graphicsContext: GraphicsBuffer) {

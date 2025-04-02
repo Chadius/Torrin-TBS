@@ -63,6 +63,7 @@ import { MapDataBlob } from "../../../hexMap/mapLayer/mapDataBlob"
 import { BattleStateService } from "../../battleState/battleState"
 import { SquaddieSelectorPanelService } from "../playerActionPanel/squaddieSelectorPanel/squaddieSelectorPanel"
 import { PlayerConsideredActionsService } from "../../battleState/playerConsideredActions"
+import { DrawSquaddieIconOnMapUtilities } from "../../animation/drawSquaddieIconOnMap/drawSquaddieIconOnMap"
 
 export interface BattleHUD {
     fileAccessHUD: FileAccessHUD
@@ -170,6 +171,10 @@ export const BattleHUDService = {
         TerrainTileMapService.removeAllGraphicsLayers(
             gameEngineState.battleOrchestratorState.battleState.missionMap
                 .terrainTileMap
+        )
+        DrawSquaddieIconOnMapUtilities.unTintSquaddieMapIcon(
+            gameEngineState.repository,
+            battleSquaddie
         )
 
         BattleActionRecorderService.addReadyToAnimateBattleAction(
@@ -425,7 +430,7 @@ export const BattleHUDService = {
             objectRepository: gameEngineState.repository,
         })
 
-        TargetingResultsService.highlightBattleSquaddiesForTargeting({
+        TargetingResultsService.highlightMapTilesOfSquaddiesForTargeting({
             gameEngineState: gameEngineState,
             targetBattleSquaddieIds: message.targetBattleSquaddieIds,
         })

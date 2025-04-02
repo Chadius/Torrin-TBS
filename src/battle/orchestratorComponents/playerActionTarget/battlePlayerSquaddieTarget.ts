@@ -305,6 +305,8 @@ export class BattlePlayerSquaddieTarget implements BattleOrchestratorComponent {
     cancelTargetSelectionAndResetSummaryHUDState(
         gameEngineState: GameEngineState
     ) {
+        this.unTintHighlightedSquaddies(gameEngineState)
+
         const context = this.data.getContext()
         context.cancelAbility = true
         this.data.setContext(context)
@@ -332,6 +334,23 @@ export class BattlePlayerSquaddieTarget implements BattleOrchestratorComponent {
                 objectRepository: gameEngineState.repository,
             })
         }
+    }
+
+    private unTintHighlightedSquaddies(gameEngineState: GameEngineState) {
+        this.getSquaddiesToHighlight(gameEngineState)
+            .filter((x) => x)
+            .forEach((battleSquaddieId) => {
+                const { battleSquaddie } = getResultOrThrowError(
+                    ObjectRepositoryService.getSquaddieByBattleId(
+                        gameEngineState.repository,
+                        battleSquaddieId
+                    )
+                )
+                DrawSquaddieIconOnMapUtilities.unTintSquaddieMapIcon(
+                    gameEngineState.repository,
+                    battleSquaddie
+                )
+            })
     }
 
     keyEventHappened(
@@ -411,6 +430,12 @@ export class BattlePlayerSquaddieTarget implements BattleOrchestratorComponent {
             })
         }
         this.highlightActorSquaddie(gameEngineState)
+        if (
+            !this.data.getContext().cancelAbility &&
+            !this.data.getContext().hasSelectedValidTarget
+        ) {
+            this.highlightTargetSquaddies(gameEngineState)
+        }
 
         this.getButtons().forEach((button) => {
             button.clearStatus()
@@ -436,6 +461,50 @@ export class BattlePlayerSquaddieTarget implements BattleOrchestratorComponent {
                 DRAW_SQUADDIE_ICON_ON_MAP_LAYOUT.actorSquaddie
                     .pulseColorForMapIcon,
         })
+    }
+
+    private highlightTargetSquaddies(gameEngineState: GameEngineState) {
+        let squaddiesToHighlight = this.getSquaddiesToHighlight(gameEngineState)
+        squaddiesToHighlight
+            .filter((x) => x)
+            .forEach((battleSquaddieId) => {
+                DrawSquaddieIconOnMapUtilities.tintSquaddieMapIconWithPulseColor(
+                    {
+                        repository: gameEngineState.repository,
+                        battleSquaddieId,
+                        pulseColor:
+                            DRAW_SQUADDIE_ICON_ON_MAP_LAYOUT.targetEnemySquaddie
+                                .pulseColorForMapIcon,
+                    }
+                )
+            })
+    }
+
+    private getSquaddiesToHighlight(gameEngineState: GameEngineState) {
+        if (
+            BattleActionDecisionStepService.isTargetConfirmed(
+                gameEngineState.battleOrchestratorState.battleState
+                    .battleActionDecisionStep
+            )
+        ) {
+            return [
+                MissionMapService.getBattleSquaddieAtCoordinate(
+                    gameEngineState.battleOrchestratorState.battleState
+                        .missionMap,
+                    BattleActionDecisionStepService.getTarget(
+                        gameEngineState.battleOrchestratorState.battleState
+                            .battleActionDecisionStep
+                    ).targetCoordinate
+                )?.battleSquaddieId,
+            ]
+        }
+        return this.data.getContext().highlightedTargetRange.map(
+            (selectedCoordinate) =>
+                this.getValidTargetSquaddieAtLocation({
+                    selectedCoordinate: selectedCoordinate,
+                    gameEngineState: gameEngineState,
+                }).battleSquaddie?.battleSquaddieId
+        )
     }
 
     private updateUIObjectsDuringDraw(graphicsContext: GraphicsBuffer) {
@@ -502,23 +571,27 @@ export class BattlePlayerSquaddieTarget implements BattleOrchestratorComponent {
         this.data.setContext(context)
     }
 
-    private tryToSelectValidTarget({
-        mouseClick,
+    getValidTargetSquaddieAtLocation({
+        selectedCoordinate,
         gameEngineState,
     }: {
-        mouseClick: MousePress | MouseRelease
+        selectedCoordinate: HexCoordinate
         gameEngineState: GameEngineState
-    }) {
-        const selectedCoordinate = this.getCoordinateSelectedOnScreen(
-            mouseClick,
-            gameEngineState
-        )
+    }): {
+        isValid: boolean
+        battleSquaddie: BattleSquaddie
+        squaddieTemplate: SquaddieTemplate
+    } {
         if (!this.coordinateIsInRange(selectedCoordinate)) {
             this.updateExplanationLabelToIndicateItIsOutOfRange({
                 selectedCoordinate: selectedCoordinate,
                 gameEngineState: gameEngineState,
             })
-            return
+            return {
+                isValid: false,
+                battleSquaddie: undefined,
+                squaddieTemplate: undefined,
+            }
         }
 
         const {
@@ -527,7 +600,11 @@ export class BattlePlayerSquaddieTarget implements BattleOrchestratorComponent {
         } = this.getSquaddieAtCoordinate(gameEngineState, selectedCoordinate)
 
         if (targetSquaddieTemplate === undefined) {
-            return
+            return {
+                isValid: false,
+                battleSquaddie: undefined,
+                squaddieTemplate: undefined,
+            }
         }
 
         const {
@@ -543,16 +620,29 @@ export class BattlePlayerSquaddieTarget implements BattleOrchestratorComponent {
             )
         )
 
+        const actionTemplateId = BattleActionDecisionStepService.getAction(
+            gameEngineState.battleOrchestratorState.battleState
+                .battleActionDecisionStep
+        )?.actionTemplateId
+        if (!actionTemplateId) {
+            return {
+                isValid: false,
+                battleSquaddie: undefined,
+                squaddieTemplate: undefined,
+            }
+        }
+
         const actionTemplate = ObjectRepositoryService.getActionTemplateById(
             gameEngineState.repository,
-            BattleActionDecisionStepService.getAction(
-                gameEngineState.battleOrchestratorState.battleState
-                    .battleActionDecisionStep
-            ).actionTemplateId
+            actionTemplateId
         )
 
         if (!isValidValue(actionTemplate)) {
-            return
+            return {
+                isValid: false,
+                battleSquaddie: undefined,
+                squaddieTemplate: undefined,
+            }
         }
 
         if (
@@ -571,10 +661,44 @@ export class BattlePlayerSquaddieTarget implements BattleOrchestratorComponent {
                 }
             )
         ) {
-            return
+            return {
+                isValid: false,
+                battleSquaddie: undefined,
+                squaddieTemplate: undefined,
+            }
         }
+
+        return {
+            isValid: true,
+            squaddieTemplate: targetSquaddieTemplate,
+            battleSquaddie: targetBattleSquaddie,
+        }
+    }
+
+    private tryToSelectValidTarget({
+        mouseClick,
+        gameEngineState,
+    }: {
+        mouseClick: MousePress | MouseRelease
+        gameEngineState: GameEngineState
+    }) {
+        const selectedCoordinate = this.getCoordinateSelectedOnScreen(
+            mouseClick,
+            gameEngineState
+        )
+
+        if (
+            !this.getValidTargetSquaddieAtLocation({
+                selectedCoordinate: selectedCoordinate,
+                gameEngineState: gameEngineState,
+            }).isValid
+        ) {
+            return false
+        }
+
         this.tellMapItWasClicked(gameEngineState, mouseClick)
 
+        this.unTintHighlightedSquaddies(gameEngineState)
         const context = this.data.getContext()
         context.hasSelectedValidTarget = true
         this.data.setContext(context)

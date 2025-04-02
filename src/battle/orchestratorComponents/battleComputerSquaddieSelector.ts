@@ -406,6 +406,10 @@ export class BattleComputerSquaddieSelector
             gameEngineState.battleOrchestratorState.battleState.missionMap
                 .terrainTileMap
         )
+        DrawSquaddieIconOnMapUtilities.unTintSquaddieMapIcon(
+            gameEngineState.repository,
+            battleSquaddie
+        )
 
         const { endTurn, actionTemplate, movement } =
             this.calculateActionPointsSpentOnDecisionSteps(

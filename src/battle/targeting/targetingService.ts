@@ -126,7 +126,7 @@ export const TargetingResultsService = {
             targetAffiliation,
         })
     },
-    highlightBattleSquaddiesForTargeting({
+    highlightMapTilesOfSquaddiesForTargeting({
         gameEngineState,
         targetBattleSquaddieIds,
     }: {
@@ -148,7 +148,6 @@ export const TargetingResultsService = {
             gameEngineState.battleOrchestratorState.battleState.missionMap
                 .terrainTileMap
         )
-
         const actionRangeOnMap = MapGraphicsLayerService.new({
             id: "targeting",
             highlightedTileDescriptions: [

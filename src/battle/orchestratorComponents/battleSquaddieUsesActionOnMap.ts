@@ -10,7 +10,6 @@ import { GraphicsBuffer } from "../../utils/graphics/graphicsRenderer"
 import { GameEngineState } from "../../gameEngine/gameEngine"
 import { ActionComponentCalculator } from "../actionDecision/actionComponentCalculator"
 import { MessageBoardMessageType } from "../../message/messageBoardMessage"
-import { BattleActionService } from "../history/battleAction/battleAction"
 import { BattleActionRecorderService } from "../history/battleAction/battleActionRecorder"
 import { ResourceHandler } from "../../resource/resourceHandler"
 import { ObjectRepositoryService } from "../objectRepository"
@@ -26,8 +25,7 @@ export class BattleSquaddieUsesActionOnMap
     completed: boolean
 
     constructor() {
-        this.animationCompleteStartTime = undefined
-        this.completed = false
+        this.reset(undefined)
     }
 
     hasCompleted(_gameEngineState: GameEngineState): boolean {
@@ -48,7 +46,7 @@ export class BattleSquaddieUsesActionOnMap
         // Required by inheritance
     }
 
-    uiControlSettings(gameEngineState: GameEngineState): UIControlSettings {
+    uiControlSettings(_gameEngineState: GameEngineState): UIControlSettings {
         return new UIControlSettings({
             displayMap: true,
             scrollCamera: false,
@@ -81,6 +79,7 @@ export class BattleSquaddieUsesActionOnMap
 
     reset(_gameEngineState: GameEngineState): void {
         this.animationCompleteStartTime = undefined
+        this.completed = false
     }
 
     update({
@@ -101,14 +100,6 @@ export class BattleSquaddieUsesActionOnMap
         ) {
             return
         }
-
-        BattleActionService.setAnimationCompleted({
-            battleAction: BattleActionRecorderService.peekAtAnimationQueue(
-                gameEngineState.battleOrchestratorState.battleState
-                    .battleActionRecorder
-            ),
-            animationCompleted: true,
-        })
 
         gameEngineState.messageBoard.sendMessage({
             type: MessageBoardMessageType.BATTLE_ACTION_FINISHES_ANIMATION,

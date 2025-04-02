@@ -144,29 +144,6 @@ describe("BattleSquaddieUsesActionOnMap", () => {
         ).toBeFalsy()
     })
 
-    it("sets the animation as complete", () => {
-        endTurnForSquaddie(gameEngineState, "player_nahla")
-        mapAction.update({
-            gameEngineState,
-            graphicsContext: mockedP5GraphicsContext,
-            resourceHandler: gameEngineState.resourceHandler,
-        })
-        dateSpy.mockImplementation(() => ACTION_COMPLETED_WAIT_TIME_MS)
-        mapAction.update({
-            gameEngineState,
-            graphicsContext: mockedP5GraphicsContext,
-            resourceHandler: gameEngineState.resourceHandler,
-        })
-        expect(
-            BattleActionService.isAnimationComplete(
-                BattleActionRecorderService.peekAtAnimationQueue(
-                    gameEngineState.battleOrchestratorState.battleState
-                        .battleActionRecorder
-                )
-            )
-        ).toBeTruthy()
-    })
-
     it("sends a message noting the animation is complete", () => {
         endTurnForSquaddie(gameEngineState, "player_nahla")
         mapAction.update({

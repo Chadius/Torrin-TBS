@@ -7,7 +7,10 @@ import {
 } from "../orchestrator/battleOrchestratorComponent"
 import { BattleOrchestratorState } from "../orchestrator/battleOrchestratorState"
 import { HexDrawingUtils } from "../../hexMap/hexDrawingUtils"
-import { DrawSquaddieIconOnMapUtilities } from "../animation/drawSquaddieIconOnMap/drawSquaddieIconOnMap"
+import {
+    DRAW_SQUADDIE_ICON_ON_MAP_LAYOUT,
+    DrawSquaddieIconOnMapUtilities,
+} from "../animation/drawSquaddieIconOnMap/drawSquaddieIconOnMap"
 import { ScreenDimensions } from "../../utils/graphics/graphicsConfig"
 import { UIControlSettings } from "../orchestrator/uiControlSettings"
 import { MissionMapSquaddieCoordinateService } from "../../missionMap/squaddieCoordinate"
@@ -34,6 +37,7 @@ import {
 } from "../../utils/mouseConfig"
 import p5 from "p5"
 import { BattleActionDecisionStepService } from "../actionDecision/battleActionDecisionStep"
+import { MapGraphicsLayerService } from "../../hexMap/mapLayer/mapGraphicsLayer"
 
 const SCREEN_EDGES = {
     left: [0.1, 0.04, 0.02],
@@ -347,6 +351,9 @@ export class BattleMapDisplay implements BattleOrchestratorComponent {
         battleSquaddieIdsToOmit: string[],
         resourceHandler: ResourceHandler
     ) {
+        let targetedBattleSquaddieIds: string[] =
+            this.getTargetedBattleSquaddieIds(gameEngineState)
+
         ObjectRepositoryService.getBattleSquaddieIterator(
             gameEngineState.repository
         )
@@ -402,10 +409,24 @@ export class BattleMapDisplay implements BattleOrchestratorComponent {
                             camera: gameEngineState.battleOrchestratorState
                                 .battleState.camera,
                             mapCoordinate: datum.mapCoordinate,
+                            circleInfo:
+                                DRAW_SQUADDIE_ICON_ON_MAP_LAYOUT.actorSquaddie,
+                        }
+                    )
+                } else if (
+                    targetedBattleSquaddieIds.includes(battleSquaddieId)
+                ) {
+                    DrawSquaddieIconOnMapUtilities.drawPulsingCircleAtMapCoordinate(
+                        {
+                            graphicsContext,
+                            camera: gameEngineState.battleOrchestratorState
+                                .battleState.camera,
+                            mapCoordinate: datum.mapCoordinate,
+                            circleInfo:
+                                DRAW_SQUADDIE_ICON_ON_MAP_LAYOUT.targetEnemySquaddie,
                         }
                     )
                 }
-
                 DrawSquaddieIconOnMapUtilities.drawSquaddieMapIconAtMapCoordinate(
                     {
                         graphics: graphicsContext,
@@ -418,6 +439,33 @@ export class BattleMapDisplay implements BattleOrchestratorComponent {
                     }
                 )
             })
+    }
+
+    private getTargetedBattleSquaddieIds(gameEngineState: GameEngineState) {
+        const targetCoordinate = BattleActionDecisionStepService.getTarget(
+            gameEngineState.battleOrchestratorState.battleState
+                .battleActionDecisionStep
+        )?.targetCoordinate
+        const targetingLayer = TerrainTileMapService.getGraphicsLayer({
+            terrainTileMap:
+                gameEngineState.battleOrchestratorState.battleState.missionMap
+                    .terrainTileMap,
+            id: "targeting",
+        })
+        const targetedCoordinates = targetingLayer
+            ? MapGraphicsLayerService.getCoordinates(targetingLayer)
+            : []
+        return [targetCoordinate, ...targetedCoordinates]
+            .filter((x) => x)
+            .map(
+                (targetCoordinate) =>
+                    MissionMapService.getBattleSquaddieAtCoordinate(
+                        gameEngineState.battleOrchestratorState.battleState
+                            .missionMap,
+                        targetCoordinate
+                    ).battleSquaddieId
+            )
+            .filter((x) => x)
     }
 
     private checkForKeyboardHeldKeys(gameEngineState: GameEngineState) {
