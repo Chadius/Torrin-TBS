@@ -312,7 +312,13 @@ export class BattlePlayerSquaddieTarget implements BattleOrchestratorComponent {
         this.data.setContext(context)
         gameEngineState.messageBoard.sendMessage({
             type: MessageBoardMessageType.PLAYER_CANCELS_TARGET_SELECTION,
-            gameEngineState,
+            battleActionDecisionStep:
+                gameEngineState.battleOrchestratorState.battleState
+                    .battleActionDecisionStep,
+            missionMap:
+                gameEngineState.battleOrchestratorState.battleState.missionMap,
+            objectRepository: gameEngineState.repository,
+            campaignResources: gameEngineState.campaign.resources,
         })
 
         this.getButtons().forEach((button) => {

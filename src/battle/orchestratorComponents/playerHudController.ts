@@ -114,7 +114,7 @@ export class PlayerHudController implements BattleOrchestratorComponent {
             }
 
             return {
-                nextMode: BattleOrchestratorMode.PLAYER_SQUADDIE_TARGET,
+                nextMode: BattleOrchestratorMode.PLAYER_ACTION_TARGET_SELECT,
             }
         }
 

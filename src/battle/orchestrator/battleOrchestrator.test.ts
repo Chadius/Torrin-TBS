@@ -73,6 +73,7 @@ import { SquaddieIdService } from "../../squaddie/id"
 import { SquaddieResourceService } from "../../squaddie/resource"
 import { BattleSquaddieService } from "../battleSquaddie"
 import { GraphicsBuffer } from "../../utils/graphics/graphicsRenderer"
+import { PlayerActionTargetSelect } from "./playerActionTargetSelect/playerActionTargetSelect"
 
 describe("Battle Orchestrator", () => {
     type OrchestratorTestOptions = {
@@ -97,6 +98,7 @@ describe("Battle Orchestrator", () => {
     let mockBattleCutscenePlayer: BattleCutscenePlayer
     let mockPlayerSquaddieSelector: BattlePlayerSquaddieSelector
     let mockPlayerSquaddieTarget: BattlePlayerSquaddieTarget
+    let mockPlayerActionTargetSelect: PlayerActionTargetSelect
     let mockPlayerConfirm: BattlePlayerActionConfirm
     let mockComputerSquaddieSelector: BattleComputerSquaddieSelector
     let mockSquaddieUsesActionOnMap: BattleSquaddieUsesActionOnMap
@@ -155,6 +157,9 @@ describe("Battle Orchestrator", () => {
         mockPlayerSquaddieTarget.recommendStateChanges = vi
             .fn()
             .mockReturnValue({ displayMap: true })
+
+        mockPlayerActionTargetSelect = new PlayerActionTargetSelect()
+        mockPlayerActionTargetSelect.update = vi.fn()
 
         mockPlayerConfirm = new BattlePlayerActionConfirm()
         mockPlayerConfirm.update = vi.fn()
@@ -310,6 +315,7 @@ describe("Battle Orchestrator", () => {
                 phaseController: mockPhaseController,
                 playerHudController: mockPlayerHudController,
                 playerActionConfirm: mockPlayerConfirm,
+                playerActionTargetSelect: mockPlayerActionTargetSelect,
             },
             ...overrides,
         })
@@ -699,6 +705,8 @@ describe("Battle Orchestrator", () => {
                             mockPhaseController,
                         [BattleOrchestratorMode.PLAYER_SQUADDIE_SELECTOR]:
                             mockPlayerSquaddieSelector,
+                        [BattleOrchestratorMode.PLAYER_ACTION_TARGET_SELECT]:
+                            mockPlayerActionTargetSelect,
                         [BattleOrchestratorMode.PLAYER_SQUADDIE_TARGET]:
                             mockPlayerSquaddieTarget,
                         [BattleOrchestratorMode.PLAYER_ACTION_CONFIRM]:

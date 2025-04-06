@@ -79,30 +79,25 @@ export const BattleHUDService = {
         }
     },
     cancelTargetSelection: (
-        _battleHUD: BattleHUD,
         message: MessageBoardMessagePlayerCancelsTargetSelection
     ) => {
-        const gameEngineState = message.gameEngineState
         const battleSquaddieToHighlightId: string =
             BattleActionDecisionStepService.getActor(
-                gameEngineState.battleOrchestratorState.battleState
-                    .battleActionDecisionStep
+                message.battleActionDecisionStep
             ).battleSquaddieId
 
-        OrchestratorUtilities.highlightSquaddieRange(
-            gameEngineState,
-            battleSquaddieToHighlightId
-        )
+        OrchestratorUtilities.highlightSquaddieRange({
+            battleSquaddieToHighlightId: battleSquaddieToHighlightId,
+            missionMap: message.missionMap,
+            objectRepository: message.objectRepository,
+            campaignResources: message.campaignResources,
+        })
 
         BattleActionDecisionStepService.removeAction({
-            actionDecisionStep:
-                gameEngineState.battleOrchestratorState.battleState
-                    .battleActionDecisionStep,
+            actionDecisionStep: message.battleActionDecisionStep,
         })
         BattleActionDecisionStepService.removeTarget({
-            actionDecisionStep:
-                gameEngineState.battleOrchestratorState.battleState
-                    .battleActionDecisionStep,
+            actionDecisionStep: message.battleActionDecisionStep,
         })
     },
     cancelTargetConfirmation: (
@@ -219,10 +214,13 @@ export const BattleHUDService = {
             new MapDataBlob(
                 gameEngineState.battleOrchestratorState.battleState.missionMap.terrainTileMap
             )
-        OrchestratorUtilities.highlightSquaddieRange(
-            gameEngineState,
-            battleSquaddieId
-        )
+        OrchestratorUtilities.highlightSquaddieRange({
+            battleSquaddieToHighlightId: battleSquaddieId,
+            missionMap:
+                gameEngineState.battleOrchestratorState.battleState.missionMap,
+            objectRepository: gameEngineState.repository,
+            campaignResources: gameEngineState.campaign.resources,
+        })
 
         if (playerCanControlThisSquaddieRightNow) {
             showHUDForControllableSquaddie(gameEngineState, battleSquaddie)

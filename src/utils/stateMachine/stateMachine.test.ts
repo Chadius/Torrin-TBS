@@ -1,4 +1,12 @@
-import { beforeEach, describe, expect, it } from "vitest"
+import {
+    afterEach,
+    beforeEach,
+    describe,
+    expect,
+    it,
+    MockInstance,
+    vi,
+} from "vitest"
 import {
     TrashRobotWorld,
     TrashRobotWorldService,
@@ -14,6 +22,7 @@ import {
 } from "./stateMachineData/stateMachineData"
 import { StateMachineStateData } from "./stateMachineData/stateMachineStateData"
 import { StateMachineTransitionData } from "./stateMachineData/stateMachineTransitionData"
+import { STATE_MACHINE_DEFAULT_UPDATE_UNTIL_TIMEOUT_MS } from "./stateMachine"
 
 const infoByState: {
     [s in TrashRobotLookForTrashStateEnum]?: StateMachineStateData<
@@ -109,6 +118,63 @@ describe("StateMachine", () => {
                     TrashRobotLookForTrashActionEnum.TRIGGER_INITIALIZED,
                     TrashRobotLookForTrashActionEnum.SEARCH_FOR_TRASH_ENTRY,
                 ])
+            })
+        })
+
+        it("can run functions associated with actions", () => {
+            const spy = vi.fn().mockReturnValue(1)
+            trashRobotStateMachine.stateMachineData.logicByAction[
+                TrashRobotLookForTrashActionEnum.HEAD_FOR_TRASH
+            ] = spy
+            trashRobotStateMachine.getActionLogic(
+                TrashRobotLookForTrashActionEnum.HEAD_FOR_TRASH
+            )(trashRobotWorld)
+            expect(spy).toBeCalled()
+            spy.mockRestore()
+        })
+
+        describe("can autorun", () => {
+            let dateSpy: MockInstance
+
+            beforeEach(() => {
+                dateSpy = vi.spyOn(Date, "now").mockReturnValue(0)
+            })
+
+            afterEach(() => {
+                dateSpy.mockRestore()
+            })
+
+            it("will run until the predicate is true", () => {
+                trashRobotStateMachine.updateUntil({
+                    stopPredicate: (
+                        stateMachine: TrashRobotLookForTrashStateMachine
+                    ) =>
+                        stateMachine.currentState ==
+                        TrashRobotLookForTrashStateEnum.SEARCH_FOR_TRASH,
+                })
+
+                expect(trashRobotStateMachine.currentState).toEqual(
+                    TrashRobotLookForTrashStateEnum.SEARCH_FOR_TRASH
+                )
+            })
+
+            it("will stop processing if too much time has elapsed", () => {
+                dateSpy
+                    .mockReturnValueOnce(0)
+                    .mockReturnValue(
+                        STATE_MACHINE_DEFAULT_UPDATE_UNTIL_TIMEOUT_MS * 10
+                    )
+                trashRobotStateMachine.updateUntil({
+                    stopPredicate: (
+                        stateMachine: TrashRobotLookForTrashStateMachine
+                    ) =>
+                        stateMachine.currentState ==
+                        TrashRobotLookForTrashStateEnum.SEARCH_FOR_TRASH,
+                })
+                expect(dateSpy).toBeCalled()
+                expect(trashRobotStateMachine.currentState).toEqual(
+                    TrashRobotLookForTrashStateEnum.INITIALIZED
+                )
             })
         })
     })

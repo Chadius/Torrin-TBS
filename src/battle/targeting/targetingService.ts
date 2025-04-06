@@ -53,7 +53,7 @@ export class TargetingResults {
         return this._battleSquaddieIdsInRange
     }
 
-    addLocationsInRange(hexCoordinates: HexCoordinate[]) {
+    addCoordinatesInRange(hexCoordinates: HexCoordinate[]) {
         this._coordinatesInRange = [
             ...this._coordinatesInRange,
             ...hexCoordinates,
@@ -224,7 +224,7 @@ const findValidTargets = ({
         })
 
     const results = new TargetingResults()
-    results.addLocationsInRange(
+    results.addCoordinatesInRange(
         SearchResultAdapterService.getCoordinatesWithPaths(allLocationsInRange)
     )
 

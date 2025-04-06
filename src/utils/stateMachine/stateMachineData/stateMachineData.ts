@@ -1,6 +1,7 @@
 import { StateMachineTransitionData } from "./stateMachineTransitionData"
 import { StateMachineTransitionTriggerLogic } from "./stateMachineTransitionTriggerLogic"
 import { StateMachineStateData } from "./stateMachineStateData"
+import { StateMachineActionLogic } from "./stateMachineActionLogic"
 
 export interface StateMachineData<
     StateType extends string,
@@ -17,6 +18,9 @@ export interface StateMachineData<
     }
     infoByState: {
         [s in StateType]?: StateMachineStateData<TransitionType, ActionType>
+    }
+    logicByAction: {
+        [a in ActionType]?: StateMachineActionLogic<WorldType>
     }
     isTriggerByTransition: {
         [t in TransitionType]?: StateMachineTransitionTriggerLogic<WorldType>
@@ -53,10 +57,24 @@ export const StateMachineDataService = {
                 false
         })
 
+        const logicByAction: {
+            [a in ActionType]?: StateMachineActionLogic<WorldType>
+        } = {}
+        Object.values(infoByState).forEach(
+            (state: StateMachineStateData<TransitionType, ActionType>) => {
+                ;[state.entryAction, state.exitAction, ...state.actions]
+                    .filter((action) => action)
+                    .forEach((action) => {
+                        logicByAction[action] = (_) => {}
+                    })
+            }
+        )
+
         return {
             initialState,
             infoByTransition: infoByTransition ?? {},
             infoByState: infoByState ?? {},
+            logicByAction,
             isTriggerByTransition,
         }
     },
@@ -102,8 +120,6 @@ export const StateMachineDataService = {
             data.isTriggerByTransition,
             triggerFunctionsByTransitionType
         )
-        const guv = 2
-        return guv + 1
     },
     getTransitionsForState: <
         StateType extends string,
@@ -197,4 +213,37 @@ export const StateMachineDataService = {
     ): ActionType => {
         return data.infoByTransition[triggeredTransition]?.action
     },
+    setActionLogic: <
+        StateType extends string,
+        TransitionType extends string,
+        ActionType extends string,
+        WorldType,
+    >(
+        stateMachineData: StateMachineData<
+            StateType,
+            TransitionType,
+            ActionType,
+            WorldType
+        >,
+        actionLogic: {
+            [a in ActionType]?: StateMachineActionLogic<WorldType>
+        }
+    ) => {
+        Object.assign(stateMachineData.logicByAction, actionLogic)
+    },
+    getActionLogic: <
+        StateType extends string,
+        TransitionType extends string,
+        ActionType extends string,
+        WorldType,
+    >(
+        stateMachineData: StateMachineData<
+            StateType,
+            TransitionType,
+            ActionType,
+            WorldType
+        >,
+        action: ActionType
+    ): StateMachineActionLogic<WorldType> =>
+        stateMachineData.logicByAction[action],
 }

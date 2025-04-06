@@ -328,7 +328,14 @@ describe("BattleSquaddieTarget", () => {
             )
             expect(messageSpy).toHaveBeenCalledWith({
                 type: MessageBoardMessageType.PLAYER_CANCELS_TARGET_SELECTION,
-                gameEngineState,
+                battleActionDecisionStep:
+                    gameEngineState.battleOrchestratorState.battleState
+                        .battleActionDecisionStep,
+                missionMap:
+                    gameEngineState.battleOrchestratorState.battleState
+                        .missionMap,
+                objectRepository: gameEngineState.repository,
+                campaignResources: gameEngineState.campaign.resources,
             })
         })
         it("should cancel target if the user clicks the mouse cancel button", () => {
@@ -345,7 +352,14 @@ describe("BattleSquaddieTarget", () => {
             )
             expect(messageSpy).toHaveBeenCalledWith({
                 type: MessageBoardMessageType.PLAYER_CANCELS_TARGET_SELECTION,
-                gameEngineState,
+                battleActionDecisionStep:
+                    gameEngineState.battleOrchestratorState.battleState
+                        .battleActionDecisionStep,
+                missionMap:
+                    gameEngineState.battleOrchestratorState.battleState
+                        .missionMap,
+                objectRepository: gameEngineState.repository,
+                campaignResources: gameEngineState.campaign.resources,
             })
         })
     })

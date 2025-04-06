@@ -726,10 +726,15 @@ describe("Orchestration Utils", () => {
                 "addGraphicsLayer"
             )
 
-            OrchestratorUtilities.highlightSquaddieRange(
-                gameEngineState,
-                knightBattleSquaddie.battleSquaddieId
-            )
+            OrchestratorUtilities.highlightSquaddieRange({
+                battleSquaddieToHighlightId:
+                    knightBattleSquaddie.battleSquaddieId,
+                missionMap:
+                    gameEngineState.battleOrchestratorState.battleState
+                        .missionMap,
+                objectRepository: gameEngineState.repository,
+                campaignResources: gameEngineState.campaign.resources,
+            })
             const addedMapGraphicsLayer = addGraphicsLayerSpy.mock.calls[0][1]
             expect(addedMapGraphicsLayer.type).toEqual(
                 MapGraphicsLayerType.CLICKED_ON_CONTROLLABLE_SQUADDIE
@@ -768,10 +773,15 @@ describe("Orchestration Utils", () => {
                 "addGraphicsLayer"
             )
 
-            OrchestratorUtilities.highlightSquaddieRange(
-                gameEngineState,
-                enemyBattleSquaddie.battleSquaddieId
-            )
+            OrchestratorUtilities.highlightSquaddieRange({
+                battleSquaddieToHighlightId:
+                    enemyBattleSquaddie.battleSquaddieId,
+                missionMap:
+                    gameEngineState.battleOrchestratorState.battleState
+                        .missionMap,
+                objectRepository: gameEngineState.repository,
+                campaignResources: gameEngineState.campaign.resources,
+            })
 
             const addedMapGraphicsLayer: MapGraphicsLayer =
                 addGraphicsLayerSpy.mock.calls[0][1]

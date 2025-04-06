@@ -83,6 +83,7 @@ describe("PlayerHUDController", () => {
             squaddieUsesActionOnMap: undefined,
             squaddieUsesActionOnSquaddie: undefined,
             playerActionConfirm: undefined,
+            playerActionTargetSelect: undefined,
             playerHudController: controller,
         })
 
@@ -259,7 +260,7 @@ describe("PlayerHUDController", () => {
                 BattleOrchestratorMode.SQUADDIE_MOVER
             )
         })
-        it("recommends player squaddie target when a action that needs a target is set", () => {
+        it("recommends the mode that lets a player target when the player needs to specify a target", () => {
             BattleActionDecisionStepService.setActor({
                 actionDecisionStep:
                     gameEngineState.battleOrchestratorState.battleState
@@ -276,7 +277,7 @@ describe("PlayerHUDController", () => {
             const recommendedChanges =
                 controller.recommendStateChanges(gameEngineState)
             expect(recommendedChanges.nextMode).toEqual(
-                BattleOrchestratorMode.PLAYER_SQUADDIE_TARGET
+                BattleOrchestratorMode.PLAYER_ACTION_TARGET_SELECT
             )
         })
         it("recommends player squaddie confirm when a action does not need a target", () => {

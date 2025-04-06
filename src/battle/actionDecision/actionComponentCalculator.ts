@@ -48,7 +48,7 @@ export const ActionComponentCalculator = {
         }
 
         if (!targetIsConfirmed) {
-            return BattleOrchestratorMode.PLAYER_SQUADDIE_TARGET
+            return BattleOrchestratorMode.PLAYER_ACTION_TARGET_SELECT
         }
 
         return BattleOrchestratorMode.SQUADDIE_USES_ACTION_ON_SQUADDIE

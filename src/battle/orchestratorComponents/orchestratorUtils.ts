@@ -23,6 +23,7 @@ import {
 import { BattleActionRecorderService } from "../history/battleAction/battleActionRecorder"
 import { BattleActionDecisionStepService } from "../actionDecision/battleActionDecisionStep"
 import { ScreenLocation } from "../../utils/mouseConfig"
+import { CampaignResources } from "../../campaign/campaignResources"
 
 export const OrchestratorUtilities = {
     isSquaddieCurrentlyTakingATurn: (state: GameEngineState): boolean => {
@@ -31,12 +32,23 @@ export const OrchestratorUtilities = {
     canTheCurrentSquaddieAct: (gameEngineState: GameEngineState): boolean => {
         return canTheCurrentSquaddieAct(gameEngineState)
     },
-    highlightSquaddieRange: (
-        gameEngineState: GameEngineState,
-        battleSquaddieId: string
-    ) => {
-        return highlightSquaddieRange(gameEngineState, battleSquaddieId)
-    },
+    highlightSquaddieRange: ({
+        battleSquaddieToHighlightId,
+        missionMap,
+        objectRepository,
+        campaignResources,
+    }: {
+        battleSquaddieToHighlightId: string
+        missionMap: MissionMap
+        objectRepository: ObjectRepository
+        campaignResources: CampaignResources
+    }) =>
+        highlightSquaddieRange({
+            battleSquaddieToHighlightId: battleSquaddieToHighlightId,
+            missionMap: missionMap,
+            objectRepository: objectRepository,
+            campaignResources: campaignResources,
+        }),
     getSquaddieAtScreenLocation: ({
         screenLocation,
         squaddieRepository,
@@ -325,31 +337,37 @@ const getSquaddieAtMapCoordinate = (param: {
     }
 }
 
-const highlightSquaddieRange = (
-    gameEngineState: GameEngineState,
+const highlightSquaddieRange = ({
+    battleSquaddieToHighlightId,
+    missionMap,
+    objectRepository,
+    campaignResources,
+}: {
     battleSquaddieToHighlightId: string
-) => {
+    missionMap: MissionMap
+    objectRepository: ObjectRepository
+    campaignResources: CampaignResources
+}) => {
     const { mapCoordinate: startLocation } =
         MissionMapService.getByBattleSquaddieId(
-            gameEngineState.battleOrchestratorState.battleState.missionMap,
+            missionMap,
             battleSquaddieToHighlightId
         )
 
     const { battleSquaddie, squaddieTemplate } = getResultOrThrowError(
         ObjectRepositoryService.getSquaddieByBattleId(
-            gameEngineState.repository,
+            objectRepository,
             battleSquaddieToHighlightId
         )
     )
 
     const squaddieReachHighlightedOnMap =
         MapHighlightService.highlightAllCoordinatesWithinSquaddieRange({
-            repository: gameEngineState.repository,
-            missionMap:
-                gameEngineState.battleOrchestratorState.battleState.missionMap,
+            repository: objectRepository,
+            missionMap,
             battleSquaddieId: battleSquaddie.battleSquaddieId,
             startCoordinate: startLocation,
-            campaignResources: gameEngineState.campaign.resources,
+            campaignResources,
             squaddieTurnOverride:
                 squaddieTemplate.squaddieId.affiliation ===
                 SquaddieAffiliation.PLAYER
@@ -374,8 +392,7 @@ const highlightSquaddieRange = (
         type: layerType,
     })
     TerrainTileMapService.addGraphicsLayer(
-        gameEngineState.battleOrchestratorState.battleState.missionMap
-            .terrainTileMap,
+        missionMap.terrainTileMap,
         actionRangeOnMap
     )
 }

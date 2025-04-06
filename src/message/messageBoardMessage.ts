@@ -10,6 +10,10 @@ import { ResourceHandler } from "../resource/resourceHandler"
 import { LoadSaveState } from "../dataLoader/playerData/loadSaveState"
 import { BattleSaveState } from "../battle/history/battleSaveState"
 import { MovementDecision } from "../battle/playerSelectionService/playerSelectionContext"
+import { BattleActionDecisionStep } from "../battle/actionDecision/battleActionDecisionStep"
+import { MissionMap } from "../missionMap/missionMap"
+import { ObjectRepository } from "../battle/objectRepository"
+import { CampaignResources } from "../campaign/campaignResources"
 
 export type MessageBoardMessage =
     | MessageBoardMessageBase
@@ -111,7 +115,10 @@ export interface MessageBoardMessagePlayerSelectionIsInvalid {
 
 export interface MessageBoardMessagePlayerCancelsTargetSelection {
     type: MessageBoardMessageType.PLAYER_CANCELS_TARGET_SELECTION
-    gameEngineState: GameEngineState
+    battleActionDecisionStep: BattleActionDecisionStep
+    missionMap: MissionMap
+    objectRepository: ObjectRepository
+    campaignResources: CampaignResources
 }
 
 export interface MessageBoardMessagePlayerCancelsTargetConfirmation {

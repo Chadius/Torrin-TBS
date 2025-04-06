@@ -23,10 +23,7 @@ export class BattleHUDListener implements MessageBoardListener {
                 )
                 break
             case MessageBoardMessageType.PLAYER_CANCELS_TARGET_SELECTION:
-                BattleHUDService.cancelTargetSelection(
-                    message.gameEngineState.battleOrchestratorState.battleHUD,
-                    message
-                )
+                BattleHUDService.cancelTargetSelection(message)
                 break
             case MessageBoardMessageType.PLAYER_CANCELS_TARGET_CONFIRMATION:
                 BattleHUDService.cancelTargetConfirmation(

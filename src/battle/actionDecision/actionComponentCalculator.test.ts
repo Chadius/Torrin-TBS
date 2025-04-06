@@ -122,7 +122,7 @@ describe("ActionComponentCalculator", () => {
                 )
 
             expect(nextMode).toEqual(
-                BattleOrchestratorMode.PLAYER_SQUADDIE_TARGET
+                BattleOrchestratorMode.PLAYER_ACTION_TARGET_SELECT
             )
         })
         it("suggests player squaddie target when an actor and action are set but target is considered", () => {
@@ -145,7 +145,7 @@ describe("ActionComponentCalculator", () => {
                 )
 
             expect(nextMode).toEqual(
-                BattleOrchestratorMode.PLAYER_SQUADDIE_TARGET
+                BattleOrchestratorMode.PLAYER_ACTION_TARGET_SELECT
             )
         })
         it("suggests squaddie uses action on squaddie when actor, action and target are selected but animation is incomplete", () => {

@@ -283,4 +283,51 @@ describe("State Machine Data", () => {
             ).toEqual(false)
         })
     })
+
+    describe("hydrate the action logic after creation", () => {
+        let testFunctionWasRun: boolean
+        beforeEach(() => {
+            testFunctionWasRun = false
+            StateMachineDataService.setActionLogic(data, {
+                [TrashRobotLookForTrashActionEnum.SEARCH_FOR_TRASH]: (
+                    _: TrashRobotWorld
+                ) => {
+                    testFunctionWasRun = true
+                },
+            })
+        })
+
+        it("will set the provided action function", () => {
+            expect(
+                data.logicByAction[
+                    TrashRobotLookForTrashActionEnum.SEARCH_FOR_TRASH
+                ]
+            ).not.toBeUndefined()
+            expect(
+                StateMachineDataService.getActionLogic(
+                    data,
+                    TrashRobotLookForTrashActionEnum.SEARCH_FOR_TRASH
+                )
+            ).not.toBeUndefined()
+            StateMachineDataService.getActionLogic(
+                data,
+                TrashRobotLookForTrashActionEnum.SEARCH_FOR_TRASH
+            )(TrashRobotWorldService.new())
+            expect(testFunctionWasRun).toBe(true)
+        })
+
+        it("will always return a function even if it was not defined", () => {
+            expect(
+                data.logicByAction[
+                    TrashRobotLookForTrashActionEnum.HEAD_FOR_COMPACTOR
+                ]
+            ).not.toBeUndefined()
+            expect(
+                StateMachineDataService.getActionLogic(
+                    data,
+                    TrashRobotLookForTrashActionEnum.HEAD_FOR_COMPACTOR
+                )
+            ).not.toBeUndefined()
+        })
+    })
 })

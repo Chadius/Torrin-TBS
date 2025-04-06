@@ -3,6 +3,9 @@ import {
     StateMachineData,
     StateMachineDataService,
 } from "./stateMachineData/stateMachineData"
+import { StateMachineActionLogic } from "./stateMachineData/stateMachineActionLogic"
+
+export const STATE_MACHINE_DEFAULT_UPDATE_UNTIL_TIMEOUT_MS = 50
 
 export class StateMachine<
     StateType extends string,
@@ -36,9 +39,12 @@ export class StateMachine<
         worldData: WorldType
     }) {
         this.id = id
+        this.stateMachineData = stateMachineData
         this.initialState = stateMachineData.initialState
         this.worldData = worldData
         this.currentState = this.initialState
+        this.setTransitionTriggerFunctions()
+        this.setActionLogic()
     }
 
     update(): StateMachineUpdate<StateType, TransitionType, ActionType> {
@@ -131,5 +137,52 @@ export class StateMachine<
             this.stateMachineData,
             targetState
         )
+    }
+
+    setTransitionTriggerFunctions() {
+        // child classes will populate the state machine data
+    }
+
+    setActionLogic() {
+        // child classes will populate the state machine data
+    }
+
+    getActionLogic(actionType: ActionType): StateMachineActionLogic<WorldType> {
+        return StateMachineDataService.getActionLogic(
+            this.stateMachineData,
+            actionType
+        )
+    }
+
+    updateUntil({
+        stopPredicate,
+        maximumUpdateTime = STATE_MACHINE_DEFAULT_UPDATE_UNTIL_TIMEOUT_MS,
+    }: {
+        stopPredicate: (
+            stateMachine: StateMachine<
+                StateType,
+                TransitionType,
+                ActionType,
+                WorldType
+            >
+        ) => boolean
+        maximumUpdateTime?: number
+    }) {
+        let startTime = Date.now()
+        while (
+            !stopPredicate(this) &&
+            Date.now() - startTime < maximumUpdateTime
+        ) {
+            const update = this.update()
+            update.actions.forEach((actionType) => {
+                const actionLogic = this.getActionLogic(actionType)
+                if (actionLogic) {
+                    actionLogic(this.worldData)
+                }
+            })
+            if (update.transitionFired) {
+                this.currentState = update.targetedState
+            }
+        }
     }
 }

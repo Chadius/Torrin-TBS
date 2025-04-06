@@ -60,6 +60,7 @@ import {
 } from "../ui/playerInput/playerInputState"
 import { PlayerDataMessageListener } from "../dataLoader/playerData/playerDataMessageListener"
 import { BattleHUDListener } from "../battle/hud/battleHUD/battleHUDListener"
+import { PlayerActionTargetSelect } from "../battle/orchestrator/playerActionTargetSelect/playerActionTargetSelect"
 
 export interface GameEngineState {
     modeThatInitiatedLoading: GameModeEnum
@@ -191,6 +192,7 @@ export class GameEngine {
             squaddieMover: new BattleSquaddieMover(),
             mapDisplay: new BattleMapDisplay(),
             phaseController: new BattlePhaseController(),
+            playerActionTargetSelect: new PlayerActionTargetSelect(),
             playerSquaddieTarget: new BattlePlayerSquaddieTarget(),
             playerActionConfirm: new BattlePlayerActionConfirm(),
             squaddieUsesActionOnSquaddie:

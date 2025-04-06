@@ -237,7 +237,14 @@ describe("User cancels the previewed action", () => {
                 action()
                 expect(messageSpy).toBeCalledWith({
                     type: MessageBoardMessageType.PLAYER_CANCELS_TARGET_SELECTION,
-                    gameEngineState,
+                    battleActionDecisionStep:
+                        gameEngineState.battleOrchestratorState.battleState
+                            .battleActionDecisionStep,
+                    missionMap:
+                        gameEngineState.battleOrchestratorState.battleState
+                            .missionMap,
+                    objectRepository: gameEngineState.repository,
+                    campaignResources: gameEngineState.campaign.resources,
                 })
             }
         )
