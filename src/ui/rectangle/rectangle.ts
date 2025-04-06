@@ -12,6 +12,7 @@ type Options = {
     strokeWeight?: number
     noStroke?: boolean
     noFill?: boolean
+    cornerRadius?: number[]
 }
 
 export type RectangleArguments = RequiredOptions & Partial<Options>
@@ -23,6 +24,7 @@ export interface Rectangle {
     strokeWeight?: number
     noStroke?: boolean
     noFill?: boolean
+    cornerRadius?: number[]
 }
 
 export const RectangleService = {
@@ -33,6 +35,7 @@ export const RectangleService = {
         strokeWeight,
         noStroke,
         noFill,
+        cornerRadius,
     }:
         | {
               area: RectArea
@@ -41,6 +44,7 @@ export const RectangleService = {
               strokeWeight?: number
               noStroke?: boolean
               noFill?: boolean
+              cornerRadius?: number[]
           }
         | RectangleArguments): Rectangle => {
         return {
@@ -50,6 +54,7 @@ export const RectangleService = {
             strokeWeight: strokeWeight,
             noStroke: noStroke,
             noFill: noFill,
+            cornerRadius: cornerRadius,
         }
     },
     draw: (rectangle: Rectangle, graphics: GraphicsBuffer): void => {
@@ -82,7 +87,8 @@ export const RectangleService = {
             rectangle.area.left,
             rectangle.area.top,
             rectangle.area.width,
-            rectangle.area.height
+            rectangle.area.height,
+            ...(rectangle.cornerRadius ?? [])
         )
         graphics.pop()
     },

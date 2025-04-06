@@ -131,6 +131,7 @@ export interface TitleScreenLayout {
             top: number
             bottom: number
         }
+        cornerRadius: number[]
     }
     continueGameButton: {
         buttonArea: {
@@ -312,6 +313,7 @@ export class TitleScreen implements GameEngineComponent {
                     top: ScreenDimensions.SCREEN_HEIGHT * 0.63,
                     bottom: ScreenDimensions.SCREEN_HEIGHT * 0.85,
                 },
+                cornerRadius: [WINDOW_SPACING.SPACING4],
             },
             continueGameButton: {
                 buttonArea: {

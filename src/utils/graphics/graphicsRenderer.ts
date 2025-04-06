@@ -48,7 +48,16 @@ export interface GraphicsBuffer {
 
     push(): void
 
-    rect(left: number, top: number, width: number, height: number): void
+    rect(
+        left: number,
+        top: number,
+        width: number,
+        height: number,
+        topLeftRadius?: number,
+        topRightRadius?: number,
+        bottomRightRadius?: number,
+        bottomLeftRadius?: number
+    ): void
 
     circle(x: number, y: number, d: number): void
 

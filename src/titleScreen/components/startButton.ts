@@ -118,6 +118,7 @@ export class CreateStartGameButtonAction implements BehaviorTreeTask {
                             area: RectAreaService.new(
                                 layout.startGameButton.buttonArea
                             ),
+                            cornerRadius: layout.startGameButton.cornerRadius,
                             fontSize: buttonFontSize,
                             fontColor: layout.colors.playButtonText,
                             textBoxMargin: WINDOW_SPACING.SPACING1,
@@ -131,6 +132,7 @@ export class CreateStartGameButtonAction implements BehaviorTreeTask {
                             area: RectAreaService.new(
                                 layout.startGameButton.buttonArea
                             ),
+                            cornerRadius: layout.startGameButton.cornerRadius,
                             fontSize: buttonFontSize,
                             fontColor: layout.colors.playButtonText,
                             textBoxMargin: WINDOW_SPACING.SPACING1,
@@ -144,6 +146,7 @@ export class CreateStartGameButtonAction implements BehaviorTreeTask {
                             area: RectAreaService.new(
                                 layout.startGameButton.buttonArea
                             ),
+                            cornerRadius: layout.startGameButton.cornerRadius,
                             fontSize: buttonFontSize,
                             fontColor: layout.colors.playButtonText,
                             textBoxMargin: WINDOW_SPACING.SPACING1,

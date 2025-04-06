@@ -66,6 +66,9 @@ export class CutsceneCreateFastForwardButton implements BehaviorTreeTask {
                         [ButtonStatus.TOGGLE_OFF]: LabelService.new({
                             area: layout.fastForwardButton.fastForwardIsOff
                                 .drawingArea,
+                            cornerRadius:
+                                layout.fastForwardButton.fastForwardIsOff
+                                    .cornerRadius,
                             fillColor:
                                 layout.fastForwardButton.fastForwardIsOff
                                     .fillColor,
@@ -96,6 +99,9 @@ export class CutsceneCreateFastForwardButton implements BehaviorTreeTask {
                         [ButtonStatus.TOGGLE_OFF_HOVER]: LabelService.new({
                             area: layout.fastForwardButton.fastForwardIsOff
                                 .drawingArea,
+                            cornerRadius:
+                                layout.fastForwardButton.fastForwardIsOff
+                                    .cornerRadius,
                             fillColor:
                                 layout.fastForwardButton.fastForwardIsOff
                                     .fillColor,
@@ -126,6 +132,9 @@ export class CutsceneCreateFastForwardButton implements BehaviorTreeTask {
                         [ButtonStatus.TOGGLE_ON]: LabelService.new({
                             area: layout.fastForwardButton.fastForwardIsOn
                                 .drawingArea,
+                            cornerRadius:
+                                layout.fastForwardButton.fastForwardIsOn
+                                    .cornerRadius,
                             fillColor:
                                 layout.fastForwardButton.fastForwardIsOn
                                     .fillColor,
@@ -155,6 +164,9 @@ export class CutsceneCreateFastForwardButton implements BehaviorTreeTask {
                         [ButtonStatus.TOGGLE_ON_HOVER]: LabelService.new({
                             area: layout.fastForwardButton.fastForwardIsOn
                                 .drawingArea,
+                            cornerRadius:
+                                layout.fastForwardButton.fastForwardIsOn
+                                    .cornerRadius,
                             fillColor:
                                 layout.fastForwardButton.fastForwardIsOn
                                     .fillColor,

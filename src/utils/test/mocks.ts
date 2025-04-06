@@ -160,8 +160,26 @@ export class MockedP5GraphicsBuffer implements GraphicsBuffer {
         this.mockedP5.push()
     }
 
-    rect(left: number, top: number, width: number, height: number): void {
-        this.mockedP5.rect(left, top, width, height)
+    rect(
+        left: number,
+        top: number,
+        width: number,
+        height: number,
+        topLeftRadius?: number,
+        topRightRadius?: number,
+        bottomRightRadius?: number,
+        bottomLeftRadius?: number
+    ): void {
+        this.mockedP5.rect(
+            left,
+            top,
+            width,
+            height,
+            topLeftRadius,
+            topRightRadius,
+            bottomRightRadius,
+            bottomLeftRadius
+        )
     }
 
     circle(x: number, y: number, d: number): void {

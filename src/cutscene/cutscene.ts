@@ -59,6 +59,7 @@ export type CutsceneDirectionPlayerState =
 export interface CutsceneLayout {
     fastForwardButton: {
         fastForwardIsOff: {
+            cornerRadius: number[]
             drawingArea: RectArea
             text: string
             fontSize: number
@@ -76,6 +77,7 @@ export interface CutsceneLayout {
             }
         }
         fastForwardIsOn: {
+            cornerRadius: number[]
             drawingArea: RectArea
             text: string
             fontSize: number
@@ -817,8 +819,14 @@ const createLayout = (cutscene: Cutscene) => {
                 fontSize: WINDOW_SPACING.SPACING4,
                 fillColor: [200, 10, 50],
                 strokeColor: [0, 0, 0],
-                strokeWeight: 2,
+                strokeWeight: 1,
                 drawingArea: buttonArea,
+                cornerRadius: [
+                    0,
+                    WINDOW_SPACING.SPACING4,
+                    WINDOW_SPACING.SPACING4,
+                    0,
+                ],
                 textBoxMargin: WINDOW_SPACING.SPACING1,
                 horizAlign: HORIZONTAL_ALIGN.CENTER,
                 vertAlign: VERTICAL_ALIGN.CENTER,
@@ -830,12 +838,18 @@ const createLayout = (cutscene: Cutscene) => {
             },
             fastForwardIsOn: {
                 drawingArea: buttonArea,
+                cornerRadius: [
+                    0,
+                    WINDOW_SPACING.SPACING4,
+                    WINDOW_SPACING.SPACING4,
+                    0,
+                ],
                 text: "FF is ON",
                 fontColor: [0, 0, 0],
                 fontSize: WINDOW_SPACING.SPACING4,
                 fillColor: [200, 5, 30],
                 strokeColor: [0, 0, 0],
-                strokeWeight: 2,
+                strokeWeight: 8,
                 textBoxMargin: WINDOW_SPACING.SPACING1,
                 horizAlign: HORIZONTAL_ALIGN.CENTER,
                 vertAlign: VERTICAL_ALIGN.CENTER,
