@@ -1,21 +1,24 @@
-import { ObjectRepository, ObjectRepositoryService } from "../objectRepository"
-import { ActionCheckResult } from "./validityChecker"
-import { getResultOrThrowError } from "../../utils/ResultOrError"
-import { TargetingResults } from "../targeting/targetingService"
-import { ActionPerformFailureReason } from "../../squaddie/turn"
 import {
     ActionTemplate,
     ActionTemplateService,
 } from "../../action/template/actionTemplate"
+import { ObjectRepository, ObjectRepositoryService } from "../objectRepository"
+import { TargetingResults } from "../targeting/targetingService"
+import { ActionCheckResult } from "./validityChecker"
+import { getResultOrThrowError } from "../../utils/ResultOrError"
+import { ActionPerformFailureReason } from "../../squaddie/turn"
 import { BattleSquaddie } from "../battleSquaddie"
 import { SquaddieTemplate } from "../../campaign/squaddieTemplate"
 import { CalculatedEffect } from "../calculator/actionCalculator/calculator"
 import { CalculatorMiscellaneous } from "../calculator/actionCalculator/miscellaneous"
 import { BattleActionActorContextService } from "../history/battleAction/battleActionActorContext"
 import { DegreeOfSuccess } from "../calculator/actionCalculator/degreeOfSuccess"
+import { AttributeModifier } from "../../squaddie/attribute/attributeModifier"
+import { InBattleAttributesService } from "../stats/inBattleAttributes"
+import { AttributeTypeAndAmount } from "../../squaddie/attribute/attributeType"
 
-export const CanHealTargetCheck = {
-    targetInRangeCanBeAffected: ({
+export const CanAddModifiersCheck = {
+    canAddAttributeModifiers: ({
         actionTemplate,
         objectRepository,
         validTargetResults,
@@ -24,9 +27,11 @@ export const CanHealTargetCheck = {
         objectRepository: ObjectRepository
         validTargetResults: TargetingResults
     }): ActionCheckResult => {
-        const actionHeals =
-            ActionTemplateService.getTotalHealing(actionTemplate) > 0
-        if (!actionHeals) {
+        const actionWillTryToAddModifiers =
+            ActionTemplateService.getAttributeModifiers(actionTemplate).length >
+            0
+
+        if (!actionWillTryToAddModifiers) {
             return {
                 isValid: true,
             }
@@ -44,12 +49,11 @@ export const CanHealTargetCheck = {
                         )
 
                     if (
-                        actionHeals &&
-                        estimatedHealingOnTarget({
+                        willAddModifiersToTarget({
+                            actionTemplate,
                             battleSquaddie,
                             squaddieTemplate,
-                            actionTemplate,
-                        }) > 0
+                        })
                     ) {
                         return true
                     }
@@ -63,13 +67,13 @@ export const CanHealTargetCheck = {
 
         return {
             isValid: false,
-            reason: ActionPerformFailureReason.HEAL_HAS_NO_EFFECT,
-            message: "No one needs healing",
+            reason: ActionPerformFailureReason.NO_ATTRIBUTES_WILL_BE_ADDED,
+            message: "No modifiers will be added",
         }
     },
 }
 
-const estimatedHealingOnTarget = ({
+const willAddModifiersToTarget = ({
     actionTemplate,
     battleSquaddie,
     squaddieTemplate,
@@ -77,7 +81,7 @@ const estimatedHealingOnTarget = ({
     actionTemplate: ActionTemplate
     battleSquaddie: BattleSquaddie
     squaddieTemplate: SquaddieTemplate
-}): number => {
+}): boolean => {
     const actionEffectSquaddieTemplates =
         ActionTemplateService.getActionEffectTemplates(actionTemplate)
 
@@ -97,7 +101,32 @@ const estimatedHealingOnTarget = ({
             )
         })
 
-    return calculatedEffects.reduce((sum, calculatedEffect) => {
-        return sum + calculatedEffect.healingReceived
-    }, 0)
+    const attributeModifiersToAddToTarget: AttributeModifier[] =
+        calculatedEffects
+            .map(
+                (calculatedEffect) =>
+                    calculatedEffect.attributeModifiersToAddToTarget
+            )
+            .flat()
+
+    const before = InBattleAttributesService.clone(
+        battleSquaddie.inBattleAttributes
+    )
+
+    const after = InBattleAttributesService.clone(
+        battleSquaddie.inBattleAttributes
+    )
+    attributeModifiersToAddToTarget.forEach((modifier) =>
+        InBattleAttributesService.addActiveAttributeModifier(after, modifier)
+    )
+
+    const attributeModifierDifferences: AttributeTypeAndAmount[] =
+        InBattleAttributesService.calculateAttributeModifiersGainedAfterChanges(
+            before,
+            after
+        )
+
+    return attributeModifierDifferences.some(
+        (difference) => difference.amount > 0
+    )
 }

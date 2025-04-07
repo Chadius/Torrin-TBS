@@ -14,13 +14,18 @@ import { MapSearchTestUtils } from "../../hexMap/pathfinder/pathGeneration/mapSe
 import { getResultOrThrowError } from "../../utils/ResultOrError"
 import { ActionPerformFailureReason } from "../../squaddie/turn"
 import { CoordinateGeneratorShape } from "../targeting/coordinateGenerator"
-import { DamageType, HealingType } from "../../squaddie/squaddieService"
+import { DamageType } from "../../squaddie/squaddieService"
 import { InBattleAttributesService } from "../stats/inBattleAttributes"
-import { CanHealTargetCheck } from "./canHealTargetCheck"
 import { ActionValidityTestUtils } from "./commonTest"
 import { TargetingResults } from "../targeting/targetingService"
+import {
+    AttributeModifierService,
+    AttributeSource,
+} from "../../squaddie/attribute/attributeModifier"
+import { AttributeType } from "../../squaddie/attribute/attributeType"
+import { CanAddModifiersCheck } from "./canAddModifiersCheck"
 
-describe("can heal targets", () => {
+describe("can add modifiers check", () => {
     let objectRepository: ObjectRepository
     let missionMap: MissionMap
     let validTargetResults: TargetingResults
@@ -49,7 +54,7 @@ describe("can heal targets", () => {
         validTargetResults = new TargetingResults()
     })
 
-    it("is valid if the action does not heal", () => {
+    it("is valid if the action does not apply modifiers", () => {
         let attackAction = ActionTemplateService.new({
             id: "attackAction",
             name: "attackAction",
@@ -92,7 +97,7 @@ describe("can heal targets", () => {
         })
 
         expect(
-            CanHealTargetCheck.targetInRangeCanBeAffected({
+            CanAddModifiersCheck.canAddAttributeModifiers({
                 actionTemplate: attackAction,
                 objectRepository,
                 validTargetResults,
@@ -102,12 +107,12 @@ describe("can heal targets", () => {
         })
     })
 
-    describe("Restore Lost Hit Points", () => {
-        let healingAction: ActionTemplate
+    describe("Add a modifier", () => {
+        let addArmorAction: ActionTemplate
         beforeEach(() => {
-            healingAction = ActionTemplateService.new({
-                id: "healingAction",
-                name: "healingAction",
+            addArmorAction = ActionTemplateService.new({
+                id: "raiseBarrier",
+                name: "raiseBarrier",
                 targetConstraints: {
                     maximumRange: 1,
                     minimumRange: 0,
@@ -123,50 +128,57 @@ describe("can heal targets", () => {
                             [TargetBySquaddieAffiliationRelation.TARGET_FOE]:
                                 false,
                         },
-                        healingDescriptions: {
-                            [HealingType.LOST_HIT_POINTS]: 2,
-                        },
+                        attributeModifiers: [
+                            AttributeModifierService.new({
+                                type: AttributeType.ARMOR,
+                                amount: 1,
+                                source: AttributeSource.CIRCUMSTANCE,
+                            }),
+                        ],
                     }),
                 ],
             })
             ActionValidityTestUtils.addActionTemplateToSquaddie({
                 objectRepository,
-                actionTemplate: healingAction,
+                actionTemplate: addArmorAction,
                 actorSquaddieName: "actor",
             })
         })
 
-        it("is not valid if no targets have taken damage", () => {
-            validTargetResults.addBattleSquaddieIdsInRange(["actor"])
-            expect(
-                CanHealTargetCheck.targetInRangeCanBeAffected({
-                    actionTemplate: healingAction,
-                    objectRepository,
-                    validTargetResults,
-                })
-            ).toEqual({
-                isValid: false,
-                reason: ActionPerformFailureReason.HEAL_HAS_NO_EFFECT,
-                message: "No one needs healing",
-            })
-        })
-        it("is valid if at least 1 target has taken damage", () => {
-            validTargetResults.addBattleSquaddieIdsInRange(["actor"])
+        it("is not valid if no targets can benefit from the attributes", () => {
             const { battleSquaddie } = getResultOrThrowError(
                 ObjectRepositoryService.getSquaddieByBattleId(
                     objectRepository,
                     "actor"
                 )
             )
-            InBattleAttributesService.takeDamage({
-                inBattleAttributes: battleSquaddie.inBattleAttributes,
-                damageToTake: 1,
-                damageType: DamageType.BODY,
-            })
+            InBattleAttributesService.addActiveAttributeModifier(
+                battleSquaddie.inBattleAttributes,
+                AttributeModifierService.new({
+                    type: AttributeType.ARMOR,
+                    amount: 1,
+                    source: AttributeSource.CIRCUMSTANCE,
+                })
+            )
 
+            validTargetResults.addBattleSquaddieIdsInRange(["actor"])
             expect(
-                CanHealTargetCheck.targetInRangeCanBeAffected({
-                    actionTemplate: healingAction,
+                CanAddModifiersCheck.canAddAttributeModifiers({
+                    actionTemplate: addArmorAction,
+                    objectRepository,
+                    validTargetResults,
+                })
+            ).toEqual({
+                isValid: false,
+                reason: ActionPerformFailureReason.NO_ATTRIBUTES_WILL_BE_ADDED,
+                message: "No modifiers will be added",
+            })
+        })
+        it("is valid if at least 1 target could use the attribute", () => {
+            validTargetResults.addBattleSquaddieIdsInRange(["actor"])
+            expect(
+                CanAddModifiersCheck.canAddAttributeModifiers({
+                    actionTemplate: addArmorAction,
                     objectRepository,
                     validTargetResults,
                 })

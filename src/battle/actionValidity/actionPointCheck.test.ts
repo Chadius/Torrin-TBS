@@ -63,12 +63,16 @@ describe("Action Point Checker", () => {
             startingActionPoints,
             expectedMessage,
         }) => {
-            const { objectRepository, battleSquaddie, squaddieTemplate } =
-                setup({
-                    actionTemplateId: actionTemplateId,
-                    actionPointCost: actionPointCost,
-                    startingActionPoints: startingActionPoints,
-                })
+            const {
+                objectRepository,
+                battleSquaddie,
+                squaddieTemplate,
+                actionTemplate,
+            } = setup({
+                actionTemplateId: actionTemplateId,
+                actionPointCost: actionPointCost,
+                startingActionPoints: startingActionPoints,
+            })
             expect(
                 SquaddieService.getNumberOfActionPoints({
                     battleSquaddie,
@@ -81,7 +85,7 @@ describe("Action Point Checker", () => {
             expect(
                 ActionPointCheck.canAfford({
                     battleSquaddie,
-                    actionTemplateId,
+                    actionTemplate,
                     objectRepository,
                     playerConsideredActions: undefined,
                 })
@@ -129,12 +133,16 @@ describe("Action Point Checker", () => {
     it.each(testHasEnoughActionPoints)(
         `$actionTemplateId $startingActionPoints is possible`,
         ({ actionTemplateId, actionPointCost, startingActionPoints }) => {
-            const { objectRepository, battleSquaddie, squaddieTemplate } =
-                setup({
-                    actionTemplateId: actionTemplateId,
-                    actionPointCost: actionPointCost,
-                    startingActionPoints: startingActionPoints,
-                })
+            const {
+                objectRepository,
+                battleSquaddie,
+                squaddieTemplate,
+                actionTemplate,
+            } = setup({
+                actionTemplateId: actionTemplateId,
+                actionPointCost: actionPointCost,
+                startingActionPoints: startingActionPoints,
+            })
             expect(
                 SquaddieService.getNumberOfActionPoints({
                     battleSquaddie,
@@ -147,7 +155,7 @@ describe("Action Point Checker", () => {
             expect(
                 ActionPointCheck.canAfford({
                     battleSquaddie,
-                    actionTemplateId,
+                    actionTemplate,
                     objectRepository,
                     playerConsideredActions: undefined,
                 })
@@ -164,7 +172,7 @@ describe("Action Point Checker", () => {
         })
 
         it("You can afford the action if you have more than the action point cost + considered action points", () => {
-            const { objectRepository, battleSquaddie } = setup({
+            const { objectRepository, battleSquaddie, actionTemplate } = setup({
                 actionTemplateId: "action1PointCost",
                 actionPointCost: 1,
                 startingActionPoints: 3,
@@ -177,7 +185,7 @@ describe("Action Point Checker", () => {
             expect(
                 ActionPointCheck.canAfford({
                     battleSquaddie,
-                    actionTemplateId: "action1PointCost",
+                    actionTemplate,
                     objectRepository,
                     playerConsideredActions,
                 })
@@ -186,7 +194,7 @@ describe("Action Point Checker", () => {
             })
         })
         it("You can afford if too many action points are considered but there will be a warning", () => {
-            const { objectRepository, battleSquaddie } = setup({
+            const { objectRepository, battleSquaddie, actionTemplate } = setup({
                 actionTemplateId: "action1PointCost",
                 actionPointCost: 1,
                 startingActionPoints: 1,
@@ -199,7 +207,7 @@ describe("Action Point Checker", () => {
             expect(
                 ActionPointCheck.canAfford({
                     battleSquaddie,
-                    actionTemplateId: "action1PointCost",
+                    actionTemplate,
                     objectRepository,
                     playerConsideredActions,
                 })
@@ -212,7 +220,7 @@ describe("Action Point Checker", () => {
             )
         })
         it("The marked action points are ignored if it's marked because of this action", () => {
-            const { objectRepository, battleSquaddie } = setup({
+            const { objectRepository, battleSquaddie, actionTemplate } = setup({
                 actionTemplateId: "action1PointCost",
                 actionPointCost: 1,
                 startingActionPoints: 1,
@@ -221,7 +229,7 @@ describe("Action Point Checker", () => {
             expect(
                 ActionPointCheck.canAfford({
                     battleSquaddie,
-                    actionTemplateId: "action1PointCost",
+                    actionTemplate,
                     objectRepository,
                     playerConsideredActions,
                 })
@@ -265,5 +273,10 @@ const setup = ({
         squaddieTurn: battleSquaddie.squaddieTurn,
         actionPoints: 3 - startingActionPoints,
     })
-    return { objectRepository, battleSquaddie, squaddieTemplate }
+    return {
+        objectRepository,
+        battleSquaddie,
+        squaddieTemplate,
+        actionTemplate,
+    }
 }

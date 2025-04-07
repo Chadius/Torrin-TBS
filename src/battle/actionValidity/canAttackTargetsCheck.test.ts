@@ -16,10 +16,13 @@ import { CoordinateGeneratorShape } from "../targeting/coordinateGenerator"
 import { DamageType, HealingType } from "../../squaddie/squaddieService"
 import { CanAttackTargetsCheck } from "./canAttackTargetsCheck"
 import { ActionPerformFailureReason } from "../../squaddie/turn"
+import { TargetingResults } from "../targeting/targetingService"
 
 describe("canAttackTargetsCheck", () => {
     let objectRepository: ObjectRepository
     let missionMap: MissionMap
+    let validTargetResults: TargetingResults
+
     beforeEach(() => {
         missionMap = MapSearchTestUtils.create1row5columnsAllFlatTerrain()
         objectRepository = ActionValidityTestUtils.setup({
@@ -42,6 +45,7 @@ describe("canAttackTargetsCheck", () => {
                 },
             ],
         })
+        validTargetResults = new TargetingResults()
     })
 
     it("is valid if the action does not target foes", () => {
@@ -74,10 +78,9 @@ describe("canAttackTargetsCheck", () => {
 
         expect(
             CanAttackTargetsCheck.targetsAreInRangeOfThisAttack({
-                missionMap,
-                actorSquaddieId: "actor",
                 actionTemplateId: healingAction.id,
                 objectRepository,
+                validTargetResults,
             })
         ).toEqual({
             isValid: true,
@@ -118,26 +121,25 @@ describe("canAttackTargetsCheck", () => {
             })
         })
 
-        it("is valid if one target matches affiliation targeting", () => {
+        it("is valid if at least one target exists", () => {
+            validTargetResults.addBattleSquaddieIdsInRange(["1"])
             expect(
                 CanAttackTargetsCheck.targetsAreInRangeOfThisAttack({
-                    missionMap,
-                    actorSquaddieId: "actor",
                     actionTemplateId: dealsDamageAction.id,
                     objectRepository,
+                    validTargetResults,
                 })
             ).toEqual({
                 isValid: true,
             })
         })
 
-        it("is not valid if targets do not match affiliation targeting", () => {
+        it("is not valid if there are no valid targets", () => {
             expect(
                 CanAttackTargetsCheck.targetsAreInRangeOfThisAttack({
-                    missionMap,
-                    actorSquaddieId: "ally",
                     actionTemplateId: dealsDamageAction.id,
                     objectRepository,
+                    validTargetResults,
                 })
             ).toEqual({
                 isValid: false,

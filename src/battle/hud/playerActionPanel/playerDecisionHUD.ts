@@ -77,7 +77,7 @@ export const PlayerDecisionHUDService = {
             },
         }
     },
-    draw: (
+    drawPopupWindows: (
         playerDecisionHUD: PlayerDecisionHUD,
         graphicsContext: GraphicsBuffer
     ) => {

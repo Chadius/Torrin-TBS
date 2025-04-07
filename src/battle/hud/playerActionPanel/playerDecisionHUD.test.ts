@@ -202,7 +202,7 @@ describe("Player Decision HUD", () => {
                 differentSquaddiePopup,
                 PopupWindowType.PLAYER_INVALID_SELECTION
             )
-            PlayerDecisionHUDService.draw(
+            PlayerDecisionHUDService.drawPopupWindows(
                 playerDecisionHUD,
                 mockGraphicsContext
             )
@@ -214,7 +214,10 @@ describe("Player Decision HUD", () => {
             const drawSpy: MockInstance = vi.spyOn(PopupWindowService, "draw")
 
             const battleHUD = PlayerDecisionHUDService.new()
-            PlayerDecisionHUDService.draw(battleHUD, mockGraphicsContext)
+            PlayerDecisionHUDService.drawPopupWindows(
+                battleHUD,
+                mockGraphicsContext
+            )
 
             expect(drawSpy).not.toBeCalled()
             drawSpy.mockRestore()

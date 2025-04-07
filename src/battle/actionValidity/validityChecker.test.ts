@@ -1,27 +1,55 @@
 import { ActionPerformFailureReason } from "../../squaddie/turn"
-import { ObjectRepositoryService } from "../objectRepository"
-import { ActionTemplateService } from "../../action/template/actionTemplate"
+import { ObjectRepository, ObjectRepositoryService } from "../objectRepository"
+import {
+    ActionTemplate,
+    ActionTemplateService,
+} from "../../action/template/actionTemplate"
 import { SquaddieTemplateService } from "../../campaign/squaddieTemplate"
 import { SquaddieIdService } from "../../squaddie/id"
 import { SquaddieAffiliation } from "../../squaddie/squaddieAffiliation"
 import { BattleSquaddieService } from "../battleSquaddie"
 import { ValidityCheckService } from "./validityChecker"
 import { ActionPointCheck } from "./actionPointCheck"
-import { BuffSelfCheck } from "./buffSelfCheck"
 import { PerRoundCheck } from "./perRoundCheck"
 import { GameEngineStateService } from "../../gameEngine/gameEngine"
-import { describe, expect, it, MockInstance, vi } from "vitest"
+import {
+    afterEach,
+    beforeEach,
+    describe,
+    expect,
+    it,
+    MockInstance,
+    vi,
+} from "vitest"
 import { CanHealTargetCheck } from "./canHealTargetCheck"
+import {
+    TargetingResults,
+    TargetingResultsService,
+} from "../targeting/targetingService"
+import {
+    ActionEffectTemplateService,
+    TargetBySquaddieAffiliationRelation,
+} from "../../action/template/actionEffectTemplate"
+import {
+    AttributeModifierService,
+    AttributeSource,
+} from "../../squaddie/attribute/attributeModifier"
+import { AttributeType } from "../../squaddie/attribute/attributeType"
+import { CanAddModifiersCheck } from "./canAddModifiersCheck"
 
 describe("validity checker", () => {
-    const setupSingleSquaddie = () => {
-        const objectRepository = ObjectRepositoryService.new()
-        ObjectRepositoryService.addActionTemplate(
-            objectRepository,
-            ActionTemplateService.new({
+    const setupSingleSquaddie = (actionTemplate?: ActionTemplate) => {
+        if (!actionTemplate) {
+            actionTemplate = ActionTemplateService.new({
                 id: "actionTemplate",
                 name: "actionTemplate",
             })
+        }
+
+        const objectRepository = ObjectRepositoryService.new()
+        ObjectRepositoryService.addActionTemplate(
+            objectRepository,
+            actionTemplate
         )
         ObjectRepositoryService.addSquaddie({
             repo: objectRepository,
@@ -31,7 +59,7 @@ describe("validity checker", () => {
                     name: "squaddieTemplate",
                     affiliation: SquaddieAffiliation.PLAYER,
                 }),
-                actionTemplateIds: ["actionTemplate"],
+                actionTemplateIds: [actionTemplate.id],
             }),
             battleSquaddie: BattleSquaddieService.new({
                 squaddieTemplateId: "squaddieTemplate",
@@ -41,7 +69,7 @@ describe("validity checker", () => {
         return {
             objectRepository,
             battleSquaddieId: "battleSquaddieId",
-            actionTemplateId: "actionTemplate",
+            actionTemplateId: actionTemplate.id,
         }
     }
 
@@ -101,7 +129,7 @@ describe("validity checker", () => {
         }
     )
 
-    it("can combine multiple messages from different validity checkers", () => {
+    it("will first check to see if the actor can afford it", () => {
         const { actionTemplateId, battleSquaddieId, objectRepository } =
             setupSingleSquaddie()
 
@@ -112,10 +140,13 @@ describe("validity checker", () => {
             message: "Need 1 action point",
         })
 
-        const willBuffUserSpy = vi.spyOn(BuffSelfCheck, "willBuffUser")
+        const willBuffUserSpy = vi.spyOn(
+            CanAddModifiersCheck,
+            "canAddAttributeModifiers"
+        )
         willBuffUserSpy.mockReturnValue({
             isValid: false,
-            reason: ActionPerformFailureReason.BUFF_HAS_NO_EFFECT,
+            reason: ActionPerformFailureReason.NO_ATTRIBUTES_WILL_BE_ADDED,
             message: "Will have no effect on squaddieName",
         })
 
@@ -138,12 +169,10 @@ describe("validity checker", () => {
         expect(actionStatus[actionTemplateId]).toEqual({
             isValid: false,
             warning: false,
-            messages: [
-                "Need 1 action point",
-                "No targets to heal",
-                "Will have no effect on squaddieName",
-            ],
+            messages: ["Need 1 action point"],
         })
+        expect(actionPointCheckSpy).toBeCalled()
+        expect(willBuffUserSpy).not.toBeCalled()
 
         actionPointCheckSpy.mockRestore()
         willBuffUserSpy.mockRestore()
@@ -151,7 +180,34 @@ describe("validity checker", () => {
 
     it("will make the check have a warning if a validity checker returns a warning", () => {
         const { actionTemplateId, battleSquaddieId, objectRepository } =
-            setupSingleSquaddie()
+            setupSingleSquaddie(
+                ActionTemplateService.new({
+                    id: "single target",
+                    name: "single target",
+                    actionEffectTemplates: [
+                        ActionEffectTemplateService.new({
+                            healingDescriptions: { LOST_HIT_POINTS: 2 },
+                            attributeModifiers: [
+                                AttributeModifierService.new({
+                                    type: AttributeType.ARMOR,
+                                    source: AttributeSource.CIRCUMSTANCE,
+                                    amount: 1,
+                                }),
+                            ],
+                            squaddieAffiliationRelation: {
+                                [TargetBySquaddieAffiliationRelation.TARGET_SELF]:
+                                    true,
+                            },
+                        }),
+                    ],
+                })
+            )
+
+        const targetingResults = new TargetingResults()
+        targetingResults.addBattleSquaddieIdsInRange(["1"])
+        const targetSpy = vi
+            .spyOn(TargetingResultsService, "findValidTargets")
+            .mockReturnValue(targetingResults)
 
         const actionPointCheckSpy = vi.spyOn(ActionPointCheck, "canAfford")
         actionPointCheckSpy.mockReturnValue({
@@ -160,7 +216,10 @@ describe("validity checker", () => {
             reason: ActionPerformFailureReason.CAN_PERFORM_BUT_TOO_MANY_CONSIDERED_ACTION_POINTS,
         })
 
-        const willBuffUserSpy = vi.spyOn(BuffSelfCheck, "willBuffUser")
+        const willBuffUserSpy = vi.spyOn(
+            CanAddModifiersCheck,
+            "canAddAttributeModifiers"
+        )
         willBuffUserSpy.mockReturnValue({
             isValid: true,
         })
@@ -185,8 +244,184 @@ describe("validity checker", () => {
             messages: [],
         })
 
+        expect(targetSpy).toHaveBeenCalled()
+        expect(canHealSpy).toHaveBeenCalled()
+        expect(actionPointCheckSpy).toHaveBeenCalled()
+        expect(willBuffUserSpy).toHaveBeenCalled()
+
+        targetSpy.mockRestore()
         canHealSpy.mockRestore()
         actionPointCheckSpy.mockRestore()
         willBuffUserSpy.mockRestore()
+    })
+
+    describe("action can heal and buff", () => {
+        let willBuffUserSpy: MockInstance
+        let canHealSpy: MockInstance
+        let targetSpy: MockInstance
+        let actionTemplateId: string
+        let battleSquaddieId: string
+        let objectRepository: ObjectRepository
+
+        beforeEach(() => {
+            ;({ actionTemplateId, battleSquaddieId, objectRepository } =
+                setupSingleSquaddie(
+                    ActionTemplateService.new({
+                        id: "single target",
+                        name: "single target",
+                        actionEffectTemplates: [
+                            ActionEffectTemplateService.new({
+                                healingDescriptions: { LOST_HIT_POINTS: 2 },
+                                attributeModifiers: [
+                                    AttributeModifierService.new({
+                                        type: AttributeType.ARMOR,
+                                        source: AttributeSource.CIRCUMSTANCE,
+                                        amount: 1,
+                                    }),
+                                ],
+                                squaddieAffiliationRelation: {
+                                    [TargetBySquaddieAffiliationRelation.TARGET_SELF]:
+                                        true,
+                                },
+                            }),
+                        ],
+                    })
+                ))
+
+            const targetingResults = new TargetingResults()
+            targetingResults.addBattleSquaddieIdsInRange(["1"])
+            targetSpy = vi
+                .spyOn(TargetingResultsService, "findValidTargets")
+                .mockReturnValue(targetingResults)
+            willBuffUserSpy = vi.spyOn(
+                CanAddModifiersCheck,
+                "canAddAttributeModifiers"
+            )
+            canHealSpy = vi.spyOn(
+                CanHealTargetCheck,
+                "targetInRangeCanBeAffected"
+            )
+        })
+
+        afterEach(() => {
+            targetSpy.mockRestore()
+            canHealSpy.mockRestore()
+            willBuffUserSpy.mockRestore()
+        })
+
+        it("if the targets do not need buffs or healing, the action is invalid and combines messages", () => {
+            willBuffUserSpy.mockReturnValue({
+                isValid: false,
+                reason: ActionPerformFailureReason.NO_ATTRIBUTES_WILL_BE_ADDED,
+                message: "Will have no effect on squaddieName",
+            })
+
+            canHealSpy.mockReturnValue({
+                isValid: false,
+                reason: ActionPerformFailureReason.HEAL_HAS_NO_EFFECT,
+                message: "No targets to heal",
+            })
+
+            const actionStatus = ValidityCheckService.calculateActionValidity({
+                objectRepository,
+                battleSquaddieId,
+                gameEngineState: GameEngineStateService.new({}),
+            })
+
+            expect(actionStatus[actionTemplateId]).toEqual({
+                isValid: false,
+                warning: false,
+                messages: [
+                    "No targets to heal",
+                    "Will have no effect on squaddieName",
+                ],
+            })
+
+            expect(targetSpy).toBeCalled()
+            expect(willBuffUserSpy).toBeCalled()
+            expect(canHealSpy).toBeCalled()
+        })
+
+        it("if the target needs healing and buffing, it is valid", () => {
+            willBuffUserSpy.mockReturnValue({
+                isValid: true,
+            })
+
+            canHealSpy.mockReturnValue({
+                isValid: true,
+            })
+
+            const actionStatus = ValidityCheckService.calculateActionValidity({
+                objectRepository,
+                battleSquaddieId,
+                gameEngineState: GameEngineStateService.new({}),
+            })
+
+            expect(actionStatus[actionTemplateId]).toEqual({
+                isValid: true,
+                warning: false,
+                messages: [],
+            })
+
+            expect(targetSpy).toBeCalled()
+            expect(willBuffUserSpy).toBeCalled()
+            expect(canHealSpy).toBeCalled()
+        })
+
+        it("if the target needs healing but no buffing, it is valid but message the buff will not apply", () => {
+            willBuffUserSpy.mockReturnValue({
+                isValid: false,
+                reason: ActionPerformFailureReason.NO_ATTRIBUTES_WILL_BE_ADDED,
+                message: "Will have no effect on squaddieName",
+            })
+
+            canHealSpy.mockReturnValue({
+                isValid: true,
+            })
+
+            const actionStatus = ValidityCheckService.calculateActionValidity({
+                objectRepository,
+                battleSquaddieId,
+                gameEngineState: GameEngineStateService.new({}),
+            })
+
+            expect(actionStatus[actionTemplateId]).toEqual({
+                isValid: true,
+                warning: false,
+                messages: ["Will have no effect on squaddieName"],
+            })
+
+            expect(targetSpy).toBeCalled()
+            expect(willBuffUserSpy).toBeCalled()
+            expect(canHealSpy).toBeCalled()
+        })
+
+        it("if the target needs buffs but no healing, it is valid but message the healing will not apply", () => {
+            willBuffUserSpy.mockReturnValue({
+                isValid: true,
+            })
+
+            canHealSpy.mockReturnValue({
+                isValid: false,
+                reason: ActionPerformFailureReason.HEAL_HAS_NO_EFFECT,
+                message: "No targets to heal",
+            })
+
+            const actionStatus = ValidityCheckService.calculateActionValidity({
+                objectRepository,
+                battleSquaddieId,
+                gameEngineState: GameEngineStateService.new({}),
+            })
+
+            expect(actionStatus[actionTemplateId]).toEqual({
+                isValid: true,
+                warning: false,
+                messages: ["No targets to heal"],
+            })
+
+            expect(targetSpy).toBeCalled()
+            expect(willBuffUserSpy).toBeCalled()
+            expect(canHealSpy).toBeCalled()
+        })
     })
 })

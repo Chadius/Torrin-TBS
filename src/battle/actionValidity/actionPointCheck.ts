@@ -3,33 +3,23 @@ import {
     ActionPerformFailureReason,
     SquaddieTurnService,
 } from "../../squaddie/turn"
-import { ObjectRepository, ObjectRepositoryService } from "../objectRepository"
+import { ObjectRepository } from "../objectRepository"
 import { ActionCheckResult } from "./validityChecker"
 import { PlayerConsideredActions } from "../battleState/playerConsideredActions"
+import { ActionTemplate } from "../../action/template/actionTemplate"
 
 export const ActionPointCheck = {
     canAfford: ({
         battleSquaddie,
-        actionTemplateId,
+        actionTemplate,
         objectRepository,
         playerConsideredActions,
     }: {
         battleSquaddie: BattleSquaddie
-        actionTemplateId: string
+        actionTemplate: ActionTemplate
         objectRepository: ObjectRepository
         playerConsideredActions: PlayerConsideredActions
     }): ActionCheckResult => {
-        const actionTemplate = ObjectRepositoryService.getActionTemplateById(
-            objectRepository,
-            actionTemplateId
-        )
-        if (!actionTemplate) {
-            return {
-                isValid: true,
-                message: `action template not found: ${actionTemplateId}`,
-            }
-        }
-
         const { canPerform, reason } = SquaddieTurnService.canPerformAction({
             actionTemplate,
             battleSquaddie,

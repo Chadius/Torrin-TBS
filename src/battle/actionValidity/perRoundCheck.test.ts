@@ -30,16 +30,15 @@ describe("Per Round Checker", () => {
             numberOfAllowedUses,
             expectedMessage,
         }) => {
-            const { objectRepository, recorder } = setup(
+            const { recorder, actionTemplate } = setup(
                 numberOfAllowedUses,
                 numberOfTimesAlreadyUsed
             )
 
             expect(
                 PerRoundCheck.withinLimitedUsesThisRound({
-                    actionTemplateId: "action",
+                    actionTemplate,
                     battleActionRecorder: recorder,
-                    objectRepository,
                 })
             ).toEqual({
                 isValid: false,
@@ -63,16 +62,15 @@ describe("Per Round Checker", () => {
     it.each(testAllowedTimesPerRound)(
         `$numberOfAllowedUses $numberOfTimesAlreadyUsed is possible`,
         ({ numberOfTimesAlreadyUsed, numberOfAllowedUses }) => {
-            const { objectRepository, recorder } = setup(
+            const { recorder, actionTemplate } = setup(
                 numberOfAllowedUses,
                 numberOfTimesAlreadyUsed
             )
 
             expect(
                 PerRoundCheck.withinLimitedUsesThisRound({
-                    actionTemplateId: "action",
+                    actionTemplate,
                     battleActionRecorder: recorder,
-                    objectRepository,
                 })
             ).toEqual({
                 isValid: true,
@@ -86,17 +84,15 @@ const setup = (
     numberOfTimesAlreadyUsed: number
 ) => {
     const objectRepository = ObjectRepositoryService.new()
-    ObjectRepositoryService.addActionTemplate(
-        objectRepository,
-        ActionTemplateService.new({
-            id: "action",
-            name: "action",
-            resourceCost: ActionResourceCostService.new({
-                actionPoints: 0,
-                numberOfTimesPerRound: numberOfAllowedUses,
-            }),
-        })
-    )
+    const actionTemplate = ActionTemplateService.new({
+        id: "action",
+        name: "action",
+        resourceCost: ActionResourceCostService.new({
+            actionPoints: 0,
+            numberOfTimesPerRound: numberOfAllowedUses,
+        }),
+    })
+    ObjectRepositoryService.addActionTemplate(objectRepository, actionTemplate)
 
     SquaddieRepositoryService.createNewSquaddieAndAddToRepository({
         affiliation: SquaddieAffiliation.PLAYER,
@@ -119,5 +115,5 @@ const setup = (
         )
         BattleActionRecorderService.battleActionFinishedAnimating(recorder)
     }
-    return { objectRepository, recorder }
+    return { objectRepository, recorder, actionTemplate }
 }

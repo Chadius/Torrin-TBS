@@ -46,6 +46,10 @@ import {
     MockInstance,
     vi,
 } from "vitest"
+import {
+    TargetingResults,
+    TargetingResultsService,
+} from "../../targeting/targetingService"
 
 describe("summaryHUD", () => {
     let graphicsBuffer: MockedP5GraphicsBuffer
@@ -53,6 +57,7 @@ describe("summaryHUD", () => {
     let summaryHUDState: SummaryHUDState
     let resourceHandler: ResourceHandler
     let consoleWarnSpy: MockInstance
+    let targetResultSpy: MockInstance
 
     beforeEach(() => {
         objectRepository = ObjectRepositoryService.new()
@@ -60,6 +65,12 @@ describe("summaryHUD", () => {
         graphicsBuffer.textWidth = vi.fn().mockReturnValue(1)
         resourceHandler = mockResourceHandler(graphicsBuffer)
         consoleWarnSpy = mockConsoleWarn()
+
+        const targetingResults = new TargetingResults()
+        targetingResults.addBattleSquaddieIdsInRange(["1"])
+        targetResultSpy = vi
+            .spyOn(TargetingResultsService, "findValidTargets")
+            .mockReturnValue(targetingResults)
 
         const actionTemplate0 = ActionTemplateService.new({
             id: "actionTemplate0",
@@ -140,6 +151,7 @@ describe("summaryHUD", () => {
 
     afterEach(() => {
         consoleWarnSpy.mockRestore()
+        targetResultSpy.mockRestore()
     })
 
     describe("will draw tiles for the acting squaddie", () => {

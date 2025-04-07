@@ -324,11 +324,6 @@ export class BattleOrchestrator implements GameEngineComponent {
             resourceHandler: gameEngineState.resourceHandler,
         })
 
-        PlayerDecisionHUDService.draw(
-            gameEngineState.battleOrchestratorState.playerDecisionHUD,
-            graphicsContext
-        )
-
         if (
             this.uiControlSettings.displayPlayerHUD === true &&
             gameEngineState.battleOrchestratorState.battleHUDState
@@ -358,6 +353,11 @@ export class BattleOrchestrator implements GameEngineComponent {
                 resourceHandler: gameEngineState.resourceHandler,
             })
         }
+
+        PlayerDecisionHUDService.drawPopupWindows(
+            gameEngineState.battleOrchestratorState.playerDecisionHUD,
+            graphicsContext
+        )
     }
 
     public updateComponent(
