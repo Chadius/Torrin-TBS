@@ -21,6 +21,7 @@ export interface InBattleAttributes {
     armyAttributes: ArmyAttributes
     currentHitPoints: number
     attributeModifiers: AttributeModifier[]
+    actionTemplateCooldownById: { [actionTemplateId: string]: number }
 }
 
 export const InBattleAttributesService = {
@@ -42,7 +43,6 @@ export const InBattleAttributesService = {
     takeDamage({
         inBattleAttributes,
         damageToTake,
-        damageType,
     }: {
         inBattleAttributes: InBattleAttributes
         damageToTake: number
@@ -168,6 +168,54 @@ export const InBattleAttributesService = {
             AttributeModifierService.reduceAmount({ attributeModifier, amount })
         })
     },
+    isActionInCooldown: ({
+        inBattleAttributes,
+        actionTemplateId,
+    }: {
+        inBattleAttributes: InBattleAttributes
+        actionTemplateId: string
+    }): boolean => {
+        return (
+            (inBattleAttributes.actionTemplateCooldownById[actionTemplateId] ??
+                0) > 0
+        )
+    },
+    getActionTurnsOfCooldown: ({
+        inBattleAttributes,
+        actionTemplateId,
+    }: {
+        inBattleAttributes: InBattleAttributes
+        actionTemplateId: string
+    }): number => {
+        return inBattleAttributes.actionTemplateCooldownById[actionTemplateId]
+    },
+    addActionCooldown: ({
+        inBattleAttributes,
+        actionTemplateId,
+        numberOfCooldownTurns,
+    }: {
+        inBattleAttributes: InBattleAttributes
+        actionTemplateId: string
+        numberOfCooldownTurns: number
+    }) => {
+        if ((numberOfCooldownTurns ?? 0) < 1) return
+        inBattleAttributes.actionTemplateCooldownById[actionTemplateId] =
+            numberOfCooldownTurns
+    },
+    reduceActionCooldownForAllActions: ({
+        inBattleAttributes,
+    }: {
+        inBattleAttributes: InBattleAttributes
+    }) => {
+        inBattleAttributes.actionTemplateCooldownById = Object.fromEntries(
+            Object.entries(inBattleAttributes.actionTemplateCooldownById)
+                .filter(([_, cooldownRounds]) => (cooldownRounds ?? 0) > 0)
+                .map(([actionTemplateId, cooldownRounds]) => [
+                    actionTemplateId,
+                    cooldownRounds - 1,
+                ])
+        )
+    },
 }
 
 const getAllActiveAttributeModifiers = (
@@ -182,10 +230,12 @@ const newAttributeModifier = ({
     armyAttributes,
     currentHitPoints,
     attributeModifiers,
+    actionTemplateCooldownById,
 }: {
     armyAttributes?: ArmyAttributes
     currentHitPoints?: number
     attributeModifiers?: AttributeModifier[]
+    actionTemplateCooldownById?: { [_: string]: number }
 }): InBattleAttributes => {
     return {
         armyAttributes: armyAttributes || DefaultArmyAttributes(),
@@ -194,6 +244,7 @@ const newAttributeModifier = ({
             armyAttributes?.maxHitPoints ??
             DefaultArmyAttributes().maxHitPoints,
         attributeModifiers: attributeModifiers || [],
+        actionTemplateCooldownById: actionTemplateCooldownById ?? {},
     }
 }
 

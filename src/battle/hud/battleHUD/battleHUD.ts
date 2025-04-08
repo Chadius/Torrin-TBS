@@ -64,6 +64,7 @@ import { BattleStateService } from "../../battleState/battleState"
 import { SquaddieSelectorPanelService } from "../playerActionPanel/squaddieSelectorPanel/squaddieSelectorPanel"
 import { PlayerConsideredActionsService } from "../../battleState/playerConsideredActions"
 import { DrawSquaddieIconOnMapUtilities } from "../../animation/drawSquaddieIconOnMap/drawSquaddieIconOnMap"
+import { InBattleAttributesService } from "../../stats/inBattleAttributes"
 
 export interface BattleHUD {
     fileAccessHUD: FileAccessHUD
@@ -494,6 +495,11 @@ export const BattleHUDService = {
         SquaddieTurnService.spendActionPointsAndReservedPoints({
             data: actingBattleSquaddie.squaddieTurn,
             actionTemplate,
+        })
+        InBattleAttributesService.addActionCooldown({
+            inBattleAttributes: actingBattleSquaddie.inBattleAttributes,
+            actionTemplateId: actionTemplate.id,
+            numberOfCooldownTurns: actionTemplate.resourceCost.cooldownTurns,
         })
 
         const targetCoordinate = BattleActionDecisionStepService.getTarget(

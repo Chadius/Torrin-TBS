@@ -14,7 +14,12 @@ import {
 import { BattleSquaddie } from "../battle/battleSquaddie"
 import { SquaddieRepositoryService } from "../utils/test/squaddie"
 import { SquaddieAffiliation } from "./squaddieAffiliation"
-import { ActionPerformFailureReason, SquaddieTurnService } from "./turn"
+import {
+    ActionPerformFailureReason,
+    DEFAULT_ACTION_POINTS_PER_TURN,
+    SquaddieTurnService,
+} from "./turn"
+import { InBattleAttributesService } from "../battle/stats/inBattleAttributes"
 
 describe("SquaddieTurn and resources", () => {
     let actionSpends2ActionPoints: ActionTemplate
@@ -142,6 +147,22 @@ describe("SquaddieTurn and resources", () => {
             })
             expect(query.canPerform).toBeTruthy()
         })
+        it("should report when an action cannot be performed because it is on cooldown", () => {
+            InBattleAttributesService.addActionCooldown({
+                inBattleAttributes: battleSquaddie.inBattleAttributes,
+                actionTemplateId: actionSpends2ActionPoints.id,
+                numberOfCooldownTurns: 3,
+            })
+
+            const query = SquaddieTurnService.canPerformAction({
+                actionTemplate: actionSpends2ActionPoints,
+                battleSquaddie,
+            })
+            expect(query.canPerform).toBeFalsy()
+            expect(query.reason).toBe(
+                ActionPerformFailureReason.STILL_ON_COOLDOWN
+            )
+        })
     })
 
     describe("spend action points on movement", () => {
@@ -177,6 +198,19 @@ describe("SquaddieTurn and resources", () => {
                 )
             ).toBeFalsy()
             expect(battleSquaddie.squaddieTurn.unallocatedActionPoints).toBe(0)
+        })
+    })
+
+    describe("begin new turn", () => {
+        it("will regain its action points", () => {
+            SquaddieTurnService.endTurn(battleSquaddie.squaddieTurn)
+            expect(battleSquaddie.squaddieTurn.unallocatedActionPoints).toEqual(
+                0
+            )
+            SquaddieTurnService.beginNewTurn(battleSquaddie.squaddieTurn)
+            expect(battleSquaddie.squaddieTurn.unallocatedActionPoints).toEqual(
+                DEFAULT_ACTION_POINTS_PER_TURN
+            )
         })
     })
 })

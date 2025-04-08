@@ -36,8 +36,11 @@ export const BattleSquaddieService = {
     canStillActThisRound: (data: BattleSquaddie): boolean => {
         return SquaddieTurnService.hasActionPointsRemaining(data.squaddieTurn)
     },
-    beginNewRound: (data: BattleSquaddie) => {
-        return SquaddieTurnService.beginNewRound(data.squaddieTurn)
+    beginNewTurn: (data: BattleSquaddie) => {
+        InBattleAttributesService.reduceActionCooldownForAllActions({
+            inBattleAttributes: data.inBattleAttributes,
+        })
+        SquaddieTurnService.beginNewTurn(data.squaddieTurn)
     },
     endTurn: (data: BattleSquaddie) => {
         return SquaddieTurnService.endTurn(data.squaddieTurn)

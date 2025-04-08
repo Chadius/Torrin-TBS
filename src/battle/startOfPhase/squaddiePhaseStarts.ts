@@ -2,15 +2,15 @@ import { GameEngineState } from "../../gameEngine/gameEngine"
 import { MessageBoardMessageSquaddiePhaseStarts } from "../../message/messageBoardMessage"
 import { ObjectRepositoryService } from "../objectRepository"
 import { getResultOrThrowError } from "../../utils/ResultOrError"
-import { SquaddieTurnService } from "../../squaddie/turn"
 import {
     BattlePhase,
     BattlePhaseService,
 } from "../orchestratorComponents/battlePhaseTracker"
 import { InBattleAttributesService } from "../stats/inBattleAttributes"
-import { BattleSquaddie } from "../battleSquaddie"
+import { BattleSquaddie, BattleSquaddieService } from "../battleSquaddie"
 import { DrawSquaddieIconOnMapUtilities } from "../animation/drawSquaddieIconOnMap/drawSquaddieIconOnMap"
 import { TerrainTileMapService } from "../../hexMap/terrainTileMap"
+import { SquaddieTurnService } from "../../squaddie/turn"
 
 export const SquaddiePhaseStartsService = {
     restoreTurnForAllSquaddies: ({
@@ -24,7 +24,7 @@ export const SquaddiePhaseStartsService = {
             gameEngineState,
             phase,
             (battleSquaddie: BattleSquaddie) => {
-                SquaddieTurnService.beginNewRound(battleSquaddie.squaddieTurn)
+                SquaddieTurnService.beginNewTurn(battleSquaddie.squaddieTurn)
             }
         )
     },
@@ -79,6 +79,21 @@ export const SquaddiePhaseStartsService = {
                     message.gameEngineState.repository,
                     battleSquaddie
                 )
+            }
+        )
+    },
+    reduceCooldownForAllSquaddies: ({
+        gameEngineState,
+        phase,
+    }: {
+        gameEngineState: GameEngineState
+        phase: BattlePhase
+    }) => {
+        doForEachSquaddieOfBattlePhase(
+            gameEngineState,
+            phase,
+            (battleSquaddie: BattleSquaddie) => {
+                BattleSquaddieService.beginNewTurn(battleSquaddie)
             }
         )
     },

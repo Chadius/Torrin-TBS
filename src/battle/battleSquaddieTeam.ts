@@ -137,24 +137,6 @@ export const BattleSquaddieTeamService = {
             return canAct
         })
     },
-    beginNewRound: (
-        team: BattleSquaddieTeam,
-        squaddieRepository: ObjectRepository
-    ) => {
-        team.battleSquaddieIds.forEach((battleSquaddieId) => {
-            const { battleSquaddie } = getResultOrThrowError(
-                ObjectRepositoryService.getSquaddieByBattleId(
-                    squaddieRepository,
-                    battleSquaddieId
-                )
-            )
-            BattleSquaddieService.beginNewRound(battleSquaddie)
-            DrawSquaddieIconOnMapUtilities.unTintSquaddieMapIcon(
-                squaddieRepository,
-                battleSquaddie
-            )
-        })
-    },
     sanitize: (data: BattleSquaddieTeam): BattleSquaddieTeam => {
         return sanitize(data)
     },

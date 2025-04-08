@@ -227,39 +227,6 @@ describe("Battle Squaddie Team", () => {
             )
         ).toBe("enemy_slither_demon_1")
     })
-    describe("begin new round", () => {
-        it("can restore action points to the team upon beginning a round", () => {
-            BattleSquaddieService.endTurn(playerBattleSquaddie0)
-            BattleSquaddieService.endTurn(playerBattleSquaddie1)
-            expect(
-                BattleSquaddieTeamService.hasAnActingSquaddie(
-                    twoPlayerTeam,
-                    squaddieRepository
-                )
-            ).toBeFalsy()
-
-            BattleSquaddieTeamService.beginNewRound(
-                twoPlayerTeam,
-                squaddieRepository
-            )
-            expect(
-                BattleSquaddieTeamService.hasAnActingSquaddie(
-                    twoPlayerTeam,
-                    squaddieRepository
-                )
-            ).toBeTruthy()
-            expect(
-                BattleSquaddieService.canStillActThisRound(
-                    playerBattleSquaddie0
-                )
-            ).toBeTruthy()
-            expect(
-                BattleSquaddieService.canStillActThisRound(
-                    playerBattleSquaddie1
-                )
-            ).toBeTruthy()
-        })
-    })
     describe("sanitization", () => {
         let invalidTeamBase: BattleSquaddieTeam
 

@@ -5,6 +5,7 @@ import {
 } from "../battle/battleState/playerConsideredActions"
 import { ObjectRepository } from "../battle/objectRepository"
 import { BattleSquaddie } from "../battle/battleSquaddie"
+import { InBattleAttributesService } from "../battle/stats/inBattleAttributes"
 
 export const DEFAULT_ACTION_POINTS_PER_TURN = 3
 
@@ -14,6 +15,7 @@ export enum ActionPerformFailureReason {
     CAN_PERFORM_BUT_TOO_MANY_CONSIDERED_ACTION_POINTS = "CAN_PERFORM_BUT_TOO_MANY_CONSIDERED_ACTION_POINTS",
     NO_ATTRIBUTES_WILL_BE_ADDED = "NO_ATTRIBUTES_WILL_BE_ADDED",
     TOO_MANY_USES_THIS_ROUND = "TOO_MANY_USES_THIS_ROUND",
+    STILL_ON_COOLDOWN = "STILL_ON_COOLDOWN",
     NO_TARGETS_IN_RANGE = "NO_TARGETS_IN_RANGE",
     HEAL_HAS_NO_EFFECT = "HEAL_HAS_NO_EFFECT",
 }
@@ -63,6 +65,18 @@ export const SquaddieTurnService = {
         canPerform: boolean
         reason: ActionPerformFailureReason
     } => {
+        if (
+            InBattleAttributesService.isActionInCooldown({
+                inBattleAttributes: battleSquaddie.inBattleAttributes,
+                actionTemplateId: actionTemplate.id,
+            })
+        ) {
+            return {
+                canPerform: false,
+                reason: ActionPerformFailureReason.STILL_ON_COOLDOWN,
+            }
+        }
+
         const actionPointsToSpend =
             battleSquaddie.squaddieTurn.unallocatedActionPoints
 
@@ -102,7 +116,7 @@ export const SquaddieTurnService = {
             reason: ActionPerformFailureReason.UNKNOWN,
         }
     },
-    beginNewRound: (data: SquaddieTurn) => {
+    beginNewTurn: (data: SquaddieTurn) => {
         refreshActionPoints(data)
     },
     refreshActionPoints: (data: SquaddieTurn) => {

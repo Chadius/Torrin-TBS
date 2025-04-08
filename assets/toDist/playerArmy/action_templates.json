@@ -75,7 +75,8 @@
     },
     "resourceCost": {
       "actionPoints": 0,
-      "numberOfTimesPerRound": 1
+      "numberOfTimesPerRound": 1,
+      "cooldownTurns": 1
     },
     "actionEffectTemplates": [
       {

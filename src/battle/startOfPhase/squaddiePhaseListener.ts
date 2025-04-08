@@ -31,6 +31,10 @@ export class SquaddiePhaseListener implements MessageBoardListener {
                     gameEngineState: message.gameEngineState,
                     phase: message.phase,
                 })
+                SquaddiePhaseStartsService.reduceCooldownForAllSquaddies({
+                    gameEngineState: message.gameEngineState,
+                    phase: message.phase,
+                })
                 SquaddiePhaseStartsService.reduceDurationForAttributeModifiers(
                     message
                 )

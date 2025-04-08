@@ -1583,6 +1583,22 @@ describe("Battle HUD", () => {
             )
         })
 
+        it("should apply the cooldown", () => {
+            longswordAction.resourceCost.cooldownTurns = 3
+            gameEngineState.messageBoard.sendMessage({
+                type: MessageBoardMessageType.PLAYER_CONFIRMS_ACTION,
+                gameEngineState,
+            })
+
+            expect(
+                InBattleAttributesService.getActionTurnsOfCooldown({
+                    inBattleAttributes:
+                        playerSoldierBattleSquaddie.inBattleAttributes,
+                    actionTemplateId: longswordAction.id,
+                })
+            ).toBe(3)
+        })
+
         it("should add an action to the action builder with an expected context", () => {
             gameEngineState.messageBoard.sendMessage({
                 type: MessageBoardMessageType.PLAYER_CONFIRMS_ACTION,

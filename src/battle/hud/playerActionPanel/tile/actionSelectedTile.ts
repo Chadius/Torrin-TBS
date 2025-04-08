@@ -327,6 +327,21 @@ const createActionInformationTextBoxes = ({
             ) + WINDOW_SPACING.SPACING1
     }
 
+    if (shouldDrawCooldown(actionTemplate)) {
+        createCooldownTextBox({
+            graphicsContext,
+            actionTemplate,
+            tile,
+            top,
+        })
+        top +=
+            RectAreaService.height(
+                tile.actionInformationTextBoxes[
+                    tile.actionInformationTextBoxes.length - 1
+                ].area
+            ) + WINDOW_SPACING.SPACING1
+    }
+
     if (shouldDrawActionRange(actionTemplate)) {
         createActionRangeTextBox({
             graphicsContext,
@@ -434,6 +449,31 @@ const createActionDescriptionTextBoxAndAdd = ({
     )
 }
 
+const createCooldownTextBox = ({
+    tile,
+    graphicsContext,
+    actionTemplate,
+    top,
+}: {
+    tile: ActionSelectedTile
+    graphicsContext: GraphicsBuffer
+    actionTemplate: ActionTemplate
+    top: number
+}) => {
+    const cooldownTurns: number = actionTemplate.resourceCost.cooldownTurns
+    const text =
+        cooldownTurns == 1
+            ? "Cooldown: next turn"
+            : `Cooldown: ${cooldownTurns}turns`
+
+    createActionDescriptionTextBoxAndAdd({
+        tile: tile,
+        text: text,
+        graphicsContext: graphicsContext,
+        top,
+    })
+}
+
 const createActionRangeTextBox = ({
     tile,
     graphicsContext,
@@ -530,6 +570,10 @@ const shouldDrawActionPoints = (actionTemplate: ActionTemplate) =>
 
 const shouldDrawActionsPerRound = (actionTemplate: ActionTemplate) =>
     actionTemplate.resourceCost.numberOfTimesPerRound != undefined
+
+const shouldDrawCooldown = (actionTemplate: ActionTemplate) =>
+    actionTemplate.resourceCost.cooldownTurns != undefined &&
+    actionTemplate.resourceCost.cooldownTurns > 0
 
 const shouldDrawActionRange = (actionTemplate: ActionTemplate) => {
     const templateRange =

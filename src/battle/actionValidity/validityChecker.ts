@@ -1,5 +1,5 @@
 import { ObjectRepository, ObjectRepositoryService } from "../objectRepository"
-import { ActionPointCheck } from "./actionPointCheck"
+import { SquaddieCanPerformActionCheck } from "./squaddieCanPerformActionCheck"
 import { getResultOrThrowError } from "../../utils/ResultOrError"
 import { ActionPerformFailureReason } from "../../squaddie/turn"
 import { PerRoundCheck } from "./perRoundCheck"
@@ -146,7 +146,7 @@ const checkIfActorCanAffordToUseTheAction = ({
     battleActionRecorder: BattleActionRecorder
 }): ActionCheckResult[] => {
     return [
-        ActionPointCheck.canAfford({
+        SquaddieCanPerformActionCheck.canPerform({
             battleSquaddie,
             objectRepository,
             actionTemplate,

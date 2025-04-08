@@ -7,6 +7,7 @@ describe("Action Resource Cost", () => {
 
         expect(cost.actionPoints).toEqual(1)
         expect(cost.numberOfTimesPerRound).toBeUndefined()
+        expect(cost.cooldownTurns).toBeUndefined()
     })
 
     it("will not allow negative action point costs", () => {

@@ -9,7 +9,7 @@ import { SquaddieIdService } from "../../squaddie/id"
 import { SquaddieAffiliation } from "../../squaddie/squaddieAffiliation"
 import { BattleSquaddieService } from "../battleSquaddie"
 import { ValidityCheckService } from "./validityChecker"
-import { ActionPointCheck } from "./actionPointCheck"
+import { SquaddieCanPerformActionCheck } from "./squaddieCanPerformActionCheck"
 import { PerRoundCheck } from "./perRoundCheck"
 import { GameEngineStateService } from "../../gameEngine/gameEngine"
 import {
@@ -77,7 +77,10 @@ describe("validity checker", () => {
         {
             checkerName: "actionPointCheck",
             setupSpy: () => {
-                const spy = vi.spyOn(ActionPointCheck, "canAfford")
+                const spy = vi.spyOn(
+                    SquaddieCanPerformActionCheck,
+                    "canPerform"
+                )
                 spy.mockReturnValue({
                     isValid: false,
                     reason: ActionPerformFailureReason.TOO_FEW_ACTIONS_REMAINING,
@@ -133,7 +136,10 @@ describe("validity checker", () => {
         const { actionTemplateId, battleSquaddieId, objectRepository } =
             setupSingleSquaddie()
 
-        const actionPointCheckSpy = vi.spyOn(ActionPointCheck, "canAfford")
+        const actionPointCheckSpy = vi.spyOn(
+            SquaddieCanPerformActionCheck,
+            "canPerform"
+        )
         actionPointCheckSpy.mockReturnValue({
             isValid: false,
             reason: ActionPerformFailureReason.TOO_FEW_ACTIONS_REMAINING,
@@ -209,7 +215,10 @@ describe("validity checker", () => {
             .spyOn(TargetingResultsService, "findValidTargets")
             .mockReturnValue(targetingResults)
 
-        const actionPointCheckSpy = vi.spyOn(ActionPointCheck, "canAfford")
+        const actionPointCheckSpy = vi.spyOn(
+            SquaddieCanPerformActionCheck,
+            "canPerform"
+        )
         actionPointCheckSpy.mockReturnValue({
             isValid: true,
             warning: true,

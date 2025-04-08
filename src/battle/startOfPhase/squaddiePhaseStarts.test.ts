@@ -171,6 +171,68 @@ describe("squaddie phase starts", () => {
         })
     })
 
+    describe("reduce cooldown for all used abilities on the team", () => {
+        const tests = [
+            BattlePhase.PLAYER,
+            BattlePhase.ENEMY,
+            BattlePhase.ALLY,
+            BattlePhase.NONE,
+        ]
+
+        it.each(tests)(`phase`, (phase) => {
+            const affiliation =
+                BattlePhaseService.ConvertBattlePhaseToSquaddieAffiliation(
+                    phase
+                )
+            const team = createTeamOfTwo(affiliation)
+
+            gameEngineState = createGameEngineStateWithTeamsAndPhase(
+                [team],
+                phase
+            )
+            addListenerToGameState(gameEngineState)
+
+            team.battleSquaddieIds.forEach((battleSquaddieId) => {
+                const { battleSquaddie } = getResultOrThrowError(
+                    ObjectRepositoryService.getSquaddieByBattleId(
+                        gameEngineState.repository,
+                        battleSquaddieId
+                    )
+                )
+                InBattleAttributesService.addActionCooldown({
+                    inBattleAttributes: battleSquaddie.inBattleAttributes,
+                    actionTemplateId: "3 turns cooldown",
+                    numberOfCooldownTurns: 3,
+                })
+            })
+
+            gameEngineState.messageBoard.sendMessage({
+                type: MessageBoardMessageType.SQUADDIE_PHASE_STARTS,
+                gameEngineState: gameEngineState,
+                phase,
+            })
+
+            expect(
+                team.battleSquaddieIds.every((battleSquaddieId) => {
+                    const { battleSquaddie } = getResultOrThrowError(
+                        ObjectRepositoryService.getSquaddieByBattleId(
+                            gameEngineState.repository,
+                            battleSquaddieId
+                        )
+                    )
+
+                    return (
+                        InBattleAttributesService.getActionTurnsOfCooldown({
+                            inBattleAttributes:
+                                battleSquaddie.inBattleAttributes,
+                            actionTemplateId: "3 turns cooldown",
+                        }) == 2
+                    )
+                })
+            ).toBeTruthy()
+        })
+    })
+
     it("decreases the attribute modifier durations at the start of the phase they were used", () => {
         const affiliation =
             BattlePhaseService.ConvertBattlePhaseToSquaddieAffiliation(

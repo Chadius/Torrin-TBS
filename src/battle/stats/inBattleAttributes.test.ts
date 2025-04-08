@@ -957,4 +957,106 @@ describe("inBattleAttributes", () => {
             expect(absorbAttribute).toBeUndefined()
         })
     })
+    describe("action cooldown", () => {
+        let inBattleAttributes: InBattleAttributes
+        beforeEach(() => {
+            inBattleAttributes = InBattleAttributesService.new({})
+        })
+
+        it("starts with no actions in cooldown", () => {
+            expect(
+                Object.keys(inBattleAttributes.actionTemplateCooldownById)
+            ).toHaveLength(0)
+        })
+
+        it("knows when an action is not in cooldown", () => {
+            expect(
+                InBattleAttributesService.isActionInCooldown({
+                    inBattleAttributes,
+                    actionTemplateId: "dragon breath",
+                })
+            ).toBeFalsy()
+
+            expect(
+                InBattleAttributesService.getActionTurnsOfCooldown({
+                    inBattleAttributes,
+                    actionTemplateId: "dragon breath",
+                })
+            ).toBeUndefined()
+        })
+
+        it("adding non positive rounds of cooldown is ignored", () => {
+            InBattleAttributesService.addActionCooldown({
+                inBattleAttributes,
+                actionTemplateId: "dragon breath",
+                numberOfCooldownTurns: 0,
+            })
+
+            expect(
+                InBattleAttributesService.isActionInCooldown({
+                    inBattleAttributes,
+                    actionTemplateId: "dragon breath",
+                })
+            ).toBeFalsy()
+
+            expect(
+                InBattleAttributesService.getActionTurnsOfCooldown({
+                    inBattleAttributes,
+                    actionTemplateId: "dragon breath",
+                })
+            ).toBeUndefined()
+        })
+
+        describe("it can add a new action with cooldown", () => {
+            beforeEach(() => {
+                InBattleAttributesService.addActionCooldown({
+                    inBattleAttributes,
+                    actionTemplateId: "dragon breath",
+                    numberOfCooldownTurns: 3,
+                })
+            })
+
+            it("knows when an action is in cooldown", () => {
+                expect(
+                    InBattleAttributesService.isActionInCooldown({
+                        inBattleAttributes,
+                        actionTemplateId: "dragon breath",
+                    })
+                ).toBeTruthy()
+            })
+
+            it("can read the number of turns of cooldown", () => {
+                expect(
+                    InBattleAttributesService.getActionTurnsOfCooldown({
+                        inBattleAttributes,
+                        actionTemplateId: "dragon breath",
+                    })
+                ).toEqual(3)
+            })
+
+            it("can reduce cooldown and remove expired cooldowns", () => {
+                InBattleAttributesService.addActionCooldown({
+                    inBattleAttributes,
+                    actionTemplateId: "magnum",
+                    numberOfCooldownTurns: 0,
+                })
+
+                InBattleAttributesService.reduceActionCooldownForAllActions({
+                    inBattleAttributes,
+                })
+                expect(
+                    InBattleAttributesService.getActionTurnsOfCooldown({
+                        inBattleAttributes,
+                        actionTemplateId: "dragon breath",
+                    })
+                ).toEqual(2)
+                expect(
+                    InBattleAttributesService.isActionInCooldown({
+                        inBattleAttributes,
+                        actionTemplateId: "magnum",
+                    })
+                ).toBeFalsy()
+            })
+        })
+    })
 })

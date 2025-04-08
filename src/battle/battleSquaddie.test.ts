@@ -15,6 +15,10 @@ import {
 } from "../squaddie/armyAttributes"
 import { beforeEach, describe, expect, it } from "vitest"
 import { SquaddieTurnService } from "../squaddie/turn"
+import {
+    ActionTemplate,
+    ActionTemplateService,
+} from "../action/template/actionTemplate"
 
 describe("BattleSquaddie", () => {
     it("throws an error if battle squaddie has no template Id", () => {
@@ -49,35 +53,34 @@ describe("BattleSquaddie", () => {
             shouldThrowError()
         }).toThrow("Battle Squaddie has no Id")
     })
-    describe("attributes", () => {
-        let soldierTemplate: SquaddieTemplate
-        let battleSoldier: BattleSquaddie
-
-        beforeEach(() => {
-            soldierTemplate = SquaddieTemplateService.new({
-                squaddieId: {
-                    templateId: "soldier_static",
-                    name: "Soldier",
-                    affiliation: SquaddieAffiliation.PLAYER,
-                    traits: { booleanTraits: {} },
-                    resources: {
-                        mapIconResourceKey: "",
-                        actionSpritesByEmotion: {},
-                    },
+    let soldierTemplate: SquaddieTemplate
+    let battleSoldier: BattleSquaddie
+    beforeEach(() => {
+        soldierTemplate = SquaddieTemplateService.new({
+            squaddieId: {
+                templateId: "soldier_static",
+                name: "Soldier",
+                affiliation: SquaddieAffiliation.PLAYER,
+                traits: { booleanTraits: {} },
+                resources: {
+                    mapIconResourceKey: "",
+                    actionSpritesByEmotion: {},
                 },
-                attributes: ArmyAttributesService.new({
-                    maxHitPoints: 5,
-                    armor: {
-                        proficiencyLevel: ProficiencyLevel.UNTRAINED,
-                        base: 2,
-                    },
-                    movement: SquaddieMovementService.new({
-                        movementPerAction: 2,
-                    }),
+            },
+            attributes: ArmyAttributesService.new({
+                maxHitPoints: 5,
+                armor: {
+                    proficiencyLevel: ProficiencyLevel.UNTRAINED,
+                    base: 2,
+                },
+                movement: SquaddieMovementService.new({
+                    movementPerAction: 2,
                 }),
-            })
+            }),
         })
+    })
 
+    describe("attributes", () => {
         it("will give battle squaddie defaults", () => {
             battleSoldier = BattleSquaddieService.newBattleSquaddie({
                 battleSquaddieId: "soldier_dynamic",
@@ -142,6 +145,40 @@ describe("BattleSquaddie", () => {
             expect(
                 newBattleSoldier.inBattleAttributes.armyAttributes.maxHitPoints
             ).toBe(9001)
+        })
+    })
+    describe("Begin New Turn", () => {
+        let actionTemplate: ActionTemplate
+        beforeEach(() => {
+            actionTemplate = ActionTemplateService.new({
+                id: "action",
+                name: "action",
+            })
+            battleSoldier = BattleSquaddieService.newBattleSquaddie({
+                battleSquaddieId: "soldier_dynamic",
+                squaddieTemplateId: soldierTemplate.squaddieId.templateId,
+            })
+        })
+
+        it("will reduce cooldowns of all actions", () => {
+            InBattleAttributesService.addActionCooldown({
+                inBattleAttributes: battleSoldier.inBattleAttributes,
+                actionTemplateId: actionTemplate.id,
+                numberOfCooldownTurns: 3,
+            })
+            expect(
+                InBattleAttributesService.getActionTurnsOfCooldown({
+                    inBattleAttributes: battleSoldier.inBattleAttributes,
+                    actionTemplateId: actionTemplate.id,
+                })
+            ).toEqual(3)
+            BattleSquaddieService.beginNewTurn(battleSoldier)
+            expect(
+                InBattleAttributesService.getActionTurnsOfCooldown({
+                    inBattleAttributes: battleSoldier.inBattleAttributes,
+                    actionTemplateId: actionTemplate.id,
+                })
+            ).toEqual(2)
         })
     })
 })
