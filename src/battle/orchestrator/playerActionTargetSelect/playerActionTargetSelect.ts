@@ -10,35 +10,70 @@ import { GraphicsBuffer } from "../../../utils/graphics/graphicsRenderer"
 import { UIControlSettings } from "../uiControlSettings"
 import { BattleOrchestratorMode } from "../battleOrchestrator"
 import {
-    PlayerActionTargetContextService,
     PlayerActionTargetStateEnum,
     PlayerActionTargetStateMachine,
     PlayerActionTargetStateMachineInfoByState,
     PlayerActionTargetStateMachineInfoByTransition,
 } from "./stateMachine"
 import { StateMachineDataService } from "../../../utils/stateMachine/stateMachineData/stateMachineData"
+import {
+    PlayerActionTargetContextService,
+    PlayerActionTargetStateMachineContext,
+} from "./playerActionTargetStateMachineContext"
+import { PlayerActionTargetSelectViewController } from "./viewController"
+import { ComponentDataBlob } from "../../../utils/dataBlob/componentDataBlob"
+import { PlayerActionTargetStateMachineLayout } from "./playerActionTargetStateMachineLayout"
+import { PlayerActionTargetStateMachineUIObjects } from "./playerActionTargetStateMachineUIObjects"
+import { BattleActionDecisionStepService } from "../../actionDecision/battleActionDecisionStep"
+import { BattleCamera } from "../../battleCamera"
 
 export class PlayerActionTargetSelect implements BattleOrchestratorComponent {
     stateMachine: PlayerActionTargetStateMachine
+    viewController: PlayerActionTargetSelectViewController
+    context: PlayerActionTargetStateMachineContext
 
     update({
         gameEngineState,
         graphicsContext,
-        resourceHandler,
     }: {
         gameEngineState: GameEngineState
         graphicsContext: GraphicsBuffer
         resourceHandler: ResourceHandler
     }): void {
-        this.lazyInitializeStateMachine(gameEngineState)
+        this.lazyInitializeContext(gameEngineState)
+        this.lazyInitializeStateMachine()
+        this.lazyInitializeViewController()
         this.updateStateMachine()
+
+        if (!this.context.externalFlags.useLegacySelector) {
+            this.updateViewController({
+                camera: gameEngineState.battleOrchestratorState.battleState
+                    .camera,
+                graphicsContext,
+            })
+        }
     }
 
     updateStateMachine() {
         this.stateMachine.updateUntil({
             stopPredicate: (stateMachine: PlayerActionTargetStateMachine) =>
-                stateMachine.currentState ==
-                PlayerActionTargetStateEnum.FINISHED,
+                [
+                    PlayerActionTargetStateEnum.FINISHED,
+                    PlayerActionTargetStateEnum.WAITING_FOR_PLAYER_CONFIRM,
+                ].includes(stateMachine.currentState),
+        })
+    }
+
+    updateViewController({
+        camera,
+        graphicsContext,
+    }: {
+        camera: BattleCamera
+        graphicsContext: GraphicsBuffer
+    }) {
+        this.viewController.draw({
+            camera,
+            graphicsContext,
         })
     }
 
@@ -48,29 +83,34 @@ export class PlayerActionTargetSelect implements BattleOrchestratorComponent {
 
     mouseEventHappened(
         _gameEngineState: GameEngineState,
-        _event: OrchestratorComponentMouseEvent
+        event: OrchestratorComponentMouseEvent
     ): void {
-        // required by implements
+        this.stateMachine?.acceptPlayerInput(event)
     }
 
     keyEventHappened(
         _gameEngineState: GameEngineState,
-        _event: OrchestratorComponentKeyEvent
+        event: OrchestratorComponentKeyEvent
     ): void {
-        // required by implements
+        this.stateMachine?.acceptPlayerInput(event)
     }
 
     hasCompleted(_gameEngineState: GameEngineState): boolean {
-        return (
-            this.stateMachine?.currentState ==
-            PlayerActionTargetStateEnum.FINISHED
-        )
+        return [
+            PlayerActionTargetStateEnum.FINISHED,
+            PlayerActionTargetStateEnum.WAITING_FOR_PLAYER_CONFIRM,
+        ].includes(this.stateMachine?.currentState)
     }
 
     recommendStateChanges(
         _gameEngineState: GameEngineState
     ): BattleOrchestratorChanges {
-        if (this.stateMachine.worldData.cancelActionTarget) {
+        if (
+            this.stateMachine.context.externalFlags.cancelActionSelection ||
+            BattleActionDecisionStepService.isTargetConfirmed(
+                this.stateMachine.context.battleActionDecisionStep
+            )
+        ) {
             return {
                 nextMode: BattleOrchestratorMode.PLAYER_HUD_CONTROLLER,
             }
@@ -83,12 +123,41 @@ export class PlayerActionTargetSelect implements BattleOrchestratorComponent {
 
     reset(_gameEngineState: GameEngineState): void {
         this.stateMachine = undefined
+        this.viewController = undefined
+        this.context = undefined
     }
 
-    lazyInitializeStateMachine(gameEngineState: GameEngineState) {
+    lazyInitializeStateMachine() {
         if (this.stateMachine) return
 
-        const context = PlayerActionTargetContextService.new({
+        this.stateMachine = new PlayerActionTargetStateMachine({
+            id: "PlayerActionTargetStateMachine",
+            context: this.context,
+            stateMachineData: StateMachineDataService.new({
+                initialState: PlayerActionTargetStateEnum.INITIALIZED,
+                infoByState: PlayerActionTargetStateMachineInfoByState,
+                infoByTransition:
+                    PlayerActionTargetStateMachineInfoByTransition,
+            }),
+        })
+    }
+
+    lazyInitializeViewController() {
+        if (this.viewController) return
+        const componentData = new ComponentDataBlob<
+            PlayerActionTargetStateMachineLayout,
+            PlayerActionTargetStateMachineContext,
+            PlayerActionTargetStateMachineUIObjects
+        >()
+        componentData.setContext(this.context)
+        this.viewController = new PlayerActionTargetSelectViewController(
+            componentData
+        )
+    }
+
+    lazyInitializeContext(gameEngineState: GameEngineState) {
+        if (this.context) return
+        this.context = PlayerActionTargetContextService.new({
             objectRepository: gameEngineState.repository,
             missionMap:
                 gameEngineState.battleOrchestratorState.battleState.missionMap,
@@ -97,17 +166,23 @@ export class PlayerActionTargetSelect implements BattleOrchestratorComponent {
                     .battleActionDecisionStep,
             messageBoard: gameEngineState.messageBoard,
             campaignResources: gameEngineState.campaign.resources,
-        })
-
-        this.stateMachine = new PlayerActionTargetStateMachine({
-            id: "PlayerActionTargetStateMachine",
-            context: context,
-            stateMachineData: StateMachineDataService.new({
-                initialState: PlayerActionTargetStateEnum.INITIALIZED,
-                infoByState: PlayerActionTargetStateMachineInfoByState,
-                infoByTransition:
-                    PlayerActionTargetStateMachineInfoByTransition,
-            }),
+            summaryHUDState:
+                gameEngineState.battleOrchestratorState.battleHUDState
+                    .summaryHUDState,
+            battleActionRecorder:
+                gameEngineState.battleOrchestratorState.battleState
+                    .battleActionRecorder,
+            numberGenerator:
+                gameEngineState.battleOrchestratorState.numberGenerator,
+            missionStatistics:
+                gameEngineState.battleOrchestratorState.battleState
+                    .missionStatistics,
+            playerInputState: gameEngineState.playerInputState,
+            playerConsideredActions:
+                gameEngineState.battleOrchestratorState.battleState
+                    .playerConsideredActions,
+            playerDecisionHUD:
+                gameEngineState.battleOrchestratorState.playerDecisionHUD,
         })
     }
 }

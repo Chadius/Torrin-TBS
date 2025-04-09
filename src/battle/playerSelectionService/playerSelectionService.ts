@@ -475,16 +475,7 @@ const playerSelectsAnAction = ({
     )
 
     let messageSent: MessageBoardMessage
-    if (context.targetBattleSquaddieIds.length > 0) {
-        messageSent = {
-            type: MessageBoardMessageType.PLAYER_SELECTS_ACTION_WITH_KNOWN_TARGETS,
-            gameEngineState,
-            actionTemplateId: context.actionTemplateId,
-            actorBattleSquaddieId: context.actorBattleSquaddieId,
-            mapStartingCoordinate: mapCoordinate,
-            targetBattleSquaddieIds: context.targetBattleSquaddieIds,
-        }
-    } else {
+    if (context.targetBattleSquaddieIds.length > 1) {
         messageSent = {
             type: MessageBoardMessageType.PLAYER_SELECTS_ACTION_THAT_REQUIRES_A_TARGET,
             missionMap:
@@ -500,6 +491,18 @@ const playerSelectsAnAction = ({
             actionTemplateId: context.actionTemplateId,
             battleSquaddieId: context.actorBattleSquaddieId,
             mapStartingCoordinate: mapCoordinate,
+        }
+    } else {
+        BattleActionDecisionStepService.addAction({
+            actionDecisionStep:
+                gameEngineState.battleOrchestratorState.battleState
+                    .battleActionDecisionStep,
+            actionTemplateId: context.actionTemplateId,
+        })
+
+        messageSent = {
+            type: MessageBoardMessageType.PLAYER_CONFIRMS_DECISION_STEP_ACTOR,
+            recommendedMode: BattleOrchestratorMode.PLAYER_ACTION_TARGET_SELECT,
         }
     }
 
@@ -823,10 +826,7 @@ class PlayerSelectsAnActionBehavior implements BehaviorTreeTask {
                 actionTemplateId,
                 actorBattleSquaddieId: actorBattleSquaddieId,
                 mouseClick,
-                targetBattleSquaddieIds:
-                    potentialTargetBattleSquaddieIds.length <= 1
-                        ? potentialTargetBattleSquaddieIds
-                        : [],
+                targetBattleSquaddieIds: potentialTargetBattleSquaddieIds,
             })
         )
         return true

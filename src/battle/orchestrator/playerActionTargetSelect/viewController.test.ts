@@ -1,80 +1,99 @@
+import { beforeEach, describe, expect, it, MockInstance, vi } from "vitest"
 import {
     ObjectRepository,
     ObjectRepositoryService,
 } from "../../objectRepository"
-import { BattlePlayerActionConfirm } from "./battlePlayerActionConfirm"
 import { BattleSquaddie } from "../../battleSquaddie"
-import { TerrainTileMapService } from "../../../hexMap/terrainTileMap"
-import {
-    Trait,
-    TraitStatusStorageService,
-} from "../../../trait/traitStatusStorage"
-import { SquaddieAffiliation } from "../../../squaddie/squaddieAffiliation"
 import { MissionMap, MissionMapService } from "../../../missionMap/missionMap"
-import { BattleOrchestratorStateService } from "../../orchestrator/battleOrchestratorState"
-import { BattleOrchestratorMode } from "../../orchestrator/battleOrchestrator"
-import { MockedP5GraphicsBuffer } from "../../../utils/test/mocks"
-import { DamageType } from "../../../squaddie/squaddieService"
-import { SquaddieMovementService } from "../../../squaddie/movement"
-import { BattleStateService } from "../../battleState/battleState"
-import {
-    GameEngineState,
-    GameEngineStateService,
-} from "../../../gameEngine/gameEngine"
 import {
     ActionTemplate,
     ActionTemplateService,
 } from "../../../action/template/actionTemplate"
+import { MockedP5GraphicsBuffer } from "../../../utils/test/mocks"
+import { TerrainTileMapService } from "../../../hexMap/terrainTileMap"
+import { TargetConstraintsService } from "../../../action/targetConstraints"
 import {
     ActionEffectTemplateService,
     VersusSquaddieResistance,
 } from "../../../action/template/actionEffectTemplate"
-import { CampaignService } from "../../../campaign/campaign"
-import { BattleHUDService } from "../../hud/battleHUD/battleHUD"
-import { BattleActionDecisionStepService } from "../../actionDecision/battleActionDecisionStep"
-import { MessageBoardMessageType } from "../../../message/messageBoardMessage"
-import { SummaryHUDStateService } from "../../hud/summary/summaryHUD"
-import { SquaddieRepositoryService } from "../../../utils/test/squaddie"
-import { TargetConstraintsService } from "../../../action/targetConstraints"
-import { ArmyAttributesService } from "../../../squaddie/armyAttributes"
 import {
-    afterEach,
-    beforeEach,
-    describe,
-    expect,
-    it,
-    MockInstance,
-    vi,
-} from "vitest"
-import { BattlePlayerActionConfirmSpec } from "../../../integration/spec/battlePlayerActionConfirmSpec"
+    Trait,
+    TraitStatusStorageService,
+} from "../../../trait/traitStatusStorage"
+import { DamageType } from "../../../squaddie/squaddieService"
+import { SquaddieRepositoryService } from "../../../utils/test/squaddie"
+import { SquaddieAffiliation } from "../../../squaddie/squaddieAffiliation"
+import { ArmyAttributesService } from "../../../squaddie/armyAttributes"
+import { SquaddieMovementService } from "../../../squaddie/movement"
+import { SummaryHUDStateService } from "../../hud/summary/summaryHUD"
+import { BattleActionDecisionStepService } from "../../actionDecision/battleActionDecisionStep"
+import { PlayerActionTargetSelectViewController } from "./viewController"
+import { GraphicsBuffer } from "../../../utils/graphics/graphicsRenderer"
 import { ScreenLocation } from "../../../utils/mouseConfig"
+import { ScreenDimensions } from "../../../utils/graphics/graphicsConfig"
 import { ConvertCoordinateService } from "../../../hexMap/convertCoordinates"
-import { RectArea, RectAreaService } from "../../../ui/rectArea"
 import { HEX_TILE_WIDTH } from "../../../graphicsConstants"
 import { WINDOW_SPACING } from "../../../ui/constants"
-import { ScreenDimensions } from "../../../utils/graphics/graphicsConfig"
-import { BattleOrchestratorStateTestService } from "../../../utils/test/battleOrchestratorState"
+import { RectArea, RectAreaService } from "../../../ui/rectArea"
+import { ComponentDataBlob } from "../../../utils/dataBlob/componentDataBlob"
+import { BattleCamera } from "../../battleCamera"
+import { DataBlobService } from "../../../utils/dataBlob/dataBlob"
+import { PlayerInputStateService } from "../../../ui/playerInput/playerInputState"
+import { CampaignResourcesService } from "../../../campaign/campaignResources"
+import { MissionStatisticsService } from "../../missionStatistics/missionStatistics"
+import { PlayerConsideredActionsService } from "../../battleState/playerConsideredActions"
+import { PlayerDecisionHUDService } from "../../hud/playerActionPanel/playerDecisionHUD"
+import { RandomNumberGenerator } from "../../numberGenerator/random"
+import { BattleActionRecorderService } from "../../history/battleAction/battleActionRecorder"
+import { MessageBoard } from "../../../message/messageBoard"
+import { PlayerActionTargetStateMachineLayout } from "./playerActionTargetStateMachineLayout"
+import {
+    PlayerActionTargetContextService,
+    PlayerActionTargetStateMachineContext,
+} from "./playerActionTargetStateMachineContext"
+import { PlayerActionTargetStateMachineUIObjects } from "./playerActionTargetStateMachineUIObjects"
 
-describe("BattleActionConfirm", () => {
-    let playerActionConfirm: BattlePlayerActionConfirm
-
+describe("Player Action Target Select View Controller", () => {
+    let playerActionTargetSelectViewController: PlayerActionTargetSelectViewController
     let objectRepository: ObjectRepository = ObjectRepositoryService.new()
     let knightBattleSquaddie: BattleSquaddie
     let citizenBattleSquaddie: BattleSquaddie
     let thiefBattleSquaddie: BattleSquaddie
 
-    let battleMap: MissionMap
+    let missionMap: MissionMap
     let longswordAction: ActionTemplate
-    let gameEngineState: GameEngineState
 
-    let mockedP5GraphicsContext: MockedP5GraphicsBuffer
-    let messageSpy: MockInstance
+    let graphicsBuffer: GraphicsBuffer
+
+    let componentData: ComponentDataBlob<
+        PlayerActionTargetStateMachineLayout,
+        PlayerActionTargetStateMachineContext,
+        PlayerActionTargetStateMachineUIObjects
+    >
 
     beforeEach(() => {
-        mockedP5GraphicsContext = new MockedP5GraphicsBuffer()
-        playerActionConfirm = new BattlePlayerActionConfirm()
+        componentData = new ComponentDataBlob()
+        const context = PlayerActionTargetContextService.new({
+            objectRepository,
+            missionMap,
+            battleActionDecisionStep: BattleActionDecisionStepService.new(),
+            messageBoard: new MessageBoard(),
+            battleActionRecorder: BattleActionRecorderService.new(),
+            numberGenerator: new RandomNumberGenerator(),
+            playerInputState: PlayerInputStateService.newFromEnvironment(),
+            summaryHUDState: SummaryHUDStateService.new(),
+            campaignResources: CampaignResourcesService.default(),
+            missionStatistics: MissionStatisticsService.new({}),
+            playerConsideredActions: PlayerConsideredActionsService.new(),
+            playerDecisionHUD: PlayerDecisionHUDService.new(),
+        })
+        componentData.setContext(context)
+
+        graphicsBuffer = new MockedP5GraphicsBuffer()
+        playerActionTargetSelectViewController =
+            new PlayerActionTargetSelectViewController(componentData)
         objectRepository = ObjectRepositoryService.new()
-        battleMap = MissionMapService.new({
+        missionMap = MissionMapService.new({
             terrainTileMap: TerrainTileMapService.new({
                 movementCost: ["1 1 1 ", " 1 1 1 ", "  1 1 1 "],
             }),
@@ -115,7 +134,7 @@ describe("BattleActionConfirm", () => {
                 actionTemplateIds: [longswordAction.id],
             }))
         MissionMapService.addSquaddie({
-            missionMap: battleMap,
+            missionMap: missionMap,
             squaddieTemplateId: knightBattleSquaddie.squaddieTemplateId,
             battleSquaddieId: knightBattleSquaddie.battleSquaddieId,
             coordinate: { q: 1, r: 1 },
@@ -130,7 +149,7 @@ describe("BattleActionConfirm", () => {
                 actionTemplateIds: [],
             }))
         MissionMapService.addSquaddie({
-            missionMap: battleMap,
+            missionMap: missionMap,
             squaddieTemplateId: citizenBattleSquaddie.squaddieTemplateId,
             battleSquaddieId: citizenBattleSquaddie.battleSquaddieId,
             coordinate: { q: 0, r: 1 },
@@ -152,59 +171,62 @@ describe("BattleActionConfirm", () => {
                 }),
             }))
         MissionMapService.addSquaddie({
-            missionMap: battleMap,
+            missionMap: missionMap,
             squaddieTemplateId: thiefBattleSquaddie.squaddieTemplateId,
             battleSquaddieId: thiefBattleSquaddie.battleSquaddieId,
             coordinate: { q: 1, r: 2 },
         })
 
-        gameEngineState = GameEngineStateService.new({
-            battleOrchestratorState: BattleOrchestratorStateService.new({
-                battleHUD: BattleHUDService.new({}),
-                battleState: BattleStateService.newBattleState({
-                    missionId: "test mission",
-                    campaignId: "test campaign",
-                    missionMap: battleMap,
-                }),
-            }),
-            repository: objectRepository,
-            campaign: CampaignService.default(),
+        BattleActionDecisionStepService.setActor({
+            actionDecisionStep:
+                componentData.getContext().battleActionDecisionStep,
+            battleSquaddieId: knightBattleSquaddie.battleSquaddieId,
         })
-        BattleOrchestratorStateTestService.knightUsesLongswordAction({
-            gameEngineState,
-            knightBattleSquaddie,
-            longswordAction,
-        })
-        gameEngineState.battleOrchestratorState.battleHUDState.summaryHUDState =
-            SummaryHUDStateService.new()
-
-        messageSpy = vi.spyOn(gameEngineState.messageBoard, "sendMessage")
-    })
-
-    afterEach(() => {
-        messageSpy.mockRestore()
     })
 
     const attackThiefWithLongsword = () => {
         BattleActionDecisionStepService.addAction({
             actionDecisionStep:
-                gameEngineState.battleOrchestratorState.battleState
-                    .battleActionDecisionStep,
+                componentData.getContext().battleActionDecisionStep,
             actionTemplateId: longswordAction.id,
         })
 
         const { mapCoordinate } = MissionMapService.getByBattleSquaddieId(
-            gameEngineState.battleOrchestratorState.battleState.missionMap,
+            missionMap,
             thiefBattleSquaddie.battleSquaddieId
         )
 
         BattleActionDecisionStepService.setConsideredTarget({
             actionDecisionStep:
-                gameEngineState.battleOrchestratorState.battleState
-                    .battleActionDecisionStep,
+                componentData.getContext().battleActionDecisionStep,
             targetCoordinate: mapCoordinate,
         })
+
+        playerActionTargetSelectViewController.componentData.setContext({
+            ...playerActionTargetSelectViewController.componentData.getContext(),
+            battleActionDecisionStep:
+                componentData.getContext().battleActionDecisionStep,
+            playerActionConfirmContext: {
+                ...playerActionTargetSelectViewController.componentData.getContext()
+                    .playerActionConfirmContext,
+                buttonStatusChangeEventDataBlob: DataBlobService.new(),
+            },
+        })
     }
+
+    it("creates confirm buttons when the battle action decision has been decided", () => {
+        expect(
+            playerActionTargetSelectViewController.getButtons()
+        ).toHaveLength(0)
+        attackThiefWithLongsword()
+        playerActionTargetSelectViewController.draw({
+            camera: new BattleCamera(),
+            graphicsContext: graphicsBuffer,
+        })
+        expect(
+            playerActionTargetSelectViewController.getButtons()
+        ).toHaveLength(2)
+    })
 
     describe("button placement", () => {
         it("default placement is slightly below the selected location", () => {
@@ -224,7 +246,8 @@ describe("BattleActionConfirm", () => {
                 })
 
             attackThiefWithLongsword()
-            const { okButtonArea, cancelButtonArea } = setup()
+            const { okButtonArea, cancelButtonArea } =
+                drawConfirmButtonsAndGetArea()
 
             const okButtonTestLocation: ScreenLocation = {
                 x: screenLocation.x,
@@ -268,7 +291,8 @@ describe("BattleActionConfirm", () => {
                 })
 
             attackThiefWithLongsword()
-            const { okButtonArea, cancelButtonArea } = setup()
+            const { okButtonArea, cancelButtonArea } =
+                drawConfirmButtonsAndGetArea()
             expect(RectAreaService.left(okButtonArea)).toBeGreaterThan(0)
             expect(RectAreaService.left(cancelButtonArea)).toBeGreaterThan(
                 RectAreaService.right(okButtonArea)
@@ -292,7 +316,8 @@ describe("BattleActionConfirm", () => {
                 })
 
             attackThiefWithLongsword()
-            const { okButtonArea, cancelButtonArea } = setup()
+            const { okButtonArea, cancelButtonArea } =
+                drawConfirmButtonsAndGetArea()
             expect(RectAreaService.right(okButtonArea)).toBeLessThan(
                 ScreenDimensions.SCREEN_WIDTH
             )
@@ -322,19 +347,18 @@ describe("BattleActionConfirm", () => {
 
             BattleActionDecisionStepService.addAction({
                 actionDecisionStep:
-                    gameEngineState.battleOrchestratorState.battleState
-                        .battleActionDecisionStep,
+                    componentData.getContext().battleActionDecisionStep,
                 actionTemplateId: longswordAction.id,
             })
 
             BattleActionDecisionStepService.setConsideredTarget({
                 actionDecisionStep:
-                    gameEngineState.battleOrchestratorState.battleState
-                        .battleActionDecisionStep,
+                    componentData.getContext().battleActionDecisionStep,
                 targetCoordinate: undefined,
             })
 
-            const { okButtonArea, cancelButtonArea } = setup()
+            const { okButtonArea, cancelButtonArea } =
+                drawConfirmButtonsAndGetArea()
 
             const okButtonTestLocation: ScreenLocation = {
                 x: ScreenDimensions.SCREEN_WIDTH / 2,
@@ -363,19 +387,21 @@ describe("BattleActionConfirm", () => {
             screenLocationSpy.mockRestore()
         })
 
-        const expectScreenLocationIsCalled = (screenLocationSpy: any) => {
+        const expectScreenLocationIsCalled = (
+            screenLocationSpy: MockInstance
+        ) => {
             expect(screenLocationSpy).toHaveBeenCalled()
             screenLocationSpy.mockRestore()
             return true
         }
-        const setup = () => {
-            playerActionConfirm.update({
-                gameEngineState,
-                graphicsContext: mockedP5GraphicsContext,
-                resourceHandler: gameEngineState.resourceHandler,
+        const drawConfirmButtonsAndGetArea = () => {
+            playerActionTargetSelectViewController.draw({
+                camera: new BattleCamera(),
+                graphicsContext: graphicsBuffer,
             })
 
-            const uiObjects = playerActionConfirm.data.getUIObjects()
+            const uiObjects =
+                playerActionTargetSelectViewController.getUIObjects().confirm
             const okButtonArea = uiObjects.okButton.getArea()
             const cancelButtonArea = uiObjects.cancelButton.getArea()
 
@@ -384,156 +410,5 @@ describe("BattleActionConfirm", () => {
                 cancelButtonArea,
             }
         }
-    })
-
-    describe("user cancels confirmation", () => {
-        const cancelMethodTests = [
-            {
-                name: "click on cancel button",
-                action: () => {
-                    BattlePlayerActionConfirmSpec.clickOnCancelButton({
-                        confirm: playerActionConfirm,
-                        gameEngineState,
-                    })
-                },
-            },
-            {
-                name: "click cancel key",
-                action: () => {
-                    BattlePlayerActionConfirmSpec.clickCancelKey({
-                        confirm: playerActionConfirm,
-                        gameEngineState,
-                    })
-                },
-            },
-            {
-                name: "presses the cancel key",
-                action: () => {
-                    BattlePlayerActionConfirmSpec.pressCancelKey({
-                        confirm: playerActionConfirm,
-                        gameEngineState,
-                    })
-                },
-            },
-        ]
-
-        beforeEach(() => {
-            attackThiefWithLongsword()
-            playerActionConfirm.update({
-                gameEngineState,
-                graphicsContext: mockedP5GraphicsContext,
-                resourceHandler: gameEngineState.resourceHandler,
-            })
-        })
-
-        it.each(cancelMethodTests)(`should complete $name`, ({ action }) => {
-            action()
-            expect(
-                playerActionConfirm.hasCompleted(gameEngineState)
-            ).toBeTruthy()
-        })
-
-        it.each(cancelMethodTests)(
-            `should recommend squaddie target $name`,
-            ({ action }) => {
-                action()
-                const changes =
-                    playerActionConfirm.recommendStateChanges(gameEngineState)
-                expect(changes.nextMode).toEqual(
-                    BattleOrchestratorMode.PLAYER_SQUADDIE_TARGET
-                )
-            }
-        )
-
-        it.each(cancelMethodTests)(
-            `sends a message indicating the user canceled $name`,
-            ({ action }) => {
-                action()
-                expect(messageSpy).toHaveBeenCalledWith(
-                    expect.objectContaining({
-                        type: MessageBoardMessageType.PLAYER_CANCELS_TARGET_CONFIRMATION,
-                    })
-                )
-            }
-        )
-    })
-
-    describe("user confirms the target", () => {
-        const confirmMethodTests = [
-            {
-                name: "click on Confirm button",
-                action: () => {
-                    BattlePlayerActionConfirmSpec.clickOnConfirmTarget({
-                        confirm: playerActionConfirm,
-                        gameEngineState,
-                    })
-                },
-            },
-            {
-                name: "presses the confirm key",
-                action: () => {
-                    BattlePlayerActionConfirmSpec.pressConfirmKey({
-                        confirm: playerActionConfirm,
-                        gameEngineState,
-                    })
-                },
-            },
-        ]
-
-        beforeEach(() => {
-            attackThiefWithLongsword()
-            playerActionConfirm.update({
-                gameEngineState,
-                graphicsContext: mockedP5GraphicsContext,
-                resourceHandler: gameEngineState.resourceHandler,
-            })
-        })
-
-        it.each(confirmMethodTests)(
-            `should be completed $name`,
-            ({ action }) => {
-                action()
-                expect(
-                    playerActionConfirm.hasCompleted(gameEngineState)
-                ).toBeTruthy()
-            }
-        )
-
-        it.each(confirmMethodTests)(
-            `should change the gameEngineState to Player HUD Controller $name`,
-            ({ action }) => {
-                action()
-                const recommendedInfo =
-                    playerActionConfirm.recommendStateChanges(gameEngineState)
-                expect(recommendedInfo.nextMode).toBe(
-                    BattleOrchestratorMode.PLAYER_HUD_CONTROLLER
-                )
-            }
-        )
-
-        it.each(confirmMethodTests)(
-            `should send a message indicating the player confirmed their action $name`,
-            ({ action }) => {
-                action()
-                expect(messageSpy).toHaveBeenCalledWith({
-                    type: MessageBoardMessageType.PLAYER_CONFIRMS_ACTION,
-                    battleActionDecisionStep:
-                        gameEngineState.battleOrchestratorState.battleState
-                            .battleActionDecisionStep,
-                    missionMap:
-                        gameEngineState.battleOrchestratorState.battleState
-                            .missionMap,
-                    objectRepository: gameEngineState.repository,
-                    battleActionRecorder:
-                        gameEngineState.battleOrchestratorState.battleState
-                            .battleActionRecorder,
-                    numberGenerator:
-                        gameEngineState.battleOrchestratorState.numberGenerator,
-                    missionStatistics:
-                        gameEngineState.battleOrchestratorState.battleState
-                            .missionStatistics,
-                })
-            }
-        )
     })
 })

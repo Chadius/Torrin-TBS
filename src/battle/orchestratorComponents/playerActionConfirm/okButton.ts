@@ -50,6 +50,8 @@ export class PlayerActionConfirmShouldCreateOKButton
     }
 }
 
+export const PLAYER_ACTION_CONFIRM_CREATE_OK_BUTTON_ID = "PlayerActionConfirmOK"
+
 export class PlayerActionConfirmCreateOKButton implements BehaviorTreeTask {
     dataBlob: ComponentDataBlob<
         PlayerActionConfirmLayout,
@@ -75,10 +77,11 @@ export class PlayerActionConfirmCreateOKButton implements BehaviorTreeTask {
         const targetCoordinate = BattleActionDecisionStepService.getTarget(
             context.battleActionDecisionStep
         ).targetCoordinate
+        const camera = context.camera ?? uiObjects.camera
         const targetLocation = targetCoordinate
             ? ConvertCoordinateService.convertMapCoordinatesToScreenLocation({
                   mapCoordinate: targetCoordinate,
-                  cameraLocation: context.camera.getWorldLocation(),
+                  cameraLocation: camera.getWorldLocation(),
               })
             : undefined
 
@@ -193,7 +196,7 @@ export class PlayerActionConfirmCreateOKButton implements BehaviorTreeTask {
         })
 
         uiObjects.okButton = new Button({
-            id: "PlayerActionConfirmOK",
+            id: PLAYER_ACTION_CONFIRM_CREATE_OK_BUTTON_ID,
             drawTask,
             buttonLogic,
         })

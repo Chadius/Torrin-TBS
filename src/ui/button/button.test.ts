@@ -142,20 +142,24 @@ describe("button", () => {
     })
 })
 
-class TestButtonStyle implements ButtonStyle {
+export class TestButtonStyle implements ButtonStyle {
     dataBlob: DataBlob
+    rectArea: RectArea
 
-    constructor(dataBlob: DataBlob) {
+    constructor(dataBlob: DataBlob, rectArea?: RectArea) {
         this.dataBlob = dataBlob
+        this.rectArea =
+            rectArea ??
+            RectAreaService.new({
+                left: 0,
+                top: 0,
+                right: 10,
+                bottom: 10,
+            })
     }
 
     getArea(): RectArea {
-        return RectAreaService.new({
-            left: 0,
-            top: 0,
-            right: 10,
-            bottom: 10,
-        })
+        return this.rectArea
     }
 
     run(): boolean {

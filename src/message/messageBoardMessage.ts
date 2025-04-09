@@ -44,7 +44,6 @@ export type MessageBoardMessage =
     | MessageBoardMessageMoveSquaddieToCoordinate
     | MessageBoardMessagePlayerCancelsPlayerActionConsiderations
     | MessageBoardMessagePlayerSelectsEmptyTile
-    | MessageBoardMessagePlayerSelectsActionWithKnownTargets
     | MessageBoardMessagePlayerConfirmsDecisionStepActor
     | MessageBoardMessagePlayerControlledSquaddieNeedsNextAction
     | MessageBoardMessageSquaddieTurnEnds
@@ -71,7 +70,6 @@ export enum MessageBoardMessageType {
     BATTLE_ACTION_FINISHES_ANIMATION = "BATTLE_ACTION_FINISHES_ANIMATION",
     PLAYER_CONSIDERS_ACTION = "PLAYER_CONSIDERS_ACTION",
     PLAYER_SELECTS_ACTION_THAT_REQUIRES_A_TARGET = "PLAYER_SELECTS_ACTION_THAT_REQUIRES_A_TARGET",
-    PLAYER_SELECTS_ACTION_WITH_KNOWN_TARGETS = "PLAYER_SELECTS_ACTION_WITH_KNOWN_TARGETS",
     PLAYER_SELECTS_TARGET_COORDINATE = "PLAYER_SELECTS_TARGET_COORDINATE",
     PLAYER_CONFIRMS_ACTION = "PLAYER_CONFIRMS_ACTION",
     SQUADDIE_PHASE_STARTS = "SQUADDIE_PHASE_STARTS",
@@ -176,15 +174,6 @@ export interface MessageBoardMessagePlayerSelectsActionThatRequiresATarget {
     messageBoard: MessageBoard
     actionTemplateId: string
     battleSquaddieId: string
-    mapStartingCoordinate: HexCoordinate
-}
-
-export interface MessageBoardMessagePlayerSelectsActionWithKnownTargets {
-    type: MessageBoardMessageType.PLAYER_SELECTS_ACTION_WITH_KNOWN_TARGETS
-    gameEngineState: GameEngineState
-    actionTemplateId: string
-    actorBattleSquaddieId: string
-    targetBattleSquaddieIds: string[]
     mapStartingCoordinate: HexCoordinate
 }
 

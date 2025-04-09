@@ -46,7 +46,10 @@ import { BattleHUDService } from "../../hud/battleHUD/battleHUD"
 import { MouseButton } from "../../../utils/mouseConfig"
 import { BattleActionDecisionStepService } from "../../actionDecision/battleActionDecisionStep"
 import { MessageBoardMessageType } from "../../../message/messageBoardMessage"
-import { SummaryHUDStateService } from "../../hud/summary/summaryHUD"
+import {
+    SummaryHUDState,
+    SummaryHUDStateService,
+} from "../../hud/summary/summaryHUD"
 import { SquaddieRepositoryService } from "../../../utils/test/squaddie"
 import { TargetConstraintsService } from "../../../action/targetConstraints"
 import { ArmyAttributesService } from "../../../squaddie/armyAttributes"

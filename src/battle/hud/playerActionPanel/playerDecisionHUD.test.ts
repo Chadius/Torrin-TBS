@@ -5,7 +5,10 @@ import {
 import { BattleOrchestratorStateService } from "../../orchestrator/battleOrchestratorState"
 import { BattleStateService } from "../../battleState/battleState"
 import { BattlePhase } from "../../orchestratorComponents/battlePhaseTracker"
-import { ObjectRepositoryService } from "../../objectRepository"
+import {
+    ObjectRepository,
+    ObjectRepositoryService,
+} from "../../objectRepository"
 import { MessageBoardMessageType } from "../../../message/messageBoardMessage"
 import {
     CoordinateSystem,
@@ -15,6 +18,7 @@ import { PopupWindow, PopupWindowService } from "../popupWindow/popupWindow"
 import { LabelService } from "../../../ui/label"
 import { RectAreaService } from "../../../ui/rectArea"
 import {
+    PlayerDecisionHUD,
     PlayerDecisionHUDListener,
     PlayerDecisionHUDService,
     PopupWindowType,
@@ -67,14 +71,23 @@ import { SquaddieTurnService } from "../../../squaddie/turn"
 import { BattleHUDService } from "../battleHUD/battleHUD"
 import { BattleCamera } from "../../battleCamera"
 import { BattleHUDStateService } from "../battleHUD/battleHUDState"
-import { SummaryHUDStateService } from "../summary/summaryHUD"
+import { SummaryHUDState, SummaryHUDStateService } from "../summary/summaryHUD"
 import { CampaignService } from "../../../campaign/campaign"
-import { BattleActionDecisionStepService } from "../../actionDecision/battleActionDecisionStep"
+import {
+    BattleActionDecisionStep,
+    BattleActionDecisionStepService,
+} from "../../actionDecision/battleActionDecisionStep"
 import { MovementDecision } from "../../playerSelectionService/playerSelectionContext"
-import { PlayerConsideredActionsService } from "../../battleState/playerConsideredActions"
+import {
+    PlayerConsideredActions,
+    PlayerConsideredActionsService,
+} from "../../battleState/playerConsideredActions"
 import { SquaddieSelectorPanelService } from "./squaddieSelectorPanel/squaddieSelectorPanel"
 import { getResultOrThrowError } from "../../../utils/ResultOrError"
-import { BattleActionRecorderService } from "../../history/battleAction/battleActionRecorder"
+import {
+    BattleActionRecorder,
+    BattleActionRecorderService,
+} from "../../history/battleAction/battleActionRecorder"
 import { BattleActionService } from "../../history/battleAction/battleAction"
 
 describe("Player Decision HUD", () => {

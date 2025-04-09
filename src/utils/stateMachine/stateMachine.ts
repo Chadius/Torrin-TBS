@@ -22,7 +22,7 @@ export class StateMachine<
         ActionType,
         WorldType
     >
-    worldData: WorldType
+    context: WorldType
 
     constructor({
         id,
@@ -41,7 +41,7 @@ export class StateMachine<
         this.id = id
         this.stateMachineData = stateMachineData
         this.initialState = stateMachineData.initialState
-        this.worldData = worldData
+        this.context = worldData
         this.currentState = this.initialState
         this.setTransitionTriggerFunctions()
         this.setActionLogic()
@@ -78,7 +78,7 @@ export class StateMachine<
             StateMachineDataService.isTransitionTriggered({
                 stateMachineData: this.stateMachineData,
                 transition: transition,
-                worldData: this.worldData,
+                worldData: this.context,
             })
         )
     }
@@ -177,7 +177,7 @@ export class StateMachine<
             update.actions.forEach((actionType) => {
                 const actionLogic = this.getActionLogic(actionType)
                 if (actionLogic) {
-                    actionLogic(this.worldData)
+                    actionLogic(this.context)
                 }
             })
             if (update.transitionFired) {

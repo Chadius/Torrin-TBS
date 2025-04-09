@@ -3,9 +3,12 @@ import {
     OrchestratorComponentKeyEventType,
     OrchestratorComponentMouseEventType,
 } from "../../battle/orchestrator/battleOrchestratorComponent"
-import { MouseButton } from "../../utils/mouseConfig"
+import { MouseButton, MousePress, MouseRelease } from "../../utils/mouseConfig"
 import { GameEngineState } from "../../gameEngine/gameEngine"
 import { RectAreaService } from "../../ui/rectArea"
+import { PLAYER_ACTION_CONFIRM_CREATE_OK_BUTTON_ID } from "../../battle/orchestratorComponents/playerActionConfirm/okButton"
+import { PLAYER_ACTION_CONFIRM_CREATE_CANCEL_BUTTON_ID } from "../../battle/orchestratorComponents/playerActionConfirm/cancelButton"
+import { BattlePlayerSquaddieTarget } from "../../battle/orchestratorComponents/playerActionTarget/battlePlayerSquaddieTarget"
 
 export const BattlePlayerActionConfirmSpec = {
     clickOnCancelButton: ({
@@ -17,7 +20,10 @@ export const BattlePlayerActionConfirmSpec = {
     }) => {
         const cancelButton = confirm
             .getButtons()
-            .find((button) => button.id === "PlayerActionConfirmCancel")
+            .find(
+                (button) =>
+                    button.id === PLAYER_ACTION_CONFIRM_CREATE_CANCEL_BUTTON_ID
+            )
 
         confirm.mouseEventHappened(gameEngineState, {
             eventType: OrchestratorComponentMouseEventType.PRESS,
@@ -45,7 +51,10 @@ export const BattlePlayerActionConfirmSpec = {
     }) => {
         const confirmButton = confirm
             .getButtons()
-            .find((button) => button.id === "PlayerActionConfirmOK")
+            .find(
+                (button) =>
+                    button.id === PLAYER_ACTION_CONFIRM_CREATE_OK_BUTTON_ID
+            )
 
         confirm.mouseEventHappened(gameEngineState, {
             eventType: OrchestratorComponentMouseEventType.PRESS,
@@ -62,6 +71,28 @@ export const BattlePlayerActionConfirmSpec = {
                 y: RectAreaService.centerY(confirmButton.getArea()),
                 button: MouseButton.ACCEPT,
             },
+        })
+    },
+    clickCancelKey: ({
+        confirm,
+        gameEngineState,
+    }: {
+        confirm: BattlePlayerActionConfirm
+        gameEngineState: GameEngineState
+    }) => {
+        const mouseClick: MousePress | MouseRelease = {
+            x: 90210,
+            y: -9001,
+            button: MouseButton.CANCEL,
+        }
+        confirm.mouseEventHappened(gameEngineState, {
+            eventType: OrchestratorComponentMouseEventType.PRESS,
+            mousePress: mouseClick,
+        })
+
+        confirm.mouseEventHappened(gameEngineState, {
+            eventType: OrchestratorComponentMouseEventType.RELEASE,
+            mouseRelease: mouseClick,
         })
     },
     pressCancelKey: ({

@@ -457,24 +457,6 @@ describe("User Selects Target and Confirms", () => {
         })
 
         const cancelMethods = [
-            // {
-            //     name: "mouse clicks ACCEPT on the CANCEL button",
-            //     action: () => {
-            //         BattlePlayerActionConfirmSpec.clickOnCancelButton({
-            //             confirm,
-            //             gameEngineState,
-            //         })
-            //     },
-            // },
-            // {
-            //     name: "mouse clicks CANCEL",
-            //     action: () => {
-            //         BattlePlayerActionConfirmSpec.clickCancelButton({
-            //             confirm,
-            //             gameEngineState,
-            //         })
-            //     },
-            // },
             {
                 name: "keyboard presses CANCEL",
                 action: () => {
