@@ -57,6 +57,7 @@ import {
 } from "../../../squaddie/armyAttributes"
 import { CalculatedResult } from "../../history/calculatedResult"
 import { AttributeType } from "../../../squaddie/attribute/attributeType"
+import { RandomNumberGenerator } from "../../numberGenerator/random"
 
 describe("calculator", () => {
     let objectRepository: ObjectRepository
@@ -272,7 +273,18 @@ describe("calculator", () => {
         gameEngineState.battleOrchestratorState.battleState.battleActionDecisionStep =
             actionStep
         return ActionCalculator.calculateAndApplyResults({
-            gameEngineState,
+            battleActionDecisionStep: actionStep,
+            missionMap:
+                gameEngineState.battleOrchestratorState.battleState.missionMap,
+            objectRepository,
+            battleActionRecorder:
+                gameEngineState.battleOrchestratorState.battleState
+                    .battleActionRecorder,
+            numberGenerator:
+                gameEngineState.battleOrchestratorState.numberGenerator,
+            missionStatistics:
+                gameEngineState.battleOrchestratorState.battleState
+                    .missionStatistics,
         })
     }
 
@@ -319,7 +331,11 @@ describe("calculator", () => {
             actionStep
 
         return ActionCalculator.forecastResults({
-            gameEngineState,
+            missionMap,
+            battleActionDecisionStep: actionStep,
+            objectRepository,
+            battleActionRecorder: BattleActionRecorderService.new(),
+            numberGenerator: new RandomNumberGenerator(),
         })
     }
 
@@ -689,20 +705,12 @@ describe("calculator", () => {
             })
 
             const results = ActionCalculator.calculateAndApplyResults({
-                gameEngineState: GameEngineStateService.new({
-                    resourceHandler: undefined,
-                    battleOrchestratorState: BattleOrchestratorStateService.new(
-                        {
-                            battleState: BattleStateService.newBattleState({
-                                missionId: "test mission",
-                                campaignId: "test campaign",
-                                missionMap,
-                                battleActionDecisionStep: actionStep,
-                            }),
-                        }
-                    ),
-                    repository: objectRepository,
-                }),
+                battleActionDecisionStep: actionStep,
+                missionMap,
+                objectRepository,
+                battleActionRecorder: BattleActionRecorderService.new(),
+                numberGenerator: new RandomNumberGenerator(),
+                missionStatistics: MissionStatisticsService.new({}),
             })
 
             const ally1Changes =
@@ -741,20 +749,11 @@ describe("calculator", () => {
             })
 
             const results = ActionCalculator.forecastResults({
-                gameEngineState: GameEngineStateService.new({
-                    resourceHandler: undefined,
-                    battleOrchestratorState: BattleOrchestratorStateService.new(
-                        {
-                            battleState: BattleStateService.newBattleState({
-                                missionId: "test mission",
-                                campaignId: "test campaign",
-                                missionMap,
-                                battleActionDecisionStep: actionStep,
-                            }),
-                        }
-                    ),
-                    repository: objectRepository,
-                }),
+                missionMap,
+                battleActionDecisionStep: actionStep,
+                objectRepository,
+                battleActionRecorder: BattleActionRecorderService.new(),
+                numberGenerator: new RandomNumberGenerator(),
             })
 
             const ally1Changes =
@@ -798,21 +797,12 @@ describe("calculator", () => {
             })
 
             ActionCalculator.calculateAndApplyResults({
-                gameEngineState: GameEngineStateService.new({
-                    resourceHandler: undefined,
-                    battleOrchestratorState: BattleOrchestratorStateService.new(
-                        {
-                            battleState: BattleStateService.newBattleState({
-                                missionId: "test mission",
-                                campaignId: "test campaign",
-                                missionMap,
-                                missionStatistics,
-                                battleActionDecisionStep: actionStep,
-                            }),
-                        }
-                    ),
-                    repository: objectRepository,
-                }),
+                battleActionDecisionStep: actionStep,
+                missionMap,
+                objectRepository,
+                battleActionRecorder: BattleActionRecorderService.new(),
+                numberGenerator: new RandomNumberGenerator(),
+                missionStatistics,
             })
 
             expect(missionStatistics.healingReceivedByPlayerTeam).toBe(2)
@@ -882,20 +872,12 @@ describe("calculator", () => {
                 targetCoordinate: { q: 0, r: 0 },
             })
             const results = ActionCalculator.calculateAndApplyResults({
-                gameEngineState: GameEngineStateService.new({
-                    resourceHandler: undefined,
-                    battleOrchestratorState: BattleOrchestratorStateService.new(
-                        {
-                            battleState: BattleStateService.newBattleState({
-                                missionId: "test mission",
-                                campaignId: "test campaign",
-                                missionMap,
-                                battleActionDecisionStep: actionStep,
-                            }),
-                        }
-                    ),
-                    repository: objectRepository,
-                }),
+                battleActionDecisionStep: actionStep,
+                missionMap,
+                objectRepository,
+                battleActionRecorder: BattleActionRecorderService.new(),
+                numberGenerator: new RandomNumberGenerator(),
+                missionStatistics: MissionStatisticsService.new({}),
             })
 
             const player1Changes =
@@ -1117,23 +1099,12 @@ describe("calculator", () => {
                 )
 
                 const results = ActionCalculator.calculateAndApplyResults({
-                    gameEngineState: GameEngineStateService.new({
-                        repository: objectRepository,
-                        resourceHandler: undefined,
-                        battleOrchestratorState:
-                            BattleOrchestratorStateService.new({
-                                numberGenerator,
-                                battleState: BattleStateService.newBattleState({
-                                    missionId: "test mission",
-                                    campaignId: "test campaign",
-                                    missionMap,
-                                    battleActionRecorder,
-                                    missionStatistics:
-                                        MissionStatisticsService.new({}),
-                                    battleActionDecisionStep: currentActionStep,
-                                }),
-                            }),
-                    }),
+                    battleActionDecisionStep: currentActionStep,
+                    missionMap,
+                    objectRepository,
+                    battleActionRecorder,
+                    numberGenerator,
+                    missionStatistics: MissionStatisticsService.new({}),
                 })
 
                 const enemy1Changes =
@@ -1153,25 +1124,11 @@ describe("calculator", () => {
             it("reduces the forecasted chance to succeed because of the penalty", () => {
                 const forecastForFirstAttack = ActionCalculator.forecastResults(
                     {
-                        gameEngineState: GameEngineStateService.new({
-                            repository: objectRepository,
-                            resourceHandler: undefined,
-                            battleOrchestratorState:
-                                BattleOrchestratorStateService.new({
-                                    battleState:
-                                        BattleStateService.newBattleState({
-                                            missionId: "test mission",
-                                            campaignId: "test campaign",
-                                            missionMap,
-                                            missionStatistics:
-                                                MissionStatisticsService.new(
-                                                    {}
-                                                ),
-                                            battleActionDecisionStep:
-                                                currentActionStep,
-                                        }),
-                                }),
-                        }),
+                        missionMap,
+                        battleActionDecisionStep: currentActionStep,
+                        objectRepository,
+                        battleActionRecorder: BattleActionRecorderService.new(),
+                        numberGenerator: new RandomNumberGenerator(),
                     }
                 )
 
@@ -1196,26 +1153,11 @@ describe("calculator", () => {
 
                 const forecastForSecondAttack =
                     ActionCalculator.forecastResults({
-                        gameEngineState: GameEngineStateService.new({
-                            repository: objectRepository,
-                            resourceHandler: undefined,
-                            battleOrchestratorState:
-                                BattleOrchestratorStateService.new({
-                                    battleState:
-                                        BattleStateService.newBattleState({
-                                            missionId: "test mission",
-                                            campaignId: "test campaign",
-                                            missionMap,
-                                            battleActionRecorder,
-                                            missionStatistics:
-                                                MissionStatisticsService.new(
-                                                    {}
-                                                ),
-                                            battleActionDecisionStep:
-                                                currentActionStep,
-                                        }),
-                                }),
-                        }),
+                        missionMap,
+                        battleActionDecisionStep: currentActionStep,
+                        objectRepository,
+                        battleActionRecorder,
+                        numberGenerator: new RandomNumberGenerator(),
                     })
                 expect(
                     forecastForSecondAttack.changesPerEffect[0].actorContext
@@ -1488,7 +1430,14 @@ describe("calculator", () => {
             gameEngineState.battleOrchestratorState.battleState.battleActionDecisionStep =
                 actionStep
             const results = ActionCalculator.calculateAndApplyResults({
-                gameEngineState,
+                battleActionDecisionStep: actionStep,
+                missionMap,
+                objectRepository,
+                battleActionRecorder:
+                    gameEngineState.battleOrchestratorState.battleState
+                        .battleActionRecorder,
+                numberGenerator,
+                missionStatistics: MissionStatisticsService.new({}),
             })
 
             const enemy1Changes =

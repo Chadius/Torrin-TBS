@@ -441,7 +441,22 @@ describe("Player Decision HUD", () => {
             beforeEach(() => {
                 gameEngineState.messageBoard.sendMessage({
                     type: MessageBoardMessageType.PLAYER_CONSIDERS_ACTION,
-                    gameEngineState,
+                    playerConsideredActions:
+                        gameEngineState.battleOrchestratorState.battleState
+                            .playerConsideredActions,
+                    summaryHUDState:
+                        gameEngineState.battleOrchestratorState.battleHUDState
+                            .summaryHUDState,
+                    playerDecisionHUD:
+                        gameEngineState.battleOrchestratorState
+                            .playerDecisionHUD,
+                    missionMap:
+                        gameEngineState.battleOrchestratorState.battleState
+                            .missionMap,
+                    battleActionDecisionStep:
+                        gameEngineState.battleOrchestratorState.battleState
+                            .battleActionDecisionStep,
+                    objectRepository: gameEngineState.repository,
                     useAction: {
                         actionTemplateId: longswordAction.id,
                         isEndTurn: false,
@@ -474,7 +489,22 @@ describe("Player Decision HUD", () => {
 
             gameEngineState.messageBoard.sendMessage({
                 type: MessageBoardMessageType.PLAYER_CONSIDERS_ACTION,
-                gameEngineState,
+                playerConsideredActions:
+                    gameEngineState.battleOrchestratorState.battleState
+                        .playerConsideredActions,
+                summaryHUDState:
+                    gameEngineState.battleOrchestratorState.battleHUDState
+                        .summaryHUDState,
+                playerDecisionHUD:
+                    gameEngineState.battleOrchestratorState.playerDecisionHUD,
+                missionMap:
+                    gameEngineState.battleOrchestratorState.battleState
+                        .missionMap,
+                battleActionDecisionStep:
+                    gameEngineState.battleOrchestratorState.battleState
+                        .battleActionDecisionStep,
+                objectRepository: gameEngineState.repository,
+
                 useAction: {
                     actionTemplateId: longswordAction.id,
                     isEndTurn: false,
@@ -500,7 +530,22 @@ describe("Player Decision HUD", () => {
             beforeEach(() => {
                 gameEngineState.messageBoard.sendMessage({
                     type: MessageBoardMessageType.PLAYER_CONSIDERS_ACTION,
-                    gameEngineState,
+                    playerConsideredActions:
+                        gameEngineState.battleOrchestratorState.battleState
+                            .playerConsideredActions,
+                    summaryHUDState:
+                        gameEngineState.battleOrchestratorState.battleHUDState
+                            .summaryHUDState,
+                    playerDecisionHUD:
+                        gameEngineState.battleOrchestratorState
+                            .playerDecisionHUD,
+                    missionMap:
+                        gameEngineState.battleOrchestratorState.battleState
+                            .missionMap,
+                    battleActionDecisionStep:
+                        gameEngineState.battleOrchestratorState.battleState
+                            .battleActionDecisionStep,
+                    objectRepository: gameEngineState.repository,
                     useAction: {
                         actionTemplateId: undefined,
                         isEndTurn: true,
@@ -522,7 +567,22 @@ describe("Player Decision HUD", () => {
 
                 gameEngineState.messageBoard.sendMessage({
                     type: MessageBoardMessageType.PLAYER_CONSIDERS_ACTION,
-                    gameEngineState,
+                    playerConsideredActions:
+                        gameEngineState.battleOrchestratorState.battleState
+                            .playerConsideredActions,
+                    summaryHUDState:
+                        gameEngineState.battleOrchestratorState.battleHUDState
+                            .summaryHUDState,
+                    playerDecisionHUD:
+                        gameEngineState.battleOrchestratorState
+                            .playerDecisionHUD,
+                    missionMap:
+                        gameEngineState.battleOrchestratorState.battleState
+                            .missionMap,
+                    battleActionDecisionStep:
+                        gameEngineState.battleOrchestratorState.battleState
+                            .battleActionDecisionStep,
+                    objectRepository: gameEngineState.repository,
                     useAction: {
                         actionTemplateId: undefined,
                         isEndTurn: false,
@@ -557,7 +617,22 @@ describe("Player Decision HUD", () => {
                 }
                 gameEngineState.messageBoard.sendMessage({
                     type: MessageBoardMessageType.PLAYER_CONSIDERS_ACTION,
-                    gameEngineState,
+                    playerConsideredActions:
+                        gameEngineState.battleOrchestratorState.battleState
+                            .playerConsideredActions,
+                    summaryHUDState:
+                        gameEngineState.battleOrchestratorState.battleHUDState
+                            .summaryHUDState,
+                    playerDecisionHUD:
+                        gameEngineState.battleOrchestratorState
+                            .playerDecisionHUD,
+                    missionMap:
+                        gameEngineState.battleOrchestratorState.battleState
+                            .missionMap,
+                    battleActionDecisionStep:
+                        gameEngineState.battleOrchestratorState.battleState
+                            .battleActionDecisionStep,
+                    objectRepository: gameEngineState.repository,
                     useAction: {
                         actionTemplateId: undefined,
                         isEndTurn: false,
@@ -576,7 +651,22 @@ describe("Player Decision HUD", () => {
             it("can cancel consideration", () => {
                 gameEngineState.messageBoard.sendMessage({
                     type: MessageBoardMessageType.PLAYER_CONSIDERS_ACTION,
-                    gameEngineState,
+                    playerConsideredActions:
+                        gameEngineState.battleOrchestratorState.battleState
+                            .playerConsideredActions,
+                    summaryHUDState:
+                        gameEngineState.battleOrchestratorState.battleHUDState
+                            .summaryHUDState,
+                    playerDecisionHUD:
+                        gameEngineState.battleOrchestratorState
+                            .playerDecisionHUD,
+                    missionMap:
+                        gameEngineState.battleOrchestratorState.battleState
+                            .missionMap,
+                    battleActionDecisionStep:
+                        gameEngineState.battleOrchestratorState.battleState
+                            .battleActionDecisionStep,
+                    objectRepository: gameEngineState.repository,
                     useAction: {
                         actionTemplateId: undefined,
                         isEndTurn: false,
@@ -639,7 +729,24 @@ describe("Player Decision HUD", () => {
 
             gameEngineState.messageBoard.sendMessage({
                 type: MessageBoardMessageType.PLAYER_CANCELS_PLAYER_ACTION_CONSIDERATIONS,
-                gameEngineState,
+                missionMap:
+                    gameEngineState.battleOrchestratorState.battleState
+                        .missionMap,
+                summaryHUDState:
+                    gameEngineState.battleOrchestratorState.battleHUDState
+                        .summaryHUDState,
+                battleActionDecisionStep:
+                    gameEngineState.battleOrchestratorState.battleState
+                        .battleActionDecisionStep,
+                battleActionRecorder:
+                    gameEngineState.battleOrchestratorState.battleState
+                        .battleActionRecorder,
+                playerConsideredActions:
+                    gameEngineState.battleOrchestratorState.battleState
+                        .playerConsideredActions,
+                playerDecisionHUD:
+                    gameEngineState.battleOrchestratorState.playerDecisionHUD,
+                objectRepository: gameEngineState.repository,
             })
 
             expect(

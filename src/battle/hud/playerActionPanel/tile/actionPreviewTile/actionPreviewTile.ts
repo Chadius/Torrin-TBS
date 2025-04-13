@@ -1,5 +1,4 @@
 import { GraphicsBuffer } from "../../../../../utils/graphics/graphicsRenderer"
-import { GameEngineState } from "../../../../../gameEngine/gameEngine"
 import {
     ObjectRepository,
     ObjectRepositoryService,
@@ -11,7 +10,10 @@ import {
 import { SquaddieAffiliation } from "../../../../../squaddie/squaddieAffiliation"
 import { TextBox } from "../../../../../ui/textBox/textBox"
 import { getResultOrThrowError } from "../../../../../utils/ResultOrError"
-import { BattleActionDecisionStepService } from "../../../../actionDecision/battleActionDecisionStep"
+import {
+    BattleActionDecisionStep,
+    BattleActionDecisionStepService,
+} from "../../../../actionDecision/battleActionDecisionStep"
 import {
     GOLDEN_RATIO,
     HORIZONTAL_ALIGN,
@@ -40,6 +42,9 @@ import {
     CreateLeftModifiersTextBoxAction,
     CreateRightModifiersTextBoxAction,
 } from "./uiObjects/modifiers"
+import { MissionMap } from "../../../../../missionMap/missionMap"
+import { BattleActionRecorder } from "../../../../history/battleAction/battleActionRecorder"
+import { NumberGeneratorStrategy } from "../../../../numberGenerator/strategy"
 
 export interface ActionPreviewTile {
     forecast: CalculatedResult
@@ -147,25 +152,35 @@ export interface ActionPreviewTileUIObjects {
 
 export const ActionPreviewTileService = {
     new: ({
-        gameEngineState,
+        battleActionDecisionStep,
+        objectRepository,
+        missionMap,
+        battleActionRecorder,
+        numberGenerator,
     }: {
-        gameEngineState: GameEngineState
+        battleActionDecisionStep: BattleActionDecisionStep
         objectRepository: ObjectRepository
+        missionMap: MissionMap
+        battleActionRecorder: BattleActionRecorder
+        numberGenerator: NumberGeneratorStrategy
     }): ActionPreviewTile => {
         const battleSquaddieId = BattleActionDecisionStepService.getActor(
-            gameEngineState.battleOrchestratorState.battleState
-                .battleActionDecisionStep
+            battleActionDecisionStep
         ).battleSquaddieId
 
         const { squaddieTemplate } = getResultOrThrowError(
             ObjectRepositoryService.getSquaddieByBattleId(
-                gameEngineState.repository,
+                objectRepository,
                 battleSquaddieId
             )
         )
 
         const forecast = ActionCalculator.forecastResults({
-            gameEngineState,
+            battleActionDecisionStep,
+            missionMap,
+            objectRepository,
+            battleActionRecorder,
+            numberGenerator,
         })
 
         const dataBlob: DataBlob = DataBlobService.new()
@@ -283,8 +298,9 @@ export const ActionPreviewTileService = {
         }
         const context = createActionPreviewTileContext({
             squaddieTemplate: squaddieTemplate,
-            gameEngineState: gameEngineState,
             forecast: forecast,
+            objectRepository,
+            battleActionDecisionStep,
         })
 
         DataBlobService.add<ActionPreviewTileLayout>(dataBlob, "layout", layout)
@@ -447,12 +463,14 @@ const createDrawingBehaviorTree = (blackboard: DataBlob) => {
 
 const createActionPreviewTileContext = ({
     squaddieTemplate,
-    gameEngineState,
     forecast,
+    objectRepository,
+    battleActionDecisionStep,
 }: {
     squaddieTemplate: SquaddieTemplate
-    gameEngineState: GameEngineState
+    objectRepository: ObjectRepository
     forecast: CalculatedResult
+    battleActionDecisionStep: BattleActionDecisionStep
 }) => {
     const squaddieNamesByBattleSquaddieId: {
         [battleSquaddieId: string]: string
@@ -462,7 +480,7 @@ const createActionPreviewTileContext = ({
         effect.squaddieChanges.forEach((squaddieChange) => {
             const { squaddieTemplate } = getResultOrThrowError(
                 ObjectRepositoryService.getSquaddieByBattleId(
-                    gameEngineState.repository,
+                    objectRepository,
                     squaddieChange.battleSquaddieId
                 )
             )
@@ -473,11 +491,10 @@ const createActionPreviewTileContext = ({
     })
 
     const actionTemplateId = BattleActionDecisionStepService.getAction(
-        gameEngineState.battleOrchestratorState.battleState
-            .battleActionDecisionStep
+        battleActionDecisionStep
     ).actionTemplateId
     const actionTemplate = ObjectRepositoryService.getActionTemplateById(
-        gameEngineState.repository,
+        objectRepository,
         actionTemplateId
     )
 

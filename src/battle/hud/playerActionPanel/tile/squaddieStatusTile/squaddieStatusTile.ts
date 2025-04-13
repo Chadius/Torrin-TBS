@@ -51,7 +51,10 @@ import {
 import { DrawImagesAction } from "../../../../../ui/imageUI/drawImagesAction"
 import { DrawHorizontalMeterActionDataBlob } from "../../../horizontalBar/drawHorizontalMeterAction"
 import { GameEngineState } from "../../../../../gameEngine/gameEngine"
-import { BattleActionDecisionStepService } from "../../../../actionDecision/battleActionDecisionStep"
+import {
+    BattleActionDecisionStep,
+    BattleActionDecisionStepService,
+} from "../../../../actionDecision/battleActionDecisionStep"
 import {
     PlayerConsideredActions,
     PlayerConsideredActionsService,
@@ -390,8 +393,16 @@ export const SquaddieStatusTileService = {
         )
 
         updateContext({
-            dataBlob: dataBlob,
-            gameEngineState,
+            dataBlob,
+            objectRepository: gameEngineState.repository,
+            missionMap:
+                gameEngineState.battleOrchestratorState.battleState.missionMap,
+            playerConsideredActions:
+                gameEngineState.battleOrchestratorState.battleState
+                    .playerConsideredActions,
+            battleActionDecisionStep:
+                gameEngineState.battleOrchestratorState.battleState
+                    .battleActionDecisionStep,
         })
 
         return {
@@ -436,14 +447,23 @@ export const SquaddieStatusTileService = {
     },
     updateTileUsingSquaddie: ({
         tile,
-        gameEngineState,
+        missionMap,
+        playerConsideredActions,
+        battleActionDecisionStep,
+        objectRepository,
     }: {
         tile: SquaddieStatusTile
-        gameEngineState: GameEngineState
+        missionMap: MissionMap
+        playerConsideredActions: PlayerConsideredActions
+        battleActionDecisionStep: BattleActionDecisionStep
+        objectRepository: ObjectRepository
     }) => {
         updateContext({
             dataBlob: tile.data,
-            gameEngineState,
+            objectRepository,
+            missionMap,
+            playerConsideredActions,
+            battleActionDecisionStep,
         })
     },
     calculateHitPoints: (
@@ -530,13 +550,16 @@ export const SquaddieStatusTileService = {
             unallocatedActionPoints,
         }
     },
-    getContextVariablesThatDependOnTargetSquaddie: (
-        gameEngineState: GameEngineState,
+    getContextVariablesThatDependOnTargetSquaddie: ({
+        battleSquaddieId,
+        objectRepository,
+    }: {
         battleSquaddieId: string
-    ) => {
+        objectRepository: ObjectRepository
+    }) => {
         const { squaddieTemplate, battleSquaddie } = getResultOrThrowError(
             ObjectRepositoryService.getSquaddieByBattleId(
-                gameEngineState.repository,
+                objectRepository,
                 battleSquaddieId
             )
         )
@@ -554,13 +577,18 @@ export const SquaddieStatusTileService = {
             },
         }
     },
-    getContextVariablesThatDependOnActorSquaddie: (
-        gameEngineState: GameEngineState,
+    getContextVariablesThatDependOnActorSquaddie: ({
+        battleSquaddieId,
+        playerConsideredActions,
+        objectRepository,
+    }: {
         battleSquaddieId: string
-    ) => {
+        playerConsideredActions: PlayerConsideredActions
+        objectRepository: ObjectRepository
+    }) => {
         const { squaddieTemplate, battleSquaddie } = getResultOrThrowError(
             ObjectRepositoryService.getSquaddieByBattleId(
-                gameEngineState.repository,
+                objectRepository,
                 battleSquaddieId
             )
         )
@@ -577,10 +605,8 @@ export const SquaddieStatusTileService = {
                 actionPointsMarked:
                     PlayerConsideredActionsService.getExpectedMarkedActionPointsBasedOnPlayerConsideration(
                         {
-                            objectRepository: gameEngineState.repository,
-                            playerConsideredActions:
-                                gameEngineState.battleOrchestratorState
-                                    .battleState.playerConsideredActions,
+                            objectRepository,
+                            playerConsideredActions,
                             battleSquaddie,
                         }
                     ),
@@ -645,12 +671,19 @@ const createContext = ({
     const squaddieIsTheActor = battleSquaddieId === actorBattleSquaddieId
     const actorSquaddieDependentContext = squaddieIsTheActor
         ? SquaddieStatusTileService.getContextVariablesThatDependOnActorSquaddie(
-              gameEngineState,
-              battleSquaddieId
+              {
+                  battleSquaddieId,
+                  objectRepository: gameEngineState.repository,
+                  playerConsideredActions:
+                      gameEngineState.battleOrchestratorState.battleState
+                          .playerConsideredActions,
+              }
           )
         : SquaddieStatusTileService.getContextVariablesThatDependOnTargetSquaddie(
-              gameEngineState,
-              battleSquaddieId
+              {
+                  battleSquaddieId,
+                  objectRepository: gameEngineState.repository,
+              }
           )
 
     return {
@@ -742,15 +775,17 @@ const calculateCoordinates = (
 
 const updateContext = ({
     dataBlob,
-    gameEngineState,
+    objectRepository,
+    missionMap,
+    playerConsideredActions,
+    battleActionDecisionStep,
 }: {
     dataBlob: DataBlob
-    gameEngineState: GameEngineState
+    objectRepository: ObjectRepository
+    missionMap: MissionMap
+    playerConsideredActions: PlayerConsideredActions
+    battleActionDecisionStep: BattleActionDecisionStep
 }) => {
-    const objectRepository = gameEngineState.repository
-    const missionMap =
-        gameEngineState.battleOrchestratorState.battleState.missionMap
-
     const updateArmor = new SequenceComposite(dataBlob, [
         new DoesUIObjectExistCondition(dataBlob, "armor"),
         new InverterDecorator(
@@ -779,9 +814,18 @@ const updateContext = ({
         new DoesUIObjectExistCondition(dataBlob, "actionPoints"),
         new InverterDecorator(
             dataBlob,
-            new IsActionPointsCorrectCondition(dataBlob, gameEngineState)
+            new IsActionPointsCorrectCondition({
+                dataBlob,
+                objectRepository,
+                playerConsideredActions,
+            })
         ),
-        new UpdateActionPointsContextAction(dataBlob, gameEngineState),
+        new UpdateActionPointsContextAction({
+            dataBlob,
+            objectRepository,
+            playerConsideredActions,
+            battleActionDecisionStep,
+        }),
     ])
 
     const updateMovement = new SequenceComposite(dataBlob, [

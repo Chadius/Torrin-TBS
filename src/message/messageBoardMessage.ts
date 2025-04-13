@@ -14,6 +14,13 @@ import { BattleActionDecisionStep } from "../battle/actionDecision/battleActionD
 import { MissionMap } from "../missionMap/missionMap"
 import { ObjectRepository } from "../battle/objectRepository"
 import { CampaignResources } from "../campaign/campaignResources"
+import { SummaryHUDState } from "../battle/hud/summary/summaryHUD"
+import { NumberGeneratorStrategy } from "../battle/numberGenerator/strategy"
+import { BattleActionRecorder } from "../battle/history/battleAction/battleActionRecorder"
+import { MessageBoard } from "./messageBoard"
+import { MissionStatistics } from "../battle/missionStatistics/missionStatistics"
+import { PlayerConsideredActions } from "../battle/battleState/playerConsideredActions"
+import { PlayerDecisionHUD } from "../battle/hud/playerActionPanel/playerDecisionHUD"
 
 export type MessageBoardMessage =
     | MessageBoardMessageBase
@@ -159,11 +166,14 @@ export interface MessageBoardBattleActionFinishesAnimation {
 
 export interface MessageBoardMessagePlayerSelectsActionThatRequiresATarget {
     type: MessageBoardMessageType.PLAYER_SELECTS_ACTION_THAT_REQUIRES_A_TARGET
-    gameEngineState: GameEngineState
+    objectRepository: ObjectRepository
+    missionMap: MissionMap
+    summaryHUDState: SummaryHUDState
+    battleActionDecisionStep: BattleActionDecisionStep
+    messageBoard: MessageBoard
     actionTemplateId: string
     battleSquaddieId: string
     mapStartingCoordinate: HexCoordinate
-    mouseLocation: ScreenLocation
 }
 
 export interface MessageBoardMessagePlayerSelectsActionWithKnownTargets {
@@ -177,13 +187,23 @@ export interface MessageBoardMessagePlayerSelectsActionWithKnownTargets {
 
 export interface MessageBoardMessagePlayerSelectsTargetCoordinate {
     type: MessageBoardMessageType.PLAYER_SELECTS_TARGET_COORDINATE
+    numberGenerator: NumberGeneratorStrategy
+    missionMap: MissionMap
+    battleActionDecisionStep: BattleActionDecisionStep
+    battleActionRecorder: BattleActionRecorder
+    summaryHUDState: SummaryHUDState
+    objectRepository: ObjectRepository
     targetCoordinate: HexCoordinate
-    gameEngineState: GameEngineState
 }
 
 export interface MessageBoardMessagePlayerConfirmsAction {
     type: MessageBoardMessageType.PLAYER_CONFIRMS_ACTION
-    gameEngineState: GameEngineState
+    objectRepository: ObjectRepository
+    missionMap: MissionMap
+    battleActionDecisionStep: BattleActionDecisionStep
+    battleActionRecorder: BattleActionRecorder
+    numberGenerator: NumberGeneratorStrategy
+    missionStatistics: MissionStatistics
 }
 
 export interface MessageBoardMessageSquaddiePhaseStarts {
@@ -212,7 +232,13 @@ export interface MessageBoardMessageMoveSquaddieToCoordinate {
 
 export interface MessageBoardMessagePlayerCancelsPlayerActionConsiderations {
     type: MessageBoardMessageType.PLAYER_CANCELS_PLAYER_ACTION_CONSIDERATIONS
-    gameEngineState: GameEngineState
+    missionMap: MissionMap
+    summaryHUDState: SummaryHUDState
+    battleActionDecisionStep: BattleActionDecisionStep
+    battleActionRecorder: BattleActionRecorder
+    playerConsideredActions: PlayerConsideredActions
+    playerDecisionHUD: PlayerDecisionHUD
+    objectRepository: ObjectRepository
 }
 
 export interface MessageBoardMessagePlayerSelectsEmptyTile {
@@ -223,7 +249,6 @@ export interface MessageBoardMessagePlayerSelectsEmptyTile {
 
 export interface MessageBoardMessagePlayerConfirmsDecisionStepActor {
     type: MessageBoardMessageType.PLAYER_CONFIRMS_DECISION_STEP_ACTOR
-    gameEngineState: GameEngineState
     recommendedMode: BattleOrchestratorMode
 }
 
@@ -270,7 +295,13 @@ export interface MessageBoardMessagePlayerDataLoadFinishRequest {
 
 export interface MessageBoardMessagePlayerConsidersAction {
     type: MessageBoardMessageType.PLAYER_CONSIDERS_ACTION
-    gameEngineState: GameEngineState
+    playerConsideredActions: PlayerConsideredActions
+    summaryHUDState: SummaryHUDState
+    playerDecisionHUD: PlayerDecisionHUD
+    missionMap: MissionMap
+    battleActionDecisionStep: BattleActionDecisionStep
+    objectRepository: ObjectRepository
+
     useAction: {
         actionTemplateId: string
         isEndTurn: boolean

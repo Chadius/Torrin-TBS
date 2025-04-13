@@ -75,6 +75,8 @@ import {
     RollResultService,
 } from "../../../../calculator/actionCalculator/rollResult"
 import { AttributeType } from "../../../../../squaddie/attribute/attributeType"
+import { BattleActionRecorderService } from "../../../../history/battleAction/battleActionRecorder"
+import { RandomNumberGenerator } from "../../../../numberGenerator/random"
 
 describe("Action Preview Tile", () => {
     let objectRepository: ObjectRepository
@@ -192,8 +194,13 @@ describe("Action Preview Tile", () => {
                 actionStep
 
             tile = ActionPreviewTileService.new({
-                gameEngineState,
                 objectRepository,
+                battleActionDecisionStep: actionStep,
+                missionMap:
+                    gameEngineState.battleOrchestratorState.battleState
+                        .missionMap,
+                battleActionRecorder: BattleActionRecorderService.new(),
+                numberGenerator: new RandomNumberGenerator(),
             })
         })
 
@@ -344,8 +351,15 @@ describe("Action Preview Tile", () => {
             ])
 
             tile = ActionPreviewTileService.new({
-                gameEngineState,
                 objectRepository,
+                battleActionDecisionStep:
+                    gameEngineState.battleOrchestratorState.battleState
+                        .battleActionDecisionStep,
+                missionMap:
+                    gameEngineState.battleOrchestratorState.battleState
+                        .missionMap,
+                battleActionRecorder: BattleActionRecorderService.new(),
+                numberGenerator: new RandomNumberGenerator(),
             })
 
             ActionPreviewTileService.draw({
@@ -380,8 +394,15 @@ describe("Action Preview Tile", () => {
             ])
 
             tile = ActionPreviewTileService.new({
-                gameEngineState,
                 objectRepository,
+                battleActionDecisionStep:
+                    gameEngineState.battleOrchestratorState.battleState
+                        .battleActionDecisionStep,
+                missionMap:
+                    gameEngineState.battleOrchestratorState.battleState
+                        .missionMap,
+                battleActionRecorder: BattleActionRecorderService.new(),
+                numberGenerator: new RandomNumberGenerator(),
             })
 
             ActionPreviewTileService.draw({
@@ -618,8 +639,15 @@ describe("Action Preview Tile", () => {
                     actionStep
 
                 tile = ActionPreviewTileService.new({
-                    gameEngineState,
                     objectRepository,
+                    battleActionDecisionStep:
+                        gameEngineState.battleOrchestratorState.battleState
+                            .battleActionDecisionStep,
+                    missionMap:
+                        gameEngineState.battleOrchestratorState.battleState
+                            .missionMap,
+                    battleActionRecorder: BattleActionRecorderService.new(),
+                    numberGenerator: new RandomNumberGenerator(),
                 })
                 graphicsBuffer = new MockedP5GraphicsBuffer()
                 graphicsBufferSpies =
@@ -814,8 +842,15 @@ describe("Action Preview Tile", () => {
                     actionStep
 
                 tile = ActionPreviewTileService.new({
-                    gameEngineState,
                     objectRepository,
+                    battleActionDecisionStep:
+                        gameEngineState.battleOrchestratorState.battleState
+                            .battleActionDecisionStep,
+                    missionMap:
+                        gameEngineState.battleOrchestratorState.battleState
+                            .missionMap,
+                    battleActionRecorder: BattleActionRecorderService.new(),
+                    numberGenerator: new RandomNumberGenerator(),
                 })
                 graphicsBuffer = new MockedP5GraphicsBuffer()
                 graphicsBufferSpies =
@@ -1157,8 +1192,14 @@ const createAndDrawTile = (
     graphicsBuffer: GraphicsBuffer
 ) => {
     const tile = ActionPreviewTileService.new({
-        gameEngineState,
         objectRepository,
+        battleActionDecisionStep:
+            gameEngineState.battleOrchestratorState.battleState
+                .battleActionDecisionStep,
+        missionMap:
+            gameEngineState.battleOrchestratorState.battleState.missionMap,
+        battleActionRecorder: BattleActionRecorderService.new(),
+        numberGenerator: new RandomNumberGenerator(),
     })
 
     ActionPreviewTileService.draw({

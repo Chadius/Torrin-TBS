@@ -904,9 +904,14 @@ describe("Battle HUD", () => {
             })
             it("it knows the squaddie is not taking their turn", () => {
                 expect(
-                    OrchestratorUtilities.isSquaddieCurrentlyTakingATurn(
-                        gameEngineState
-                    )
+                    OrchestratorUtilities.isSquaddieCurrentlyTakingATurn({
+                        battleActionDecisionStep:
+                            gameEngineState.battleOrchestratorState.battleState
+                                .battleActionDecisionStep,
+                        battleActionRecorder:
+                            gameEngineState.battleOrchestratorState.battleState
+                                .battleActionRecorder,
+                    })
                 ).toBeFalsy()
             })
             it("it knows the squaddie is still considering an action", () => {
@@ -977,9 +982,14 @@ describe("Battle HUD", () => {
             })
             it("it knows the squaddie is still taking their turn", () => {
                 expect(
-                    OrchestratorUtilities.isSquaddieCurrentlyTakingATurn(
-                        gameEngineState
-                    )
+                    OrchestratorUtilities.isSquaddieCurrentlyTakingATurn({
+                        battleActionDecisionStep:
+                            gameEngineState.battleOrchestratorState.battleState
+                                .battleActionDecisionStep,
+                        battleActionRecorder:
+                            gameEngineState.battleOrchestratorState.battleState
+                                .battleActionRecorder,
+                    })
                 ).toBeTruthy()
             })
             it("it has an actor in the player battle action builder", () => {
@@ -1166,7 +1176,6 @@ describe("Battle HUD", () => {
             it("will submit an event saying the action is ready", () => {
                 const expectedMessage: MessageBoardMessage = {
                     type: MessageBoardMessageType.PLAYER_CONFIRMS_DECISION_STEP_ACTOR,
-                    gameEngineState,
                     recommendedMode:
                         BattleOrchestratorMode.PLAYER_HUD_CONTROLLER,
                 }
@@ -1212,12 +1221,21 @@ describe("Battle HUD", () => {
                 )
                 gameEngineState.messageBoard.sendMessage({
                     type: MessageBoardMessageType.PLAYER_SELECTS_ACTION_THAT_REQUIRES_A_TARGET,
-                    gameEngineState,
+                    objectRepository: gameEngineState.repository,
+                    missionMap:
+                        gameEngineState.battleOrchestratorState.battleState
+                            .missionMap,
+                    summaryHUDState:
+                        gameEngineState.battleOrchestratorState.battleHUDState
+                            .summaryHUDState,
+                    battleActionDecisionStep:
+                        gameEngineState.battleOrchestratorState.battleState
+                            .battleActionDecisionStep,
+                    messageBoard: gameEngineState.messageBoard,
                     actionTemplateId: longswordAction.id,
                     battleSquaddieId:
                         playerSoldierBattleSquaddie.battleSquaddieId,
                     mapStartingCoordinate: { q: 0, r: 0 },
-                    mouseLocation: { x: 0, y: 0 },
                 })
             })
 
@@ -1285,7 +1303,6 @@ describe("Battle HUD", () => {
             it("will submit an event saying the action is ready", () => {
                 const expectedMessage: MessageBoardMessage = {
                     type: MessageBoardMessageType.PLAYER_CONFIRMS_DECISION_STEP_ACTOR,
-                    gameEngineState,
                     recommendedMode:
                         BattleOrchestratorMode.PLAYER_HUD_CONTROLLER,
                 }
@@ -1386,7 +1403,6 @@ describe("Battle HUD", () => {
             it("will submit an event saying the action is ready", () => {
                 const expectedMessage: MessageBoardMessage = {
                     type: MessageBoardMessageType.PLAYER_CONFIRMS_DECISION_STEP_ACTOR,
-                    gameEngineState,
                     recommendedMode:
                         BattleOrchestratorMode.PLAYER_HUD_CONTROLLER,
                 }
@@ -1441,8 +1457,22 @@ describe("Battle HUD", () => {
             )
             gameEngineState.messageBoard.sendMessage({
                 type: MessageBoardMessageType.PLAYER_SELECTS_TARGET_COORDINATE,
-                gameEngineState,
+                missionMap:
+                    gameEngineState.battleOrchestratorState.battleState
+                        .missionMap,
+                battleActionDecisionStep:
+                    gameEngineState.battleOrchestratorState.battleState
+                        .battleActionDecisionStep,
+                summaryHUDState:
+                    gameEngineState.battleOrchestratorState.battleHUDState
+                        .summaryHUDState,
+                objectRepository: gameEngineState.repository,
                 targetCoordinate: { q: 0, r: 1 },
+                battleActionRecorder:
+                    gameEngineState.battleOrchestratorState.battleState
+                        .battleActionRecorder,
+                numberGenerator:
+                    gameEngineState.battleOrchestratorState.numberGenerator,
             })
         })
 
@@ -1551,7 +1581,21 @@ describe("Battle HUD", () => {
         it("should create a confirmed action in the action builder", () => {
             gameEngineState.messageBoard.sendMessage({
                 type: MessageBoardMessageType.PLAYER_CONFIRMS_ACTION,
-                gameEngineState,
+                battleActionDecisionStep:
+                    gameEngineState.battleOrchestratorState.battleState
+                        .battleActionDecisionStep,
+                missionMap:
+                    gameEngineState.battleOrchestratorState.battleState
+                        .missionMap,
+                objectRepository: gameEngineState.repository,
+                battleActionRecorder:
+                    gameEngineState.battleOrchestratorState.battleState
+                        .battleActionRecorder,
+                numberGenerator:
+                    gameEngineState.battleOrchestratorState.numberGenerator,
+                missionStatistics:
+                    gameEngineState.battleOrchestratorState.battleState
+                        .missionStatistics,
             })
             expect(
                 BattleActionDecisionStepService.isTargetConfirmed(
@@ -1564,7 +1608,21 @@ describe("Battle HUD", () => {
         it("should consume the squaddie action points", () => {
             gameEngineState.messageBoard.sendMessage({
                 type: MessageBoardMessageType.PLAYER_CONFIRMS_ACTION,
-                gameEngineState,
+                battleActionDecisionStep:
+                    gameEngineState.battleOrchestratorState.battleState
+                        .battleActionDecisionStep,
+                missionMap:
+                    gameEngineState.battleOrchestratorState.battleState
+                        .missionMap,
+                objectRepository: gameEngineState.repository,
+                battleActionRecorder:
+                    gameEngineState.battleOrchestratorState.battleState
+                        .battleActionRecorder,
+                numberGenerator:
+                    gameEngineState.battleOrchestratorState.numberGenerator,
+                missionStatistics:
+                    gameEngineState.battleOrchestratorState.battleState
+                        .missionStatistics,
             })
             const { squaddieTemplate } = getResultOrThrowError(
                 ObjectRepositoryService.getSquaddieByBattleId(
@@ -1587,7 +1645,21 @@ describe("Battle HUD", () => {
             longswordAction.resourceCost.cooldownTurns = 3
             gameEngineState.messageBoard.sendMessage({
                 type: MessageBoardMessageType.PLAYER_CONFIRMS_ACTION,
-                gameEngineState,
+                battleActionDecisionStep:
+                    gameEngineState.battleOrchestratorState.battleState
+                        .battleActionDecisionStep,
+                missionMap:
+                    gameEngineState.battleOrchestratorState.battleState
+                        .missionMap,
+                objectRepository: gameEngineState.repository,
+                battleActionRecorder:
+                    gameEngineState.battleOrchestratorState.battleState
+                        .battleActionRecorder,
+                numberGenerator:
+                    gameEngineState.battleOrchestratorState.numberGenerator,
+                missionStatistics:
+                    gameEngineState.battleOrchestratorState.battleState
+                        .missionStatistics,
             })
 
             expect(
@@ -1602,7 +1674,21 @@ describe("Battle HUD", () => {
         it("should add an action to the action builder with an expected context", () => {
             gameEngineState.messageBoard.sendMessage({
                 type: MessageBoardMessageType.PLAYER_CONFIRMS_ACTION,
-                gameEngineState,
+                battleActionDecisionStep:
+                    gameEngineState.battleOrchestratorState.battleState
+                        .battleActionDecisionStep,
+                missionMap:
+                    gameEngineState.battleOrchestratorState.battleState
+                        .missionMap,
+                objectRepository: gameEngineState.repository,
+                battleActionRecorder:
+                    gameEngineState.battleOrchestratorState.battleState
+                        .battleActionRecorder,
+                numberGenerator:
+                    gameEngineState.battleOrchestratorState.numberGenerator,
+                missionStatistics:
+                    gameEngineState.battleOrchestratorState.battleState
+                        .missionStatistics,
             })
             expect(
                 BattleActionRecorderService.peekAtAnimationQueue(
@@ -1699,7 +1785,21 @@ describe("Battle HUD", () => {
 
             gameEngineState.messageBoard.sendMessage({
                 type: MessageBoardMessageType.PLAYER_CONFIRMS_ACTION,
-                gameEngineState,
+                battleActionDecisionStep:
+                    gameEngineState.battleOrchestratorState.battleState
+                        .battleActionDecisionStep,
+                missionMap:
+                    gameEngineState.battleOrchestratorState.battleState
+                        .missionMap,
+                objectRepository: gameEngineState.repository,
+                battleActionRecorder:
+                    gameEngineState.battleOrchestratorState.battleState
+                        .battleActionRecorder,
+                numberGenerator:
+                    gameEngineState.battleOrchestratorState.numberGenerator,
+                missionStatistics:
+                    gameEngineState.battleOrchestratorState.battleState
+                        .missionStatistics,
             })
 
             expect(
@@ -1850,7 +1950,21 @@ describe("Battle HUD", () => {
             it("should add the results to the history", () => {
                 gameEngineState.messageBoard.sendMessage({
                     type: MessageBoardMessageType.PLAYER_CONFIRMS_ACTION,
-                    gameEngineState,
+                    battleActionDecisionStep:
+                        gameEngineState.battleOrchestratorState.battleState
+                            .battleActionDecisionStep,
+                    missionMap:
+                        gameEngineState.battleOrchestratorState.battleState
+                            .missionMap,
+                    objectRepository: gameEngineState.repository,
+                    battleActionRecorder:
+                        gameEngineState.battleOrchestratorState.battleState
+                            .battleActionRecorder,
+                    numberGenerator:
+                        gameEngineState.battleOrchestratorState.numberGenerator,
+                    missionStatistics:
+                        gameEngineState.battleOrchestratorState.battleState
+                            .missionStatistics,
                 })
                 const mostRecentAction =
                     BattleActionRecorderService.peekAtAnimationQueue(
@@ -1871,7 +1985,21 @@ describe("Battle HUD", () => {
             it("should store the calculated results", () => {
                 gameEngineState.messageBoard.sendMessage({
                     type: MessageBoardMessageType.PLAYER_CONFIRMS_ACTION,
-                    gameEngineState,
+                    battleActionDecisionStep:
+                        gameEngineState.battleOrchestratorState.battleState
+                            .battleActionDecisionStep,
+                    missionMap:
+                        gameEngineState.battleOrchestratorState.battleState
+                            .missionMap,
+                    objectRepository: gameEngineState.repository,
+                    battleActionRecorder:
+                        gameEngineState.battleOrchestratorState.battleState
+                            .battleActionRecorder,
+                    numberGenerator:
+                        gameEngineState.battleOrchestratorState.numberGenerator,
+                    missionStatistics:
+                        gameEngineState.battleOrchestratorState.battleState
+                            .missionStatistics,
                 })
                 const mostRecentAction =
                     BattleActionRecorderService.peekAtAnimationQueue(
@@ -2079,7 +2207,6 @@ describe("Battle HUD", () => {
             it("will submit an event saying the action is ready", () => {
                 const expectedMessage: MessageBoardMessage = {
                     type: MessageBoardMessageType.PLAYER_CONFIRMS_DECISION_STEP_ACTOR,
-                    gameEngineState,
                     recommendedMode:
                         BattleOrchestratorMode.PLAYER_HUD_CONTROLLER,
                 }

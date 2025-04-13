@@ -1062,7 +1062,9 @@ describe("summaryHUD", () => {
 
             SummaryHUDStateService.createActionTiles({
                 summaryHUDState,
-                gameEngineState,
+                battleActionDecisionStep:
+                    gameEngineState.battleOrchestratorState.battleState
+                        .battleActionDecisionStep,
                 objectRepository,
             })
 

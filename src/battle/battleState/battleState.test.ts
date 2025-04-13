@@ -632,26 +632,28 @@ describe("Battle State", () => {
                 resourceHandler: gameEngineState.resourceHandler,
             })
 
-            expect(updateTileUsingSquaddieSpy).toBeCalledWith({
-                tile: gameEngineState.battleOrchestratorState.battleHUDState
-                    .summaryHUDState.squaddieStatusTiles[
-                    ActionTilePosition.ACTOR_STATUS
-                ],
-                gameEngineState,
-                missionMap:
-                    gameEngineState.battleOrchestratorState.battleState
-                        .missionMap,
-            })
-            expect(updateTileUsingSquaddieSpy).toBeCalledWith({
-                tile: gameEngineState.battleOrchestratorState.battleHUDState
-                    .summaryHUDState.squaddieStatusTiles[
-                    ActionTilePosition.TARGET_STATUS
-                ],
-                gameEngineState,
-                missionMap:
-                    gameEngineState.battleOrchestratorState.battleState
-                        .missionMap,
-            })
+            expect(updateTileUsingSquaddieSpy).toBeCalledWith(
+                expect.objectContaining({
+                    tile: gameEngineState.battleOrchestratorState.battleHUDState
+                        .summaryHUDState.squaddieStatusTiles[
+                        ActionTilePosition.ACTOR_STATUS
+                    ],
+                    missionMap:
+                        gameEngineState.battleOrchestratorState.battleState
+                            .missionMap,
+                })
+            )
+            expect(updateTileUsingSquaddieSpy).toBeCalledWith(
+                expect.objectContaining({
+                    tile: gameEngineState.battleOrchestratorState.battleHUDState
+                        .summaryHUDState.squaddieStatusTiles[
+                        ActionTilePosition.TARGET_STATUS
+                    ],
+                    missionMap:
+                        gameEngineState.battleOrchestratorState.battleState
+                            .missionMap,
+                })
+            )
 
             updateTileUsingSquaddieSpy.mockRestore()
         })

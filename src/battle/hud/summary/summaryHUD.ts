@@ -16,11 +16,14 @@ import {
     SquaddieNameAndPortraitTile,
     SquaddieNameAndPortraitTileService,
 } from "../playerActionPanel/tile/squaddieNameAndPortraitTile"
-import { BattleActionDecisionStepService } from "../../actionDecision/battleActionDecisionStep"
+import {
+    BattleActionDecisionStep,
+    BattleActionDecisionStepService,
+} from "../../actionDecision/battleActionDecisionStep"
 import { RectAreaService } from "../../../ui/rectArea"
 import { getResultOrThrowError } from "../../../utils/ResultOrError"
 import { SquaddieService } from "../../../squaddie/squaddieService"
-import { MissionMapService } from "../../../missionMap/missionMap"
+import { MissionMap, MissionMapService } from "../../../missionMap/missionMap"
 import {
     ActionTilePosition,
     ActionTilePositionService,
@@ -37,6 +40,8 @@ import {
     ActionPreviewTile,
     ActionPreviewTileService,
 } from "../playerActionPanel/tile/actionPreviewTile/actionPreviewTile"
+import { NumberGeneratorStrategy } from "../../numberGenerator/strategy"
+import { BattleActionRecorder } from "../../history/battleAction/battleActionRecorder"
 
 export const SUMMARY_HUD_PEEK_EXPIRATION_MS = 2000
 
@@ -75,8 +80,8 @@ export interface SummaryHUDState {
     }
 }
 
-export const SummaryHUDStateService = {
-    new: (): SummaryHUDState => ({
+const getNewSummaryHUDState = () => {
+    return (): SummaryHUDState => ({
         playerCommandState: PlayerCommandStateService.new(),
         showAllPlayerActions: false,
         actionSelectedTile: undefined,
@@ -93,7 +98,13 @@ export const SummaryHUDStateService = {
             [ActionTilePosition.ACTOR_STATUS]: undefined,
             [ActionTilePosition.TARGET_STATUS]: undefined,
         },
-    }),
+    })
+}
+export const SummaryHUDStateService = {
+    new: getNewSummaryHUDState(),
+    reset: (summaryHUDState: SummaryHUDState) => {
+        Object.assign(summaryHUDState, getNewSummaryHUDState())
+    },
     isMouseHoveringOver: ({
         summaryHUDState,
         mouseSelectionLocation,
@@ -254,15 +265,14 @@ export const SummaryHUDStateService = {
     createActionTiles: ({
         summaryHUDState,
         objectRepository,
-        gameEngineState,
+        battleActionDecisionStep,
     }: {
         summaryHUDState: SummaryHUDState
         objectRepository: ObjectRepository
-        gameEngineState: GameEngineState
+        battleActionDecisionStep: BattleActionDecisionStep
     }) => {
         const selectedAction = BattleActionDecisionStepService.getAction(
-            gameEngineState.battleOrchestratorState.battleState
-                .battleActionDecisionStep
+            battleActionDecisionStep
         )
         if (!selectedAction) return
 
@@ -275,8 +285,7 @@ export const SummaryHUDStateService = {
         summaryHUDState.actionSelectedTile = ActionSelectedTileService.new({
             objectRepository,
             battleSquaddieId: BattleActionDecisionStepService.getActor(
-                gameEngineState.battleOrchestratorState.battleState
-                    .battleActionDecisionStep
+                battleActionDecisionStep
             ).battleSquaddieId,
             actionTemplateId: actionTemplate.id,
             horizontalPosition: ActionTilePosition.SELECTED_ACTION,
@@ -285,15 +294,24 @@ export const SummaryHUDStateService = {
     createActionPreviewTile: ({
         summaryHUDState,
         objectRepository,
-        gameEngineState,
+        missionMap,
+        battleActionDecisionStep,
+        battleActionRecorder,
+        numberGenerator,
     }: {
         summaryHUDState: SummaryHUDState
         objectRepository: ObjectRepository
-        gameEngineState: GameEngineState
+        missionMap: MissionMap
+        battleActionDecisionStep: BattleActionDecisionStep
+        battleActionRecorder: BattleActionRecorder
+        numberGenerator: NumberGeneratorStrategy
     }) => {
         summaryHUDState.actionPreviewTile = ActionPreviewTileService.new({
-            gameEngineState,
             objectRepository,
+            missionMap,
+            battleActionDecisionStep,
+            battleActionRecorder,
+            numberGenerator,
         })
     },
     peekAtSquaddie: ({
@@ -818,6 +836,14 @@ const createSquaddieStatusTile = ({
 
     SquaddieStatusTileService.updateTileUsingSquaddie({
         tile: summaryHUDState.squaddieStatusTiles[actionPanelPosition],
-        gameEngineState,
+        missionMap:
+            gameEngineState.battleOrchestratorState.battleState.missionMap,
+        playerConsideredActions:
+            gameEngineState.battleOrchestratorState.battleState
+                .playerConsideredActions,
+        battleActionDecisionStep:
+            gameEngineState.battleOrchestratorState.battleState
+                .battleActionDecisionStep,
+        objectRepository: gameEngineState.repository,
     })
 }

@@ -13,11 +13,19 @@ import { ActionTilePositionService } from "../../actionTilePosition"
 import { RectArea, RectAreaService } from "../../../../../../ui/rectArea"
 import { GOLDEN_RATIO, WINDOW_SPACING } from "../../../../../../ui/constants"
 import { DEFAULT_ACTION_POINTS_PER_TURN } from "../../../../../../squaddie/turn"
-import { GameEngineState } from "../../../../../../gameEngine/gameEngine"
-import { BattleActionDecisionStepService } from "../../../../../actionDecision/battleActionDecisionStep"
+import {
+    BattleActionDecisionStep,
+    BattleActionDecisionStepService,
+} from "../../../../../actionDecision/battleActionDecisionStep"
 import { getResultOrThrowError } from "../../../../../../utils/ResultOrError"
-import { ObjectRepositoryService } from "../../../../../objectRepository"
-import { PlayerConsideredActionsService } from "../../../../../battleState/playerConsideredActions"
+import {
+    ObjectRepository,
+    ObjectRepositoryService,
+} from "../../../../../objectRepository"
+import {
+    PlayerConsideredActions,
+    PlayerConsideredActionsService,
+} from "../../../../../battleState/playerConsideredActions"
 import {
     SquaddieStatusTileContext,
     SquaddieStatusTileService,
@@ -27,11 +35,21 @@ import {
 
 export class IsActionPointsCorrectCondition implements BehaviorTreeTask {
     dataBlob: DataBlob
-    gameEngineState: GameEngineState
+    objectRepository: ObjectRepository
+    playerConsideredActions: PlayerConsideredActions
 
-    constructor(dataBlob: DataBlob, gameEngineState: GameEngineState) {
+    constructor({
+        dataBlob,
+        objectRepository,
+        playerConsideredActions,
+    }: {
+        dataBlob: DataBlob
+        objectRepository: ObjectRepository
+        playerConsideredActions: PlayerConsideredActions
+    }) {
         this.dataBlob = dataBlob
-        this.gameEngineState = gameEngineState
+        this.objectRepository = objectRepository
+        this.playerConsideredActions = playerConsideredActions
     }
 
     run(): boolean {
@@ -43,12 +61,12 @@ export class IsActionPointsCorrectCondition implements BehaviorTreeTask {
         const battleSquaddieId = context.battleSquaddieId
         const { battleSquaddie, squaddieTemplate } = getResultOrThrowError(
             ObjectRepositoryService.getSquaddieByBattleId(
-                this.gameEngineState.repository,
+                this.objectRepository,
                 battleSquaddieId
             )
         )
 
-        const { actionPointsRemaining } =
+        const { unallocatedActionPoints } =
             SquaddieStatusTileService.calculateActionPoints(
                 battleSquaddie,
                 squaddieTemplate
@@ -57,17 +75,15 @@ export class IsActionPointsCorrectCondition implements BehaviorTreeTask {
         let expectedMarkedActionPoints =
             PlayerConsideredActionsService.getExpectedMarkedActionPointsBasedOnPlayerConsideration(
                 {
-                    objectRepository: this.gameEngineState.repository,
-                    playerConsideredActions:
-                        this.gameEngineState.battleOrchestratorState.battleState
-                            .playerConsideredActions,
+                    objectRepository: this.objectRepository,
+                    playerConsideredActions: this.playerConsideredActions,
                     battleSquaddie,
                 }
             )
 
         return (
             context.actionPoints?.actionPointsRemaining ===
-                actionPointsRemaining &&
+                unallocatedActionPoints &&
             context.actionPoints?.actionPointsMarked ===
                 expectedMarkedActionPoints
         )
@@ -76,11 +92,25 @@ export class IsActionPointsCorrectCondition implements BehaviorTreeTask {
 
 export class UpdateActionPointsContextAction implements BehaviorTreeTask {
     dataBlob: DataBlob
-    gameEngineState: GameEngineState
+    objectRepository: ObjectRepository
+    battleActionDecisionStep: BattleActionDecisionStep
+    playerConsideredActions: PlayerConsideredActions
 
-    constructor(blackboard: DataBlob, gameEngineState: GameEngineState) {
-        this.dataBlob = blackboard
-        this.gameEngineState = gameEngineState
+    constructor({
+        dataBlob,
+        objectRepository,
+        battleActionDecisionStep,
+        playerConsideredActions,
+    }: {
+        dataBlob: DataBlob
+        objectRepository: ObjectRepository
+        battleActionDecisionStep: BattleActionDecisionStep
+        playerConsideredActions: PlayerConsideredActions
+    }) {
+        this.dataBlob = dataBlob
+        this.objectRepository = objectRepository
+        this.battleActionDecisionStep = battleActionDecisionStep
+        this.playerConsideredActions = playerConsideredActions
     }
 
     run(): boolean {
@@ -91,19 +121,23 @@ export class UpdateActionPointsContextAction implements BehaviorTreeTask {
 
         const battleSquaddieId = context.battleSquaddieId
         const actorBattleSquaddieId = BattleActionDecisionStepService.getActor(
-            this.gameEngineState.battleOrchestratorState.battleState
-                .battleActionDecisionStep
+            this.battleActionDecisionStep
         )?.battleSquaddieId
 
         const squaddieIsTheActor = battleSquaddieId === actorBattleSquaddieId
         const actorSquaddieDependentContext = squaddieIsTheActor
             ? SquaddieStatusTileService.getContextVariablesThatDependOnActorSquaddie(
-                  this.gameEngineState,
-                  battleSquaddieId
+                  {
+                      battleSquaddieId,
+                      objectRepository: this.objectRepository,
+                      playerConsideredActions: this.playerConsideredActions,
+                  }
               )
             : SquaddieStatusTileService.getContextVariablesThatDependOnTargetSquaddie(
-                  this.gameEngineState,
-                  battleSquaddieId
+                  {
+                      battleSquaddieId,
+                      objectRepository: this.objectRepository,
+                  }
               )
 
         context.actionPoints ||= {

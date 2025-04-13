@@ -710,7 +710,20 @@ export class BattlePlayerSquaddieTarget implements BattleOrchestratorComponent {
         this.data.setContext(context)
         gameEngineState.messageBoard.sendMessage({
             type: MessageBoardMessageType.PLAYER_SELECTS_TARGET_COORDINATE,
-            gameEngineState,
+            battleActionRecorder:
+                gameEngineState.battleOrchestratorState.battleState
+                    .battleActionRecorder,
+            numberGenerator:
+                gameEngineState.battleOrchestratorState.numberGenerator,
+            missionMap:
+                gameEngineState.battleOrchestratorState.battleState.missionMap,
+            battleActionDecisionStep:
+                gameEngineState.battleOrchestratorState.battleState
+                    .battleActionDecisionStep,
+            summaryHUDState:
+                gameEngineState.battleOrchestratorState.battleHUDState
+                    .summaryHUDState,
+            objectRepository: gameEngineState.repository,
             targetCoordinate: selectedCoordinate,
         })
     }

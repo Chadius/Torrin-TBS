@@ -47,6 +47,7 @@ import {
 import { TargetConstraintsService } from "../../../../action/targetConstraints"
 import { beforeEach, describe, expect, it } from "vitest"
 import { AttributeType } from "../../../../squaddie/attribute/attributeType"
+import { MissionStatisticsService } from "../../../missionStatistics/missionStatistics"
 
 describe("Armor Attribute affects Armor Attacks", () => {
     let actingSquaddie: BattleSquaddie
@@ -192,7 +193,14 @@ describe("Armor Attribute affects Armor Attacks", () => {
         gameEngineState.battleOrchestratorState.battleState.battleActionDecisionStep =
             actionStep
         const results = ActionCalculator.calculateAndApplyResults({
-            gameEngineState,
+            battleActionDecisionStep: actionStep,
+            missionMap,
+            objectRepository,
+            battleActionRecorder:
+                gameEngineState.battleOrchestratorState.battleState
+                    .battleActionRecorder,
+            numberGenerator,
+            missionStatistics: MissionStatisticsService.new({}),
         })
 
         expect(
@@ -265,7 +273,14 @@ describe("Armor Attribute affects Armor Attacks", () => {
         gameEngineState.battleOrchestratorState.battleState.battleActionDecisionStep =
             actionStep
         const results = ActionCalculator.calculateAndApplyResults({
-            gameEngineState,
+            battleActionDecisionStep: actionStep,
+            missionMap,
+            objectRepository,
+            battleActionRecorder:
+                gameEngineState.battleOrchestratorState.battleState
+                    .battleActionRecorder,
+            numberGenerator,
+            missionStatistics: MissionStatisticsService.new({}),
         })
 
         expect(

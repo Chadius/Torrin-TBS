@@ -50,10 +50,7 @@ export class BattleHUDListener implements MessageBoardListener {
                 )
                 break
             case MessageBoardMessageType.PLAYER_SELECTS_ACTION_THAT_REQUIRES_A_TARGET:
-                BattleHUDService.playerSelectsActionThatRequiresATarget(
-                    message.gameEngineState.battleOrchestratorState.battleHUD,
-                    message
-                )
+                BattleHUDService.playerSelectsActionThatRequiresATarget(message)
                 break
             case MessageBoardMessageType.PLAYER_SELECTS_ACTION_WITH_KNOWN_TARGETS:
                 BattleHUDService.playerSelectsActionWithKnownTargets(
@@ -62,16 +59,10 @@ export class BattleHUDListener implements MessageBoardListener {
                 )
                 break
             case MessageBoardMessageType.PLAYER_SELECTS_TARGET_COORDINATE:
-                BattleHUDService.playerSelectsTargetCoordinate(
-                    message.gameEngineState.battleOrchestratorState.battleHUD,
-                    message
-                )
+                BattleHUDService.playerSelectsTargetCoordinate(message)
                 break
             case MessageBoardMessageType.PLAYER_CONFIRMS_ACTION:
-                BattleHUDService.playerConfirmsAction(
-                    message.gameEngineState.battleOrchestratorState.battleHUD,
-                    message
-                )
+                BattleHUDService.playerConfirmsAction(message)
                 break
             case MessageBoardMessageType.MOVE_SQUADDIE_TO_COORDINATE:
                 BattleHUDService.tryToMoveSquaddieToLocation(message)

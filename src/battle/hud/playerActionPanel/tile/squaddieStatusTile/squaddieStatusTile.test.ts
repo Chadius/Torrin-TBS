@@ -159,7 +159,16 @@ describe("Squaddie Status Tile", () => {
             })
             SquaddieStatusTileService.updateTileUsingSquaddie({
                 tile,
-                gameEngineState,
+                missionMap:
+                    gameEngineState.battleOrchestratorState.battleState
+                        .missionMap,
+                playerConsideredActions:
+                    gameEngineState.battleOrchestratorState.battleState
+                        .playerConsideredActions,
+                battleActionDecisionStep:
+                    gameEngineState.battleOrchestratorState.battleState
+                        .battleActionDecisionStep,
+                objectRepository: gameEngineState.repository,
             })
 
             SquaddieStatusTileService.draw({
@@ -190,7 +199,16 @@ describe("Squaddie Status Tile", () => {
             )
             SquaddieStatusTileService.updateTileUsingSquaddie({
                 tile,
-                gameEngineState,
+                missionMap:
+                    gameEngineState.battleOrchestratorState.battleState
+                        .missionMap,
+                playerConsideredActions:
+                    gameEngineState.battleOrchestratorState.battleState
+                        .playerConsideredActions,
+                battleActionDecisionStep:
+                    gameEngineState.battleOrchestratorState.battleState
+                        .battleActionDecisionStep,
+                objectRepository: gameEngineState.repository,
             })
 
             SquaddieStatusTileService.draw({
@@ -218,7 +236,16 @@ describe("Squaddie Status Tile", () => {
 
             SquaddieStatusTileService.updateTileUsingSquaddie({
                 tile,
-                gameEngineState,
+                missionMap:
+                    gameEngineState.battleOrchestratorState.battleState
+                        .missionMap,
+                playerConsideredActions:
+                    gameEngineState.battleOrchestratorState.battleState
+                        .playerConsideredActions,
+                battleActionDecisionStep:
+                    gameEngineState.battleOrchestratorState.battleState
+                        .battleActionDecisionStep,
+                objectRepository: gameEngineState.repository,
             })
 
             SquaddieStatusTileService.draw({
@@ -587,7 +614,16 @@ describe("Squaddie Status Tile", () => {
             })
             SquaddieStatusTileService.updateTileUsingSquaddie({
                 tile,
-                gameEngineState,
+                missionMap:
+                    gameEngineState.battleOrchestratorState.battleState
+                        .missionMap,
+                playerConsideredActions:
+                    gameEngineState.battleOrchestratorState.battleState
+                        .playerConsideredActions,
+                battleActionDecisionStep:
+                    gameEngineState.battleOrchestratorState.battleState
+                        .battleActionDecisionStep,
+                objectRepository: gameEngineState.repository,
             })
 
             SquaddieStatusTileService.draw({
@@ -619,7 +655,16 @@ describe("Squaddie Status Tile", () => {
 
             SquaddieStatusTileService.updateTileUsingSquaddie({
                 tile,
-                gameEngineState,
+                missionMap:
+                    gameEngineState.battleOrchestratorState.battleState
+                        .missionMap,
+                playerConsideredActions:
+                    gameEngineState.battleOrchestratorState.battleState
+                        .playerConsideredActions,
+                battleActionDecisionStep:
+                    gameEngineState.battleOrchestratorState.battleState
+                        .battleActionDecisionStep,
+                objectRepository: gameEngineState.repository,
             })
 
             SquaddieStatusTileService.draw({
@@ -658,7 +703,16 @@ describe("Squaddie Status Tile", () => {
 
             SquaddieStatusTileService.updateTileUsingSquaddie({
                 tile,
-                gameEngineState,
+                missionMap:
+                    gameEngineState.battleOrchestratorState.battleState
+                        .missionMap,
+                playerConsideredActions:
+                    gameEngineState.battleOrchestratorState.battleState
+                        .playerConsideredActions,
+                battleActionDecisionStep:
+                    gameEngineState.battleOrchestratorState.battleState
+                        .battleActionDecisionStep,
+                objectRepository: gameEngineState.repository,
             })
 
             SquaddieStatusTileService.draw({
@@ -697,7 +751,16 @@ describe("Squaddie Status Tile", () => {
 
             SquaddieStatusTileService.updateTileUsingSquaddie({
                 tile,
-                gameEngineState,
+                missionMap:
+                    gameEngineState.battleOrchestratorState.battleState
+                        .missionMap,
+                playerConsideredActions:
+                    gameEngineState.battleOrchestratorState.battleState
+                        .playerConsideredActions,
+                battleActionDecisionStep:
+                    gameEngineState.battleOrchestratorState.battleState
+                        .battleActionDecisionStep,
+                objectRepository: gameEngineState.repository,
             })
 
             SquaddieStatusTileService.draw({
@@ -742,7 +805,16 @@ describe("Squaddie Status Tile", () => {
 
             SquaddieStatusTileService.updateTileUsingSquaddie({
                 tile,
-                gameEngineState,
+                missionMap:
+                    gameEngineState.battleOrchestratorState.battleState
+                        .missionMap,
+                playerConsideredActions:
+                    gameEngineState.battleOrchestratorState.battleState
+                        .playerConsideredActions,
+                battleActionDecisionStep:
+                    gameEngineState.battleOrchestratorState.battleState
+                        .battleActionDecisionStep,
+                objectRepository: gameEngineState.repository,
             })
 
             SquaddieStatusTileService.draw({
@@ -786,7 +858,16 @@ describe("Squaddie Status Tile", () => {
                 missionMap
             SquaddieStatusTileService.updateTileUsingSquaddie({
                 tile,
-                gameEngineState,
+                missionMap:
+                    gameEngineState.battleOrchestratorState.battleState
+                        .missionMap,
+                playerConsideredActions:
+                    gameEngineState.battleOrchestratorState.battleState
+                        .playerConsideredActions,
+                battleActionDecisionStep:
+                    gameEngineState.battleOrchestratorState.battleState
+                        .battleActionDecisionStep,
+                objectRepository: gameEngineState.repository,
             })
 
             SquaddieStatusTileService.draw({
@@ -829,7 +910,16 @@ describe("Squaddie Status Tile", () => {
             )
             SquaddieStatusTileService.updateTileUsingSquaddie({
                 tile,
-                gameEngineState,
+                missionMap:
+                    gameEngineState.battleOrchestratorState.battleState
+                        .missionMap,
+                playerConsideredActions:
+                    gameEngineState.battleOrchestratorState.battleState
+                        .playerConsideredActions,
+                battleActionDecisionStep:
+                    gameEngineState.battleOrchestratorState.battleState
+                        .battleActionDecisionStep,
+                objectRepository: gameEngineState.repository,
             })
 
             SquaddieStatusTileService.draw({
@@ -884,7 +974,16 @@ describe("Squaddie Status Tile", () => {
 
             SquaddieStatusTileService.updateTileUsingSquaddie({
                 tile,
-                gameEngineState,
+                missionMap:
+                    gameEngineState.battleOrchestratorState.battleState
+                        .missionMap,
+                playerConsideredActions:
+                    gameEngineState.battleOrchestratorState.battleState
+                        .playerConsideredActions,
+                battleActionDecisionStep:
+                    gameEngineState.battleOrchestratorState.battleState
+                        .battleActionDecisionStep,
+                objectRepository: gameEngineState.repository,
             })
 
             SquaddieStatusTileService.draw({
@@ -961,7 +1060,16 @@ describe("Squaddie Status Tile", () => {
 
                     SquaddieStatusTileService.updateTileUsingSquaddie({
                         tile,
-                        gameEngineState,
+                        missionMap:
+                            gameEngineState.battleOrchestratorState.battleState
+                                .missionMap,
+                        playerConsideredActions:
+                            gameEngineState.battleOrchestratorState.battleState
+                                .playerConsideredActions,
+                        battleActionDecisionStep:
+                            gameEngineState.battleOrchestratorState.battleState
+                                .battleActionDecisionStep,
+                        objectRepository: gameEngineState.repository,
                     })
 
                     SquaddieStatusTileService.draw({
@@ -1040,7 +1148,16 @@ describe("Squaddie Status Tile", () => {
 
                     SquaddieStatusTileService.updateTileUsingSquaddie({
                         tile,
-                        gameEngineState,
+                        missionMap:
+                            gameEngineState.battleOrchestratorState.battleState
+                                .missionMap,
+                        playerConsideredActions:
+                            gameEngineState.battleOrchestratorState.battleState
+                                .playerConsideredActions,
+                        battleActionDecisionStep:
+                            gameEngineState.battleOrchestratorState.battleState
+                                .battleActionDecisionStep,
+                        objectRepository: gameEngineState.repository,
                     })
 
                     SquaddieStatusTileService.draw({
@@ -1104,7 +1221,16 @@ describe("Squaddie Status Tile", () => {
 
             SquaddieStatusTileService.updateTileUsingSquaddie({
                 tile,
-                gameEngineState,
+                missionMap:
+                    gameEngineState.battleOrchestratorState.battleState
+                        .missionMap,
+                playerConsideredActions:
+                    gameEngineState.battleOrchestratorState.battleState
+                        .playerConsideredActions,
+                battleActionDecisionStep:
+                    gameEngineState.battleOrchestratorState.battleState
+                        .battleActionDecisionStep,
+                objectRepository: gameEngineState.repository,
             })
 
             SquaddieStatusTileService.draw({
@@ -1163,7 +1289,16 @@ describe("Squaddie Status Tile", () => {
 
                 SquaddieStatusTileService.updateTileUsingSquaddie({
                     tile,
-                    gameEngineState,
+                    missionMap:
+                        gameEngineState.battleOrchestratorState.battleState
+                            .missionMap,
+                    playerConsideredActions:
+                        gameEngineState.battleOrchestratorState.battleState
+                            .playerConsideredActions,
+                    battleActionDecisionStep:
+                        gameEngineState.battleOrchestratorState.battleState
+                            .battleActionDecisionStep,
+                    objectRepository: gameEngineState.repository,
                 })
 
                 SquaddieStatusTileService.draw({
@@ -1181,7 +1316,16 @@ describe("Squaddie Status Tile", () => {
 
                 SquaddieStatusTileService.updateTileUsingSquaddie({
                     tile,
-                    gameEngineState,
+                    missionMap:
+                        gameEngineState.battleOrchestratorState.battleState
+                            .missionMap,
+                    playerConsideredActions:
+                        gameEngineState.battleOrchestratorState.battleState
+                            .playerConsideredActions,
+                    battleActionDecisionStep:
+                        gameEngineState.battleOrchestratorState.battleState
+                            .battleActionDecisionStep,
+                    objectRepository: gameEngineState.repository,
                 })
 
                 SquaddieStatusTileService.draw({

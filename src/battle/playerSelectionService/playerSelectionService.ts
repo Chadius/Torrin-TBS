@@ -231,7 +231,25 @@ export const PlayerSelectionService = {
             case PlayerIntent.CANCEL_SQUADDIE_CONSIDERED_ACTIONS:
                 messageSent = {
                     type: MessageBoardMessageType.PLAYER_CANCELS_PLAYER_ACTION_CONSIDERATIONS,
-                    gameEngineState,
+                    missionMap:
+                        gameEngineState.battleOrchestratorState.battleState
+                            .missionMap,
+                    summaryHUDState:
+                        gameEngineState.battleOrchestratorState.battleHUDState
+                            .summaryHUDState,
+                    battleActionDecisionStep:
+                        gameEngineState.battleOrchestratorState.battleState
+                            .battleActionDecisionStep,
+                    battleActionRecorder:
+                        gameEngineState.battleOrchestratorState.battleState
+                            .battleActionRecorder,
+                    playerConsideredActions:
+                        gameEngineState.battleOrchestratorState.battleState
+                            .playerConsideredActions,
+                    playerDecisionHUD:
+                        gameEngineState.battleOrchestratorState
+                            .playerDecisionHUD,
+                    objectRepository: gameEngineState.repository,
                 }
                 gameEngineState.messageBoard.sendMessage(messageSent)
                 return PlayerSelectionChangesService.new({ messageSent })
@@ -285,7 +303,22 @@ export const PlayerSelectionService = {
             case PlayerIntent.CONSIDER_MOVING_SQUADDIE:
                 messageSent = {
                     type: MessageBoardMessageType.PLAYER_CONSIDERS_ACTION,
-                    gameEngineState,
+                    playerConsideredActions:
+                        gameEngineState.battleOrchestratorState.battleState
+                            .playerConsideredActions,
+                    summaryHUDState:
+                        gameEngineState.battleOrchestratorState.battleHUDState
+                            .summaryHUDState,
+                    playerDecisionHUD:
+                        gameEngineState.battleOrchestratorState
+                            .playerDecisionHUD,
+                    missionMap:
+                        gameEngineState.battleOrchestratorState.battleState
+                            .missionMap,
+                    battleActionDecisionStep:
+                        gameEngineState.battleOrchestratorState.battleState
+                            .battleActionDecisionStep,
+                    objectRepository: gameEngineState.repository,
                     useAction: {
                         isEndTurn: false,
                         actionTemplateId: undefined,
@@ -454,14 +487,19 @@ const playerSelectsAnAction = ({
     } else {
         messageSent = {
             type: MessageBoardMessageType.PLAYER_SELECTS_ACTION_THAT_REQUIRES_A_TARGET,
-            gameEngineState,
+            missionMap:
+                gameEngineState.battleOrchestratorState.battleState.missionMap,
+            objectRepository: gameEngineState.repository,
+            summaryHUDState:
+                gameEngineState.battleOrchestratorState.battleHUDState
+                    .summaryHUDState,
+            battleActionDecisionStep:
+                gameEngineState.battleOrchestratorState.battleState
+                    .battleActionDecisionStep,
+            messageBoard: gameEngineState.messageBoard,
             actionTemplateId: context.actionTemplateId,
             battleSquaddieId: context.actorBattleSquaddieId,
             mapStartingCoordinate: mapCoordinate,
-            mouseLocation: {
-                x: context.mouseClick.x,
-                y: context.mouseClick.y,
-            },
         }
     }
 
@@ -512,9 +550,16 @@ class CollectDataForContext implements BehaviorTreeTask {
             )
 
         const isSquaddieTakingATurn: boolean =
-            OrchestratorUtilities.isSquaddieCurrentlyTakingATurn(
-                contextCalculationArgs.gameEngineState
-            )
+            OrchestratorUtilities.isSquaddieCurrentlyTakingATurn({
+                battleActionDecisionStep:
+                    contextCalculationArgs.gameEngineState
+                        .battleOrchestratorState.battleState
+                        .battleActionDecisionStep,
+                battleActionRecorder:
+                    contextCalculationArgs.gameEngineState
+                        .battleOrchestratorState.battleState
+                        .battleActionRecorder,
+            })
 
         DataBlobService.add<boolean>(
             this.dataBlob,

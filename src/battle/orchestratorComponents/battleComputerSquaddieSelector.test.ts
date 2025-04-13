@@ -675,9 +675,14 @@ describe("BattleComputerSquaddieSelector", () => {
             expect(queuedBattleAction.action.isMovement).toBeTruthy()
 
             expect(
-                OrchestratorUtilities.isSquaddieCurrentlyTakingATurn(
-                    gameEngineState
-                )
+                OrchestratorUtilities.isSquaddieCurrentlyTakingATurn({
+                    battleActionDecisionStep:
+                        gameEngineState.battleOrchestratorState.battleState
+                            .battleActionDecisionStep,
+                    battleActionRecorder:
+                        gameEngineState.battleOrchestratorState.battleState
+                            .battleActionRecorder,
+                })
             ).toBeTruthy()
             expect(addGraphicsLayerSpy).toBeCalled()
         })
@@ -806,9 +811,14 @@ describe("BattleComputerSquaddieSelector", () => {
                 )
 
                 expect(
-                    OrchestratorUtilities.isSquaddieCurrentlyTakingATurn(
-                        gameEngineState
-                    )
+                    OrchestratorUtilities.isSquaddieCurrentlyTakingATurn({
+                        battleActionDecisionStep:
+                            gameEngineState.battleOrchestratorState.battleState
+                                .battleActionDecisionStep,
+                        battleActionRecorder:
+                            gameEngineState.battleOrchestratorState.battleState
+                                .battleActionRecorder,
+                    })
                 ).toBeTruthy()
 
                 expect(

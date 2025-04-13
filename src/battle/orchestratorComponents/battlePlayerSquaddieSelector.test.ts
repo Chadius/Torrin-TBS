@@ -991,11 +991,18 @@ describe("BattleSquaddieSelector", () => {
                                 BattleOrchestratorMode.PLAYER_HUD_CONTROLLER,
                             messageSent: {
                                 type: MessageBoardMessageType.PLAYER_SELECTS_ACTION_THAT_REQUIRES_A_TARGET,
-                                gameEngineState,
                                 battleSquaddieId: "battleSquaddieId",
                                 actionTemplateId: "melee",
                                 mapStartingCoordinate: { q: 0, r: 0 },
-                                mouseLocation: { x, y },
+                                objectRepository,
+                                summaryHUDState:
+                                    gameEngineState.battleOrchestratorState
+                                        .battleHUDState.summaryHUDState,
+                                battleActionDecisionStep:
+                                    gameEngineState.battleOrchestratorState
+                                        .battleState.battleActionDecisionStep,
+                                messageBoard: gameEngineState.messageBoard,
+                                missionMap,
                             },
                         }),
                 })
@@ -1005,11 +1012,18 @@ describe("BattleSquaddieSelector", () => {
         it("sends a message to target", () => {
             expect(messageSpy).toHaveBeenCalledWith({
                 type: MessageBoardMessageType.PLAYER_SELECTS_ACTION_THAT_REQUIRES_A_TARGET,
-                gameEngineState,
+                objectRepository,
+                missionMap,
+                summaryHUDState:
+                    gameEngineState.battleOrchestratorState.battleHUDState
+                        .summaryHUDState,
+                battleActionDecisionStep:
+                    gameEngineState.battleOrchestratorState.battleState
+                        .battleActionDecisionStep,
+                messageBoard: gameEngineState.messageBoard,
                 battleSquaddieId: "battleSquaddieId",
                 actionTemplateId: "melee",
                 mapStartingCoordinate: { q: 0, r: 0 },
-                mouseLocation: { x, y },
             })
         })
     })
@@ -1106,7 +1120,6 @@ describe("BattleSquaddieSelector", () => {
 
         gameEngineState.messageBoard.sendMessage({
             type: MessageBoardMessageType.PLAYER_CONFIRMS_DECISION_STEP_ACTOR,
-            gameEngineState,
             recommendedMode: BattleOrchestratorMode.PLAYER_HUD_CONTROLLER,
         })
 

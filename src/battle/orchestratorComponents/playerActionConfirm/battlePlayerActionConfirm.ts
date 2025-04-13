@@ -303,7 +303,21 @@ export class BattlePlayerActionConfirm implements BattleOrchestratorComponent {
             this.hasConfirmedAction = true
             gameEngineState.messageBoard.sendMessage({
                 type: MessageBoardMessageType.PLAYER_CONFIRMS_ACTION,
-                gameEngineState,
+                battleActionDecisionStep:
+                    gameEngineState.battleOrchestratorState.battleState
+                        .battleActionDecisionStep,
+                missionMap:
+                    gameEngineState.battleOrchestratorState.battleState
+                        .missionMap,
+                objectRepository: gameEngineState.repository,
+                battleActionRecorder:
+                    gameEngineState.battleOrchestratorState.battleState
+                        .battleActionRecorder,
+                numberGenerator:
+                    gameEngineState.battleOrchestratorState.numberGenerator,
+                missionStatistics:
+                    gameEngineState.battleOrchestratorState.battleState
+                        .missionStatistics,
             })
         }
     }
@@ -556,7 +570,20 @@ export class BattlePlayerActionConfirm implements BattleOrchestratorComponent {
             return
         gameEngineState.messageBoard.sendMessage({
             type: MessageBoardMessageType.PLAYER_CONFIRMS_ACTION,
-            gameEngineState,
+            battleActionDecisionStep:
+                gameEngineState.battleOrchestratorState.battleState
+                    .battleActionDecisionStep,
+            missionMap:
+                gameEngineState.battleOrchestratorState.battleState.missionMap,
+            objectRepository: gameEngineState.repository,
+            battleActionRecorder:
+                gameEngineState.battleOrchestratorState.battleState
+                    .battleActionRecorder,
+            numberGenerator:
+                gameEngineState.battleOrchestratorState.numberGenerator,
+            missionStatistics:
+                gameEngineState.battleOrchestratorState.battleState
+                    .missionStatistics,
         })
         this.hasConfirmedAction = true
     }

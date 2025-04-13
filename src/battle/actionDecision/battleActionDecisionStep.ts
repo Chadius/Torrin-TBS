@@ -74,6 +74,11 @@ export const BattleActionDecisionStepService = {
         action: undefined,
         target: undefined,
     }),
+    reset: (battleActionDecisionStep: BattleActionDecisionStep) => {
+        battleActionDecisionStep.actor = undefined
+        battleActionDecisionStep.action = undefined
+        battleActionDecisionStep.target = undefined
+    },
     isSquaddieActionRecordNotSet: (
         actionBuilderState: BattleActionDecisionStep
     ): boolean => {

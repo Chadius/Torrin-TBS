@@ -508,7 +508,21 @@ describe("BattleActionConfirm", () => {
                 action()
                 expect(messageSpy).toHaveBeenCalledWith({
                     type: MessageBoardMessageType.PLAYER_CONFIRMS_ACTION,
-                    gameEngineState,
+                    battleActionDecisionStep:
+                        gameEngineState.battleOrchestratorState.battleState
+                            .battleActionDecisionStep,
+                    missionMap:
+                        gameEngineState.battleOrchestratorState.battleState
+                            .missionMap,
+                    objectRepository: gameEngineState.repository,
+                    battleActionRecorder:
+                        gameEngineState.battleOrchestratorState.battleState
+                            .battleActionRecorder,
+                    numberGenerator:
+                        gameEngineState.battleOrchestratorState.numberGenerator,
+                    missionStatistics:
+                        gameEngineState.battleOrchestratorState.battleState
+                            .missionStatistics,
                 })
             }
         )

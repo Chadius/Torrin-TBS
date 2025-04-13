@@ -1022,7 +1022,24 @@ describe("Player Selection Service", () => {
 
             const expectedMessage: MessageBoardMessage = {
                 type: MessageBoardMessageType.PLAYER_CANCELS_PLAYER_ACTION_CONSIDERATIONS,
-                gameEngineState,
+                missionMap:
+                    gameEngineState.battleOrchestratorState.battleState
+                        .missionMap,
+                summaryHUDState:
+                    gameEngineState.battleOrchestratorState.battleHUDState
+                        .summaryHUDState,
+                battleActionDecisionStep:
+                    gameEngineState.battleOrchestratorState.battleState
+                        .battleActionDecisionStep,
+                battleActionRecorder:
+                    gameEngineState.battleOrchestratorState.battleState
+                        .battleActionRecorder,
+                playerConsideredActions:
+                    gameEngineState.battleOrchestratorState.battleState
+                        .playerConsideredActions,
+                playerDecisionHUD:
+                    gameEngineState.battleOrchestratorState.playerDecisionHUD,
+                objectRepository: gameEngineState.repository,
             }
 
             expect(
@@ -1326,11 +1343,18 @@ describe("Player Selection Service", () => {
                 })
                 expectedMessage = {
                     type: MessageBoardMessageType.PLAYER_SELECTS_ACTION_THAT_REQUIRES_A_TARGET,
-                    gameEngineState,
+                    objectRepository,
+                    missionMap,
+                    summaryHUDState:
+                        gameEngineState.battleOrchestratorState.battleHUDState
+                            .summaryHUDState,
+                    battleActionDecisionStep:
+                        gameEngineState.battleOrchestratorState.battleState
+                            .battleActionDecisionStep,
+                    messageBoard: gameEngineState.messageBoard,
                     actionTemplateId: meleeActionId,
                     battleSquaddieId: "PLAYER",
                     mapStartingCoordinate: { q: 0, r: 0 },
-                    mouseLocation: { x: 0, y: 0 },
                 }
             })
             afterEach(() => {

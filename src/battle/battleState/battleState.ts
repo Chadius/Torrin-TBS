@@ -414,7 +414,16 @@ const updateSummaryHUDAfterFinishingAnimation = (
         .forEach((tile) =>
             SquaddieStatusTileService.updateTileUsingSquaddie({
                 tile,
-                gameEngineState,
+                missionMap:
+                    gameEngineState.battleOrchestratorState.battleState
+                        .missionMap,
+                playerConsideredActions:
+                    gameEngineState.battleOrchestratorState.battleState
+                        .playerConsideredActions,
+                battleActionDecisionStep:
+                    gameEngineState.battleOrchestratorState.battleState
+                        .battleActionDecisionStep,
+                objectRepository: gameEngineState.repository,
             })
         )
 }

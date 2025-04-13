@@ -32,6 +32,9 @@ import {
 import { BattleActionsDuringTurnService } from "../../history/battleAction/battleActionsDuringTurn"
 import { BattleActionService } from "../../history/battleAction/battleAction"
 import { AttributeTypeAndAmount } from "../../../squaddie/attribute/attributeType"
+import { NumberGeneratorStrategy } from "../../numberGenerator/strategy"
+import { BattleActionRecorder } from "../../history/battleAction/battleActionRecorder"
+import { ObjectRepository } from "../../objectRepository"
 
 export const CalculatorAttack = {
     getDegreeOfSuccess: ({
@@ -74,10 +77,8 @@ export const CalculatorAttack = {
             targetBattleSquaddie,
             targetSquaddieTemplate,
         }),
-    getActingSquaddieModifiersForAttack: (
-        gameEngineState: GameEngineState
-    ): AttributeTypeAndAmount[] =>
-        getActingSquaddieModifiersForAttack(gameEngineState),
+    getActingSquaddieModifiersForAttack: (): AttributeTypeAndAmount[] =>
+        getActingSquaddieModifiersForAttack(),
     calculateEffectBasedOnDegreeOfSuccess: ({
         actionEffectTemplate,
         actorContext,
@@ -111,25 +112,26 @@ export const CalculatorAttack = {
         }),
     getActorContext: ({
         actionEffectTemplate,
-        gameEngineState,
-        actorBattleSquaddie,
         actorSquaddieTemplate,
+        numberGenerator,
+        objectRepository,
+        battleActionRecorder,
     }: {
         actionEffectTemplate: ActionEffectTemplate
-        gameEngineState: GameEngineState
-        actorBattleSquaddie: BattleSquaddie
         actorSquaddieTemplate: SquaddieTemplate
+        battleActionRecorder: BattleActionRecorder
+        numberGenerator: NumberGeneratorStrategy
+        objectRepository: ObjectRepository
     }): BattleActionActorContext => {
         let actingSquaddieModifiers =
-            CalculatorAttack.getActingSquaddieModifiersForAttack(
-                gameEngineState
-            )
+            CalculatorAttack.getActingSquaddieModifiersForAttack()
         let actingSquaddieRoll: RollResult
         actingSquaddieRoll = maybeMakeAttackRoll({
             actionEffectTemplate,
-            gameEngineState,
-            actorBattleSquaddie,
+            battleActionRecorder,
             actorSquaddieTemplate,
+            numberGenerator,
+            objectRepository,
         })
 
         return BattleActionActorContextService.new({
@@ -141,29 +143,31 @@ export const CalculatorAttack = {
     calculateMultipleAttackPenaltyForActionsThisTurn: (
         gameEngineState: GameEngineState
     ): number =>
-        calculateMultipleAttackPenaltyForActionsThisTurn(gameEngineState),
+        calculateMultipleAttackPenaltyForActionsThisTurn(
+            gameEngineState.battleOrchestratorState.battleState
+                .battleActionRecorder,
+            gameEngineState.repository
+        ),
 }
 
 const calculateMultipleAttackPenaltyForActionsThisTurn = (
-    gameEngineState: GameEngineState
+    battleActionRecorder: BattleActionRecorder,
+    objectRepository: ObjectRepository
 ) => {
     return BattleActionsDuringTurnService.getAll(
-        gameEngineState.battleOrchestratorState.battleState.battleActionRecorder
-            .actionsAlreadyAnimatedThisTurn
+        battleActionRecorder.actionsAlreadyAnimatedThisTurn
     ).reduce((mapTotal, battleAction) => {
         return (
             mapTotal +
             BattleActionService.multipleAttackPenaltyMultiplier(
                 battleAction,
-                gameEngineState.repository
+                objectRepository
             )
         )
     }, 0)
 }
 
-const getActingSquaddieModifiersForAttack = (
-    gameEngineState: GameEngineState
-): AttributeTypeAndAmount[] => {
+const getActingSquaddieModifiersForAttack = (): AttributeTypeAndAmount[] => {
     return [].filter((attribute) => attribute.amount !== 0)
 }
 
@@ -174,14 +178,16 @@ const conformToSixSidedDieRoll = (numberGeneratorResult: number): number => {
 
 const maybeMakeAttackRoll = ({
     actionEffectTemplate,
-    gameEngineState,
-    actorBattleSquaddie,
+    battleActionRecorder,
     actorSquaddieTemplate,
+    numberGenerator,
+    objectRepository,
 }: {
     actionEffectTemplate: ActionEffectTemplate
-    gameEngineState: GameEngineState
-    actorBattleSquaddie: BattleSquaddie
+    battleActionRecorder: BattleActionRecorder
     actorSquaddieTemplate: SquaddieTemplate
+    numberGenerator: NumberGeneratorStrategy
+    objectRepository: ObjectRepository
 }): RollResult => {
     if (doesActionNeedAnAttackRoll(actionEffectTemplate)) {
         const rollModifiers: {
@@ -189,7 +195,8 @@ const maybeMakeAttackRoll = ({
         } = {
             [RollModifierType.MULTIPLE_ATTACK_PENALTY]:
                 calculateMultipleAttackPenaltyForActionsThisTurn(
-                    gameEngineState
+                    battleActionRecorder,
+                    objectRepository
                 ),
             [RollModifierType.PROFICIENCY]:
                 SquaddieService.getVersusSquaddieResistanceProficiencyBonus({
@@ -201,12 +208,8 @@ const maybeMakeAttackRoll = ({
         }
 
         const attackRoll = [
-            conformToSixSidedDieRoll(
-                gameEngineState.battleOrchestratorState.numberGenerator.next()
-            ),
-            conformToSixSidedDieRoll(
-                gameEngineState.battleOrchestratorState.numberGenerator.next()
-            ),
+            conformToSixSidedDieRoll(numberGenerator.next()),
+            conformToSixSidedDieRoll(numberGenerator.next()),
         ]
         return RollResultService.new({
             occurred: true,

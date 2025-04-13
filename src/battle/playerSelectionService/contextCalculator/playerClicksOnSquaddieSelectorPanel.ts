@@ -37,9 +37,14 @@ export class PlayerClicksOnSquaddieSelectorPanel implements BehaviorTreeTask {
             return false
 
         if (
-            OrchestratorUtilities.isSquaddieCurrentlyTakingATurn(
-                gameEngineState
-            )
+            OrchestratorUtilities.isSquaddieCurrentlyTakingATurn({
+                battleActionDecisionStep:
+                    gameEngineState.battleOrchestratorState.battleState
+                        .battleActionDecisionStep,
+                battleActionRecorder:
+                    gameEngineState.battleOrchestratorState.battleState
+                        .battleActionRecorder,
+            })
         )
             return false
 

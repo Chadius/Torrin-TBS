@@ -511,8 +511,22 @@ describe("BattleSquaddieTarget", () => {
 
             expect(messageSpy).toHaveBeenCalledWith({
                 type: MessageBoardMessageType.PLAYER_SELECTS_TARGET_COORDINATE,
-                gameEngineState,
+                missionMap:
+                    gameEngineState.battleOrchestratorState.battleState
+                        .missionMap,
+                battleActionDecisionStep:
+                    gameEngineState.battleOrchestratorState.battleState
+                        .battleActionDecisionStep,
+                summaryHUDState:
+                    gameEngineState.battleOrchestratorState.battleHUDState
+                        .summaryHUDState,
+                objectRepository: gameEngineState.repository,
                 targetCoordinate: mapCoordinate,
+                battleActionRecorder:
+                    gameEngineState.battleOrchestratorState.battleState
+                        .battleActionRecorder,
+                numberGenerator:
+                    gameEngineState.battleOrchestratorState.numberGenerator,
             })
         })
 

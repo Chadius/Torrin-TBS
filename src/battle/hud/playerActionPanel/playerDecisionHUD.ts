@@ -132,54 +132,49 @@ const setPopupWindow = (
 const playerConsidersAction = (
     message: MessageBoardMessagePlayerConsidersAction
 ) => {
-    const gameEngineState = message.gameEngineState
-
     switch (true) {
         case !!message.useAction.actionTemplateId:
-            gameEngineState.battleOrchestratorState.battleState.playerConsideredActions.actionTemplateId =
+            message.playerConsideredActions.actionTemplateId =
                 message.useAction.actionTemplateId
-            gameEngineState.battleOrchestratorState.battleState.playerConsideredActions.endTurn =
-                false
+            message.playerConsideredActions.endTurn = false
             break
         case !!message.useAction.isEndTurn:
-            gameEngineState.battleOrchestratorState.battleState.playerConsideredActions.actionTemplateId =
-                undefined
-            gameEngineState.battleOrchestratorState.battleState.playerConsideredActions.endTurn =
-                true
+            message.playerConsideredActions.actionTemplateId = undefined
+            message.playerConsideredActions.endTurn = true
             break
         case !!message.useAction.movement:
-            gameEngineState.battleOrchestratorState.battleState.playerConsideredActions.movement =
+            message.playerConsideredActions.movement =
                 message.useAction.movement
             break
     }
 
     if (message.cancelAction?.actionTemplate) {
-        gameEngineState.battleOrchestratorState.battleState.playerConsideredActions.actionTemplateId =
-            undefined
-        gameEngineState.battleOrchestratorState.battleState.playerConsideredActions.endTurn =
-            false
+        message.playerConsideredActions.actionTemplateId = undefined
+        message.playerConsideredActions.endTurn = false
     }
 
     if (message.cancelAction?.movement) {
-        gameEngineState.battleOrchestratorState.battleState.playerConsideredActions.movement =
-            undefined
+        message.playerConsideredActions.movement = undefined
     }
 
     if (
-        gameEngineState.battleOrchestratorState.battleHUDState.summaryHUDState
-            .squaddieStatusTiles[ActionTilePosition.ACTOR_STATUS]
+        message.summaryHUDState.squaddieStatusTiles[
+            ActionTilePosition.ACTOR_STATUS
+        ]
     ) {
         SquaddieStatusTileService.updateTileUsingSquaddie({
-            tile: gameEngineState.battleOrchestratorState.battleHUDState
-                .summaryHUDState.squaddieStatusTiles[
+            tile: message.summaryHUDState.squaddieStatusTiles[
                 ActionTilePosition.ACTOR_STATUS
             ],
-            gameEngineState,
+            missionMap: message.missionMap,
+            playerConsideredActions: message.playerConsideredActions,
+            battleActionDecisionStep: message.battleActionDecisionStep,
+            objectRepository: message.objectRepository,
         })
     }
 
     PlayerDecisionHUDService.clearPopupWindow(
-        gameEngineState.battleOrchestratorState.playerDecisionHUD,
+        message.playerDecisionHUD,
         PopupWindowType.PLAYER_INVALID_SELECTION
     )
 }
@@ -187,7 +182,6 @@ const playerConsidersAction = (
 const cancelPlayerActionConsiderations = (
     message: MessageBoardMessagePlayerCancelsPlayerActionConsiderations
 ) => {
-    const gameEngineState = message.gameEngineState
     playerConsidersAction({
         useAction: {
             actionTemplateId: "",
@@ -195,7 +189,12 @@ const cancelPlayerActionConsiderations = (
             movement: undefined,
         },
         type: MessageBoardMessageType.PLAYER_CONSIDERS_ACTION,
-        gameEngineState,
+        playerConsideredActions: message.playerConsideredActions,
+        summaryHUDState: message.summaryHUDState,
+        playerDecisionHUD: message.playerDecisionHUD,
+        missionMap: message.missionMap,
+        battleActionDecisionStep: message.battleActionDecisionStep,
+        objectRepository: message.objectRepository,
         cancelAction: {
             actionTemplate: true,
             movement: true,

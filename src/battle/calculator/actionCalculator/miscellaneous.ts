@@ -1,9 +1,7 @@
-import { GameEngineState } from "../../../gameEngine/gameEngine"
 import { BattleSquaddie } from "../../battleSquaddie"
 import { SquaddieTemplate } from "../../../campaign/squaddieTemplate"
 import { RollResult, RollResultService } from "./rollResult"
 import { DegreeOfSuccess } from "./degreeOfSuccess"
-import { BattleAction } from "../../history/battleAction/battleAction"
 import { CalculatedEffect, DegreeOfSuccessExplanation } from "./calculator"
 import { HealingType, SquaddieService } from "../../../squaddie/squaddieService"
 import { isValidValue } from "../../../utils/objectValidityCheck"
@@ -18,15 +16,7 @@ import {
 import { AttributeTypeAndAmount } from "../../../squaddie/attribute/attributeType"
 
 export const CalculatorMiscellaneous = {
-    getActorContext: ({
-        actionEffectTemplate,
-        gameEngineState,
-        battleAction,
-    }: {
-        actionEffectTemplate: ActionEffectTemplate
-        gameEngineState: GameEngineState
-        battleAction?: BattleAction
-    }): BattleActionActorContext => {
+    getActorContext: (): BattleActionActorContext => {
         let actingSquaddieRoll: RollResult = RollResultService.new({
             occurred: false,
             rolls: [],

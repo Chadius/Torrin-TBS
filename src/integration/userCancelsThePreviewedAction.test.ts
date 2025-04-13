@@ -341,9 +341,14 @@ describe("User cancels the previewed action", () => {
         expect(targeting.hasCompleted(gameEngineState)).toBeTruthy()
         targeting.recommendStateChanges(gameEngineState)
         expect(
-            OrchestratorUtilities.isSquaddieCurrentlyTakingATurn(
-                gameEngineState
-            )
+            OrchestratorUtilities.isSquaddieCurrentlyTakingATurn({
+                battleActionDecisionStep:
+                    gameEngineState.battleOrchestratorState.battleState
+                        .battleActionDecisionStep,
+                battleActionRecorder:
+                    gameEngineState.battleOrchestratorState.battleState
+                        .battleActionRecorder,
+            })
         ).toBeTruthy()
         expect(
             BattleActionDecisionStepService.getActor(

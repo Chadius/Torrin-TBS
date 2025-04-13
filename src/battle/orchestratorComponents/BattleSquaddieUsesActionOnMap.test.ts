@@ -138,9 +138,14 @@ describe("BattleSquaddieUsesActionOnMap", () => {
         mapAction.reset(gameEngineState)
         expect(mapAction.animationCompleteStartTime).toBeUndefined()
         expect(
-            OrchestratorUtilities.isSquaddieCurrentlyTakingATurn(
-                gameEngineState
-            )
+            OrchestratorUtilities.isSquaddieCurrentlyTakingATurn({
+                battleActionDecisionStep:
+                    gameEngineState.battleOrchestratorState.battleState
+                        .battleActionDecisionStep,
+                battleActionRecorder:
+                    gameEngineState.battleOrchestratorState.battleState
+                        .battleActionRecorder,
+            })
         ).toBeFalsy()
     })
 

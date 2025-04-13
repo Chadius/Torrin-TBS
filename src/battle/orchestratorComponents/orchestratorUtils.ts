@@ -20,14 +20,29 @@ import {
     MapGraphicsLayerService,
     MapGraphicsLayerType,
 } from "../../hexMap/mapLayer/mapGraphicsLayer"
-import { BattleActionRecorderService } from "../history/battleAction/battleActionRecorder"
-import { BattleActionDecisionStepService } from "../actionDecision/battleActionDecisionStep"
+import {
+    BattleActionRecorder,
+    BattleActionRecorderService,
+} from "../history/battleAction/battleActionRecorder"
+import {
+    BattleActionDecisionStep,
+    BattleActionDecisionStepService,
+} from "../actionDecision/battleActionDecisionStep"
 import { ScreenLocation } from "../../utils/mouseConfig"
 import { CampaignResources } from "../../campaign/campaignResources"
 
 export const OrchestratorUtilities = {
-    isSquaddieCurrentlyTakingATurn: (state: GameEngineState): boolean => {
-        return isSquaddieCurrentlyTakingATurn(state)
+    isSquaddieCurrentlyTakingATurn: ({
+        battleActionDecisionStep,
+        battleActionRecorder,
+    }: {
+        battleActionDecisionStep: BattleActionDecisionStep
+        battleActionRecorder: BattleActionRecorder
+    }): boolean => {
+        return isSquaddieCurrentlyTakingATurn({
+            battleActionDecisionStep,
+            battleActionRecorder,
+        })
     },
     canTheCurrentSquaddieAct: (gameEngineState: GameEngineState): boolean => {
         return canTheCurrentSquaddieAct(gameEngineState)
@@ -105,7 +120,16 @@ export const OrchestratorUtilities = {
             return
         }
 
-        if (isSquaddieCurrentlyTakingATurn(gameEngineState)) {
+        if (
+            isSquaddieCurrentlyTakingATurn({
+                battleActionDecisionStep:
+                    gameEngineState.battleOrchestratorState.battleState
+                        .battleActionDecisionStep,
+                battleActionRecorder:
+                    gameEngineState.battleOrchestratorState.battleState
+                        .battleActionRecorder,
+            })
+        ) {
             return
         }
 
@@ -182,45 +206,28 @@ const canTheCurrentSquaddieAct = (gameEngineState: GameEngineState) => {
     return canAct
 }
 
-const isSquaddieCurrentlyTakingATurn = (
-    gameEngineState: GameEngineState
-): boolean => {
-    if (!isValidValue(gameEngineState)) {
-        return false
-    }
-
-    if (!isValidValue(gameEngineState.battleOrchestratorState)) {
-        return false
-    }
-
-    if (!isValidValue(gameEngineState.battleOrchestratorState.battleState)) {
-        return false
-    }
-
+const isSquaddieCurrentlyTakingATurn = ({
+    battleActionDecisionStep,
+    battleActionRecorder,
+}: {
+    battleActionDecisionStep: BattleActionDecisionStep
+    battleActionRecorder: BattleActionRecorder
+}): boolean => {
     if (
-        BattleActionDecisionStepService.isActorSet(
-            gameEngineState.battleOrchestratorState.battleState
-                .battleActionDecisionStep
-        ) &&
-        BattleActionDecisionStepService.isActionSet(
-            gameEngineState.battleOrchestratorState.battleState
-                .battleActionDecisionStep
-        )
+        BattleActionDecisionStepService.isActorSet(battleActionDecisionStep) &&
+        BattleActionDecisionStepService.isActionSet(battleActionDecisionStep)
     ) {
         return true
     }
 
     if (
-        !BattleActionRecorderService.isAnimationQueueEmpty(
-            gameEngineState.battleOrchestratorState.battleState
-                .battleActionRecorder
-        )
+        !BattleActionRecorderService.isAnimationQueueEmpty(battleActionRecorder)
     ) {
         return true
     }
 
     return !BattleActionRecorderService.isAlreadyAnimatedQueueEmpty(
-        gameEngineState.battleOrchestratorState.battleState.battleActionRecorder
+        battleActionRecorder
     )
 }
 
@@ -403,7 +410,14 @@ const getBattleSquaddieIdCurrentlyTakingATurn = ({
     gameEngineState: GameEngineState
 }): string => {
     switch (true) {
-        case !isSquaddieCurrentlyTakingATurn(gameEngineState):
+        case !isSquaddieCurrentlyTakingATurn({
+            battleActionDecisionStep:
+                gameEngineState.battleOrchestratorState.battleState
+                    .battleActionDecisionStep,
+            battleActionRecorder:
+                gameEngineState.battleOrchestratorState.battleState
+                    .battleActionRecorder,
+        }):
             return undefined
         case BattleActionDecisionStepService.isActorSet(
             gameEngineState.battleOrchestratorState.battleState

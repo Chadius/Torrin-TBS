@@ -207,32 +207,18 @@ describe("Orchestration Utils", () => {
             })
         })
 
-        it("is not if there is no gameEngineState or battle gameEngineState", () => {
-            expect(
-                OrchestratorUtilities.isSquaddieCurrentlyTakingATurn(undefined)
-            ).toBeFalsy()
-            expect(
-                OrchestratorUtilities.isSquaddieCurrentlyTakingATurn(
-                    GameEngineStateService.new({
-                        battleOrchestratorState: new BattleOrchestratorState({
-                            battleState: undefined,
-                            battleHUD: BattleHUDService.new({}),
-                            numberGenerator: undefined,
-                        }),
-                        resourceHandler: undefined,
-                        repository: squaddieRepository,
-                    })
-                )
-            ).toBeFalsy()
-        })
-
         it("is not if there is no squaddie is currently acting", () => {
             gameEngineState.battleOrchestratorState.battleState.battleActionDecisionStep =
                 BattleActionDecisionStepService.new()
             expect(
-                OrchestratorUtilities.isSquaddieCurrentlyTakingATurn(
-                    gameEngineState
-                )
+                OrchestratorUtilities.isSquaddieCurrentlyTakingATurn({
+                    battleActionDecisionStep:
+                        gameEngineState.battleOrchestratorState.battleState
+                            .battleActionDecisionStep,
+                    battleActionRecorder:
+                        gameEngineState.battleOrchestratorState.battleState
+                            .battleActionRecorder,
+                })
             ).toBeFalsy()
         })
 
@@ -254,9 +240,14 @@ describe("Orchestration Utils", () => {
             })
 
             expect(
-                OrchestratorUtilities.isSquaddieCurrentlyTakingATurn(
-                    gameEngineState
-                )
+                OrchestratorUtilities.isSquaddieCurrentlyTakingATurn({
+                    battleActionDecisionStep:
+                        gameEngineState.battleOrchestratorState.battleState
+                            .battleActionDecisionStep,
+                    battleActionRecorder:
+                        gameEngineState.battleOrchestratorState.battleState
+                            .battleActionRecorder,
+                })
             ).toBeTruthy()
         })
 
@@ -276,9 +267,14 @@ describe("Orchestration Utils", () => {
                 })
             )
             expect(
-                OrchestratorUtilities.isSquaddieCurrentlyTakingATurn(
-                    gameEngineState
-                )
+                OrchestratorUtilities.isSquaddieCurrentlyTakingATurn({
+                    battleActionDecisionStep:
+                        gameEngineState.battleOrchestratorState.battleState
+                            .battleActionDecisionStep,
+                    battleActionRecorder:
+                        gameEngineState.battleOrchestratorState.battleState
+                            .battleActionRecorder,
+                })
             ).toBeTruthy()
         })
 
@@ -293,9 +289,14 @@ describe("Orchestration Utils", () => {
             })
 
             expect(
-                OrchestratorUtilities.isSquaddieCurrentlyTakingATurn(
-                    gameEngineState
-                )
+                OrchestratorUtilities.isSquaddieCurrentlyTakingATurn({
+                    battleActionDecisionStep:
+                        gameEngineState.battleOrchestratorState.battleState
+                            .battleActionDecisionStep,
+                    battleActionRecorder:
+                        gameEngineState.battleOrchestratorState.battleState
+                            .battleActionRecorder,
+                })
             ).toBeFalsy()
         })
     })

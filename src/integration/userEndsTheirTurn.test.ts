@@ -384,9 +384,14 @@ describe("User ends their turn", () => {
                 )
             ).toBeFalsy()
             expect(
-                OrchestratorUtilities.isSquaddieCurrentlyTakingATurn(
-                    gameEngineState
-                )
+                OrchestratorUtilities.isSquaddieCurrentlyTakingATurn({
+                    battleActionDecisionStep:
+                        gameEngineState.battleOrchestratorState.battleState
+                            .battleActionDecisionStep,
+                    battleActionRecorder:
+                        gameEngineState.battleOrchestratorState.battleState
+                            .battleActionRecorder,
+                })
             ).toBeTruthy()
         })
 
