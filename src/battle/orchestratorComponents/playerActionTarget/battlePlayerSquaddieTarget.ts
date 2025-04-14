@@ -570,8 +570,17 @@ export class BattlePlayerSquaddieTarget implements BattleOrchestratorComponent {
     }
 
     private highlightTargetRange(gameEngineState: GameEngineState) {
-        const actionRange =
-            TargetingResultsService.highlightTargetRange(gameEngineState)
+        const actionRange = TargetingResultsService.highlightTargetRange({
+            missionMap:
+                gameEngineState.battleOrchestratorState.battleState.missionMap,
+            objectRepository: gameEngineState.repository,
+            battleActionDecisionStep:
+                gameEngineState.battleOrchestratorState.battleState
+                    .battleActionDecisionStep,
+            battleActionRecorder:
+                gameEngineState.battleOrchestratorState.battleState
+                    .battleActionRecorder,
+        })
         const context = this.data.getContext()
         context.highlightedTargetRange = [...actionRange]
         this.data.setContext(context)

@@ -442,7 +442,18 @@ describe("Targeting Service", () => {
 
         it("will return the tiles in range", () => {
             const actionRange: HexCoordinate[] =
-                TargetingResultsService.highlightTargetRange(gameEngineState)
+                TargetingResultsService.highlightTargetRange({
+                    missionMap:
+                        gameEngineState.battleOrchestratorState.battleState
+                            .missionMap,
+                    objectRepository: gameEngineState.repository,
+                    battleActionDecisionStep:
+                        gameEngineState.battleOrchestratorState.battleState
+                            .battleActionDecisionStep,
+                    battleActionRecorder:
+                        gameEngineState.battleOrchestratorState.battleState
+                            .battleActionRecorder,
+                })
             expect(actionRange).toHaveLength(6)
             expect(actionRange).toEqual(
                 expect.arrayContaining(
@@ -456,7 +467,18 @@ describe("Targeting Service", () => {
 
         it("will highlight the tiles", () => {
             const actionRange: HexCoordinate[] =
-                TargetingResultsService.highlightTargetRange(gameEngineState)
+                TargetingResultsService.highlightTargetRange({
+                    missionMap:
+                        gameEngineState.battleOrchestratorState.battleState
+                            .missionMap,
+                    objectRepository: gameEngineState.repository,
+                    battleActionDecisionStep:
+                        gameEngineState.battleOrchestratorState.battleState
+                            .battleActionDecisionStep,
+                    battleActionRecorder:
+                        gameEngineState.battleOrchestratorState.battleState
+                            .battleActionRecorder,
+                })
 
             expect(addGraphicsLayerSpy).toHaveBeenCalled()
             const callArgs = addGraphicsLayerSpy.mock.calls[0]

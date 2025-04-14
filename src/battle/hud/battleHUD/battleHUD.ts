@@ -102,25 +102,25 @@ export const BattleHUDService = {
         })
     },
     cancelTargetConfirmation: (
-        _battleHUD: BattleHUD,
         message: MessageBoardMessagePlayerCancelsTargetConfirmation
     ) => {
-        const gameEngineState = message.gameEngineState
-        const actionRange =
-            TargetingResultsService.highlightTargetRange(gameEngineState)
+        const actionRange = TargetingResultsService.highlightTargetRange({
+            missionMap: message.missionMap,
+            objectRepository: message.objectRepository,
+            battleActionDecisionStep: message.battleActionDecisionStep,
+            battleActionRecorder: message.battleActionRecorder,
+        })
 
         MapGraphicsLayerSquaddieTypes.forEach((t) =>
             TerrainTileMapService.removeGraphicsLayerByType(
-                gameEngineState.battleOrchestratorState.battleState.missionMap
-                    .terrainTileMap,
+                message.missionMap.terrainTileMap,
                 t
             )
         )
 
         const actionRangeOnMap = MapGraphicsLayerService.new({
             id: BattleActionDecisionStepService.getActor(
-                gameEngineState.battleOrchestratorState.battleState
-                    .battleActionDecisionStep
+                message.battleActionDecisionStep
             ).battleSquaddieId,
             highlightedTileDescriptions: [
                 {
@@ -132,15 +132,12 @@ export const BattleHUDService = {
             type: MapGraphicsLayerType.CLICKED_ON_CONTROLLABLE_SQUADDIE,
         })
         TerrainTileMapService.addGraphicsLayer(
-            gameEngineState.battleOrchestratorState.battleState.missionMap
-                .terrainTileMap,
+            message.missionMap.terrainTileMap,
             actionRangeOnMap
         )
 
         BattleActionDecisionStepService.removeTarget({
-            actionDecisionStep:
-                gameEngineState.battleOrchestratorState.battleState
-                    .battleActionDecisionStep,
+            actionDecisionStep: message.battleActionDecisionStep,
         })
     },
     endPlayerSquaddieTurn: (

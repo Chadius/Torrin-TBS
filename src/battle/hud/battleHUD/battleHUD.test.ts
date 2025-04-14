@@ -1055,7 +1055,16 @@ describe("Battle HUD", () => {
 
             battleHUDListener.receiveMessage({
                 type: MessageBoardMessageType.PLAYER_CANCELS_TARGET_CONFIRMATION,
-                gameEngineState,
+                missionMap:
+                    gameEngineState.battleOrchestratorState.battleState
+                        .missionMap,
+                objectRepository: gameEngineState.repository,
+                battleActionDecisionStep:
+                    gameEngineState.battleOrchestratorState.battleState
+                        .battleActionDecisionStep,
+                battleActionRecorder:
+                    gameEngineState.battleOrchestratorState.battleState
+                        .battleActionRecorder,
             })
         })
 

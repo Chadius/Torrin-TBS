@@ -130,7 +130,10 @@ export interface MessageBoardMessagePlayerCancelsTargetSelection {
 
 export interface MessageBoardMessagePlayerCancelsTargetConfirmation {
     type: MessageBoardMessageType.PLAYER_CANCELS_TARGET_CONFIRMATION
-    gameEngineState: GameEngineState
+    missionMap: MissionMap
+    objectRepository: ObjectRepository
+    battleActionDecisionStep: BattleActionDecisionStep
+    battleActionRecorder: BattleActionRecorder
 }
 
 export interface MessageBoardMessagePlayerEndsTurn {
