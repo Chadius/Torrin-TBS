@@ -26,7 +26,7 @@ import {
     PlayerInputAction,
     PlayerInputStateService,
 } from "../../../ui/playerInput/playerInputState"
-import { DataBlob, DataBlobService } from "../../../utils/dataBlob/dataBlob"
+import { DataBlobService } from "../../../utils/dataBlob/dataBlob"
 import { SequenceComposite } from "../../../utils/behaviorTree/composite/sequence/sequence"
 import { ExecuteAllComposite } from "../../../utils/behaviorTree/composite/executeAll/executeAll"
 import { BehaviorTreeTask } from "../../../utils/behaviorTree/task"
@@ -52,6 +52,7 @@ import {
     DrawSquaddieIconOnMapUtilities,
 } from "../../animation/drawSquaddieIconOnMap/drawSquaddieIconOnMap"
 import { MissionMapService } from "../../../missionMap/missionMap"
+import { ComponentDataBlob } from "../../../utils/dataBlob/componentDataBlob"
 
 export interface PlayerActionConfirmLayout {
     okButton: {
@@ -107,77 +108,15 @@ export interface PlayerActionConfirmUIObjects {
     graphicsContext?: GraphicsBuffer
 }
 
-export class BattlePlayerActionConfirmData implements DataBlob {
-    data: {
-        data: {
-            layout: PlayerActionConfirmLayout
-            context: PlayerActionConfirmContext
-            uiObjects: PlayerActionConfirmUIObjects
-            [key: string]: any
-        }
-    }
-
-    constructor() {
-        this.data = {
-            data: {
-                uiObjects: undefined,
-                layout: undefined,
-                context: undefined,
-            },
-        }
-    }
-
-    getLayout(): PlayerActionConfirmLayout {
-        return DataBlobService.get<PlayerActionConfirmLayout>(
-            this.data,
-            "layout"
-        )
-    }
-
-    setLayout(layout: PlayerActionConfirmLayout): void {
-        return DataBlobService.add<PlayerActionConfirmLayout>(
-            this.data,
-            "layout",
-            layout
-        )
-    }
-
-    getUIObjects(): PlayerActionConfirmUIObjects {
-        return DataBlobService.get<PlayerActionConfirmUIObjects>(
-            this.data,
-            "uiObjects"
-        )
-    }
-
-    setUIObjects(uiObjects: PlayerActionConfirmUIObjects): void {
-        return DataBlobService.add<PlayerActionConfirmUIObjects>(
-            this.data,
-            "uiObjects",
-            uiObjects
-        )
-    }
-
-    getContext(): PlayerActionConfirmContext {
-        return DataBlobService.get<PlayerActionConfirmContext>(
-            this.data,
-            "context"
-        )
-    }
-
-    setContext(context: PlayerActionConfirmContext): void {
-        return DataBlobService.add<PlayerActionConfirmContext>(
-            this.data,
-            "context",
-            context
-        )
-    }
-}
-
 export class BattlePlayerActionConfirm implements BattleOrchestratorComponent {
     private cancelAbility: boolean
     private hasConfirmedAction: boolean
 
-    data: BattlePlayerActionConfirmData
+    data: ComponentDataBlob<
+        PlayerActionConfirmLayout,
+        PlayerActionConfirmContext,
+        PlayerActionConfirmUIObjects
+    >
     drawUITask: BehaviorTreeTask
 
     constructor() {
@@ -483,7 +422,7 @@ export class BattlePlayerActionConfirm implements BattleOrchestratorComponent {
         this.hasConfirmedAction = false
         this.cancelAbility = false
 
-        this.data = new BattlePlayerActionConfirmData()
+        this.data = new ComponentDataBlob()
 
         this.drawUITask = undefined
         this.createContext()

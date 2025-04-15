@@ -14,7 +14,6 @@ import {
     WINDOW_SPACING,
 } from "../../../ui/constants"
 import {
-    BattlePlayerActionConfirmData,
     PlayerActionConfirmContext,
     PlayerActionConfirmLayout,
     PlayerActionConfirmUIObjects,
@@ -22,13 +21,24 @@ import {
 import { BattleActionDecisionStepService } from "../../actionDecision/battleActionDecisionStep"
 import { ConvertCoordinateService } from "../../../hexMap/convertCoordinates"
 import { ScreenDimensions } from "../../../utils/graphics/graphicsConfig"
+import { ComponentDataBlob } from "../../../utils/dataBlob/componentDataBlob"
 
 export class PlayerActionConfirmShouldCreateOKButton
     implements BehaviorTreeTask
 {
-    dataBlob: BattlePlayerActionConfirmData
+    dataBlob: ComponentDataBlob<
+        PlayerActionConfirmLayout,
+        PlayerActionConfirmContext,
+        PlayerActionConfirmUIObjects
+    >
 
-    constructor(dataBlob: BattlePlayerActionConfirmData) {
+    constructor(
+        dataBlob: ComponentDataBlob<
+            PlayerActionConfirmLayout,
+            PlayerActionConfirmContext,
+            PlayerActionConfirmUIObjects
+        >
+    ) {
         this.dataBlob = dataBlob
     }
 
@@ -41,9 +51,19 @@ export class PlayerActionConfirmShouldCreateOKButton
 }
 
 export class PlayerActionConfirmCreateOKButton implements BehaviorTreeTask {
-    dataBlob: BattlePlayerActionConfirmData
+    dataBlob: ComponentDataBlob<
+        PlayerActionConfirmLayout,
+        PlayerActionConfirmContext,
+        PlayerActionConfirmUIObjects
+    >
 
-    constructor(dataBlob: BattlePlayerActionConfirmData) {
+    constructor(
+        dataBlob: ComponentDataBlob<
+            PlayerActionConfirmLayout,
+            PlayerActionConfirmContext,
+            PlayerActionConfirmUIObjects
+        >
+    ) {
         this.dataBlob = dataBlob
     }
 

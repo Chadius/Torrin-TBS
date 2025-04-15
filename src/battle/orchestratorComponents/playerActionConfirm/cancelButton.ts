@@ -14,19 +14,29 @@ import {
     WINDOW_SPACING,
 } from "../../../ui/constants"
 import {
-    BattlePlayerActionConfirmData,
     PlayerActionConfirmContext,
     PlayerActionConfirmLayout,
     PlayerActionConfirmUIObjects,
 } from "./battlePlayerActionConfirm"
 import { ScreenDimensions } from "../../../utils/graphics/graphicsConfig"
+import { ComponentDataBlob } from "../../../utils/dataBlob/componentDataBlob"
 
 export class PlayerActionConfirmShouldCreateCancelButton
     implements BehaviorTreeTask
 {
-    dataBlob: BattlePlayerActionConfirmData
+    dataBlob: ComponentDataBlob<
+        PlayerActionConfirmLayout,
+        PlayerActionConfirmContext,
+        PlayerActionConfirmUIObjects
+    >
 
-    constructor(dataBlob: BattlePlayerActionConfirmData) {
+    constructor(
+        dataBlob: ComponentDataBlob<
+            PlayerActionConfirmLayout,
+            PlayerActionConfirmContext,
+            PlayerActionConfirmUIObjects
+        >
+    ) {
         this.dataBlob = dataBlob
     }
 
@@ -40,9 +50,19 @@ export class PlayerActionConfirmShouldCreateCancelButton
 }
 
 export class PlayerActionConfirmCreateCancelButton implements BehaviorTreeTask {
-    dataBlob: BattlePlayerActionConfirmData
+    dataBlob: ComponentDataBlob<
+        PlayerActionConfirmLayout,
+        PlayerActionConfirmContext,
+        PlayerActionConfirmUIObjects
+    >
 
-    constructor(dataBlob: BattlePlayerActionConfirmData) {
+    constructor(
+        dataBlob: ComponentDataBlob<
+            PlayerActionConfirmLayout,
+            PlayerActionConfirmContext,
+            PlayerActionConfirmUIObjects
+        >
+    ) {
         this.dataBlob = dataBlob
     }
 
