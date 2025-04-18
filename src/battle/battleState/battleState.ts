@@ -253,7 +253,8 @@ const newBattleState = ({
             missionStatistics || MissionStatisticsService.new({}),
         battleCompletionStatus:
             battleCompletionStatus || BattleCompletionStatus.IN_PROGRESS,
-        battleActionDecisionStep,
+        battleActionDecisionStep:
+            battleActionDecisionStep ?? BattleActionDecisionStepService.new(),
         mapDataBlob: missionMap
             ? new MapDataBlob(missionMap.terrainTileMap)
             : undefined,
@@ -355,8 +356,10 @@ const battleActionFinishesAnimation = (
     }).canAct
 
     if (battleSquaddie && canAct) {
-        gameEngineState.battleOrchestratorState.battleState.battleActionDecisionStep =
-            BattleActionDecisionStepService.new()
+        BattleActionDecisionStepService.reset(
+            gameEngineState.battleOrchestratorState.battleState
+                .battleActionDecisionStep
+        )
         BattleActionDecisionStepService.setActor({
             actionDecisionStep:
                 gameEngineState.battleOrchestratorState.battleState
@@ -366,8 +369,10 @@ const battleActionFinishesAnimation = (
         return
     }
 
-    gameEngineState.battleOrchestratorState.battleState.battleActionDecisionStep =
-        undefined
+    BattleActionDecisionStepService.reset(
+        gameEngineState.battleOrchestratorState.battleState
+            .battleActionDecisionStep
+    )
 
     if (!canAct) {
         gameEngineState.messageBoard.sendMessage({

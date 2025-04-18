@@ -378,7 +378,7 @@ describe("BattleComputerSquaddieSelector", () => {
             expect(expectCameraDoesNotPanAndComponentIsComplete()).toBeTruthy()
         })
 
-        it("clears the action builder", () => {
+        it("resets the action builder", () => {
             const movementStep: BattleActionDecisionStep =
                 BattleActionDecisionStepService.new()
             BattleActionDecisionStepService.setActor({
@@ -396,15 +396,17 @@ describe("BattleComputerSquaddieSelector", () => {
             setupStrategySpy(movementStep)
             gameEngineState.battleOrchestratorState.battleState.battleActionDecisionStep =
                 BattleActionDecisionStepService.new()
+            const resetSpy = vi.spyOn(BattleActionDecisionStepService, "reset")
             selector.update({
                 gameEngineState,
                 graphicsContext: mockedP5GraphicsContext,
                 resourceHandler: gameEngineState.resourceHandler,
             })
-            expect(
+            expect(resetSpy).toBeCalledWith(
                 gameEngineState.battleOrchestratorState.battleState
                     .battleActionDecisionStep
-            ).toBeUndefined()
+            )
+            resetSpy.mockRestore()
         })
     })
 

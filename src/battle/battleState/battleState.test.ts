@@ -700,8 +700,10 @@ describe("Battle State", () => {
 
             it("If the squaddie turn is over, do not make the decision to select the squaddie", () => {
                 expect(
-                    gameEngineState.battleOrchestratorState.battleState
-                        .battleActionDecisionStep
+                    BattleActionDecisionStepService.getActor(
+                        gameEngineState.battleOrchestratorState.battleState
+                            .battleActionDecisionStep
+                    )
                 ).toBeUndefined()
             })
 

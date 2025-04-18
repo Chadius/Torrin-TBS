@@ -9,10 +9,7 @@ import { HexCoordinate } from "../../../hexMap/hexCoordinate/hexCoordinate"
 import { BattleActionService } from "../../history/battleAction/battleAction"
 import { BattleSquaddieSelectorService } from "../../orchestratorComponents/battleSquaddieSelectorUtils"
 import { SquaddieTurnService } from "../../../squaddie/turn"
-import {
-    BattleActionDecisionStep,
-    BattleActionDecisionStepService,
-} from "../../actionDecision/battleActionDecisionStep"
+import { BattleActionDecisionStepService } from "../../actionDecision/battleActionDecisionStep"
 import { BattleActionRecorderService } from "../../history/battleAction/battleActionRecorder"
 import { MissionMapService } from "../../../missionMap/missionMap"
 import { SearchResultAdapterService } from "../../../hexMap/pathfinder/searchResults/searchResultAdapter"
@@ -102,8 +99,10 @@ export const MovementCalculatorService = {
             battleSquaddie,
             clickedHexCoordinate: destination,
         })
-        gameEngineState.battleOrchestratorState.battleState.battleActionDecisionStep =
-            BattleActionDecisionStepService.new()
+        BattleActionDecisionStepService.reset(
+            gameEngineState.battleOrchestratorState.battleState
+                .battleActionDecisionStep
+        )
         BattleActionDecisionStepService.setActor({
             actionDecisionStep:
                 gameEngineState.battleOrchestratorState.battleState
@@ -200,21 +199,6 @@ const spendActionPointsMoving = ({
         Math.max(
             ...Object.keys(coordinatesByMoveActions).map((str) => Number(str))
         ) || 1
-
-    const movementStep: BattleActionDecisionStep =
-        BattleActionDecisionStepService.new()
-    BattleActionDecisionStepService.setActor({
-        actionDecisionStep: movementStep,
-        battleSquaddieId: battleSquaddie.battleSquaddieId,
-    })
-    BattleActionDecisionStepService.addAction({
-        actionDecisionStep: movementStep,
-        movement: true,
-    })
-    BattleActionDecisionStepService.setConfirmedTarget({
-        actionDecisionStep: movementStep,
-        targetCoordinate: destination,
-    })
 
     SquaddieTurnService.spendActionPointsForMovement({
         squaddieTurn: battleSquaddie.squaddieTurn,

@@ -22,8 +22,10 @@ export const BattleOrchestratorStateTestService = {
         knightBattleSquaddie: BattleSquaddie
         longswordAction: ActionTemplate
     }) => {
-        gameEngineState.battleOrchestratorState.battleState.battleActionDecisionStep =
-            BattleActionDecisionStepService.new()
+        BattleActionDecisionStepService.reset(
+            gameEngineState.battleOrchestratorState.battleState
+                .battleActionDecisionStep
+        )
         BattleActionDecisionStepService.setActor({
             actionDecisionStep:
                 gameEngineState.battleOrchestratorState.battleState

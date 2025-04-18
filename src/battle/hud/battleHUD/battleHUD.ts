@@ -26,10 +26,7 @@ import { ObjectRepositoryService } from "../../objectRepository"
 import { getResultOrThrowError } from "../../../utils/ResultOrError"
 import { MissionMap, MissionMapService } from "../../../missionMap/missionMap"
 import { OrchestratorUtilities } from "../../orchestratorComponents/orchestratorUtils"
-import {
-    BattleActionDecisionStep,
-    BattleActionDecisionStepService,
-} from "../../actionDecision/battleActionDecisionStep"
+import { BattleActionDecisionStepService } from "../../actionDecision/battleActionDecisionStep"
 import { HIGHLIGHT_PULSE_COLOR } from "../../../hexMap/hexDrawingUtils"
 import { TargetingResultsService } from "../../targeting/targetingService"
 import { BattleSquaddie, BattleSquaddieService } from "../../battleSquaddie"
@@ -364,8 +361,10 @@ export const BattleHUDService = {
         gameEngineState.battleOrchestratorState.battleHUDState.summaryHUDState.showAllPlayerActions =
             false
 
-        gameEngineState.battleOrchestratorState.battleState.battleActionDecisionStep =
-            BattleActionDecisionStepService.new()
+        BattleActionDecisionStepService.reset(
+            gameEngineState.battleOrchestratorState.battleState
+                .battleActionDecisionStep
+        )
         BattleActionDecisionStepService.setActor({
             actionDecisionStep:
                 gameEngineState.battleOrchestratorState.battleState
@@ -632,8 +631,10 @@ export const BattleHUDService = {
         message: MessageBoardMessagePlayerSelectsEmptyTile
     ) => {
         const gameEngineState = message.gameEngineState
-        gameEngineState.battleOrchestratorState.battleState.battleActionDecisionStep =
-            BattleActionDecisionStepService.new()
+        BattleActionDecisionStepService.reset(
+            gameEngineState.battleOrchestratorState.battleState
+                .battleActionDecisionStep
+        )
         gameEngineState.battleOrchestratorState.battleHUDState.summaryHUDState =
             undefined
     },
@@ -649,17 +650,6 @@ const processEndTurnAction = (
     battleSquaddie: BattleSquaddie,
     mapCoordinate: HexCoordinate
 ) => {
-    const endTurnDecision: BattleActionDecisionStep =
-        BattleActionDecisionStepService.new()
-    BattleActionDecisionStepService.setActor({
-        actionDecisionStep: endTurnDecision,
-        battleSquaddieId: battleSquaddie.battleSquaddieId,
-    })
-    BattleActionDecisionStepService.addAction({
-        actionDecisionStep: endTurnDecision,
-        endTurn: true,
-    })
-
     const endTurnAction: BattleAction = BattleActionService.new({
         actor: { actorBattleSquaddieId: battleSquaddie.battleSquaddieId },
         action: { isEndTurn: true },
@@ -670,8 +660,10 @@ const processEndTurnAction = (
             .battleActionRecorder,
         endTurnAction
     )
-    gameEngineState.battleOrchestratorState.battleState.battleActionDecisionStep =
-        BattleActionDecisionStepService.new()
+    BattleActionDecisionStepService.reset(
+        gameEngineState.battleOrchestratorState.battleState
+            .battleActionDecisionStep
+    )
     BattleActionDecisionStepService.setActor({
         actionDecisionStep:
             gameEngineState.battleOrchestratorState.battleState
@@ -801,8 +793,10 @@ const showHUDForControllableSquaddie = (
         gameEngineState.battleOrchestratorState.battleState
             .battleActionDecisionStep === undefined
     ) {
-        gameEngineState.battleOrchestratorState.battleState.battleActionDecisionStep =
-            BattleActionDecisionStepService.new()
+        BattleActionDecisionStepService.reset(
+            gameEngineState.battleOrchestratorState.battleState
+                .battleActionDecisionStep
+        )
     }
     BattleActionDecisionStepService.setActor({
         actionDecisionStep:

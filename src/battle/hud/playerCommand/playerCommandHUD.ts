@@ -187,7 +187,21 @@ export const PlayerCommandStateService = {
         ) {
             gameEngineState.messageBoard.sendMessage({
                 type: MessageBoardMessageType.PLAYER_CONSIDERS_ACTION,
-                gameEngineState,
+                playerConsideredActions:
+                    gameEngineState.battleOrchestratorState.battleState
+                        .playerConsideredActions,
+                summaryHUDState:
+                    gameEngineState.battleOrchestratorState.battleHUDState
+                        .summaryHUDState,
+                playerDecisionHUD:
+                    gameEngineState.battleOrchestratorState.playerDecisionHUD,
+                missionMap:
+                    gameEngineState.battleOrchestratorState.battleState
+                        .missionMap,
+                battleActionDecisionStep:
+                    gameEngineState.battleOrchestratorState.battleState
+                        .battleActionDecisionStep,
+                objectRepository: gameEngineState.repository,
                 useAction: {
                     actionTemplateId: undefined,
                     isEndTurn: false,
@@ -227,7 +241,20 @@ export const PlayerCommandStateService = {
 
         gameEngineState.messageBoard.sendMessage({
             type: MessageBoardMessageType.PLAYER_CONSIDERS_ACTION,
-            gameEngineState,
+            playerConsideredActions:
+                gameEngineState.battleOrchestratorState.battleState
+                    .playerConsideredActions,
+            summaryHUDState:
+                gameEngineState.battleOrchestratorState.battleHUDState
+                    .summaryHUDState,
+            playerDecisionHUD:
+                gameEngineState.battleOrchestratorState.playerDecisionHUD,
+            missionMap:
+                gameEngineState.battleOrchestratorState.battleState.missionMap,
+            battleActionDecisionStep:
+                gameEngineState.battleOrchestratorState.battleState
+                    .battleActionDecisionStep,
+            objectRepository: gameEngineState.repository,
             useAction: {
                 actionTemplateId: isActionButtonEndTurn(consideredActionButton)
                     ? undefined

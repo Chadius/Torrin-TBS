@@ -79,6 +79,9 @@ export const BattleActionDecisionStepService = {
         battleActionDecisionStep.action = undefined
         battleActionDecisionStep.target = undefined
     },
+    copy: (from: BattleActionDecisionStep, to: BattleActionDecisionStep) => {
+        Object.assign(to, from)
+    },
     isSquaddieActionRecordNotSet: (
         actionBuilderState: BattleActionDecisionStep
     ): boolean => {

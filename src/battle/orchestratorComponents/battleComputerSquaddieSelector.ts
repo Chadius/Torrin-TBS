@@ -272,8 +272,10 @@ export class BattleComputerSquaddieSelector
         if (this.mostRecentDecisionSteps !== undefined) {
             return
         }
-        gameEngineState.battleOrchestratorState.battleState.battleActionDecisionStep =
-            undefined
+        BattleActionDecisionStepService.reset(
+            gameEngineState.battleOrchestratorState.battleState
+                .battleActionDecisionStep
+        )
 
         const currentTeam: BattleSquaddieTeam =
             BattleStateService.getCurrentTeam(
@@ -552,8 +554,11 @@ export class BattleComputerSquaddieSelector
                     case isValidValue(
                         battleActionDecisionStep.action.actionTemplateId
                     ):
-                        gameEngineState.battleOrchestratorState.battleState.battleActionDecisionStep =
-                            battleActionDecisionStep
+                        BattleActionDecisionStepService.copy(
+                            battleActionDecisionStep,
+                            gameEngineState.battleOrchestratorState.battleState
+                                .battleActionDecisionStep
+                        )
                         ActionCalculator.calculateAndApplyResults({
                             battleActionDecisionStep:
                                 gameEngineState.battleOrchestratorState
