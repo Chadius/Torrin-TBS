@@ -627,13 +627,6 @@ describe("Battle HUD", () => {
                 })
             })
 
-            it("will not show the player command window for uncontrollable enemy squaddies", () => {
-                expect(
-                    gameEngineState.battleOrchestratorState.battleHUDState
-                        .summaryHUDState.showAllPlayerActions
-                ).toBeFalsy()
-            })
-
             it("will show the summary window on the right side", () => {
                 expect(
                     gameEngineState.battleOrchestratorState.battleHUDState

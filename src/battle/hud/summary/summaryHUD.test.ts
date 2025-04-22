@@ -32,7 +32,10 @@ import {
 import { MouseButton } from "../../../utils/mouseConfig"
 import { SquaddieRepositoryService } from "../../../utils/test/squaddie"
 import { TargetConstraintsService } from "../../../action/targetConstraints"
-import { BattleActionDecisionStepService } from "../../actionDecision/battleActionDecisionStep"
+import {
+    BattleActionDecisionStep,
+    BattleActionDecisionStepService,
+} from "../../actionDecision/battleActionDecisionStep"
 import { SquaddieNameAndPortraitTileService } from "../playerActionPanel/tile/squaddieNameAndPortraitTile"
 import { MissionMapService } from "../../../missionMap/missionMap"
 import { TerrainTileMapService } from "../../../hexMap/terrainTileMap"
@@ -993,6 +996,10 @@ describe("summaryHUD", () => {
                     .buttonIcon.drawArea
             )
 
+            const showPlayerActionsSpy = vi
+                .spyOn(SummaryHUDStateService, "shouldShowAllPlayerActions")
+                .mockReturnValue(true)
+
             SummaryHUDStateService.mouseMoved({
                 summaryHUDState,
                 mouseLocation: {
@@ -1009,6 +1016,9 @@ describe("summaryHUD", () => {
                 gameEngineState,
                 playerCommandState: summaryHUDState.playerCommandState,
             })
+
+            expect(showPlayerActionsSpy).toBeCalled()
+            showPlayerActionsSpy.mockRestore()
         })
 
         it("will return which button was clicked on the PlayerCommandHUD", () => {
@@ -1018,6 +1028,9 @@ describe("summaryHUD", () => {
                 graphicsBuffer,
                 resourceHandler,
             })
+            const showPlayerActionsSpy = vi
+                .spyOn(SummaryHUDStateService, "shouldShowAllPlayerActions")
+                .mockReturnValue(true)
 
             const playerCommandSpy: MockInstance = vi.spyOn(
                 PlayerCommandStateService,
@@ -1044,6 +1057,9 @@ describe("summaryHUD", () => {
                 PlayerCommandSelection.PLAYER_COMMAND_SELECTION_ACTION
             )
             playerCommandSpy.mockRestore()
+
+            expect(showPlayerActionsSpy).toBeCalled()
+            showPlayerActionsSpy.mockRestore()
         })
 
         it("will create an action tile when an action is selected", () => {
@@ -1072,6 +1088,99 @@ describe("summaryHUD", () => {
             expect(summaryHUDState.actionSelectedTile.actionName).toEqual(
                 "NeedsTarget"
             )
+        })
+    })
+
+    describe("shouldShowAllPlayerActions", () => {
+        let objectRepository: ObjectRepository
+        let battleActionDecisionStep: BattleActionDecisionStep
+        let summaryHUDState: SummaryHUDState
+
+        beforeEach(() => {
+            objectRepository = ObjectRepositoryService.new()
+            SquaddieRepositoryService.createNewSquaddieAndAddToRepository({
+                objectRepository,
+                battleId: "player",
+                name: "player",
+                templateId: "player",
+                affiliation: SquaddieAffiliation.PLAYER,
+                actionTemplateIds: [],
+            })
+            SquaddieRepositoryService.createNewSquaddieAndAddToRepository({
+                objectRepository,
+                battleId: "enemy",
+                name: "enemy",
+                templateId: "enemy",
+                affiliation: SquaddieAffiliation.ENEMY,
+                actionTemplateIds: [],
+            })
+
+            battleActionDecisionStep = BattleActionDecisionStepService.new()
+            summaryHUDState = SummaryHUDStateService.new()
+        })
+
+        it("Do not show when no summary is selected", () => {
+            expect(
+                SummaryHUDStateService.shouldShowAllPlayerActions({
+                    summaryHUDState: undefined,
+                    battleActionDecisionStep,
+                    objectRepository,
+                })
+            ).toBeFalsy()
+        })
+
+        it("Do not show when no player is selected", () => {
+            expect(
+                SummaryHUDStateService.shouldShowAllPlayerActions({
+                    summaryHUDState,
+                    battleActionDecisionStep,
+                    objectRepository,
+                })
+            ).toBeFalsy()
+        })
+
+        it("Do show when a player battle squaddie is selected and no action", () => {
+            BattleActionDecisionStepService.setActor({
+                actionDecisionStep: battleActionDecisionStep,
+                battleSquaddieId: "player",
+            })
+            expect(
+                SummaryHUDStateService.shouldShowAllPlayerActions({
+                    summaryHUDState,
+                    battleActionDecisionStep,
+                    objectRepository,
+                })
+            ).toBeTruthy()
+        })
+        it("Do not show when a npc battle squaddie is selected", () => {
+            BattleActionDecisionStepService.setActor({
+                actionDecisionStep: battleActionDecisionStep,
+                battleSquaddieId: "enemy",
+            })
+            expect(
+                SummaryHUDStateService.shouldShowAllPlayerActions({
+                    summaryHUDState,
+                    battleActionDecisionStep,
+                    objectRepository,
+                })
+            ).toBeFalsy()
+        })
+        it("Do not show when a player battle squaddie is selected and action has been selected", () => {
+            BattleActionDecisionStepService.setActor({
+                actionDecisionStep: battleActionDecisionStep,
+                battleSquaddieId: "player",
+            })
+            BattleActionDecisionStepService.addAction({
+                actionDecisionStep: battleActionDecisionStep,
+                actionTemplateId: "action",
+            })
+            expect(
+                SummaryHUDStateService.shouldShowAllPlayerActions({
+                    summaryHUDState,
+                    battleActionDecisionStep,
+                    objectRepository,
+                })
+            ).toBeFalsy()
         })
     })
 })

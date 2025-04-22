@@ -462,8 +462,6 @@ describe("BattleSquaddieSelector", () => {
                     setup: () => {
                         gameEngineState.battleOrchestratorState.battleHUDState.summaryHUDState =
                             SummaryHUDStateService.new()
-                        gameEngineState.battleOrchestratorState.battleHUDState.summaryHUDState.showAllPlayerActions =
-                            true
                     },
                 },
                 {
@@ -695,6 +693,10 @@ describe("BattleSquaddieSelector", () => {
         })
 
         it("Does not make a movement action if you click on the player command HUD", () => {
+            const showPlayerActionsSpy = vi
+                .spyOn(SummaryHUDStateService, "shouldShowAllPlayerActions")
+                .mockReturnValue(true)
+
             const playerCommandSpy = vi
                 .spyOn(PlayerCommandStateService, "mouseReleased")
                 .mockReturnValue(
@@ -719,6 +721,8 @@ describe("BattleSquaddieSelector", () => {
                 )
             ).toBeTruthy()
 
+            expect(showPlayerActionsSpy).toBeCalled()
+            showPlayerActionsSpy.mockRestore()
             playerCommandSpy.mockRestore()
         })
     })
@@ -727,6 +731,7 @@ describe("BattleSquaddieSelector", () => {
         let gameEngineState: GameEngineState
         let x: number
         let y: number
+        let showPlayerActionsSpy: MockInstance
 
         beforeEach(() => {
             const battlePhaseState =
@@ -746,6 +751,9 @@ describe("BattleSquaddieSelector", () => {
                 }
             )
 
+            showPlayerActionsSpy = vi
+                .spyOn(SummaryHUDStateService, "shouldShowAllPlayerActions")
+                .mockReturnValue(true)
             messageSpy = vi.spyOn(gameEngineState.messageBoard, "sendMessage")
             ;({ x, y } = selectActionButton({
                 actionTemplateId: END_TURN_NAME,
@@ -756,6 +764,11 @@ describe("BattleSquaddieSelector", () => {
 
         afterEach(() => {
             messageSpy.mockRestore()
+            showPlayerActionsSpy.mockRestore()
+        })
+
+        it("needs to know if it should display the actions", () => {
+            expect(showPlayerActionsSpy).toBeCalled()
         })
 
         it("knows the player intends to end the turn", () => {
@@ -821,6 +834,7 @@ describe("BattleSquaddieSelector", () => {
         let gameEngineState: GameEngineState
         let x: number
         let y: number
+        let showPlayerActionsSpy: MockInstance
 
         beforeEach(() => {
             const battlePhaseState =
@@ -847,10 +861,15 @@ describe("BattleSquaddieSelector", () => {
             )
 
             messageSpy = vi.spyOn(gameEngineState.messageBoard, "sendMessage")
+
+            showPlayerActionsSpy = vi
+                .spyOn(SummaryHUDStateService, "shouldShowAllPlayerActions")
+                .mockReturnValue(true)
         })
 
         afterEach(() => {
             messageSpy.mockRestore()
+            showPlayerActionsSpy.mockRestore()
         })
 
         it("knows the player wants to use the self action", () => {
@@ -859,6 +878,7 @@ describe("BattleSquaddieSelector", () => {
                 gameEngineState,
                 selector,
             }))
+            expect(showPlayerActionsSpy).toBeCalled()
             expect(
                 expectContextSpiesWereCalled({
                     expectedPlayerSelectionContextCalculationArgs:
@@ -923,6 +943,7 @@ describe("BattleSquaddieSelector", () => {
         let gameEngineState: GameEngineState
         let x: number
         let y: number
+        let showPlayerActionsSpy: MockInstance
 
         beforeEach(() => {
             const battlePhaseState =
@@ -949,6 +970,9 @@ describe("BattleSquaddieSelector", () => {
             )
 
             messageSpy = vi.spyOn(gameEngineState.messageBoard, "sendMessage")
+            showPlayerActionsSpy = vi
+                .spyOn(SummaryHUDStateService, "shouldShowAllPlayerActions")
+                .mockReturnValue(true)
             ;({ x, y } = selectActionButton({
                 actionTemplateId: "melee",
                 gameEngineState,
@@ -958,9 +982,11 @@ describe("BattleSquaddieSelector", () => {
 
         afterEach(() => {
             messageSpy.mockRestore()
+            showPlayerActionsSpy.mockRestore()
         })
 
         it("knows the player wants to use the action", () => {
+            expect(showPlayerActionsSpy).toBeCalled()
             expect(
                 expectContextSpiesWereCalled({
                     expectedPlayerSelectionContextCalculationArgs:

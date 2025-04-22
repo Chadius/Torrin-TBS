@@ -321,7 +321,6 @@ export const BattleHUDService = {
         TerrainTileMapService.removeAllGraphicsLayers(
             message.missionMap.terrainTileMap
         )
-        message.summaryHUDState.showAllPlayerActions = false
 
         BattleActionDecisionStepService.reset(message.battleActionDecisionStep)
         BattleActionDecisionStepService.setActor({
@@ -358,8 +357,6 @@ export const BattleHUDService = {
             gameEngineState.battleOrchestratorState.battleState.missionMap
                 .terrainTileMap
         )
-        gameEngineState.battleOrchestratorState.battleHUDState.summaryHUDState.showAllPlayerActions =
-            false
 
         BattleActionDecisionStepService.reset(
             gameEngineState.battleOrchestratorState.battleState

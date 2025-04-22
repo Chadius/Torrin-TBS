@@ -3,6 +3,7 @@ import { ActionTilePosition } from "../../battle/hud/playerActionPanel/tile/acti
 import { ObjectRepositoryService } from "../../battle/objectRepository"
 import { getResultOrThrowError } from "../../utils/ResultOrError"
 import { expect } from "vitest"
+import { SummaryHUDStateService } from "../../battle/hud/summary/summaryHUD"
 
 export const SummaryHUDSpec = {
     expectActorNameToBe: (
@@ -15,8 +16,15 @@ export const SummaryHUDSpec = {
         ).toBeTruthy()
 
         expect(
-            gameEngineState.battleOrchestratorState.battleHUDState
-                .summaryHUDState.showAllPlayerActions
+            SummaryHUDStateService.shouldShowAllPlayerActions({
+                summaryHUDState:
+                    gameEngineState.battleOrchestratorState.battleHUDState
+                        .summaryHUDState,
+                objectRepository: gameEngineState.repository,
+                battleActionDecisionStep:
+                    gameEngineState.battleOrchestratorState.battleState
+                        .battleActionDecisionStep,
+            })
         ).toBeTruthy()
         expect(
             gameEngineState.battleOrchestratorState.battleHUDState

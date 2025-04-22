@@ -60,7 +60,6 @@ const ActionPanelPositionForStatus = [
 ]
 
 export interface SummaryHUDState {
-    showAllPlayerActions: boolean
     playerCommandState: PlayerCommandState
     squaddieNameTiles: {
         [q in ActionTilePosition]?: SquaddieNameAndPortraitTile
@@ -83,7 +82,6 @@ export interface SummaryHUDState {
 const getNewSummaryHUDState = () => {
     return (): SummaryHUDState => ({
         playerCommandState: PlayerCommandStateService.new(),
-        showAllPlayerActions: false,
         actionSelectedTile: undefined,
         actionPreviewTile: undefined,
         squaddieNameTiles: {
@@ -151,7 +149,16 @@ export const SummaryHUDStateService = {
         summaryHUDState: SummaryHUDState
         gameEngineState: GameEngineState
     }): PlayerCommandSelection => {
-        if (!summaryHUDState?.showAllPlayerActions) {
+        if (
+            !summaryHUDState ||
+            !SummaryHUDStateService.shouldShowAllPlayerActions({
+                summaryHUDState,
+                objectRepository: gameEngineState.repository,
+                battleActionDecisionStep:
+                    gameEngineState.battleOrchestratorState.battleState
+                        .battleActionDecisionStep,
+            })
+        ) {
             return PlayerCommandSelection.PLAYER_COMMAND_SELECTION_NONE
         }
 
@@ -222,7 +229,15 @@ export const SummaryHUDStateService = {
         summaryHUDState: SummaryHUDState
         gameEngineState: GameEngineState
     }) => {
-        if (!summaryHUDState.showAllPlayerActions) {
+        if (
+            !SummaryHUDStateService.shouldShowAllPlayerActions({
+                summaryHUDState,
+                objectRepository: gameEngineState.repository,
+                battleActionDecisionStep:
+                    gameEngineState.battleOrchestratorState.battleState
+                        .battleActionDecisionStep,
+            })
+        ) {
             return
         }
 
@@ -250,7 +265,6 @@ export const SummaryHUDStateService = {
             return
         }
 
-        summaryHUDState.showAllPlayerActions = true
         PlayerCommandStateService.createCommandWindow({
             playerCommandState: summaryHUDState.playerCommandState,
             summaryHUDState,
@@ -376,6 +390,42 @@ export const SummaryHUDStateService = {
                 ? undefined
                 : Date.now() + SUMMARY_HUD_PEEK_EXPIRATION_MS,
         }
+    },
+    shouldShowAllPlayerActions: ({
+        summaryHUDState,
+        battleActionDecisionStep,
+        objectRepository,
+    }: {
+        summaryHUDState: SummaryHUDState
+        battleActionDecisionStep: BattleActionDecisionStep
+        objectRepository: ObjectRepository
+    }) => {
+        if (!isValidValue(summaryHUDState)) return false
+        if (!isValidValue(battleActionDecisionStep)) return false
+        if (
+            !BattleActionDecisionStepService.isActorSet(
+                battleActionDecisionStep
+            )
+        )
+            return false
+        if (
+            BattleActionDecisionStepService.isActionSet(
+                battleActionDecisionStep
+            )
+        )
+            return false
+        const { battleSquaddie, squaddieTemplate } = getResultOrThrowError(
+            ObjectRepositoryService.getSquaddieByBattleId(
+                objectRepository,
+                BattleActionDecisionStepService.getActor(
+                    battleActionDecisionStep
+                ).battleSquaddieId
+            )
+        )
+        return SquaddieService.canPlayerControlSquaddieRightNow({
+            battleSquaddie,
+            squaddieTemplate,
+        }).squaddieIsNormallyControllableByPlayer
     },
 }
 
