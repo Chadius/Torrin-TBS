@@ -1212,229 +1212,99 @@ describe("Battle HUD", () => {
                 objectRepository: repository,
                 gameEngineState,
             })
+
+            battleHUDListener = new BattleHUDListener("battleHUDListener")
+            gameEngineState.messageBoard.addListener(
+                battleHUDListener,
+                MessageBoardMessageType.PLAYER_SELECTS_ACTION_TEMPLATE
+            )
+            gameEngineState.messageBoard.sendMessage({
+                type: MessageBoardMessageType.PLAYER_SELECTS_ACTION_TEMPLATE,
+                objectRepository: gameEngineState.repository,
+                missionMap:
+                    gameEngineState.battleOrchestratorState.battleState
+                        .missionMap,
+                summaryHUDState:
+                    gameEngineState.battleOrchestratorState.battleHUDState
+                        .summaryHUDState,
+                battleActionDecisionStep:
+                    gameEngineState.battleOrchestratorState.battleState
+                        .battleActionDecisionStep,
+                messageBoard: gameEngineState.messageBoard,
+                actionTemplateId: longswordAction.id,
+                battleSquaddieId: playerSoldierBattleSquaddie.battleSquaddieId,
+                mapStartingCoordinate: { q: 0, r: 0 },
+            })
         })
 
-        describe("Action requires a target", () => {
-            beforeEach(() => {
-                battleHUDListener = new BattleHUDListener("battleHUDListener")
-                gameEngineState.messageBoard.addListener(
-                    battleHUDListener,
-                    MessageBoardMessageType.PLAYER_SELECTS_ACTION_THAT_REQUIRES_A_TARGET
+        it("updates the action builder actor", () => {
+            expect(
+                BattleActionDecisionStepService.isActorSet(
+                    gameEngineState.battleOrchestratorState.battleState
+                        .battleActionDecisionStep
                 )
-                gameEngineState.messageBoard.sendMessage({
-                    type: MessageBoardMessageType.PLAYER_SELECTS_ACTION_THAT_REQUIRES_A_TARGET,
-                    objectRepository: gameEngineState.repository,
-                    missionMap:
-                        gameEngineState.battleOrchestratorState.battleState
-                            .missionMap,
-                    summaryHUDState:
-                        gameEngineState.battleOrchestratorState.battleHUDState
-                            .summaryHUDState,
-                    battleActionDecisionStep:
-                        gameEngineState.battleOrchestratorState.battleState
-                            .battleActionDecisionStep,
-                    messageBoard: gameEngineState.messageBoard,
-                    actionTemplateId: longswordAction.id,
-                    battleSquaddieId:
-                        playerSoldierBattleSquaddie.battleSquaddieId,
-                    mapStartingCoordinate: { q: 0, r: 0 },
-                })
-            })
-
-            it("updates the action builder actor", () => {
-                expect(
-                    BattleActionDecisionStepService.isActorSet(
-                        gameEngineState.battleOrchestratorState.battleState
-                            .battleActionDecisionStep
-                    )
-                ).toBeTruthy()
-                expect(
-                    BattleActionDecisionStepService.getActor(
-                        gameEngineState.battleOrchestratorState.battleState
-                            .battleActionDecisionStep
-                    ).battleSquaddieId
-                ).toEqual(playerSoldierBattleSquaddie.battleSquaddieId)
-            })
-
-            it("updates the action builder action", () => {
-                expect(
-                    BattleActionDecisionStepService.isActionSet(
-                        gameEngineState.battleOrchestratorState.battleState
-                            .battleActionDecisionStep
-                    )
-                ).toBeTruthy()
-                expect(
-                    BattleActionDecisionStepService.getAction(
-                        gameEngineState.battleOrchestratorState.battleState
-                            .battleActionDecisionStep
-                    ).actionTemplateId
-                ).toEqual(longswordAction.id)
-            })
-
-            it("clears the action builder target", () => {
-                expect(
-                    BattleActionDecisionStepService.isTargetConsidered(
-                        gameEngineState.battleOrchestratorState.battleState
-                            .battleActionDecisionStep
-                    )
-                ).toBeFalsy()
-            })
-
-            it("will not add to the recorder", () => {
-                expect(
-                    BattleActionRecorderService.isAnimationQueueEmpty(
-                        gameEngineState.battleOrchestratorState.battleState
-                            .battleActionRecorder
-                    )
-                ).toBeTruthy()
-                expect(
-                    BattleActionRecorderService.isAlreadyAnimatedQueueEmpty(
-                        gameEngineState.battleOrchestratorState.battleState
-                            .battleActionRecorder
-                    )
-                ).toBeTruthy()
-            })
-
-            it("will add a new tile to the HUD", () => {
-                expect(
-                    gameEngineState.battleOrchestratorState.battleHUDState
-                        .summaryHUDState.actionSelectedTile.actionName
-                ).toBe(longswordAction.name)
-            })
-
-            it("will submit an event saying the action is ready", () => {
-                const expectedMessage: MessageBoardMessage = {
-                    type: MessageBoardMessageType.PLAYER_CONFIRMS_DECISION_STEP_ACTOR,
-                    recommendedMode:
-                        BattleOrchestratorMode.PLAYER_HUD_CONTROLLER,
-                }
-
-                expect(messageSpy).toBeCalledWith(expectedMessage)
-            })
+            ).toBeTruthy()
+            expect(
+                BattleActionDecisionStepService.getActor(
+                    gameEngineState.battleOrchestratorState.battleState
+                        .battleActionDecisionStep
+                ).battleSquaddieId
+            ).toEqual(playerSoldierBattleSquaddie.battleSquaddieId)
         })
-        describe("Action already knows its targets", () => {
-            beforeEach(() => {
-                battleHUDListener = new BattleHUDListener("battleHUDListener")
-                gameEngineState.messageBoard.addListener(
-                    battleHUDListener,
-                    MessageBoardMessageType.PLAYER_SELECTS_ACTION_WITH_KNOWN_TARGETS
+
+        it("updates the action builder action", () => {
+            expect(
+                BattleActionDecisionStepService.isActionSet(
+                    gameEngineState.battleOrchestratorState.battleState
+                        .battleActionDecisionStep
                 )
-                gameEngineState.messageBoard.sendMessage({
-                    type: MessageBoardMessageType.PLAYER_SELECTS_ACTION_WITH_KNOWN_TARGETS,
-                    gameEngineState,
-                    actionTemplateId: "self",
-                    actorBattleSquaddieId:
-                        playerSoldierBattleSquaddie.battleSquaddieId,
-                    mapStartingCoordinate: { q: 0, r: 0 },
-                    targetBattleSquaddieIds: [
-                        playerSoldierBattleSquaddie.battleSquaddieId,
-                    ],
-                })
-            })
+            ).toBeTruthy()
+            expect(
+                BattleActionDecisionStepService.getAction(
+                    gameEngineState.battleOrchestratorState.battleState
+                        .battleActionDecisionStep
+                ).actionTemplateId
+            ).toEqual(longswordAction.id)
+        })
 
-            it("updates the action builder actor", () => {
-                expect(
-                    BattleActionDecisionStepService.isActorSet(
-                        gameEngineState.battleOrchestratorState.battleState
-                            .battleActionDecisionStep
-                    )
-                ).toBeTruthy()
-                expect(
-                    BattleActionDecisionStepService.getActor(
-                        gameEngineState.battleOrchestratorState.battleState
-                            .battleActionDecisionStep
-                    ).battleSquaddieId
-                ).toEqual(playerSoldierBattleSquaddie.battleSquaddieId)
-            })
+        it("clears the action builder target", () => {
+            expect(
+                BattleActionDecisionStepService.isTargetConsidered(
+                    gameEngineState.battleOrchestratorState.battleState
+                        .battleActionDecisionStep
+                )
+            ).toBeFalsy()
+        })
 
-            it("updates the action builder action", () => {
-                expect(
-                    BattleActionDecisionStepService.isActionSet(
-                        gameEngineState.battleOrchestratorState.battleState
-                            .battleActionDecisionStep
-                    )
-                ).toBeTruthy()
-                expect(
-                    BattleActionDecisionStepService.getAction(
-                        gameEngineState.battleOrchestratorState.battleState
-                            .battleActionDecisionStep
-                    ).actionTemplateId
-                ).toEqual(healSelfAction.id)
-            })
+        it("will not add to the recorder", () => {
+            expect(
+                BattleActionRecorderService.isAnimationQueueEmpty(
+                    gameEngineState.battleOrchestratorState.battleState
+                        .battleActionRecorder
+                )
+            ).toBeTruthy()
+            expect(
+                BattleActionRecorderService.isAlreadyAnimatedQueueEmpty(
+                    gameEngineState.battleOrchestratorState.battleState
+                        .battleActionRecorder
+                )
+            ).toBeTruthy()
+        })
 
-            it("sets the target", () => {
-                expect(
-                    BattleActionDecisionStepService.isTargetConsidered(
-                        gameEngineState.battleOrchestratorState.battleState
-                            .battleActionDecisionStep
-                    )
-                ).toBeTruthy()
-                expect(
-                    BattleActionDecisionStepService.getTarget(
-                        gameEngineState.battleOrchestratorState.battleState
-                            .battleActionDecisionStep
-                    )
-                ).toEqual({
-                    targetCoordinate: { q: 0, r: 0 },
-                    confirmed: false,
-                })
-            })
+        it("will add a new tile to the HUD", () => {
+            expect(
+                gameEngineState.battleOrchestratorState.battleHUDState
+                    .summaryHUDState.actionSelectedTile.actionName
+            ).toBe(longswordAction.name)
+        })
 
-            it("will not add to the recorder", () => {
-                expect(
-                    BattleActionRecorderService.isAnimationQueueEmpty(
-                        gameEngineState.battleOrchestratorState.battleState
-                            .battleActionRecorder
-                    )
-                ).toBeTruthy()
-                expect(
-                    BattleActionRecorderService.isAlreadyAnimatedQueueEmpty(
-                        gameEngineState.battleOrchestratorState.battleState
-                            .battleActionRecorder
-                    )
-                ).toBeTruthy()
-            })
+        it("will submit an event saying the action is ready", () => {
+            const expectedMessage: MessageBoardMessage = {
+                type: MessageBoardMessageType.PLAYER_CONFIRMS_DECISION_STEP_ACTOR,
+                recommendedMode: BattleOrchestratorMode.PLAYER_HUD_CONTROLLER,
+            }
 
-            it("will add a new action selected tile to the HUD", () => {
-                expect(
-                    gameEngineState.battleOrchestratorState.battleHUDState
-                        .summaryHUDState.actionSelectedTile.actionName
-                ).toBe(healSelfAction.name)
-            })
-
-            it("will submit an event saying the action is ready", () => {
-                const expectedMessage: MessageBoardMessage = {
-                    type: MessageBoardMessageType.PLAYER_CONFIRMS_DECISION_STEP_ACTOR,
-                    recommendedMode:
-                        BattleOrchestratorMode.PLAYER_HUD_CONTROLLER,
-                }
-
-                expect(messageSpy).toBeCalledWith(expectedMessage)
-            })
-
-            it("shows a summary window for the target", () => {
-                SummaryHUDStateService.draw({
-                    summaryHUDState:
-                        gameEngineState.battleOrchestratorState.battleHUDState
-                            .summaryHUDState,
-                    gameEngineState,
-                    resourceHandler: gameEngineState.resourceHandler,
-                    graphicsBuffer: mockP5GraphicsContext,
-                })
-
-                expect(
-                    gameEngineState.battleOrchestratorState.battleHUDState
-                        .summaryHUDState.squaddieNameTiles["TARGET_NAME"]
-                        .battleSquaddieId
-                ).toEqual("player_soldier_0")
-            })
-
-            it("will add an action preview tile to the HUD", () => {
-                expect(
-                    gameEngineState.battleOrchestratorState.battleHUDState
-                        .summaryHUDState.actionPreviewTile
-                ).not.toBeUndefined()
-            })
+            expect(messageSpy).toBeCalledWith(expectedMessage)
         })
     })
     describe("Player selects a target", () => {

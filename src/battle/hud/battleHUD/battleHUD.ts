@@ -14,8 +14,7 @@ import {
     MessageBoardMessagePlayerConfirmsAction,
     MessageBoardMessagePlayerControlledSquaddieNeedsNextAction,
     MessageBoardMessagePlayerPeeksAtSquaddie,
-    MessageBoardMessagePlayerSelectsActionThatRequiresATarget,
-    MessageBoardMessagePlayerSelectsActionWithKnownTargets,
+    MessageBoardMessagePlayerSelectsActionTemplate,
     MessageBoardMessagePlayerSelectsAndLocksSquaddie,
     MessageBoardMessagePlayerSelectsEmptyTile,
     MessageBoardMessagePlayerSelectsTargetCoordinate,
@@ -62,6 +61,10 @@ import { SquaddieSelectorPanelService } from "../playerActionPanel/squaddieSelec
 import { PlayerConsideredActionsService } from "../../battleState/playerConsideredActions"
 import { DrawSquaddieIconOnMapUtilities } from "../../animation/drawSquaddieIconOnMap/drawSquaddieIconOnMap"
 import { InBattleAttributesService } from "../../stats/inBattleAttributes"
+import {
+    PlayerCommandSelection,
+    PlayerCommandStateService,
+} from "../playerCommand/playerCommandHUD"
 
 export interface BattleHUD {
     fileAccessHUD: FileAccessHUD
@@ -310,8 +313,8 @@ export const BattleHUDService = {
             actionRangeLayer
         )
     },
-    playerSelectsActionThatRequiresATarget: (
-        message: MessageBoardMessagePlayerSelectsActionThatRequiresATarget
+    playerSelectsActionTemplate: (
+        message: MessageBoardMessagePlayerSelectsActionTemplate
     ) => {
         const actionTemplate = ObjectRepositoryService.getActionTemplateById(
             message.objectRepository,
@@ -341,87 +344,6 @@ export const BattleHUDService = {
         message.messageBoard.sendMessage({
             type: MessageBoardMessageType.PLAYER_CONFIRMS_DECISION_STEP_ACTOR,
             recommendedMode: BattleOrchestratorMode.PLAYER_HUD_CONTROLLER,
-        })
-    },
-    playerSelectsActionWithKnownTargets: (
-        _battleHUD: BattleHUD,
-        message: MessageBoardMessagePlayerSelectsActionWithKnownTargets
-    ) => {
-        const gameEngineState = message.gameEngineState
-        const actionTemplate = ObjectRepositoryService.getActionTemplateById(
-            gameEngineState.repository,
-            message.actionTemplateId
-        )
-
-        TerrainTileMapService.removeAllGraphicsLayers(
-            gameEngineState.battleOrchestratorState.battleState.missionMap
-                .terrainTileMap
-        )
-
-        BattleActionDecisionStepService.reset(
-            gameEngineState.battleOrchestratorState.battleState
-                .battleActionDecisionStep
-        )
-        BattleActionDecisionStepService.setActor({
-            actionDecisionStep:
-                gameEngineState.battleOrchestratorState.battleState
-                    .battleActionDecisionStep,
-            battleSquaddieId: message.actorBattleSquaddieId,
-        })
-        BattleActionDecisionStepService.addAction({
-            actionDecisionStep:
-                gameEngineState.battleOrchestratorState.battleState
-                    .battleActionDecisionStep,
-            actionTemplateId: actionTemplate.id,
-        })
-
-        SummaryHUDStateService.createActionTiles({
-            summaryHUDState:
-                gameEngineState.battleOrchestratorState.battleHUDState
-                    .summaryHUDState,
-            battleActionDecisionStep:
-                gameEngineState.battleOrchestratorState.battleState
-                    .battleActionDecisionStep,
-            objectRepository: gameEngineState.repository,
-        })
-
-        gameEngineState.messageBoard.sendMessage({
-            type: MessageBoardMessageType.PLAYER_CONFIRMS_DECISION_STEP_ACTOR,
-            recommendedMode: BattleOrchestratorMode.PLAYER_HUD_CONTROLLER,
-        })
-
-        const { mapCoordinate } = MissionMapService.getByBattleSquaddieId(
-            gameEngineState.battleOrchestratorState.battleState.missionMap,
-            message.targetBattleSquaddieIds[0]
-        )
-
-        BattleActionDecisionStepService.setConsideredTarget({
-            actionDecisionStep:
-                gameEngineState.battleOrchestratorState.battleState
-                    .battleActionDecisionStep,
-            targetCoordinate: mapCoordinate,
-        })
-
-        SummaryHUDStateService.createActionPreviewTile({
-            missionMap:
-                gameEngineState.battleOrchestratorState.battleState.missionMap,
-            battleActionDecisionStep:
-                gameEngineState.battleOrchestratorState.battleState
-                    .battleActionDecisionStep,
-            summaryHUDState:
-                gameEngineState.battleOrchestratorState.battleHUDState
-                    .summaryHUDState,
-            objectRepository: gameEngineState.repository,
-            battleActionRecorder:
-                gameEngineState.battleOrchestratorState.battleState
-                    .battleActionRecorder,
-            numberGenerator:
-                gameEngineState.battleOrchestratorState.numberGenerator,
-        })
-
-        TargetingResultsService.highlightMapTilesOfSquaddiesForTargeting({
-            gameEngineState: gameEngineState,
-            targetBattleSquaddieIds: message.targetBattleSquaddieIds,
         })
     },
     playerSelectsTargetCoordinate: (

@@ -15,6 +15,7 @@ import { TargetingResultsService } from "../../targeting/targetingService"
 import { OrchestratorUtilities } from "../orchestratorUtils"
 import { isValidValue } from "../../../utils/objectValidityCheck"
 import {
+    MouseButton,
     MousePress,
     MouseRelease,
     ScreenLocation,
@@ -106,6 +107,7 @@ export interface PlayerActionConfirmUIObjects {
     okButton: Button
     cancelButton: Button
     graphicsContext?: GraphicsBuffer
+    camera?: BattleCamera
 }
 
 export class BattlePlayerActionConfirm implements BattleOrchestratorComponent {
@@ -184,6 +186,10 @@ export class BattlePlayerActionConfirm implements BattleOrchestratorComponent {
         gameEngineState: GameEngineState,
         mouseRelease: MouseRelease
     ) {
+        if (mouseRelease.button == MouseButton.CANCEL) {
+            this.userCancels(gameEngineState)
+        }
+
         this.getButtons().forEach((button) => {
             button.mouseReleased({
                 mouseRelease,
@@ -558,6 +564,10 @@ export class BattlePlayerActionConfirm implements BattleOrchestratorComponent {
             )
         )
             return
+        this.userCancels(gameEngineState)
+    }
+
+    private userCancels = (gameEngineState: GameEngineState) => {
         TargetingResultsService.highlightTargetRange({
             missionMap:
                 gameEngineState.battleOrchestratorState.battleState.missionMap,

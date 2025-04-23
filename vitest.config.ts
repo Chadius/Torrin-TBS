@@ -15,7 +15,7 @@ export default defineConfig({
             SCREEN_WIDTH: JSON.stringify(1280),
             SCREEN_HEIGHT: JSON.stringify(768),
             VERSION: "vitest",
-            LOG_MESSAGES: JSON.stringify(false),
+            LOG_MESSAGES: JSON.stringify("false"),
             STARTUP_MODE: "TITLE_SCREEN",
             MOUSE_BUTTON_BINDINGS_ACCEPT: "left",
             MOUSE_BUTTON_BINDINGS_INFO: "center",

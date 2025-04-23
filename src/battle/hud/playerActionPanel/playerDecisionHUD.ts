@@ -25,6 +25,7 @@ import { MissionMapService } from "../../../missionMap/missionMap"
 import { MissionMapSquaddieCoordinateService } from "../../../missionMap/squaddieCoordinate"
 import { ConvertCoordinateService } from "../../../hexMap/convertCoordinates"
 import { BattleActionDecisionStepService } from "../../actionDecision/battleActionDecisionStep"
+import { PlayerCommandStateService } from "../playerCommand/playerCommandHUD"
 
 const INVALID_SELECTION_POP_UP_DURATION_MS = 2000
 
@@ -200,6 +201,8 @@ const cancelPlayerActionConsiderations = (
             movement: true,
         },
     })
+
+    PlayerCommandStateService.removeSelection(message.playerCommandState)
 }
 
 const selectAndLockNextSquaddie = (

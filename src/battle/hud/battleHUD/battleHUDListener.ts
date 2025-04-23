@@ -46,14 +46,8 @@ export class BattleHUDListener implements MessageBoardListener {
                     message
                 )
                 break
-            case MessageBoardMessageType.PLAYER_SELECTS_ACTION_THAT_REQUIRES_A_TARGET:
-                BattleHUDService.playerSelectsActionThatRequiresATarget(message)
-                break
-            case MessageBoardMessageType.PLAYER_SELECTS_ACTION_WITH_KNOWN_TARGETS:
-                BattleHUDService.playerSelectsActionWithKnownTargets(
-                    message.gameEngineState.battleOrchestratorState.battleHUD,
-                    message
-                )
+            case MessageBoardMessageType.PLAYER_SELECTS_ACTION_TEMPLATE:
+                BattleHUDService.playerSelectsActionTemplate(message)
                 break
             case MessageBoardMessageType.PLAYER_SELECTS_TARGET_COORDINATE:
                 BattleHUDService.playerSelectsTargetCoordinate(message)

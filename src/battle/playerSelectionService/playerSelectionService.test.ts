@@ -66,6 +66,7 @@ import { GraphicsBuffer } from "../../utils/graphics/graphicsRenderer"
 import { SquaddieSelectorPanelButtonService } from "../hud/playerActionPanel/squaddieSelectorPanel/squaddieSelectorPanelButton/squaddieSelectorPanelButton"
 import { RectAreaService } from "../../ui/rectArea"
 import { PlayerConsideredActionsService } from "../battleState/playerConsideredActions"
+import { BattleHUDStateService } from "../hud/battleHUD/battleHUDState"
 
 describe("Player Selection Service", () => {
     let gameEngineState: GameEngineState
@@ -1014,6 +1015,9 @@ describe("Player Selection Service", () => {
                 playerIntent: PlayerIntent.CANCEL_SQUADDIE_CONSIDERED_ACTIONS,
             })
 
+            gameEngineState.battleOrchestratorState.battleHUDState.summaryHUDState =
+                SummaryHUDStateService.new()
+
             const actualChanges: PlayerSelectionChanges =
                 PlayerSelectionService.applyContextToGetChanges({
                     gameEngineState,
@@ -1040,6 +1044,9 @@ describe("Player Selection Service", () => {
                 playerDecisionHUD:
                     gameEngineState.battleOrchestratorState.playerDecisionHUD,
                 objectRepository: gameEngineState.repository,
+                playerCommandState:
+                    gameEngineState.battleOrchestratorState.battleHUDState
+                        .summaryHUDState.playerCommandState,
             }
 
             expect(
@@ -1238,9 +1245,8 @@ describe("Player Selection Service", () => {
         })
     }
 
-    describe("user selects an action that requires a target", () => {
+    describe("user selects an action template", () => {
         let meleeActionId: string = "melee"
-
         beforeEach(() => {
             objectRepository = ObjectRepositoryService.new()
             missionMap = createMap()
@@ -1316,6 +1322,7 @@ describe("Player Selection Service", () => {
             let changes: PlayerSelectionChanges
             let expectedMessage: MessageBoardMessage
             let actualContext: PlayerSelectionContext
+            let rangedActionId: string = "ranged"
 
             beforeEach(() => {
                 messageSpy = vi.spyOn(
@@ -1325,11 +1332,11 @@ describe("Player Selection Service", () => {
 
                 playerActsImmediately({
                     gameEngineState,
-                    actionTemplateId: meleeActionId,
+                    actionTemplateId: rangedActionId,
                 })
                 actualContext = PlayerSelectionService.calculateContext({
                     gameEngineState,
-                    actionTemplateId: meleeActionId,
+                    actionTemplateId: rangedActionId,
                     mouseClick: MouseConfigService.newMouseClick({
                         x: 0,
                         y: 0,
@@ -1337,12 +1344,16 @@ describe("Player Selection Service", () => {
                     }),
                     playerInputActions: [],
                 })
+                actualContext.targetBattleSquaddieIds = [
+                    "squaddie0",
+                    "squaddie1",
+                ]
                 changes = PlayerSelectionService.applyContextToGetChanges({
                     gameEngineState,
                     context: actualContext,
                 })
                 expectedMessage = {
-                    type: MessageBoardMessageType.PLAYER_SELECTS_ACTION_THAT_REQUIRES_A_TARGET,
+                    type: MessageBoardMessageType.PLAYER_SELECTS_ACTION_TEMPLATE,
                     objectRepository,
                     missionMap,
                     summaryHUDState:
@@ -1352,7 +1363,7 @@ describe("Player Selection Service", () => {
                         gameEngineState.battleOrchestratorState.battleState
                             .battleActionDecisionStep,
                     messageBoard: gameEngineState.messageBoard,
-                    actionTemplateId: meleeActionId,
+                    actionTemplateId: rangedActionId,
                     battleSquaddieId: "PLAYER",
                     mapStartingCoordinate: { q: 0, r: 0 },
                 }
@@ -1367,157 +1378,11 @@ describe("Player Selection Service", () => {
                 )
             })
 
-            it("sends a message that an action was selected that needs a target", () => {
+            it("sends a message that an action template was selected", () => {
                 expect(messageSpy).toBeCalledWith(expectedMessage)
             })
         })
     })
-    describe("user selects an action that can only target self", () => {
-        beforeEach(() => {
-            objectRepository = ObjectRepositoryService.new()
-            missionMap = createMap()
-            gameEngineState = createGameEngineStateWith1PlayerAnd1Enemy({
-                objectRepository,
-                missionMap,
-            })
-
-            clickOnMapCoordinate({
-                mapCoordinate: {
-                    q: 0,
-                    r: 0,
-                },
-                gameEngineState,
-            })
-        })
-
-        const tests = [
-            {
-                name: "player acts immediately",
-                setup: () =>
-                    playerActsImmediately({
-                        gameEngineState,
-                        actionTemplateId: "self",
-                    }),
-            },
-            {
-                name: "player is partway through their turn",
-                setup: () =>
-                    playerIsPartwayThroughTheirTurn({
-                        gameEngineState,
-                        actionTemplateId: "self",
-                    }),
-            },
-        ]
-
-        it.each(tests)(
-            `$name expects the player targets themself automatically`,
-            ({ setup }) => {
-                let actualContext: PlayerSelectionContext = setup()
-                expect(actualContext.targetBattleSquaddieIds).toEqual([
-                    "PLAYER",
-                ])
-            }
-        )
-
-        describe("apply context", () => {
-            let changes: PlayerSelectionChanges
-            let expectedMessage: MessageBoardMessage
-            let actualContext: PlayerSelectionContext
-
-            beforeEach(() => {
-                messageSpy = vi.spyOn(
-                    gameEngineState.messageBoard,
-                    "sendMessage"
-                )
-
-                playerActsImmediately({
-                    gameEngineState,
-                    actionTemplateId: "self",
-                })
-                actualContext = PlayerSelectionService.calculateContext({
-                    gameEngineState,
-                    actionTemplateId: "self",
-                    mouseClick: MouseConfigService.newMouseClick({
-                        x: 0,
-                        y: 0,
-                        button: MouseButton.ACCEPT,
-                    }),
-                    playerInputActions: [],
-                })
-                changes = PlayerSelectionService.applyContextToGetChanges({
-                    gameEngineState,
-                    context: actualContext,
-                })
-                expectedMessage = {
-                    type: MessageBoardMessageType.PLAYER_SELECTS_ACTION_WITH_KNOWN_TARGETS,
-                    gameEngineState,
-                    actionTemplateId: "self",
-                    actorBattleSquaddieId: "PLAYER",
-                    mapStartingCoordinate: { q: 0, r: 0 },
-                    targetBattleSquaddieIds: ["PLAYER"],
-                }
-            })
-            afterEach(() => {
-                messageSpy.mockRestore()
-            })
-
-            it("will recommend player HUD controller as the next phase", () => {
-                expect(changes.battleOrchestratorMode).toBe(
-                    BattleOrchestratorMode.PLAYER_HUD_CONTROLLER
-                )
-            })
-
-            it("sends a message that an action was selected and the target is known", () => {
-                expect(messageSpy).toBeCalledWith(expectedMessage)
-            })
-        })
-    })
-    describe("user selects an action that only has 1 target", () => {
-        beforeEach(() => {
-            objectRepository = ObjectRepositoryService.new()
-            missionMap = createMap()
-            gameEngineState = createGameEngineStateWith1PlayerAnd1Enemy({
-                objectRepository,
-                missionMap,
-            })
-
-            clickOnMapCoordinate({
-                mapCoordinate: {
-                    q: 0,
-                    r: 0,
-                },
-                gameEngineState,
-            })
-        })
-
-        const tests = [
-            {
-                name: "player acts immediately",
-                setup: () =>
-                    playerActsImmediately({
-                        gameEngineState,
-                        actionTemplateId: "melee",
-                    }),
-            },
-            {
-                name: "player is partway through their turn",
-                setup: () =>
-                    playerIsPartwayThroughTheirTurn({
-                        gameEngineState,
-                        actionTemplateId: "melee",
-                    }),
-            },
-        ]
-
-        it.each(tests)(
-            `$name expects the player targets the enemy automatically`,
-            ({ setup }) => {
-                let actualContext: PlayerSelectionContext = setup()
-                expect(actualContext.targetBattleSquaddieIds).toEqual(["ENEMY"])
-            }
-        )
-    })
-
     describe("user ends the squaddie turn", () => {
         let actualContext: PlayerSelectionContext
 

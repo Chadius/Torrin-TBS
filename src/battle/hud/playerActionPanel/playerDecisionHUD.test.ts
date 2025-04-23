@@ -76,6 +76,7 @@ import { SquaddieSelectorPanelService } from "./squaddieSelectorPanel/squaddieSe
 import { getResultOrThrowError } from "../../../utils/ResultOrError"
 import { BattleActionRecorderService } from "../../history/battleAction/battleActionRecorder"
 import { BattleActionService } from "../../history/battleAction/battleAction"
+import { PlayerCommandStateService } from "../playerCommand/playerCommandHUD"
 
 describe("Player Decision HUD", () => {
     const differentSquaddiePopup: PopupWindow = PopupWindowService.new({
@@ -746,6 +747,9 @@ describe("Player Decision HUD", () => {
                         .playerConsideredActions,
                 playerDecisionHUD:
                     gameEngineState.battleOrchestratorState.playerDecisionHUD,
+                playerCommandState:
+                    gameEngineState.battleOrchestratorState.battleHUDState
+                        .summaryHUDState.playerCommandState,
                 objectRepository: gameEngineState.repository,
             })
 
@@ -753,6 +757,56 @@ describe("Player Decision HUD", () => {
                 gameEngineState.battleOrchestratorState.battleState
                     .playerConsideredActions.movement
             ).toBeUndefined()
+        })
+
+        it("resets the player decisions", () => {
+            gameEngineState.battleOrchestratorState.battleHUDState.summaryHUDState.playerCommandState =
+                PlayerCommandStateService.new()
+            gameEngineState.battleOrchestratorState.battleHUDState.summaryHUDState.playerCommandState.battleSquaddieId =
+                battleSquaddie.battleSquaddieId
+            gameEngineState.battleOrchestratorState.battleHUDState.summaryHUDState.playerCommandState.squaddieAffiliationHue = 10
+            gameEngineState.battleOrchestratorState.battleHUDState.summaryHUDState.playerCommandState.selectedActionTemplateId =
+                "longsword"
+            gameEngineState.battleOrchestratorState.battleHUDState.summaryHUDState.playerCommandState.playerSelectedSquaddieAction =
+                true
+            gameEngineState.messageBoard.sendMessage({
+                type: MessageBoardMessageType.PLAYER_CANCELS_PLAYER_ACTION_CONSIDERATIONS,
+                missionMap:
+                    gameEngineState.battleOrchestratorState.battleState
+                        .missionMap,
+                summaryHUDState:
+                    gameEngineState.battleOrchestratorState.battleHUDState
+                        .summaryHUDState,
+                battleActionDecisionStep:
+                    gameEngineState.battleOrchestratorState.battleState
+                        .battleActionDecisionStep,
+                battleActionRecorder:
+                    gameEngineState.battleOrchestratorState.battleState
+                        .battleActionRecorder,
+                playerConsideredActions:
+                    gameEngineState.battleOrchestratorState.battleState
+                        .playerConsideredActions,
+                playerDecisionHUD:
+                    gameEngineState.battleOrchestratorState.playerDecisionHUD,
+                playerCommandState:
+                    gameEngineState.battleOrchestratorState.battleHUDState
+                        .summaryHUDState.playerCommandState,
+                objectRepository: gameEngineState.repository,
+            })
+
+            expect(
+                gameEngineState.battleOrchestratorState.battleHUDState
+                    .summaryHUDState.playerCommandState
+            ).toEqual(
+                expect.objectContaining({
+                    consideredActionTemplateId: undefined,
+                    playerSelectedSquaddieAction: false,
+                    selectedActionTemplateId: undefined,
+                    playerSelectedEndTurn: false,
+                    battleSquaddieId: battleSquaddie.battleSquaddieId,
+                    squaddieAffiliationHue: 10,
+                })
+            )
         })
     })
 

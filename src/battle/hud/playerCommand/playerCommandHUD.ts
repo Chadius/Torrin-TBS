@@ -78,6 +78,12 @@ export const PlayerCommandStateService = {
                 HUE_BY_SQUADDIE_AFFILIATION[SquaddieAffiliation.UNKNOWN],
         }
     },
+    removeSelection: (playerCommandState: PlayerCommandState) => {
+        playerCommandState.consideredActionTemplateId = undefined
+        playerCommandState.playerSelectedSquaddieAction = false
+        playerCommandState.selectedActionTemplateId = undefined
+        playerCommandState.playerSelectedEndTurn = false
+    },
     createCommandWindow: ({
         summaryHUDState,
         objectRepository,

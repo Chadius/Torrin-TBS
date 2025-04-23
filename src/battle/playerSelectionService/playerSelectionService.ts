@@ -249,6 +249,9 @@ export const PlayerSelectionService = {
                     playerDecisionHUD:
                         gameEngineState.battleOrchestratorState
                             .playerDecisionHUD,
+                    playerCommandState:
+                        gameEngineState.battleOrchestratorState.battleHUDState
+                            .summaryHUDState.playerCommandState,
                     objectRepository: gameEngineState.repository,
                 }
                 gameEngineState.messageBoard.sendMessage(messageSent)
@@ -474,33 +477,21 @@ const playerSelectsAnAction = ({
         battleSquaddieId
     )
 
-    let messageSent: MessageBoardMessage
-    if (context.targetBattleSquaddieIds.length > 0) {
-        messageSent = {
-            type: MessageBoardMessageType.PLAYER_SELECTS_ACTION_WITH_KNOWN_TARGETS,
-            gameEngineState,
-            actionTemplateId: context.actionTemplateId,
-            actorBattleSquaddieId: context.actorBattleSquaddieId,
-            mapStartingCoordinate: mapCoordinate,
-            targetBattleSquaddieIds: context.targetBattleSquaddieIds,
-        }
-    } else {
-        messageSent = {
-            type: MessageBoardMessageType.PLAYER_SELECTS_ACTION_THAT_REQUIRES_A_TARGET,
-            missionMap:
-                gameEngineState.battleOrchestratorState.battleState.missionMap,
-            objectRepository: gameEngineState.repository,
-            summaryHUDState:
-                gameEngineState.battleOrchestratorState.battleHUDState
-                    .summaryHUDState,
-            battleActionDecisionStep:
-                gameEngineState.battleOrchestratorState.battleState
-                    .battleActionDecisionStep,
-            messageBoard: gameEngineState.messageBoard,
-            actionTemplateId: context.actionTemplateId,
-            battleSquaddieId: context.actorBattleSquaddieId,
-            mapStartingCoordinate: mapCoordinate,
-        }
+    let messageSent: MessageBoardMessage = {
+        type: MessageBoardMessageType.PLAYER_SELECTS_ACTION_TEMPLATE,
+        missionMap:
+            gameEngineState.battleOrchestratorState.battleState.missionMap,
+        objectRepository: gameEngineState.repository,
+        summaryHUDState:
+            gameEngineState.battleOrchestratorState.battleHUDState
+                .summaryHUDState,
+        battleActionDecisionStep:
+            gameEngineState.battleOrchestratorState.battleState
+                .battleActionDecisionStep,
+        messageBoard: gameEngineState.messageBoard,
+        actionTemplateId: context.actionTemplateId,
+        battleSquaddieId: context.actorBattleSquaddieId,
+        mapStartingCoordinate: mapCoordinate,
     }
 
     gameEngineState.messageBoard.sendMessage(messageSent)
@@ -823,10 +814,7 @@ class PlayerSelectsAnActionBehavior implements BehaviorTreeTask {
                 actionTemplateId,
                 actorBattleSquaddieId: actorBattleSquaddieId,
                 mouseClick,
-                targetBattleSquaddieIds:
-                    potentialTargetBattleSquaddieIds.length <= 1
-                        ? potentialTargetBattleSquaddieIds
-                        : [],
+                targetBattleSquaddieIds: potentialTargetBattleSquaddieIds,
             })
         )
         return true

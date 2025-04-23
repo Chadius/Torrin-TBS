@@ -15,7 +15,7 @@ export default defineConfig(({ mode }) => {
         "process.env.VERSION":
             JSON.stringify(process.env.VERSION) || JSON.stringify(version),
         "process.env.LOG_MESSAGES":
-            JSON.stringify(process.env.LOG_MESSAGES) || JSON.stringify(false),
+            JSON.stringify(process.env.LOG_MESSAGES) || JSON.stringify("false"),
         "process.env.STARTUP_MODE":
             JSON.stringify(process.env.STARTUP_MODE) ||
             JSON.stringify("TITLE_SCREEN"),

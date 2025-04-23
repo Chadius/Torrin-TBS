@@ -21,6 +21,7 @@ import { MessageBoard } from "./messageBoard"
 import { MissionStatistics } from "../battle/missionStatistics/missionStatistics"
 import { PlayerConsideredActions } from "../battle/battleState/playerConsideredActions"
 import { PlayerDecisionHUD } from "../battle/hud/playerActionPanel/playerDecisionHUD"
+import { PlayerCommandState } from "../battle/hud/playerCommand/playerCommandHUD"
 
 export type MessageBoardMessage =
     | MessageBoardMessageBase
@@ -35,7 +36,7 @@ export type MessageBoardMessage =
     | MessageBoardMessagePlayerPeeksAtSquaddie
     | MessageBoardBattleActionFinishesAnimation
     | MessageBoardMessagePlayerConsidersAction
-    | MessageBoardMessagePlayerSelectsActionThatRequiresATarget
+    | MessageBoardMessagePlayerSelectsActionTemplate
     | MessageBoardMessagePlayerSelectsTargetCoordinate
     | MessageBoardMessagePlayerConfirmsAction
     | MessageBoardMessageSquaddiePhaseStarts
@@ -44,7 +45,6 @@ export type MessageBoardMessage =
     | MessageBoardMessageMoveSquaddieToCoordinate
     | MessageBoardMessagePlayerCancelsPlayerActionConsiderations
     | MessageBoardMessagePlayerSelectsEmptyTile
-    | MessageBoardMessagePlayerSelectsActionWithKnownTargets
     | MessageBoardMessagePlayerConfirmsDecisionStepActor
     | MessageBoardMessagePlayerControlledSquaddieNeedsNextAction
     | MessageBoardMessageSquaddieTurnEnds
@@ -70,8 +70,7 @@ export enum MessageBoardMessageType {
     PLAYER_PEEKS_AT_SQUADDIE = "PLAYER_PEEKS_AT_SQUADDIE",
     BATTLE_ACTION_FINISHES_ANIMATION = "BATTLE_ACTION_FINISHES_ANIMATION",
     PLAYER_CONSIDERS_ACTION = "PLAYER_CONSIDERS_ACTION",
-    PLAYER_SELECTS_ACTION_THAT_REQUIRES_A_TARGET = "PLAYER_SELECTS_ACTION_THAT_REQUIRES_A_TARGET",
-    PLAYER_SELECTS_ACTION_WITH_KNOWN_TARGETS = "PLAYER_SELECTS_ACTION_WITH_KNOWN_TARGETS",
+    PLAYER_SELECTS_ACTION_TEMPLATE = "PLAYER_SELECTS_ACTION_TEMPLATE",
     PLAYER_SELECTS_TARGET_COORDINATE = "PLAYER_SELECTS_TARGET_COORDINATE",
     PLAYER_CONFIRMS_ACTION = "PLAYER_CONFIRMS_ACTION",
     SQUADDIE_PHASE_STARTS = "SQUADDIE_PHASE_STARTS",
@@ -167,8 +166,8 @@ export interface MessageBoardBattleActionFinishesAnimation {
     resourceHandler: ResourceHandler
 }
 
-export interface MessageBoardMessagePlayerSelectsActionThatRequiresATarget {
-    type: MessageBoardMessageType.PLAYER_SELECTS_ACTION_THAT_REQUIRES_A_TARGET
+export interface MessageBoardMessagePlayerSelectsActionTemplate {
+    type: MessageBoardMessageType.PLAYER_SELECTS_ACTION_TEMPLATE
     objectRepository: ObjectRepository
     missionMap: MissionMap
     summaryHUDState: SummaryHUDState
@@ -176,15 +175,6 @@ export interface MessageBoardMessagePlayerSelectsActionThatRequiresATarget {
     messageBoard: MessageBoard
     actionTemplateId: string
     battleSquaddieId: string
-    mapStartingCoordinate: HexCoordinate
-}
-
-export interface MessageBoardMessagePlayerSelectsActionWithKnownTargets {
-    type: MessageBoardMessageType.PLAYER_SELECTS_ACTION_WITH_KNOWN_TARGETS
-    gameEngineState: GameEngineState
-    actionTemplateId: string
-    actorBattleSquaddieId: string
-    targetBattleSquaddieIds: string[]
     mapStartingCoordinate: HexCoordinate
 }
 
@@ -237,6 +227,7 @@ export interface MessageBoardMessagePlayerCancelsPlayerActionConsiderations {
     type: MessageBoardMessageType.PLAYER_CANCELS_PLAYER_ACTION_CONSIDERATIONS
     missionMap: MissionMap
     summaryHUDState: SummaryHUDState
+    playerCommandState: PlayerCommandState
     battleActionDecisionStep: BattleActionDecisionStep
     battleActionRecorder: BattleActionRecorder
     playerConsideredActions: PlayerConsideredActions

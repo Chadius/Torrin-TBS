@@ -49,6 +49,8 @@ export class PlayerActionConfirmShouldCreateCancelButton
     }
 }
 
+export const PLAYER_ACTION_CONFIRM_CREATE_CANCEL_BUTTON_ID =
+    "PlayerActionConfirmCancel"
 export class PlayerActionConfirmCreateCancelButton implements BehaviorTreeTask {
     dataBlob: ComponentDataBlob<
         PlayerActionConfirmLayout,
@@ -162,7 +164,7 @@ export class PlayerActionConfirmCreateCancelButton implements BehaviorTreeTask {
         })
 
         uiObjects.cancelButton = new Button({
-            id: "PlayerActionConfirmCancel",
+            id: PLAYER_ACTION_CONFIRM_CREATE_CANCEL_BUTTON_ID,
             drawTask,
             buttonLogic,
         })
