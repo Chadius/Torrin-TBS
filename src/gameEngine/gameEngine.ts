@@ -333,7 +333,6 @@ export class GameEngine {
             MessageBoardMessageType.PLAYER_SELECTS_TARGET_COORDINATE,
             MessageBoardMessageType.PLAYER_CONFIRMS_ACTION,
             MessageBoardMessageType.MOVE_SQUADDIE_TO_COORDINATE,
-            MessageBoardMessageType.PLAYER_SELECTS_EMPTY_TILE,
             MessageBoardMessageType.PLAYER_CONTROLLED_SQUADDIE_NEEDS_NEXT_ACTION,
         ].forEach((messageBoardMessageType) => {
             this.gameEngineState.messageBoard.addListener(

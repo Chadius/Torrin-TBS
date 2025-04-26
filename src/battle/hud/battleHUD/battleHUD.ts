@@ -16,7 +16,6 @@ import {
     MessageBoardMessagePlayerPeeksAtSquaddie,
     MessageBoardMessagePlayerSelectsActionTemplate,
     MessageBoardMessagePlayerSelectsAndLocksSquaddie,
-    MessageBoardMessagePlayerSelectsEmptyTile,
     MessageBoardMessagePlayerSelectsTargetCoordinate,
     MessageBoardMessageType,
 } from "../../../message/messageBoardMessage"
@@ -61,10 +60,6 @@ import { SquaddieSelectorPanelService } from "../playerActionPanel/squaddieSelec
 import { PlayerConsideredActionsService } from "../../battleState/playerConsideredActions"
 import { DrawSquaddieIconOnMapUtilities } from "../../animation/drawSquaddieIconOnMap/drawSquaddieIconOnMap"
 import { InBattleAttributesService } from "../../stats/inBattleAttributes"
-import {
-    PlayerCommandSelection,
-    PlayerCommandStateService,
-} from "../playerCommand/playerCommandHUD"
 
 export interface BattleHUD {
     fileAccessHUD: FileAccessHUD
@@ -545,17 +540,6 @@ export const BattleHUDService = {
 
         BattleActionDecisionStepService.reset(message.battleActionDecisionStep)
         SummaryHUDStateService.reset(message.summaryHUDState)
-    },
-    clicksOnAnEmptyTileAtTheStartOfTheTurn: (
-        message: MessageBoardMessagePlayerSelectsEmptyTile
-    ) => {
-        const gameEngineState = message.gameEngineState
-        BattleActionDecisionStepService.reset(
-            gameEngineState.battleOrchestratorState.battleState
-                .battleActionDecisionStep
-        )
-        gameEngineState.battleOrchestratorState.battleHUDState.summaryHUDState =
-            undefined
     },
     playerControlledSquaddieNeedsNextAction: (
         message: MessageBoardMessagePlayerControlledSquaddieNeedsNextAction

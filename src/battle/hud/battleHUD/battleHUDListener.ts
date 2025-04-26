@@ -61,9 +61,6 @@ export class BattleHUDListener implements MessageBoardListener {
             case MessageBoardMessageType.PLAYER_CANCELS_PLAYER_ACTION_CONSIDERATIONS:
                 BattleHUDService.cancelSquaddieSelectionAtStartOfTurn(message)
                 break
-            case MessageBoardMessageType.PLAYER_SELECTS_EMPTY_TILE:
-                BattleHUDService.clicksOnAnEmptyTileAtTheStartOfTheTurn(message)
-                break
             case MessageBoardMessageType.PLAYER_CONTROLLED_SQUADDIE_NEEDS_NEXT_ACTION:
                 BattleHUDService.playerControlledSquaddieNeedsNextAction(
                     message

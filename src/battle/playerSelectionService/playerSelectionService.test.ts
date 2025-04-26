@@ -39,7 +39,6 @@ import {
 import {
     MessageBoardMessage,
     MessageBoardMessagePlayerSelectsAndLocksSquaddie,
-    MessageBoardMessagePlayerSelectsEmptyTile,
     MessageBoardMessageType,
 } from "../../message/messageBoardMessage"
 import { HexCoordinate } from "../../hexMap/hexCoordinate/hexCoordinate"
@@ -66,117 +65,12 @@ import { GraphicsBuffer } from "../../utils/graphics/graphicsRenderer"
 import { SquaddieSelectorPanelButtonService } from "../hud/playerActionPanel/squaddieSelectorPanel/squaddieSelectorPanelButton/squaddieSelectorPanelButton"
 import { RectAreaService } from "../../ui/rectArea"
 import { PlayerConsideredActionsService } from "../battleState/playerConsideredActions"
-import { BattleHUDStateService } from "../hud/battleHUD/battleHUDState"
 
 describe("Player Selection Service", () => {
     let gameEngineState: GameEngineState
     let objectRepository: ObjectRepository
     let missionMap: MissionMap
     let messageSpy: MockInstance
-
-    describe("At the start of the turn, Player selects an empty tile on the map before a squaddie's turn", () => {
-        beforeEach(() => {
-            objectRepository = ObjectRepositoryService.new()
-            missionMap = createMap()
-            const { battleSquaddie: playerBattleSquaddie } = createSquaddie({
-                objectRepository,
-                squaddieAffiliation: SquaddieAffiliation.PLAYER,
-            })
-            const playerTeam = BattleSquaddieTeamService.new({
-                id: "player_team",
-                name: "player_team",
-                affiliation: SquaddieAffiliation.PLAYER,
-                battleSquaddieIds: [playerBattleSquaddie.battleSquaddieId],
-            })
-            gameEngineState = GameEngineStateService.new({
-                battleOrchestratorState: BattleOrchestratorStateService.new({
-                    battleState: BattleStateService.new({
-                        missionMap,
-                        missionId: "missionId",
-                        campaignId: "campaignId",
-                        teams: [playerTeam],
-                        battlePhaseState: BattlePhaseStateService.new({
-                            currentAffiliation: BattlePhase.PLAYER,
-                            turnCount: 0,
-                        }),
-                    }),
-                }),
-                repository: objectRepository,
-                campaign: CampaignService.default(),
-            })
-        })
-        it("knows what spot the user clicked on", () => {
-            const actualContext: PlayerSelectionContext = clickOnMapCoordinate({
-                mapCoordinate: {
-                    q: 0,
-                    r: 1,
-                },
-                gameEngineState,
-            })
-
-            expect(actualContext.playerIntent).toEqual(
-                PlayerIntent.START_OF_TURN_CLICK_ON_EMPTY_TILE
-            )
-
-            const { x, y } =
-                ConvertCoordinateService.convertMapCoordinatesToScreenLocation({
-                    mapCoordinate: {
-                        q: 0,
-                        r: 1,
-                    },
-                    cameraLocation:
-                        gameEngineState.battleOrchestratorState.battleState.camera.getWorldLocation(),
-                })
-
-            expect(actualContext.mouseClick).toEqual(
-                MouseConfigService.newMouseClick({
-                    x,
-                    y,
-                    button: MouseButton.ACCEPT,
-                })
-            )
-        })
-        describe("Apply Context", () => {
-            let actualContext: PlayerSelectionContext
-            let messageSpy: MockInstance
-            let changes: PlayerSelectionChanges
-            let expectedMessage: MessageBoardMessagePlayerSelectsEmptyTile
-            beforeEach(() => {
-                actualContext = clickOnMapCoordinate({
-                    mapCoordinate: {
-                        q: 0,
-                        r: 1,
-                    },
-                    gameEngineState,
-                })
-                messageSpy = vi.spyOn(
-                    gameEngineState.messageBoard,
-                    "sendMessage"
-                )
-                changes = PlayerSelectionService.applyContextToGetChanges({
-                    gameEngineState,
-                    context: actualContext,
-                })
-                expectedMessage = {
-                    type: MessageBoardMessageType.PLAYER_SELECTS_EMPTY_TILE,
-                    gameEngineState,
-                    coordinate: {
-                        q: 0,
-                        r: 1,
-                    },
-                }
-            })
-            afterEach(() => {
-                messageSpy.mockRestore()
-            })
-            it("will send a message to select an empty tile", () => {
-                expect(messageSpy).toHaveBeenCalledWith(expectedMessage)
-            })
-            it("changes will mention the sent message", () => {
-                expect(changes.messageSent).toEqual(expectedMessage)
-            })
-        })
-    })
 
     describe("At the start of the turn, Player tries to select a squaddie but all playable squaddies have acted", () => {
         beforeEach(() => {

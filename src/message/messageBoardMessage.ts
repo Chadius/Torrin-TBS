@@ -44,7 +44,6 @@ export type MessageBoardMessage =
     | MessageBoardMessageSelectAndLockNextSquaddie
     | MessageBoardMessageMoveSquaddieToCoordinate
     | MessageBoardMessagePlayerCancelsPlayerActionConsiderations
-    | MessageBoardMessagePlayerSelectsEmptyTile
     | MessageBoardMessagePlayerConfirmsDecisionStepActor
     | MessageBoardMessagePlayerControlledSquaddieNeedsNextAction
     | MessageBoardMessageSquaddieTurnEnds
@@ -78,7 +77,6 @@ export enum MessageBoardMessageType {
     SELECT_AND_LOCK_NEXT_SQUADDIE = "SELECT_AND_LOCK_NEXT_SQUADDIE",
     MOVE_SQUADDIE_TO_COORDINATE = "MOVE_SQUADDIE_TO_COORDINATE",
     PLAYER_CANCELS_PLAYER_ACTION_CONSIDERATIONS = "PLAYER_CANCELS_PLAYER_ACTION_CONSIDERATIONS",
-    PLAYER_SELECTS_EMPTY_TILE = "PLAYER_SELECTS_EMPTY_TILE",
     PLAYER_CONFIRMS_DECISION_STEP_ACTOR = "PLAYER_CONFIRMS_DECISION_STEP_ACTOR",
     PLAYER_CONTROLLED_SQUADDIE_NEEDS_NEXT_ACTION = "PLAYER_CONTROLLED_SQUADDIE_NEEDS_NEXT_ACTION",
     SQUADDIE_TURN_ENDS = "SQUADDIE_TURN_ENDS",
@@ -233,12 +231,6 @@ export interface MessageBoardMessagePlayerCancelsPlayerActionConsiderations {
     playerConsideredActions: PlayerConsideredActions
     playerDecisionHUD: PlayerDecisionHUD
     objectRepository: ObjectRepository
-}
-
-export interface MessageBoardMessagePlayerSelectsEmptyTile {
-    type: MessageBoardMessageType.PLAYER_SELECTS_EMPTY_TILE
-    gameEngineState: GameEngineState
-    coordinate: HexCoordinate
 }
 
 export interface MessageBoardMessagePlayerConfirmsDecisionStepActor {

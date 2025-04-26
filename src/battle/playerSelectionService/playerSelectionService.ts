@@ -57,7 +57,6 @@ export interface PlayerContextDataBlob extends DataBlob {
 
 export enum PlayerIntent {
     UNKNOWN = "UNKNOWN",
-    START_OF_TURN_CLICK_ON_EMPTY_TILE = "START_OF_TURN_CLICK_ON_EMPTY_TILE",
     END_PHASE = "END_PHASE",
     START_OF_TURN_CLICK_ON_SQUADDIE_PLAYABLE = "START_OF_TURN_CLICK_ON_SQUADDIE_PLAYABLE",
     START_OF_TURN_CLICK_ON_SQUADDIE_UNCONTROLLABLE = "START_OF_TURN_CLICK_ON_SQUADDIE_UNCONTROLLABLE",
@@ -149,7 +148,6 @@ export const PlayerSelectionService = {
             new PlayerMovesOffMapToCancelConsideredActions(dataBlob),
             new PlayerHoversOverSquaddieToPeekAtItBehavior(dataBlob),
             new PlayerConsidersMovementForSelectedSquaddie(dataBlob),
-            new PlayerClicksOnAnEmptyMapTileBehavior(dataBlob),
             new PlayerPressesNextButtonBehavior(dataBlob),
         ])
 
@@ -253,14 +251,6 @@ export const PlayerSelectionService = {
                         gameEngineState.battleOrchestratorState.battleHUDState
                             .summaryHUDState.playerCommandState,
                     objectRepository: gameEngineState.repository,
-                }
-                gameEngineState.messageBoard.sendMessage(messageSent)
-                return PlayerSelectionChangesService.new({ messageSent })
-            case PlayerIntent.START_OF_TURN_CLICK_ON_EMPTY_TILE:
-                messageSent = {
-                    type: MessageBoardMessageType.PLAYER_SELECTS_EMPTY_TILE,
-                    gameEngineState,
-                    coordinate: { q, r },
                 }
                 gameEngineState.messageBoard.sendMessage(messageSent)
                 return PlayerSelectionChangesService.new({ messageSent })
@@ -1155,41 +1145,6 @@ class PlayerHoversOverSquaddieToPeekAtItBehavior implements BehaviorTreeTask {
                 playerIntent: PlayerIntent.PEEK_AT_SQUADDIE,
                 actorBattleSquaddieId: hoveredBattleSquaddieId,
                 mouseMovement,
-            })
-        )
-        return true
-    }
-}
-
-class PlayerClicksOnAnEmptyMapTileBehavior implements BehaviorTreeTask {
-    dataBlob: PlayerContextDataBlob
-
-    constructor(dataBlob: PlayerContextDataBlob) {
-        this.dataBlob = dataBlob
-    }
-
-    run(): boolean {
-        const isSquaddieTakingATurn: boolean = DataBlobService.get<boolean>(
-            this.dataBlob,
-            "isSquaddieTakingATurn"
-        )
-
-        const playerSelectionContextCalculationArgs =
-            DataBlobService.get<PlayerSelectionContextCalculationArgs>(
-                this.dataBlob,
-                "playerSelectionContextCalculationArgs"
-            )
-        const { mouseClick } = playerSelectionContextCalculationArgs
-
-        if (!(!!mouseClick && !isSquaddieTakingATurn)) {
-            return false
-        }
-
-        addPlayerSelectionContextToDataBlob(
-            this.dataBlob,
-            PlayerSelectionContextService.new({
-                playerIntent: PlayerIntent.START_OF_TURN_CLICK_ON_EMPTY_TILE,
-                mouseClick,
             })
         )
         return true
