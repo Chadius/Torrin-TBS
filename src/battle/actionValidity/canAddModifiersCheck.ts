@@ -71,6 +71,20 @@ export const CanAddModifiersCheck = {
             message: "No modifiers will be added",
         }
     },
+    willAddModifiersToTarget: ({
+        actionTemplate,
+        battleSquaddie,
+        squaddieTemplate,
+    }: {
+        actionTemplate: ActionTemplate
+        battleSquaddie: BattleSquaddie
+        squaddieTemplate: SquaddieTemplate
+    }): boolean =>
+        willAddModifiersToTarget({
+            actionTemplate,
+            battleSquaddie,
+            squaddieTemplate,
+        }),
 }
 
 const willAddModifiersToTarget = ({

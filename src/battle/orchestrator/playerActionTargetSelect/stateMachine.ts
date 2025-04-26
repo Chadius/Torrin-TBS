@@ -5,7 +5,10 @@ import {
 } from "../../../utils/stateMachine/stateMachineData/stateMachineData"
 import { StateMachineStateData } from "../../../utils/stateMachine/stateMachineData/stateMachineStateData"
 import { StateMachineTransitionData } from "../../../utils/stateMachine/stateMachineData/stateMachineTransitionData"
-import { TargetingResultsService } from "../../targeting/targetingService"
+import {
+    TargetingResults,
+    TargetingResultsService,
+} from "../../targeting/targetingService"
 import { BattleActionDecisionStepService } from "../../actionDecision/battleActionDecisionStep"
 import { getResultOrThrowError } from "../../../utils/ResultOrError"
 import { ObjectRepositoryService } from "../../objectRepository"
@@ -28,6 +31,15 @@ import { ButtonStatus } from "../../../ui/button/buttonStatus"
 import { Button } from "../../../ui/button/button"
 import { PLAYER_ACTION_CONFIRM_CREATE_CANCEL_BUTTON_ID } from "../../orchestratorComponents/playerActionConfirm/cancelButton"
 import { MouseButton } from "../../../utils/mouseConfig"
+import {
+    ActionTemplate,
+    ActionTemplateService,
+} from "../../../action/template/actionTemplate"
+import { ActionEffectTemplateService } from "../../../action/template/actionEffectTemplate"
+import { SquaddieAffiliationService } from "../../../squaddie/squaddieAffiliation"
+import { CanHealTargetCheck } from "../../actionValidity/canHealTargetCheck"
+import { CanAddModifiersCheck } from "../../actionValidity/canAddModifiersCheck"
+import { SquaddieTemplate } from "../../../campaign/squaddieTemplate"
 
 export enum PlayerActionTargetStateEnum {
     UNKNOWN = "UNKNOWN",
@@ -393,8 +405,15 @@ const countTargetsEntry = (context: PlayerActionTargetStateMachineContext) => {
         actingBattleSquaddie: battleSquaddie,
         squaddieRepository: context.objectRepository,
     })
+    const targetBattleSquaddieIds =
+        countTargetsFromResultsBasedOnActionTemplate(
+            actionTemplate,
+            targetingResults,
+            context,
+            squaddieTemplate
+        )
 
-    targetingResults.battleSquaddieIdsInRange.forEach((battleSquaddieId) => {
+    targetBattleSquaddieIds.forEach((battleSquaddieId) => {
         const { mapCoordinate } = MissionMapService.getByBattleSquaddieId(
             context.missionMap,
             battleSquaddieId
@@ -408,6 +427,71 @@ const countTargetsEntry = (context: PlayerActionTargetStateMachineContext) => {
     context.targetResults.validCoordinates = [
         ...targetingResults.coordinatesInRange,
     ]
+}
+
+const countTargetsFromResultsBasedOnActionTemplate = (
+    actionTemplate: ActionTemplate,
+    targetingResults: TargetingResults,
+    context: PlayerActionTargetStateMachineContext,
+    squaddieTemplate: SquaddieTemplate
+) => {
+    const actionTargetsSelfOrFriends =
+        ActionTemplateService.getActionEffectTemplates(actionTemplate).some(
+            (actionEffectTemplate) =>
+                ActionEffectTemplateService.doesItTargetSelf(
+                    actionEffectTemplate
+                ) ||
+                ActionEffectTemplateService.doesItTargetFriends(
+                    actionEffectTemplate
+                )
+        )
+
+    return targetingResults.battleSquaddieIdsInRange.filter(
+        (battleSquaddieId) => {
+            if (!actionTargetsSelfOrFriends) return true
+
+            const {
+                battleSquaddie: targetBattleSquaddie,
+                squaddieTemplate: targetSquaddieTemplate,
+            } = getResultOrThrowError(
+                ObjectRepositoryService.getSquaddieByBattleId(
+                    context.objectRepository,
+                    battleSquaddieId
+                )
+            )
+
+            if (
+                !SquaddieAffiliationService.areSquaddieAffiliationsAllies({
+                    actingAffiliation: squaddieTemplate.squaddieId.affiliation,
+                    targetAffiliation:
+                        targetSquaddieTemplate.squaddieId.affiliation,
+                })
+            ) {
+                return true
+            }
+
+            if (
+                ActionTemplateService.doesActionTemplateHeal(actionTemplate) &&
+                CanHealTargetCheck.calculateHealingOnTarget({
+                    actionTemplate,
+                    battleSquaddie: targetBattleSquaddie,
+                    squaddieTemplate: targetSquaddieTemplate,
+                }) > 0
+            ) {
+                return true
+            }
+
+            return (
+                ActionTemplateService.getAttributeModifiers(actionTemplate)
+                    .length > 0 &&
+                CanAddModifiersCheck.willAddModifiersToTarget({
+                    actionTemplate,
+                    battleSquaddie: targetBattleSquaddie,
+                    squaddieTemplate: targetSquaddieTemplate,
+                })
+            )
+        }
+    )
 }
 
 const parseKeyBoardEvents = (

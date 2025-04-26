@@ -145,45 +145,87 @@ describe("can add modifiers check", () => {
             })
         })
 
-        it("is not valid if no targets can benefit from the attributes", () => {
-            const { battleSquaddie } = getResultOrThrowError(
-                ObjectRepositoryService.getSquaddieByBattleId(
-                    objectRepository,
-                    "actor"
+        describe("is not valid if the target already has the attributes", () => {
+            beforeEach(() => {
+                const { battleSquaddie } = getResultOrThrowError(
+                    ObjectRepositoryService.getSquaddieByBattleId(
+                        objectRepository,
+                        "actor"
+                    )
                 )
-            )
-            InBattleAttributesService.addActiveAttributeModifier(
-                battleSquaddie.inBattleAttributes,
-                AttributeModifierService.new({
-                    type: AttributeType.ARMOR,
-                    amount: 1,
-                    source: AttributeSource.CIRCUMSTANCE,
-                })
-            )
+                InBattleAttributesService.addActiveAttributeModifier(
+                    battleSquaddie.inBattleAttributes,
+                    AttributeModifierService.new({
+                        type: AttributeType.ARMOR,
+                        amount: 1,
+                        source: AttributeSource.CIRCUMSTANCE,
+                    })
+                )
 
-            validTargetResults.addBattleSquaddieIdsInRange(["actor"])
-            expect(
-                CanAddModifiersCheck.canAddAttributeModifiers({
-                    actionTemplate: addArmorAction,
-                    objectRepository,
-                    validTargetResults,
+                validTargetResults.addBattleSquaddieIdsInRange(["actor"])
+            })
+            it("reports attributes will not be added", () => {
+                const { battleSquaddie, squaddieTemplate } =
+                    getResultOrThrowError(
+                        ObjectRepositoryService.getSquaddieByBattleId(
+                            objectRepository,
+                            "actor"
+                        )
+                    )
+
+                expect(
+                    CanAddModifiersCheck.willAddModifiersToTarget({
+                        actionTemplate: addArmorAction,
+                        battleSquaddie,
+                        squaddieTemplate,
+                    })
+                ).toBeFalsy()
+            })
+            it("is not valid if no targets can benefit from the attributes", () => {
+                expect(
+                    CanAddModifiersCheck.canAddAttributeModifiers({
+                        actionTemplate: addArmorAction,
+                        objectRepository,
+                        validTargetResults,
+                    })
+                ).toEqual({
+                    isValid: false,
+                    reason: ActionPerformFailureReason.NO_ATTRIBUTES_WILL_BE_ADDED,
+                    message: "No modifiers will be added",
                 })
-            ).toEqual({
-                isValid: false,
-                reason: ActionPerformFailureReason.NO_ATTRIBUTES_WILL_BE_ADDED,
-                message: "No modifiers will be added",
             })
         })
-        it("is valid if at least 1 target could use the attribute", () => {
-            validTargetResults.addBattleSquaddieIdsInRange(["actor"])
-            expect(
-                CanAddModifiersCheck.canAddAttributeModifiers({
-                    actionTemplate: addArmorAction,
-                    objectRepository,
-                    validTargetResults,
+        describe("is valid if a target would gain the attribute", () => {
+            beforeEach(() => {
+                validTargetResults.addBattleSquaddieIdsInRange(["actor"])
+            })
+            it("reports attributes will be added", () => {
+                const { battleSquaddie, squaddieTemplate } =
+                    getResultOrThrowError(
+                        ObjectRepositoryService.getSquaddieByBattleId(
+                            objectRepository,
+                            "actor"
+                        )
+                    )
+
+                expect(
+                    CanAddModifiersCheck.willAddModifiersToTarget({
+                        actionTemplate: addArmorAction,
+                        battleSquaddie,
+                        squaddieTemplate,
+                    })
+                ).toBeTruthy()
+            })
+            it("is valid if at least 1 target could use the attribute", () => {
+                expect(
+                    CanAddModifiersCheck.canAddAttributeModifiers({
+                        actionTemplate: addArmorAction,
+                        objectRepository,
+                        validTargetResults,
+                    })
+                ).toEqual({
+                    isValid: true,
                 })
-            ).toEqual({
-                isValid: true,
             })
         })
     })

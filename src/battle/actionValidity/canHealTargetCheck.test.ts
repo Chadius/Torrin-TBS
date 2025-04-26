@@ -136,42 +136,86 @@ describe("can heal targets", () => {
             })
         })
 
-        it("is not valid if no targets have taken damage", () => {
-            validTargetResults.addBattleSquaddieIdsInRange(["actor"])
-            expect(
-                CanHealTargetCheck.targetInRangeCanBeAffected({
-                    actionTemplate: healingAction,
-                    objectRepository,
-                    validTargetResults,
-                })
-            ).toEqual({
-                isValid: false,
-                reason: ActionPerformFailureReason.HEAL_HAS_NO_EFFECT,
-                message: "No one needs healing",
-            })
-        })
-        it("is valid if at least 1 target has taken damage", () => {
-            validTargetResults.addBattleSquaddieIdsInRange(["actor"])
-            const { battleSquaddie } = getResultOrThrowError(
-                ObjectRepositoryService.getSquaddieByBattleId(
-                    objectRepository,
-                    "actor"
-                )
-            )
-            InBattleAttributesService.takeDamage({
-                inBattleAttributes: battleSquaddie.inBattleAttributes,
-                damageToTake: 1,
-                damageType: DamageType.BODY,
+        describe("no targets took damage", () => {
+            beforeEach(() => {
+                validTargetResults.addBattleSquaddieIdsInRange(["actor"])
             })
 
-            expect(
-                CanHealTargetCheck.targetInRangeCanBeAffected({
-                    actionTemplate: healingAction,
-                    objectRepository,
-                    validTargetResults,
+            it("will calculate 0 healing", () => {
+                const { battleSquaddie, squaddieTemplate } =
+                    getResultOrThrowError(
+                        ObjectRepositoryService.getSquaddieByBattleId(
+                            objectRepository,
+                            "actor"
+                        )
+                    )
+
+                expect(
+                    CanHealTargetCheck.calculateHealingOnTarget({
+                        actionTemplate: healingAction,
+                        battleSquaddie,
+                        squaddieTemplate,
+                    })
+                ).toEqual(0)
+            })
+
+            it("is not valid if no targets have taken damage", () => {
+                expect(
+                    CanHealTargetCheck.targetInRangeCanBeAffected({
+                        actionTemplate: healingAction,
+                        objectRepository,
+                        validTargetResults,
+                    })
+                ).toEqual({
+                    isValid: false,
+                    reason: ActionPerformFailureReason.HEAL_HAS_NO_EFFECT,
+                    message: "No one needs healing",
                 })
-            ).toEqual({
-                isValid: true,
+            })
+        })
+        describe("1 target took damage", () => {
+            beforeEach(() => {
+                validTargetResults.addBattleSquaddieIdsInRange(["actor"])
+                const { battleSquaddie } = getResultOrThrowError(
+                    ObjectRepositoryService.getSquaddieByBattleId(
+                        objectRepository,
+                        "actor"
+                    )
+                )
+                InBattleAttributesService.takeDamage({
+                    inBattleAttributes: battleSquaddie.inBattleAttributes,
+                    damageToTake: 1,
+                    damageType: DamageType.BODY,
+                })
+            })
+            it("will calculate healing amount", () => {
+                const { battleSquaddie, squaddieTemplate } =
+                    getResultOrThrowError(
+                        ObjectRepositoryService.getSquaddieByBattleId(
+                            objectRepository,
+                            "actor"
+                        )
+                    )
+
+                expect(
+                    CanHealTargetCheck.calculateHealingOnTarget({
+                        actionTemplate: healingAction,
+                        battleSquaddie,
+                        squaddieTemplate,
+                    })
+                ).toEqual(1)
+            })
+
+            it("is valid if at least 1 target has taken damage", () => {
+                expect(
+                    CanHealTargetCheck.targetInRangeCanBeAffected({
+                        actionTemplate: healingAction,
+                        objectRepository,
+                        validTargetResults,
+                    })
+                ).toEqual({
+                    isValid: true,
+                })
             })
         })
     })

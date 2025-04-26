@@ -45,7 +45,7 @@ export const CanHealTargetCheck = {
 
                     if (
                         actionHeals &&
-                        estimatedHealingOnTarget({
+                        calculateHealingOnTarget({
                             battleSquaddie,
                             squaddieTemplate,
                             actionTemplate,
@@ -67,9 +67,23 @@ export const CanHealTargetCheck = {
             message: "No one needs healing",
         }
     },
+    calculateHealingOnTarget: ({
+        actionTemplate,
+        battleSquaddie,
+        squaddieTemplate,
+    }: {
+        actionTemplate: ActionTemplate
+        battleSquaddie: BattleSquaddie
+        squaddieTemplate: SquaddieTemplate
+    }): number =>
+        calculateHealingOnTarget({
+            actionTemplate,
+            battleSquaddie,
+            squaddieTemplate,
+        }),
 }
 
-const estimatedHealingOnTarget = ({
+const calculateHealingOnTarget = ({
     actionTemplate,
     battleSquaddie,
     squaddieTemplate,

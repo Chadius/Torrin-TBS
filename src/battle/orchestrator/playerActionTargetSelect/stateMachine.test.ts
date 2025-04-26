@@ -31,7 +31,10 @@ import {
     ActionTemplate,
     ActionTemplateService,
 } from "../../../action/template/actionTemplate"
-import { ActionEffectTemplateService } from "../../../action/template/actionEffectTemplate"
+import {
+    ActionEffectTemplateService,
+    TargetBySquaddieAffiliationRelation,
+} from "../../../action/template/actionEffectTemplate"
 import { MissionMap, MissionMapService } from "../../../missionMap/missionMap"
 import {
     BattleActionDecisionStep,
@@ -72,6 +75,18 @@ import { PLAYER_ACTION_CONFIRM_CREATE_OK_BUTTON_ID } from "../../orchestratorCom
 import { PLAYER_ACTION_CONFIRM_CREATE_CANCEL_BUTTON_ID } from "../../orchestratorComponents/playerActionConfirm/cancelButton"
 import { MouseButton } from "../../../utils/mouseConfig"
 import { PlayerCommandStateService } from "../../hud/playerCommand/playerCommandHUD"
+import { CoordinateGeneratorShape } from "../../targeting/coordinateGenerator"
+import { DamageType, HealingType } from "../../../squaddie/squaddieService"
+import { ActionValidityTestUtils } from "../../actionValidity/commonTest"
+import {
+    AttributeModifierService,
+    AttributeSource,
+} from "../../../squaddie/attribute/attributeModifier"
+import { AttributeType } from "../../../squaddie/attribute/attributeType"
+import { CanHealTargetCheck } from "../../actionValidity/canHealTargetCheck"
+import { CanAddModifiersCheck } from "../../actionValidity/canAddModifiersCheck"
+import { InBattleAttributesService } from "../../stats/inBattleAttributes"
+import { getResultOrThrowError } from "../../../utils/ResultOrError"
 
 describe("PlayerActionTargetSelect State Machine", () => {
     let stateMachine: PlayerActionTargetStateMachine
@@ -223,14 +238,14 @@ describe("PlayerActionTargetSelect State Machine", () => {
 
     describe("COUNT_TARGETS_ENTRY action counts the number of valid targets found", () => {
         let findValidTargetsSpy: MockInstance
-        let lotsOfTargets: TargetingResults
+        let targetingResults: TargetingResults
 
         beforeEach(() => {
-            lotsOfTargets = new TargetingResults()
+            targetingResults = new TargetingResults()
             ;[1, 2, 3].forEach((target) => {
-                lotsOfTargets.addBattleSquaddieIdsInRange([`${target}`])
+                targetingResults.addBattleSquaddieIdsInRange([`${target}`])
                 const mapCoordinate = { q: 0, r: target }
-                lotsOfTargets.addCoordinatesInRange([mapCoordinate])
+                targetingResults.addCoordinatesInRange([mapCoordinate])
                 MissionMapService.addSquaddie({
                     missionMap,
                     battleSquaddieId: `${target}`,
@@ -241,7 +256,7 @@ describe("PlayerActionTargetSelect State Machine", () => {
 
             findValidTargetsSpy = vi
                 .spyOn(TargetingResultsService, "findValidTargets")
-                .mockReturnValue(lotsOfTargets)
+                .mockReturnValue(targetingResults)
         })
 
         afterEach(() => {
@@ -303,6 +318,289 @@ describe("PlayerActionTargetSelect State Machine", () => {
                         PlayerActionTargetActionEnum.COUNT_TARGETS_ENTRY
                     )(context)
                 }).toThrow("no action found")
+            })
+        })
+
+        describe("if the action does not target foes use action validity checks to determine targets", () => {
+            let healingAction: ActionTemplate
+            let addArmorAction: ActionTemplate
+            let targetingResults: TargetingResults
+            let healCheckSpy: MockInstance
+            let addModifierCheckSpy: MockInstance
+
+            beforeEach(() => {
+                healingAction = ActionTemplateService.new({
+                    id: "healingAction",
+                    name: "healingAction",
+                    targetConstraints: {
+                        maximumRange: 1,
+                        minimumRange: 0,
+                        coordinateGeneratorShape:
+                            CoordinateGeneratorShape.BLOOM,
+                    },
+                    actionEffectTemplates: [
+                        ActionEffectTemplateService.new({
+                            squaddieAffiliationRelation: {
+                                [TargetBySquaddieAffiliationRelation.TARGET_SELF]:
+                                    true,
+                                [TargetBySquaddieAffiliationRelation.TARGET_ALLY]:
+                                    true,
+                                [TargetBySquaddieAffiliationRelation.TARGET_FOE]:
+                                    false,
+                            },
+                            healingDescriptions: {
+                                [HealingType.LOST_HIT_POINTS]: 2,
+                            },
+                        }),
+                    ],
+                })
+                ActionValidityTestUtils.addActionTemplateToSquaddie({
+                    objectRepository,
+                    actionTemplate: healingAction,
+                    actorSquaddieName: battleSquaddieId,
+                })
+                addArmorAction = ActionTemplateService.new({
+                    id: "addArmorAction",
+                    name: "addArmorAction",
+                    targetConstraints: {
+                        maximumRange: 0,
+                        minimumRange: 0,
+                        coordinateGeneratorShape:
+                            CoordinateGeneratorShape.BLOOM,
+                    },
+                    actionEffectTemplates: [
+                        ActionEffectTemplateService.new({
+                            squaddieAffiliationRelation: {
+                                [TargetBySquaddieAffiliationRelation.TARGET_SELF]:
+                                    true,
+                                [TargetBySquaddieAffiliationRelation.TARGET_ALLY]:
+                                    false,
+                                [TargetBySquaddieAffiliationRelation.TARGET_FOE]:
+                                    false,
+                            },
+                            attributeModifiers: [
+                                AttributeModifierService.new({
+                                    type: AttributeType.ARMOR,
+                                    source: AttributeSource.CIRCUMSTANCE,
+                                    amount: 1,
+                                }),
+                            ],
+                        }),
+                    ],
+                })
+                ActionValidityTestUtils.addActionTemplateToSquaddie({
+                    objectRepository,
+                    actionTemplate: addArmorAction,
+                    actorSquaddieName: battleSquaddieId,
+                })
+
+                healCheckSpy = vi.spyOn(
+                    CanHealTargetCheck,
+                    "calculateHealingOnTarget"
+                )
+                addModifierCheckSpy = vi.spyOn(
+                    CanAddModifiersCheck,
+                    "willAddModifiersToTarget"
+                )
+
+                SquaddieRepositoryService.createNewSquaddieAndAddToRepository({
+                    name: "ally",
+                    battleId: "ally",
+                    templateId: "ally",
+                    affiliation: SquaddieAffiliation.ALLY,
+                    actionTemplateIds: [],
+                    objectRepository,
+                })
+                MissionMapService.addSquaddie({
+                    missionMap,
+                    battleSquaddieId: "ally",
+                    squaddieTemplateId: "ally",
+                    coordinate: { q: 0, r: 1 },
+                })
+
+                SquaddieRepositoryService.createNewSquaddieAndAddToRepository({
+                    name: "enemy",
+                    battleId: "enemy",
+                    templateId: "enemy",
+                    affiliation: SquaddieAffiliation.ENEMY,
+                    actionTemplateIds: [],
+                    objectRepository,
+                })
+                MissionMapService.addSquaddie({
+                    missionMap,
+                    battleSquaddieId: "enemy",
+                    squaddieTemplateId: "enemy",
+                    coordinate: { q: 0, r: 2 },
+                })
+
+                targetingResults = new TargetingResults()
+                targetingResults.addBattleSquaddieIdsInRange([
+                    battleSquaddieId,
+                    "ally",
+                ])
+                targetingResults.addCoordinatesInRange([
+                    { q: 0, r: 0 },
+                    { q: 0, r: 1 },
+                ])
+                findValidTargetsSpy = vi
+                    .spyOn(TargetingResultsService, "findValidTargets")
+                    .mockReturnValue(targetingResults)
+            })
+
+            afterEach(() => {
+                if (healCheckSpy) healCheckSpy.mockRestore()
+                if (addModifierCheckSpy) addModifierCheckSpy.mockRestore()
+            })
+
+            it("if the action only targets foes it does not check", () => {
+                context.battleActionDecisionStep.action.actionTemplateId =
+                    undefined
+                BattleActionDecisionStepService.addAction({
+                    actionDecisionStep: context.battleActionDecisionStep,
+                    actionTemplateId: actionTemplate.id,
+                })
+                stateMachine.getActionLogic(
+                    PlayerActionTargetActionEnum.COUNT_TARGETS_ENTRY
+                )(context)
+                expect(healCheckSpy).not.toBeCalled()
+                expect(addModifierCheckSpy).not.toBeCalled()
+            })
+
+            const useActionCountTargetsAndUpdateStateMachine = (
+                actionTemplate: ActionTemplate
+            ) => {
+                context.battleActionDecisionStep.action.actionTemplateId =
+                    undefined
+                BattleActionDecisionStepService.addAction({
+                    actionDecisionStep: context.battleActionDecisionStep,
+                    actionTemplateId: actionTemplate.id,
+                })
+                stateMachine.getActionLogic(
+                    PlayerActionTargetActionEnum.COUNT_TARGETS_ENTRY
+                )(context)
+                stateMachine.currentState =
+                    PlayerActionTargetStateEnum.COUNT_TARGETS
+                return stateMachine.update()
+            }
+
+            const tests = [
+                {
+                    name: "healing",
+                    getActionTemplate: () => healingAction,
+                    getExpectedSpy: () => findValidTargetsSpy,
+                    mockTheSpyToFail: () => healCheckSpy.mockReturnValue(0),
+                    makeAllyTheOnlyValidTarget: () => {
+                        const { battleSquaddie } = getResultOrThrowError(
+                            ObjectRepositoryService.getSquaddieByBattleId(
+                                objectRepository,
+                                "ally"
+                            )
+                        )
+
+                        InBattleAttributesService.takeDamage({
+                            damageToTake: 1,
+                            damageType: DamageType.BODY,
+                            inBattleAttributes:
+                                battleSquaddie.inBattleAttributes,
+                        })
+                    },
+                },
+                {
+                    name: "attribute modifier",
+                    getActionTemplate: () => addArmorAction,
+                    getExpectedSpy: () => addModifierCheckSpy,
+                    mockTheSpyToFail: () =>
+                        addModifierCheckSpy.mockReturnValue(false),
+                    makeAllyTheOnlyValidTarget: () => {
+                        const { battleSquaddie } = getResultOrThrowError(
+                            ObjectRepositoryService.getSquaddieByBattleId(
+                                objectRepository,
+                                battleSquaddieId
+                            )
+                        )
+                        InBattleAttributesService.addActiveAttributeModifier(
+                            battleSquaddie.inBattleAttributes,
+                            AttributeModifierService.new({
+                                type: AttributeType.ARMOR,
+                                amount: 5,
+                                source: AttributeSource.CIRCUMSTANCE,
+                            })
+                        )
+                    },
+                },
+            ]
+
+            describe("if a friend or self is targeted, it will make more specific checks", () => {
+                it.each(tests)(
+                    `$name`,
+                    ({ getActionTemplate, getExpectedSpy }) => {
+                        useActionCountTargetsAndUpdateStateMachine(
+                            getActionTemplate()
+                        )
+                        expect(findValidTargetsSpy).toBeCalled()
+                        expect(getExpectedSpy()).toBeCalled()
+                    }
+                )
+            })
+
+            describe("will not consider allies targets if the action has no effect", () => {
+                it.each(tests)(
+                    `$name`,
+                    ({ getActionTemplate, mockTheSpyToFail }) => {
+                        mockTheSpyToFail()
+                        const update =
+                            useActionCountTargetsAndUpdateStateMachine(
+                                getActionTemplate()
+                            )
+                        expect(update.transitionFired).toEqual(
+                            PlayerActionTargetTransitionEnum.NO_TARGETS_FOUND
+                        )
+                    }
+                )
+            })
+
+            describe("will always consider enemies as targets even if the action has no effect", () => {
+                it.each(tests)(
+                    `$name`,
+                    ({ getActionTemplate, mockTheSpyToFail }) => {
+                        mockTheSpyToFail()
+                        targetingResults.addBattleSquaddieIdsInRange(["enemy"])
+                        targetingResults.addCoordinatesInRange([{ q: 0, r: 2 }])
+                        const update =
+                            useActionCountTargetsAndUpdateStateMachine(
+                                getActionTemplate()
+                            )
+                        expect(update.transitionFired).toEqual(
+                            PlayerActionTargetTransitionEnum.TARGETS_AUTOMATICALLY_SELECTED
+                        )
+                        expect(
+                            Object.keys(
+                                stateMachine.context.targetResults.validTargets
+                            )
+                        ).toEqual(["enemy"])
+                    }
+                )
+            })
+
+            describe("will target the only ally who can benefit", () => {
+                it.each(tests)(
+                    `$name`,
+                    ({ getActionTemplate, makeAllyTheOnlyValidTarget }) => {
+                        makeAllyTheOnlyValidTarget()
+                        const update =
+                            useActionCountTargetsAndUpdateStateMachine(
+                                getActionTemplate()
+                            )
+                        expect(update.transitionFired).toEqual(
+                            PlayerActionTargetTransitionEnum.TARGETS_AUTOMATICALLY_SELECTED
+                        )
+                        expect(
+                            Object.keys(
+                                stateMachine.context.targetResults.validTargets
+                            )
+                        ).toEqual(["ally"])
+                    }
+                )
             })
         })
     })
