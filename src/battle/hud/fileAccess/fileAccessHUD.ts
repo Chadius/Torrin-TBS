@@ -522,10 +522,10 @@ const createLayout = (fileAccessHUD: FileAccessHUD) => {
         MESSAGE_DISPLAY_DURATION: 2000,
         loadButton: {
             drawingArea: {
-                startColumn: 11,
-                endColumn: 11,
-                top: 10,
-                bottom: 40,
+                startColumn: 10,
+                endColumn: 10,
+                top: 50,
+                bottom: 80,
                 margin: [0, WINDOW_SPACING.SPACING1, 0, 0],
             },
             readyStatusStyle: {
