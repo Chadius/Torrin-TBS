@@ -2,7 +2,11 @@ import { ImageUI, ImageUILoadingBehavior, ImageUIService } from "./imageUI"
 import { RectArea, RectAreaService } from "../rectArea"
 import { ResourceHandler } from "../../resource/resourceHandler"
 import * as mocks from "../../utils/test/mocks"
-import { MockedP5GraphicsBuffer } from "../../utils/test/mocks"
+import {
+    MockedGraphicsBufferService,
+    MockedP5GraphicsBuffer,
+    mockResourceHandler,
+} from "../../utils/test/mocks"
 import {
     afterEach,
     beforeEach,
@@ -12,6 +16,12 @@ import {
     MockInstance,
     vi,
 } from "vitest"
+import { GraphicsBuffer } from "../../utils/graphics/graphicsRenderer"
+import {
+    PULSE_COLOR_FORMULA_TYPE,
+    PulseColor,
+    PulseColorService,
+} from "../../hexMap/pulseColor"
 
 describe("ImageUI", () => {
     describe("scale to match aspect ratio", () => {
@@ -332,6 +342,125 @@ describe("ImageUI", () => {
                     '[ImageUI.draw] no custom callback provided for "resourceKey"'
                 )
                 consoleWarnSpy.mockRestore()
+            })
+        })
+    })
+
+    describe("tint and pulse color", () => {
+        let graphicsContext: GraphicsBuffer
+        let resourceHandler: ResourceHandler
+        let graphicsBufferSpies: { [key: string]: MockInstance }
+        let imageUI: ImageUI
+        let tintColor = [10, 20, 30, 40]
+
+        beforeEach(() => {
+            graphicsContext = new MockedP5GraphicsBuffer()
+            graphicsBufferSpies =
+                MockedGraphicsBufferService.addSpies(graphicsContext)
+            resourceHandler = mockResourceHandler(graphicsContext)
+            imageUI = new ImageUI({
+                imageLoadingBehavior: {
+                    resourceKey: undefined,
+                    loadingBehavior: ImageUILoadingBehavior.USE_IMAGE_SIZE,
+                },
+                graphic: graphicsContext.createImage(100, 200),
+                area: RectAreaService.new({
+                    left: 10,
+                    top: 20,
+                    width: 0,
+                    height: 0,
+                }),
+            })
+        })
+
+        it("does not tint by default", () => {
+            imageUI.draw({
+                graphicsContext,
+                resourceHandler,
+            })
+            expect(graphicsBufferSpies["tint"]).not.toHaveBeenCalled()
+        })
+
+        it("will tint if it is set", () => {
+            imageUI.setTint(
+                tintColor[0],
+                tintColor[1],
+                tintColor[2],
+                tintColor[3]
+            )
+            imageUI.draw({
+                graphicsContext,
+                resourceHandler,
+            })
+            expect(graphicsBufferSpies["tint"]).toHaveBeenCalledWith(
+                tintColor[0],
+                tintColor[1],
+                tintColor[2],
+                tintColor[3]
+            )
+        })
+
+        it("will use opaque color if alpha value is omitted", () => {
+            let tintColor = [10, 20, 30, 40]
+            imageUI.setTint(tintColor[0], tintColor[1], tintColor[2])
+            imageUI.draw({
+                graphicsContext,
+                resourceHandler,
+            })
+            expect(graphicsBufferSpies["tint"]).toHaveBeenCalledWith(
+                tintColor[0],
+                tintColor[1],
+                tintColor[2],
+                255
+            )
+        })
+
+        it("can remove tint", () => {
+            imageUI.setTint(tintColor[0], tintColor[1], tintColor[2])
+            imageUI.removeTint()
+            imageUI.draw({
+                graphicsContext,
+                resourceHandler,
+            })
+            expect(graphicsBufferSpies["tint"]).not.toHaveBeenCalled()
+        })
+
+        describe("pulse color", () => {
+            let pulseColor: PulseColor
+            let pulseColorSpy: MockInstance
+            beforeEach(() => {
+                pulseColor = PulseColorService.new({
+                    hue: 10,
+                    saturation: 20,
+                    brightness: 30,
+                    alpha: 40,
+                    pulse: {
+                        period: 1000,
+                        formula: PULSE_COLOR_FORMULA_TYPE.LINEAR,
+                    },
+                })
+                pulseColorSpy = vi.spyOn(PulseColorService, "pulseColorToColor")
+            })
+
+            it("will tint if a pulse color is given", () => {
+                imageUI.setPulseColor(pulseColor)
+                expect(imageUI.pulseColor).toEqual(pulseColor)
+
+                imageUI.draw({
+                    graphicsContext,
+                    resourceHandler,
+                })
+                expect(pulseColorSpy).toHaveBeenCalledWith(pulseColor)
+                expect(graphicsBufferSpies["tint"]).toHaveBeenCalled()
+            })
+            it("can remove pulse color tint", () => {
+                imageUI.setPulseColor(pulseColor)
+                imageUI.removePulseColor()
+                imageUI.draw({
+                    graphicsContext,
+                    resourceHandler,
+                })
+                expect(graphicsBufferSpies["tint"]).not.toHaveBeenCalled()
             })
         })
     })

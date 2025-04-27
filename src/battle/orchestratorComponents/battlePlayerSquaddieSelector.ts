@@ -39,10 +39,9 @@ import { BattleStateService } from "../battleState/battleState"
 import { isValidValue } from "../../utils/objectValidityCheck"
 import { BattleSquaddieTeamService } from "../battleSquaddieTeam"
 import { BattleActionDecisionStepService } from "../actionDecision/battleActionDecisionStep"
-import {
-    DRAW_SQUADDIE_ICON_ON_MAP_LAYOUT,
-    DrawSquaddieIconOnMapUtilities,
-} from "../animation/drawSquaddieIconOnMap/drawSquaddieIconOnMap"
+import { DRAW_SQUADDIE_ICON_ON_MAP_LAYOUT } from "../animation/drawSquaddieIconOnMap/drawSquaddieIconOnMap"
+import { ObjectRepositoryService } from "../objectRepository"
+import { ImageUI } from "../../ui/imageUI/imageUI"
 
 export class BattlePlayerSquaddieSelector
     implements BattleOrchestratorComponent, MessageBoardListener
@@ -51,8 +50,17 @@ export class BattlePlayerSquaddieSelector
     componentCompleted: boolean
     recommendedNextMode: BattleOrchestratorMode
 
+    highlightedSquaddie: {
+        battleSquaddieId: string
+        mapIcon: ImageUI
+    }
+
     constructor() {
         this.messageBoardListenerId = "BattlePlayerSquaddieSelectorListener"
+        this.highlightedSquaddie = {
+            battleSquaddieId: undefined,
+            mapIcon: undefined,
+        }
     }
 
     hasCompleted(gameEngineState: GameEngineState): boolean {
@@ -253,16 +261,29 @@ export class BattlePlayerSquaddieSelector
         ) {
             return
         }
-        DrawSquaddieIconOnMapUtilities.tintSquaddieMapIconWithPulseColor({
+
+        const battleSquaddieId = BattleActionDecisionStepService.getActor(
+            gameEngineState.battleOrchestratorState.battleState
+                .battleActionDecisionStep
+        ).battleSquaddieId
+
+        if (this.highlightedSquaddie.battleSquaddieId == battleSquaddieId)
+            return
+
+        const mapIcon = ObjectRepositoryService.getImageUIByBattleSquaddieId({
             repository: gameEngineState.repository,
-            battleSquaddieId: BattleActionDecisionStepService.getActor(
-                gameEngineState.battleOrchestratorState.battleState
-                    .battleActionDecisionStep
-            ).battleSquaddieId,
-            pulseColor:
-                DRAW_SQUADDIE_ICON_ON_MAP_LAYOUT.actorSquaddie
-                    .pulseColorForMapIcon,
+            battleSquaddieId: battleSquaddieId,
+            throwErrorIfNotFound: false,
         })
+
+        if (!mapIcon) return
+
+        mapIcon.setPulseColor(
+            DRAW_SQUADDIE_ICON_ON_MAP_LAYOUT.actorSquaddie.pulseColorForMapIcon
+        )
+
+        this.highlightedSquaddie.battleSquaddieId = battleSquaddieId
+        this.highlightedSquaddie.mapIcon = mapIcon
     }
 
     private readyToAutomaticallySelectASquaddie(
@@ -328,6 +349,7 @@ export class BattlePlayerSquaddieSelector
     reset(_gameEngineState: GameEngineState) {
         this.componentCompleted = false
         this.recommendedNextMode = BattleOrchestratorMode.UNKNOWN
+        this.highlightedSquaddie.mapIcon?.removePulseColor()
     }
 
     receiveMessage(message: MessageBoardMessage): void {

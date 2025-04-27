@@ -2,6 +2,7 @@ import { RectArea } from "../rectArea"
 import p5 from "p5"
 import { GraphicsBuffer } from "../../utils/graphics/graphicsRenderer"
 import { ResourceHandler } from "../../resource/resourceHandler"
+import { PulseColor, PulseColorService } from "../../hexMap/pulseColor"
 
 export enum ImageUILoadingBehavior {
     USE_IMAGE_SIZE = "USE_IMAGE_SIZE",
@@ -68,6 +69,7 @@ export class ImageUI {
     graphic: p5.Image
     drawArea: RectArea
     tintColor: number[]
+    pulseColor: PulseColor
     resourceKey: string
     loadingBehavior: ImageUILoadingBehavior
     customAreaCallback?: ({
@@ -103,6 +105,7 @@ export class ImageUI {
         this.graphic = graphic
         this.drawArea = area
         this.tintColor = []
+        this.pulseColor = undefined
     }
 
     draw({
@@ -116,12 +119,23 @@ export class ImageUI {
         if (!this.graphic) return
 
         graphicsContext.push()
-        if (this.tintColor) {
+        if (this.tintColor?.length >= 2) {
             graphicsContext.tint(
                 this.tintColor[0],
                 this.tintColor[1],
                 this.tintColor[2],
                 this.tintColor.length > 3 ? this.tintColor[3] : 255
+            )
+        }
+        if (this.pulseColor) {
+            const blendColor = PulseColorService.pulseColorToColor(
+                this.pulseColor
+            )
+            graphicsContext.tint(
+                blendColor[0],
+                blendColor[1],
+                blendColor[2],
+                blendColor[3]
             )
         }
         graphicsContext.image(
@@ -205,5 +219,13 @@ export class ImageUI {
 
     isImageLoaded(): boolean {
         return !!this.graphic
+    }
+
+    setPulseColor(pulseColor: PulseColor) {
+        this.pulseColor = pulseColor
+    }
+
+    removePulseColor() {
+        this.pulseColor = undefined
     }
 }

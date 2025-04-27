@@ -16,6 +16,16 @@ export const PlayerActionTargetStateMachineUIObjectsService = {
         confirm: {
             okButton: undefined,
             cancelButton: undefined,
+            mapIcons: {
+                actor: {
+                    mapIcon: undefined,
+                    hasTinted: false,
+                },
+                targets: {
+                    mapIcons: [],
+                    hasTinted: false,
+                },
+            },
         },
     }),
     getConfirmButtons: (

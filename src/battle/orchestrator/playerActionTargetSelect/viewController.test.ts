@@ -1,4 +1,12 @@
-import { beforeEach, describe, expect, it, MockInstance, vi } from "vitest"
+import {
+    afterEach,
+    beforeEach,
+    describe,
+    expect,
+    it,
+    MockInstance,
+    vi,
+} from "vitest"
 import {
     ObjectRepository,
     ObjectRepositoryService,
@@ -9,7 +17,10 @@ import {
     ActionTemplate,
     ActionTemplateService,
 } from "../../../action/template/actionTemplate"
-import { MockedP5GraphicsBuffer } from "../../../utils/test/mocks"
+import {
+    MockedGraphicsBufferService,
+    MockedP5GraphicsBuffer,
+} from "../../../utils/test/mocks"
 import { TerrainTileMapService } from "../../../hexMap/terrainTileMap"
 import { TargetConstraintsService } from "../../../action/targetConstraints"
 import {
@@ -53,10 +64,11 @@ import {
 } from "./playerActionTargetStateMachineContext"
 import { PlayerActionTargetStateMachineUIObjects } from "./playerActionTargetStateMachineUIObjects"
 import { PlayerCommandStateService } from "../../hud/playerCommand/playerCommandHUD"
+import { ImageUI, ImageUILoadingBehavior } from "../../../ui/imageUI/imageUI"
 
 describe("Player Action Target Select View Controller", () => {
     let playerActionTargetSelectViewController: PlayerActionTargetSelectViewController
-    let objectRepository: ObjectRepository = ObjectRepositoryService.new()
+    let objectRepository: ObjectRepository
     let knightBattleSquaddie: BattleSquaddie
     let citizenBattleSquaddie: BattleSquaddie
     let thiefBattleSquaddie: BattleSquaddie
@@ -74,6 +86,12 @@ describe("Player Action Target Select View Controller", () => {
 
     beforeEach(() => {
         componentData = new ComponentDataBlob()
+        missionMap = MissionMapService.new({
+            terrainTileMap: TerrainTileMapService.new({
+                movementCost: ["1 1 1 ", " 1 1 1 ", "  1 1 1 "],
+            }),
+        })
+        objectRepository = ObjectRepositoryService.new()
         const context = PlayerActionTargetContextService.new({
             objectRepository,
             missionMap,
@@ -89,17 +107,11 @@ describe("Player Action Target Select View Controller", () => {
             playerDecisionHUD: PlayerDecisionHUDService.new(),
             playerCommandState: PlayerCommandStateService.new(),
         })
-        componentData.setContext(context)
 
+        componentData.setContext(context)
         graphicsBuffer = new MockedP5GraphicsBuffer()
         playerActionTargetSelectViewController =
             new PlayerActionTargetSelectViewController(componentData)
-        objectRepository = ObjectRepositoryService.new()
-        missionMap = MissionMapService.new({
-            terrainTileMap: TerrainTileMapService.new({
-                movementCost: ["1 1 1 ", " 1 1 1 ", "  1 1 1 "],
-            }),
-        })
 
         longswordAction = ActionTemplateService.new({
             name: "longsword",
@@ -427,5 +439,93 @@ describe("Player Action Target Select View Controller", () => {
                 cancelButtonArea,
             }
         }
+    })
+
+    describe("highlight squaddies", () => {
+        let knightMapIcon: ImageUI
+        let thiefMapIcon: ImageUI
+        let pulseColorSpy: MockInstance
+
+        beforeEach(() => {
+            MockedGraphicsBufferService.addSpies(graphicsBuffer)
+            knightMapIcon = new ImageUI({
+                imageLoadingBehavior: {
+                    resourceKey: undefined,
+                    loadingBehavior: ImageUILoadingBehavior.USE_IMAGE_SIZE,
+                },
+                graphic: graphicsBuffer.createImage(100, 200),
+                area: RectAreaService.new({
+                    left: 10,
+                    top: 20,
+                    width: 0,
+                    height: 0,
+                }),
+            })
+            pulseColorSpy = vi.spyOn(knightMapIcon, "setPulseColor")
+
+            ObjectRepositoryService.addImageUIByBattleSquaddieId({
+                repository: objectRepository,
+                battleSquaddieId: knightBattleSquaddie.battleSquaddieId,
+                imageUI: knightMapIcon,
+            })
+
+            thiefMapIcon = new ImageUI({
+                imageLoadingBehavior: {
+                    resourceKey: undefined,
+                    loadingBehavior: ImageUILoadingBehavior.USE_IMAGE_SIZE,
+                },
+                graphic: graphicsBuffer.createImage(100, 200),
+                area: RectAreaService.new({
+                    left: 110,
+                    top: 220,
+                    width: 0,
+                    height: 0,
+                }),
+            })
+            ObjectRepositoryService.addImageUIByBattleSquaddieId({
+                repository: objectRepository,
+                battleSquaddieId: thiefBattleSquaddie.battleSquaddieId,
+                imageUI: thiefMapIcon,
+            })
+
+            attackThiefWithLongsword()
+            playerActionTargetSelectViewController.draw({
+                camera: new BattleCamera(),
+                graphicsContext: graphicsBuffer,
+            })
+        })
+        afterEach(() => {
+            pulseColorSpy.mockRestore()
+        })
+        it("will highlight the actor squaddie", () => {
+            const uiObjects =
+                playerActionTargetSelectViewController.componentData.getUIObjects()
+            expect(uiObjects.confirm.mapIcons.actor.mapIcon).toBe(knightMapIcon)
+            expect(uiObjects.confirm.mapIcons.actor.hasTinted).toBeTruthy()
+            expect(knightMapIcon.pulseColor).not.toBeUndefined()
+        })
+        it("will not tint again if it is already tinted", () => {
+            playerActionTargetSelectViewController.draw({
+                camera: new BattleCamera(),
+                graphicsContext: graphicsBuffer,
+            })
+
+            expect(pulseColorSpy).toHaveBeenCalledTimes(1)
+        })
+        it("will highlight the targets", () => {
+            const uiObjects =
+                playerActionTargetSelectViewController.componentData.getUIObjects()
+            expect(uiObjects.confirm.mapIcons.targets.mapIcons).toHaveLength(1)
+            expect(uiObjects.confirm.mapIcons.targets.mapIcons[0]).toBe(
+                thiefMapIcon
+            )
+            expect(uiObjects.confirm.mapIcons.targets.hasTinted).toBeTruthy()
+            expect(thiefMapIcon.pulseColor).not.toBeUndefined()
+        })
+        it("will remove highlights on squaddies during clean up", () => {
+            playerActionTargetSelectViewController.cleanUp()
+            expect(knightMapIcon.pulseColor).toBeUndefined()
+            expect(thiefMapIcon.pulseColor).toBeUndefined()
+        })
     })
 })

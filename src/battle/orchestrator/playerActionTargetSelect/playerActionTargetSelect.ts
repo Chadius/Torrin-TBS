@@ -124,6 +124,8 @@ export class PlayerActionTargetSelect implements BattleOrchestratorComponent {
     }
 
     reset(_gameEngineState: GameEngineState): void {
+        this.viewController.cleanUp()
+
         this.stateMachine = undefined
         this.viewController = undefined
         this.context = undefined

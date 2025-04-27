@@ -94,31 +94,6 @@ describe("DrawSquaddieIconOnMap", () => {
         })
     })
 
-    it("tintSquaddieWithPulseColor", () => {
-        let pulseBlendColor: PulseColor
-        pulseBlendColor = {
-            hue: 10,
-            saturation: 20,
-            brightness: 30,
-            alpha: 50,
-            pulse: {
-                period: 10000,
-                formula: PULSE_COLOR_FORMULA_TYPE.SINE,
-            },
-        }
-
-        DrawSquaddieIconOnMapUtilities.tintSquaddieMapIconWithPulseColor({
-            repository: objectRepository,
-            battleSquaddieId: "playerBattleSquaddieId",
-            pulseColor: pulseBlendColor,
-        })
-
-        expect(imageUI.tintColor[0]).toEqual(pulseBlendColor.hue)
-        expect(imageUI.tintColor[1]).toEqual(pulseBlendColor.saturation)
-        expect(imageUI.tintColor[2]).toEqual(pulseBlendColor.brightness)
-        expect(imageUI.tintColor[3]).toBeCloseTo(50)
-    })
-
     it("drawPulsingCircleAtMapCoordinate", () => {
         const graphicSpies =
             MockedGraphicsBufferService.addSpies(graphicsContext)

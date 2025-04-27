@@ -378,23 +378,6 @@ export const DrawSquaddieIconOnMapUtilities = {
     ) => {
         return unTintSquaddieMapIcon(repository, battleSquaddie)
     },
-    tintSquaddieMapIconWithPulseColor({
-        repository,
-        battleSquaddieId,
-        pulseColor,
-    }: {
-        repository: ObjectRepository
-        battleSquaddieId: string
-        pulseColor: PulseColor
-    }) {
-        const mapIcon = ObjectRepositoryService.getImageUIByBattleSquaddieId({
-            repository: repository,
-            battleSquaddieId: battleSquaddieId,
-            throwErrorIfNotFound: false,
-        })
-        if (!mapIcon) return
-        mapIcon.setTint(...PulseColorService.pulseColorToColor(pulseColor))
-    },
     drawPulsingCircleAtMapCoordinate: ({
         graphicsContext,
         mapCoordinate,

@@ -23,7 +23,20 @@ import { ScreenDimensions } from "../../../utils/graphics/graphicsConfig"
 import { DataBlobService } from "../../../utils/dataBlob/dataBlob"
 import { PlayerActionTargetStateMachineLayout } from "./playerActionTargetStateMachineLayout"
 import { PlayerActionTargetStateMachineContext } from "./playerActionTargetStateMachineContext"
-import { PlayerActionTargetStateMachineUIObjects } from "./playerActionTargetStateMachineUIObjects"
+import {
+    PlayerActionTargetStateMachineUIObjects,
+    PlayerActionTargetStateMachineUIObjectsService,
+} from "./playerActionTargetStateMachineUIObjects"
+import {
+    BattleActionDecisionStep,
+    BattleActionDecisionStepService,
+} from "../../actionDecision/battleActionDecisionStep"
+import {
+    ObjectRepository,
+    ObjectRepositoryService,
+} from "../../objectRepository"
+import { MissionMap, MissionMapService } from "../../../missionMap/missionMap"
+import { DRAW_SQUADDIE_ICON_ON_MAP_LAYOUT } from "../../animation/drawSquaddieIconOnMap/drawSquaddieIconOnMap"
 
 export class PlayerActionTargetSelectViewController {
     componentData: ComponentDataBlob<
@@ -52,15 +65,9 @@ export class PlayerActionTargetSelectViewController {
             confirm: this.getPlayerActionConfirmLayout(),
         })
 
-        this.componentData.setUIObjects({
-            graphicsContext: undefined,
-            camera: undefined,
-            confirm: {
-                okButton: undefined,
-                cancelButton: undefined,
-                graphicsContext: undefined,
-            },
-        })
+        this.componentData.setUIObjects(
+            PlayerActionTargetStateMachineUIObjectsService.empty()
+        )
     }
 
     getPlayerActionConfirmLayout(): PlayerActionConfirmLayout {
@@ -155,7 +162,14 @@ export class PlayerActionTargetSelectViewController {
             this.createDrawingTasks(camera)
         }
 
-        this.updateUIObjectsDuringDraw(graphicsContext, camera)
+        const contextInfo = this.componentData.getContext()
+        this.updateUIObjectsDuringDraw({
+            graphicsContext: graphicsContext,
+            camera: camera,
+            battleActionDecisionStep: contextInfo.battleActionDecisionStep,
+            missionMap: contextInfo.missionMap,
+            objectRepository: contextInfo.objectRepository,
+        })
 
         this.uiDrawTasks.confirm.run()
         this.getButtons().forEach((button) => {
@@ -172,11 +186,32 @@ export class PlayerActionTargetSelectViewController {
         return this.componentData.getUIObjects()
     }
 
-    private updateUIObjectsDuringDraw(
-        graphicsContext: GraphicsBuffer,
+    private updateUIObjectsDuringDraw({
+        graphicsContext,
+        camera,
+        battleActionDecisionStep,
+        objectRepository,
+        missionMap,
+    }: {
+        graphicsContext: GraphicsBuffer
         camera: BattleCamera
-    ) {
+        battleActionDecisionStep: BattleActionDecisionStep
+        objectRepository: ObjectRepository
+        missionMap: MissionMap
+    }) {
         const uiObjects = this.componentData.getUIObjects()
+        this.highlightActorSquaddie({
+            battleActionDecisionStep,
+            objectRepository,
+            uiObjects: uiObjects.confirm,
+        })
+        this.highlightTargetSquaddies({
+            battleActionDecisionStep,
+            missionMap,
+            objectRepository,
+            uiObjects: uiObjects.confirm,
+        })
+
         uiObjects.graphicsContext = graphicsContext
         uiObjects.camera = camera
         uiObjects.confirm.graphicsContext = uiObjects.graphicsContext
@@ -189,5 +224,118 @@ export class PlayerActionTargetSelectViewController {
             uiObjects.confirm.okButton,
             uiObjects.confirm.cancelButton,
         ].filter((x) => x)
+    }
+
+    private highlightActorSquaddie({
+        battleActionDecisionStep,
+        objectRepository,
+        uiObjects,
+    }: {
+        battleActionDecisionStep: BattleActionDecisionStep
+        objectRepository: ObjectRepository
+        uiObjects: PlayerActionConfirmUIObjects
+    }) {
+        if (
+            !BattleActionDecisionStepService.isActorSet(
+                battleActionDecisionStep
+            ) ||
+            uiObjects.mapIcons.actor.hasTinted
+        ) {
+            return
+        }
+
+        const battleSquaddieId = BattleActionDecisionStepService.getActor(
+            battleActionDecisionStep
+        ).battleSquaddieId
+
+        const mapIcon = ObjectRepositoryService.getImageUIByBattleSquaddieId({
+            repository: objectRepository,
+            battleSquaddieId: battleSquaddieId,
+            throwErrorIfNotFound: false,
+        })
+
+        if (!mapIcon) return
+
+        mapIcon.setPulseColor(
+            DRAW_SQUADDIE_ICON_ON_MAP_LAYOUT.actorSquaddie.pulseColorForMapIcon
+        )
+        uiObjects.mapIcons.actor.mapIcon = mapIcon
+        uiObjects.mapIcons.actor.hasTinted = true
+    }
+
+    private highlightTargetSquaddies({
+        battleActionDecisionStep,
+        missionMap,
+        objectRepository,
+        uiObjects,
+    }: {
+        missionMap: MissionMap
+        battleActionDecisionStep: BattleActionDecisionStep
+        objectRepository: ObjectRepository
+        uiObjects: PlayerActionConfirmUIObjects
+    }) {
+        if (uiObjects.mapIcons.targets.hasTinted) return
+
+        let squaddiesToHighlight = this.getSquaddiesToHighlight({
+            battleActionDecisionStep,
+            missionMap,
+        })
+            .filter((x) => x)
+            .filter(
+                (battleSquaddieId) =>
+                    !!ObjectRepositoryService.getImageUIByBattleSquaddieId({
+                        repository: objectRepository,
+                        battleSquaddieId: battleSquaddieId,
+                        throwErrorIfNotFound: false,
+                    })
+            )
+        uiObjects.mapIcons.targets.mapIcons ||= []
+
+        squaddiesToHighlight.forEach((battleSquaddieId) => {
+            const mapIcon =
+                ObjectRepositoryService.getImageUIByBattleSquaddieId({
+                    repository: objectRepository,
+                    battleSquaddieId: battleSquaddieId,
+                    throwErrorIfNotFound: false,
+                })
+            uiObjects.mapIcons.targets.mapIcons.push(mapIcon)
+            mapIcon.setPulseColor(
+                DRAW_SQUADDIE_ICON_ON_MAP_LAYOUT.targetEnemySquaddie
+                    .pulseColorForMapIcon
+            )
+        })
+
+        if (squaddiesToHighlight.length > 0) {
+            uiObjects.mapIcons.targets.hasTinted = true
+        }
+    }
+
+    private getSquaddiesToHighlight({
+        battleActionDecisionStep,
+        missionMap,
+    }: {
+        missionMap: MissionMap
+        battleActionDecisionStep: BattleActionDecisionStep
+    }) {
+        return [
+            MissionMapService.getBattleSquaddieAtCoordinate(
+                missionMap,
+                BattleActionDecisionStepService.getTarget(
+                    battleActionDecisionStep
+                )?.targetCoordinate
+            )?.battleSquaddieId,
+        ]
+    }
+
+    cleanUp() {
+        const oldUiObjects = this.componentData.getUIObjects()
+        ;[
+            oldUiObjects?.confirm.mapIcons.actor.mapIcon,
+            ...(oldUiObjects?.confirm.mapIcons.targets.mapIcons ?? []),
+        ]
+            .filter((x) => x)
+            .forEach((mapIcon) => {
+                mapIcon.removePulseColor()
+            })
     }
 }
