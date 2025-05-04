@@ -3,12 +3,12 @@ import {
     BattleOrchestratorComponent,
     OrchestratorComponentKeyEvent,
     OrchestratorComponentMouseEvent,
-} from "../battleOrchestratorComponent"
+} from "../../orchestrator/battleOrchestratorComponent"
 import { GameEngineState } from "../../../gameEngine/gameEngine"
 import { ResourceHandler } from "../../../resource/resourceHandler"
 import { GraphicsBuffer } from "../../../utils/graphics/graphicsRenderer"
-import { UIControlSettings } from "../uiControlSettings"
-import { BattleOrchestratorMode } from "../battleOrchestrator"
+import { UIControlSettings } from "../../orchestrator/uiControlSettings"
+import { BattleOrchestratorMode } from "../../orchestrator/battleOrchestrator"
 import {
     PlayerActionTargetStateEnum,
     PlayerActionTargetStateMachine,
@@ -44,14 +44,11 @@ export class PlayerActionTargetSelect implements BattleOrchestratorComponent {
         this.lazyInitializeViewController()
         this.updateStateMachine()
 
-        if (!this.context.externalFlags.useLegacySelector) {
-            this.updateViewController({
-                camera: gameEngineState.battleOrchestratorState.battleState
-                    .camera,
-                graphicsContext,
-            })
-            this.connectStateMachineWithViewController()
-        }
+        this.updateViewController({
+            camera: gameEngineState.battleOrchestratorState.battleState.camera,
+            graphicsContext,
+        })
+        this.connectStateMachineWithViewController()
     }
 
     updateStateMachine() {
@@ -59,10 +56,11 @@ export class PlayerActionTargetSelect implements BattleOrchestratorComponent {
         this.stateMachine.updateUntil({
             stopPredicate: (stateMachine: PlayerActionTargetStateMachine) => {
                 if (
-                    stateMachine.currentState ==
-                    PlayerActionTargetStateEnum.FINISHED
+                    stateMachine.context.externalFlags.actionConfirmed ||
+                    stateMachine.context.externalFlags.cancelActionSelection
                 )
                     return true
+
                 if (
                     stateMachine.currentState ==
                     PlayerActionTargetStateEnum.WAITING_FOR_PLAYER_CONFIRM
@@ -106,8 +104,7 @@ export class PlayerActionTargetSelect implements BattleOrchestratorComponent {
 
     hasCompleted(_gameEngineState: GameEngineState): boolean {
         return (
-            this.stateMachine?.context.externalFlags.finished ||
-            this.stateMachine?.context.externalFlags.useLegacySelector ||
+            this.stateMachine?.context.externalFlags.actionConfirmed ||
             this.stateMachine?.context.externalFlags.cancelActionSelection
         )
     }
@@ -115,9 +112,6 @@ export class PlayerActionTargetSelect implements BattleOrchestratorComponent {
     recommendStateChanges(
         _gameEngineState: GameEngineState
     ): BattleOrchestratorChanges {
-        if (this.stateMachine?.context.externalFlags.useLegacySelector) {
-            return { nextMode: BattleOrchestratorMode.PLAYER_SQUADDIE_TARGET }
-        }
         return {
             nextMode: BattleOrchestratorMode.PLAYER_HUD_CONTROLLER,
         }
@@ -163,6 +157,7 @@ export class PlayerActionTargetSelect implements BattleOrchestratorComponent {
         if (this.context) return
         this.context = PlayerActionTargetContextService.new({
             objectRepository: gameEngineState.repository,
+            camera: gameEngineState.battleOrchestratorState.battleState.camera,
             missionMap:
                 gameEngineState.battleOrchestratorState.battleState.missionMap,
             battleActionDecisionStep:

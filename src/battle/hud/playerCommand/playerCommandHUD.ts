@@ -39,6 +39,7 @@ import {
 } from "../playerActionPanel/actionButton/actionButton"
 import { SquaddieNameAndPortraitTileService } from "../playerActionPanel/tile/squaddieNameAndPortraitTile"
 import { ActionTilePosition } from "../playerActionPanel/tile/actionTilePosition"
+import { CampaignResources } from "../../../campaign/campaignResources"
 
 export const END_TURN_NAME = "END TURN"
 
@@ -87,19 +88,18 @@ export const PlayerCommandStateService = {
     createCommandWindow: ({
         summaryHUDState,
         objectRepository,
-        gameEngineState,
         battleSquaddieId,
+        campaignResources,
     }: {
-        playerCommandState: PlayerCommandState
         summaryHUDState: SummaryHUDState
         objectRepository: ObjectRepository
-        gameEngineState: GameEngineState
         battleSquaddieId: string
+        campaignResources: CampaignResources
     }) => {
         summaryHUDState.playerCommandState.battleSquaddieId = battleSquaddieId
         createActionButtons({
             playerCommandState: summaryHUDState.playerCommandState,
-            gameEngineState,
+            campaignResources,
             objectRepository,
             battleSquaddieId,
         })
@@ -410,13 +410,13 @@ const createQueuedPopupIfNeeded = (
 const createActionButtons = ({
     playerCommandState,
     objectRepository,
-    gameEngineState,
     battleSquaddieId,
+    campaignResources,
 }: {
     playerCommandState: PlayerCommandState
     objectRepository: ObjectRepository
-    gameEngineState: GameEngineState
     battleSquaddieId: string
+    campaignResources: CampaignResources
 }) => {
     const { squaddieTemplate } = getResultOrThrowError(
         ObjectRepositoryService.getSquaddieByBattleId(
@@ -428,8 +428,7 @@ const createActionButtons = ({
         HUE_BY_SQUADDIE_AFFILIATION[squaddieTemplate.squaddieId.affiliation]
 
     const defaultButtonIconResourceKey =
-        gameEngineState.campaign.resources
-            .actionEffectSquaddieTemplateButtonIcons.UNKNOWN
+        campaignResources.actionEffectSquaddieTemplateButtonIcons.UNKNOWN
 
     const actionTileBoundingBox =
         SquaddieNameAndPortraitTileService.getBoundingBoxBasedOnActionPanelPosition(
@@ -438,10 +437,7 @@ const createActionButtons = ({
 
     playerCommandState.actionButtons = squaddieTemplate.actionTemplateIds
         .map((id) =>
-            ObjectRepositoryService.getActionTemplateById(
-                gameEngineState.repository,
-                id
-            )
+            ObjectRepositoryService.getActionTemplateById(objectRepository, id)
         )
         .map((actionTemplate: ActionTemplate) =>
             ActionButtonService.new({
@@ -476,8 +472,7 @@ const createActionButtons = ({
             defaultButtonIconResourceKey,
             actionTemplateOverride: {
                 name: END_TURN_NAME,
-                buttonIconResourceKey:
-                    gameEngineState.campaign.resources.endTurnIconResourceKey,
+                buttonIconResourceKey: campaignResources.endTurnIconResourceKey,
             },
         })
     )

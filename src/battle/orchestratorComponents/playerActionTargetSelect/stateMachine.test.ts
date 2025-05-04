@@ -57,7 +57,7 @@ import { MissionStatisticsService } from "../../missionStatistics/missionStatist
 import {
     OrchestratorComponentKeyEventType,
     OrchestratorComponentMouseEventType,
-} from "../battleOrchestratorComponent"
+} from "../../orchestrator/battleOrchestratorComponent"
 import { PlayerInputStateService } from "../../../ui/playerInput/playerInputState"
 import { PlayerConsideredActionsService } from "../../battleState/playerConsideredActions"
 import { PlayerDecisionHUDService } from "../../hud/playerActionPanel/playerDecisionHUD"
@@ -71,9 +71,9 @@ import { ButtonLogicChangeOnRelease } from "../../../ui/button/logic/buttonLogic
 import { DataBlobService } from "../../../utils/dataBlob/dataBlob"
 import { TestButtonStyle } from "../../../ui/button/button.test"
 import { RectAreaService } from "../../../ui/rectArea"
-import { PLAYER_ACTION_CONFIRM_CREATE_OK_BUTTON_ID } from "../../orchestratorComponents/playerActionConfirm/okButton"
-import { PLAYER_ACTION_CONFIRM_CREATE_CANCEL_BUTTON_ID } from "../../orchestratorComponents/playerActionConfirm/cancelButton"
-import { MouseButton } from "../../../utils/mouseConfig"
+import { PLAYER_ACTION_CONFIRM_CREATE_OK_BUTTON_ID } from "./playerActionConfirm/okButton"
+import { PLAYER_ACTION_CONFIRM_CREATE_CANCEL_BUTTON_ID } from "./playerActionConfirm/cancelButton"
+import { MouseButton, ScreenLocation } from "../../../utils/mouseConfig"
 import { PlayerCommandStateService } from "../../hud/playerCommand/playerCommandHUD"
 import { CoordinateGeneratorShape } from "../../targeting/coordinateGenerator"
 import { DamageType, HealingType } from "../../../squaddie/squaddieService"
@@ -87,6 +87,15 @@ import { CanHealTargetCheck } from "../../actionValidity/canHealTargetCheck"
 import { CanAddModifiersCheck } from "../../actionValidity/canAddModifiersCheck"
 import { InBattleAttributesService } from "../../stats/inBattleAttributes"
 import { getResultOrThrowError } from "../../../utils/ResultOrError"
+import { PLAYER_ACTION_SELECT_TARGET_CREATE_CANCEL_BUTTON_ID } from "./playerActionTarget/cancelButton"
+import { ConvertCoordinateService } from "../../../hexMap/convertCoordinates"
+import { BattleCamera } from "../../battleCamera"
+import { Label, LabelService } from "../../../ui/label"
+import {
+    HexCoordinate,
+    HexCoordinateService,
+} from "../../../hexMap/hexCoordinate/hexCoordinate"
+import { StateMachineUpdate } from "../../../utils/stateMachine/stateMachineUpdate"
 
 describe("PlayerActionTargetSelect State Machine", () => {
     let stateMachine: PlayerActionTargetStateMachine
@@ -104,6 +113,9 @@ describe("PlayerActionTargetSelect State Machine", () => {
     let getButtonsSpy: MockInstance
     let confirmOKButton: Button
     let confirmCancelButton: Button
+    let selectTargetCancelButton: Button
+    let selectTargetExplanationLabel: Label
+    let camera: BattleCamera
 
     beforeEach(() => {
         objectRepository = ObjectRepositoryService.new()
@@ -146,9 +158,11 @@ describe("PlayerActionTargetSelect State Machine", () => {
         summaryHUDState = SummaryHUDStateService.new()
         battleActionRecorder = BattleActionRecorderService.new()
         numberGenerator = new RandomNumberGenerator()
+        camera = new BattleCamera()
         context = PlayerActionTargetContextService.new({
             objectRepository,
             missionMap,
+            camera,
             battleActionDecisionStep,
             messageBoard,
             battleActionRecorder,
@@ -210,6 +224,39 @@ describe("PlayerActionTargetSelect State Machine", () => {
             ),
         })
         stateMachine.uiObjects.confirm.cancelButton = confirmCancelButton
+        selectTargetCancelButton = new Button({
+            id: PLAYER_ACTION_SELECT_TARGET_CREATE_CANCEL_BUTTON_ID,
+            buttonLogic: new ButtonLogicChangeOnRelease({
+                dataBlob: {
+                    data: {},
+                },
+            }),
+            drawTask: new TestButtonStyle(
+                DataBlobService.new(),
+                RectAreaService.new({
+                    left: 100,
+                    top: 100,
+                    width: 10,
+                    height: 10,
+                })
+            ),
+        })
+        stateMachine.uiObjects.selectTarget.cancelButton =
+            selectTargetCancelButton
+        selectTargetExplanationLabel = LabelService.new({
+            text: "test",
+            area: RectAreaService.new({
+                left: 100,
+                top: 100,
+                width: 10,
+                height: 20,
+            }),
+            fontSize: 12,
+            fontColor: [10, 20, 30],
+            textBoxMargin: [],
+        })
+        stateMachine.uiObjects.selectTarget.explanationLabel =
+            selectTargetExplanationLabel
     })
 
     afterEach(() => {
@@ -605,7 +652,46 @@ describe("PlayerActionTargetSelect State Machine", () => {
         })
     })
 
-    describe("Unsupported number of targets found", () => {
+    const clickMouse = (validMouseLocation: ScreenLocation) => {
+        stateMachine.acceptPlayerInput({
+            eventType: OrchestratorComponentMouseEventType.PRESS,
+            mousePress: {
+                ...validMouseLocation,
+                button: MouseButton.ACCEPT,
+            },
+        })
+        stateMachine.acceptPlayerInput({
+            eventType: OrchestratorComponentMouseEventType.RELEASE,
+            mouseRelease: {
+                ...validMouseLocation,
+                button: MouseButton.ACCEPT,
+            },
+        })
+    }
+    const clickOnTarget = () => {
+        const validMouseLocation =
+            ConvertCoordinateService.convertMapCoordinatesToScreenLocation({
+                mapCoordinate: { q: 0, r: 1 },
+                cameraLocation: context.camera.getWorldLocation(),
+            })
+        clickMouse(validMouseLocation)
+    }
+    const clickMouseAndRunActions = () => {
+        context.playerInput.push({
+            eventType: OrchestratorComponentMouseEventType.RELEASE,
+            mouseRelease: {
+                button: MouseButton.ACCEPT,
+                x: 100,
+                y: 200,
+            },
+        })
+        const update = stateMachine.update()
+        update.actions.forEach((action) => {
+            stateMachine.getActionLogic(action)(context)
+        })
+    }
+
+    describe("More than one target found", () => {
         beforeEach(() => {
             StateMachineDataService.setActionLogic(
                 stateMachine.stateMachineData,
@@ -628,55 +714,410 @@ describe("PlayerActionTargetSelect State Machine", () => {
                 PlayerActionTargetStateEnum.COUNT_TARGETS
         })
 
-        it("will fire an UNSUPPORTED_COUNT_TARGETS transition", () => {
+        it("will fire a MULTIPLE_TARGETS_FOUND transition", () => {
             const update = stateMachine.update()
             expect(update.transitionFired).toEqual(
-                PlayerActionTargetTransitionEnum.UNSUPPORTED_COUNT_TARGETS
+                PlayerActionTargetTransitionEnum.MULTIPLE_TARGETS_FOUND
             )
             expect(update.targetedState).toEqual(
-                PlayerActionTargetStateEnum.NOT_APPLICABLE
+                PlayerActionTargetStateEnum.WAITING_FOR_PLAYER_TO_SELECT_TARGET
             )
             expect(update.actions).toEqual([
-                PlayerActionTargetActionEnum.NOT_APPLICABLE_ENTRY,
+                PlayerActionTargetActionEnum.WAITING_FOR_PLAYER_TO_SELECT_TARGET,
             ])
         })
-    })
 
-    it("NOT_APPLICABLE_ENTRY action sets the use legacy selector flag", () => {
-        stateMachine.getActionLogic(
-            PlayerActionTargetActionEnum.NOT_APPLICABLE_ENTRY
-        )(context)
+        describe("waiting for the user to select a target", () => {
+            beforeEach(() => {
+                stateMachine.getActionLogic(
+                    PlayerActionTargetActionEnum.WAITING_FOR_PLAYER_TO_SELECT_TARGET
+                )(context)
+                stateMachine.currentState =
+                    PlayerActionTargetStateEnum.WAITING_FOR_PLAYER_TO_SELECT_TARGET
+            })
 
-        expect(context.externalFlags.useLegacySelector).toBeTruthy()
-    })
+            describe("Player peeks at targets", () => {
+                let messageSpy: MockInstance
 
-    describe("Transition to completed state", () => {
-        it("will transition if the legacy selector should be used", () => {
-            stateMachine.currentState =
-                PlayerActionTargetStateEnum.NOT_APPLICABLE
-            stateMachine.getActionLogic(
-                PlayerActionTargetActionEnum.NOT_APPLICABLE_ENTRY
-            )(context)
+                beforeEach(() => {
+                    MissionMapService.addSquaddie({
+                        missionMap,
+                        battleSquaddieId: "1",
+                        squaddieTemplateId: "valid target",
+                        coordinate: { q: 0, r: 1 },
+                    })
+                    MissionMapService.addSquaddie({
+                        missionMap,
+                        battleSquaddieId: "2",
+                        squaddieTemplateId: "valid target",
+                        coordinate: { q: 0, r: 2 },
+                    })
+                    MissionMapService.addSquaddie({
+                        missionMap,
+                        battleSquaddieId: "3",
+                        squaddieTemplateId: "valid target",
+                        coordinate: { q: 0, r: 3 },
+                    })
+                    MissionMapService.addSquaddie({
+                        missionMap,
+                        battleSquaddieId,
+                        squaddieTemplateId,
+                        coordinate: { q: 0, r: 0 },
+                    })
 
-            const update = stateMachine.update()
-            expect(update.transitionFired).toEqual(
-                PlayerActionTargetTransitionEnum.FINISHED
-            )
-            expect(update.targetedState).toEqual(
-                PlayerActionTargetStateEnum.FINISHED
-            )
-            expect(update.actions).toEqual([
-                PlayerActionTargetActionEnum.FINISHED_ENTRY,
-            ])
+                    messageSpy = vi.spyOn(messageBoard, "sendMessage")
+                })
+
+                afterEach(() => {
+                    messageSpy.mockRestore()
+                })
+
+                const hoverMouseOverCoordinate = (
+                    mapCoordinate: HexCoordinate
+                ) => {
+                    const validMouseLocation =
+                        ConvertCoordinateService.convertMapCoordinatesToScreenLocation(
+                            {
+                                mapCoordinate,
+                                cameraLocation:
+                                    context.camera.getWorldLocation(),
+                            }
+                        )
+                    stateMachine.acceptPlayerInput({
+                        eventType: OrchestratorComponentMouseEventType.LOCATION,
+                        mouseLocation: validMouseLocation,
+                    })
+                }
+
+                const validTargetTests = [
+                    {
+                        battleSquaddieSelectedId: "1",
+                        mapCoordinate: { q: 0, r: 1 },
+                    },
+                    {
+                        battleSquaddieSelectedId: "2",
+                        mapCoordinate: { q: 0, r: 2 },
+                    },
+                    {
+                        battleSquaddieSelectedId: "3",
+                        mapCoordinate: { q: 0, r: 3 },
+                    },
+                ]
+
+                it.each(validTargetTests)(
+                    "$battleSquaddieSelectedId, $mapCoordinate, hover over and expect to send a message",
+                    ({ battleSquaddieSelectedId, mapCoordinate }) => {
+                        hoverMouseOverCoordinate(mapCoordinate)
+                        let update = stateMachine.update()
+                        update.actions.forEach((action) => {
+                            stateMachine.getActionLogic(action)(context)
+                        })
+                        expect(messageSpy).toHaveBeenCalledWith({
+                            type: MessageBoardMessageType.PLAYER_PEEKS_AT_SQUADDIE,
+                            battleSquaddieSelectedId,
+                            selectionMethod: {
+                                mapCoordinate: mapCoordinate,
+                            },
+                            summaryHUDState:
+                                context.messageParameters.summaryHUDState,
+                            missionMap: context.missionMap,
+                            objectRepository: context.objectRepository,
+                            campaignResources:
+                                context.messageParameters.campaignResources,
+                        })
+                    }
+                )
+
+                it("will not fire an event if the player moves the mouse over a different squaddie", () => {})
+            })
+
+            it("will retrieve the cancel button", () => {
+                expect(stateMachine.getSelectTargetButtons()).toEqual([
+                    selectTargetCancelButton,
+                ])
+            })
+
+            it("will retrieve the explanation text", () => {
+                expect(stateMachine.getSelectTargetExplanationText()).toEqual([
+                    selectTargetExplanationLabel,
+                ])
+            })
+
+            it("does not transition while waiting for player input", () => {
+                const update = stateMachine.update()
+                expect(update.transitionFired).toBeUndefined()
+                expect(update.actions).toEqual([
+                    PlayerActionTargetActionEnum.WAITING_FOR_PLAYER_TO_SELECT_TARGET,
+                ])
+                expect(update.targetedState).toBeUndefined()
+            })
+
+            it("clears the player input after processing", () => {
+                clickMouseAndRunActions()
+                expect(context.playerInput).toHaveLength(0)
+            })
+
+            describe("player selects a target", () => {
+                let messageSpy: MockInstance
+
+                beforeEach(() => {
+                    stateMachine.currentState =
+                        PlayerActionTargetStateEnum.WAITING_FOR_PLAYER_TO_SELECT_TARGET
+                    context.targetResults.validTargets = {
+                        "1": { mapCoordinate: { q: 0, r: 1 } },
+                        "2": { mapCoordinate: { q: 0, r: 2 } },
+                    }
+                    stateMachine.getActionLogic(
+                        PlayerActionTargetActionEnum.WAITING_FOR_PLAYER_TO_SELECT_TARGET
+                    )(context)
+                    messageSpy = vi.spyOn(context.messageBoard, "sendMessage")
+                    stateMachine.update()
+                })
+
+                afterEach(() => {
+                    if (messageSpy) messageSpy.mockRestore()
+                })
+
+                it("clicking on a valid target will trigger a transition", () => {
+                    clickOnTarget()
+
+                    let update = stateMachine.update()
+                    update.actions.forEach((action) => {
+                        stateMachine.getActionLogic(action)(context)
+                    })
+
+                    update = stateMachine.update()
+                    expect(update.transitionFired).toEqual(
+                        PlayerActionTargetTransitionEnum.PLAYER_CONSIDERS_TARGET_SELECTION
+                    )
+
+                    expect(update.targetedState).toEqual(
+                        PlayerActionTargetStateEnum.WAITING_FOR_PLAYER_CONFIRM
+                    )
+                    expect(update.actions).toEqual([
+                        PlayerActionTargetActionEnum.TRIGGER_PLAYER_CONSIDERS_TARGET_SELECTION,
+                    ])
+                })
+
+                const notATargetTests = [
+                    {
+                        name: "on a tile without a target",
+                        action: () => {
+                            const invalidMouseLocation =
+                                ConvertCoordinateService.convertMapCoordinatesToScreenLocation(
+                                    {
+                                        mapCoordinate: { q: -20, r: 30 },
+                                        cameraLocation:
+                                            context.camera.getWorldLocation(),
+                                    }
+                                )
+                            clickMouse(invalidMouseLocation)
+                        },
+                        expectedExplanationLabelSubstring:
+                            HexCoordinateService.toString({ q: -20, r: 30 }),
+                    },
+                ]
+
+                it.each(notATargetTests)(
+                    `$name will not trigger a transition`,
+                    ({ action }) => {
+                        action()
+                        let update = stateMachine.update()
+                        update.actions.forEach((action) => {
+                            stateMachine.getActionLogic(action)(context)
+                        })
+
+                        update = stateMachine.update()
+                        expect(update.transitionFired).not.toEqual(
+                            PlayerActionTargetTransitionEnum.PLAYER_CONSIDERS_TARGET_SELECTION
+                        )
+                    }
+                )
+
+                it.each(notATargetTests)(
+                    `$name will update the explanation text`,
+                    ({ action, expectedExplanationLabelSubstring }) => {
+                        action()
+                        let update = stateMachine.update()
+                        update.actions.forEach((action) => {
+                            stateMachine.getActionLogic(action)(context)
+                        })
+
+                        stateMachine.update()
+                        expect(
+                            stateMachine.context.explanationLabelText.includes(
+                                expectedExplanationLabelSubstring
+                            )
+                        ).toBe(true)
+                    }
+                )
+
+                describe("TRIGGER_PLAYER_CONSIDERS_TARGET_SELECTION", () => {
+                    let update: StateMachineUpdate<
+                        PlayerActionTargetStateEnum,
+                        PlayerActionTargetTransitionEnum,
+                        PlayerActionTargetActionEnum
+                    >
+
+                    beforeEach(() => {
+                        clickOnTarget()
+                        update = stateMachine.update()
+                        update.actions.forEach((action) => {
+                            stateMachine.getActionLogic(action)(context)
+                        })
+                        stateMachine.getActionLogic(
+                            PlayerActionTargetActionEnum.TRIGGER_PLAYER_CONSIDERS_TARGET_SELECTION
+                        )(context)
+                    })
+
+                    it("sends a message to select the target", () => {
+                        expect(messageSpy).toHaveBeenCalledWith({
+                            type: MessageBoardMessageType.PLAYER_SELECTS_TARGET_COORDINATE,
+                            missionMap: context.missionMap,
+                            objectRepository: context.objectRepository,
+                            battleActionDecisionStep:
+                                context.battleActionDecisionStep,
+                            numberGenerator:
+                                context.messageParameters.numberGenerator,
+                            battleActionRecorder: context.battleActionRecorder,
+                            targetCoordinate: { q: 0, r: 1 },
+                            summaryHUDState:
+                                context.messageParameters.summaryHUDState,
+                        })
+                    })
+                })
+            })
+
+            const cancelTests = [
+                {
+                    name: "player presses cancel key on their keyboard",
+                    acceptPlayerInput: () => {
+                        stateMachine.acceptPlayerInput({
+                            eventType:
+                                OrchestratorComponentKeyEventType.PRESSED,
+                            keyCode: JSON.parse(
+                                process.env.PLAYER_INPUT_CANCEL
+                            )[0]["press"],
+                        })
+                    },
+                },
+                {
+                    name: "player clicks on the the cancel button on screen",
+                    acceptPlayerInput: () => {
+                        const cancelButtonArea =
+                            selectTargetCancelButton.getArea()
+                        stateMachine.acceptPlayerInput({
+                            eventType:
+                                OrchestratorComponentMouseEventType.PRESS,
+                            mousePress: {
+                                x: RectAreaService.centerX(cancelButtonArea),
+                                y: RectAreaService.centerY(cancelButtonArea),
+                                button: MouseButton.ACCEPT,
+                            },
+                        })
+                        stateMachine.acceptPlayerInput({
+                            eventType:
+                                OrchestratorComponentMouseEventType.RELEASE,
+                            mouseRelease: {
+                                x: RectAreaService.centerX(cancelButtonArea),
+                                y: RectAreaService.centerY(cancelButtonArea),
+                                button: MouseButton.ACCEPT,
+                            },
+                        })
+                    },
+                },
+                {
+                    name: "player clicks the cancel key on their mouse",
+                    acceptPlayerInput: () => {
+                        stateMachine.acceptPlayerInput({
+                            eventType:
+                                OrchestratorComponentMouseEventType.PRESS,
+                            mousePress: {
+                                x: 9001,
+                                y: -9001,
+                                button: MouseButton.CANCEL,
+                            },
+                        })
+                        stateMachine.acceptPlayerInput({
+                            eventType:
+                                OrchestratorComponentMouseEventType.RELEASE,
+                            mouseRelease: {
+                                x: -9001,
+                                y: 9001,
+                                button: MouseButton.CANCEL,
+                            },
+                        })
+                    },
+                },
+            ]
+
+            describe("player cancels when they could have selected a target", () => {
+                let messageSpy: MockInstance
+
+                beforeEach(() => {
+                    stateMachine.currentState =
+                        PlayerActionTargetStateEnum.WAITING_FOR_PLAYER_TO_SELECT_TARGET
+                    context.targetResults.validTargets = {
+                        "1": { mapCoordinate: { q: 0, r: 1 } },
+                        "2": { mapCoordinate: { q: 0, r: 2 } },
+                    }
+                    stateMachine.getActionLogic(
+                        PlayerActionTargetActionEnum.WAITING_FOR_PLAYER_TO_SELECT_TARGET
+                    )(context)
+                    messageSpy = vi.spyOn(context.messageBoard, "sendMessage")
+                    stateMachine.update()
+                })
+
+                afterEach(() => {
+                    if (messageSpy) messageSpy.mockRestore()
+                })
+
+                it.each(cancelTests)(
+                    "$name will trigger a transition",
+                    ({ acceptPlayerInput }) => {
+                        acceptPlayerInput()
+                        let update = stateMachine.update()
+                        update.actions.forEach((action) => {
+                            stateMachine.getActionLogic(action)(context)
+                        })
+
+                        update = stateMachine.update()
+                        expect(update.transitionFired).toEqual(
+                            PlayerActionTargetTransitionEnum.PLAYER_CANCELS_ACTION_SELECTION
+                        )
+
+                        expect(update.targetedState).toEqual(
+                            PlayerActionTargetStateEnum.CANCEL_ACTION_SELECTION
+                        )
+                        expect(update.actions).toEqual([
+                            PlayerActionTargetActionEnum.TRIGGER_PLAYER_CANCELS_ACTION_SELECTION,
+                            PlayerActionTargetActionEnum.CANCEL_ACTION_SELECTION_ENTRY,
+                        ])
+                    }
+                )
+
+                describe("trigger player cancels action selection", () => {
+                    beforeEach(() => {
+                        cancelTests[0].acceptPlayerInput()
+                        const update = stateMachine.update()
+                        update.actions.forEach((action) => {
+                            stateMachine.getActionLogic(action)(context)
+                        })
+                        stateMachine.getActionLogic(
+                            PlayerActionTargetActionEnum.TRIGGER_PLAYER_CANCELS_ACTION_SELECTION
+                        )(context)
+                    })
+
+                    it("sends a message indicating the player unselected the targets", () => {
+                        expect(messageSpy).toHaveBeenCalledWith(
+                            expect.objectContaining({
+                                type: MessageBoardMessageType.PLAYER_CANCELS_TARGET_SELECTION,
+                            })
+                        )
+                    })
+                })
+            })
         })
-    })
-
-    it("FINISHED_ENTRY action sets the completed flag", () => {
-        stateMachine.getActionLogic(
-            PlayerActionTargetActionEnum.FINISHED_ENTRY
-        )(context)
-
-        expect(context.externalFlags.finished).toBeTruthy()
     })
 
     describe("No targets found", () => {
@@ -772,7 +1213,89 @@ describe("PlayerActionTargetSelect State Machine", () => {
         })
     })
 
-    describe("Waiting for Player to confirm", () => {
+    const cancelTests = [
+        {
+            name: "player presses cancel key",
+            acceptPlayerInput: () => {
+                stateMachine.acceptPlayerInput({
+                    eventType: OrchestratorComponentKeyEventType.PRESSED,
+                    keyCode: JSON.parse(process.env.PLAYER_INPUT_CANCEL)[0][
+                        "press"
+                    ],
+                })
+            },
+        },
+        {
+            name: "player clicks on the the cancel button",
+            acceptPlayerInput: () => {
+                const cancelButtonArea = confirmCancelButton.getArea()
+                stateMachine.acceptPlayerInput({
+                    eventType: OrchestratorComponentMouseEventType.PRESS,
+                    mousePress: {
+                        x: RectAreaService.centerX(cancelButtonArea),
+                        y: RectAreaService.centerY(cancelButtonArea),
+                        button: MouseButton.ACCEPT,
+                    },
+                })
+                stateMachine.acceptPlayerInput({
+                    eventType: OrchestratorComponentMouseEventType.RELEASE,
+                    mouseRelease: {
+                        x: RectAreaService.centerX(cancelButtonArea),
+                        y: RectAreaService.centerY(cancelButtonArea),
+                        button: MouseButton.ACCEPT,
+                    },
+                })
+            },
+        },
+        {
+            name: "player clicks the cancel key",
+            acceptPlayerInput: () => {
+                stateMachine.acceptPlayerInput({
+                    eventType: OrchestratorComponentMouseEventType.PRESS,
+                    mousePress: {
+                        x: 9001,
+                        y: -9001,
+                        button: MouseButton.CANCEL,
+                    },
+                })
+                stateMachine.acceptPlayerInput({
+                    eventType: OrchestratorComponentMouseEventType.RELEASE,
+                    mouseRelease: {
+                        x: -9001,
+                        y: 9001,
+                        button: MouseButton.CANCEL,
+                    },
+                })
+            },
+        },
+    ]
+
+    const cancelConfirmTests = [
+        {
+            name: "player clicks on the the cancel button",
+            acceptPlayerInput: () => {
+                const cancelButtonArea = confirmCancelButton.getArea()
+                stateMachine.acceptPlayerInput({
+                    eventType: OrchestratorComponentMouseEventType.PRESS,
+                    mousePress: {
+                        x: RectAreaService.centerX(cancelButtonArea),
+                        y: RectAreaService.centerY(cancelButtonArea),
+                        button: MouseButton.ACCEPT,
+                    },
+                })
+                stateMachine.acceptPlayerInput({
+                    eventType: OrchestratorComponentMouseEventType.RELEASE,
+                    mouseRelease: {
+                        x: RectAreaService.centerX(cancelButtonArea),
+                        y: RectAreaService.centerY(cancelButtonArea),
+                        button: MouseButton.ACCEPT,
+                    },
+                })
+            },
+        },
+    ]
+
+    describe("Waiting for Player to confirm when target is automatically set", () => {
         beforeEach(() => {
             mockGetConfirmButtons()
             stateMachine.currentState =
@@ -805,7 +1328,7 @@ describe("PlayerActionTargetSelect State Machine", () => {
         })
 
         it("clears the player input after processing", () => {
-            stateMachine.update()
+            clickMouseAndRunActions()
             expect(context.playerInput).toHaveLength(0)
         })
 
@@ -870,7 +1393,7 @@ describe("PlayerActionTargetSelect State Machine", () => {
             })
 
             it.each(tests)(
-                "$name will trigger a transition",
+                "$name will set the external flag",
                 ({ acceptPlayerInput }) => {
                     acceptPlayerInput()
                     let update = stateMachine.update()
@@ -879,23 +1402,21 @@ describe("PlayerActionTargetSelect State Machine", () => {
                     })
 
                     update = stateMachine.update()
+
                     expect(update.transitionFired).toEqual(
                         PlayerActionTargetTransitionEnum.PLAYER_CONFIRMS_TARGET_SELECTION
                     )
 
-                    expect(update.targetedState).toEqual(
-                        PlayerActionTargetStateEnum.FINISHED
-                    )
                     expect(update.actions).toEqual([
-                        PlayerActionTargetActionEnum.TRIGGER_PLAYER_CONFIRMS_TARGET_SELECTION,
-                        PlayerActionTargetActionEnum.FINISHED_ENTRY,
+                        PlayerActionTargetActionEnum.TRIGGER_PLAYER_CONFIRMS_ACTION_SELECTION,
+                        PlayerActionTargetActionEnum.CONFIRM_ACTION_SELECTION_ENTRY,
                     ])
 
                     expect(getButtonsSpy).toHaveBeenCalled()
                 }
             )
 
-            describe("TRIGGER_PLAYER_CONFIRMS_TARGET_SELECTION", () => {
+            describe("TRIGGER_PLAYER_CONFIRMS_ACTION_SELECTION", () => {
                 beforeEach(() => {
                     tests[0].acceptPlayerInput()
                     const update = stateMachine.update()
@@ -903,7 +1424,7 @@ describe("PlayerActionTargetSelect State Machine", () => {
                         stateMachine.getActionLogic(action)(context)
                     })
                     stateMachine.getActionLogic(
-                        PlayerActionTargetActionEnum.TRIGGER_PLAYER_CONFIRMS_TARGET_SELECTION
+                        PlayerActionTargetActionEnum.TRIGGER_PLAYER_CONFIRMS_ACTION_SELECTION
                     )(context)
                 })
 
@@ -914,8 +1435,7 @@ describe("PlayerActionTargetSelect State Machine", () => {
                             context.battleActionDecisionStep,
                         missionMap: context.missionMap,
                         objectRepository: context.objectRepository,
-                        battleActionRecorder:
-                            context.messageParameters.battleActionRecorder,
+                        battleActionRecorder: context.battleActionRecorder,
                         numberGenerator:
                             context.messageParameters.numberGenerator,
                         missionStatistics:
@@ -925,80 +1445,11 @@ describe("PlayerActionTargetSelect State Machine", () => {
                     })
                 })
 
-                it("resets player intent", () => {
-                    expect(expectPlayerIntentToBeReset()).toBeTruthy()
+                it("sets an external flag to true", () => {
+                    expect(context.externalFlags.actionConfirmed).toBeTruthy()
                 })
             })
         })
-
-        const expectPlayerIntentToBeReset = () => {
-            expect(stateMachine.context.playerIntent).toEqual({
-                targetSelection: {
-                    battleSquaddieIds: [],
-                    automaticallySelected: false,
-                },
-                targetConfirmed: false,
-                actionCancelled: false,
-            })
-            return true
-        }
-
-        const cancelTests = [
-            {
-                name: "player presses cancel key",
-                acceptPlayerInput: () => {
-                    stateMachine.acceptPlayerInput({
-                        eventType: OrchestratorComponentKeyEventType.PRESSED,
-                        keyCode: JSON.parse(process.env.PLAYER_INPUT_CANCEL)[0][
-                            "press"
-                        ],
-                    })
-                },
-            },
-            {
-                name: "player clicks on the the cancel button",
-                acceptPlayerInput: () => {
-                    const cancelButtonArea = confirmCancelButton.getArea()
-                    stateMachine.acceptPlayerInput({
-                        eventType: OrchestratorComponentMouseEventType.PRESS,
-                        mousePress: {
-                            x: RectAreaService.centerX(cancelButtonArea),
-                            y: RectAreaService.centerY(cancelButtonArea),
-                            button: MouseButton.ACCEPT,
-                        },
-                    })
-                    stateMachine.acceptPlayerInput({
-                        eventType: OrchestratorComponentMouseEventType.RELEASE,
-                        mouseRelease: {
-                            x: RectAreaService.centerX(cancelButtonArea),
-                            y: RectAreaService.centerY(cancelButtonArea),
-                            button: MouseButton.ACCEPT,
-                        },
-                    })
-                },
-            },
-            {
-                name: "player clicks the cancel key",
-                acceptPlayerInput: () => {
-                    stateMachine.acceptPlayerInput({
-                        eventType: OrchestratorComponentMouseEventType.PRESS,
-                        mousePress: {
-                            x: 9001,
-                            y: -9001,
-                            button: MouseButton.CANCEL,
-                        },
-                    })
-                    stateMachine.acceptPlayerInput({
-                        eventType: OrchestratorComponentMouseEventType.RELEASE,
-                        mouseRelease: {
-                            x: -9001,
-                            y: 9001,
-                            button: MouseButton.CANCEL,
-                        },
-                    })
-                },
-            },
-        ]
 
         describe("player cancels when targets were automatically set", () => {
             let messageSpy: MockInstance
@@ -1023,7 +1474,7 @@ describe("PlayerActionTargetSelect State Machine", () => {
                 if (messageSpy) messageSpy.mockRestore()
             })
 
-            it.each(cancelTests)(
+            it.each([...cancelTests, ...cancelConfirmTests])(
                 "$name will trigger a transition",
                 ({ acceptPlayerInput }) => {
                     acceptPlayerInput()
@@ -1049,7 +1500,7 @@ describe("PlayerActionTargetSelect State Machine", () => {
 
             describe("trigger player cancels action selection", () => {
                 beforeEach(() => {
-                    cancelTests[0].acceptPlayerInput()
+                    cancelConfirmTests[0].acceptPlayerInput()
                     const update = stateMachine.update()
                     update.actions.forEach((action) => {
                         stateMachine.getActionLogic(action)(context)
@@ -1062,14 +1513,14 @@ describe("PlayerActionTargetSelect State Machine", () => {
                 it("sends a message indicating the player unselected the targets", () => {
                     expect(messageSpy).toHaveBeenCalledWith({
                         type: MessageBoardMessageType.PLAYER_CANCELS_TARGET_SELECTION,
+                        summaryHUDState:
+                            context.messageParameters.summaryHUDState,
                         battleActionDecisionStep:
                             context.battleActionDecisionStep,
                         missionMap: context.missionMap,
                         objectRepository: context.objectRepository,
                         campaignResources:
-                            context.messageParameters
-                                .playerCancelsTargetSelectionMessageParameters
-                                .campaignResources,
+                            context.messageParameters.campaignResources,
                     })
                 })
                 it("sends a message indicating the player unselected the action", () => {
@@ -1078,8 +1529,7 @@ describe("PlayerActionTargetSelect State Machine", () => {
                         battleActionDecisionStep:
                             context.battleActionDecisionStep,
                         objectRepository: context.objectRepository,
-                        battleActionRecorder:
-                            context.messageParameters.battleActionRecorder,
+                        battleActionRecorder: context.battleActionRecorder,
                         summaryHUDState:
                             context.messageParameters.summaryHUDState,
                         missionMap: context.missionMap,
@@ -1094,9 +1544,126 @@ describe("PlayerActionTargetSelect State Machine", () => {
                         playerCommandState: context.playerCommandState,
                     })
                 })
-                it("resets player intent", () => {
-                    expect(expectPlayerIntentToBeReset()).toBeTruthy()
+            })
+        })
+    })
+
+    describe("player cancels after manually selecting a target", () => {
+        let messageSpy: MockInstance
+
+        beforeEach(() => {
+            stateMachine.currentState =
+                PlayerActionTargetStateEnum.WAITING_FOR_PLAYER_TO_SELECT_TARGET
+            stateMachine.context.targetResults.validTargets["1"] = {
+                mapCoordinate: { q: 0, r: 1 },
+            }
+            stateMachine.context.targetResults.validTargets["2"] = {
+                mapCoordinate: { q: 0, r: 2 },
+            }
+            clickOnTarget()
+            let update = stateMachine.update()
+            update.actions.forEach((action) => {
+                stateMachine.getActionLogic(action)(context)
+            })
+            update = stateMachine.update()
+            update.actions.forEach((action) => {
+                stateMachine.getActionLogic(action)(context)
+            })
+            stateMachine.currentState = update.targetedState
+            expect(stateMachine.currentState).toEqual(
+                PlayerActionTargetActionEnum.WAITING_FOR_PLAYER_CONFIRM
+            )
+            stateMachine.getActionLogic(
+                PlayerActionTargetActionEnum.WAITING_FOR_PLAYER_CONFIRM
+            )(context)
+            messageSpy = vi.spyOn(context.messageBoard, "sendMessage")
+        })
+
+        afterEach(() => {
+            if (messageSpy) messageSpy.mockRestore()
+        })
+
+        it.each([...cancelTests, ...cancelConfirmTests])(
+            "$name will trigger a transition",
+            ({ acceptPlayerInput }) => {
+                acceptPlayerInput()
+                let update = stateMachine.update()
+                update.actions.forEach((action) => {
+                    stateMachine.getActionLogic(action)(context)
                 })
+
+                update = stateMachine.update()
+                expect(update.transitionFired).toEqual(
+                    PlayerActionTargetTransitionEnum.PLAYER_CANCELS_TARGET_SELECTION
+                )
+                expect(update.targetedState).toEqual(
+                    PlayerActionTargetStateEnum.WAITING_FOR_PLAYER_TO_SELECT_TARGET
+                )
+                expect(update.actions).toEqual([
+                    PlayerActionTargetActionEnum.TRIGGER_PLAYER_CANCELS_TARGET_SELECTION,
+                ])
+            }
+        )
+
+        const cancelTargetTests = [
+            {
+                name: "player clicks on the the cancel button",
+                acceptPlayerInput: () => {
+                    const cancelButtonArea = selectTargetCancelButton.getArea()
+                    stateMachine.acceptPlayerInput({
+                        eventType: OrchestratorComponentMouseEventType.PRESS,
+                        mousePress: {
+                            x: RectAreaService.centerX(cancelButtonArea),
+                            y: RectAreaService.centerY(cancelButtonArea),
+                            button: MouseButton.ACCEPT,
+                        },
+                    })
+                    stateMachine.acceptPlayerInput({
+                        eventType: OrchestratorComponentMouseEventType.RELEASE,
+                        mouseRelease: {
+                            x: RectAreaService.centerX(cancelButtonArea),
+                            y: RectAreaService.centerY(cancelButtonArea),
+                            button: MouseButton.ACCEPT,
+                        },
+                    })
+                },
+            },
+        ]
+        describe("player cancels target selection", () => {
+            beforeEach(() => {
+                cancelTargetTests[0].acceptPlayerInput()
+                const update = stateMachine.update()
+                update.actions.forEach((action) => {
+                    stateMachine.getActionLogic(action)(context)
+                })
+                stateMachine.getActionLogic(
+                    PlayerActionTargetActionEnum.TRIGGER_PLAYER_CANCELS_TARGET_SELECTION
+                )(context)
+            })
+
+            it("sends a message indicating the player unselected the targets", () => {
+                expect(messageSpy).toHaveBeenCalledWith({
+                    type: MessageBoardMessageType.PLAYER_CANCELS_TARGET_SELECTION,
+                    summaryHUDState: context.messageParameters.summaryHUDState,
+                    battleActionDecisionStep: context.battleActionDecisionStep,
+                    missionMap: context.missionMap,
+                    objectRepository: context.objectRepository,
+                    campaignResources:
+                        context.messageParameters.campaignResources,
+                })
+            })
+            it("does not send a message to unselected the action", () => {
+                expect(messageSpy).not.toHaveBeenCalledWith(
+                    expect.objectContaining({
+                        type: MessageBoardMessageType.PLAYER_CANCELS_PLAYER_ACTION_CONSIDERATIONS,
+                    })
+                )
+            })
+            it("unselects targets from player intent", () => {
+                expect(
+                    stateMachine.context.playerIntent.targetSelection
+                        .battleSquaddieIds
+                ).toHaveLength(0)
             })
         })
     })

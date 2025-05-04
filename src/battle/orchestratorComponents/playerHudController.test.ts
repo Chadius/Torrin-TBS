@@ -78,11 +78,9 @@ describe("PlayerHUDController", () => {
             mapDisplay: undefined,
             phaseController: undefined,
             playerSquaddieSelector: undefined,
-            playerSquaddieTarget: undefined,
             squaddieMover: undefined,
             squaddieUsesActionOnMap: undefined,
             squaddieUsesActionOnSquaddie: undefined,
-            playerActionConfirm: undefined,
             playerActionTargetSelect: undefined,
             playerHudController: controller,
         })
@@ -260,7 +258,7 @@ describe("PlayerHUDController", () => {
                 BattleOrchestratorMode.SQUADDIE_MOVER
             )
         })
-        it("recommends the mode that lets a player target when the player needs to specify a target", () => {
+        it("recommends the mode that lets a player target when the player selects an action", () => {
             BattleActionDecisionStepService.setActor({
                 actionDecisionStep:
                     gameEngineState.battleOrchestratorState.battleState
@@ -278,31 +276,6 @@ describe("PlayerHUDController", () => {
                 controller.recommendStateChanges(gameEngineState)
             expect(recommendedChanges.nextMode).toEqual(
                 BattleOrchestratorMode.PLAYER_ACTION_TARGET_SELECT
-            )
-        })
-        it("recommends player squaddie confirm when a action does not need a target", () => {
-            BattleActionDecisionStepService.setActor({
-                actionDecisionStep:
-                    gameEngineState.battleOrchestratorState.battleState
-                        .battleActionDecisionStep,
-                battleSquaddieId: playerBattleSquaddieId,
-            })
-            BattleActionDecisionStepService.addAction({
-                actionDecisionStep:
-                    gameEngineState.battleOrchestratorState.battleState
-                        .battleActionDecisionStep,
-                actionTemplateId: singleTargetAction.id,
-            })
-            BattleActionDecisionStepService.setConsideredTarget({
-                actionDecisionStep:
-                    gameEngineState.battleOrchestratorState.battleState
-                        .battleActionDecisionStep,
-                targetCoordinate: { q: 0, r: 2 },
-            })
-            const recommendedChanges =
-                controller.recommendStateChanges(gameEngineState)
-            expect(recommendedChanges.nextMode).toEqual(
-                BattleOrchestratorMode.PLAYER_ACTION_CONFIRM
             )
         })
         it("recommends squaddie on squaddie when the action and target are selected, even if this ends their turn", () => {

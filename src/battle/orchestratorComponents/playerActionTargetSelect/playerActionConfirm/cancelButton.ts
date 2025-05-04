@@ -1,50 +1,48 @@
-import { BehaviorTreeTask } from "../../../utils/behaviorTree/task"
-import { Button } from "../../../ui/button/button"
-import { RectArea, RectAreaService } from "../../../ui/rectArea"
-import { ButtonLogicChangeOnRelease } from "../../../ui/button/logic/buttonLogicChangeOnRelease"
+import { BehaviorTreeTask } from "../../../../utils/behaviorTree/task"
+import { Button } from "../../../../ui/button/button"
+import { RectArea, RectAreaService } from "../../../../ui/rectArea"
+import { ButtonLogicChangeOnRelease } from "../../../../ui/button/logic/buttonLogicChangeOnRelease"
 import {
     AllLabelButtonDataBlob,
     AllLabelButtonDrawTask,
-} from "../../../ui/button/style/AllLabelStyle/allLabelStyle"
-import { ButtonStatus } from "../../../ui/button/buttonStatus"
-import { LabelService } from "../../../ui/label"
+} from "../../../../ui/button/style/AllLabelStyle/allLabelStyle"
+import { ButtonStatus } from "../../../../ui/button/buttonStatus"
+import { LabelService } from "../../../../ui/label"
 import {
     HORIZONTAL_ALIGN,
     VERTICAL_ALIGN,
     WINDOW_SPACING,
-} from "../../../ui/constants"
-import {
-    PlayerActionConfirmContext,
-    PlayerActionConfirmLayout,
-    PlayerActionConfirmUIObjects,
-} from "./battlePlayerActionConfirm"
-import { ScreenDimensions } from "../../../utils/graphics/graphicsConfig"
-import { ComponentDataBlob } from "../../../utils/dataBlob/componentDataBlob"
+} from "../../../../ui/constants"
+import { ScreenDimensions } from "../../../../utils/graphics/graphicsConfig"
+import { ComponentDataBlob } from "../../../../utils/dataBlob/componentDataBlob"
+import { PlayerActionConfirmLayout } from "./playerActionConfirmLayout"
+import { PlayerActionTargetStateMachineUIObjects } from "../playerActionTargetStateMachineUIObjects"
+import { PlayerActionTargetStateMachineContext } from "../playerActionTargetStateMachineContext"
 
 export class PlayerActionConfirmShouldCreateCancelButton
     implements BehaviorTreeTask
 {
     dataBlob: ComponentDataBlob<
         PlayerActionConfirmLayout,
-        PlayerActionConfirmContext,
-        PlayerActionConfirmUIObjects
+        PlayerActionTargetStateMachineContext,
+        PlayerActionTargetStateMachineUIObjects
     >
 
     constructor(
         dataBlob: ComponentDataBlob<
             PlayerActionConfirmLayout,
-            PlayerActionConfirmContext,
-            PlayerActionConfirmUIObjects
+            PlayerActionTargetStateMachineContext,
+            PlayerActionTargetStateMachineUIObjects
         >
     ) {
         this.dataBlob = dataBlob
     }
 
     run(): boolean {
-        const uiObjects: PlayerActionConfirmUIObjects =
+        const uiObjects: PlayerActionTargetStateMachineUIObjects =
             this.dataBlob.getUIObjects()
-        const okButton: Button = uiObjects.okButton
-        const cancelButton: Button = uiObjects.cancelButton
+        const okButton: Button = uiObjects.confirm.okButton
+        const cancelButton: Button = uiObjects.confirm.cancelButton
         return !cancelButton && !!okButton
     }
 }
@@ -54,27 +52,28 @@ export const PLAYER_ACTION_CONFIRM_CREATE_CANCEL_BUTTON_ID =
 export class PlayerActionConfirmCreateCancelButton implements BehaviorTreeTask {
     dataBlob: ComponentDataBlob<
         PlayerActionConfirmLayout,
-        PlayerActionConfirmContext,
-        PlayerActionConfirmUIObjects
+        PlayerActionTargetStateMachineContext,
+        PlayerActionTargetStateMachineUIObjects
     >
 
     constructor(
         dataBlob: ComponentDataBlob<
             PlayerActionConfirmLayout,
-            PlayerActionConfirmContext,
-            PlayerActionConfirmUIObjects
+            PlayerActionTargetStateMachineContext,
+            PlayerActionTargetStateMachineUIObjects
         >
     ) {
         this.dataBlob = dataBlob
     }
 
     run(): boolean {
-        const uiObjects: PlayerActionConfirmUIObjects =
+        const uiObjects: PlayerActionTargetStateMachineUIObjects =
             this.dataBlob.getUIObjects()
         const layout: PlayerActionConfirmLayout = this.dataBlob.getLayout()
-        const okButtonArea = uiObjects.okButton.getArea()
+        const okButtonArea = uiObjects.confirm.okButton.getArea()
 
-        const context: PlayerActionConfirmContext = this.dataBlob.getContext()
+        const context: PlayerActionTargetStateMachineContext =
+            this.dataBlob.getContext()
 
         const cancelButtonArea: RectArea = RectAreaService.new({
             left: RectAreaService.right(okButtonArea) + WINDOW_SPACING.SPACING1,
@@ -163,7 +162,7 @@ export class PlayerActionConfirmCreateCancelButton implements BehaviorTreeTask {
             dataBlob: allLabelButtonDataBlob,
         })
 
-        uiObjects.cancelButton = new Button({
+        uiObjects.confirm.cancelButton = new Button({
             id: PLAYER_ACTION_CONFIRM_CREATE_CANCEL_BUTTON_ID,
             drawTask,
             buttonLogic,

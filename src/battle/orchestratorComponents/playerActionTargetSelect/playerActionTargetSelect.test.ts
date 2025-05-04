@@ -16,10 +16,10 @@ import { GraphicsBuffer } from "../../../utils/graphics/graphicsRenderer"
 import { ResourceHandler } from "../../../resource/resourceHandler"
 import * as mocks from "../../../utils/test/mocks"
 import { MockedP5GraphicsBuffer } from "../../../utils/test/mocks"
-import { BattleOrchestratorMode } from "../battleOrchestrator"
+import { BattleOrchestratorMode } from "../../orchestrator/battleOrchestrator"
 import { PlayerActionTargetTransitionEnum } from "./stateMachine"
 import { CampaignService } from "../../../campaign/campaign"
-import { BattleOrchestratorStateService } from "../battleOrchestratorState"
+import { BattleOrchestratorStateService } from "../../orchestrator/battleOrchestratorState"
 import { BattleStateService } from "../../battleState/battleState"
 import { MapSearchTestUtils } from "../../../hexMap/pathfinder/pathGeneration/mapSearchTests/mapSearchTestUtils"
 import {
@@ -27,7 +27,7 @@ import {
     OrchestratorComponentKeyEventType,
     OrchestratorComponentMouseEvent,
     OrchestratorComponentMouseEventType,
-} from "../battleOrchestratorComponent"
+} from "../../orchestrator/battleOrchestratorComponent"
 import { MouseButton } from "../../../utils/mouseConfig"
 import { BattleActionDecisionStepService } from "../../actionDecision/battleActionDecisionStep"
 import { SquaddieRepositoryService } from "../../../utils/test/squaddie"
@@ -161,25 +161,6 @@ describe("Player Action Target Select", () => {
         )
     })
 
-    it("will not draw if the state machine is in an unsupported state", () => {
-        gameEngineState.battleOrchestratorState.battleState.battleActionDecisionStep =
-            BattleActionDecisionStepService.new()
-        initializePlayerActionTargetSelect(gameEngineState)
-        stateMachineSpy = vi
-            .spyOn(playerActionTargetSelect.stateMachine, "updateUntil")
-            .mockReturnValue()
-        viewControllerSpy = vi
-            .spyOn(playerActionTargetSelect, "updateViewController")
-            .mockReturnValue()
-        playerActionTargetSelect.context.externalFlags.useLegacySelector = true
-        playerActionTargetSelect.update({
-            gameEngineState,
-            graphicsContext,
-            resourceHandler,
-        })
-        expect(viewControllerSpy).not.toBeCalled()
-    })
-
     const stubStateMachineAndViewControllerThenUpdate = () => {
         gameEngineState.battleOrchestratorState.battleState.battleActionDecisionStep =
             BattleActionDecisionStepService.new()
@@ -295,6 +276,11 @@ describe("Player Action Target Select", () => {
             playerActionTargetSelect.viewController.getUIObjects().confirm
         )
         expect(
+            playerActionTargetSelect.stateMachine.uiObjects.selectTarget
+        ).toBe(
+            playerActionTargetSelect.viewController.getUIObjects().selectTarget
+        )
+        expect(
             playerActionTargetSelect.stateMachine.uiObjects.graphicsContext
         ).toBe(
             playerActionTargetSelect.viewController.getUIObjects()
@@ -307,20 +293,11 @@ describe("Player Action Target Select", () => {
             {
                 name: "finished",
                 setupTest: () => {
-                    playerActionTargetSelect.stateMachine.context.externalFlags.finished =
+                    playerActionTargetSelect.stateMachine.context.externalFlags.actionConfirmed =
                         true
                 },
                 expectedRecommendedMode:
                     BattleOrchestratorMode.PLAYER_HUD_CONTROLLER,
-            },
-            {
-                name: "use legacy selector",
-                setupTest: () => {
-                    playerActionTargetSelect.stateMachine.context.externalFlags.useLegacySelector =
-                        true
-                },
-                expectedRecommendedMode:
-                    BattleOrchestratorMode.PLAYER_SQUADDIE_TARGET,
             },
             {
                 name: "cancel action",
@@ -385,13 +362,6 @@ describe("Player Action Target Select", () => {
                     PlayerActionTargetTransitionEnum.NO_TARGETS_FOUND,
                 mockPostTransition: () => {},
                 nextMode: BattleOrchestratorMode.PLAYER_HUD_CONTROLLER,
-            },
-            {
-                name: "the state machine does not support this situation",
-                triggeredTransition:
-                    PlayerActionTargetTransitionEnum.UNSUPPORTED_COUNT_TARGETS,
-                mockPostTransition: () => {},
-                nextMode: BattleOrchestratorMode.PLAYER_SQUADDIE_TARGET,
             },
             {
                 name: "the state machine confirms the action",

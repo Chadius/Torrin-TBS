@@ -119,6 +119,7 @@ export interface MessageBoardMessagePlayerSelectionIsInvalid {
 
 export interface MessageBoardMessagePlayerCancelsTargetSelection {
     type: MessageBoardMessageType.PLAYER_CANCELS_TARGET_SELECTION
+    summaryHUDState: SummaryHUDState
     battleActionDecisionStep: BattleActionDecisionStep
     missionMap: MissionMap
     objectRepository: ObjectRepository
@@ -152,9 +153,12 @@ export interface MessageBoardMessagePlayerSelectsAndLocksSquaddie {
 
 export interface MessageBoardMessagePlayerPeeksAtSquaddie {
     type: MessageBoardMessageType.PLAYER_PEEKS_AT_SQUADDIE
-    gameEngineState: GameEngineState
     battleSquaddieSelectedId: string
     selectionMethod: SquaddieSelectionMethod
+    summaryHUDState: SummaryHUDState
+    missionMap: MissionMap
+    objectRepository: ObjectRepository
+    campaignResources: CampaignResources
 }
 
 export interface MessageBoardBattleActionFinishesAnimation {

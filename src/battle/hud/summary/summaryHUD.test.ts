@@ -305,7 +305,7 @@ describe("summaryHUD", () => {
 
             SummaryHUDStateService.peekAtSquaddie({
                 summaryHUDState,
-                gameEngineState,
+                objectRepository: gameEngineState.repository,
                 battleSquaddieId: "player",
             })
 
@@ -353,7 +353,7 @@ describe("summaryHUD", () => {
 
             SummaryHUDStateService.peekAtSquaddie({
                 summaryHUDState,
-                gameEngineState,
+                objectRepository: gameEngineState.repository,
                 battleSquaddieId: "enemy",
             })
 
@@ -413,7 +413,7 @@ describe("summaryHUD", () => {
 
             SummaryHUDStateService.peekAtSquaddie({
                 summaryHUDState,
-                gameEngineState,
+                objectRepository: gameEngineState.repository,
                 battleSquaddieId: "enemy",
             })
             SummaryHUDStateService.draw({
@@ -471,7 +471,7 @@ describe("summaryHUD", () => {
 
             SummaryHUDStateService.peekAtSquaddie({
                 summaryHUDState,
-                gameEngineState,
+                objectRepository: gameEngineState.repository,
                 battleSquaddieId: "player",
             })
 
@@ -484,7 +484,7 @@ describe("summaryHUD", () => {
 
             SummaryHUDStateService.peekAtSquaddie({
                 summaryHUDState,
-                gameEngineState,
+                objectRepository: gameEngineState.repository,
                 battleSquaddieId: "player2",
             })
 
@@ -555,7 +555,7 @@ describe("summaryHUD", () => {
         it("will use the right panel to peek if the actor panel is different from the peeked squaddie", () => {
             SummaryHUDStateService.peekAtSquaddie({
                 summaryHUDState,
-                gameEngineState,
+                objectRepository: gameEngineState.repository,
                 battleSquaddieId: "player2",
             })
 
@@ -591,7 +591,7 @@ describe("summaryHUD", () => {
         it("will not create peekable tiles if the peeked squaddie is the same as the actor tile", () => {
             SummaryHUDStateService.peekAtSquaddie({
                 summaryHUDState,
-                gameEngineState,
+                objectRepository: gameEngineState.repository,
                 battleSquaddieId: "player",
             })
 
@@ -759,7 +759,7 @@ describe("summaryHUD", () => {
 
             SummaryHUDStateService.peekAtSquaddie({
                 summaryHUDState,
-                gameEngineState,
+                objectRepository: gameEngineState.repository,
                 battleSquaddieId: "enemy",
             })
 
@@ -842,7 +842,7 @@ describe("summaryHUD", () => {
         it("will expire the playable tile over time", () => {
             SummaryHUDStateService.peekAtSquaddie({
                 summaryHUDState,
-                gameEngineState,
+                objectRepository: gameEngineState.repository,
                 battleSquaddieId: "player",
             })
 
@@ -864,7 +864,7 @@ describe("summaryHUD", () => {
         it("will expire the right side tile over time", () => {
             SummaryHUDStateService.peekAtSquaddie({
                 summaryHUDState,
-                gameEngineState,
+                objectRepository: gameEngineState.repository,
                 battleSquaddieId: "enemy",
             })
 
@@ -886,7 +886,7 @@ describe("summaryHUD", () => {
         it("will never expire the right tile if no date was set", () => {
             SummaryHUDStateService.peekAtSquaddie({
                 summaryHUDState,
-                gameEngineState,
+                objectRepository: gameEngineState.repository,
                 battleSquaddieId: "enemy",
                 removeExpirationTime: true,
             })
@@ -934,7 +934,10 @@ describe("summaryHUD", () => {
 
             SummaryHUDStateService.createActorTiles({
                 summaryHUDState,
-                gameEngineState,
+                battleActionDecisionStep:
+                    gameEngineState.battleOrchestratorState.battleState
+                        .battleActionDecisionStep,
+                campaignResources: gameEngineState.campaign.resources,
                 objectRepository,
             })
             SummaryHUDStateService.draw({
@@ -970,7 +973,10 @@ describe("summaryHUD", () => {
 
             SummaryHUDStateService.createActorTiles({
                 summaryHUDState,
-                gameEngineState,
+                battleActionDecisionStep:
+                    gameEngineState.battleOrchestratorState.battleState
+                        .battleActionDecisionStep,
+                campaignResources: gameEngineState.campaign.resources,
                 objectRepository,
             })
         })
@@ -1072,7 +1078,10 @@ describe("summaryHUD", () => {
 
             SummaryHUDStateService.createActorTiles({
                 summaryHUDState,
-                gameEngineState,
+                battleActionDecisionStep:
+                    gameEngineState.battleOrchestratorState.battleState
+                        .battleActionDecisionStep,
+                campaignResources: gameEngineState.campaign.resources,
                 objectRepository,
             })
 

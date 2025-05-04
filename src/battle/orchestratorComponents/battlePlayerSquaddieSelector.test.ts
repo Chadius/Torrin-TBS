@@ -88,6 +88,7 @@ import { FileAccessHUDService } from "../hud/fileAccess/fileAccessHUD"
 import { HexCoordinate } from "../../hexMap/hexCoordinate/hexCoordinate"
 import { ValidityCheckService } from "../actionValidity/validityChecker"
 import { MapSearchTestUtils } from "../../hexMap/pathfinder/pathGeneration/mapSearchTests/mapSearchTestUtils"
+import { CampaignResourcesService } from "../../campaign/campaignResources"
 
 describe("BattleSquaddieSelector", () => {
     let selector: BattlePlayerSquaddieSelector =
@@ -580,7 +581,14 @@ describe("BattleSquaddieSelector", () => {
         it("will generate a message to indicate player hovered over the squaddie", () => {
             expect(messageSpy).toBeCalledWith({
                 type: MessageBoardMessageType.PLAYER_PEEKS_AT_SQUADDIE,
-                gameEngineState,
+                missionMap:
+                    gameEngineState.battleOrchestratorState.battleState
+                        .missionMap,
+                summaryHUDState:
+                    gameEngineState.battleOrchestratorState.battleHUDState
+                        .summaryHUDState,
+                objectRepository: gameEngineState.repository,
+                campaignResources: CampaignResourcesService.default(),
                 battleSquaddieSelectedId: "battleSquaddieId",
                 selectionMethod: {
                     mouse: {

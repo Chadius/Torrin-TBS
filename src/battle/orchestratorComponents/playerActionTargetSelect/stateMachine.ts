@@ -19,17 +19,17 @@ import {
     OrchestratorComponentKeyEventType,
     OrchestratorComponentMouseEvent,
     OrchestratorComponentMouseEventType,
-} from "../battleOrchestratorComponent"
+} from "../../orchestrator/battleOrchestratorComponent"
 import {
     PlayerInputAction,
     PlayerInputStateService,
 } from "../../../ui/playerInput/playerInputState"
 import { PlayerActionTargetStateMachineContext } from "./playerActionTargetStateMachineContext"
 import { PlayerActionTargetStateMachineUIObjects } from "./playerActionTargetStateMachineUIObjects"
-import { PLAYER_ACTION_CONFIRM_CREATE_OK_BUTTON_ID } from "../../orchestratorComponents/playerActionConfirm/okButton"
+import { PLAYER_ACTION_CONFIRM_CREATE_OK_BUTTON_ID } from "./playerActionConfirm/okButton"
 import { ButtonStatus } from "../../../ui/button/buttonStatus"
 import { Button } from "../../../ui/button/button"
-import { PLAYER_ACTION_CONFIRM_CREATE_CANCEL_BUTTON_ID } from "../../orchestratorComponents/playerActionConfirm/cancelButton"
+import { PLAYER_ACTION_CONFIRM_CREATE_CANCEL_BUTTON_ID } from "./playerActionConfirm/cancelButton"
 import { MouseButton } from "../../../utils/mouseConfig"
 import {
     ActionTemplate,
@@ -40,38 +40,49 @@ import { SquaddieAffiliationService } from "../../../squaddie/squaddieAffiliatio
 import { CanHealTargetCheck } from "../../actionValidity/canHealTargetCheck"
 import { CanAddModifiersCheck } from "../../actionValidity/canAddModifiersCheck"
 import { SquaddieTemplate } from "../../../campaign/squaddieTemplate"
+import { PLAYER_ACTION_SELECT_TARGET_CREATE_CANCEL_BUTTON_ID } from "./playerActionTarget/cancelButton"
+import { ConvertCoordinateService } from "../../../hexMap/convertCoordinates"
+import {
+    HexCoordinate,
+    HexCoordinateService,
+} from "../../../hexMap/hexCoordinate/hexCoordinate"
+import { Label } from "../../../ui/label"
+import { MissionMapSquaddieCoordinateService } from "../../../missionMap/squaddieCoordinate"
 
 export enum PlayerActionTargetStateEnum {
     UNKNOWN = "UNKNOWN",
     INITIALIZED = "INITIALIZED",
-    NOT_APPLICABLE = "NOT_APPLICABLE",
+    WAITING_FOR_PLAYER_TO_SELECT_TARGET = "WAITING_FOR_PLAYER_TO_SELECT_TARGET",
     COUNT_TARGETS = "COUNT_TARGETS",
-    FINISHED = "FINISHED",
     WAITING_FOR_PLAYER_CONFIRM = "WAITING_FOR_PLAYER_CONFIRM",
     CANCEL_ACTION_SELECTION = "CANCEL_ACTION_SELECTION",
+    CONFIRM_ACTION_SELECTION = "CONFIRM_ACTION_SELECTION",
 }
 
 export enum PlayerActionTargetTransitionEnum {
     UNKNOWN = "UNKNOWN",
     INITIALIZED = "INITIALIZED",
-    UNSUPPORTED_COUNT_TARGETS = "UNSUPPORTED_COUNT_TARGETS",
-    FINISHED = "FINISHED",
+    MULTIPLE_TARGETS_FOUND = "MULTIPLE_TARGETS_FOUND",
     NO_TARGETS_FOUND = "NO_TARGETS_FOUND",
     TARGETS_AUTOMATICALLY_SELECTED = "TARGETS_AUTOMATICALLY_SELECTED",
+    PLAYER_CONSIDERS_TARGET_SELECTION = "PLAYER_CONSIDERS_TARGET_SELECTION",
     PLAYER_CONFIRMS_TARGET_SELECTION = "PLAYER_CONFIRMS_TARGET_SELECTION",
     PLAYER_CANCELS_ACTION_SELECTION = "PLAYER_CANCELS_ACTION_SELECTION",
+    PLAYER_CANCELS_TARGET_SELECTION = "PLAYER_CANCELS_TARGET_SELECTION",
 }
 
 export enum PlayerActionTargetActionEnum {
     UNKNOWN = "UNKNOWN",
     COUNT_TARGETS_ENTRY = "COUNT_TARGETS_ENTRY",
-    NOT_APPLICABLE_ENTRY = "NOT_APPLICABLE_ENTRY",
-    FINISHED_ENTRY = "FINISHED_ENTRY",
+    WAITING_FOR_PLAYER_TO_SELECT_TARGET = "WAITING_FOR_PLAYER_TO_SELECT_TARGET",
     WAITING_FOR_PLAYER_CONFIRM = "WAITING_FOR_PLAYER_CONFIRM",
     TRIGGER_TARGETS_AUTOMATICALLY_SELECTED = "TRIGGER_TARGET_AUTOMATICALLY_SELECTED",
-    TRIGGER_PLAYER_CONFIRMS_TARGET_SELECTION = "TRIGGER_PLAYER_CONFIRMS_TARGET_SELECTION",
+    TRIGGER_PLAYER_CONSIDERS_TARGET_SELECTION = "TRIGGER_PLAYER_CONSIDERS_TARGET_SELECTION",
+    TRIGGER_PLAYER_CONFIRMS_ACTION_SELECTION = "TRIGGER_PLAYER_CONFIRMS_ACTION_SELECTION",
     TRIGGER_PLAYER_CANCELS_ACTION_SELECTION = "TRIGGER_PLAYER_CANCELS_ACTION_SELECTION",
     CANCEL_ACTION_SELECTION_ENTRY = "CANCEL_ACTION_SELECTION_ENTRY",
+    CONFIRM_ACTION_SELECTION_ENTRY = "CONFIRM_ACTION_SELECTION_ENTRY",
+    TRIGGER_PLAYER_CANCELS_TARGET_SELECTION = "TRIGGER_PLAYER_CANCELS_TARGET_SELECTION",
 }
 
 export const PlayerActionTargetStateMachineInfoByState: {
@@ -91,16 +102,10 @@ export const PlayerActionTargetStateMachineInfoByState: {
         entryAction: PlayerActionTargetActionEnum.COUNT_TARGETS_ENTRY,
         exitAction: undefined,
         transitions: [
-            PlayerActionTargetTransitionEnum.UNSUPPORTED_COUNT_TARGETS,
+            PlayerActionTargetTransitionEnum.MULTIPLE_TARGETS_FOUND,
             PlayerActionTargetTransitionEnum.TARGETS_AUTOMATICALLY_SELECTED,
             PlayerActionTargetTransitionEnum.NO_TARGETS_FOUND,
         ],
-    },
-    [PlayerActionTargetStateEnum.NOT_APPLICABLE]: {
-        actions: [],
-        entryAction: PlayerActionTargetActionEnum.NOT_APPLICABLE_ENTRY,
-        exitAction: undefined,
-        transitions: [PlayerActionTargetTransitionEnum.FINISHED],
     },
     [PlayerActionTargetStateEnum.WAITING_FOR_PLAYER_CONFIRM]: {
         actions: [PlayerActionTargetActionEnum.WAITING_FOR_PLAYER_CONFIRM],
@@ -108,6 +113,18 @@ export const PlayerActionTargetStateMachineInfoByState: {
         exitAction: undefined,
         transitions: [
             PlayerActionTargetTransitionEnum.PLAYER_CONFIRMS_TARGET_SELECTION,
+            PlayerActionTargetTransitionEnum.PLAYER_CANCELS_TARGET_SELECTION,
+            PlayerActionTargetTransitionEnum.PLAYER_CANCELS_ACTION_SELECTION,
+        ],
+    },
+    [PlayerActionTargetStateEnum.WAITING_FOR_PLAYER_TO_SELECT_TARGET]: {
+        actions: [
+            PlayerActionTargetActionEnum.WAITING_FOR_PLAYER_TO_SELECT_TARGET,
+        ],
+        entryAction: undefined,
+        exitAction: undefined,
+        transitions: [
+            PlayerActionTargetTransitionEnum.PLAYER_CONSIDERS_TARGET_SELECTION,
             PlayerActionTargetTransitionEnum.PLAYER_CANCELS_ACTION_SELECTION,
         ],
     },
@@ -115,11 +132,12 @@ export const PlayerActionTargetStateMachineInfoByState: {
         actions: [],
         entryAction: PlayerActionTargetActionEnum.CANCEL_ACTION_SELECTION_ENTRY,
         exitAction: undefined,
-        transitions: [PlayerActionTargetTransitionEnum.FINISHED],
+        transitions: [],
     },
-    [PlayerActionTargetStateEnum.FINISHED]: {
+    [PlayerActionTargetStateEnum.CONFIRM_ACTION_SELECTION]: {
         actions: [],
-        entryAction: PlayerActionTargetActionEnum.FINISHED_ENTRY,
+        entryAction:
+            PlayerActionTargetActionEnum.CONFIRM_ACTION_SELECTION_ENTRY,
         exitAction: undefined,
         transitions: [],
     },
@@ -135,17 +153,27 @@ export const PlayerActionTargetStateMachineInfoByTransition: {
         targetedState: PlayerActionTargetStateEnum.COUNT_TARGETS,
         action: undefined,
     },
-    [PlayerActionTargetTransitionEnum.UNSUPPORTED_COUNT_TARGETS]: {
-        targetedState: PlayerActionTargetStateEnum.NOT_APPLICABLE,
-        action: undefined,
+    [PlayerActionTargetTransitionEnum.MULTIPLE_TARGETS_FOUND]: {
+        targetedState:
+            PlayerActionTargetStateEnum.WAITING_FOR_PLAYER_TO_SELECT_TARGET,
+        action: PlayerActionTargetActionEnum.WAITING_FOR_PLAYER_TO_SELECT_TARGET,
+    },
+    [PlayerActionTargetTransitionEnum.PLAYER_CANCELS_TARGET_SELECTION]: {
+        targetedState:
+            PlayerActionTargetStateEnum.WAITING_FOR_PLAYER_TO_SELECT_TARGET,
+        action: PlayerActionTargetActionEnum.TRIGGER_PLAYER_CANCELS_TARGET_SELECTION,
+    },
+    [PlayerActionTargetTransitionEnum.PLAYER_CONSIDERS_TARGET_SELECTION]: {
+        targetedState: PlayerActionTargetStateEnum.WAITING_FOR_PLAYER_CONFIRM,
+        action: PlayerActionTargetActionEnum.TRIGGER_PLAYER_CONSIDERS_TARGET_SELECTION,
     },
     [PlayerActionTargetTransitionEnum.TARGETS_AUTOMATICALLY_SELECTED]: {
         targetedState: PlayerActionTargetStateEnum.WAITING_FOR_PLAYER_CONFIRM,
         action: PlayerActionTargetActionEnum.TRIGGER_TARGETS_AUTOMATICALLY_SELECTED,
     },
     [PlayerActionTargetTransitionEnum.PLAYER_CONFIRMS_TARGET_SELECTION]: {
-        targetedState: PlayerActionTargetStateEnum.FINISHED,
-        action: PlayerActionTargetActionEnum.TRIGGER_PLAYER_CONFIRMS_TARGET_SELECTION,
+        targetedState: PlayerActionTargetStateEnum.CONFIRM_ACTION_SELECTION,
+        action: PlayerActionTargetActionEnum.TRIGGER_PLAYER_CONFIRMS_ACTION_SELECTION,
     },
     [PlayerActionTargetTransitionEnum.PLAYER_CANCELS_ACTION_SELECTION]: {
         targetedState: PlayerActionTargetStateEnum.CANCEL_ACTION_SELECTION,
@@ -153,10 +181,6 @@ export const PlayerActionTargetStateMachineInfoByTransition: {
     },
     [PlayerActionTargetTransitionEnum.NO_TARGETS_FOUND]: {
         targetedState: PlayerActionTargetStateEnum.CANCEL_ACTION_SELECTION,
-        action: undefined,
-    },
-    [PlayerActionTargetTransitionEnum.FINISHED]: {
-        targetedState: PlayerActionTargetStateEnum.FINISHED,
         action: undefined,
     },
 }
@@ -205,7 +229,7 @@ export class PlayerActionTargetStateMachine extends StateMachine<
                 ) =>
                     context.targetResults.validTargets != undefined &&
                     Object.keys(context.targetResults.validTargets).length == 0,
-                [PlayerActionTargetTransitionEnum.UNSUPPORTED_COUNT_TARGETS]: (
+                [PlayerActionTargetTransitionEnum.MULTIPLE_TARGETS_FOUND]: (
                     context: PlayerActionTargetStateMachineContext
                 ) =>
                     context.targetResults.validTargets != undefined &&
@@ -215,11 +239,14 @@ export class PlayerActionTargetStateMachine extends StateMachine<
                         context.targetResults.validTargets != undefined &&
                         Object.keys(context.targetResults.validTargets)
                             .length == 1,
-                [PlayerActionTargetTransitionEnum.FINISHED]: (
-                    context: PlayerActionTargetStateMachineContext
-                ) =>
-                    context.externalFlags.useLegacySelector ||
-                    context.externalFlags.cancelActionSelection,
+                [PlayerActionTargetTransitionEnum.PLAYER_CONSIDERS_TARGET_SELECTION]:
+                    (context: PlayerActionTargetStateMachineContext) =>
+                        context.playerIntent.targetSelection.battleSquaddieIds
+                            .length > 0 &&
+                        !context.playerIntent.targetConfirmed,
+                [PlayerActionTargetTransitionEnum.PLAYER_CANCELS_TARGET_SELECTION]:
+                    (context: PlayerActionTargetStateMachineContext) =>
+                        context.playerIntent.targetCancelled,
                 [PlayerActionTargetTransitionEnum.PLAYER_CONFIRMS_TARGET_SELECTION]:
                     (context: PlayerActionTargetStateMachineContext) =>
                         context.playerIntent.targetSelection.battleSquaddieIds
@@ -235,11 +262,6 @@ export class PlayerActionTargetStateMachine extends StateMachine<
         StateMachineDataService.setActionLogic(this.stateMachineData, {
             [PlayerActionTargetActionEnum.COUNT_TARGETS_ENTRY]:
                 countTargetsEntry,
-            [PlayerActionTargetActionEnum.NOT_APPLICABLE_ENTRY]: (
-                context: PlayerActionTargetStateMachineContext
-            ) => {
-                context.externalFlags.useLegacySelector = true
-            },
             [PlayerActionTargetActionEnum.TRIGGER_TARGETS_AUTOMATICALLY_SELECTED]:
                 (context: PlayerActionTargetStateMachineContext) => {
                     context.playerIntent.targetSelection.automaticallySelected =
@@ -249,8 +271,7 @@ export class PlayerActionTargetStateMachine extends StateMachine<
                     context.messageBoard.sendMessage({
                         type: MessageBoardMessageType.PLAYER_SELECTS_TARGET_COORDINATE,
                         ...context,
-                        battleActionRecorder:
-                            context.messageParameters.battleActionRecorder,
+                        battleActionRecorder: context.battleActionRecorder,
                         numberGenerator:
                             context.messageParameters.numberGenerator,
                         summaryHUDState:
@@ -260,19 +281,26 @@ export class PlayerActionTargetStateMachine extends StateMachine<
                         )[0].mapCoordinate,
                     })
                 },
-            [PlayerActionTargetActionEnum.FINISHED_ENTRY]: (
-                context: PlayerActionTargetStateMachineContext
-            ) => {
-                context.externalFlags.finished = true
-            },
             [PlayerActionTargetActionEnum.WAITING_FOR_PLAYER_CONFIRM]: (
                 context: PlayerActionTargetStateMachineContext
             ) => {
-                parseKeyBoardEvents(context)
-                parseMouseEvents(this.getConfirmButtons(), context)
+                parseKeyBoardEventsWhenPlayerCanConfirm(context)
+                parseMouseEventsWhenPlayerCanConfirm(
+                    this.getConfirmButtons(),
+                    context
+                )
                 context.playerInput = []
             },
-            [PlayerActionTargetActionEnum.TRIGGER_PLAYER_CONFIRMS_TARGET_SELECTION]:
+            [PlayerActionTargetActionEnum.WAITING_FOR_PLAYER_TO_SELECT_TARGET]:
+                (context: PlayerActionTargetStateMachineContext) => {
+                    parseKeyBoardEventsWhenPlayerCanSelectTarget(context)
+                    parseMouseEventsWhenPlayerCanSelectTarget(
+                        this.getSelectTargetButtons(),
+                        context
+                    )
+                    context.playerInput = []
+                },
+            [PlayerActionTargetActionEnum.TRIGGER_PLAYER_CONFIRMS_ACTION_SELECTION]:
                 (context: PlayerActionTargetStateMachineContext) => {
                     context.messageBoard.sendMessage({
                         type: MessageBoardMessageType.PLAYER_CONFIRMS_ACTION,
@@ -280,8 +308,7 @@ export class PlayerActionTargetStateMachine extends StateMachine<
                             context.battleActionDecisionStep,
                         missionMap: context.missionMap,
                         objectRepository: context.objectRepository,
-                        battleActionRecorder:
-                            context.messageParameters.battleActionRecorder,
+                        battleActionRecorder: context.battleActionRecorder,
                         numberGenerator:
                             context.messageParameters.numberGenerator,
                         missionStatistics:
@@ -289,66 +316,90 @@ export class PlayerActionTargetStateMachine extends StateMachine<
                                 .playerConfirmsActionMessageParameters
                                 .missionStatistics,
                     })
-                    this.resetPlayerIntent(context)
+                    context.externalFlags.actionConfirmed = true
+                },
+            [PlayerActionTargetActionEnum.TRIGGER_PLAYER_CANCELS_TARGET_SELECTION]:
+                (context: PlayerActionTargetStateMachineContext) => {
+                    context.messageBoard.sendMessage({
+                        type: MessageBoardMessageType.PLAYER_CANCELS_TARGET_SELECTION,
+                        summaryHUDState:
+                            context.messageParameters.summaryHUDState,
+                        battleActionDecisionStep:
+                            context.battleActionDecisionStep,
+                        missionMap: context.missionMap,
+                        objectRepository: context.objectRepository,
+                        campaignResources:
+                            context.messageParameters.campaignResources,
+                    })
+                    context.playerIntent.targetSelection.battleSquaddieIds = []
+                },
+            [PlayerActionTargetActionEnum.TRIGGER_PLAYER_CONSIDERS_TARGET_SELECTION]:
+                (context: PlayerActionTargetStateMachineContext) => {
+                    const battleSquaddieIdSelected =
+                        context.playerIntent.targetSelection
+                            .battleSquaddieIds[0]
+                    context.messageBoard.sendMessage({
+                        type: MessageBoardMessageType.PLAYER_SELECTS_TARGET_COORDINATE,
+                        missionMap: context.missionMap,
+                        objectRepository: context.objectRepository,
+                        battleActionDecisionStep:
+                            context.battleActionDecisionStep,
+                        numberGenerator:
+                            context.messageParameters.numberGenerator,
+                        battleActionRecorder: context.battleActionRecorder,
+                        targetCoordinate:
+                            context.targetResults.validTargets[
+                                battleSquaddieIdSelected
+                            ].mapCoordinate,
+                        summaryHUDState:
+                            context.messageParameters.summaryHUDState,
+                    })
                 },
             [PlayerActionTargetActionEnum.CANCEL_ACTION_SELECTION_ENTRY]: (
                 context: PlayerActionTargetStateMachineContext
             ) => {
                 context.externalFlags.cancelActionSelection = true
             },
+            [PlayerActionTargetActionEnum.CONFIRM_ACTION_SELECTION_ENTRY]: (
+                context: PlayerActionTargetStateMachineContext
+            ) => {
+                context.externalFlags.actionConfirmed = true
+            },
             [PlayerActionTargetActionEnum.TRIGGER_PLAYER_CANCELS_ACTION_SELECTION]:
                 (context: PlayerActionTargetStateMachineContext) => {
                     context.messageBoard.sendMessage({
                         type: MessageBoardMessageType.PLAYER_CANCELS_TARGET_SELECTION,
+                        summaryHUDState:
+                            context.messageParameters.summaryHUDState,
                         battleActionDecisionStep:
                             context.battleActionDecisionStep,
                         missionMap: context.missionMap,
                         objectRepository: context.objectRepository,
                         campaignResources:
-                            context.messageParameters
-                                .playerCancelsTargetSelectionMessageParameters
-                                .campaignResources,
+                            context.messageParameters.campaignResources,
                     })
 
-                    if (
-                        context.playerIntent.targetSelection
-                            .automaticallySelected
-                    ) {
-                        context.messageBoard.sendMessage({
-                            type: MessageBoardMessageType.PLAYER_CANCELS_PLAYER_ACTION_CONSIDERATIONS,
-                            battleActionDecisionStep:
-                                context.battleActionDecisionStep,
-                            objectRepository: context.objectRepository,
-                            battleActionRecorder:
-                                context.messageParameters.battleActionRecorder,
-                            summaryHUDState:
-                                context.messageParameters.summaryHUDState,
-                            playerConsideredActions:
-                                context.messageParameters
-                                    .playerCancelsPlayerActionConsiderationsParameters
-                                    .playerConsideredActions,
-                            missionMap: context.missionMap,
-                            playerDecisionHUD:
-                                context.messageParameters
-                                    .playerCancelsPlayerActionConsiderationsParameters
-                                    .playerDecisionHUD,
-                            playerCommandState: context.playerCommandState,
-                        })
-                    }
-                    this.resetPlayerIntent(context)
+                    context.messageBoard.sendMessage({
+                        type: MessageBoardMessageType.PLAYER_CANCELS_PLAYER_ACTION_CONSIDERATIONS,
+                        battleActionDecisionStep:
+                            context.battleActionDecisionStep,
+                        objectRepository: context.objectRepository,
+                        battleActionRecorder: context.battleActionRecorder,
+                        summaryHUDState:
+                            context.messageParameters.summaryHUDState,
+                        playerConsideredActions:
+                            context.messageParameters
+                                .playerCancelsPlayerActionConsiderationsParameters
+                                .playerConsideredActions,
+                        missionMap: context.missionMap,
+                        playerDecisionHUD:
+                            context.messageParameters
+                                .playerCancelsPlayerActionConsiderationsParameters
+                                .playerDecisionHUD,
+                        playerCommandState: context.playerCommandState,
+                    })
                 },
         })
-    }
-
-    private resetPlayerIntent(context: PlayerActionTargetStateMachineContext) {
-        context.playerIntent = {
-            targetSelection: {
-                battleSquaddieIds: [],
-                automaticallySelected: false,
-            },
-            targetConfirmed: false,
-            actionCancelled: false,
-        }
     }
 
     acceptPlayerInput(
@@ -362,6 +413,14 @@ export class PlayerActionTargetStateMachine extends StateMachine<
             this.uiObjects?.confirm.okButton,
             this.uiObjects?.confirm.cancelButton,
         ].filter((x) => x)
+    }
+
+    getSelectTargetButtons(): Button[] {
+        return [this.uiObjects?.selectTarget.cancelButton].filter((x) => x)
+    }
+
+    getSelectTargetExplanationText(): Label[] {
+        return [this.uiObjects?.selectTarget.explanationLabel].filter((x) => x)
     }
 }
 
@@ -494,22 +553,24 @@ const countTargetsFromResultsBasedOnActionTemplate = (
     )
 }
 
-const parseKeyBoardEvents = (
-    context: PlayerActionTargetStateMachineContext
-) => {
-    const keyBoardEvents = context.playerInput
+const getKeyboardEvents = (context: PlayerActionTargetStateMachineContext) =>
+    context.playerInput
         .filter(
             (event) =>
                 event.eventType == OrchestratorComponentKeyEventType.PRESSED
         )
         .map((event) =>
             PlayerInputStateService.getActionsForPressedKey(
-                context.messageParameters.playerConfirmsActionMessageParameters
-                    .playerInputState,
+                context.messageParameters.playerInputState,
                 (event as OrchestratorComponentKeyEvent).keyCode
             )
         )
         .flat()
+
+const parseKeyBoardEventsWhenPlayerCanConfirm = (
+    context: PlayerActionTargetStateMachineContext
+) => {
+    const keyBoardEvents = getKeyboardEvents(context)
 
     switch (true) {
         case keyBoardEvents.includes(PlayerInputAction.ACCEPT):
@@ -519,10 +580,14 @@ const parseKeyBoardEvents = (
             context.playerIntent.targetSelection.automaticallySelected:
             context.playerIntent.actionCancelled = true
             break
+        case keyBoardEvents.includes(PlayerInputAction.CANCEL) &&
+            !context.playerIntent.targetSelection.automaticallySelected:
+            context.playerIntent.targetCancelled = true
+            break
     }
 }
 
-const parseMouseEvents = (
+const parseMouseEventsWhenPlayerCanConfirm = (
     buttons: Button[],
     context: PlayerActionTargetStateMachineContext
 ) => {
@@ -543,7 +608,141 @@ const parseMouseEvents = (
     ) {
         if (context.playerIntent.targetSelection.automaticallySelected)
             context.playerIntent.actionCancelled = true
+        else context.playerIntent.targetCancelled = true
     }
+}
+
+const parseMouseEventsWhenPlayerCanSelectTarget = (
+    buttons: Button[],
+    context: PlayerActionTargetStateMachineContext
+) => {
+    applyMouseEventsToButtons(context, buttons)
+    const cancelButton = buttons.find(
+        (button) =>
+            button.id === PLAYER_ACTION_SELECT_TARGET_CREATE_CANCEL_BUTTON_ID
+    )
+    if (
+        didButtonSwitchFromActiveToHover(cancelButton) ||
+        didPlayerClickOnMouseCancelButton(context)
+    ) {
+        context.playerIntent.actionCancelled = true
+        return
+    }
+
+    const filterValidTargets = (mapCoordinate: HexCoordinate) => {
+        return Object.entries(context.targetResults.validTargets)
+            .filter(([_, battleSquaddieMapCoordinate]) =>
+                HexCoordinateService.areEqual(
+                    battleSquaddieMapCoordinate.mapCoordinate,
+                    mapCoordinate
+                )
+            )
+            .map(([battleSquaddieId, _]) => battleSquaddieId)
+    }
+    context.playerInput
+        .filter((event) =>
+            [
+                OrchestratorComponentMouseEventType.RELEASE,
+                OrchestratorComponentMouseEventType.LOCATION,
+            ].includes(event.eventType as OrchestratorComponentMouseEventType)
+        )
+        .forEach((mouseEvent: OrchestratorComponentMouseEvent) => {
+            let battleSquaddieIds: string[] = []
+            switch (mouseEvent.eventType) {
+                case OrchestratorComponentMouseEventType.RELEASE:
+                    const mapCoordinateClickedOn =
+                        ConvertCoordinateService.convertScreenLocationToMapCoordinates(
+                            {
+                                screenLocation: { ...mouseEvent.mouseRelease },
+                                cameraLocation:
+                                    context.camera.getWorldLocation(),
+                            }
+                        )
+                    battleSquaddieIds = filterValidTargets(
+                        mapCoordinateClickedOn
+                    )
+
+                    context.playerIntent.targetSelection.battleSquaddieIds =
+                        battleSquaddieIds
+                    context.playerIntent.targetSelection.automaticallySelected =
+                        false
+
+                    if (battleSquaddieIds.length === 0) {
+                        updateSelectTargetExplanationText(
+                            mapCoordinateClickedOn,
+                            context
+                        )
+                    }
+                    break
+                case OrchestratorComponentMouseEventType.LOCATION:
+                    const mapCoordinateHoveredOver =
+                        ConvertCoordinateService.convertScreenLocationToMapCoordinates(
+                            {
+                                screenLocation: { ...mouseEvent.mouseLocation },
+                                cameraLocation:
+                                    context.camera.getWorldLocation(),
+                            }
+                        )
+
+                    const missionMapSquaddieCoordinate =
+                        MissionMapService.getBattleSquaddieAtCoordinate(
+                            context.missionMap,
+                            mapCoordinateHoveredOver
+                        )
+
+                    if (
+                        !MissionMapSquaddieCoordinateService.isValid(
+                            missionMapSquaddieCoordinate
+                        )
+                    )
+                        return
+
+                    battleSquaddieIds = filterValidTargets(
+                        mapCoordinateHoveredOver
+                    )
+
+                    if (battleSquaddieIds.length === 0) return
+
+                    context.messageBoard.sendMessage({
+                        type: MessageBoardMessageType.PLAYER_PEEKS_AT_SQUADDIE,
+                        battleSquaddieSelectedId: battleSquaddieIds[0],
+                        selectionMethod: {
+                            mapCoordinate: mapCoordinateHoveredOver,
+                        },
+                        summaryHUDState:
+                            context.messageParameters.summaryHUDState,
+                        missionMap: context.missionMap,
+                        objectRepository: context.objectRepository,
+                        campaignResources:
+                            context.messageParameters.campaignResources,
+                    })
+                    break
+            }
+        })
+}
+
+const updateSelectTargetExplanationText = (
+    mapCoordinateClickedOn: HexCoordinate,
+    context: PlayerActionTargetStateMachineContext
+) => {
+    let selectedDescription = HexCoordinateService.toString(
+        mapCoordinateClickedOn
+    )
+
+    const info = MissionMapService.getBattleSquaddieAtCoordinate(
+        context.missionMap,
+        mapCoordinateClickedOn
+    )
+    if (MissionMapSquaddieCoordinateService.isValid(info)) {
+        const { squaddieTemplate } = getResultOrThrowError(
+            ObjectRepositoryService.getSquaddieByBattleId(
+                context.objectRepository,
+                info.battleSquaddieId
+            )
+        )
+        selectedDescription = squaddieTemplate?.squaddieId.name
+    }
+    context.explanationLabelText = `${selectedDescription}\n is out of range`
 }
 
 const didButtonSwitchFromActiveToHover = (button: Button) => {
@@ -611,4 +810,16 @@ const applyMouseEventsToButtons = (
                     break
             }
         })
+}
+
+const parseKeyBoardEventsWhenPlayerCanSelectTarget = (
+    context: PlayerActionTargetStateMachineContext
+) => {
+    const keyBoardEvents = getKeyboardEvents(context)
+
+    switch (true) {
+        case keyBoardEvents.includes(PlayerInputAction.CANCEL):
+            context.playerIntent.actionCancelled = true
+            break
+    }
 }

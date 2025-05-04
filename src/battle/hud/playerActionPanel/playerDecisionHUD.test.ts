@@ -419,7 +419,10 @@ describe("Player Decision HUD", () => {
                     gameEngineState.battleOrchestratorState.battleHUDState
                         .summaryHUDState,
                 objectRepository: repository,
-                gameEngineState,
+                battleActionDecisionStep:
+                    gameEngineState.battleOrchestratorState.battleState
+                        .battleActionDecisionStep,
+                campaignResources: gameEngineState.campaign.resources,
             })
             SummaryHUDStateService.draw({
                 summaryHUDState:
@@ -877,6 +880,7 @@ describe("Player Decision HUD", () => {
                     }),
                 }),
                 repository,
+                campaign: CampaignService.default(),
             })
 
             playerDecisionHUDListener = new PlayerDecisionHUDListener(
@@ -890,11 +894,14 @@ describe("Player Decision HUD", () => {
             messageSpy = vi.spyOn(gameEngineState.messageBoard, "sendMessage")
 
             SummaryHUDStateService.createActorTiles({
+                battleActionDecisionStep:
+                    gameEngineState.battleOrchestratorState.battleState
+                        .battleActionDecisionStep,
+                campaignResources: gameEngineState.campaign.resources,
                 summaryHUDState:
                     gameEngineState.battleOrchestratorState.battleHUDState
                         .summaryHUDState,
                 objectRepository: repository,
-                gameEngineState,
             })
 
             SummaryHUDStateService.draw({

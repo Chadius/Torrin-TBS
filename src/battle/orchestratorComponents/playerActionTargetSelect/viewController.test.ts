@@ -65,6 +65,9 @@ import {
 import { PlayerActionTargetStateMachineUIObjects } from "./playerActionTargetStateMachineUIObjects"
 import { PlayerCommandStateService } from "../../hud/playerCommand/playerCommandHUD"
 import { ImageUI, ImageUILoadingBehavior } from "../../../ui/imageUI/imageUI"
+import { PLAYER_ACTION_SELECT_TARGET_CREATE_CANCEL_BUTTON_ID } from "./playerActionTarget/cancelButton"
+import { PLAYER_ACTION_CONFIRM_CREATE_OK_BUTTON_ID } from "./playerActionConfirm/okButton"
+import { PLAYER_ACTION_CONFIRM_CREATE_CANCEL_BUTTON_ID } from "./playerActionConfirm/cancelButton"
 
 describe("Player Action Target Select View Controller", () => {
     let playerActionTargetSelectViewController: PlayerActionTargetSelectViewController
@@ -72,6 +75,7 @@ describe("Player Action Target Select View Controller", () => {
     let knightBattleSquaddie: BattleSquaddie
     let citizenBattleSquaddie: BattleSquaddie
     let thiefBattleSquaddie: BattleSquaddie
+    let thief2BattleSquaddie: BattleSquaddie
 
     let missionMap: MissionMap
     let longswordAction: ActionTemplate
@@ -95,6 +99,7 @@ describe("Player Action Target Select View Controller", () => {
         const context = PlayerActionTargetContextService.new({
             objectRepository,
             missionMap,
+            camera: new BattleCamera(),
             battleActionDecisionStep: BattleActionDecisionStepService.new(),
             messageBoard: new MessageBoard(),
             battleActionRecorder: BattleActionRecorderService.new(),
@@ -190,6 +195,28 @@ describe("Player Action Target Select View Controller", () => {
             battleSquaddieId: thiefBattleSquaddie.battleSquaddieId,
             coordinate: { q: 1, r: 2 },
         })
+        ;({ battleSquaddie: thief2BattleSquaddie } =
+            SquaddieRepositoryService.createNewSquaddieAndAddToRepository({
+                name: "Thief 2",
+                templateId: "Thief 2",
+                battleId: "Thief 2",
+                affiliation: SquaddieAffiliation.ENEMY,
+                objectRepository: objectRepository,
+                actionTemplateIds: [longswordAction.id],
+                attributes: ArmyAttributesService.new({
+                    maxHitPoints: 5,
+                    movement: SquaddieMovementService.new({
+                        movementPerAction: 2,
+                    }),
+                    tier: 0,
+                }),
+            }))
+        MissionMapService.addSquaddie({
+            missionMap: missionMap,
+            squaddieTemplateId: thief2BattleSquaddie.squaddieTemplateId,
+            battleSquaddieId: thief2BattleSquaddie.battleSquaddieId,
+            coordinate: { q: 1, r: 0 },
+        })
 
         BattleActionDecisionStepService.setActor({
             actionDecisionStep:
@@ -198,13 +225,39 @@ describe("Player Action Target Select View Controller", () => {
         })
     })
 
-    const attackThiefWithLongsword = () => {
+    const considerAttackingWithLongsword = () => {
         BattleActionDecisionStepService.addAction({
             actionDecisionStep:
-                componentData.getContext().battleActionDecisionStep,
+                playerActionTargetSelectViewController.componentData.getContext()
+                    .battleActionDecisionStep,
             actionTemplateId: longswordAction.id,
         })
+        playerActionTargetSelectViewController.componentData.setContext({
+            ...playerActionTargetSelectViewController.componentData.getContext(),
+            battleActionDecisionStep:
+                componentData.getContext().battleActionDecisionStep,
+            explanationLabelText: "select a target",
+            buttonStatusChangeEventDataBlob: DataBlobService.new(),
+            targetResults: {
+                ...playerActionTargetSelectViewController.componentData.getContext()
+                    .targetResults,
+                validCoordinates: [
+                    { q: 1, r: 1 },
+                    { q: 0, r: 1 },
+                    { q: 1, r: 2 },
+                    { q: 1, r: 0 },
+                ],
+            },
+        })
+    }
 
+    const selectThief1ToAttack = () => {
+        BattleActionDecisionStepService.addAction({
+            actionDecisionStep:
+                playerActionTargetSelectViewController.componentData.getContext()
+                    .battleActionDecisionStep,
+            actionTemplateId: longswordAction.id,
+        })
         const { mapCoordinate } = MissionMapService.getByBattleSquaddieId(
             missionMap,
             thiefBattleSquaddie.battleSquaddieId
@@ -212,18 +265,24 @@ describe("Player Action Target Select View Controller", () => {
 
         BattleActionDecisionStepService.setConsideredTarget({
             actionDecisionStep:
-                componentData.getContext().battleActionDecisionStep,
+                playerActionTargetSelectViewController.componentData.getContext()
+                    .battleActionDecisionStep,
             targetCoordinate: mapCoordinate,
         })
-
         playerActionTargetSelectViewController.componentData.setContext({
             ...playerActionTargetSelectViewController.componentData.getContext(),
             battleActionDecisionStep:
-                componentData.getContext().battleActionDecisionStep,
-            playerActionConfirmContext: {
+                playerActionTargetSelectViewController.componentData.getContext()
+                    .battleActionDecisionStep,
+            buttonStatusChangeEventDataBlob: DataBlobService.new(),
+            targetResults: {
                 ...playerActionTargetSelectViewController.componentData.getContext()
-                    .playerActionConfirmContext,
-                buttonStatusChangeEventDataBlob: DataBlobService.new(),
+                    .targetResults,
+                validTargets: {
+                    [thiefBattleSquaddie.battleSquaddieId]: {
+                        mapCoordinate: { q: 1, r: 2 },
+                    },
+                },
             },
         })
     }
@@ -243,11 +302,55 @@ describe("Player Action Target Select View Controller", () => {
         ).toBe(graphicsBuffer)
     })
 
+    it("creates select target button when the battle action decision has been considered", () => {
+        expect(
+            playerActionTargetSelectViewController.getButtons()
+        ).toHaveLength(0)
+        considerAttackingWithLongsword()
+        playerActionTargetSelectViewController.draw({
+            camera: new BattleCamera(),
+            graphicsContext: graphicsBuffer,
+        })
+        expect(
+            playerActionTargetSelectViewController.getButtons()
+        ).toHaveLength(1)
+        expect(
+            playerActionTargetSelectViewController.getButtons()[0].id
+        ).toEqual(PLAYER_ACTION_SELECT_TARGET_CREATE_CANCEL_BUTTON_ID)
+    })
+
+    it("should highlight the map with the action range, showing valid locations", () => {
+        considerAttackingWithLongsword()
+        playerActionTargetSelectViewController.draw({
+            camera: new BattleCamera(),
+            graphicsContext: graphicsBuffer,
+        })
+
+        const highlightedTileLocations =
+            TerrainTileMapService.computeHighlightedTiles(
+                missionMap.terrainTileMap
+            ).map(
+                (highlightedTileDescription) =>
+                    highlightedTileDescription.coordinate
+            )
+        expect(highlightedTileLocations).toHaveLength(6)
+        expect(highlightedTileLocations).toEqual(
+            expect.arrayContaining([
+                { q: 1, r: 0 },
+                { q: 1, r: 2 },
+                { q: 0, r: 1 },
+                { q: 2, r: 1 },
+                { q: 2, r: 0 },
+                { q: 0, r: 2 },
+            ])
+        )
+    })
+
     it("creates confirm buttons when the battle action decision has been decided", () => {
         expect(
             playerActionTargetSelectViewController.getButtons()
         ).toHaveLength(0)
-        attackThiefWithLongsword()
+        selectThief1ToAttack()
         playerActionTargetSelectViewController.draw({
             camera: new BattleCamera(),
             graphicsContext: graphicsBuffer,
@@ -255,9 +358,41 @@ describe("Player Action Target Select View Controller", () => {
         expect(
             playerActionTargetSelectViewController.getButtons()
         ).toHaveLength(2)
+        expect(
+            playerActionTargetSelectViewController.getButtons().map((b) => b.id)
+        ).toEqual(
+            expect.arrayContaining([
+                PLAYER_ACTION_CONFIRM_CREATE_OK_BUTTON_ID,
+                PLAYER_ACTION_CONFIRM_CREATE_CANCEL_BUTTON_ID,
+            ])
+        )
     })
 
-    describe("button placement", () => {
+    it("should highlight the map with the squaddies who are targeted when it is time for confirmation", () => {
+        selectThief1ToAttack()
+
+        playerActionTargetSelectViewController.draw({
+            camera: new BattleCamera(),
+            graphicsContext: graphicsBuffer,
+        })
+
+        const highlightedTileLocations =
+            TerrainTileMapService.computeHighlightedTiles(
+                missionMap.terrainTileMap
+            ).map(
+                (highlightedTileDescription) =>
+                    highlightedTileDescription.coordinate
+            )
+        expect(highlightedTileLocations).toEqual([{ q: 1, r: 2 }])
+    })
+
+    const expectScreenLocationIsCalled = (screenLocationSpy: MockInstance) => {
+        expect(screenLocationSpy).toHaveBeenCalled()
+        screenLocationSpy.mockRestore()
+        return true
+    }
+
+    describe("confirm button placement", () => {
         it("default placement is slightly below the selected location", () => {
             const screenLocation: ScreenLocation = {
                 x: ScreenDimensions.SCREEN_WIDTH / 2,
@@ -274,7 +409,7 @@ describe("Player Action Target Select View Controller", () => {
                     y: screenLocation.y,
                 })
 
-            attackThiefWithLongsword()
+            selectThief1ToAttack()
             const { okButtonArea, cancelButtonArea } =
                 drawConfirmButtonsAndGetArea()
 
@@ -319,7 +454,7 @@ describe("Player Action Target Select View Controller", () => {
                     y: screenLocation.y,
                 })
 
-            attackThiefWithLongsword()
+            selectThief1ToAttack()
             const { okButtonArea, cancelButtonArea } =
                 drawConfirmButtonsAndGetArea()
             expect(RectAreaService.left(okButtonArea)).toBeGreaterThan(0)
@@ -344,7 +479,7 @@ describe("Player Action Target Select View Controller", () => {
                     y: screenLocation.y,
                 })
 
-            attackThiefWithLongsword()
+            selectThief1ToAttack()
             const { okButtonArea, cancelButtonArea } =
                 drawConfirmButtonsAndGetArea()
             expect(RectAreaService.right(okButtonArea)).toBeLessThan(
@@ -416,13 +551,6 @@ describe("Player Action Target Select View Controller", () => {
             screenLocationSpy.mockRestore()
         })
 
-        const expectScreenLocationIsCalled = (
-            screenLocationSpy: MockInstance
-        ) => {
-            expect(screenLocationSpy).toHaveBeenCalled()
-            screenLocationSpy.mockRestore()
-            return true
-        }
         const drawConfirmButtonsAndGetArea = () => {
             playerActionTargetSelectViewController.draw({
                 camera: new BattleCamera(),
@@ -441,9 +569,148 @@ describe("Player Action Target Select View Controller", () => {
         }
     })
 
+    describe("select target UI element placement", () => {
+        const drawSelectTargetUIElements = () => {
+            playerActionTargetSelectViewController.draw({
+                camera: new BattleCamera(),
+                graphicsContext: graphicsBuffer,
+            })
+
+            const uiObjects =
+                playerActionTargetSelectViewController.getUIObjects()
+                    .selectTarget
+            const cancelButtonArea = uiObjects.cancelButton.getArea()
+            const explanationLabelText = uiObjects.explanationLabel.textBox.text
+
+            return {
+                cancelButtonArea,
+                explanationLabelText,
+            }
+        }
+        it("draws the explanation label with the text from the context", () => {
+            let { explanationLabelText } = drawSelectTargetUIElements()
+            expect(explanationLabelText).not.toEqual("Cool")
+            playerActionTargetSelectViewController.componentData.getContext().explanationLabelText =
+                "Cool"
+            ;({ explanationLabelText } = drawSelectTargetUIElements())
+            expect(explanationLabelText).toEqual("Cool")
+        })
+        it("cancel select target button is slightly below the actor squaddie", () => {
+            const screenLocation: ScreenLocation = {
+                x: ScreenDimensions.SCREEN_WIDTH / 2,
+                y: ScreenDimensions.SCREEN_HEIGHT / 2,
+            }
+
+            const screenLocationSpy = vi
+                .spyOn(
+                    ConvertCoordinateService,
+                    "convertMapCoordinatesToScreenLocation"
+                )
+                .mockReturnValue({
+                    x: screenLocation.x,
+                    y: screenLocation.y,
+                })
+
+            considerAttackingWithLongsword()
+            const { cancelButtonArea } = drawSelectTargetUIElements()
+
+            const cancelButtonTestLocation: ScreenLocation = {
+                x: screenLocation.x,
+                y: screenLocation.y + HEX_TILE_WIDTH + WINDOW_SPACING.SPACING2,
+            }
+
+            expect(
+                RectAreaService.isInside(
+                    cancelButtonArea,
+                    cancelButtonTestLocation.x,
+                    cancelButtonTestLocation.y
+                )
+            ).toBe(true)
+            expect(expectScreenLocationIsCalled(screenLocationSpy)).toBeTruthy()
+        })
+        it("if acting squaddie is at left edge of screen, put cancel button at left edge of screen", () => {
+            const screenLocation: ScreenLocation = {
+                x: 0,
+                y: ScreenDimensions.SCREEN_HEIGHT / 2,
+            }
+
+            const screenLocationSpy = vi
+                .spyOn(
+                    ConvertCoordinateService,
+                    "convertMapCoordinatesToScreenLocation"
+                )
+                .mockReturnValue({
+                    x: screenLocation.x,
+                    y: screenLocation.y,
+                })
+
+            considerAttackingWithLongsword()
+            const { cancelButtonArea } = drawSelectTargetUIElements()
+
+            expect(RectAreaService.left(cancelButtonArea)).toBeGreaterThan(0)
+
+            expect(expectScreenLocationIsCalled(screenLocationSpy)).toBeTruthy()
+        })
+        it("if acting squaddie is at right edge of screen, put cancel button at right edge of screen", () => {
+            const screenLocation: ScreenLocation = {
+                x: ScreenDimensions.SCREEN_WIDTH,
+                y: ScreenDimensions.SCREEN_HEIGHT / 2,
+            }
+
+            const screenLocationSpy = vi
+                .spyOn(
+                    ConvertCoordinateService,
+                    "convertMapCoordinatesToScreenLocation"
+                )
+                .mockReturnValue({
+                    x: screenLocation.x,
+                    y: screenLocation.y,
+                })
+
+            considerAttackingWithLongsword()
+            const { cancelButtonArea } = drawSelectTargetUIElements()
+            expect(RectAreaService.right(cancelButtonArea)).toBeLessThan(
+                ScreenDimensions.SCREEN_WIDTH
+            )
+            expect(expectScreenLocationIsCalled(screenLocationSpy)).toBeTruthy()
+        })
+        it("if no squaddie location is given, put buttons in the center", () => {
+            MissionMapService.updateBattleSquaddieCoordinate({
+                missionMap,
+                battleSquaddieId: knightBattleSquaddie.battleSquaddieId,
+                coordinate: undefined,
+            })
+            const screenLocationSpy = vi.spyOn(
+                ConvertCoordinateService,
+                "convertMapCoordinatesToScreenLocation"
+            )
+
+            considerAttackingWithLongsword()
+            const { cancelButtonArea } = drawSelectTargetUIElements()
+
+            const cancelButtonTestLocation: ScreenLocation = {
+                x: ScreenDimensions.SCREEN_WIDTH / 2,
+                y: ScreenDimensions.SCREEN_HEIGHT / 2,
+            }
+
+            expect(
+                RectAreaService.isInside(
+                    cancelButtonArea,
+                    cancelButtonTestLocation.x,
+                    cancelButtonTestLocation.y
+                )
+            ).toBe(true)
+
+            expect(screenLocationSpy).not.toHaveBeenCalled()
+            screenLocationSpy.mockRestore()
+        })
+    })
+
     describe("highlight squaddies", () => {
         let knightMapIcon: ImageUI
         let thiefMapIcon: ImageUI
+        let thief2MapIcon: ImageUI
+        let citizenMapIcon: ImageUI
         let pulseColorSpy: MockInstance
 
         beforeEach(() => {
@@ -488,44 +755,166 @@ describe("Player Action Target Select View Controller", () => {
                 imageUI: thiefMapIcon,
             })
 
-            attackThiefWithLongsword()
-            playerActionTargetSelectViewController.draw({
-                camera: new BattleCamera(),
-                graphicsContext: graphicsBuffer,
+            thief2MapIcon = new ImageUI({
+                imageLoadingBehavior: {
+                    resourceKey: undefined,
+                    loadingBehavior: ImageUILoadingBehavior.USE_IMAGE_SIZE,
+                },
+                graphic: graphicsBuffer.createImage(100, 200),
+                area: RectAreaService.new({
+                    left: 310,
+                    top: 220,
+                    width: 0,
+                    height: 0,
+                }),
+            })
+            ObjectRepositoryService.addImageUIByBattleSquaddieId({
+                repository: objectRepository,
+                battleSquaddieId: thief2BattleSquaddie.battleSquaddieId,
+                imageUI: thief2MapIcon,
+            })
+
+            citizenMapIcon = new ImageUI({
+                imageLoadingBehavior: {
+                    resourceKey: undefined,
+                    loadingBehavior: ImageUILoadingBehavior.USE_IMAGE_SIZE,
+                },
+                graphic: graphicsBuffer.createImage(100, 200),
+                area: RectAreaService.new({
+                    left: 310,
+                    top: 320,
+                    width: 0,
+                    height: 0,
+                }),
+            })
+            ObjectRepositoryService.addImageUIByBattleSquaddieId({
+                repository: objectRepository,
+                battleSquaddieId: citizenBattleSquaddie.battleSquaddieId,
+                imageUI: citizenMapIcon,
             })
         })
+
         afterEach(() => {
             pulseColorSpy.mockRestore()
         })
-        it("will highlight the actor squaddie", () => {
-            const uiObjects =
-                playerActionTargetSelectViewController.componentData.getUIObjects()
-            expect(uiObjects.confirm.mapIcons.actor.mapIcon).toBe(knightMapIcon)
-            expect(uiObjects.confirm.mapIcons.actor.hasTinted).toBeTruthy()
-            expect(knightMapIcon.pulseColor).not.toBeUndefined()
-        })
-        it("will not tint again if it is already tinted", () => {
+
+        const expectSetPulseColorSpyIsIdempotentToRepeatedDrawCalls = () => {
+            let numberOfTimesPulseColorWasSet = pulseColorSpy.mock.calls.length
             playerActionTargetSelectViewController.draw({
                 camera: new BattleCamera(),
                 graphicsContext: graphicsBuffer,
             })
 
-            expect(pulseColorSpy).toHaveBeenCalledTimes(1)
-        })
-        it("will highlight the targets", () => {
-            const uiObjects =
-                playerActionTargetSelectViewController.componentData.getUIObjects()
-            expect(uiObjects.confirm.mapIcons.targets.mapIcons).toHaveLength(1)
-            expect(uiObjects.confirm.mapIcons.targets.mapIcons[0]).toBe(
-                thiefMapIcon
+            expect(pulseColorSpy).toHaveBeenCalledTimes(
+                numberOfTimesPulseColorWasSet
             )
-            expect(uiObjects.confirm.mapIcons.targets.hasTinted).toBeTruthy()
-            expect(thiefMapIcon.pulseColor).not.toBeUndefined()
-        })
-        it("will remove highlights on squaddies during clean up", () => {
+            return true
+        }
+        const expectCleanUpToRemoveEffectsFromMapIcons = () => {
             playerActionTargetSelectViewController.cleanUp()
             expect(knightMapIcon.pulseColor).toBeUndefined()
             expect(thiefMapIcon.pulseColor).toBeUndefined()
+            expect(thief2MapIcon.pulseColor).toBeUndefined()
+            expect(citizenMapIcon.pulseColor).toBeUndefined()
+            return true
+        }
+        const expectActorSquaddieToBeHighlighted = () => {
+            const uiObjects =
+                playerActionTargetSelectViewController.componentData.getUIObjects()
+            expect(uiObjects.mapIcons.actor.mapIcon).toBe(knightMapIcon)
+            expect(uiObjects.mapIcons.actor.hasTinted).toBeTruthy()
+            expect(knightMapIcon.pulseColor).not.toBeUndefined()
+            return true
+        }
+
+        describe("highlight squaddies when selecting a target", () => {
+            beforeEach(() => {
+                const thiefMapCoordinate =
+                    MissionMapService.getByBattleSquaddieId(
+                        missionMap,
+                        thiefBattleSquaddie.battleSquaddieId
+                    ).mapCoordinate
+                playerActionTargetSelectViewController.componentData.getContext().targetResults.validTargets[
+                    thiefBattleSquaddie.battleSquaddieId
+                ] = {
+                    mapCoordinate: thiefMapCoordinate,
+                }
+                const thief2MapCoordinate =
+                    MissionMapService.getByBattleSquaddieId(
+                        missionMap,
+                        thief2BattleSquaddie.battleSquaddieId
+                    ).mapCoordinate
+                playerActionTargetSelectViewController.componentData.getContext().targetResults.validTargets[
+                    thief2BattleSquaddie.battleSquaddieId
+                ] = {
+                    mapCoordinate: thief2MapCoordinate,
+                }
+                playerActionTargetSelectViewController.componentData
+                    .getContext()
+                    .targetResults.validCoordinates.push(thiefMapCoordinate)
+                playerActionTargetSelectViewController.componentData
+                    .getContext()
+                    .targetResults.validCoordinates.push(thief2MapCoordinate)
+                playerActionTargetSelectViewController.draw({
+                    camera: new BattleCamera(),
+                    graphicsContext: graphicsBuffer,
+                })
+            })
+            it("will highlight the actor squaddie", () => {
+                expect(expectActorSquaddieToBeHighlighted()).toBe(true)
+            })
+            it("will not tint again if it is already tinted", () => {
+                expect(
+                    expectSetPulseColorSpyIsIdempotentToRepeatedDrawCalls()
+                ).toBeTruthy()
+            })
+            it("will highlight the potential targets", () => {
+                const uiObjects =
+                    playerActionTargetSelectViewController.componentData.getUIObjects()
+                expect(uiObjects.mapIcons.targets.mapIcons).toHaveLength(2)
+                expect(uiObjects.mapIcons.targets.mapIcons).toEqual(
+                    expect.arrayContaining([thiefMapIcon, thief2MapIcon])
+                )
+                expect(uiObjects.mapIcons.targets.hasTinted).toBeTruthy()
+                expect(thiefMapIcon.pulseColor).not.toBeUndefined()
+                expect(thief2MapIcon.pulseColor).not.toBeUndefined()
+                expect(citizenMapIcon.pulseColor).toBeUndefined()
+            })
+            it("will remove highlights on squaddies during clean up", () => {
+                expect(expectCleanUpToRemoveEffectsFromMapIcons()).toBeTruthy()
+            })
+        })
+        describe("highlight squaddies when it is time to confirm", () => {
+            beforeEach(() => {
+                selectThief1ToAttack()
+                playerActionTargetSelectViewController.draw({
+                    camera: new BattleCamera(),
+                    graphicsContext: graphicsBuffer,
+                })
+            })
+            it("will highlight the actor squaddie", () => {
+                expect(expectActorSquaddieToBeHighlighted()).toBe(true)
+            })
+            it("will not tint again if it is already tinted", () => {
+                expect(
+                    expectSetPulseColorSpyIsIdempotentToRepeatedDrawCalls()
+                ).toBeTruthy()
+            })
+            it("will highlight the targets", () => {
+                const uiObjects =
+                    playerActionTargetSelectViewController.componentData.getUIObjects()
+                expect(uiObjects.mapIcons.targets.mapIcons).toHaveLength(1)
+                expect(uiObjects.mapIcons.targets.mapIcons[0]).toBe(
+                    thiefMapIcon
+                )
+                expect(uiObjects.mapIcons.targets.hasTinted).toBeTruthy()
+                expect(thiefMapIcon.pulseColor).not.toBeUndefined()
+                expect(thief2MapIcon.pulseColor).toBeUndefined()
+                expect(citizenMapIcon.pulseColor).toBeUndefined()
+            })
+            it("will remove highlights on squaddies during clean up", () => {
+                expect(expectCleanUpToRemoveEffectsFromMapIcons()).toBeTruthy()
+            })
         })
     })
 })

@@ -115,6 +115,7 @@ import { AttributeType } from "../../../squaddie/attribute/attributeType"
 import { SquaddieSelectorPanelService } from "../playerActionPanel/squaddieSelectorPanel/squaddieSelectorPanel"
 import { PlayerConsideredActionsService } from "../../battleState/playerConsideredActions"
 import { ButtonStatus } from "../../../ui/button/buttonStatus"
+import { CampaignResourcesService } from "../../../campaign/campaignResources"
 
 describe("Battle HUD", () => {
     let mockP5GraphicsContext: MockedP5GraphicsBuffer
@@ -685,9 +686,16 @@ describe("Battle HUD", () => {
             it.each(selectionMethods)(`$name`, ({ selectionMethod }) => {
                 gameEngineState.messageBoard.sendMessage({
                     type: MessageBoardMessageType.PLAYER_PEEKS_AT_SQUADDIE,
-                    gameEngineState,
                     battleSquaddieSelectedId: battleSquaddie.battleSquaddieId,
                     selectionMethod,
+                    missionMap:
+                        gameEngineState.battleOrchestratorState.battleState
+                            .missionMap,
+                    summaryHUDState:
+                        gameEngineState.battleOrchestratorState.battleHUDState
+                            .summaryHUDState,
+                    objectRepository: gameEngineState.repository,
+                    campaignResources: CampaignResourcesService.default(),
                 })
 
                 expect(
@@ -707,7 +715,14 @@ describe("Battle HUD", () => {
         it("will call the Summary HUD to open a new main window", () => {
             gameEngineState.messageBoard.sendMessage({
                 type: MessageBoardMessageType.PLAYER_PEEKS_AT_SQUADDIE,
-                gameEngineState,
+                missionMap:
+                    gameEngineState.battleOrchestratorState.battleState
+                        .missionMap,
+                summaryHUDState:
+                    gameEngineState.battleOrchestratorState.battleHUDState
+                        .summaryHUDState,
+                objectRepository: gameEngineState.repository,
+                campaignResources: CampaignResourcesService.default(),
                 battleSquaddieSelectedId: battleSquaddie.battleSquaddieId,
                 selectionMethod: {
                     mouse: { x: 0, y: 0 },
@@ -744,7 +759,14 @@ describe("Battle HUD", () => {
             })
             gameEngineState.messageBoard.sendMessage({
                 type: MessageBoardMessageType.PLAYER_PEEKS_AT_SQUADDIE,
-                gameEngineState,
+                missionMap:
+                    gameEngineState.battleOrchestratorState.battleState
+                        .missionMap,
+                summaryHUDState:
+                    gameEngineState.battleOrchestratorState.battleHUDState
+                        .summaryHUDState,
+                objectRepository: gameEngineState.repository,
+                campaignResources: CampaignResourcesService.default(),
                 battleSquaddieSelectedId: battleSquaddie.battleSquaddieId,
                 selectionMethod: {
                     mouse: { x: 0, y: 0 },
@@ -776,7 +798,14 @@ describe("Battle HUD", () => {
         it("does not highlight range for normally controllable squaddies", () => {
             gameEngineState.messageBoard.sendMessage({
                 type: MessageBoardMessageType.PLAYER_PEEKS_AT_SQUADDIE,
-                gameEngineState,
+                missionMap:
+                    gameEngineState.battleOrchestratorState.battleState
+                        .missionMap,
+                summaryHUDState:
+                    gameEngineState.battleOrchestratorState.battleHUDState
+                        .summaryHUDState,
+                objectRepository: gameEngineState.repository,
+                campaignResources: CampaignResourcesService.default(),
                 battleSquaddieSelectedId: "player_soldier_0",
                 selectionMethod: {
                     mouse: { x: 0, y: 0 },
@@ -819,7 +848,14 @@ describe("Battle HUD", () => {
 
             gameEngineState.messageBoard.sendMessage({
                 type: MessageBoardMessageType.PLAYER_PEEKS_AT_SQUADDIE,
-                gameEngineState,
+                missionMap:
+                    gameEngineState.battleOrchestratorState.battleState
+                        .missionMap,
+                summaryHUDState:
+                    gameEngineState.battleOrchestratorState.battleHUDState
+                        .summaryHUDState,
+                objectRepository: gameEngineState.repository,
+                campaignResources: CampaignResourcesService.default(),
                 battleSquaddieSelectedId: "enemy",
                 selectionMethod: {
                     mouse: { x: 0, y: 0 },
@@ -880,6 +916,9 @@ describe("Battle HUD", () => {
 
             battleHUDListener.receiveMessage({
                 type: MessageBoardMessageType.PLAYER_CANCELS_TARGET_SELECTION,
+                summaryHUDState:
+                    gameEngineState.battleOrchestratorState.battleHUDState
+                        .summaryHUDState,
                 battleActionDecisionStep:
                     gameEngineState.battleOrchestratorState.battleState
                         .battleActionDecisionStep,
@@ -1206,11 +1245,14 @@ describe("Battle HUD", () => {
             messageSpy = vi.spyOn(gameEngineState.messageBoard, "sendMessage")
 
             SummaryHUDStateService.createActorTiles({
+                battleActionDecisionStep:
+                    gameEngineState.battleOrchestratorState.battleState
+                        .battleActionDecisionStep,
+                campaignResources: gameEngineState.campaign.resources,
                 summaryHUDState:
                     gameEngineState.battleOrchestratorState.battleHUDState
                         .summaryHUDState,
                 objectRepository: repository,
-                gameEngineState,
             })
 
             battleHUDListener = new BattleHUDListener("battleHUDListener")

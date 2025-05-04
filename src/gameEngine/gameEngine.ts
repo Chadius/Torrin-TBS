@@ -11,7 +11,6 @@ import { BattleSquaddieUsesActionOnMap } from "../battle/orchestratorComponents/
 import { BattleSquaddieMover } from "../battle/orchestratorComponents/battleSquaddieMover"
 import { BattleMapDisplay } from "../battle/orchestratorComponents/battleMapDisplay"
 import { BattlePhaseController } from "../battle/orchestratorComponents/battlePhaseController"
-import { BattlePlayerSquaddieTarget } from "../battle/orchestratorComponents/playerActionTarget/battlePlayerSquaddieTarget"
 import { BattleSquaddieUsesActionOnSquaddie } from "../battle/orchestratorComponents/battleSquaddieUsesActionOnSquaddie"
 import {
     MouseDrag,
@@ -51,7 +50,6 @@ import { PlayerHudController } from "../battle/orchestratorComponents/playerHudC
 import { GraphicsBuffer } from "../utils/graphics/graphicsRenderer"
 import { CutsceneMessageListener } from "../battle/cutscene/missionCutsceneService"
 import { BattleStateListener } from "../battle/battleState/battleState"
-import { BattlePlayerActionConfirm } from "../battle/orchestratorComponents/playerActionConfirm/battlePlayerActionConfirm"
 import { SquaddiePhaseListener } from "../battle/startOfPhase/squaddiePhaseListener"
 import { PlayerDecisionHUDListener } from "../battle/hud/playerActionPanel/playerDecisionHUD"
 import {
@@ -60,7 +58,7 @@ import {
 } from "../ui/playerInput/playerInputState"
 import { PlayerDataMessageListener } from "../dataLoader/playerData/playerDataMessageListener"
 import { BattleHUDListener } from "../battle/hud/battleHUD/battleHUDListener"
-import { PlayerActionTargetSelect } from "../battle/orchestrator/playerActionTargetSelect/playerActionTargetSelect"
+import { PlayerActionTargetSelect } from "../battle/orchestratorComponents/playerActionTargetSelect/playerActionTargetSelect"
 
 export interface GameEngineState {
     modeThatInitiatedLoading: GameModeEnum
@@ -193,8 +191,6 @@ export class GameEngine {
             mapDisplay: new BattleMapDisplay(),
             phaseController: new BattlePhaseController(),
             playerActionTargetSelect: new PlayerActionTargetSelect(),
-            playerSquaddieTarget: new BattlePlayerSquaddieTarget(),
-            playerActionConfirm: new BattlePlayerActionConfirm(),
             squaddieUsesActionOnSquaddie:
                 new BattleSquaddieUsesActionOnSquaddie(),
             playerHudController: new PlayerHudController(),

@@ -17,7 +17,6 @@ import {
     ActionEffectTemplate,
     TargetBySquaddieAffiliationRelation,
 } from "../../action/template/actionEffectTemplate"
-import { GameEngineState } from "../../gameEngine/gameEngine"
 import { HIGHLIGHT_PULSE_COLOR } from "../../hexMap/hexDrawingUtils"
 import { ActionTemplate } from "../../action/template/actionTemplate"
 import { TerrainTileMapService } from "../../hexMap/terrainTileMap"
@@ -144,47 +143,6 @@ export const TargetingResultsService = {
             squaddieAffiliationRelation,
             targetAffiliation,
         })
-    },
-    highlightMapTilesOfSquaddiesForTargeting({
-        gameEngineState,
-        targetBattleSquaddieIds,
-    }: {
-        gameEngineState: GameEngineState
-        targetBattleSquaddieIds: string[]
-    }) {
-        let coordinatesToHighlight = targetBattleSquaddieIds
-            .map(
-                (battleSquaddieId) =>
-                    MissionMapService.getByBattleSquaddieId(
-                        gameEngineState.battleOrchestratorState.battleState
-                            .missionMap,
-                        battleSquaddieId
-                    ).mapCoordinate
-            )
-            .filter((x) => x)
-
-        TerrainTileMapService.removeAllGraphicsLayers(
-            gameEngineState.battleOrchestratorState.battleState.missionMap
-                .terrainTileMap
-        )
-        const actionRangeOnMap = MapGraphicsLayerService.new({
-            id: "targeting",
-            highlightedTileDescriptions: [
-                {
-                    coordinates: coordinatesToHighlight,
-                    pulseColor: HIGHLIGHT_PULSE_COLOR.RED,
-                    overlayImageResourceName: "map icon attack 1 action",
-                },
-            ],
-            type: MapGraphicsLayerType.CLICKED_ON_CONTROLLABLE_SQUADDIE,
-        })
-        TerrainTileMapService.addGraphicsLayer(
-            gameEngineState.battleOrchestratorState.battleState.missionMap
-                .terrainTileMap,
-            actionRangeOnMap
-        )
-
-        return coordinatesToHighlight
     },
 }
 
@@ -410,6 +368,12 @@ const highlightTargetRange = ({
             battleSquaddieId
         )
     )
+
+    if (
+        !MissionMapService.getByBattleSquaddieId(missionMap, battleSquaddieId)
+            .mapCoordinate
+    )
+        return []
 
     let previewedActionTemplate: ActionTemplate
     try {

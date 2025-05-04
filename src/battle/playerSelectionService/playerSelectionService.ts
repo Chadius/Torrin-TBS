@@ -202,7 +202,14 @@ export const PlayerSelectionService = {
             case PlayerIntent.PEEK_AT_SQUADDIE:
                 messageSent = {
                     type: MessageBoardMessageType.PLAYER_PEEKS_AT_SQUADDIE,
-                    gameEngineState,
+                    summaryHUDState:
+                        gameEngineState.battleOrchestratorState.battleHUDState
+                            .summaryHUDState,
+                    missionMap:
+                        gameEngineState.battleOrchestratorState.battleState
+                            .missionMap,
+                    objectRepository: gameEngineState.repository,
+                    campaignResources: gameEngineState.campaign.resources,
                     battleSquaddieSelectedId: context.actorBattleSquaddieId,
                     selectionMethod: {
                         mouse: context.mouseMovement,

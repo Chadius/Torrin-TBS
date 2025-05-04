@@ -42,6 +42,7 @@ import {
 } from "../playerActionPanel/tile/actionPreviewTile/actionPreviewTile"
 import { NumberGeneratorStrategy } from "../../numberGenerator/strategy"
 import { BattleActionRecorder } from "../../history/battleAction/battleActionRecorder"
+import { CampaignResources } from "../../../campaign/campaignResources"
 
 export const SUMMARY_HUD_PEEK_EXPIRATION_MS = 2000
 
@@ -250,29 +251,28 @@ export const SummaryHUDStateService = {
     createActorTiles: ({
         summaryHUDState,
         objectRepository,
-        gameEngineState,
+        battleActionDecisionStep,
+        campaignResources,
     }: {
         summaryHUDState: SummaryHUDState
         objectRepository: ObjectRepository
-        gameEngineState: GameEngineState
+        battleActionDecisionStep: BattleActionDecisionStep
+        campaignResources: CampaignResources
     }) => {
         if (
             !BattleActionDecisionStepService.isActorSet(
-                gameEngineState.battleOrchestratorState.battleState
-                    .battleActionDecisionStep
+                battleActionDecisionStep
             )
         ) {
             return
         }
 
         PlayerCommandStateService.createCommandWindow({
-            playerCommandState: summaryHUDState.playerCommandState,
+            campaignResources,
             summaryHUDState,
             objectRepository,
-            gameEngineState,
             battleSquaddieId: BattleActionDecisionStepService.getActor(
-                gameEngineState.battleOrchestratorState.battleState
-                    .battleActionDecisionStep
+                battleActionDecisionStep
             ).battleSquaddieId,
         })
     },
@@ -329,14 +329,14 @@ export const SummaryHUDStateService = {
         })
     },
     peekAtSquaddie: ({
-        gameEngineState,
         battleSquaddieId,
         summaryHUDState,
         removeExpirationTime,
+        objectRepository,
     }: {
         summaryHUDState: SummaryHUDState
-        gameEngineState: GameEngineState
         battleSquaddieId: string
+        objectRepository: ObjectRepository
         removeExpirationTime?: boolean
     }) => {
         if (
@@ -353,7 +353,7 @@ export const SummaryHUDStateService = {
 
         const { battleSquaddie, squaddieTemplate } = getResultOrThrowError(
             ObjectRepositoryService.getSquaddieByBattleId(
-                gameEngineState.repository,
+                objectRepository,
                 battleSquaddieId
             )
         )

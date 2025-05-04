@@ -1,20 +1,15 @@
 import { GraphicsBuffer } from "../../../utils/graphics/graphicsRenderer"
 import { BehaviorTreeTask } from "../../../utils/behaviorTree/task"
 import { ComponentDataBlob } from "../../../utils/dataBlob/componentDataBlob"
-import {
-    PlayerActionConfirmContext,
-    PlayerActionConfirmLayout,
-    PlayerActionConfirmUIObjects,
-} from "../../orchestratorComponents/playerActionConfirm/battlePlayerActionConfirm"
 import { SequenceComposite } from "../../../utils/behaviorTree/composite/sequence/sequence"
 import {
     PlayerActionConfirmCreateOKButton,
     PlayerActionConfirmShouldCreateOKButton,
-} from "../../orchestratorComponents/playerActionConfirm/okButton"
+} from "./playerActionConfirm/okButton"
 import {
     PlayerActionConfirmCreateCancelButton,
     PlayerActionConfirmShouldCreateCancelButton,
-} from "../../orchestratorComponents/playerActionConfirm/cancelButton"
+} from "./playerActionConfirm/cancelButton"
 import { ExecuteAllComposite } from "../../../utils/behaviorTree/composite/executeAll/executeAll"
 import { BattleCamera } from "../../battleCamera"
 import { HEX_TILE_HEIGHT } from "../../../graphicsConstants"
@@ -24,6 +19,7 @@ import { DataBlobService } from "../../../utils/dataBlob/dataBlob"
 import { PlayerActionTargetStateMachineLayout } from "./playerActionTargetStateMachineLayout"
 import { PlayerActionTargetStateMachineContext } from "./playerActionTargetStateMachineContext"
 import {
+    PlayerActionTargetSelectMapHighlight,
     PlayerActionTargetStateMachineUIObjects,
     PlayerActionTargetStateMachineUIObjectsService,
 } from "./playerActionTargetStateMachineUIObjects"
@@ -37,6 +33,25 @@ import {
 } from "../../objectRepository"
 import { MissionMap, MissionMapService } from "../../../missionMap/missionMap"
 import { DRAW_SQUADDIE_ICON_ON_MAP_LAYOUT } from "../../animation/drawSquaddieIconOnMap/drawSquaddieIconOnMap"
+import { RectAreaService } from "../../../ui/rectArea"
+import {
+    PlayerActionTargetCreateCancelButton,
+    PlayerActionTargetShouldCreateCancelButton,
+} from "./playerActionTarget/cancelButton"
+import {
+    PlayerActionTargetCreateExplanationLabel,
+    PlayerActionTargetShouldCreateExplanationLabel,
+} from "./playerActionTarget/explanation"
+import { TargetingResultsService } from "../../targeting/targetingService"
+import { TerrainTileMapService } from "../../../hexMap/terrainTileMap"
+import {
+    MapGraphicsLayerService,
+    MapGraphicsLayerType,
+} from "../../../hexMap/mapLayer/mapGraphicsLayer"
+import { HIGHLIGHT_PULSE_COLOR } from "../../../hexMap/hexDrawingUtils"
+import { LabelService } from "../../../ui/label"
+import { PlayerActionTargetLayout } from "./playerActionTarget/playerActionTargetLayout"
+import { PlayerActionConfirmLayout } from "./playerActionConfirm/playerActionConfirmLayout"
 
 export class PlayerActionTargetSelectViewController {
     componentData: ComponentDataBlob<
@@ -47,6 +62,7 @@ export class PlayerActionTargetSelectViewController {
 
     uiDrawTasks: {
         confirm: BehaviorTreeTask
+        selectTarget: BehaviorTreeTask
     }
 
     constructor(
@@ -63,6 +79,7 @@ export class PlayerActionTargetSelectViewController {
     initializeUIComponentData() {
         this.componentData.setLayout({
             confirm: this.getPlayerActionConfirmLayout(),
+            selectTarget: this.getPlayerActionSelectTargetLayout(),
         })
 
         this.componentData.setUIObjects(
@@ -116,22 +133,58 @@ export class PlayerActionTargetSelectViewController {
         }
     }
 
-    createDrawingTasks(camera: BattleCamera) {
+    getPlayerActionSelectTargetLayout(): PlayerActionTargetLayout {
+        return {
+            targetExplanationLabel: {
+                fontSize: 16,
+                area: RectAreaService.new({
+                    left: (ScreenDimensions.SCREEN_WIDTH / 12) * 4,
+                    width: (ScreenDimensions.SCREEN_WIDTH / 12) * 2,
+                    height: 48,
+                    top:
+                        ScreenDimensions.SCREEN_HEIGHT -
+                        (ScreenDimensions.SCREEN_WIDTH / 12) * GOLDEN_RATIO +
+                        WINDOW_SPACING.SPACING1,
+                }),
+                fillColor: [0, 0, 0, 32],
+                noStroke: true,
+                fontColor: [0, 0, 128],
+                textBoxMargin: [0, 0, 0, 0],
+                margin: [0, WINDOW_SPACING.SPACING1],
+            },
+            cancelButton: {
+                width:
+                    (ScreenDimensions.SCREEN_WIDTH / 12) * (GOLDEN_RATIO - 1),
+                topOffset: HEX_TILE_HEIGHT / 2,
+                height: HEX_TILE_HEIGHT * GOLDEN_RATIO * (GOLDEN_RATIO - 1),
+                text: "Cancel",
+                fontSize: 16,
+                fillColor: [0, 0, 64],
+                strokeColor: [0, 0, 0],
+                strokeWeight: 1,
+                fontColor: [0, 0, 16],
+                textBoxMargin: [0, 0, 0, 0],
+                margin: 0,
+                selectedBorder: {
+                    strokeColor: [0, 85, 50],
+                    strokeWeight: 4,
+                },
+                activeFill: {
+                    fillColor: [0, 0, 32],
+                },
+            },
+        }
+    }
+
+    createDrawingTasks() {
         const confirmData: ComponentDataBlob<
             PlayerActionConfirmLayout,
-            PlayerActionConfirmContext,
-            PlayerActionConfirmUIObjects
+            PlayerActionTargetStateMachineContext,
+            PlayerActionTargetStateMachineUIObjects
         > = new ComponentDataBlob()
-        confirmData.setUIObjects(this.componentData.getUIObjects().confirm)
+        confirmData.setUIObjects(this.componentData.getUIObjects())
         confirmData.setLayout(this.componentData.getLayout().confirm)
-        confirmData.setContext({
-            buttonStatusChangeEventDataBlob:
-                this.componentData.getContext().playerActionConfirmContext
-                    .buttonStatusChangeEventDataBlob,
-            battleActionDecisionStep:
-                this.componentData.getContext().battleActionDecisionStep,
-            camera,
-        })
+        confirmData.setContext(this.componentData.getContext())
 
         const confirmOKButtonTask = new SequenceComposite(confirmData, [
             new PlayerActionConfirmShouldCreateOKButton(confirmData),
@@ -143,10 +196,38 @@ export class PlayerActionTargetSelectViewController {
             new PlayerActionConfirmCreateCancelButton(confirmData),
         ])
 
+        const selectTargetData: ComponentDataBlob<
+            PlayerActionTargetLayout,
+            PlayerActionTargetStateMachineContext,
+            PlayerActionTargetStateMachineUIObjects
+        > = new ComponentDataBlob()
+        selectTargetData.setContext(this.componentData.getContext())
+        selectTargetData.setUIObjects(this.componentData.getUIObjects())
+        selectTargetData.setLayout(this.componentData.getLayout().selectTarget)
+
+        const createCancelButtonTask = new SequenceComposite(selectTargetData, [
+            new PlayerActionTargetShouldCreateCancelButton(selectTargetData),
+            new PlayerActionTargetCreateCancelButton(selectTargetData),
+        ])
+
+        const createExplanationLabelTask = new SequenceComposite(
+            selectTargetData,
+            [
+                new PlayerActionTargetShouldCreateExplanationLabel(
+                    selectTargetData
+                ),
+                new PlayerActionTargetCreateExplanationLabel(selectTargetData),
+            ]
+        )
+
         this.uiDrawTasks = {
             confirm: new ExecuteAllComposite(confirmData, [
                 confirmOKButtonTask,
                 confirmCancelButtonTask,
+            ]),
+            selectTarget: new ExecuteAllComposite(selectTargetData, [
+                createCancelButtonTask,
+                createExplanationLabelTask,
             ]),
         }
     }
@@ -159,7 +240,7 @@ export class PlayerActionTargetSelectViewController {
         graphicsContext: GraphicsBuffer
     }) {
         if (this.uiDrawTasks == undefined) {
-            this.createDrawingTasks(camera)
+            this.createDrawingTasks()
         }
 
         const contextInfo = this.componentData.getContext()
@@ -171,7 +252,19 @@ export class PlayerActionTargetSelectViewController {
             objectRepository: contextInfo.objectRepository,
         })
 
-        this.uiDrawTasks.confirm.run()
+        this.getDrawingTask().run()
+
+        const uiObjects = this.componentData.getUIObjects()
+        if (
+            !BattleActionDecisionStepService.isTargetConsidered(
+                contextInfo.battleActionDecisionStep
+            )
+        )
+            LabelService.draw(
+                uiObjects.selectTarget.explanationLabel,
+                graphicsContext
+            )
+
         this.getButtons().forEach((button) => {
             DataBlobService.add<GraphicsBuffer>(
                 button.buttonStyle.dataBlob,
@@ -199,31 +292,117 @@ export class PlayerActionTargetSelectViewController {
         objectRepository: ObjectRepository
         missionMap: MissionMap
     }) {
+        const contextInfo = this.componentData.getContext()
         const uiObjects = this.componentData.getUIObjects()
+
+        this.highlightMapTiles(contextInfo, uiObjects)
+
         this.highlightActorSquaddie({
             battleActionDecisionStep,
             objectRepository,
-            uiObjects: uiObjects.confirm,
+            uiObjects,
         })
         this.highlightTargetSquaddies({
             battleActionDecisionStep,
             missionMap,
             objectRepository,
-            uiObjects: uiObjects.confirm,
+            uiObjects,
         })
 
         uiObjects.graphicsContext = graphicsContext
         uiObjects.camera = camera
-        uiObjects.confirm.graphicsContext = uiObjects.graphicsContext
         this.componentData.setUIObjects(uiObjects)
+    }
+
+    private highlightMapTiles = (
+        contextInfo: PlayerActionTargetStateMachineContext,
+        uiObjects: PlayerActionTargetStateMachineUIObjects
+    ) => {
+        if (
+            !BattleActionDecisionStepService.isActionSet(
+                contextInfo.battleActionDecisionStep
+            )
+        )
+            return
+        if (
+            !BattleActionDecisionStepService.isTargetConsidered(
+                contextInfo.battleActionDecisionStep
+            ) &&
+            uiObjects.mapHighlight !=
+                PlayerActionTargetSelectMapHighlight.ALL_VALID_COORDINATES
+        ) {
+            TargetingResultsService.highlightTargetRange({
+                missionMap: contextInfo.missionMap,
+                objectRepository: contextInfo.objectRepository,
+                battleActionDecisionStep: contextInfo.battleActionDecisionStep,
+                battleActionRecorder: contextInfo.battleActionRecorder,
+            })
+            uiObjects.mapHighlight =
+                PlayerActionTargetSelectMapHighlight.ALL_VALID_COORDINATES
+            return
+        }
+
+        if (
+            BattleActionDecisionStepService.isTargetConsidered(
+                contextInfo.battleActionDecisionStep
+            ) &&
+            uiObjects.mapHighlight !=
+                PlayerActionTargetSelectMapHighlight.SELECTED_SQUADDIES_ONLY
+        ) {
+            TerrainTileMapService.removeAllGraphicsLayers(
+                contextInfo.missionMap.terrainTileMap
+            )
+
+            const actionRangeOnMap = MapGraphicsLayerService.new({
+                id: BattleActionDecisionStepService.getActor(
+                    contextInfo.battleActionDecisionStep
+                ).battleSquaddieId,
+                highlightedTileDescriptions: [
+                    {
+                        coordinates: Object.values(
+                            contextInfo.targetResults.validTargets
+                        ).map((t) => t.mapCoordinate),
+                        pulseColor: HIGHLIGHT_PULSE_COLOR.RED,
+                        overlayImageResourceName: "map icon attack 1 action",
+                    },
+                ],
+                type: MapGraphicsLayerType.CLICKED_ON_CONTROLLABLE_SQUADDIE,
+            })
+            TerrainTileMapService.addGraphicsLayer(
+                contextInfo.missionMap.terrainTileMap,
+                actionRangeOnMap
+            )
+
+            uiObjects.mapHighlight =
+                PlayerActionTargetSelectMapHighlight.SELECTED_SQUADDIES_ONLY
+            return
+        }
+    }
+
+    getDrawingTask() {
+        const contextInfo = this.componentData.getContext()
+        return BattleActionDecisionStepService.isTargetConsidered(
+            contextInfo.battleActionDecisionStep
+        )
+            ? this.uiDrawTasks.confirm
+            : this.uiDrawTasks.selectTarget
     }
 
     getButtons() {
         const uiObjects = this.componentData.getUIObjects()
-        return [
-            uiObjects.confirm.okButton,
-            uiObjects.confirm.cancelButton,
-        ].filter((x) => x)
+        const contextInfo = this.componentData.getContext()
+        if (
+            BattleActionDecisionStepService.isTargetConsidered(
+                contextInfo.battleActionDecisionStep
+            )
+        ) {
+            return [
+                uiObjects.confirm.okButton,
+                uiObjects.confirm.cancelButton,
+            ].filter((x) => x)
+        } else {
+            return [uiObjects.selectTarget.cancelButton].filter((x) => x)
+        }
     }
 
     private highlightActorSquaddie({
@@ -233,7 +412,7 @@ export class PlayerActionTargetSelectViewController {
     }: {
         battleActionDecisionStep: BattleActionDecisionStep
         objectRepository: ObjectRepository
-        uiObjects: PlayerActionConfirmUIObjects
+        uiObjects: PlayerActionTargetStateMachineUIObjects
     }) {
         if (
             !BattleActionDecisionStepService.isActorSet(
@@ -272,7 +451,7 @@ export class PlayerActionTargetSelectViewController {
         missionMap: MissionMap
         battleActionDecisionStep: BattleActionDecisionStep
         objectRepository: ObjectRepository
-        uiObjects: PlayerActionConfirmUIObjects
+        uiObjects: PlayerActionTargetStateMachineUIObjects
     }) {
         if (uiObjects.mapIcons.targets.hasTinted) return
 
@@ -317,21 +496,35 @@ export class PlayerActionTargetSelectViewController {
         missionMap: MissionMap
         battleActionDecisionStep: BattleActionDecisionStep
     }) {
-        return [
-            MissionMapService.getBattleSquaddieAtCoordinate(
-                missionMap,
-                BattleActionDecisionStepService.getTarget(
-                    battleActionDecisionStep
-                )?.targetCoordinate
-            )?.battleSquaddieId,
-        ]
+        const contextInfo = this.componentData.getContext()
+        if (
+            BattleActionDecisionStepService.isTargetConsidered(
+                contextInfo.battleActionDecisionStep
+            )
+        ) {
+            return [
+                MissionMapService.getBattleSquaddieAtCoordinate(
+                    missionMap,
+                    BattleActionDecisionStepService.getTarget(
+                        battleActionDecisionStep
+                    )?.targetCoordinate
+                )?.battleSquaddieId,
+            ]
+        }
+
+        return Object.keys(contextInfo.targetResults.validTargets)
     }
 
     cleanUp() {
+        const contextInfo = this.componentData.getContext()
+        TerrainTileMapService.removeAllGraphicsLayers(
+            contextInfo.missionMap.terrainTileMap
+        )
+
         const oldUiObjects = this.componentData.getUIObjects()
         ;[
-            oldUiObjects?.confirm.mapIcons.actor.mapIcon,
-            ...(oldUiObjects?.confirm.mapIcons.targets.mapIcons ?? []),
+            oldUiObjects?.mapIcons.actor.mapIcon,
+            ...(oldUiObjects?.mapIcons.targets.mapIcons ?? []),
         ]
             .filter((x) => x)
             .forEach((mapIcon) => {

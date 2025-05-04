@@ -65,6 +65,7 @@ import { GraphicsBuffer } from "../../utils/graphics/graphicsRenderer"
 import { SquaddieSelectorPanelButtonService } from "../hud/playerActionPanel/squaddieSelectorPanel/squaddieSelectorPanelButton/squaddieSelectorPanelButton"
 import { RectAreaService } from "../../ui/rectArea"
 import { PlayerConsideredActionsService } from "../battleState/playerConsideredActions"
+import { CampaignResourcesService } from "../../campaign/campaignResources"
 
 describe("Player Selection Service", () => {
     let gameEngineState: GameEngineState
@@ -553,7 +554,6 @@ describe("Player Selection Service", () => {
 
             const expectedMessage = {
                 type: MessageBoardMessageType.PLAYER_PEEKS_AT_SQUADDIE,
-                gameEngineState,
                 battleSquaddieSelectedId: "PLAYER",
                 selectionMethod: {
                     mouse: {
@@ -561,6 +561,14 @@ describe("Player Selection Service", () => {
                         y,
                     },
                 },
+                missionMap:
+                    gameEngineState.battleOrchestratorState.battleState
+                        .missionMap,
+                summaryHUDState:
+                    gameEngineState.battleOrchestratorState.battleHUDState
+                        .summaryHUDState,
+                objectRepository: gameEngineState.repository,
+                campaignResources: CampaignResourcesService.default(),
             }
             expect(messageSpy).toBeCalledWith(expectedMessage)
             expect(actualChanges.messageSent).toEqual(expectedMessage)
@@ -783,73 +791,6 @@ describe("Player Selection Service", () => {
         })
     })
 
-    describe("user selects an action", () => {
-        const setActorSetMessageSpyAndGetOnScreenCoordinate = (
-            enemyMapCoordinate: HexCoordinate
-        ): { x: number; y: number } => {
-            gameEngineState.battleOrchestratorState.battleState.battleActionDecisionStep =
-                BattleActionDecisionStepService.new()
-
-            BattleActionDecisionStepService.setActor({
-                actionDecisionStep:
-                    gameEngineState.battleOrchestratorState.battleState
-                        .battleActionDecisionStep,
-                battleSquaddieId: "PLAYER",
-            })
-
-            messageSpy = vi.spyOn(gameEngineState.messageBoard, "sendMessage")
-
-            return ConvertCoordinateService.convertMapCoordinatesToScreenLocation(
-                {
-                    mapCoordinate: enemyMapCoordinate,
-                    cameraLocation:
-                        gameEngineState.battleOrchestratorState.battleState.camera.getWorldLocation(),
-                }
-            )
-        }
-
-        it("sends a message indicating the squaddie wants to use the ranged attack", () => {
-            const enemyMapCoordinate: HexCoordinate = { q: 0, r: 3 }
-            let x: number
-            let y: number
-            objectRepository = ObjectRepositoryService.new()
-            missionMap = MissionMapService.new({
-                terrainTileMap: TerrainTileMapService.new({
-                    movementCost: ["1 1 - 1 "],
-                }),
-            })
-            gameEngineState = createGameEngineStateWith1PlayerAnd1Enemy({
-                objectRepository,
-                missionMap,
-                enemyMapCoordinate,
-                playerBattleSquaddie: createSquaddie({
-                    objectRepository,
-                    squaddieAffiliation: SquaddieAffiliation.PLAYER,
-                    actionTemplateIds: ["ranged", "melee", "heal"],
-                }).battleSquaddie,
-            })
-            ;({ x, y } =
-                setActorSetMessageSpyAndGetOnScreenCoordinate(
-                    enemyMapCoordinate
-                ))
-            const { actualChanges, expectedMessage } =
-                clickOnScreenAndCalculateChangesAndMessage({
-                    x,
-                    y,
-                    gameEngineState,
-                    targetCoordinate: { q: 0, r: 3 },
-                    playerIntent:
-                        PlayerIntent.SQUADDIE_SELECTED_MOVE_SQUADDIE_TO_COORDINATE,
-                })
-
-            expect(
-                gameEngineState.messageBoard.sendMessage
-            ).toHaveBeenCalledWith(expectedMessage)
-            expect(actualChanges.messageSent).toEqual(expectedMessage)
-
-            messageSpy.mockRestore()
-        })
-    })
     describe("After selecting a squaddie and considering an action, the user moves the mouse off map", () => {
         beforeEach(() => {
             objectRepository = ObjectRepositoryService.new()

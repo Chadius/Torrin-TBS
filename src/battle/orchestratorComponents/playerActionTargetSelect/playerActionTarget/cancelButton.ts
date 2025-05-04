@@ -1,78 +1,79 @@
-import { BehaviorTreeTask } from "../../../utils/behaviorTree/task"
-import { Button } from "../../../ui/button/button"
-import { RectArea, RectAreaService } from "../../../ui/rectArea"
-import { ButtonLogicChangeOnRelease } from "../../../ui/button/logic/buttonLogicChangeOnRelease"
+import { BehaviorTreeTask } from "../../../../utils/behaviorTree/task"
+import { Button } from "../../../../ui/button/button"
+import { RectArea, RectAreaService } from "../../../../ui/rectArea"
+import { ButtonLogicChangeOnRelease } from "../../../../ui/button/logic/buttonLogicChangeOnRelease"
 import {
     AllLabelButtonDataBlob,
     AllLabelButtonDrawTask,
-} from "../../../ui/button/style/AllLabelStyle/allLabelStyle"
-import { ButtonStatus } from "../../../ui/button/buttonStatus"
-import { LabelService } from "../../../ui/label"
+} from "../../../../ui/button/style/AllLabelStyle/allLabelStyle"
+import { ButtonStatus } from "../../../../ui/button/buttonStatus"
+import { LabelService } from "../../../../ui/label"
 import {
     HORIZONTAL_ALIGN,
     VERTICAL_ALIGN,
     WINDOW_SPACING,
-} from "../../../ui/constants"
-import { ScreenDimensions } from "../../../utils/graphics/graphicsConfig"
-import {
-    PlayerActionTargetContext,
-    PlayerActionTargetLayout,
-    PlayerActionTargetUIObjects,
-} from "./battlePlayerSquaddieTarget"
-import { ComponentDataBlob } from "../../../utils/dataBlob/componentDataBlob"
-import { BattleActionDecisionStepService } from "../../actionDecision/battleActionDecisionStep"
-import { ConvertCoordinateService } from "../../../hexMap/convertCoordinates"
-import { MissionMapService } from "../../../missionMap/missionMap"
+} from "../../../../ui/constants"
+import { ScreenDimensions } from "../../../../utils/graphics/graphicsConfig"
+import { ComponentDataBlob } from "../../../../utils/dataBlob/componentDataBlob"
+import { BattleActionDecisionStepService } from "../../../actionDecision/battleActionDecisionStep"
+import { ConvertCoordinateService } from "../../../../hexMap/convertCoordinates"
+import { MissionMapService } from "../../../../missionMap/missionMap"
+import { PlayerActionTargetLayout } from "./playerActionTargetLayout"
+import { PlayerActionTargetStateMachineUIObjects } from "../playerActionTargetStateMachineUIObjects"
+import { PlayerActionTargetStateMachineContext } from "../playerActionTargetStateMachineContext"
 
 export class PlayerActionTargetShouldCreateCancelButton
     implements BehaviorTreeTask
 {
     dataBlob: ComponentDataBlob<
         PlayerActionTargetLayout,
-        PlayerActionTargetContext,
-        PlayerActionTargetUIObjects
+        PlayerActionTargetStateMachineContext,
+        PlayerActionTargetStateMachineUIObjects
     >
 
     constructor(
         dataBlob: ComponentDataBlob<
             PlayerActionTargetLayout,
-            PlayerActionTargetContext,
-            PlayerActionTargetUIObjects
+            PlayerActionTargetStateMachineContext,
+            PlayerActionTargetStateMachineUIObjects
         >
     ) {
         this.dataBlob = dataBlob
     }
 
     run(): boolean {
-        const uiObjects: PlayerActionTargetUIObjects =
+        const uiObjects: PlayerActionTargetStateMachineUIObjects =
             this.dataBlob.getUIObjects()
-        const cancelButton: Button = uiObjects.cancelButton
+        const cancelButton: Button = uiObjects.selectTarget.cancelButton
         return !cancelButton
     }
 }
 
+export const PLAYER_ACTION_SELECT_TARGET_CREATE_CANCEL_BUTTON_ID =
+    "PlayerActionTargetCancel"
 export class PlayerActionTargetCreateCancelButton implements BehaviorTreeTask {
     dataBlob: ComponentDataBlob<
         PlayerActionTargetLayout,
-        PlayerActionTargetContext,
-        PlayerActionTargetUIObjects
+        PlayerActionTargetStateMachineContext,
+        PlayerActionTargetStateMachineUIObjects
     >
 
     constructor(
         dataBlob: ComponentDataBlob<
             PlayerActionTargetLayout,
-            PlayerActionTargetContext,
-            PlayerActionTargetUIObjects
+            PlayerActionTargetStateMachineContext,
+            PlayerActionTargetStateMachineUIObjects
         >
     ) {
         this.dataBlob = dataBlob
     }
 
     run(): boolean {
-        const uiObjects: PlayerActionTargetUIObjects =
+        const uiObjects: PlayerActionTargetStateMachineUIObjects =
             this.dataBlob.getUIObjects()
         const layout: PlayerActionTargetLayout = this.dataBlob.getLayout()
-        const context: PlayerActionTargetContext = this.dataBlob.getContext()
+        const context: PlayerActionTargetStateMachineContext =
+            this.dataBlob.getContext()
 
         const actorBattleSquaddieId = BattleActionDecisionStepService.getActor(
             context.battleActionDecisionStep
@@ -200,8 +201,8 @@ export class PlayerActionTargetCreateCancelButton implements BehaviorTreeTask {
             dataBlob: allLabelButtonDataBlob,
         })
 
-        uiObjects.cancelButton = new Button({
-            id: "PlayerActionTargetCancel",
+        uiObjects.selectTarget.cancelButton = new Button({
+            id: PLAYER_ACTION_SELECT_TARGET_CREATE_CANCEL_BUTTON_ID,
             drawTask,
             buttonLogic,
         })

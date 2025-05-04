@@ -41,10 +41,7 @@ export class BattleHUDListener implements MessageBoardListener {
                 )
                 break
             case MessageBoardMessageType.PLAYER_PEEKS_AT_SQUADDIE:
-                BattleHUDService.playerPeeksAtSquaddie(
-                    message.gameEngineState.battleOrchestratorState.battleHUD,
-                    message
-                )
+                BattleHUDService.playerPeeksAtSquaddie(message)
                 break
             case MessageBoardMessageType.PLAYER_SELECTS_ACTION_TEMPLATE:
                 BattleHUDService.playerSelectsActionTemplate(message)

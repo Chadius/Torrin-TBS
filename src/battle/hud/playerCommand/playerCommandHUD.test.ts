@@ -230,7 +230,10 @@ describe("playerCommandHUD", () => {
         SummaryHUDStateService.createActorTiles({
             summaryHUDState,
             objectRepository,
-            gameEngineState,
+            battleActionDecisionStep:
+                gameEngineState.battleOrchestratorState.battleState
+                    .battleActionDecisionStep,
+            campaignResources: gameEngineState.campaign.resources,
         })
 
         SummaryHUDStateService.draw({

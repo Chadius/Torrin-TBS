@@ -1,51 +1,49 @@
-import { BehaviorTreeTask } from "../../../utils/behaviorTree/task"
-import { Button } from "../../../ui/button/button"
-import { RectArea, RectAreaService } from "../../../ui/rectArea"
-import { ButtonLogicChangeOnRelease } from "../../../ui/button/logic/buttonLogicChangeOnRelease"
+import { BehaviorTreeTask } from "../../../../utils/behaviorTree/task"
+import { Button } from "../../../../ui/button/button"
+import { RectArea, RectAreaService } from "../../../../ui/rectArea"
+import { ButtonLogicChangeOnRelease } from "../../../../ui/button/logic/buttonLogicChangeOnRelease"
 import {
     AllLabelButtonDataBlob,
     AllLabelButtonDrawTask,
-} from "../../../ui/button/style/AllLabelStyle/allLabelStyle"
-import { ButtonStatus } from "../../../ui/button/buttonStatus"
-import { LabelService } from "../../../ui/label"
+} from "../../../../ui/button/style/AllLabelStyle/allLabelStyle"
+import { ButtonStatus } from "../../../../ui/button/buttonStatus"
+import { LabelService } from "../../../../ui/label"
 import {
     HORIZONTAL_ALIGN,
     VERTICAL_ALIGN,
     WINDOW_SPACING,
-} from "../../../ui/constants"
-import {
-    PlayerActionConfirmContext,
-    PlayerActionConfirmLayout,
-    PlayerActionConfirmUIObjects,
-} from "./battlePlayerActionConfirm"
-import { BattleActionDecisionStepService } from "../../actionDecision/battleActionDecisionStep"
-import { ConvertCoordinateService } from "../../../hexMap/convertCoordinates"
-import { ScreenDimensions } from "../../../utils/graphics/graphicsConfig"
-import { ComponentDataBlob } from "../../../utils/dataBlob/componentDataBlob"
+} from "../../../../ui/constants"
+import { BattleActionDecisionStepService } from "../../../actionDecision/battleActionDecisionStep"
+import { ConvertCoordinateService } from "../../../../hexMap/convertCoordinates"
+import { ScreenDimensions } from "../../../../utils/graphics/graphicsConfig"
+import { ComponentDataBlob } from "../../../../utils/dataBlob/componentDataBlob"
+import { PlayerActionConfirmLayout } from "./playerActionConfirmLayout"
+import { PlayerActionTargetStateMachineUIObjects } from "../playerActionTargetStateMachineUIObjects"
+import { PlayerActionTargetStateMachineContext } from "../playerActionTargetStateMachineContext"
 
 export class PlayerActionConfirmShouldCreateOKButton
     implements BehaviorTreeTask
 {
     dataBlob: ComponentDataBlob<
         PlayerActionConfirmLayout,
-        PlayerActionConfirmContext,
-        PlayerActionConfirmUIObjects
+        PlayerActionTargetStateMachineContext,
+        PlayerActionTargetStateMachineUIObjects
     >
 
     constructor(
         dataBlob: ComponentDataBlob<
             PlayerActionConfirmLayout,
-            PlayerActionConfirmContext,
-            PlayerActionConfirmUIObjects
+            PlayerActionTargetStateMachineContext,
+            PlayerActionTargetStateMachineUIObjects
         >
     ) {
         this.dataBlob = dataBlob
     }
 
     run(): boolean {
-        const uiObjects: PlayerActionConfirmUIObjects =
+        const uiObjects: PlayerActionTargetStateMachineUIObjects =
             this.dataBlob.getUIObjects()
-        const okButton: Button = uiObjects.okButton
+        const okButton: Button = uiObjects.confirm.okButton
         return !okButton
     }
 }
@@ -55,29 +53,30 @@ export const PLAYER_ACTION_CONFIRM_CREATE_OK_BUTTON_ID = "PlayerActionConfirmOK"
 export class PlayerActionConfirmCreateOKButton implements BehaviorTreeTask {
     dataBlob: ComponentDataBlob<
         PlayerActionConfirmLayout,
-        PlayerActionConfirmContext,
-        PlayerActionConfirmUIObjects
+        PlayerActionTargetStateMachineContext,
+        PlayerActionTargetStateMachineUIObjects
     >
 
     constructor(
         dataBlob: ComponentDataBlob<
             PlayerActionConfirmLayout,
-            PlayerActionConfirmContext,
-            PlayerActionConfirmUIObjects
+            PlayerActionTargetStateMachineContext,
+            PlayerActionTargetStateMachineUIObjects
         >
     ) {
         this.dataBlob = dataBlob
     }
 
     run(): boolean {
-        const uiObjects: PlayerActionConfirmUIObjects =
+        const uiObjects: PlayerActionTargetStateMachineUIObjects =
             this.dataBlob.getUIObjects()
         const layout: PlayerActionConfirmLayout = this.dataBlob.getLayout()
-        const context: PlayerActionConfirmContext = this.dataBlob.getContext()
+        const context: PlayerActionTargetStateMachineContext =
+            this.dataBlob.getContext()
         const targetCoordinate = BattleActionDecisionStepService.getTarget(
             context.battleActionDecisionStep
         )?.targetCoordinate
-        const camera = context.camera ?? uiObjects.camera
+        const camera = uiObjects.camera
         const targetLocation = targetCoordinate
             ? ConvertCoordinateService.convertMapCoordinatesToScreenLocation({
                   mapCoordinate: targetCoordinate,
@@ -195,7 +194,7 @@ export class PlayerActionConfirmCreateOKButton implements BehaviorTreeTask {
             dataBlob: allLabelButtonDataBlob,
         })
 
-        uiObjects.okButton = new Button({
+        uiObjects.confirm.okButton = new Button({
             id: PLAYER_ACTION_CONFIRM_CREATE_OK_BUTTON_ID,
             drawTask,
             buttonLogic,

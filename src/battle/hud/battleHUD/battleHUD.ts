@@ -2,10 +2,7 @@ import {
     FileAccessHUD,
     FileAccessHUDService,
 } from "../fileAccess/fileAccessHUD"
-import {
-    getValidValueOrDefault,
-    isValidValue,
-} from "../../../utils/objectValidityCheck"
+import { getValidValueOrDefault } from "../../../utils/objectValidityCheck"
 import {
     MessageBoardMessageMoveSquaddieToCoordinate,
     MessageBoardMessagePlayerCancelsPlayerActionConsiderations,
@@ -92,9 +89,21 @@ export const BattleHUDService = {
         BattleActionDecisionStepService.removeAction({
             actionDecisionStep: message.battleActionDecisionStep,
         })
+
         BattleActionDecisionStepService.removeTarget({
             actionDecisionStep: message.battleActionDecisionStep,
         })
+
+        if (message.summaryHUDState) {
+            SummaryHUDStateService.reset(message.summaryHUDState)
+
+            SummaryHUDStateService.createActorTiles({
+                summaryHUDState: message.summaryHUDState,
+                battleActionDecisionStep: message.battleActionDecisionStep,
+                campaignResources: message.campaignResources,
+                objectRepository: message.objectRepository,
+            })
+        }
     },
     cancelTargetConfirmation: (
         message: MessageBoardMessagePlayerCancelsTargetConfirmation
@@ -230,50 +239,37 @@ export const BattleHUDService = {
         }
     },
     playerPeeksAtSquaddie: (
-        _battleHUD: BattleHUD,
         message: MessageBoardMessagePlayerPeeksAtSquaddie
     ) => {
-        const gameEngineState = message.gameEngineState
         const battleSquaddieId = message.battleSquaddieSelectedId
 
-        if (
-            !isValidValue(
-                gameEngineState.battleOrchestratorState.battleHUDState
-                    .summaryHUDState
-            )
-        ) {
-            gameEngineState.battleOrchestratorState.battleHUDState.summaryHUDState =
-                SummaryHUDStateService.new()
+        if (message.summaryHUDState) {
+            SummaryHUDStateService.reset(message.summaryHUDState)
         }
-
         SummaryHUDStateService.peekAtSquaddie({
-            summaryHUDState:
-                gameEngineState.battleOrchestratorState.battleHUDState
-                    .summaryHUDState,
+            summaryHUDState: message.summaryHUDState,
             battleSquaddieId,
-            gameEngineState,
+            objectRepository: message.objectRepository,
         })
 
         const { mapCoordinate: startLocation } =
             MissionMapService.getByBattleSquaddieId(
-                gameEngineState.battleOrchestratorState.battleState.missionMap,
+                message.missionMap,
                 battleSquaddieId
             )
         const { squaddieTemplate, battleSquaddie } = getResultOrThrowError(
             ObjectRepositoryService.getSquaddieByBattleId(
-                gameEngineState.repository,
+                message.objectRepository,
                 battleSquaddieId
             )
         )
         const squaddieReachHighlightedOnMap =
             MapHighlightService.highlightAllCoordinatesWithinSquaddieRange({
-                repository: gameEngineState.repository,
-                missionMap:
-                    gameEngineState.battleOrchestratorState.battleState
-                        .missionMap,
+                repository: message.objectRepository,
+                missionMap: message.missionMap,
                 battleSquaddieId: battleSquaddieId,
                 startCoordinate: startLocation,
-                campaignResources: gameEngineState.campaign.resources,
+                campaignResources: message.campaignResources,
                 squaddieTurnOverride:
                     squaddieTemplate.squaddieId.affiliation ===
                     SquaddieAffiliation.PLAYER
@@ -282,8 +278,7 @@ export const BattleHUDService = {
             })
 
         TerrainTileMapService.removeGraphicsLayerByType(
-            gameEngineState.battleOrchestratorState.battleState.missionMap
-                .terrainTileMap,
+            message.missionMap.terrainTileMap,
             MapGraphicsLayerType.HOVERED_OVER_NORMALLY_UNCONTROLLABLE_SQUADDIE
         )
 
@@ -303,8 +298,7 @@ export const BattleHUDService = {
         })
 
         TerrainTileMapService.addGraphicsLayer(
-            gameEngineState.battleOrchestratorState.battleState.missionMap
-                .terrainTileMap,
+            message.missionMap.terrainTileMap,
             actionRangeLayer
         )
     },
@@ -739,11 +733,14 @@ const createSquaddieStatusTileForNormallyControllableSquaddie = (
     gameEngineState: GameEngineState
 ) => {
     SummaryHUDStateService.createActorTiles({
+        battleActionDecisionStep:
+            gameEngineState.battleOrchestratorState.battleState
+                .battleActionDecisionStep,
+        campaignResources: gameEngineState.campaign.resources,
         summaryHUDState:
             gameEngineState.battleOrchestratorState.battleHUDState
                 .summaryHUDState,
         objectRepository: gameEngineState.repository,
-        gameEngineState,
     })
 }
 
@@ -756,7 +753,7 @@ const createSquaddieStatusTileForNormallyUncontrollableSquaddie = (
             gameEngineState.battleOrchestratorState.battleHUDState
                 .summaryHUDState,
         battleSquaddieId: battleSquaddie.battleSquaddieId,
-        gameEngineState,
+        objectRepository: gameEngineState.repository,
         removeExpirationTime: true,
     })
 }

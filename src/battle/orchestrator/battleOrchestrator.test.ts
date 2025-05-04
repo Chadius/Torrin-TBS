@@ -12,7 +12,6 @@ import {
     BattlePhaseStateService,
 } from "../orchestratorComponents/battlePhaseController"
 import { BattleSquaddieUsesActionOnMap } from "../orchestratorComponents/battleSquaddieUsesActionOnMap"
-import { BattlePlayerSquaddieTarget } from "../orchestratorComponents/playerActionTarget/battlePlayerSquaddieTarget"
 import { ObjectRepositoryService } from "../objectRepository"
 import { SquaddieAffiliation } from "../../squaddie/squaddieAffiliation"
 import { BattleOrchestratorComponent } from "./battleOrchestratorComponent"
@@ -50,7 +49,6 @@ import {
 } from "../../gameEngine/gameEngine"
 import { BattleHUDService } from "../hud/battleHUD/battleHUD"
 import { PlayerHudController } from "../orchestratorComponents/playerHudController"
-import { BattlePlayerActionConfirm } from "../orchestratorComponents/playerActionConfirm/battlePlayerActionConfirm"
 import { SquaddieRepositoryService } from "../../utils/test/squaddie"
 import { CutsceneQueueService } from "../cutscene/cutsceneIdQueue"
 import { BattleActionRecorderService } from "../history/battleAction/battleActionRecorder"
@@ -73,7 +71,7 @@ import { SquaddieIdService } from "../../squaddie/id"
 import { SquaddieResourceService } from "../../squaddie/resource"
 import { BattleSquaddieService } from "../battleSquaddie"
 import { GraphicsBuffer } from "../../utils/graphics/graphicsRenderer"
-import { PlayerActionTargetSelect } from "./playerActionTargetSelect/playerActionTargetSelect"
+import { PlayerActionTargetSelect } from "../orchestratorComponents/playerActionTargetSelect/playerActionTargetSelect"
 
 describe("Battle Orchestrator", () => {
     type OrchestratorTestOptions = {
@@ -85,8 +83,6 @@ describe("Battle Orchestrator", () => {
         squaddieMover: BattleSquaddieMover
         phaseController: BattlePhaseController
         playerHudController: PlayerHudController
-        playerSquaddieTarget: BattlePlayerSquaddieTarget
-        playerConfirm: BattlePlayerActionConfirm
         initializeBattle: InitializeBattle
 
         initialMode: BattleOrchestratorMode
@@ -97,9 +93,7 @@ describe("Battle Orchestrator", () => {
     let mockInitializeBattle: InitializeBattle
     let mockBattleCutscenePlayer: BattleCutscenePlayer
     let mockPlayerSquaddieSelector: BattlePlayerSquaddieSelector
-    let mockPlayerSquaddieTarget: BattlePlayerSquaddieTarget
     let mockPlayerActionTargetSelect: PlayerActionTargetSelect
-    let mockPlayerConfirm: BattlePlayerActionConfirm
     let mockComputerSquaddieSelector: BattleComputerSquaddieSelector
     let mockSquaddieUsesActionOnMap: BattleSquaddieUsesActionOnMap
     let mockSquaddieUsesActionOnSquaddie: BattleSquaddieUsesActionOnSquaddie
@@ -143,38 +137,8 @@ describe("Battle Orchestrator", () => {
             .fn()
             .mockReturnValue({ displayMap: true })
 
-        mockPlayerSquaddieTarget = new BattlePlayerSquaddieTarget()
-        mockPlayerSquaddieTarget.update = vi.fn()
-        mockPlayerSquaddieTarget.uiControlSettings = vi.fn().mockReturnValue(
-            new UIControlSettings({
-                displayMap: true,
-                displayPlayerHUD: true,
-                scrollCamera: true,
-            })
-        )
-        mockPlayerSquaddieTarget.mouseEventHappened = vi.fn()
-        mockPlayerSquaddieTarget.hasCompleted = vi.fn().mockReturnValue(true)
-        mockPlayerSquaddieTarget.recommendStateChanges = vi
-            .fn()
-            .mockReturnValue({ displayMap: true })
-
         mockPlayerActionTargetSelect = new PlayerActionTargetSelect()
         mockPlayerActionTargetSelect.update = vi.fn()
-
-        mockPlayerConfirm = new BattlePlayerActionConfirm()
-        mockPlayerConfirm.update = vi.fn()
-        mockPlayerConfirm.uiControlSettings = vi.fn().mockReturnValue(
-            new UIControlSettings({
-                displayMap: true,
-                displayPlayerHUD: true,
-                scrollCamera: true,
-            })
-        )
-        mockPlayerConfirm.mouseEventHappened = vi.fn()
-        mockPlayerConfirm.hasCompleted = vi.fn().mockReturnValue(true)
-        mockPlayerConfirm.recommendStateChanges = vi
-            .fn()
-            .mockReturnValue({ displayMap: true })
 
         mockComputerSquaddieSelector = new BattleComputerSquaddieSelector()
         mockComputerSquaddieSelector.update = vi.fn()
@@ -309,12 +273,9 @@ describe("Battle Orchestrator", () => {
                 squaddieUsesActionOnMap: mockSquaddieUsesActionOnMap,
                 squaddieUsesActionOnSquaddie: mockSquaddieUsesActionOnSquaddie,
                 squaddieMover: mockSquaddieMover,
-                playerSquaddieTarget: mockPlayerSquaddieTarget,
-                playerConfirm: mockPlayerConfirm,
                 mapDisplay: mockMapDisplay,
                 phaseController: mockPhaseController,
                 playerHudController: mockPlayerHudController,
-                playerActionConfirm: mockPlayerConfirm,
                 playerActionTargetSelect: mockPlayerActionTargetSelect,
             },
             ...overrides,
@@ -675,29 +636,28 @@ describe("Battle Orchestrator", () => {
         }
 
         describe("knows which battle orchestrator component to load based on the state", () => {
+            const excludedModes = [
+                BattleOrchestratorMode.UNKNOWN,
+                BattleOrchestratorMode.INITIALIZED,
+                BattleOrchestratorMode.PLAYER_HUD_CONTROLLER,
+            ] as const
+            type ExcludedModesType = (typeof excludedModes)[number]
+
+            type BattleOrchestratorModesWithComponents = Exclude<
+                BattleOrchestratorMode,
+                ExcludedModesType
+            >
+
             for (const modeStr in BattleOrchestratorMode) {
-                if (
-                    modeStr === BattleOrchestratorMode.UNKNOWN ||
-                    modeStr === BattleOrchestratorMode.INITIALIZED ||
-                    modeStr === BattleOrchestratorMode.PLAYER_HUD_CONTROLLER
-                ) {
+                if (excludedModes.includes(modeStr as ExcludedModesType)) {
                     continue
                 }
 
-                const mode: BattleOrchestratorMode = modeStr as Exclude<
-                    BattleOrchestratorMode,
-                    | BattleOrchestratorMode.UNKNOWN
-                    | BattleOrchestratorMode.INITIALIZED
-                    | BattleOrchestratorMode.PLAYER_HUD_CONTROLLER
-                >
+                const mode: BattleOrchestratorMode =
+                    modeStr as BattleOrchestratorModesWithComponents
                 it(`using the ${mode} mode will use the expected battle orchestrator component`, () => {
                     const tests: {
-                        [mode in Exclude<
-                            BattleOrchestratorMode,
-                            | BattleOrchestratorMode.UNKNOWN
-                            | BattleOrchestratorMode.INITIALIZED
-                            | BattleOrchestratorMode.PLAYER_HUD_CONTROLLER
-                        >]: BattleOrchestratorComponent
+                        [mode in BattleOrchestratorModesWithComponents]: BattleOrchestratorComponent
                     } = {
                         [BattleOrchestratorMode.CUTSCENE_PLAYER]:
                             mockBattleCutscenePlayer,
@@ -707,10 +667,6 @@ describe("Battle Orchestrator", () => {
                             mockPlayerSquaddieSelector,
                         [BattleOrchestratorMode.PLAYER_ACTION_TARGET_SELECT]:
                             mockPlayerActionTargetSelect,
-                        [BattleOrchestratorMode.PLAYER_SQUADDIE_TARGET]:
-                            mockPlayerSquaddieTarget,
-                        [BattleOrchestratorMode.PLAYER_ACTION_CONFIRM]:
-                            mockPlayerConfirm,
                         [BattleOrchestratorMode.COMPUTER_SQUADDIE_SELECTOR]:
                             mockComputerSquaddieSelector,
                         [BattleOrchestratorMode.SQUADDIE_MOVER]:

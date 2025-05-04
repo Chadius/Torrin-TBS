@@ -17,29 +17,28 @@ import { MissionStatistics } from "../../missionStatistics/missionStatistics"
 import {
     OrchestratorComponentKeyEvent,
     OrchestratorComponentMouseEvent,
-} from "../battleOrchestratorComponent"
+} from "../../orchestrator/battleOrchestratorComponent"
 import { HexCoordinate } from "../../../hexMap/hexCoordinate/hexCoordinate"
 import { DataBlobService } from "../../../utils/dataBlob/dataBlob"
 import { PlayerCommandState } from "../../hud/playerCommand/playerCommandHUD"
+import { BattleCamera } from "../../battleCamera"
 
 export interface PlayerActionTargetStateMachineContext {
+    camera: BattleCamera
     playerCommandState: PlayerCommandState
     battleActionDecisionStep: BattleActionDecisionStep
     missionMap: MissionMap
     objectRepository: ObjectRepository
     messageBoard: MessageBoard
-    playerActionConfirmContext: {
-        buttonStatusChangeEventDataBlob: ButtonStatusChangeEventByButtonId
-    }
+    battleActionRecorder: BattleActionRecorder
+    explanationLabelText: string
+    buttonStatusChangeEventDataBlob: ButtonStatusChangeEventByButtonId
 
     messageParameters: {
-        battleActionRecorder: BattleActionRecorder
         numberGenerator: NumberGeneratorStrategy
         summaryHUDState: SummaryHUDState
-
-        playerCancelsTargetSelectionMessageParameters: {
-            campaignResources: CampaignResources
-        }
+        playerInputState: PlayerInputState
+        campaignResources: CampaignResources
 
         playerCancelsPlayerActionConsiderationsParameters: {
             playerConsideredActions: PlayerConsideredActions
@@ -47,7 +46,6 @@ export interface PlayerActionTargetStateMachineContext {
         }
 
         playerConfirmsActionMessageParameters: {
-            playerInputState: PlayerInputState
             missionStatistics: MissionStatistics
         }
     }
@@ -57,6 +55,7 @@ export interface PlayerActionTargetStateMachineContext {
     )[]
 
     playerIntent: {
+        targetCancelled: boolean
         targetSelection: {
             automaticallySelected: boolean
             battleSquaddieIds: string[]
@@ -73,10 +72,8 @@ export interface PlayerActionTargetStateMachineContext {
     }
 
     externalFlags: {
-        useLegacySelector: boolean
-        cancelActionTarget: boolean
         cancelActionSelection: boolean
-        finished: boolean
+        actionConfirmed: boolean
     }
 }
 
@@ -84,6 +81,7 @@ export const PlayerActionTargetContextService = {
     new: ({
         battleActionDecisionStep,
         missionMap,
+        camera,
         objectRepository,
         campaignResources,
         messageBoard,
@@ -109,12 +107,8 @@ export const PlayerActionTargetContextService = {
         playerConsideredActions: PlayerConsideredActions
         playerDecisionHUD: PlayerDecisionHUD
         playerCommandState: PlayerCommandState
+        camera: BattleCamera
     }): PlayerActionTargetStateMachineContext => {
-        const playerCancelsTargetSelectionMessageParameters = {
-            campaignResources:
-                campaignResources ?? CampaignResourcesService.default(),
-        }
-
         const playerCancelsPlayerActionConsiderationsParameters = {
             playerConsideredActions,
             playerDecisionHUD,
@@ -122,22 +116,23 @@ export const PlayerActionTargetContextService = {
 
         const playerConfirmsActionMessageParameters = {
             missionStatistics,
-            playerInputState,
         }
 
         return {
             battleActionDecisionStep,
             missionMap,
+            camera,
             objectRepository,
             messageBoard,
-            playerActionConfirmContext: {
-                buttonStatusChangeEventDataBlob: DataBlobService.new(),
-            },
+            battleActionRecorder,
+            explanationLabelText: "Select a target",
+            buttonStatusChangeEventDataBlob: DataBlobService.new(),
             messageParameters: {
+                playerInputState,
                 numberGenerator,
-                battleActionRecorder,
                 summaryHUDState,
-                playerCancelsTargetSelectionMessageParameters,
+                campaignResources:
+                    campaignResources ?? CampaignResourcesService.default(),
                 playerCancelsPlayerActionConsiderationsParameters,
                 playerConfirmsActionMessageParameters,
             },
@@ -148,11 +143,10 @@ export const PlayerActionTargetContextService = {
             playerInput: [],
             externalFlags: {
                 cancelActionSelection: undefined,
-                cancelActionTarget: undefined,
-                useLegacySelector: undefined,
-                finished: undefined,
+                actionConfirmed: undefined,
             },
             playerIntent: {
+                targetCancelled: false,
                 targetSelection: {
                     battleSquaddieIds: [],
                     automaticallySelected: false,

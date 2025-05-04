@@ -16,7 +16,6 @@ import { BattleSquaddieMover } from "../orchestratorComponents/battleSquaddieMov
 import { BattleMapDisplay } from "../orchestratorComponents/battleMapDisplay"
 import { BattlePhaseController } from "../orchestratorComponents/battlePhaseController"
 import { BattleSquaddieUsesActionOnMap } from "../orchestratorComponents/battleSquaddieUsesActionOnMap"
-import { BattlePlayerSquaddieTarget } from "../orchestratorComponents/playerActionTarget/battlePlayerSquaddieTarget"
 import { BattleSquaddieUsesActionOnSquaddie } from "../orchestratorComponents/battleSquaddieUsesActionOnSquaddie"
 import { UIControlSettings } from "./uiControlSettings"
 import { BattleComputerSquaddieSelector } from "../orchestratorComponents/battleComputerSquaddieSelector"
@@ -45,13 +44,12 @@ import { CutsceneTrigger } from "../../cutscene/cutsceneTrigger"
 import { InitializeBattle } from "./initializeBattle"
 import { PlayerHudController } from "../orchestratorComponents/playerHudController"
 import { GraphicsBuffer } from "../../utils/graphics/graphicsRenderer"
-import { BattlePlayerActionConfirm } from "../orchestratorComponents/playerActionConfirm/battlePlayerActionConfirm"
 import { MissionCutsceneService } from "../cutscene/missionCutsceneService"
 import { CutsceneQueueService } from "../cutscene/cutsceneIdQueue"
 import { PlayerDecisionHUDService } from "../hud/playerActionPanel/playerDecisionHUD"
 import { SummaryHUDStateService } from "../hud/summary/summaryHUD"
 import { SquaddieSelectorPanelService } from "../hud/playerActionPanel/squaddieSelectorPanel/squaddieSelectorPanel"
-import { PlayerActionTargetSelect } from "./playerActionTargetSelect/playerActionTargetSelect"
+import { PlayerActionTargetSelect } from "../orchestratorComponents/playerActionTargetSelect/playerActionTargetSelect"
 
 export enum BattleOrchestratorMode {
     UNKNOWN = "UNKNOWN",
@@ -61,8 +59,6 @@ export enum BattleOrchestratorMode {
     PLAYER_HUD_CONTROLLER = "PLAYER_HUD_CONTROLLER",
     PLAYER_SQUADDIE_SELECTOR = "PLAYER_SQUADDIE_SELECTOR",
     PLAYER_ACTION_TARGET_SELECT = "PLAYER_ACTION_TARGET_SELECT",
-    PLAYER_SQUADDIE_TARGET = "PLAYER_SQUADDIE_TARGET",
-    PLAYER_ACTION_CONFIRM = "PLAYER_ACTION_CONFIRM",
     COMPUTER_SQUADDIE_SELECTOR = "COMPUTER_SQUADDIE_SELECTOR",
     SQUADDIE_MOVER = "SQUADDIE_MOVER",
     SQUADDIE_USES_ACTION_ON_MAP = "SQUADDIE_USES_ACTION_ON_MAP",
@@ -75,7 +71,6 @@ export class BattleOrchestrator implements GameEngineComponent {
     cutscenePlayer: BattleCutscenePlayer
     playerSquaddieSelector: BattlePlayerSquaddieSelector
     playerActionTargetSelect: PlayerActionTargetSelect
-    playerSquaddieTarget: BattlePlayerSquaddieTarget
     computerSquaddieSelector: BattleComputerSquaddieSelector
     squaddieUsesActionOnMap: BattleSquaddieUsesActionOnMap
     squaddieUsesActionOnSquaddie: BattleSquaddieUsesActionOnSquaddie
@@ -85,7 +80,6 @@ export class BattleOrchestrator implements GameEngineComponent {
     phaseController: BattlePhaseController
     initializeBattle: InitializeBattle
     playerHudController: PlayerHudController
-    playerActionConfirm: BattlePlayerActionConfirm
 
     battleOrchestratorModeComponentConstants: {
         [m in BattleOrchestratorMode]: {
@@ -141,21 +135,9 @@ export class BattleOrchestrator implements GameEngineComponent {
             },
             defaultNextMode: BattleOrchestratorMode.PHASE_CONTROLLER,
         },
-        [BattleOrchestratorMode.PLAYER_SQUADDIE_TARGET]: {
-            getCurrentComponent: () => {
-                return this.playerSquaddieTarget
-            },
-            defaultNextMode: BattleOrchestratorMode.PLAYER_HUD_CONTROLLER,
-        },
         [BattleOrchestratorMode.PLAYER_ACTION_TARGET_SELECT]: {
             getCurrentComponent: () => {
                 return this.playerActionTargetSelect
-            },
-            defaultNextMode: BattleOrchestratorMode.PLAYER_HUD_CONTROLLER,
-        },
-        [BattleOrchestratorMode.PLAYER_ACTION_CONFIRM]: {
-            getCurrentComponent: () => {
-                return this.playerActionConfirm
             },
             defaultNextMode: BattleOrchestratorMode.PLAYER_HUD_CONTROLLER,
         },
@@ -178,8 +160,6 @@ export class BattleOrchestrator implements GameEngineComponent {
         squaddieUsesActionOnSquaddie,
         playerSquaddieSelector,
         playerActionTargetSelect,
-        playerSquaddieTarget,
-        playerActionConfirm,
         computerSquaddieSelector,
         playerHudController,
         initializeBattle,
@@ -187,8 +167,6 @@ export class BattleOrchestrator implements GameEngineComponent {
         cutscenePlayer: BattleCutscenePlayer
         playerSquaddieSelector: BattlePlayerSquaddieSelector
         playerActionTargetSelect: PlayerActionTargetSelect
-        playerSquaddieTarget: BattlePlayerSquaddieTarget
-        playerActionConfirm: BattlePlayerActionConfirm
         computerSquaddieSelector: BattleComputerSquaddieSelector
         squaddieUsesActionOnMap: BattleSquaddieUsesActionOnMap
         squaddieUsesActionOnSquaddie: BattleSquaddieUsesActionOnSquaddie
@@ -200,8 +178,6 @@ export class BattleOrchestrator implements GameEngineComponent {
     }) {
         this.cutscenePlayer = cutscenePlayer
         this.playerSquaddieSelector = playerSquaddieSelector
-        this.playerSquaddieTarget = playerSquaddieTarget
-        this.playerActionConfirm = playerActionConfirm
         this.computerSquaddieSelector = computerSquaddieSelector
         this.squaddieUsesActionOnMap = squaddieUsesActionOnMap
         this.squaddieMover = squaddieMover
@@ -506,7 +482,6 @@ export class BattleOrchestrator implements GameEngineComponent {
         ;[
             this.cutscenePlayer,
             this.playerSquaddieSelector,
-            this.playerSquaddieTarget,
             this.computerSquaddieSelector,
             this.squaddieUsesActionOnMap,
             this.squaddieMover,

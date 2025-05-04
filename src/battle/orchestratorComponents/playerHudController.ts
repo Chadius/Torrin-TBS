@@ -103,16 +103,6 @@ export class PlayerHudController implements BattleOrchestratorComponent {
                 }
             }
 
-            if (
-                BattleActionDecisionStepService.isTargetConsidered(
-                    actionBuilderState
-                )
-            ) {
-                return {
-                    nextMode: BattleOrchestratorMode.PLAYER_ACTION_CONFIRM,
-                }
-            }
-
             return {
                 nextMode: BattleOrchestratorMode.PLAYER_ACTION_TARGET_SELECT,
             }
