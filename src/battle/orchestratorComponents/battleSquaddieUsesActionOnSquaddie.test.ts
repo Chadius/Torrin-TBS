@@ -251,7 +251,7 @@ describe("BattleSquaddieUsesActionOnSquaddie", () => {
                 effect: { squaddie: [] },
             })
         )
-        BattleActionRecorderService.battleActionFinishedAnimating(
+        BattleActionRecorderService.addAnimatingBattleActionToAlreadyAnimatedThisTurn(
             gameEngineState.battleOrchestratorState.battleState
                 .battleActionRecorder
         )
@@ -277,8 +277,12 @@ describe("BattleSquaddieUsesActionOnSquaddie", () => {
             })
         )
 
-        SquaddieTurnService.spendActionPointsAndReservedPoints({
-            data: battleSquaddieBase.squaddieTurn,
+        SquaddieTurnService.spendPreviewedMovementActionPointsToRefundable({
+            squaddieTurn: battleSquaddieBase.squaddieTurn,
+        })
+
+        SquaddieTurnService.setSpentMovementActionPointsAsNotRefundable({
+            squaddieTurn: battleSquaddieBase.squaddieTurn,
             actionTemplate: powerAttackLongswordAction,
         })
         return gameEngineState
@@ -294,7 +298,7 @@ describe("BattleSquaddieUsesActionOnSquaddie", () => {
                 missionMap,
                 squaddieTemplateId: squaddieTemplateBase.squaddieId.templateId,
                 battleSquaddieId: battleSquaddieBase.battleSquaddieId,
-                coordinate: {
+                originMapCoordinate: {
                     q: 0,
                     r: 0,
                 },
@@ -347,8 +351,12 @@ describe("BattleSquaddieUsesActionOnSquaddie", () => {
             })
         )
 
-        SquaddieTurnService.spendActionPointsAndReservedPoints({
-            data: battleSquaddieBase.squaddieTurn,
+        SquaddieTurnService.spendPreviewedMovementActionPointsToRefundable({
+            squaddieTurn: battleSquaddieBase.squaddieTurn,
+        })
+
+        SquaddieTurnService.setSpentMovementActionPointsAsNotRefundable({
+            squaddieTurn: battleSquaddieBase.squaddieTurn,
             actionTemplate: powerAttackLongswordAction,
         })
         return gameEngineState
@@ -420,7 +428,7 @@ describe("BattleSquaddieUsesActionOnSquaddie", () => {
         const gameEngineState = usePowerAttackLongswordAndReturnState({
             missionMap,
         })
-        SquaddieTurnService.spendActionPointsForMovement({
+        SquaddieTurnService.setMovementActionPointsPreviewedByPlayer({
             squaddieTurn: battleSquaddieBase.squaddieTurn,
             actionPoints: 1,
         })
@@ -466,7 +474,7 @@ describe("BattleSquaddieUsesActionOnSquaddie", () => {
         const gameEngineState = usePowerAttackLongswordAndReturnState({
             missionMap,
         })
-        SquaddieTurnService.spendActionPointsForMovement({
+        SquaddieTurnService.setMovementActionPointsPreviewedByPlayer({
             squaddieTurn: battleSquaddieBase.squaddieTurn,
             actionPoints: 1,
         })

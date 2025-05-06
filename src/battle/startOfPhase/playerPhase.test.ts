@@ -125,7 +125,7 @@ describe("player phase listener", () => {
                 missionMap,
                 battleSquaddieId: battleSquaddieIdToAdd,
                 squaddieTemplateId: squaddieTemplateIdToAdd,
-                coordinate: { q: 0, r: 0 },
+                originMapCoordinate: { q: 0, r: 0 },
             })
             const battleOrchestratorState: BattleOrchestratorState =
                 BattleOrchestratorStateService.new({
@@ -179,8 +179,8 @@ describe("player phase listener", () => {
             const playerSquaddieLocation =
                 ConvertCoordinateService.convertMapCoordinatesToWorldLocation({
                     mapCoordinate: {
-                        q: datum.mapCoordinate.q,
-                        r: datum.mapCoordinate.r,
+                        q: datum.currentMapCoordinate.q,
+                        r: datum.currentMapCoordinate.r,
                     },
                 })
             expect(
@@ -212,8 +212,8 @@ describe("player phase listener", () => {
             const playerSquaddieLocation =
                 ConvertCoordinateService.convertMapCoordinatesToWorldLocation({
                     mapCoordinate: {
-                        q: datum.mapCoordinate.q,
-                        r: datum.mapCoordinate.r,
+                        q: datum.currentMapCoordinate.q,
+                        r: datum.currentMapCoordinate.r,
                     },
                 })
             gameEngineState.battleOrchestratorState.battleState.camera.xCoordinate =

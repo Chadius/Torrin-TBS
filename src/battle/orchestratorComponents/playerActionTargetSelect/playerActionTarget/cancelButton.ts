@@ -82,7 +82,7 @@ export class PlayerActionTargetCreateCancelButton implements BehaviorTreeTask {
         const targetCoordinate = MissionMapService.getByBattleSquaddieId(
             context.missionMap,
             actorBattleSquaddieId
-        ).mapCoordinate
+        ).currentMapCoordinate
         const targetLocation = targetCoordinate
             ? ConvertCoordinateService.convertMapCoordinatesToScreenLocation({
                   mapCoordinate: targetCoordinate,

@@ -115,7 +115,7 @@ describe("BattleSaveState", () => {
             battleActionRecorder,
             firstBattleAction
         )
-        BattleActionRecorderService.battleActionFinishedAnimating(
+        BattleActionRecorderService.addAnimatingBattleActionToAlreadyAnimatedThisTurn(
             battleActionRecorder
         )
 
@@ -372,7 +372,7 @@ describe("BattleSaveState", () => {
             battleActionRecorder,
             secondBattleAction
         )
-        BattleActionRecorderService.battleActionFinishedAnimating(
+        BattleActionRecorderService.addAnimatingBattleActionToAlreadyAnimatedThisTurn(
             battleActionRecorder
         )
 
@@ -448,13 +448,13 @@ describe("BattleSaveState", () => {
             missionMap: missionMap,
             squaddieTemplateId: "template 0",
             battleSquaddieId: "battle 0",
-            coordinate: { q: 0, r: 0 },
+            originMapCoordinate: { q: 0, r: 0 },
         })
         MissionMapService.addSquaddie({
             missionMap: missionMap,
             squaddieTemplateId: "template 1",
             battleSquaddieId: "battle 1",
-            coordinate: { q: 0, r: 1 },
+            originMapCoordinate: { q: 0, r: 1 },
         })
 
         const battleState = BattleOrchestratorStateService.new({
@@ -499,13 +499,13 @@ describe("BattleSaveState", () => {
             missionMap: newBattleState.battleState.missionMap,
             squaddieTemplateId: "template 0",
             battleSquaddieId: "battle 0",
-            coordinate: { q: 0, r: 2 },
+            originMapCoordinate: { q: 0, r: 2 },
         })
         MissionMapService.addSquaddie({
             missionMap: newBattleState.battleState.missionMap,
             squaddieTemplateId: "template 1",
             battleSquaddieId: "battle 1",
-            coordinate: { q: 0, r: 3 },
+            originMapCoordinate: { q: 0, r: 3 },
         })
 
         BattleSaveStateService.applySaveStateToOrchestratorState({
@@ -530,7 +530,8 @@ describe("BattleSaveState", () => {
         ).toStrictEqual({
             battleSquaddieId: "battle 0",
             squaddieTemplateId: "template 0",
-            mapCoordinate: { q: 0, r: 0 },
+            originMapCoordinate: { q: 0, r: 0 },
+            currentMapCoordinate: { q: 0, r: 0 },
         })
         expect(
             MissionMapService.getByBattleSquaddieId(
@@ -540,7 +541,8 @@ describe("BattleSaveState", () => {
         ).toStrictEqual({
             battleSquaddieId: "battle 1",
             squaddieTemplateId: "template 1",
-            mapCoordinate: { q: 0, r: 1 },
+            originMapCoordinate: { q: 0, r: 1 },
+            currentMapCoordinate: { q: 0, r: 1 },
         })
     })
 
@@ -647,11 +649,6 @@ describe("BattleSaveState", () => {
                 )
             )
         expect(enemyTemplate.squaddieId.templateId).toBe("enemy template 0")
-        expect(
-            SquaddieTurnService.hasActionPointsRemaining(
-                enemyBattle.squaddieTurn
-            )
-        ).toBeFalsy()
         expect(enemyBattle.inBattleAttributes.currentHitPoints).toBe(4)
     })
 
@@ -949,14 +946,16 @@ describe("BattleSaveState", () => {
                             player0BattleSquaddie.battleSquaddieId,
                         squaddieTemplateId:
                             player0BattleSquaddie.squaddieTemplateId,
-                        mapCoordinate: { q: 0, r: 0 },
+                        originMapCoordinate: { q: 0, r: 0 },
+                        currentMapCoordinate: { q: 0, r: 0 },
                     },
                     {
                         battleSquaddieId:
                             enemy0BattleSquaddieWithWoundsAndTurnEnded.battleSquaddieId,
                         squaddieTemplateId:
                             enemy0BattleSquaddieWithWoundsAndTurnEnded.squaddieTemplateId,
-                        mapCoordinate: { q: 0, r: 1 },
+                        originMapCoordinate: { q: 0, r: 1 },
+                        currentMapCoordinate: { q: 0, r: 1 },
                     },
                 ],
                 teams: [playerTeam, enemyTeam],
@@ -1068,13 +1067,13 @@ describe("BattleSaveState", () => {
                 missionMap: missionMap,
                 squaddieTemplateId: "template 0",
                 battleSquaddieId: "battle 0",
-                coordinate: { q: 0, r: 0 },
+                originMapCoordinate: { q: 0, r: 0 },
             })
             MissionMapService.addSquaddie({
                 missionMap: missionMap,
                 squaddieTemplateId: "template 1",
                 battleSquaddieId: "battle 1",
-                coordinate: { q: 0, r: 1 },
+                originMapCoordinate: { q: 0, r: 1 },
             })
 
             const teamStrategiesById: { [key: string]: TeamStrategy[] } = {
@@ -1169,12 +1168,14 @@ describe("BattleSaveState", () => {
             expect(newSaveData.squaddieMapPlacements[0]).toStrictEqual({
                 squaddieTemplateId: "template 0",
                 battleSquaddieId: "battle 0",
-                mapCoordinate: { q: 0, r: 0 },
+                originMapCoordinate: { q: 0, r: 0 },
+                currentMapCoordinate: { q: 0, r: 0 },
             })
             expect(newSaveData.squaddieMapPlacements[1]).toStrictEqual({
                 squaddieTemplateId: "template 1",
                 battleSquaddieId: "battle 1",
-                mapCoordinate: { q: 0, r: 1 },
+                originMapCoordinate: { q: 0, r: 1 },
+                currentMapCoordinate: { q: 0, r: 1 },
             })
 
             expect(newSaveData.missionStatistics).toStrictEqual(

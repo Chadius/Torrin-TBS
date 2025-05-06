@@ -8,6 +8,10 @@ import {
     PlayerSelectionService,
 } from "../playerSelectionService"
 import { HexCoordinate } from "../../../hexMap/hexCoordinate/hexCoordinate"
+import { getResultOrThrowError } from "../../../utils/ResultOrError"
+import { ObjectRepositoryService } from "../../objectRepository"
+import { BattleActionDecisionStepService } from "../../actionDecision/battleActionDecisionStep"
+import { SquaddieTurnService } from "../../../squaddie/turn"
 
 export class PlayerMovesOffMapToCancelConsideredActions
     implements BehaviorTreeTask
@@ -31,12 +35,32 @@ export class PlayerMovesOffMapToCancelConsideredActions
                 "playerSelectionContextCalculationArgs"
             )
         const { gameEngineState } = playerSelectionContextCalculationArgs
-        const playerConsideredActions =
+        const battleActionDecisionStep =
             gameEngineState.battleOrchestratorState.battleState
-                .playerConsideredActions
+                .battleActionDecisionStep
+        const objectRepository = gameEngineState.repository
+
+        let movementActionPointsPreviewedByPlayer: number = undefined
+        if (
+            battleActionDecisionStep &&
+            BattleActionDecisionStepService.isActorSet(battleActionDecisionStep)
+        ) {
+            const { battleSquaddie } = getResultOrThrowError(
+                ObjectRepositoryService.getSquaddieByBattleId(
+                    objectRepository,
+                    BattleActionDecisionStepService.getActor(
+                        battleActionDecisionStep
+                    ).battleSquaddieId
+                )
+            )
+            movementActionPointsPreviewedByPlayer =
+                SquaddieTurnService.getMovementActionPointsPreviewedByPlayer(
+                    battleSquaddie.squaddieTurn
+                )
+        }
 
         if (
-            playerConsideredActions.movement == undefined ||
+            movementActionPointsPreviewedByPlayer == undefined ||
             hoveredLocationIsOnMap
         ) {
             return false
@@ -49,9 +73,5 @@ export class PlayerMovesOffMapToCancelConsideredActions
             })
         )
         return true
-    }
-
-    clone(): PlayerMovesOffMapToCancelConsideredActions {
-        return new PlayerMovesOffMapToCancelConsideredActions(this.dataBlob)
     }
 }

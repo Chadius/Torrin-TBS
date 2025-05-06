@@ -23,7 +23,10 @@ import {
 } from "../../gameEngine/gameEngine"
 import { BattlePhaseStateService } from "./battlePhaseController"
 import { BattlePhase } from "./battlePhaseTracker"
-import { SquaddieTurnService } from "../../squaddie/turn"
+import {
+    DEFAULT_ACTION_POINTS_PER_TURN,
+    SquaddieTurnService,
+} from "../../squaddie/turn"
 import { InBattleAttributesService } from "../stats/inBattleAttributes"
 import { DamageType, SquaddieService } from "../../squaddie/squaddieService"
 import { BattleHUDService } from "../hud/battleHUD/battleHUD"
@@ -33,6 +36,7 @@ import { CampaignService } from "../../campaign/campaign"
 import { SquaddieRepositoryService } from "../../utils/test/squaddie"
 import {
     MapGraphicsLayer,
+    MapGraphicsLayerHighlight,
     MapGraphicsLayerType,
 } from "../../hexMap/mapLayer/mapGraphicsLayer"
 import { BattleActionDecisionStepService } from "../actionDecision/battleActionDecisionStep"
@@ -82,7 +86,7 @@ describe("Orchestration Utils", () => {
             missionMap: map,
             squaddieTemplateId: knightBattleSquaddie.squaddieTemplateId,
             battleSquaddieId: knightBattleSquaddie.battleSquaddieId,
-            coordinate: { q: 0, r: 2 },
+            originMapCoordinate: { q: 0, r: 2 },
         })
 
         camera = new BattleCamera()
@@ -146,7 +150,7 @@ describe("Orchestration Utils", () => {
             missionMap: map,
             squaddieTemplateId: "does not exist",
             battleSquaddieId: "does not exist",
-            coordinate: { q: 0, r: 0 },
+            originMapCoordinate: { q: 0, r: 0 },
         })
         const screenLocation =
             ConvertCoordinateService.convertMapCoordinatesToScreenLocation({
@@ -390,7 +394,7 @@ describe("Orchestration Utils", () => {
                         .battleActionRecorder,
                     movementBattleAction
                 )
-                BattleActionRecorderService.battleActionFinishedAnimating(
+                BattleActionRecorderService.addAnimatingBattleActionToAlreadyAnimatedThisTurn(
                     gameEngineState.battleOrchestratorState.battleState
                         .battleActionRecorder
                 )
@@ -407,7 +411,7 @@ describe("Orchestration Utils", () => {
                         .battleActionRecorder,
                     movementBattleAction
                 )
-                BattleActionRecorderService.battleActionFinishedAnimating(
+                BattleActionRecorderService.addAnimatingBattleActionToAlreadyAnimatedThisTurn(
                     gameEngineState.battleOrchestratorState.battleState
                         .battleActionRecorder
                 )
@@ -424,7 +428,7 @@ describe("Orchestration Utils", () => {
                         .battleActionRecorder,
                     movementBattleAction
                 )
-                BattleActionRecorderService.battleActionFinishedAnimating(
+                BattleActionRecorderService.addAnimatingBattleActionToAlreadyAnimatedThisTurn(
                     gameEngineState.battleOrchestratorState.battleState
                         .battleActionRecorder
                 )
@@ -505,7 +509,7 @@ describe("Orchestration Utils", () => {
                     squaddieTemplateId:
                         playerSquaddieTemplate.squaddieId.templateId,
                     battleSquaddieId,
-                    coordinate: { q: 0, r: i },
+                    originMapCoordinate: { q: 0, r: i },
                 })
             }
 
@@ -538,7 +542,7 @@ describe("Orchestration Utils", () => {
                     squaddieTemplateId:
                         playerSquaddieTemplate.squaddieId.templateId,
                     battleSquaddieId,
-                    coordinate: { q: 0, r: playerCount + i },
+                    originMapCoordinate: { q: 0, r: playerCount + i },
                 })
             }
 
@@ -599,7 +603,7 @@ describe("Orchestration Utils", () => {
                 0
             )
 
-            SquaddieTurnService.spendActionPointsForMovement({
+            SquaddieTurnService.setMovementActionPointsPreviewedByPlayer({
                 squaddieTurn: getResultOrThrowError(
                     ObjectRepositoryService.getSquaddieByBattleId(
                         repository,
@@ -706,42 +710,123 @@ describe("Orchestration Utils", () => {
         afterEach(() => {
             addGraphicsLayerSpy.mockRestore()
         })
-        it("highlights the range for a player controlled squaddie using their current actions", () => {
-            knightSquaddieTemplate.attributes.movement.movementPerAction = 1
-            SquaddieTurnService.endTurn(knightBattleSquaddie.squaddieTurn)
 
-            map = MissionMapService.new({
-                terrainTileMap: TerrainTileMapService.new({
-                    movementCost: ["1 1 1 1 "],
-                }),
+        describe("highlight movement range for a player controlled squaddie", () => {
+            beforeEach(() => {
+                knightSquaddieTemplate.attributes.movement.movementPerAction = 1
+                map = MissionMapService.new({
+                    terrainTileMap: TerrainTileMapService.new({
+                        movementCost: ["1 1 1 1 1 1 1 1 1 1 "],
+                    }),
+                })
+                gameEngineState.battleOrchestratorState.battleState.missionMap =
+                    map
+                addGraphicsLayerSpy = vi.spyOn(
+                    TerrainTileMapService,
+                    "addGraphicsLayer"
+                )
             })
-            MissionMapService.addSquaddie({
-                missionMap: map,
-                squaddieTemplateId: knightBattleSquaddie.squaddieTemplateId,
-                battleSquaddieId: knightBattleSquaddie.battleSquaddieId,
-                coordinate: { q: 0, r: 3 },
-            })
-            gameEngineState.battleOrchestratorState.battleState.missionMap = map
-            addGraphicsLayerSpy = vi.spyOn(
-                TerrainTileMapService,
-                "addGraphicsLayer"
-            )
 
-            OrchestratorUtilities.highlightSquaddieRange({
-                battleSquaddieToHighlightId:
-                    knightBattleSquaddie.battleSquaddieId,
-                missionMap:
-                    gameEngineState.battleOrchestratorState.battleState
-                        .missionMap,
-                objectRepository: gameEngineState.repository,
-                campaignResources: gameEngineState.campaign.resources,
+            const highlightPlayerControlledSquaddieRangeAndReturnHighlightedCoordinates =
+                () => {
+                    OrchestratorUtilities.highlightSquaddieRange({
+                        battleSquaddieToHighlightId:
+                            knightBattleSquaddie.battleSquaddieId,
+                        missionMap:
+                            gameEngineState.battleOrchestratorState.battleState
+                                .missionMap,
+                        objectRepository: gameEngineState.repository,
+                        campaignResources: gameEngineState.campaign.resources,
+                    })
+                    const addedMapGraphicsLayer =
+                        addGraphicsLayerSpy.mock.calls[0][1]
+                    expect(addedMapGraphicsLayer.type).toEqual(
+                        MapGraphicsLayerType.CLICKED_ON_CONTROLLABLE_SQUADDIE
+                    )
+                    return addedMapGraphicsLayer.highlights.map(
+                        (h: MapGraphicsLayerHighlight) => h.coordinate
+                    )
+                }
+
+            it("highlight all of the locations from the origin coordinate", () => {
+                MissionMapService.addSquaddie({
+                    missionMap: map,
+                    squaddieTemplateId: knightBattleSquaddie.squaddieTemplateId,
+                    battleSquaddieId: knightBattleSquaddie.battleSquaddieId,
+                    originMapCoordinate: { q: 0, r: 3 },
+                })
+
+                const highlightedCoordinates =
+                    highlightPlayerControlledSquaddieRangeAndReturnHighlightedCoordinates()
+
+                expect(highlightedCoordinates).toHaveLength(7)
+                expect(highlightedCoordinates).toEqual(
+                    expect.arrayContaining([
+                        { q: 0, r: 0 },
+                        { q: 0, r: 1 },
+                        { q: 0, r: 2 },
+                        { q: 0, r: 3 },
+                        { q: 0, r: 4 },
+                        { q: 0, r: 5 },
+                        { q: 0, r: 6 },
+                    ])
+                )
             })
-            const addedMapGraphicsLayer = addGraphicsLayerSpy.mock.calls[0][1]
-            expect(addedMapGraphicsLayer.type).toEqual(
-                MapGraphicsLayerType.CLICKED_ON_CONTROLLABLE_SQUADDIE
-            )
-            expect(addedMapGraphicsLayer.highlights).toHaveLength(1)
+            it("highlight all of the locations from the origin coordinate if it has actions remaining", () => {
+                MissionMapService.addSquaddie({
+                    missionMap: map,
+                    squaddieTemplateId: knightBattleSquaddie.squaddieTemplateId,
+                    battleSquaddieId: knightBattleSquaddie.battleSquaddieId,
+                    originMapCoordinate: { q: 0, r: 3 },
+                })
+                MissionMapService.updateBattleSquaddieCoordinate({
+                    missionMap: map,
+                    battleSquaddieId: knightBattleSquaddie.battleSquaddieId,
+                    coordinate: { q: 0, r: 5 },
+                })
+                SquaddieTurnService.setMovementActionPointsPreviewedByPlayer({
+                    squaddieTurn: knightBattleSquaddie.squaddieTurn,
+                    actionPoints: 2,
+                })
+                expect(
+                    SquaddieTurnService.getActionPointsThatCouldBeSpentOnMovement(
+                        knightBattleSquaddie.squaddieTurn
+                    )
+                ).toEqual(DEFAULT_ACTION_POINTS_PER_TURN)
+
+                const highlightedCoordinates =
+                    highlightPlayerControlledSquaddieRangeAndReturnHighlightedCoordinates()
+
+                expect(highlightedCoordinates).toHaveLength(7)
+                expect(highlightedCoordinates).toEqual(
+                    expect.arrayContaining([
+                        { q: 0, r: 0 },
+                        { q: 0, r: 1 },
+                        { q: 0, r: 2 },
+                        { q: 0, r: 3 },
+                        { q: 0, r: 4 },
+                        { q: 0, r: 5 },
+                        { q: 0, r: 6 },
+                    ])
+                )
+            })
+            it("if the player controlled squaddie is out of actions, only show their current location", () => {
+                SquaddieTurnService.endTurn(knightBattleSquaddie.squaddieTurn)
+
+                MissionMapService.addSquaddie({
+                    missionMap: map,
+                    squaddieTemplateId: knightBattleSquaddie.squaddieTemplateId,
+                    battleSquaddieId: knightBattleSquaddie.battleSquaddieId,
+                    originMapCoordinate: { q: 0, r: 3 },
+                })
+
+                const highlightedCoordinates =
+                    highlightPlayerControlledSquaddieRangeAndReturnHighlightedCoordinates()
+
+                expect(highlightedCoordinates).toEqual([{ q: 0, r: 3 }])
+            })
         })
+
         it("highlights the range for a non player controlled squaddie using a standard turn even if they are out of actions", () => {
             const {
                 battleSquaddie: enemyBattleSquaddie,
@@ -766,7 +851,7 @@ describe("Orchestration Utils", () => {
                 missionMap: map,
                 squaddieTemplateId: enemyBattleSquaddie.squaddieTemplateId,
                 battleSquaddieId: enemyBattleSquaddie.battleSquaddieId,
-                coordinate: { q: 0, r: 3 },
+                originMapCoordinate: { q: 0, r: 3 },
             })
             gameEngineState.battleOrchestratorState.battleState.missionMap = map
             addGraphicsLayerSpy = vi.spyOn(
@@ -818,7 +903,7 @@ describe("Orchestration Utils", () => {
                 missionMap: map,
                 squaddieTemplateId: thiefBattleSquaddie.squaddieTemplateId,
                 battleSquaddieId: thiefBattleSquaddie.battleSquaddieId,
-                coordinate: { q: 0, r: 0 },
+                originMapCoordinate: { q: 0, r: 0 },
             })
 
             gameEngineState = GameEngineStateService.new({
@@ -843,7 +928,7 @@ describe("Orchestration Utils", () => {
                 missionMap: missionMap,
                 squaddieTemplateId: knightBattleSquaddie.squaddieTemplateId,
                 battleSquaddieId: knightBattleSquaddie.battleSquaddieId,
-                coordinate: { q: 0, r: 2 },
+                originMapCoordinate: { q: 0, r: 2 },
             })
             BattleActionRecorderService.addReadyToAnimateBattleAction(
                 gameEngineState.battleOrchestratorState.battleState
@@ -862,7 +947,7 @@ describe("Orchestration Utils", () => {
                     },
                 })
             )
-            BattleActionRecorderService.battleActionFinishedAnimating(
+            BattleActionRecorderService.addAnimatingBattleActionToAlreadyAnimatedThisTurn(
                 gameEngineState.battleOrchestratorState.battleState
                     .battleActionRecorder
             )
@@ -884,7 +969,7 @@ describe("Orchestration Utils", () => {
                 missionMap: missionMap,
                 squaddieTemplateId: knightBattleSquaddie.squaddieTemplateId,
                 battleSquaddieId: knightBattleSquaddie.battleSquaddieId,
-                coordinate: { q: 0, r: 2 },
+                originMapCoordinate: { q: 0, r: 2 },
             })
             const gameEngineState = GameEngineStateService.new({
                 repository: squaddieRepository,
@@ -910,7 +995,7 @@ describe("Orchestration Utils", () => {
                     },
                 })
             )
-            BattleActionRecorderService.battleActionFinishedAnimating(
+            BattleActionRecorderService.addAnimatingBattleActionToAlreadyAnimatedThisTurn(
                 gameEngineState.battleOrchestratorState.battleState
                     .battleActionRecorder
             )
@@ -949,7 +1034,7 @@ describe("Orchestration Utils", () => {
                 missionMap: missionMap,
                 squaddieTemplateId: knightBattleSquaddie.squaddieTemplateId,
                 battleSquaddieId: enemyBattleSquaddie.battleSquaddieId,
-                coordinate: { q: 0, r: 2 },
+                originMapCoordinate: { q: 0, r: 2 },
             })
             BattleActionRecorderService.addReadyToAnimateBattleAction(
                 gameEngineState.battleOrchestratorState.battleState
@@ -968,7 +1053,7 @@ describe("Orchestration Utils", () => {
                     },
                 })
             )
-            BattleActionRecorderService.battleActionFinishedAnimating(
+            BattleActionRecorderService.addAnimatingBattleActionToAlreadyAnimatedThisTurn(
                 gameEngineState.battleOrchestratorState.battleState
                     .battleActionRecorder
             )

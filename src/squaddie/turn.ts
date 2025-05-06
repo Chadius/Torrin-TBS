@@ -1,11 +1,7 @@
 import { ActionTemplate } from "../action/template/actionTemplate"
-import {
-    PlayerConsideredActions,
-    PlayerConsideredActionsService,
-} from "../battle/battleState/playerConsideredActions"
-import { ObjectRepository } from "../battle/objectRepository"
 import { BattleSquaddie } from "../battle/battleSquaddie"
 import { InBattleAttributesService } from "../battle/stats/inBattleAttributes"
+import { SquaddieActionPointsExplanation } from "./squaddieService"
 
 export const DEFAULT_ACTION_POINTS_PER_TURN = 3
 
@@ -21,46 +17,63 @@ export enum ActionPerformFailureReason {
 }
 
 export interface SquaddieTurn {
-    movementActionPoints: number
-    unallocatedActionPoints: number
+    movementActionPoints: {
+        previewedByPlayer: number
+        spentButCanBeRefunded: number
+        spentAndCannotBeRefunded: number
+    }
+    actionTemplatePoints: number
+    endTurn: boolean
 }
 
 export const SquaddieTurnService = {
     new: (): SquaddieTurn => {
         return {
-            movementActionPoints: 0,
-            unallocatedActionPoints: DEFAULT_ACTION_POINTS_PER_TURN,
+            movementActionPoints: {
+                previewedByPlayer: 0,
+                spentButCanBeRefunded: 0,
+                spentAndCannotBeRefunded: 0,
+            },
+            actionTemplatePoints: 0,
+            endTurn: false,
         }
     },
-    spendActionPointsAndReservedPoints: ({
-        data,
+    spendPreviewedMovementActionPointsToRefundable: ({
+        squaddieTurn,
+    }: {
+        squaddieTurn: SquaddieTurn
+    }) => {
+        squaddieTurn.movementActionPoints.spentButCanBeRefunded =
+            squaddieTurn.movementActionPoints.previewedByPlayer
+        squaddieTurn.movementActionPoints.previewedByPlayer = 0
+    },
+    setSpentMovementActionPointsAsNotRefundable: ({
+        squaddieTurn,
         endTurn,
         actionTemplate,
     }: {
-        data: SquaddieTurn
+        squaddieTurn: SquaddieTurn
         endTurn?: boolean
         actionTemplate?: ActionTemplate
     }) => {
         if (endTurn) {
-            consumeAllActionPointsAtEndOfTurn(data)
+            squaddieTurn.endTurn = true
             return
         }
         if (actionTemplate) {
-            data.unallocatedActionPoints =
-                data.unallocatedActionPoints -
+            squaddieTurn.actionTemplatePoints +=
                 actionTemplate.resourceCost.actionPoints
         }
+        squaddieTurn.movementActionPoints.spentAndCannotBeRefunded +=
+            squaddieTurn.movementActionPoints.spentButCanBeRefunded
+        squaddieTurn.movementActionPoints.spentButCanBeRefunded = 0
     },
     canPerformAction: ({
         actionTemplate,
-        playerConsideredActions,
-        objectRepository,
         battleSquaddie,
     }: {
         battleSquaddie: BattleSquaddie
         actionTemplate: ActionTemplate
-        playerConsideredActions?: PlayerConsideredActions
-        objectRepository?: ObjectRepository
     }): {
         canPerform: boolean
         reason: ActionPerformFailureReason
@@ -77,22 +90,14 @@ export const SquaddieTurnService = {
             }
         }
 
-        const actionPointsToSpend =
-            battleSquaddie.squaddieTurn.unallocatedActionPoints
+        const actionPointsToSpend = getUnSpentActionPoints(
+            battleSquaddie.squaddieTurn
+        )
 
-        let actionPointsAlreadyConsidered = 0
-        if (playerConsideredActions?.actionTemplateId !== actionTemplate.id) {
-            actionPointsAlreadyConsidered =
-                PlayerConsideredActionsService.getExpectedMarkedActionPointsBasedOnPlayerConsideration(
-                    {
-                        objectRepository,
-                        playerConsideredActions,
-                        battleSquaddie,
-                    }
-                )
-        }
-
-        if (actionPointsToSpend < actionTemplate.resourceCost.actionPoints) {
+        if (
+            actionPointsToSpend < actionTemplate.resourceCost.actionPoints ||
+            battleSquaddie.squaddieTurn.endTurn
+        ) {
             return {
                 canPerform: false,
                 reason: ActionPerformFailureReason.TOO_FEW_ACTIONS_REMAINING,
@@ -100,10 +105,11 @@ export const SquaddieTurnService = {
         }
 
         if (
-            actionPointsAlreadyConsidered > 0 &&
-            actionPointsToSpend <
-                actionTemplate.resourceCost.actionPoints +
-                    actionPointsAlreadyConsidered
+            actionPointsToSpend -
+                SquaddieTurnService.getMovementActionPointsPreviewedByPlayer(
+                    battleSquaddie.squaddieTurn
+                ) <
+            actionTemplate.resourceCost.actionPoints
         ) {
             return {
                 canPerform: true,
@@ -119,34 +125,86 @@ export const SquaddieTurnService = {
     beginNewTurn: (data: SquaddieTurn) => {
         refreshActionPoints(data)
     },
-    refreshActionPoints: (data: SquaddieTurn) => {
-        refreshActionPoints(data)
-    },
-    hasActionPointsRemaining: (data: SquaddieTurn): boolean => {
-        return data.unallocatedActionPoints > 0
-    },
     endTurn: (data: SquaddieTurn) => consumeAllActionPointsAtEndOfTurn(data),
-    getActionPointsReservedForMovement: (squaddieTurn: SquaddieTurn) =>
-        squaddieTurn.movementActionPoints,
-    getUnallocatedActionPoints: (squaddieTurn: SquaddieTurn) =>
-        squaddieTurn.unallocatedActionPoints,
-    spendActionPointsForMovement: ({
+    getMovementActionPointsPreviewedByPlayer: (squaddieTurn: SquaddieTurn) =>
+        squaddieTurn.movementActionPoints.previewedByPlayer,
+    getActionPointsThatCouldBeSpentOnMovement: (squaddieTurn: SquaddieTurn) =>
+        getUnSpentActionPoints(squaddieTurn) +
+        squaddieTurn.movementActionPoints.spentButCanBeRefunded,
+    setMovementActionPointsPreviewedByPlayer: ({
         squaddieTurn,
         actionPoints,
     }: {
         squaddieTurn: SquaddieTurn
         actionPoints: number
     }) => {
-        squaddieTurn.unallocatedActionPoints =
-            squaddieTurn.unallocatedActionPoints - actionPoints
-        squaddieTurn.movementActionPoints = actionPoints
+        squaddieTurn.movementActionPoints.previewedByPlayer = actionPoints
     },
+    getMovementActionPointsSpentAndCannotBeRefunded: (
+        squaddieTurn: SquaddieTurn
+    ) => squaddieTurn.movementActionPoints.spentAndCannotBeRefunded || 0,
+    setMovementActionPointsSpentAndCannotBeRefunded({
+        squaddieTurn,
+        actionPoints,
+    }: {
+        squaddieTurn: SquaddieTurn
+        actionPoints: number
+    }) {
+        squaddieTurn.movementActionPoints.spentAndCannotBeRefunded =
+            actionPoints
+    },
+    getMovementActionPointsSpentButCanBeRefunded: (
+        squaddieTurn: SquaddieTurn
+    ) => squaddieTurn.movementActionPoints.spentButCanBeRefunded || 0,
+    setMovementActionPointsSpentButCanBeRefunded({
+        squaddieTurn,
+        actionPoints,
+    }: {
+        squaddieTurn: SquaddieTurn
+        actionPoints: number
+    }) {
+        squaddieTurn.movementActionPoints.spentButCanBeRefunded = actionPoints
+    },
+    getActionPointSpend: (
+        squaddieTurn: SquaddieTurn
+    ): SquaddieActionPointsExplanation => getActionPointSpend(squaddieTurn),
 }
 
-const refreshActionPoints = (data: SquaddieTurn) => {
-    data.unallocatedActionPoints = DEFAULT_ACTION_POINTS_PER_TURN
+const refreshActionPoints = (squaddieTurn: SquaddieTurn) => {
+    squaddieTurn.endTurn = false
+    squaddieTurn.actionTemplatePoints = 0
+    squaddieTurn.movementActionPoints.spentButCanBeRefunded = 0
+    squaddieTurn.movementActionPoints.spentAndCannotBeRefunded = 0
+    squaddieTurn.movementActionPoints.previewedByPlayer = 0
 }
 
-const consumeAllActionPointsAtEndOfTurn = (data: SquaddieTurn) => {
-    data.unallocatedActionPoints = 0
+const consumeAllActionPointsAtEndOfTurn = (squaddieTurn: SquaddieTurn) => {
+    squaddieTurn.endTurn = true
+    squaddieTurn.movementActionPoints.spentButCanBeRefunded = 0
+    squaddieTurn.movementActionPoints.spentAndCannotBeRefunded =
+        DEFAULT_ACTION_POINTS_PER_TURN
+}
+
+const getUnSpentActionPoints = (squaddieTurn: SquaddieTurn): number =>
+    squaddieTurn.endTurn
+        ? 0
+        : DEFAULT_ACTION_POINTS_PER_TURN -
+          squaddieTurn.actionTemplatePoints -
+          squaddieTurn.movementActionPoints.spentButCanBeRefunded -
+          squaddieTurn.movementActionPoints.spentAndCannotBeRefunded
+
+const getActionPointSpend = (
+    squaddieTurn: SquaddieTurn
+): SquaddieActionPointsExplanation => {
+    return {
+        unSpentActionPoints: getUnSpentActionPoints(squaddieTurn),
+        movementActionPoints: {
+            previewedByPlayer:
+                squaddieTurn.movementActionPoints.previewedByPlayer,
+            spentAndCannotBeRefunded:
+                squaddieTurn.movementActionPoints.spentAndCannotBeRefunded || 0,
+            spentButCanBeRefunded:
+                squaddieTurn.movementActionPoints.spentButCanBeRefunded || 0,
+        },
+    }
 }

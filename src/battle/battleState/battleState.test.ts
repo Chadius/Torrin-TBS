@@ -58,6 +58,8 @@ import {
     MockInstance,
     vi,
 } from "vitest"
+import { MapSearchTestUtils } from "../../hexMap/pathfinder/pathGeneration/mapSearchTests/mapSearchTestUtils"
+import { MissionMapService } from "../../missionMap/missionMap"
 
 describe("Battle State", () => {
     it("overrides team strategy for non-player teams", () => {
@@ -207,58 +209,59 @@ describe("Battle State", () => {
         validityCheck(args, true, true, [])
     })
 
-    it("can clone existing objects", () => {
-        let originalBattleState: BattleState =
-            BattleStateService.newBattleState({
-                campaignId: "test campaign",
-                missionId: "test mission",
-                missionMap: NullMissionMap(),
-                teams: [
+    const generateBattleState = () =>
+        BattleStateService.newBattleState({
+            campaignId: "test campaign",
+            missionId: "test mission",
+            missionMap: NullMissionMap(),
+            teams: [
+                {
+                    id: "playerTeamId",
+                    name: "Players",
+                    affiliation: SquaddieAffiliation.PLAYER,
+                    battleSquaddieIds: [],
+                    iconResourceKey: "icon_player_team",
+                },
+                {
+                    id: "enemyTeamId",
+                    name: "Baddies",
+                    affiliation: SquaddieAffiliation.ENEMY,
+                    battleSquaddieIds: [],
+                    iconResourceKey: "icon_enemy_team",
+                },
+            ],
+            teamStrategiesById: {
+                "enemy team strategy": [
                     {
-                        id: "playerTeamId",
-                        name: "Players",
-                        affiliation: SquaddieAffiliation.PLAYER,
-                        battleSquaddieIds: [],
-                        iconResourceKey: "icon_player_team",
-                    },
-                    {
-                        id: "enemyTeamId",
-                        name: "Baddies",
-                        affiliation: SquaddieAffiliation.ENEMY,
-                        battleSquaddieIds: [],
-                        iconResourceKey: "icon_enemy_team",
+                        type: TeamStrategyType.END_TURN,
+                        options: {},
                     },
                 ],
-                teamStrategiesById: {
-                    "enemy team strategy": [
+            },
+            objectives: [
+                MissionObjectiveHelper.validateMissionObjective({
+                    id: "mission objective id",
+                    reward: { rewardType: MissionRewardType.VICTORY },
+                    hasGivenReward: false,
+                    conditions: [
                         {
-                            type: TeamStrategyType.END_TURN,
-                            options: {},
+                            type: MissionConditionType.DEFEAT_ALL_ENEMIES,
+                            id: "defeat all enemies",
                         },
                     ],
-                },
-                objectives: [
-                    MissionObjectiveHelper.validateMissionObjective({
-                        id: "mission objective id",
-                        reward: { rewardType: MissionRewardType.VICTORY },
-                        hasGivenReward: false,
-                        conditions: [
-                            {
-                                type: MissionConditionType.DEFEAT_ALL_ENEMIES,
-                                id: "defeat all enemies",
-                            },
-                        ],
-                        numberOfRequiredConditionsToComplete: 1,
-                    }),
-                ],
-                missionCompletionStatus: {},
-                missionStatistics: MissionStatisticsService.new({}),
-                cutsceneTriggers: [],
-                battlePhaseState: {
-                    turnCount: 20,
-                    currentAffiliation: BattlePhase.ENEMY,
-                },
-            })
+                    numberOfRequiredConditionsToComplete: 1,
+                }),
+            ],
+            missionCompletionStatus: {},
+            missionStatistics: MissionStatisticsService.new({}),
+            cutsceneTriggers: [],
+            battlePhaseState: {
+                turnCount: 20,
+                currentAffiliation: BattlePhase.ENEMY,
+            },
+        })
+    it("can clone existing objects", () => {
+        let originalBattleState: BattleState = generateBattleState()
 
         expect(BattleStateService.isValid(originalBattleState)).toBeTruthy()
 
@@ -270,57 +273,7 @@ describe("Battle State", () => {
     })
 
     it("can change itself to match other objects", () => {
-        let originalBattleState: BattleState =
-            BattleStateService.newBattleState({
-                campaignId: "test campaign",
-                missionId: "test mission",
-                missionMap: NullMissionMap(),
-                teams: [
-                    {
-                        id: "playerTeamId",
-                        name: "Players",
-                        affiliation: SquaddieAffiliation.PLAYER,
-                        battleSquaddieIds: [],
-                        iconResourceKey: "icon_player_team",
-                    },
-                    {
-                        id: "enemyTeamId",
-                        name: "Baddies",
-                        affiliation: SquaddieAffiliation.ENEMY,
-                        battleSquaddieIds: [],
-                        iconResourceKey: "icon_enemy_team",
-                    },
-                ],
-                teamStrategiesById: {
-                    "enemy team strategy": [
-                        {
-                            type: TeamStrategyType.END_TURN,
-                            options: {},
-                        },
-                    ],
-                },
-                objectives: [
-                    MissionObjectiveHelper.validateMissionObjective({
-                        id: "mission objective id",
-                        reward: { rewardType: MissionRewardType.VICTORY },
-                        hasGivenReward: false,
-                        conditions: [
-                            {
-                                type: MissionConditionType.DEFEAT_ALL_ENEMIES,
-                                id: "defeat all enemies",
-                            },
-                        ],
-                        numberOfRequiredConditionsToComplete: 1,
-                    }),
-                ],
-                missionCompletionStatus: {},
-                missionStatistics: MissionStatisticsService.new({}),
-                cutsceneTriggers: [],
-                battlePhaseState: {
-                    turnCount: 20,
-                    currentAffiliation: BattlePhase.ENEMY,
-                },
-            })
+        let originalBattleState: BattleState = generateBattleState()
 
         expect(BattleStateService.isValid(originalBattleState)).toBeTruthy()
 
@@ -471,7 +424,7 @@ describe("Battle State", () => {
         })
     })
 
-    describe("battle action animation", () => {
+    describe("finishes battle action animation", () => {
         let gameEngineState: GameEngineState
         let moveAction: BattleAction
         let objectRepository: ObjectRepository
@@ -502,11 +455,21 @@ describe("Battle State", () => {
                 repository: objectRepository,
                 battleOrchestratorState: BattleOrchestratorStateService.new({
                     battleState: BattleStateService.newBattleState({
+                        missionMap:
+                            MapSearchTestUtils.create1row5columnsAllFlatTerrain(),
                         missionId: "test mission",
                         campaignId: "test campaign",
                     }),
                 }),
                 campaign: CampaignService.default(),
+            })
+            MissionMapService.addSquaddie({
+                missionMap:
+                    gameEngineState.battleOrchestratorState.battleState
+                        .missionMap,
+                battleSquaddieId: battleSquaddie.battleSquaddieId,
+                squaddieTemplateId: battleSquaddie.squaddieTemplateId,
+                originMapCoordinate: { q: 0, r: 0 },
             })
 
             moveAction = BattleActionService.new({
@@ -515,7 +478,7 @@ describe("Battle State", () => {
                 effect: {
                     movement: {
                         startCoordinate: { q: 0, r: 0 },
-                        endCoordinate: { q: 1, r: 1 },
+                        endCoordinate: { q: 0, r: 1 },
                     },
                 },
             })
@@ -595,6 +558,145 @@ describe("Battle State", () => {
                         .battleActionRecorder
                 )
             ).toEqual(battleAction)
+        })
+
+        describe("Removing movement actions", () => {
+            let moveToOriginCoordinateAction: BattleAction
+            let actionTemplateAction: BattleAction
+
+            beforeEach(() => {
+                moveToOriginCoordinateAction = BattleActionService.new({
+                    actor: { actorBattleSquaddieId: "battleSquaddieId" },
+                    action: { isMovement: true },
+                    effect: {
+                        movement: {
+                            startCoordinate: { q: 0, r: 1 },
+                            endCoordinate: { q: 0, r: 0 },
+                        },
+                    },
+                })
+
+                actionTemplateAction = BattleActionService.new({
+                    actor: { actorBattleSquaddieId: "battleSquaddieId" },
+                    action: { actionTemplateId: "actionTemplateId" },
+                    effect: {
+                        squaddie: [],
+                    },
+                })
+            })
+
+            describe("squaddie immediately moves to its original location", () => {
+                beforeEach(() => {
+                    gameEngineState.messageBoard.sendMessage({
+                        type: MessageBoardMessageType.BATTLE_ACTION_FINISHES_ANIMATION,
+                        gameEngineState,
+                        graphicsContext: new MockedP5GraphicsBuffer(),
+                        resourceHandler: gameEngineState.resourceHandler,
+                    })
+                    moveToOriginCoordinateAction = BattleActionService.new({
+                        actor: { actorBattleSquaddieId: "battleSquaddieId" },
+                        action: { isMovement: true },
+                        effect: {
+                            movement: {
+                                startCoordinate: { q: 0, r: 1 },
+                                endCoordinate: { q: 0, r: 0 },
+                            },
+                        },
+                    })
+                    BattleActionRecorderService.addReadyToAnimateBattleAction(
+                        gameEngineState.battleOrchestratorState.battleState
+                            .battleActionRecorder,
+                        moveToOriginCoordinateAction
+                    )
+                    gameEngineState.messageBoard.sendMessage({
+                        type: MessageBoardMessageType.BATTLE_ACTION_FINISHES_ANIMATION,
+                        gameEngineState,
+                        graphicsContext: new MockedP5GraphicsBuffer(),
+                        resourceHandler: gameEngineState.resourceHandler,
+                    })
+                })
+                it("removes all new movement actions from the already animated queue", () => {
+                    expect(
+                        BattleActionRecorderService.peekAtAlreadyAnimatedQueue(
+                            gameEngineState.battleOrchestratorState.battleState
+                                .battleActionRecorder
+                        )
+                    ).toBeUndefined()
+                })
+                it("removes movement actions from the already animated queue", () => {
+                    const alreadyAnimatedActions =
+                        BattleActionsDuringTurnService.getAll(
+                            gameEngineState.battleOrchestratorState.battleState
+                                .battleActionRecorder
+                                .actionsAlreadyAnimatedThisTurn
+                        )
+
+                    expect(alreadyAnimatedActions).toHaveLength(0)
+                })
+            })
+            describe("squaddie acts then moves to its original location", () => {
+                beforeEach(() => {
+                    gameEngineState.messageBoard.sendMessage({
+                        type: MessageBoardMessageType.BATTLE_ACTION_FINISHES_ANIMATION,
+                        gameEngineState,
+                        graphicsContext: new MockedP5GraphicsBuffer(),
+                        resourceHandler: gameEngineState.resourceHandler,
+                    })
+
+                    BattleActionRecorderService.addReadyToAnimateBattleAction(
+                        gameEngineState.battleOrchestratorState.battleState
+                            .battleActionRecorder,
+                        actionTemplateAction
+                    )
+                    gameEngineState.messageBoard.sendMessage({
+                        type: MessageBoardMessageType.BATTLE_ACTION_FINISHES_ANIMATION,
+                        gameEngineState,
+                        graphicsContext: new MockedP5GraphicsBuffer(),
+                        resourceHandler: gameEngineState.resourceHandler,
+                    })
+                    MissionMapService.updateBattleSquaddieCoordinate({
+                        missionMap:
+                            gameEngineState.battleOrchestratorState.battleState
+                                .missionMap,
+                        battleSquaddieId: battleSquaddie.battleSquaddieId,
+                        coordinate: { q: 0, r: 1 },
+                    })
+                    MissionMapService.setOriginMapCoordinateToCurrentMapCoordinate(
+                        gameEngineState.battleOrchestratorState.battleState
+                            .missionMap,
+                        battleSquaddie.battleSquaddieId
+                    )
+
+                    BattleActionRecorderService.addReadyToAnimateBattleAction(
+                        gameEngineState.battleOrchestratorState.battleState
+                            .battleActionRecorder,
+                        moveToOriginCoordinateAction
+                    )
+                    gameEngineState.messageBoard.sendMessage({
+                        type: MessageBoardMessageType.BATTLE_ACTION_FINISHES_ANIMATION,
+                        gameEngineState,
+                        graphicsContext: new MockedP5GraphicsBuffer(),
+                        resourceHandler: gameEngineState.resourceHandler,
+                    })
+                })
+                it("keeps all new movement actions from the already animated queue", () => {
+                    const alreadyAnimatedActions =
+                        BattleActionsDuringTurnService.getAll(
+                            gameEngineState.battleOrchestratorState.battleState
+                                .battleActionRecorder
+                                .actionsAlreadyAnimatedThisTurn
+                        )
+
+                    expect(alreadyAnimatedActions).toHaveLength(3)
+                    expect(alreadyAnimatedActions).toEqual(
+                        expect.arrayContaining([
+                            moveAction,
+                            actionTemplateAction,
+                            moveToOriginCoordinateAction,
+                        ])
+                    )
+                })
+            })
         })
 
         it("tries to update the inBattleAttributes for the summary window", () => {
@@ -782,7 +884,7 @@ describe("Battle State", () => {
                     .battleActionRecorder,
                 moveBattleAction
             )
-            BattleActionRecorderService.battleActionFinishedAnimating(
+            BattleActionRecorderService.addAnimatingBattleActionToAlreadyAnimatedThisTurn(
                 gameEngineState.battleOrchestratorState.battleState
                     .battleActionRecorder
             )
@@ -796,7 +898,7 @@ describe("Battle State", () => {
                     .battleActionRecorder,
                 endTurnAction
             )
-            BattleActionRecorderService.battleActionFinishedAnimating(
+            BattleActionRecorderService.addAnimatingBattleActionToAlreadyAnimatedThisTurn(
                 gameEngineState.battleOrchestratorState.battleState
                     .battleActionRecorder
             )

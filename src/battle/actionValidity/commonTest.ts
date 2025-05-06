@@ -39,7 +39,7 @@ export const ActionValidityTestUtils = {
             missionMap,
             squaddieTemplateId: actorSquaddie.name,
             battleSquaddieId: actorSquaddie.name,
-            coordinate: actorSquaddie.mapCoordinate,
+            originMapCoordinate: actorSquaddie.mapCoordinate,
         })
 
         otherSquaddies.forEach((squaddieInfo) => {
@@ -56,7 +56,7 @@ export const ActionValidityTestUtils = {
                 missionMap,
                 squaddieTemplateId: squaddieInfo.name,
                 battleSquaddieId: squaddieInfo.name,
-                coordinate: squaddieInfo.mapCoordinate,
+                originMapCoordinate: squaddieInfo.mapCoordinate,
             })
         })
 

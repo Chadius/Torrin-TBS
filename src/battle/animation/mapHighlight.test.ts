@@ -300,22 +300,20 @@ describe("map highlight generator", () => {
 
         it("highlights correct coordinates when squaddie has 1 action", () => {
             createSquaddie(SquaddieAffiliation.PLAYER)
-            SquaddieTurnService.spendActionPointsForMovement({
-                squaddieTurn: battleSquaddie.squaddieTurn,
-                actionPoints: 2,
-            })
-            expect(
-                SquaddieTurnService.getUnallocatedActionPoints(
-                    battleSquaddie.squaddieTurn
-                )
-            ).toBe(1)
+            SquaddieTurnService.setMovementActionPointsSpentAndCannotBeRefunded(
+                {
+                    squaddieTurn: battleSquaddie.squaddieTurn,
+                    actionPoints: 2,
+                }
+            )
 
             const highlightedDescription: HighlightCoordinateDescription[] =
                 MapHighlightService.highlightAllCoordinatesWithinSquaddieRange({
                     missionMap: MissionMapService.new({
                         terrainTileMap: terrainAllSingleMovement,
                     }),
-                    startCoordinate: { q: 0, r: 2 },
+                    currentMapCoordinate: { q: 0, r: 2 },
+                    originMapCoordinate: { q: 0, r: 2 },
                     repository: objectRepository,
                     battleSquaddieId: battleSquaddie.battleSquaddieId,
                     campaignResources,
@@ -327,18 +325,14 @@ describe("map highlight generator", () => {
         })
         it("highlights correct coordinates when squaddie has multiple actions", () => {
             createSquaddie(SquaddieAffiliation.PLAYER)
-            expect(
-                SquaddieTurnService.getUnallocatedActionPoints(
-                    battleSquaddie.squaddieTurn
-                )
-            ).toBe(3)
 
             const highlightedDescription: HighlightCoordinateDescription[] =
                 MapHighlightService.highlightAllCoordinatesWithinSquaddieRange({
                     missionMap: MissionMapService.new({
                         terrainTileMap: terrainAllSingleMovement,
                     }),
-                    startCoordinate: { q: 0, r: 2 },
+                    currentMapCoordinate: { q: 0, r: 2 },
+                    originMapCoordinate: { q: 0, r: 2 },
                     repository: objectRepository,
                     battleSquaddieId: battleSquaddie.battleSquaddieId,
                     campaignResources,
@@ -350,24 +344,22 @@ describe("map highlight generator", () => {
         })
         it("highlights correct coordinates when applying the number of actions override", () => {
             createSquaddie(SquaddieAffiliation.PLAYER)
-            expect(
-                SquaddieTurnService.getUnallocatedActionPoints(
-                    battleSquaddie.squaddieTurn
-                )
-            ).toBe(3)
 
             const turnWith1Action = SquaddieTurnService.new()
-            SquaddieTurnService.spendActionPointsForMovement({
-                squaddieTurn: turnWith1Action,
-                actionPoints: 2,
-            })
+            SquaddieTurnService.setMovementActionPointsSpentAndCannotBeRefunded(
+                {
+                    squaddieTurn: turnWith1Action,
+                    actionPoints: 2,
+                }
+            )
 
             const highlightedDescription: HighlightCoordinateDescription[] =
                 MapHighlightService.highlightAllCoordinatesWithinSquaddieRange({
                     missionMap: MissionMapService.new({
                         terrainTileMap: terrainAllSingleMovement,
                     }),
-                    startCoordinate: { q: 0, r: 2 },
+                    currentMapCoordinate: { q: 0, r: 2 },
+                    originMapCoordinate: { q: 0, r: 2 },
                     repository: objectRepository,
                     battleSquaddieId: battleSquaddie.battleSquaddieId,
                     campaignResources,
@@ -380,18 +372,14 @@ describe("map highlight generator", () => {
         })
         it("highlights correct coordinates when squaddie has to deal with double movement terrain", () => {
             createSquaddie(SquaddieAffiliation.PLAYER)
-            expect(
-                SquaddieTurnService.getUnallocatedActionPoints(
-                    battleSquaddie.squaddieTurn
-                )
-            ).toBe(3)
 
             const highlightedDescription: HighlightCoordinateDescription[] =
                 MapHighlightService.highlightAllCoordinatesWithinSquaddieRange({
                     missionMap: MissionMapService.new({
                         terrainTileMap: terrainAllDoubleMovement,
                     }),
-                    startCoordinate: { q: 0, r: 2 },
+                    currentMapCoordinate: { q: 0, r: 2 },
+                    originMapCoordinate: { q: 0, r: 2 },
                     repository: objectRepository,
                     battleSquaddieId: battleSquaddie.battleSquaddieId,
                     campaignResources,
@@ -417,15 +405,12 @@ describe("map highlight generator", () => {
         })
         it("highlights correct coordinates with squaddie can ignore double movement terrain", () => {
             createSquaddie(SquaddieAffiliation.PLAYER)
-            SquaddieTurnService.spendActionPointsForMovement({
-                squaddieTurn: battleSquaddie.squaddieTurn,
-                actionPoints: 2,
-            })
-            expect(
-                SquaddieTurnService.getUnallocatedActionPoints(
-                    battleSquaddie.squaddieTurn
-                )
-            ).toBe(1)
+            SquaddieTurnService.setMovementActionPointsSpentAndCannotBeRefunded(
+                {
+                    squaddieTurn: battleSquaddie.squaddieTurn,
+                    actionPoints: 2,
+                }
+            )
             InBattleAttributesService.addActiveAttributeModifier(
                 battleSquaddie.inBattleAttributes,
                 AttributeModifierService.new({
@@ -439,7 +424,8 @@ describe("map highlight generator", () => {
                     missionMap: MissionMapService.new({
                         terrainTileMap: terrainAllDoubleMovement,
                     }),
-                    startCoordinate: { q: 0, r: 2 },
+                    currentMapCoordinate: { q: 0, r: 2 },
+                    originMapCoordinate: { q: 0, r: 2 },
                     repository: objectRepository,
                     battleSquaddieId: battleSquaddie.battleSquaddieId,
                     campaignResources,
@@ -490,7 +476,8 @@ describe("map highlight generator", () => {
                     missionMap: MissionMapService.new({
                         terrainTileMap: terrainAlternatingPits,
                     }),
-                    startCoordinate: { q: 0, r: 4 },
+                    currentMapCoordinate: { q: 0, r: 4 },
+                    originMapCoordinate: { q: 0, r: 4 },
                     repository: objectRepository,
                     battleSquaddieId: battleSquaddie.battleSquaddieId,
                     campaignResources,

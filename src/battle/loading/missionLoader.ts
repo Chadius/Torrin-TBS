@@ -337,11 +337,11 @@ const initializeSquaddieResources = ({
 
             let imageLeft = ScreenDimensions.SCREEN_WIDTH
             let imageTop = ScreenDimensions.SCREEN_HEIGHT
-            if (datum.mapCoordinate !== undefined) {
+            if (datum.currentMapCoordinate !== undefined) {
                 ;({ x: imageLeft, y: imageTop } =
                     ConvertCoordinateService.convertMapCoordinatesToScreenLocation(
                         {
-                            mapCoordinate: datum.mapCoordinate,
+                            mapCoordinate: datum.currentMapCoordinate,
                             cameraLocation:
                                 missionLoaderContext.mapSettings.camera.getWorldLocation(),
                         }
@@ -519,7 +519,7 @@ const spawnNPCSquaddiesAndAddToMap = ({
                 missionMap: missionLoaderContext.missionMap,
                 squaddieTemplateId,
                 battleSquaddieId,
-                coordinate: coordinate,
+                originMapCoordinate: coordinate,
             })
         })
     )
@@ -582,7 +582,7 @@ const deployRequiredPlayerSquaddies = (
                 missionMap: missionLoaderContext.missionMap,
                 squaddieTemplateId: requiredDeployment.squaddieTemplateId,
                 battleSquaddieId: requiredDeployment.battleSquaddieId,
-                coordinate: requiredDeployment.coordinate,
+                originMapCoordinate: requiredDeployment.coordinate,
             })
         }
     )

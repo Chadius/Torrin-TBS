@@ -120,4 +120,121 @@ describe("Battle Actions During Turn", () => {
         expect(cloneActions[0]).toEqual(battleAction0)
         expect(cloneActions[1]).toEqual(battleAction1)
     })
+    describe("consolidate movement actions", () => {
+        let battleActionsDuringTurn: BattleActionsDuringTurn
+
+        beforeEach(() => {
+            battleActionsDuringTurn = BattleActionsDuringTurnService.new()
+        })
+
+        it("has no effect on an undefined object", () => {
+            const nothing: BattleActionsDuringTurn = undefined
+            BattleActionsDuringTurnService.removeUndoableMovementActions(
+                nothing
+            )
+            expect(nothing).toBeUndefined()
+        })
+        it("has no effect on an empty queue", () => {
+            expect(
+                BattleActionsDuringTurnService.isEmpty(battleActionsDuringTurn)
+            ).toBe(true)
+            BattleActionsDuringTurnService.removeUndoableMovementActions(
+                battleActionsDuringTurn
+            )
+            expect(
+                BattleActionsDuringTurnService.getAll(battleActionsDuringTurn)
+                    .length
+            ).toBe(0)
+        })
+        it("will remove multiple movement actions that were added first", () => {
+            BattleActionsDuringTurnService.add(
+                battleActionsDuringTurn,
+                battleActionMovement
+            )
+            BattleActionsDuringTurnService.add(
+                battleActionsDuringTurn,
+                battleActionMovement
+            )
+            BattleActionsDuringTurnService.add(
+                battleActionsDuringTurn,
+                battleActionMovement
+            )
+            expect(
+                BattleActionsDuringTurnService.getAll(battleActionsDuringTurn)
+                    .length
+            ).toBe(3)
+            BattleActionsDuringTurnService.removeUndoableMovementActions(
+                battleActionsDuringTurn
+            )
+            expect(
+                BattleActionsDuringTurnService.getAll(battleActionsDuringTurn)
+                    .length
+            ).toBe(0)
+        })
+        it("will remove movement actions from the back of the queue until it sees a non movement action", () => {
+            BattleActionsDuringTurnService.add(
+                battleActionsDuringTurn,
+                battleActionMovement
+            )
+            BattleActionsDuringTurnService.add(
+                battleActionsDuringTurn,
+                battleActionUseActionTemplate
+            )
+            BattleActionsDuringTurnService.add(
+                battleActionsDuringTurn,
+                battleActionMovement
+            )
+            expect(
+                BattleActionsDuringTurnService.getAll(battleActionsDuringTurn)
+                    .length
+            ).toBe(3)
+            BattleActionsDuringTurnService.removeUndoableMovementActions(
+                battleActionsDuringTurn
+            )
+            expect(
+                BattleActionsDuringTurnService.getAll(battleActionsDuringTurn)
+                    .length
+            ).toBe(2)
+            expect(
+                BattleActionsDuringTurnService.getAll(
+                    battleActionsDuringTurn
+                )[0]
+            ).toBe(battleActionMovement)
+            expect(
+                BattleActionsDuringTurnService.getAll(
+                    battleActionsDuringTurn
+                )[1]
+            ).toBe(battleActionUseActionTemplate)
+        })
+        it("will make no changes if the most recent action is not a movement", () => {
+            BattleActionsDuringTurnService.add(
+                battleActionsDuringTurn,
+                battleActionMovement
+            )
+            BattleActionsDuringTurnService.add(
+                battleActionsDuringTurn,
+                battleActionMovement
+            )
+            BattleActionsDuringTurnService.add(
+                battleActionsDuringTurn,
+                battleActionUseActionTemplate
+            )
+            expect(
+                BattleActionsDuringTurnService.getAll(battleActionsDuringTurn)
+                    .length
+            ).toBe(3)
+            BattleActionsDuringTurnService.removeUndoableMovementActions(
+                battleActionsDuringTurn
+            )
+            expect(
+                BattleActionsDuringTurnService.getAll(battleActionsDuringTurn)
+                    .length
+            ).toBe(3)
+            expect(
+                BattleActionsDuringTurnService.getAll(
+                    battleActionsDuringTurn
+                )[2]
+            ).toBe(battleActionUseActionTemplate)
+        })
+    })
 })

@@ -115,13 +115,15 @@ export class TargetSquaddieInRange implements TeamStrategyCalculator {
             firstActionTemplateWithTarget.actionTemplateId
         )
         if (desiredBattleSquaddieIsInRange) {
-            const { mapCoordinate } = MissionMapService.getByBattleSquaddieId(
-                gameEngineState.battleOrchestratorState.battleState.missionMap,
-                this.desiredBattleSquaddieId
-            )
+            const { currentMapCoordinate } =
+                MissionMapService.getByBattleSquaddieId(
+                    gameEngineState.battleOrchestratorState.battleState
+                        .missionMap,
+                    this.desiredBattleSquaddieId
+                )
             return createBattleActionDecisionSteps(
                 actionTemplate,
-                mapCoordinate,
+                currentMapCoordinate,
                 battleSquaddieIdToAct
             )
         }
@@ -156,13 +158,14 @@ export class TargetSquaddieInRange implements TeamStrategyCalculator {
 
         const battleSquaddieIdToTarget =
             battleSquaddieIdsOfDesiredAffiliation[0]
-        const { mapCoordinate } = MissionMapService.getByBattleSquaddieId(
-            gameEngineState.battleOrchestratorState.battleState.missionMap,
-            battleSquaddieIdToTarget
-        )
+        const { currentMapCoordinate } =
+            MissionMapService.getByBattleSquaddieId(
+                gameEngineState.battleOrchestratorState.battleState.missionMap,
+                battleSquaddieIdToTarget
+            )
         return createBattleActionDecisionSteps(
             actionTemplate,
-            mapCoordinate,
+            currentMapCoordinate,
             battleSquaddieIdToAct
         )
     }

@@ -3,9 +3,7 @@ import {
     ActionPerformFailureReason,
     SquaddieTurnService,
 } from "../../squaddie/turn"
-import { ObjectRepository } from "../objectRepository"
 import { ActionCheckResult } from "./validityChecker"
-import { PlayerConsideredActions } from "../battleState/playerConsideredActions"
 import { ActionTemplate } from "../../action/template/actionTemplate"
 import { InBattleAttributesService } from "../stats/inBattleAttributes"
 
@@ -13,19 +11,13 @@ export const SquaddieCanPerformActionCheck = {
     canPerform: ({
         battleSquaddie,
         actionTemplate,
-        objectRepository,
-        playerConsideredActions,
     }: {
         battleSquaddie: BattleSquaddie
         actionTemplate: ActionTemplate
-        objectRepository: ObjectRepository
-        playerConsideredActions: PlayerConsideredActions
     }): ActionCheckResult => {
         const { canPerform, reason } = SquaddieTurnService.canPerformAction({
             actionTemplate,
             battleSquaddie,
-            playerConsideredActions,
-            objectRepository,
         })
 
         if (

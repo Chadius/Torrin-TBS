@@ -567,7 +567,7 @@ describe("Battle Orchestrator", () => {
                 },
             })
         )
-        BattleActionRecorderService.battleActionFinishedAnimating(
+        BattleActionRecorderService.addAnimatingBattleActionToAlreadyAnimatedThisTurn(
             nullState.battleOrchestratorState.battleState.battleActionRecorder
         )
 

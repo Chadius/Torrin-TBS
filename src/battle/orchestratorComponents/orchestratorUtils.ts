@@ -161,7 +161,7 @@ export const OrchestratorUtilities = {
                     TerrainTileMapService.isCoordinateOnMap(
                         gameEngineState.battleOrchestratorState.battleState
                             .missionMap.terrainTileMap,
-                        datum.mapCoordinate
+                        datum.currentMapCoordinate
                     )
 
                 return (
@@ -340,7 +340,8 @@ const getSquaddieAtMapCoordinate = (param: {
     return {
         squaddieTemplate,
         battleSquaddie,
-        squaddieMapCoordinate: squaddieAndLocationIdentifier.mapCoordinate,
+        squaddieMapCoordinate:
+            squaddieAndLocationIdentifier.currentMapCoordinate,
     }
 }
 
@@ -355,7 +356,7 @@ const highlightSquaddieRange = ({
     objectRepository: ObjectRepository
     campaignResources: CampaignResources
 }) => {
-    const { mapCoordinate: startLocation } =
+    const { currentMapCoordinate, originMapCoordinate } =
         MissionMapService.getByBattleSquaddieId(
             missionMap,
             battleSquaddieToHighlightId
@@ -373,7 +374,8 @@ const highlightSquaddieRange = ({
             repository: objectRepository,
             missionMap,
             battleSquaddieId: battleSquaddie.battleSquaddieId,
-            startCoordinate: startLocation,
+            originMapCoordinate,
+            currentMapCoordinate,
             campaignResources,
             squaddieTurnOverride:
                 squaddieTemplate.squaddieId.affiliation ===

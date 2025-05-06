@@ -59,10 +59,13 @@ export class MoveCloserToSquaddie implements TeamStrategyCalculator {
         if (!isValidValue(battleSquaddieIdToAct)) {
             return undefined
         }
+
+        // TODO why is current map coordinate updating but not origin?
         const {
             battleSquaddie,
             squaddieTemplate,
-            mapCoordinate,
+            originMapCoordinate,
+            currentMapCoordinate,
             actionPointsRemaining,
             movementPerActionThisRound,
         } = getMovementInformationAboutBattleSquaddie({
@@ -72,7 +75,8 @@ export class MoveCloserToSquaddie implements TeamStrategyCalculator {
 
         const possibleMovementsForThisSquaddie: SearchResult =
             getPossibleMovementsForThisSquaddie({
-                mapCoordinate,
+                originMapCoordinate,
+                currentMapCoordinate,
                 squaddieTemplate,
                 battleSquaddie,
                 movementPerActionThisRound,
@@ -85,7 +89,8 @@ export class MoveCloserToSquaddie implements TeamStrategyCalculator {
 
         const closestSquaddieInfo = getClosestSquaddieAndLocationToFollow({
             actor: {
-                mapCoordinate,
+                originMapCoordinate,
+                currentMapCoordinate,
                 battleSquaddieId: battleSquaddieIdToAct,
                 battleSquaddie,
                 squaddieTemplate,
@@ -137,7 +142,8 @@ const getClosestSquaddieAndLocationToFollow = ({
     actor,
 }: {
     actor: {
-        mapCoordinate: HexCoordinate
+        originMapCoordinate: HexCoordinate
+        currentMapCoordinate: HexCoordinate
         battleSquaddieId: string
         battleSquaddie: BattleSquaddie
         squaddieTemplate: SquaddieTemplate
@@ -180,7 +186,7 @@ const getClosestSquaddieAndLocationToFollow = ({
             const closestRoute =
                 getClosestRouteToThisSquaddieThatSpendsTheLeastNumberOfActionPoints(
                     {
-                        missionMap: missionMap,
+                        missionMap,
                         targetBattleSquaddieId:
                             targetBattleSquaddieInfo.battleSquaddieId,
                         maximumDistanceToConsider: maximumDistanceToConsider,
@@ -244,7 +250,8 @@ const selectDesiredBattleSquaddies = (
     )
 
 const getPossibleMovementsForThisSquaddie = ({
-    mapCoordinate,
+    originMapCoordinate,
+    currentMapCoordinate,
     battleSquaddie,
     squaddieTemplate,
     movementPerActionThisRound,
@@ -252,7 +259,8 @@ const getPossibleMovementsForThisSquaddie = ({
     missionMap,
     objectRepository,
 }: {
-    mapCoordinate: HexCoordinate
+    originMapCoordinate: HexCoordinate
+    currentMapCoordinate: HexCoordinate
     squaddieTemplate: SquaddieTemplate
     battleSquaddie: BattleSquaddie
     movementPerActionThisRound: number
@@ -263,7 +271,8 @@ const getPossibleMovementsForThisSquaddie = ({
     MapSearchService.calculateAllPossiblePathsFromStartingCoordinate({
         missionMap,
         objectRepository,
-        startCoordinate: mapCoordinate,
+        originMapCoordinate,
+        currentMapCoordinate,
         searchLimit: SearchLimitService.new({
             baseSearchLimit: SearchLimitService.landBasedMovement(),
             maximumMovementCost:
@@ -394,16 +403,14 @@ const getMovementInformationAboutBattleSquaddie = ({
         )
     )
 
-    const { mapCoordinate } = MissionMapService.getByBattleSquaddieId(
-        gameEngineState.battleOrchestratorState.battleState.missionMap,
-        battleSquaddieIdToAct
-    )
-    const { unallocatedActionPoints } = SquaddieService.getNumberOfActionPoints(
-        {
-            squaddieTemplate,
-            battleSquaddie,
-        }
-    )
+    const { originMapCoordinate, currentMapCoordinate } =
+        MissionMapService.getByBattleSquaddieId(
+            gameEngineState.battleOrchestratorState.battleState.missionMap,
+            battleSquaddieIdToAct
+        )
+    const { unSpentActionPoints } = SquaddieService.getActionPointSpend({
+        battleSquaddie,
+    })
     const movementPerActionThisRound =
         SquaddieService.getSquaddieMovementAttributes({
             battleSquaddie,
@@ -412,8 +419,9 @@ const getMovementInformationAboutBattleSquaddie = ({
     return {
         battleSquaddie,
         squaddieTemplate,
-        mapCoordinate,
-        actionPointsRemaining: unallocatedActionPoints,
+        originMapCoordinate,
+        currentMapCoordinate,
+        actionPointsRemaining: unSpentActionPoints,
         movementPerActionThisRound,
     }
 }
@@ -433,7 +441,7 @@ const getClosestRouteToThisSquaddieThatSpendsTheLeastNumberOfActionPoints = ({
         possibleMovementsForThisSquaddie: SearchResult
     }
 }) => {
-    const { mapCoordinate: targetMapCoordinate } =
+    const { currentMapCoordinate: targetMapCoordinate } =
         MissionMapService.getByBattleSquaddieId(
             missionMap,
             targetBattleSquaddieId

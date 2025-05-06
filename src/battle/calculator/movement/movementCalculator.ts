@@ -1,4 +1,3 @@
-import { GameEngineState } from "../../../gameEngine/gameEngine"
 import { SquaddieService } from "../../../squaddie/squaddieService"
 import { SearchResult } from "../../../hexMap/pathfinder/searchResults/searchResult"
 import { SquaddieAffiliation } from "../../../squaddie/squaddieAffiliation"
@@ -9,47 +8,57 @@ import { HexCoordinate } from "../../../hexMap/hexCoordinate/hexCoordinate"
 import { BattleActionService } from "../../history/battleAction/battleAction"
 import { BattleSquaddieSelectorService } from "../../orchestratorComponents/battleSquaddieSelectorUtils"
 import { SquaddieTurnService } from "../../../squaddie/turn"
-import { BattleActionDecisionStepService } from "../../actionDecision/battleActionDecisionStep"
-import { BattleActionRecorderService } from "../../history/battleAction/battleActionRecorder"
-import { MissionMapService } from "../../../missionMap/missionMap"
+import {
+    BattleActionDecisionStep,
+    BattleActionDecisionStepService,
+} from "../../actionDecision/battleActionDecisionStep"
+import {
+    BattleActionRecorder,
+    BattleActionRecorderService,
+} from "../../history/battleAction/battleActionRecorder"
+import { MissionMap, MissionMapService } from "../../../missionMap/missionMap"
 import { SearchResultAdapterService } from "../../../hexMap/pathfinder/searchResults/searchResultAdapter"
 import { MapSearchService } from "../../../hexMap/pathfinder/pathGeneration/mapSearch"
 import { SearchLimitService } from "../../../hexMap/pathfinder/pathGeneration/searchLimit"
 import { SearchPathAdapter } from "../../../search/searchPathAdapter/searchPathAdapter"
+import { ObjectRepository } from "../../objectRepository"
+import { CampaignResources } from "../../../campaign/campaignResources"
+import { BattleState } from "../../battleState/battleState"
 
 export const MovementCalculatorService = {
     isMovementPossible: ({
-        gameEngineState,
         battleSquaddie,
         squaddieTemplate,
         destination,
+        missionMap,
+        objectRepository,
     }: {
-        gameEngineState: GameEngineState
         battleSquaddie: BattleSquaddie
         squaddieTemplate: SquaddieTemplate
         destination: HexCoordinate
+        missionMap: MissionMap
+        objectRepository: ObjectRepository
     }): boolean => {
         const squaddieDatum = MissionMapService.getByBattleSquaddieId(
-            gameEngineState.battleOrchestratorState.battleState.missionMap,
+            missionMap,
             battleSquaddie.battleSquaddieId
         )
-        const { unallocatedActionPoints } =
-            SquaddieService.getNumberOfActionPoints({
-                squaddieTemplate,
-                battleSquaddie,
-            })
+
+        const movementActionPoints =
+            SquaddieTurnService.getActionPointsThatCouldBeSpentOnMovement(
+                battleSquaddie.squaddieTurn
+            )
 
         const searchResults: SearchResult =
             MapSearchService.calculatePathsToDestinations({
-                missionMap:
-                    gameEngineState.battleOrchestratorState.battleState
-                        .missionMap,
-                objectRepository: gameEngineState.repository,
-                startCoordinate: squaddieDatum.mapCoordinate,
+                missionMap,
+                objectRepository,
+                currentMapCoordinate: squaddieDatum.currentMapCoordinate,
+                originMapCoordinate: squaddieDatum.originMapCoordinate,
                 searchLimit: SearchLimitService.new({
                     baseSearchLimit: SearchLimitService.landBasedMovement(),
                     maximumMovementCost:
-                        unallocatedActionPoints *
+                        movementActionPoints *
                         SquaddieService.getSquaddieMovementAttributes({
                             battleSquaddie,
                             squaddieTemplate,
@@ -83,84 +92,86 @@ export const MovementCalculatorService = {
         return isValidValue(closestRoute)
     },
     setBattleActionDecisionStepReadyToAnimate: ({
-        gameEngineState,
         battleSquaddie,
         squaddieTemplate,
         destination,
+        battleActionDecisionStep,
+        missionMap,
+        battleState,
+        campaignResources,
+        objectRepository,
     }: {
-        gameEngineState: GameEngineState
         battleSquaddie: BattleSquaddie
         squaddieTemplate: SquaddieTemplate
         destination: HexCoordinate
+        battleActionDecisionStep: BattleActionDecisionStep
+        missionMap: MissionMap
+        campaignResources: CampaignResources
+        battleState: BattleState
+        objectRepository: ObjectRepository
     }) => {
         BattleSquaddieSelectorService.createSearchPathAndHighlightMovementPath({
-            gameEngineState: gameEngineState,
             squaddieTemplate,
             battleSquaddie,
             clickedHexCoordinate: destination,
+            missionMap,
+            objectRepository,
+            campaignResources,
+            battleState,
         })
-        BattleActionDecisionStepService.reset(
-            gameEngineState.battleOrchestratorState.battleState
-                .battleActionDecisionStep
-        )
+
+        BattleActionDecisionStepService.reset(battleActionDecisionStep)
         BattleActionDecisionStepService.setActor({
-            actionDecisionStep:
-                gameEngineState.battleOrchestratorState.battleState
-                    .battleActionDecisionStep,
+            actionDecisionStep: battleActionDecisionStep,
             battleSquaddieId: battleSquaddie.battleSquaddieId,
         })
         BattleActionDecisionStepService.addAction({
-            actionDecisionStep:
-                gameEngineState.battleOrchestratorState.battleState
-                    .battleActionDecisionStep,
+            actionDecisionStep: battleActionDecisionStep,
             movement: true,
         })
         BattleActionDecisionStepService.setConsideredTarget({
-            actionDecisionStep:
-                gameEngineState.battleOrchestratorState.battleState
-                    .battleActionDecisionStep,
+            actionDecisionStep: battleActionDecisionStep,
             targetCoordinate: destination,
         })
         BattleActionDecisionStepService.setConfirmedTarget({
-            actionDecisionStep:
-                gameEngineState.battleOrchestratorState.battleState
-                    .battleActionDecisionStep,
+            actionDecisionStep: battleActionDecisionStep,
             targetCoordinate: destination,
         })
     },
-    spendActionPointsMoving: ({
-        gameEngineState,
+    spendActionPointsOnRefundableMovement: ({
+        searchPath,
         battleSquaddie,
-        destination,
+        objectRepository,
     }: {
-        gameEngineState: GameEngineState
         battleSquaddie: BattleSquaddie
-        destination: HexCoordinate
+        searchPath: SearchPathAdapter
+        objectRepository: ObjectRepository
     }) => {
-        return spendActionPointsMoving({
-            gameEngineState: gameEngineState,
+        return spendActionPointsOnRefundableMovement({
+            searchPath,
+            objectRepository,
             battleSquaddie,
-            destination,
         })
     },
     queueBattleActionToMove: ({
-        gameEngineState,
         battleSquaddie,
         destination,
+        missionMap,
+        battleActionRecorder,
     }: {
-        gameEngineState: GameEngineState
         battleSquaddie: BattleSquaddie
         destination: HexCoordinate
+        missionMap: MissionMap
+        battleActionRecorder: BattleActionRecorder
     }) => {
-        const { mapCoordinate: startLocation } =
+        const { currentMapCoordinate: startLocation } =
             MissionMapService.getByBattleSquaddieId(
-                gameEngineState.battleOrchestratorState.battleState.missionMap,
+                missionMap,
                 battleSquaddie.battleSquaddieId
             )
 
         BattleActionRecorderService.addReadyToAnimateBattleAction(
-            gameEngineState.battleOrchestratorState.battleState
-                .battleActionRecorder,
+            battleActionRecorder,
             BattleActionService.new({
                 actor: {
                     actorBattleSquaddieId: battleSquaddie.battleSquaddieId,
@@ -177,30 +188,27 @@ export const MovementCalculatorService = {
     },
 }
 
-const spendActionPointsMoving = ({
-    gameEngineState,
+const spendActionPointsOnRefundableMovement = ({
     battleSquaddie,
-    destination,
+    searchPath,
+    objectRepository,
 }: {
-    gameEngineState: GameEngineState
     battleSquaddie: BattleSquaddie
-    destination: HexCoordinate
+    searchPath: SearchPathAdapter
+    objectRepository: ObjectRepository
 }) => {
     const coordinatesByMoveActions: {
         [movementActions: number]: HexCoordinate[]
     } = SquaddieService.searchPathCoordinatesByNumberOfMovementActions({
-        searchPath:
-            gameEngineState.battleOrchestratorState.battleState
-                .squaddieMovePath,
+        searchPath,
         battleSquaddieId: battleSquaddie.battleSquaddieId,
-        repository: gameEngineState.repository,
+        repository: objectRepository,
     })
-    const numberOfActionPointsSpentMoving: number =
-        Math.max(
-            ...Object.keys(coordinatesByMoveActions).map((str) => Number(str))
-        ) || 1
+    const numberOfActionPointsSpentMoving: number = Math.max(
+        ...Object.keys(coordinatesByMoveActions).map((str) => Number(str))
+    )
 
-    SquaddieTurnService.spendActionPointsForMovement({
+    SquaddieTurnService.setMovementActionPointsSpentButCanBeRefunded({
         squaddieTurn: battleSquaddie.squaddieTurn,
         actionPoints: numberOfActionPointsSpentMoving,
     })

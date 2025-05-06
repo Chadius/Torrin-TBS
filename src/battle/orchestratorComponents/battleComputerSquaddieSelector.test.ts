@@ -7,7 +7,10 @@ import {
 import { ObjectRepository, ObjectRepositoryService } from "../objectRepository"
 import { SquaddieAffiliation } from "../../squaddie/squaddieAffiliation"
 import { BattleSquaddie, BattleSquaddieService } from "../battleSquaddie"
-import { SquaddieTurnService } from "../../squaddie/turn"
+import {
+    DEFAULT_ACTION_POINTS_PER_TURN,
+    SquaddieTurnService,
+} from "../../squaddie/turn"
 import {
     BattleOrchestratorChanges,
     OrchestratorComponentMouseEvent,
@@ -183,13 +186,13 @@ describe("BattleComputerSquaddieSelector", () => {
             missionMap,
             squaddieTemplateId: enemyDemonTemplate.squaddieId.templateId,
             battleSquaddieId: enemyDemonBattleSquaddie.battleSquaddieId,
-            coordinate: { q: 0, r: 0 },
+            originMapCoordinate: { q: 0, r: 0 },
         })
         MissionMapService.addSquaddie({
             missionMap,
             squaddieTemplateId: enemyDemonTemplate.squaddieId.templateId,
             battleSquaddieId: enemyDemonBattleSquaddie2.battleSquaddieId,
-            coordinate: { q: 0, r: 1 },
+            originMapCoordinate: { q: 0, r: 1 },
         })
     }
 
@@ -590,13 +593,13 @@ describe("BattleComputerSquaddieSelector", () => {
                 missionMap,
                 squaddieTemplateId: enemyDemonTemplate.squaddieId.templateId,
                 battleSquaddieId: enemyDemonBattleSquaddie.battleSquaddieId,
-                coordinate: { q: 0, r: 0 },
+                originMapCoordinate: { q: 0, r: 0 },
             })
             MissionMapService.addSquaddie({
                 missionMap,
                 squaddieTemplateId: enemyDemonTemplate.squaddieId.templateId,
                 battleSquaddieId: enemyDemonBattleSquaddie2.battleSquaddieId,
-                coordinate: { q: 0, r: 1 },
+                originMapCoordinate: { q: 0, r: 1 },
             })
 
             const { x, y } =
@@ -866,13 +869,13 @@ describe("BattleComputerSquaddieSelector", () => {
             })
 
             it("should consume the squaddie action points", () => {
-                const { unallocatedActionPoints } =
-                    SquaddieService.getNumberOfActionPoints({
-                        squaddieTemplate: enemyDemonTemplate,
+                const { unSpentActionPoints } =
+                    SquaddieService.getActionPointSpend({
                         battleSquaddie: enemyDemonBattleSquaddie,
                     })
-                expect(unallocatedActionPoints).toBe(
-                    3 - demonBiteAction.resourceCost.actionPoints
+                expect(unSpentActionPoints).toBe(
+                    DEFAULT_ACTION_POINTS_PER_TURN -
+                        demonBiteAction.resourceCost.actionPoints
                 )
             })
 

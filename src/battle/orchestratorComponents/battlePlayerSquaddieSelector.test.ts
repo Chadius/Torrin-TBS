@@ -14,7 +14,7 @@ import { BattleCamera } from "../battleCamera"
 import { ConvertCoordinateService } from "../../hexMap/convertCoordinates"
 import * as mocks from "../../utils/test/mocks"
 import { MockedP5GraphicsBuffer } from "../../utils/test/mocks"
-import { BattleStateService } from "../battleState/battleState"
+import { BattleState, BattleStateService } from "../battleState/battleState"
 import {
     GameEngineState,
     GameEngineStateService,
@@ -24,7 +24,10 @@ import { ActionTemplateService } from "../../action/template/actionTemplate"
 import { BattlePhaseState } from "./battlePhaseController"
 import { BattleHUDService } from "../hud/battleHUD/battleHUD"
 import { MouseButton, MouseConfigService } from "../../utils/mouseConfig"
-import { BattleActionDecisionStepService } from "../actionDecision/battleActionDecisionStep"
+import {
+    BattleActionDecisionStep,
+    BattleActionDecisionStepService,
+} from "../actionDecision/battleActionDecisionStep"
 import { MessageBoardMessageType } from "../../message/messageBoardMessage"
 import { RectAreaService } from "../../ui/rectArea"
 import {
@@ -59,7 +62,10 @@ import {
     TraitStatusStorageService,
 } from "../../trait/traitStatusStorage"
 import { DamageType, HealingType } from "../../squaddie/squaddieService"
-import { BattleActionRecorderService } from "../history/battleAction/battleActionRecorder"
+import {
+    BattleActionRecorder,
+    BattleActionRecorderService,
+} from "../history/battleAction/battleActionRecorder"
 import { TargetConstraintsService } from "../../action/targetConstraints"
 import {
     afterEach,
@@ -88,7 +94,12 @@ import { FileAccessHUDService } from "../hud/fileAccess/fileAccessHUD"
 import { HexCoordinate } from "../../hexMap/hexCoordinate/hexCoordinate"
 import { ValidityCheckService } from "../actionValidity/validityChecker"
 import { MapSearchTestUtils } from "../../hexMap/pathfinder/pathGeneration/mapSearchTests/mapSearchTestUtils"
-import { CampaignResourcesService } from "../../campaign/campaignResources"
+import {
+    CampaignResources,
+    CampaignResourcesService,
+} from "../../campaign/campaignResources"
+import { SearchPathAdapter } from "../../search/searchPathAdapter/searchPathAdapter"
+import { MessageBoard } from "../../message/messageBoard"
 
 describe("BattleSquaddieSelector", () => {
     let selector: BattlePlayerSquaddieSelector =
@@ -315,7 +326,7 @@ describe("BattleSquaddieSelector", () => {
             missionMap,
             squaddieTemplateId: "player_soldier",
             battleSquaddieId: "battleSquaddieId",
-            coordinate: { q: 0, r: 0 },
+            originMapCoordinate: { q: 0, r: 0 },
         })
 
         validitySpy = vi
@@ -534,6 +545,12 @@ describe("BattleSquaddieSelector", () => {
                 battlePhaseState,
                 missionMap,
             })
+            BattleActionDecisionStepService.setActor({
+                actionDecisionStep:
+                    gameEngineState.battleOrchestratorState.battleState
+                        .battleActionDecisionStep,
+                battleSquaddieId: "battleSquaddieId",
+            })
             messageSpy = vi.spyOn(gameEngineState.messageBoard, "sendMessage")
             ;({
                 x: battleSquaddieScreenPositionX,
@@ -684,7 +701,24 @@ describe("BattleSquaddieSelector", () => {
                                     type: MessageBoardMessageType.MOVE_SQUADDIE_TO_COORDINATE,
                                     battleSquaddieId: "battleSquaddieId",
                                     targetCoordinate: { q: 0, r: 1 },
-                                    gameEngineState,
+                                    missionMap:
+                                        gameEngineState.battleOrchestratorState
+                                            .battleState.missionMap,
+                                    objectRepository:
+                                        gameEngineState.repository,
+                                    messageBoard: gameEngineState.messageBoard,
+                                    battleActionDecisionStep:
+                                        gameEngineState.battleOrchestratorState
+                                            .battleState
+                                            .battleActionDecisionStep,
+                                    campaignResources:
+                                        gameEngineState.campaign.resources,
+                                    battleState:
+                                        gameEngineState.battleOrchestratorState
+                                            .battleState,
+                                    battleActionRecorder:
+                                        gameEngineState.battleOrchestratorState
+                                            .battleState.battleActionRecorder,
                                 },
                             }),
                     })
@@ -695,7 +729,23 @@ describe("BattleSquaddieSelector", () => {
                 expect(messageSpy).toBeCalledWith({
                     type: MessageBoardMessageType.MOVE_SQUADDIE_TO_COORDINATE,
                     targetCoordinate: { q: 0, r: 1 },
-                    gameEngineState,
+                    missionMap:
+                        gameEngineState.battleOrchestratorState.battleState
+                            .missionMap,
+                    objectRepository: gameEngineState.repository,
+                    squaddieMovePath:
+                        gameEngineState.battleOrchestratorState.battleState
+                            .squaddieMovePath,
+                    messageBoard: gameEngineState.messageBoard,
+                    battleActionDecisionStep:
+                        gameEngineState.battleOrchestratorState.battleState
+                            .battleActionDecisionStep,
+                    campaignResources: gameEngineState.campaign.resources,
+                    battleState:
+                        gameEngineState.battleOrchestratorState.battleState,
+                    battleActionRecorder:
+                        gameEngineState.battleOrchestratorState.battleState
+                            .battleActionRecorder,
                     battleSquaddieId: "battleSquaddieId",
                 })
             })
@@ -869,7 +919,7 @@ describe("BattleSquaddieSelector", () => {
                         .missionMap,
                 battleSquaddieId: "enemy0",
                 squaddieTemplateId: "enemy0",
-                coordinate: { q: 0, r: 1 },
+                originMapCoordinate: { q: 0, r: 1 },
             })
             SquaddieRepositoryService.createNewSquaddieAndAddToRepository({
                 battleId: "enemy1",
@@ -885,7 +935,7 @@ describe("BattleSquaddieSelector", () => {
                         .missionMap,
                 battleSquaddieId: "enemy1",
                 squaddieTemplateId: "enemy1",
-                coordinate: { q: 0, r: 2 },
+                originMapCoordinate: { q: 0, r: 2 },
             })
 
             BattleHUDService.playerSelectsSquaddie(

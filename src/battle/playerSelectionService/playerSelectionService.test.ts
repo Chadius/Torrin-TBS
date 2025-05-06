@@ -91,7 +91,7 @@ describe("Player Selection Service", () => {
                 missionMap,
                 battleSquaddieId: playerBattleSquaddie.battleSquaddieId,
                 squaddieTemplateId: playerBattleSquaddie.squaddieTemplateId,
-                coordinate: {
+                originMapCoordinate: {
                     q: 0,
                     r: 0,
                 },
@@ -331,7 +331,7 @@ describe("Player Selection Service", () => {
                         missionMap:
                             gameEngineState.battleOrchestratorState.battleState
                                 .missionMap,
-                        coordinate: { q: 0, r: 2 },
+                        originMapCoordinate: { q: 0, r: 2 },
                     })
 
                     BattleActionDecisionStepService.setActor({
@@ -382,7 +382,7 @@ describe("Player Selection Service", () => {
                     battleSquaddieId: playerBattleSquaddie2.battleSquaddieId,
                     squaddieTemplateId:
                         playerBattleSquaddie2.squaddieTemplateId,
-                    coordinate: {
+                    originMapCoordinate: {
                         q: 0,
                         r: 3,
                     },
@@ -463,7 +463,7 @@ describe("Player Selection Service", () => {
                     actionDecisionStep:
                         gameEngineState.battleOrchestratorState.battleState
                             .battleActionDecisionStep,
-                    battleSquaddieId: "player",
+                    battleSquaddieId: playerBattleSquaddie2.battleSquaddieId,
                 })
                 BattleActionDecisionStepService.addAction({
                     actionDecisionStep:
@@ -601,7 +601,7 @@ describe("Player Selection Service", () => {
                 missionMap,
                 battleSquaddieId: playerBattleSquaddie.battleSquaddieId,
                 squaddieTemplateId: playerBattleSquaddie.squaddieTemplateId,
-                coordinate: {
+                originMapCoordinate: {
                     q: 0,
                     r: 0,
                 },
@@ -610,7 +610,7 @@ describe("Player Selection Service", () => {
                 missionMap,
                 battleSquaddieId: playerBattleSquaddie2.battleSquaddieId,
                 squaddieTemplateId: playerBattleSquaddie2.squaddieTemplateId,
-                coordinate: { q: 0, r: 1 },
+                originMapCoordinate: { q: 0, r: 1 },
             })
 
             gameEngineState = GameEngineStateService.new({
@@ -972,17 +972,15 @@ describe("Player Selection Service", () => {
                 })
                 expect(messageSpy).toHaveBeenCalledWith(
                     expect.objectContaining({
-                        type: MessageBoardMessageType.PLAYER_CONSIDERS_ACTION,
-                        useAction: expect.objectContaining({
-                            movement: {
-                                actionPointCost: 1,
-                                coordinates: [
-                                    { q: 0, r: 0 },
-                                    { q: 1, r: 0 },
-                                ],
-                                destination: { q: 1, r: 0 },
-                            },
-                        }),
+                        type: MessageBoardMessageType.PLAYER_CONSIDERS_MOVEMENT,
+                        movementDecision: {
+                            actionPointCost: 1,
+                            coordinates: [
+                                { q: 0, r: 0 },
+                                { q: 1, r: 0 },
+                            ],
+                            destination: { q: 1, r: 0 },
+                        },
                     })
                 )
             })
@@ -995,7 +993,8 @@ describe("Player Selection Service", () => {
                 },
                 gameEngineState,
             })
-
+            gameEngineState.battleOrchestratorState.battleHUDState.summaryHUDState =
+                SummaryHUDStateService.new()
             PlayerSelectionService.applyContextToGetChanges({
                 gameEngineState,
                 context: actualContext,
@@ -1003,11 +1002,7 @@ describe("Player Selection Service", () => {
 
             expect(messageSpy).toHaveBeenCalledWith(
                 expect.objectContaining({
-                    type: MessageBoardMessageType.PLAYER_CONSIDERS_ACTION,
-                    cancelAction: {
-                        movement: true,
-                        actionTemplate: false,
-                    },
+                    type: MessageBoardMessageType.PLAYER_CANCELS_PLAYER_ACTION_CONSIDERATIONS,
                 })
             )
         })
@@ -1063,7 +1058,7 @@ describe("Player Selection Service", () => {
                 },
             })
         )
-        BattleActionRecorderService.battleActionFinishedAnimating(
+        BattleActionRecorderService.addAnimatingBattleActionToAlreadyAnimatedThisTurn(
             gameEngineState.battleOrchestratorState.battleState
                 .battleActionRecorder
         )
@@ -1102,7 +1097,7 @@ describe("Player Selection Service", () => {
                 missionMap,
                 squaddieTemplateId: "enemy",
                 battleSquaddieId: "enemy10",
-                coordinate: { q: 1, r: 0 },
+                originMapCoordinate: { q: 1, r: 0 },
             })
 
             clickOnMapCoordinate({
@@ -1562,7 +1557,7 @@ const createGameEngineStateWith1PlayerAnd1Enemy = ({
         missionMap,
         battleSquaddieId: playerBattleSquaddie.battleSquaddieId,
         squaddieTemplateId: playerBattleSquaddie.squaddieTemplateId,
-        coordinate: {
+        originMapCoordinate: {
             q: 0,
             r: 0,
         },
@@ -1582,7 +1577,7 @@ const createGameEngineStateWith1PlayerAnd1Enemy = ({
         missionMap,
         battleSquaddieId: enemyBattleSquaddie.battleSquaddieId,
         squaddieTemplateId: enemyBattleSquaddie.squaddieTemplateId,
-        coordinate: enemyMapCoordinate ?? {
+        originMapCoordinate: enemyMapCoordinate ?? {
             q: 0,
             r: 1,
         },
@@ -1642,7 +1637,18 @@ const clickOnScreenAndCalculateChangesAndMessage = ({
         type: MessageBoardMessageType.MOVE_SQUADDIE_TO_COORDINATE,
         battleSquaddieId: "PLAYER",
         targetCoordinate: targetCoordinate,
-        gameEngineState,
+        missionMap:
+            gameEngineState.battleOrchestratorState.battleState.missionMap,
+        objectRepository: gameEngineState.repository,
+        messageBoard: gameEngineState.messageBoard,
+        battleActionDecisionStep:
+            gameEngineState.battleOrchestratorState.battleState
+                .battleActionDecisionStep,
+        campaignResources: gameEngineState.campaign.resources,
+        battleState: gameEngineState.battleOrchestratorState.battleState,
+        battleActionRecorder:
+            gameEngineState.battleOrchestratorState.battleState
+                .battleActionRecorder,
     }
     return { actualChanges, expectedMessage }
 }

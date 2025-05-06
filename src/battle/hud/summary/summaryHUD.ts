@@ -527,6 +527,8 @@ const drawTargetTiles = ({
         targetCoordinate
     ).battleSquaddieId
 
+    if (!battleSquaddieId) return
+
     if (
         summaryHUDState.squaddieNameTiles[ActionTilePosition.TARGET_NAME] ===
         undefined

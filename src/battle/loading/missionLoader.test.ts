@@ -289,7 +289,7 @@ describe("Mission Loader", () => {
                         const {
                             battleSquaddieId,
                             squaddieTemplateId,
-                            mapCoordinate,
+                            currentMapCoordinate,
                         } = MissionMapService.getByBattleSquaddieId(
                             missionLoaderContext.missionMap,
                             placement.battleSquaddieId
@@ -300,7 +300,9 @@ describe("Mission Loader", () => {
                         expect(squaddieTemplateId).toEqual(
                             placement.squaddieTemplateId
                         )
-                        expect(mapCoordinate).toEqual(placement.coordinate)
+                        expect(currentMapCoordinate).toEqual(
+                            placement.coordinate
+                        )
                     })
                 )
             })
@@ -519,7 +521,7 @@ describe("Mission Loader", () => {
                     expect(coordinateDescriptor.squaddieTemplateId).toEqual(
                         requiredDeployment.squaddieTemplateId
                     )
-                    expect(coordinateDescriptor.mapCoordinate).toEqual(
+                    expect(coordinateDescriptor.currentMapCoordinate).toEqual(
                         requiredDeployment.coordinate
                     )
                 }

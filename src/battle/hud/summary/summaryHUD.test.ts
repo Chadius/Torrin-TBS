@@ -647,7 +647,7 @@ describe("summaryHUD", () => {
                         .missionMap,
                 squaddieTemplateId: "enemy",
                 battleSquaddieId: "enemy",
-                coordinate: { q: 0, r: 1 },
+                originMapCoordinate: { q: 0, r: 1 },
             })
 
             BattleActionDecisionStepService.setConsideredTarget({

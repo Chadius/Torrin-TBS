@@ -3,7 +3,7 @@ import {
     MissionObjectivesAndCutscenes,
     MissionObjectivesAndCutscenesHelper,
 } from "../orchestrator/missionObjectivesAndCutscenes"
-import { MissionMap } from "../../missionMap/missionMap"
+import { MissionMap, MissionMapService } from "../../missionMap/missionMap"
 import { SquaddieAffiliation } from "../../squaddie/squaddieAffiliation"
 import {
     BattleSquaddieTeam,
@@ -55,6 +55,8 @@ import {
     PlayerConsideredActionsService,
 } from "./playerConsideredActions"
 import { SearchPathAdapter } from "../../search/searchPathAdapter/searchPathAdapter"
+import { BattleActionsDuringTurnService } from "../history/battleAction/battleActionsDuringTurn"
+import { HexCoordinateService } from "../../hexMap/hexCoordinate/hexCoordinate"
 
 export enum BattleStateValidityMissingComponent {
     MISSION_MAP = "MISSION_MAP",
@@ -313,14 +315,18 @@ const battleActionFinishesAnimation = (
 ) => {
     const gameEngineState: GameEngineState = message.gameEngineState
 
+    const battleAction = BattleActionRecorderService.peekAtAnimationQueue(
+        gameEngineState.battleOrchestratorState.battleState.battleActionRecorder
+    )
     const { battleSquaddie, squaddieTemplate } = getResultOrThrowError(
         ObjectRepositoryService.getSquaddieByBattleId(
             gameEngineState.repository,
-            BattleActionRecorderService.peekAtAnimationQueue(
-                gameEngineState.battleOrchestratorState.battleState
-                    .battleActionRecorder
-            ).actor.actorBattleSquaddieId
+            battleAction.actor.actorBattleSquaddieId
         )
+    )
+    const { originMapCoordinate } = MissionMapService.getByBattleSquaddieId(
+        gameEngineState.battleOrchestratorState.battleState.missionMap,
+        battleAction.actor.actorBattleSquaddieId
     )
 
     updateSummaryHUDAfterFinishingAnimation(message)
@@ -340,15 +346,38 @@ const battleActionFinishesAnimation = (
     )
 
     BattleActionService.setAnimationCompleted({
-        battleAction: BattleActionRecorderService.peekAtAnimationQueue(
-            gameEngineState.battleOrchestratorState.battleState
-                .battleActionRecorder
-        ),
+        battleAction: battleAction,
         animationCompleted: true,
     })
-    BattleActionRecorderService.battleActionFinishedAnimating(
-        gameEngineState.battleOrchestratorState.battleState.battleActionRecorder
-    )
+
+    if (battleAction.action.isMovement) {
+        BattleActionsDuringTurnService.removeUndoableMovementActions(
+            gameEngineState.battleOrchestratorState.battleState
+                .battleActionRecorder.actionsAlreadyAnimatedThisTurn
+        )
+
+        const squaddieUndidMovementWithoutActing =
+            HexCoordinateService.areEqual(
+                originMapCoordinate,
+                battleAction.effect.movement.endCoordinate
+            )
+        if (squaddieUndidMovementWithoutActing) {
+            BattleActionRecorderService.dequeueBattleActionFromReadyToAnimateQueue(
+                gameEngineState.battleOrchestratorState.battleState
+                    .battleActionRecorder
+            )
+        } else {
+            BattleActionRecorderService.addAnimatingBattleActionToAlreadyAnimatedThisTurn(
+                gameEngineState.battleOrchestratorState.battleState
+                    .battleActionRecorder
+            )
+        }
+    } else {
+        BattleActionRecorderService.addAnimatingBattleActionToAlreadyAnimatedThisTurn(
+            gameEngineState.battleOrchestratorState.battleState
+                .battleActionRecorder
+        )
+    }
 
     const canAct = SquaddieService.canSquaddieActRightNow({
         battleSquaddie,

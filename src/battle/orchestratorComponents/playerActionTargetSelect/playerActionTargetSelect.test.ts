@@ -228,7 +228,7 @@ describe("Player Action Target Select", () => {
                 gameEngineState.battleOrchestratorState.battleState.missionMap,
             battleSquaddieId: "player",
             squaddieTemplateId: "player",
-            coordinate: { q: 0, r: 0 },
+            originMapCoordinate: { q: 0, r: 0 },
         })
         SquaddieRepositoryService.createNewSquaddieAndAddToRepository({
             name: "enemy",
@@ -243,7 +243,7 @@ describe("Player Action Target Select", () => {
                 gameEngineState.battleOrchestratorState.battleState.missionMap,
             battleSquaddieId: "enemy",
             squaddieTemplateId: "enemy",
-            coordinate: { q: 0, r: 1 },
+            originMapCoordinate: { q: 0, r: 1 },
         })
 
         gameEngineState.battleOrchestratorState.battleState.camera =

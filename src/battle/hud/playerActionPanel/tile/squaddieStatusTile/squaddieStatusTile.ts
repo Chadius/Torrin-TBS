@@ -55,10 +55,7 @@ import {
     BattleActionDecisionStep,
     BattleActionDecisionStepService,
 } from "../../../../actionDecision/battleActionDecisionStep"
-import {
-    PlayerConsideredActions,
-    PlayerConsideredActionsService,
-} from "../../../../battleState/playerConsideredActions"
+import { PlayerConsideredActions } from "../../../../battleState/playerConsideredActions"
 import {
     SquaddieStatusTileDrawHitPointsPointsMeterAction,
     SquaddieStatusTileIsHitPointsCorrectCondition,
@@ -215,10 +212,19 @@ export interface SquaddieStatusTileUIObjects {
     }
 }
 
+export type SquaddieStatusTileActionPointsContext = {
+    actionPointsRemaining: number
+    actionPointsMarkedForAction: number
+    movementPointsPreviewedByPlayer: number
+    movementPointsSpentButCanBeRefunded: number
+    spentAndCannotBeRefunded: number
+}
+
 export interface SquaddieStatusTileContext {
     squaddieAffiliation: SquaddieAffiliation
     horizontalPosition: ActionTilePosition
     battleSquaddieId: string
+    objectRepository: ObjectRepository
     playerConsideredActions?: PlayerConsideredActions
     armor?: {
         net: number
@@ -229,10 +235,7 @@ export interface SquaddieStatusTileContext {
         maxHitPoints: number
         currentAbsorb: number
     }
-    actionPoints?: {
-        actionPointsRemaining: number
-        actionPointsMarked: number
-    }
+    actionPoints?: SquaddieStatusTileActionPointsContext
     movement?: {
         initialMovementPerAction: number
         movementChange: number
@@ -536,44 +539,31 @@ export const SquaddieStatusTileService = {
         graphicsContext.pop()
         return textBox
     },
-    calculateActionPoints: (
-        battleSquaddie: BattleSquaddie,
-        squaddieTemplate: SquaddieTemplate
-    ) => {
-        let { unallocatedActionPoints } =
-            SquaddieService.getNumberOfActionPoints({
-                battleSquaddie,
-                squaddieTemplate,
-            })
-
-        return {
-            unallocatedActionPoints,
-        }
-    },
     getContextVariablesThatDependOnTargetSquaddie: ({
         battleSquaddieId,
         objectRepository,
     }: {
         battleSquaddieId: string
         objectRepository: ObjectRepository
-    }) => {
-        const { squaddieTemplate, battleSquaddie } = getResultOrThrowError(
+    }): { actionPoints: SquaddieStatusTileActionPointsContext } => {
+        const { battleSquaddie } = getResultOrThrowError(
             ObjectRepositoryService.getSquaddieByBattleId(
                 objectRepository,
                 battleSquaddieId
             )
         )
 
-        const { unallocatedActionPoints: actionPointsRemaining } =
-            SquaddieStatusTileService.calculateActionPoints(
-                battleSquaddie,
-                squaddieTemplate
-            )
+        const { actionPointsRemaining, movementActionPoints } =
+            calculateActionPoints(battleSquaddie)
 
         return {
             actionPoints: {
                 actionPointsRemaining,
-                actionPointsMarked: 0,
+                spentAndCannotBeRefunded:
+                    movementActionPoints.spentAndCannotBeRefunded,
+                movementPointsSpentButCanBeRefunded: 0,
+                movementPointsPreviewedByPlayer: 0,
+                actionPointsMarkedForAction: 0,
             },
         }
     },
@@ -585,31 +575,40 @@ export const SquaddieStatusTileService = {
         battleSquaddieId: string
         playerConsideredActions: PlayerConsideredActions
         objectRepository: ObjectRepository
-    }) => {
-        const { squaddieTemplate, battleSquaddie } = getResultOrThrowError(
+    }): { actionPoints: SquaddieStatusTileActionPointsContext } => {
+        const { battleSquaddie } = getResultOrThrowError(
             ObjectRepositoryService.getSquaddieByBattleId(
                 objectRepository,
                 battleSquaddieId
             )
         )
 
-        const { unallocatedActionPoints: actionPointsRemaining } =
-            SquaddieStatusTileService.calculateActionPoints(
-                battleSquaddie,
-                squaddieTemplate
-            )
+        const { actionPointsRemaining, movementActionPoints } =
+            calculateActionPoints(battleSquaddie)
+
+        let actionPointsMarkedForAction = 0
+        switch (true) {
+            case !!playerConsideredActions.actionTemplateId:
+                actionPointsMarkedForAction =
+                    ObjectRepositoryService.getActionTemplateById(
+                        objectRepository,
+                        playerConsideredActions.actionTemplateId
+                    ).resourceCost.actionPoints
+                break
+            case playerConsideredActions.endTurn:
+                actionPointsMarkedForAction = actionPointsRemaining
+        }
 
         return {
             actionPoints: {
-                actionPointsRemaining,
-                actionPointsMarked:
-                    PlayerConsideredActionsService.getExpectedMarkedActionPointsBasedOnPlayerConsideration(
-                        {
-                            objectRepository,
-                            playerConsideredActions,
-                            battleSquaddie,
-                        }
-                    ),
+                actionPointsRemaining: actionPointsRemaining,
+                spentAndCannotBeRefunded:
+                    movementActionPoints.spentAndCannotBeRefunded,
+                movementPointsSpentButCanBeRefunded:
+                    movementActionPoints.spentButCanBeRefunded,
+                movementPointsPreviewedByPlayer:
+                    movementActionPoints.previewedByPlayer,
+                actionPointsMarkedForAction,
             },
         }
     },
@@ -688,6 +687,7 @@ const createContext = ({
 
     return {
         squaddieAffiliation: squaddieTemplate.squaddieId.affiliation,
+        objectRepository: gameEngineState.repository,
         horizontalPosition,
         battleSquaddieId,
         playerConsideredActions: {
@@ -766,11 +766,11 @@ const calculateCoordinates = (
     battleSquaddieId: string,
     missionMap: MissionMap
 ) => {
-    const { mapCoordinate } = MissionMapService.getByBattleSquaddieId(
+    const { currentMapCoordinate } = MissionMapService.getByBattleSquaddieId(
         missionMap,
         battleSquaddieId
     )
-    return mapCoordinate
+    return currentMapCoordinate
 }
 
 const updateContext = ({
@@ -818,6 +818,7 @@ const updateContext = ({
                 dataBlob,
                 objectRepository,
                 playerConsideredActions,
+                battleActionDecisionStep,
             })
         ),
         new UpdateActionPointsContextAction({
@@ -866,7 +867,6 @@ const updateContext = ({
 
     updateAll.run()
 }
-
 const updateUIObjects = ({
     dataBlob,
     graphicsContext,
@@ -1748,5 +1748,17 @@ class UpdateAttributeModifiersUIObjectsAction implements BehaviorTreeTask {
         graphicalKeysToDelete.forEach((type) => {
             delete uiObjects.attributeModifiers.graphicsByAttributeType[type]
         })
+    }
+}
+
+const calculateActionPoints = (battleSquaddie: BattleSquaddie) => {
+    let { unSpentActionPoints, movementActionPoints } =
+        SquaddieService.getActionPointSpend({
+            battleSquaddie,
+        })
+
+    return {
+        actionPointsRemaining: unSpentActionPoints,
+        movementActionPoints,
     }
 }

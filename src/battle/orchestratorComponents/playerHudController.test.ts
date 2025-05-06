@@ -130,7 +130,7 @@ describe("PlayerHUDController", () => {
                 missionMap,
                 squaddieTemplateId: "player_soldier",
                 battleSquaddieId: playerBattleSquaddieId,
-                coordinate: {
+                originMapCoordinate: {
                     q: 0,
                     r: 0,
                 },
@@ -159,7 +159,7 @@ describe("PlayerHUDController", () => {
                 missionMap,
                 squaddieTemplateId: "enemy_soldier",
                 battleSquaddieId: enemyBattleSquaddieId,
-                coordinate: {
+                originMapCoordinate: {
                     q: 0,
                     r: 2,
                 },

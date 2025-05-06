@@ -46,7 +46,8 @@ describe("mapSearch", () => {
                     MapSearchService.calculateAllPossiblePathsFromStartingCoordinate(
                         {
                             missionMap,
-                            startCoordinate: { q: 0, r: 0 },
+                            originMapCoordinate: { q: 0, r: 0 },
+                            currentMapCoordinate: { q: 0, r: 0 },
                             searchLimit: SearchLimitService.landBasedMovement(),
                             objectRepository,
                         }
@@ -129,13 +130,14 @@ describe("mapSearch", () => {
                         battleSquaddieId: "searchingSquaddieBattleSquaddieId",
                         squaddieTemplateId:
                             "searchingSquaddieSquaddieTemplateId",
-                        coordinate: { q: 0, r: 0 },
+                        originMapCoordinate: { q: 0, r: 0 },
                     })
                     searchResults =
                         MapSearchService.calculateAllPossiblePathsFromStartingCoordinate(
                             {
                                 missionMap,
-                                startCoordinate: { q: 0, r: 0 },
+                                originMapCoordinate: { q: 0, r: 0 },
+                                currentMapCoordinate: { q: 0, r: 0 },
                                 searchLimit:
                                     SearchLimitService.landBasedMovement(),
                                 objectRepository,
@@ -202,7 +204,8 @@ describe("mapSearch", () => {
                         {
                             missionMap:
                                 MapSearchTestUtils.create1row5columnsWithPitAndWall(),
-                            startCoordinate: { q: 0, r: 0 },
+                            originMapCoordinate: { q: 0, r: 0 },
+                            currentMapCoordinate: { q: 0, r: 0 },
                             searchLimit: SearchLimitService.landBasedMovement(),
                             objectRepository,
                         }
@@ -212,7 +215,8 @@ describe("mapSearch", () => {
                         {
                             missionMap:
                                 MapSearchTestUtils.create1row5columnsWithPitAndWall(),
-                            startCoordinate: { q: 0, r: 0 },
+                            originMapCoordinate: { q: 0, r: 0 },
+                            currentMapCoordinate: { q: 0, r: 0 },
                             searchLimit: SearchLimitService.new({
                                 baseSearchLimit:
                                     SearchLimitService.landBasedMovement(),
@@ -226,7 +230,8 @@ describe("mapSearch", () => {
                         {
                             missionMap:
                                 MapSearchTestUtils.create1row5columnsWithPitAndWall(),
-                            startCoordinate: { q: 0, r: 0 },
+                            originMapCoordinate: { q: 0, r: 0 },
+                            currentMapCoordinate: { q: 0, r: 0 },
                             searchLimit: SearchLimitService.new({
                                 baseSearchLimit:
                                     SearchLimitService.landBasedMovement(),
@@ -405,7 +410,8 @@ describe("mapSearch", () => {
                         {
                             missionMap:
                                 MapSearchTestUtils.create1row5columnsAllFlatTerrain(),
-                            startCoordinate: { q: 0, r: 0 },
+                            originMapCoordinate: { q: 0, r: 0 },
+                            currentMapCoordinate: { q: 0, r: 0 },
                             searchLimit: SearchLimitService.new({
                                 baseSearchLimit: SearchLimitService.targeting(),
                                 maximumDistance: 1,
@@ -474,7 +480,8 @@ describe("mapSearch", () => {
                         {
                             missionMap:
                                 MapSearchTestUtils.create1row5columnsAllFlatTerrain(),
-                            startCoordinate: { q: 0, r: 0 },
+                            originMapCoordinate: { q: 0, r: 0 },
+                            currentMapCoordinate: { q: 0, r: 0 },
                             searchLimit: SearchLimitService.new({
                                 baseSearchLimit: SearchLimitService.targeting(),
                                 minimumDistance: 1,
@@ -544,7 +551,8 @@ describe("mapSearch", () => {
                         {
                             missionMap:
                                 MapSearchTestUtils.create1row6columnsWithAlternatingRoughTerrain(),
-                            startCoordinate: { q: 0, r: 0 },
+                            originMapCoordinate: { q: 0, r: 0 },
+                            currentMapCoordinate: { q: 0, r: 0 },
                             searchLimit: SearchLimitService.new({
                                 baseSearchLimit:
                                     SearchLimitService.landBasedMovement(),
@@ -630,7 +638,7 @@ describe("mapSearch", () => {
                     missionMap,
                     battleSquaddieId: "searchingSquaddieBattleSquaddieId",
                     squaddieTemplateId: "searchingSquaddieSquaddieTemplateId",
-                    coordinate: { q: 0, r: 0 },
+                    originMapCoordinate: { q: 0, r: 0 },
                 })
 
                 SquaddieRepositoryService.createNewSquaddieAndAddToRepository({
@@ -645,7 +653,7 @@ describe("mapSearch", () => {
                     missionMap,
                     battleSquaddieId: "blockingSquaddieBattleSquaddieId",
                     squaddieTemplateId: "blockingSquaddieSquaddieTemplateId",
-                    coordinate: { q: 0, r: 2 },
+                    originMapCoordinate: { q: 0, r: 2 },
                 })
             }
 
@@ -739,7 +747,8 @@ describe("mapSearch", () => {
                             MapSearchService.calculateAllPossiblePathsFromStartingCoordinate(
                                 {
                                     missionMap,
-                                    startCoordinate: { q: 0, r: 0 },
+                                    originMapCoordinate: { q: 0, r: 0 },
+                                    currentMapCoordinate: { q: 0, r: 0 },
                                     searchLimit: SearchLimitService.new({
                                         baseSearchLimit:
                                             SearchLimitService.landBasedMovement(),
@@ -774,7 +783,8 @@ describe("mapSearch", () => {
                             MapSearchService.calculateAllPossiblePathsFromStartingCoordinate(
                                 {
                                     missionMap,
-                                    startCoordinate: { q: 0, r: 0 },
+                                    originMapCoordinate: { q: 0, r: 0 },
+                                    currentMapCoordinate: { q: 0, r: 0 },
                                     searchLimit: SearchLimitService.new({
                                         baseSearchLimit:
                                             SearchLimitService.landBasedMovement(),
@@ -826,7 +836,8 @@ describe("mapSearch", () => {
                             MapSearchService.calculateAllPossiblePathsFromStartingCoordinate(
                                 {
                                     missionMap,
-                                    startCoordinate: { q: 0, r: 0 },
+                                    originMapCoordinate: { q: 0, r: 0 },
+                                    currentMapCoordinate: { q: 0, r: 0 },
                                     searchLimit: SearchLimitService.new({
                                         baseSearchLimit:
                                             SearchLimitService.landBasedMovement(),
@@ -864,7 +875,8 @@ describe("mapSearch", () => {
                             MapSearchService.calculateAllPossiblePathsFromStartingCoordinate(
                                 {
                                     missionMap,
-                                    startCoordinate: { q: 0, r: 0 },
+                                    originMapCoordinate: { q: 0, r: 0 },
+                                    currentMapCoordinate: { q: 0, r: 0 },
                                     searchLimit: SearchLimitService.new({
                                         baseSearchLimit:
                                             SearchLimitService.landBasedMovement(),
@@ -893,7 +905,8 @@ describe("mapSearch", () => {
                     MapSearchService.calculateAllPossiblePathsFromStartingCoordinate(
                         {
                             missionMap,
-                            startCoordinate: { q: 0, r: 0 },
+                            originMapCoordinate: { q: 0, r: 0 },
+                            currentMapCoordinate: { q: 0, r: 0 },
                             searchLimit: SearchLimitService.new({
                                 baseSearchLimit:
                                     SearchLimitService.landBasedMovement(),
@@ -923,7 +936,8 @@ describe("mapSearch", () => {
                 {
                     missionMap,
                     searchLimit: SearchLimitService.targeting(),
-                    startCoordinate: { q: 0, r: 0 },
+                    originMapCoordinate: { q: 0, r: 0 },
+                    currentMapCoordinate: { q: 0, r: 0 },
                     objectRepository: ObjectRepositoryService.new(),
                     destinationCoordinates: [
                         { q: 0, r: 0 },

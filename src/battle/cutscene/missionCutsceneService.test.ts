@@ -482,7 +482,7 @@ describe("Mission Cutscene Service", () => {
                         },
                     })
                 )
-                BattleActionRecorderService.battleActionFinishedAnimating(
+                BattleActionRecorderService.addAnimatingBattleActionToAlreadyAnimatedThisTurn(
                     gameEngineStateWithInjuryCutscene.battleOrchestratorState
                         .battleState.battleActionRecorder
                 )
@@ -696,7 +696,6 @@ describe("Mission Cutscene Service", () => {
                 it.each(tests)(
                     `$name`,
                     ({
-                        name,
                         minimumTurns,
                         maximumTurns,
                         turnCount,
