@@ -33,9 +33,6 @@ export const BattleSquaddieService = {
     assertBattleSquaddie: (data: BattleSquaddie): void => {
         assertBattleSquaddie(data)
     },
-    canStillActThisRound: (data: BattleSquaddie): boolean => {
-        return SquaddieTurnService.hasActionPointsRemaining(data.squaddieTurn)
-    },
     beginNewTurn: (data: BattleSquaddie) => {
         InBattleAttributesService.reduceActionCooldownForAllActions({
             inBattleAttributes: data.inBattleAttributes,

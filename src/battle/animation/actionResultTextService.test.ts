@@ -121,7 +121,7 @@ describe("Action Result Text Writer", () => {
             missionMap: battleMap,
             battleSquaddieId: knightDynamic.battleSquaddieId,
             squaddieTemplateId: knightStatic.squaddieId.templateId,
-            coordinate: { q: 1, r: 1 },
+            originMapCoordinate: { q: 1, r: 1 },
         })
         ;({ battleSquaddie: citizenBattleSquaddie } =
             SquaddieRepositoryService.createNewSquaddieAndAddToRepository({
@@ -146,7 +146,7 @@ describe("Action Result Text Writer", () => {
             missionMap: battleMap,
             squaddieTemplateId: thiefStatic.squaddieId.templateId,
             battleSquaddieId: thiefDynamic.battleSquaddieId,
-            coordinate: { q: 1, r: 2 },
+            originMapCoordinate: { q: 1, r: 2 },
         })
         ;({ squaddieTemplate: rogueStatic, battleSquaddie: rogueDynamic } =
             SquaddieRepositoryService.createNewSquaddieAndAddToRepository({
@@ -162,7 +162,7 @@ describe("Action Result Text Writer", () => {
             missionMap: battleMap,
             battleSquaddieId: rogueStatic.squaddieId.templateId,
             squaddieTemplateId: rogueDynamic.battleSquaddieId,
-            coordinate: { q: 1, r: 2 },
+            originMapCoordinate: { q: 1, r: 2 },
         })
     })
 

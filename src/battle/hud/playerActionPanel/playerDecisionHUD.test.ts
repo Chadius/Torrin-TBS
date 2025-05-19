@@ -324,7 +324,7 @@ describe("Player Decision HUD", () => {
             missionMap: missionMap,
             squaddieTemplateId: "player_soldier",
             battleSquaddieId: "player_soldier_0",
-            coordinate: battleSquaddieCoordinate ?? { q: 0, r: 0 },
+            originMapCoordinate: battleSquaddieCoordinate ?? { q: 0, r: 0 },
         })
 
         const battleSquaddie2 = BattleSquaddieService.newBattleSquaddie({
@@ -341,7 +341,7 @@ describe("Player Decision HUD", () => {
             missionMap: missionMap,
             squaddieTemplateId: "player_soldier",
             battleSquaddieId: "player_soldier_1",
-            coordinate: { q: 0, r: 1 },
+            originMapCoordinate: { q: 0, r: 1 },
         })
 
         const gameEngineState = GameEngineStateService.new({
@@ -403,6 +403,7 @@ describe("Player Decision HUD", () => {
         let playerDecisionHUDListener: PlayerDecisionHUDListener
         let gameEngineState: GameEngineState
         let longswordAction: ActionTemplate
+        let playerSoldierBattleSquaddie: BattleSquaddie
 
         beforeEach(() => {
             mockP5GraphicsContext = new MockedP5GraphicsBuffer()
@@ -410,7 +411,11 @@ describe("Player Decision HUD", () => {
         })
 
         beforeEach(() => {
-            ;({ gameEngineState, longswordAction } = createGameEngineState({}))
+            ;({
+                gameEngineState,
+                longswordAction,
+                playerSoldierBattleSquaddie,
+            } = createGameEngineState({}))
 
             const repository = gameEngineState.repository
 
@@ -438,6 +443,14 @@ describe("Player Decision HUD", () => {
             gameEngineState.messageBoard.addListener(
                 playerDecisionHUDListener,
                 MessageBoardMessageType.PLAYER_CONSIDERS_ACTION
+            )
+            gameEngineState.messageBoard.addListener(
+                playerDecisionHUDListener,
+                MessageBoardMessageType.PLAYER_CONSIDERS_MOVEMENT
+            )
+            gameEngineState.messageBoard.addListener(
+                playerDecisionHUDListener,
+                MessageBoardMessageType.PLAYER_CANCELS_PLAYER_ACTION_CONSIDERATIONS
             )
         })
 
@@ -570,7 +583,13 @@ describe("Player Decision HUD", () => {
                     longswordAction.id
 
                 gameEngineState.messageBoard.sendMessage({
-                    type: MessageBoardMessageType.PLAYER_CONSIDERS_ACTION,
+                    type: MessageBoardMessageType.PLAYER_CANCELS_PLAYER_ACTION_CONSIDERATIONS,
+                    playerCommandState:
+                        gameEngineState.battleOrchestratorState.battleHUDState
+                            .summaryHUDState.playerCommandState,
+                    battleActionRecorder:
+                        gameEngineState.battleOrchestratorState.battleState
+                            .battleActionRecorder,
                     playerConsideredActions:
                         gameEngineState.battleOrchestratorState.battleState
                             .playerConsideredActions,
@@ -587,13 +606,6 @@ describe("Player Decision HUD", () => {
                         gameEngineState.battleOrchestratorState.battleState
                             .battleActionDecisionStep,
                     objectRepository: gameEngineState.repository,
-                    useAction: {
-                        actionTemplateId: undefined,
-                        isEndTurn: false,
-                    },
-                    cancelAction: {
-                        actionTemplate: true,
-                    },
                 })
             })
 
@@ -620,7 +632,7 @@ describe("Player Decision HUD", () => {
                     destination: { q: 1, r: 0 },
                 }
                 gameEngineState.messageBoard.sendMessage({
-                    type: MessageBoardMessageType.PLAYER_CONSIDERS_ACTION,
+                    type: MessageBoardMessageType.PLAYER_CONSIDERS_MOVEMENT,
                     playerConsideredActions:
                         gameEngineState.battleOrchestratorState.battleState
                             .playerConsideredActions,
@@ -637,24 +649,27 @@ describe("Player Decision HUD", () => {
                         gameEngineState.battleOrchestratorState.battleState
                             .battleActionDecisionStep,
                     objectRepository: gameEngineState.repository,
-                    useAction: {
-                        actionTemplateId: undefined,
-                        isEndTurn: false,
-                        movement: movementDecision,
-                    },
+                    movementDecision,
                 })
             })
 
-            it("marks which path was considered", () => {
+            it("previews the movement points", () => {
                 expect(
-                    gameEngineState.battleOrchestratorState.battleState
-                        .playerConsideredActions.movement
-                ).toEqual(movementDecision)
+                    SquaddieTurnService.getMovementActionPointsPreviewedByPlayer(
+                        playerSoldierBattleSquaddie.squaddieTurn
+                    )
+                ).toBe(2)
             })
 
-            it("can cancel consideration", () => {
+            it("can cancel consideration and refund points", () => {
                 gameEngineState.messageBoard.sendMessage({
-                    type: MessageBoardMessageType.PLAYER_CONSIDERS_ACTION,
+                    type: MessageBoardMessageType.PLAYER_CANCELS_PLAYER_ACTION_CONSIDERATIONS,
+                    playerCommandState:
+                        gameEngineState.battleOrchestratorState.battleHUDState
+                            .summaryHUDState.playerCommandState,
+                    battleActionRecorder:
+                        gameEngineState.battleOrchestratorState.battleState
+                            .battleActionRecorder,
                     playerConsideredActions:
                         gameEngineState.battleOrchestratorState.battleState
                             .playerConsideredActions,
@@ -671,18 +686,13 @@ describe("Player Decision HUD", () => {
                         gameEngineState.battleOrchestratorState.battleState
                             .battleActionDecisionStep,
                     objectRepository: gameEngineState.repository,
-                    useAction: {
-                        actionTemplateId: undefined,
-                        isEndTurn: false,
-                        movement: undefined,
-                    },
-                    cancelAction: { movement: true },
                 })
 
                 expect(
-                    gameEngineState.battleOrchestratorState.battleState
-                        .playerConsideredActions.movement
-                ).toBeUndefined()
+                    SquaddieTurnService.getMovementActionPointsSpentAndCannotBeRefunded(
+                        playerSoldierBattleSquaddie.squaddieTurn
+                    )
+                ).toBe(0)
             })
         })
     })
@@ -719,47 +729,6 @@ describe("Player Decision HUD", () => {
                 resourceHandler: gameEngineState.resourceHandler,
                 graphicsBuffer: mockP5GraphicsContext,
             })
-        })
-
-        it("cancels player consideration", () => {
-            gameEngineState.battleOrchestratorState.battleState.playerConsideredActions =
-                PlayerConsideredActionsService.new()
-            gameEngineState.battleOrchestratorState.battleState.playerConsideredActions.movement =
-                {
-                    coordinates: [],
-                    destination: { q: 0, r: 3 },
-                    actionPointCost: 1,
-                }
-
-            gameEngineState.messageBoard.sendMessage({
-                type: MessageBoardMessageType.PLAYER_CANCELS_PLAYER_ACTION_CONSIDERATIONS,
-                missionMap:
-                    gameEngineState.battleOrchestratorState.battleState
-                        .missionMap,
-                summaryHUDState:
-                    gameEngineState.battleOrchestratorState.battleHUDState
-                        .summaryHUDState,
-                battleActionDecisionStep:
-                    gameEngineState.battleOrchestratorState.battleState
-                        .battleActionDecisionStep,
-                battleActionRecorder:
-                    gameEngineState.battleOrchestratorState.battleState
-                        .battleActionRecorder,
-                playerConsideredActions:
-                    gameEngineState.battleOrchestratorState.battleState
-                        .playerConsideredActions,
-                playerDecisionHUD:
-                    gameEngineState.battleOrchestratorState.playerDecisionHUD,
-                playerCommandState:
-                    gameEngineState.battleOrchestratorState.battleHUDState
-                        .summaryHUDState.playerCommandState,
-                objectRepository: gameEngineState.repository,
-            })
-
-            expect(
-                gameEngineState.battleOrchestratorState.battleState
-                    .playerConsideredActions.movement
-            ).toBeUndefined()
         })
 
         it("resets the player decisions", () => {
@@ -856,7 +825,7 @@ describe("Player Decision HUD", () => {
                         missionMap: missionMap,
                         squaddieTemplateId: "player_soldier",
                         battleSquaddieId: battleSquaddieId,
-                        coordinate: { q: 0, r: index },
+                        originMapCoordinate: { q: 0, r: index },
                     })
                 }
             )
@@ -1081,7 +1050,7 @@ describe("Player Decision HUD", () => {
                     },
                 })
             )
-            BattleActionRecorderService.battleActionFinishedAnimating(
+            BattleActionRecorderService.addAnimatingBattleActionToAlreadyAnimatedThisTurn(
                 gameEngineState.battleOrchestratorState.battleState
                     .battleActionRecorder
             )

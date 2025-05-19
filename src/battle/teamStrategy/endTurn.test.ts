@@ -100,7 +100,7 @@ describe("end turn team strategy", () => {
             missionMap,
             squaddieTemplateId: "new_static_squaddie",
             battleSquaddieId: "new_dynamic_squaddie",
-            coordinate: { q: 0, r: 0 },
+            originMapCoordinate: { q: 0, r: 0 },
         })
 
         const endTurnStep: BattleActionDecisionStep =

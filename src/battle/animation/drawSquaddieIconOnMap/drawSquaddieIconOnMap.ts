@@ -249,16 +249,18 @@ export const DrawSquaddieIconOnMapUtilities = {
         repository: ObjectRepository
         campaign: Campaign
     }) => {
-        const { mapCoordinate } = MissionMapService.getByBattleSquaddieId(
-            missionMap,
-            battleSquaddieId
-        )
+        const { originMapCoordinate, currentMapCoordinate } =
+            MissionMapService.getByBattleSquaddieId(
+                missionMap,
+                battleSquaddieId
+            )
         const squaddieReachHighlightedOnMap =
             MapHighlightService.highlightAllCoordinatesWithinSquaddieRange({
                 repository: repository,
                 missionMap,
                 battleSquaddieId,
-                startCoordinate: mapCoordinate,
+                currentMapCoordinate,
+                originMapCoordinate,
                 campaignResources: campaign.resources,
             })
         const actionRangeOnMap = MapGraphicsLayerService.new({
@@ -541,9 +543,8 @@ const drawMapIconActionPointsBar = (
         return
     }
 
-    const { unallocatedActionPoints: actionPointsToShow } =
-        SquaddieService.getNumberOfActionPoints({
-            squaddieTemplate,
+    const { unSpentActionPoints: actionPointsToShow } =
+        SquaddieService.getActionPointSpend({
             battleSquaddie,
         })
     if (actionPointsToShow >= DEFAULT_ACTION_POINTS_PER_TURN) {

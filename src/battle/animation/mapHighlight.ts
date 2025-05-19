@@ -5,7 +5,10 @@ import { SquaddieService } from "../../squaddie/squaddieService"
 import { HIGHLIGHT_PULSE_COLOR } from "../../hexMap/hexDrawingUtils"
 import { MissionMap } from "../../missionMap/missionMap"
 import { SearchResult } from "../../hexMap/pathfinder/searchResults/searchResult"
-import { HexCoordinate } from "../../hexMap/hexCoordinate/hexCoordinate"
+import {
+    HexCoordinate,
+    HexCoordinateService,
+} from "../../hexMap/hexCoordinate/hexCoordinate"
 import { CampaignResources } from "../../campaign/campaignResources"
 import { SquaddieTurn, SquaddieTurnService } from "../../squaddie/turn"
 import { BattleSquaddieSelectorService } from "../orchestratorComponents/battleSquaddieSelectorUtils"
@@ -89,14 +92,16 @@ export const MapHighlightService = {
         )
     },
     highlightAllCoordinatesWithinSquaddieRange: ({
-        startCoordinate,
+        currentMapCoordinate,
+        originMapCoordinate,
         missionMap,
         repository,
         battleSquaddieId,
         campaignResources,
         squaddieTurnOverride,
     }: {
-        startCoordinate: HexCoordinate
+        currentMapCoordinate: HexCoordinate
+        originMapCoordinate: HexCoordinate
         missionMap: MissionMap
         repository: ObjectRepository
         battleSquaddieId: string
@@ -110,26 +115,24 @@ export const MapHighlightService = {
             )
         )
 
-        let { unallocatedActionPoints } =
-            SquaddieService.getNumberOfActionPoints({
-                battleSquaddie,
-                squaddieTemplate,
-            })
-        if (squaddieTurnOverride) {
-            unallocatedActionPoints =
-                SquaddieTurnService.getUnallocatedActionPoints(
-                    squaddieTurnOverride
-                )
-        }
+        let movementActionPoints =
+            SquaddieTurnService.getActionPointsThatCouldBeSpentOnMovement(
+                squaddieTurnOverride ?? battleSquaddie.squaddieTurn
+            )
+
+        let { unSpentActionPoints } = SquaddieTurnService.getActionPointSpend(
+            squaddieTurnOverride ?? battleSquaddie.squaddieTurn
+        )
 
         const reachableCoordinateSearch: SearchResult =
             MapSearchService.calculateAllPossiblePathsFromStartingCoordinate({
                 missionMap,
-                startCoordinate,
+                currentMapCoordinate,
+                originMapCoordinate,
                 searchLimit: SearchLimitService.new({
                     baseSearchLimit: SearchLimitService.landBasedMovement(),
                     maximumMovementCost:
-                        unallocatedActionPoints *
+                        movementActionPoints *
                         SquaddieService.getSquaddieMovementAttributes({
                             battleSquaddie,
                             squaddieTemplate,
@@ -163,7 +166,7 @@ export const MapHighlightService = {
 
         const movementRange =
             highlightAllCoordinatesWithinSquaddieMovementRange({
-                startCoordinate,
+                originMapCoordinate,
                 reachableCoordinatesSearch: reachableCoordinateSearch,
                 campaignResources,
                 squaddieIsNormallyControllableByPlayer,
@@ -180,7 +183,7 @@ export const MapHighlightService = {
             missionMap,
             campaignResources,
             squaddieIsNormallyControllableByPlayer,
-            actionPointsRemaining: unallocatedActionPoints,
+            actionPointsRemaining: unSpentActionPoints,
         })
         if (attackRange && attackRange.coordinates.length > 0) {
             return [...movementRange, attackRange]
@@ -190,13 +193,13 @@ export const MapHighlightService = {
 }
 
 const highlightAllCoordinatesWithinSquaddieMovementRange = ({
-    startCoordinate,
+    originMapCoordinate,
     reachableCoordinatesSearch,
     campaignResources,
     squaddieIsNormallyControllableByPlayer,
     movementPerAction,
 }: {
-    startCoordinate: HexCoordinate
+    originMapCoordinate: HexCoordinate
     reachableCoordinatesSearch: SearchResult
     campaignResources: CampaignResources
     squaddieIsNormallyControllableByPlayer: boolean
@@ -209,7 +212,7 @@ const highlightAllCoordinatesWithinSquaddieMovementRange = ({
 
     const highlightedCoordinates: HighlightCoordinateDescription[] = [
         {
-            coordinates: [{ ...startCoordinate }],
+            coordinates: [{ ...originMapCoordinate }],
             pulseColor: pulseMovementColor,
             overlayImageResourceName: "",
         },
@@ -250,7 +253,7 @@ const highlightAllCoordinatesWithinSquaddieMovementRange = ({
         const moveActions = Number(moveActionsStr)
         let highlightedCoordinateIndex: number = Math.min(moveActions, 3)
         const coordinateBesidesStart = coordinates.filter(
-            (l) => l.q !== startCoordinate.q || l.r !== startCoordinate.r
+            (l) => !HexCoordinateService.areEqual(l, originMapCoordinate)
         )
         highlightedCoordinates[highlightedCoordinateIndex].coordinates.push(
             ...coordinateBesidesStart

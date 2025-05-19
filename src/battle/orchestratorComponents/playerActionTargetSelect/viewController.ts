@@ -361,7 +361,7 @@ export class PlayerActionTargetSelectViewController {
                     {
                         coordinates: Object.values(
                             contextInfo.targetResults.validTargets
-                        ).map((t) => t.mapCoordinate),
+                        ).map((t) => t.currentMapCoordinate),
                         pulseColor: HIGHLIGHT_PULSE_COLOR.RED,
                         overlayImageResourceName: "map icon attack 1 action",
                     },
@@ -516,11 +516,6 @@ export class PlayerActionTargetSelectViewController {
     }
 
     cleanUp() {
-        const contextInfo = this.componentData.getContext()
-        TerrainTileMapService.removeAllGraphicsLayers(
-            contextInfo.missionMap.terrainTileMap
-        )
-
         const oldUiObjects = this.componentData.getUIObjects()
         ;[
             oldUiObjects?.mapIcons.actor.mapIcon,

@@ -22,6 +22,7 @@ import { MissionStatistics } from "../battle/missionStatistics/missionStatistics
 import { PlayerConsideredActions } from "../battle/battleState/playerConsideredActions"
 import { PlayerDecisionHUD } from "../battle/hud/playerActionPanel/playerDecisionHUD"
 import { PlayerCommandState } from "../battle/hud/playerCommand/playerCommandHUD"
+import { BattleState } from "../battle/battleState/battleState"
 
 export type MessageBoardMessage =
     | MessageBoardMessageBase
@@ -36,6 +37,7 @@ export type MessageBoardMessage =
     | MessageBoardMessagePlayerPeeksAtSquaddie
     | MessageBoardBattleActionFinishesAnimation
     | MessageBoardMessagePlayerConsidersAction
+    | MessageBoardMessagePlayerConsidersMovement
     | MessageBoardMessagePlayerSelectsActionTemplate
     | MessageBoardMessagePlayerSelectsTargetCoordinate
     | MessageBoardMessagePlayerConfirmsAction
@@ -69,6 +71,7 @@ export enum MessageBoardMessageType {
     PLAYER_PEEKS_AT_SQUADDIE = "PLAYER_PEEKS_AT_SQUADDIE",
     BATTLE_ACTION_FINISHES_ANIMATION = "BATTLE_ACTION_FINISHES_ANIMATION",
     PLAYER_CONSIDERS_ACTION = "PLAYER_CONSIDERS_ACTION",
+    PLAYER_CONSIDERS_MOVEMENT = "PLAYER_CONSIDERS_MOVEMENT",
     PLAYER_SELECTS_ACTION_TEMPLATE = "PLAYER_SELECTS_ACTION_TEMPLATE",
     PLAYER_SELECTS_TARGET_COORDINATE = "PLAYER_SELECTS_TARGET_COORDINATE",
     PLAYER_CONFIRMS_ACTION = "PLAYER_CONFIRMS_ACTION",
@@ -222,7 +225,13 @@ export interface MessageBoardMessageMoveSquaddieToCoordinate {
     type: MessageBoardMessageType.MOVE_SQUADDIE_TO_COORDINATE
     battleSquaddieId: string
     targetCoordinate: HexCoordinate
-    gameEngineState: GameEngineState
+    missionMap: MissionMap
+    objectRepository: ObjectRepository
+    messageBoard: MessageBoard
+    battleActionDecisionStep: BattleActionDecisionStep
+    campaignResources: CampaignResources
+    battleState: BattleState
+    battleActionRecorder: BattleActionRecorder
 }
 
 export interface MessageBoardMessagePlayerCancelsPlayerActionConsiderations {
@@ -291,16 +300,21 @@ export interface MessageBoardMessagePlayerConsidersAction {
     missionMap: MissionMap
     battleActionDecisionStep: BattleActionDecisionStep
     objectRepository: ObjectRepository
-
     useAction: {
         actionTemplateId: string
         isEndTurn: boolean
-        movement?: MovementDecision
     }
-    cancelAction?: {
-        actionTemplate?: boolean
-        movement?: boolean
-    }
+}
+
+export interface MessageBoardMessagePlayerConsidersMovement {
+    type: MessageBoardMessageType.PLAYER_CONSIDERS_MOVEMENT
+    playerConsideredActions: PlayerConsideredActions
+    summaryHUDState: SummaryHUDState
+    playerDecisionHUD: PlayerDecisionHUD
+    missionMap: MissionMap
+    battleActionDecisionStep: BattleActionDecisionStep
+    objectRepository: ObjectRepository
+    movementDecision: MovementDecision
 }
 
 export interface MessageBoardMessageTypeLoadBlockerBeginsLoadingResources {

@@ -42,22 +42,22 @@ export const MissionMapService = {
         missionMap,
         squaddieTemplateId,
         battleSquaddieId,
-        coordinate,
+        originMapCoordinate,
     }: {
         missionMap: MissionMap
         squaddieTemplateId: string
         battleSquaddieId: string
-        coordinate?: HexCoordinate
+        originMapCoordinate?: HexCoordinate
     }): Error | undefined => {
         if (
-            coordinate !== undefined &&
+            originMapCoordinate !== undefined &&
             !TerrainTileMapService.isCoordinateOnMap(
                 missionMap.terrainTileMap,
-                coordinate
+                originMapCoordinate
             )
         ) {
             return new Error(
-                `cannot add ${battleSquaddieId} to (${coordinate.q}, ${coordinate.r}) is not on map`
+                `cannot add ${battleSquaddieId} to (${originMapCoordinate.q}, ${originMapCoordinate.r}) is not on map`
             )
         }
 
@@ -70,22 +70,23 @@ export const MissionMapService = {
         }
 
         const squaddieAlreadyOccupyingCoordinate: MissionMapSquaddieCoordinate =
-            getSquaddieAtCoordinate(missionMap, coordinate)
+            getSquaddieAtCoordinate(missionMap, originMapCoordinate)
         if (
             MissionMapSquaddieCoordinateService.isValid(
                 squaddieAlreadyOccupyingCoordinate
             ) &&
-            !!coordinate
+            !!originMapCoordinate
         ) {
             return new Error(
-                `cannot add ${battleSquaddieId} to (${coordinate.q}, ${coordinate.r}), already occupied by ${squaddieAlreadyOccupyingCoordinate.battleSquaddieId}`
+                `cannot add ${battleSquaddieId} to (${originMapCoordinate.q}, ${originMapCoordinate.r}), already occupied by ${squaddieAlreadyOccupyingCoordinate.battleSquaddieId}`
             )
         }
 
         missionMap.squaddieInfo.push({
             squaddieTemplateId,
             battleSquaddieId,
-            mapCoordinate: coordinate,
+            currentMapCoordinate: originMapCoordinate,
+            originMapCoordinate: originMapCoordinate,
         })
         return undefined
     },
@@ -95,7 +96,8 @@ export const MissionMapService = {
     ): MissionMapSquaddieCoordinate => {
         if (!isValidValue(missionMap)) {
             return {
-                mapCoordinate: undefined,
+                currentMapCoordinate: undefined,
+                originMapCoordinate: undefined,
                 squaddieTemplateId: undefined,
                 battleSquaddieId: undefined,
             }
@@ -109,7 +111,8 @@ export const MissionMapService = {
             : {
                   battleSquaddieId: undefined,
                   squaddieTemplateId: undefined,
-                  mapCoordinate: undefined,
+                  originMapCoordinate: undefined,
+                  currentMapCoordinate: undefined,
               }
     },
     updateBattleSquaddieCoordinate: ({
@@ -160,7 +163,7 @@ export const MissionMapService = {
             }
         }
 
-        foundDatum.mapCoordinate = coordinate
+        foundDatum.currentMapCoordinate = coordinate
     },
     getBattleSquaddieAtCoordinate: (
         missionMap: MissionMap,
@@ -170,7 +173,7 @@ export const MissionMapService = {
     },
     getSquaddiesThatHaveNoCoordinate: (missionMap: MissionMap) =>
         missionMap.squaddieInfo
-            .filter((datum) => datum.mapCoordinate === undefined)
+            .filter((datum) => datum.currentMapCoordinate === undefined)
             .map((datum) => MissionMapSquaddieCoordinateService.clone(datum)),
     getAllSquaddieData: (missionMap: MissionMap) =>
         missionMap.squaddieInfo.map((datum) =>
@@ -198,6 +201,22 @@ export const MissionMapService = {
             )
         }
     },
+    setOriginMapCoordinateToCurrentMapCoordinate: (
+        missionMap: MissionMap,
+        battleSquaddieId: string
+    ) => {
+        if (!missionMap) return
+
+        const foundDatum: MissionMapSquaddieCoordinate =
+            missionMap.squaddieInfo.find(
+                (datum) => datum.battleSquaddieId === battleSquaddieId
+            )
+
+        if (foundDatum && foundDatum.currentMapCoordinate) {
+            foundDatum.originMapCoordinate.q = foundDatum.currentMapCoordinate.q
+            foundDatum.originMapCoordinate.r = foundDatum.currentMapCoordinate.r
+        }
+    },
 }
 
 const getSquaddieAtCoordinate = (
@@ -208,15 +227,19 @@ const getSquaddieAtCoordinate = (
         missionMap.squaddieInfo.find(
             (datum) =>
                 coordinate &&
-                datum.mapCoordinate &&
-                HexCoordinateService.areEqual(datum.mapCoordinate, coordinate)
+                datum.currentMapCoordinate &&
+                HexCoordinateService.areEqual(
+                    datum.currentMapCoordinate,
+                    coordinate
+                )
         )
     return foundDatum
         ? MissionMapSquaddieCoordinateService.clone(foundDatum)
         : {
               battleSquaddieId: undefined,
               squaddieTemplateId: undefined,
-              mapCoordinate: undefined,
+              currentMapCoordinate: undefined,
+              originMapCoordinate: undefined,
           }
 }
 

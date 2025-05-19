@@ -29,6 +29,28 @@ export const BattleActionsDuringTurnService = {
         const allActions = getAll(original)
         return newBattleActionsDuringTurn(allActions)
     },
+    removeUndoableMovementActions: (
+        battleActionsDuringTurn: BattleActionsDuringTurn
+    ) => {
+        if (
+            !battleActionsDuringTurn ||
+            battleActionsDuringTurn?.battleActions.length === 0 ||
+            !battleActionsDuringTurn.battleActions[
+                battleActionsDuringTurn.battleActions.length - 1
+            ].effect.movement
+        ) {
+            return
+        }
+
+        while (
+            battleActionsDuringTurn.battleActions.length > 0 &&
+            battleActionsDuringTurn.battleActions[
+                battleActionsDuringTurn.battleActions.length - 1
+            ].effect.movement
+        ) {
+            battleActionsDuringTurn.battleActions.pop()
+        }
+    },
 }
 
 const newBattleActionsDuringTurn = (

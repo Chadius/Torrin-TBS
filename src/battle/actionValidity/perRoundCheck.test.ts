@@ -113,7 +113,9 @@ const setup = (
                 effect: { squaddie: [] },
             })
         )
-        BattleActionRecorderService.battleActionFinishedAnimating(recorder)
+        BattleActionRecorderService.addAnimatingBattleActionToAlreadyAnimatedThisTurn(
+            recorder
+        )
     }
     return { objectRepository, recorder, actionTemplate }
 }

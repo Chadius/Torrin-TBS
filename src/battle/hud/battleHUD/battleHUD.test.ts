@@ -17,7 +17,10 @@ import {
 } from "../fileAccess/fileAccessHUD"
 import * as mocks from "../../../utils/test/mocks"
 import { MockedP5GraphicsBuffer } from "../../../utils/test/mocks"
-import { SquaddieTemplateService } from "../../../campaign/squaddieTemplate"
+import {
+    SquaddieTemplate,
+    SquaddieTemplateService,
+} from "../../../campaign/squaddieTemplate"
 import { SquaddieIdService } from "../../../squaddie/id"
 import { SquaddieAffiliation } from "../../../squaddie/squaddieAffiliation"
 import { BattleSquaddie, BattleSquaddieService } from "../../battleSquaddie"
@@ -138,6 +141,7 @@ describe("Battle HUD", () => {
         longswordAction: ActionTemplate
         healSelfAction: ActionTemplate
         playerSoldierBattleSquaddie: BattleSquaddie
+        playerSoldierSquaddieTemplate: SquaddieTemplate
         battleSquaddie2: BattleSquaddie
     } => {
         const repository = ObjectRepositoryService.new()
@@ -207,15 +211,17 @@ describe("Battle HUD", () => {
             ],
         })
         teams.push(playerTeam)
-        const { battleSquaddie: playerSoldierBattleSquaddie } =
-            SquaddieRepositoryService.createNewSquaddieAndAddToRepository({
-                name: "Player Soldier",
-                templateId: "player_soldier",
-                battleId: "player_soldier_0",
-                affiliation: SquaddieAffiliation.PLAYER,
-                objectRepository: repository,
-                actionTemplateIds: [longswordAction.id, healSelfAction.id],
-            })
+        const {
+            battleSquaddie: playerSoldierBattleSquaddie,
+            squaddieTemplate: playerSoldierSquaddieTemplate,
+        } = SquaddieRepositoryService.createNewSquaddieAndAddToRepository({
+            name: "Player Soldier",
+            templateId: "player_soldier",
+            battleId: "player_soldier_0",
+            affiliation: SquaddieAffiliation.PLAYER,
+            objectRepository: repository,
+            actionTemplateIds: [longswordAction.id, healSelfAction.id],
+        })
         BattleSquaddieTeamService.addBattleSquaddieIds(playerTeam, [
             "player_soldier_0",
         ])
@@ -224,7 +230,7 @@ describe("Battle HUD", () => {
             missionMap: missionMap,
             squaddieTemplateId: "player_soldier",
             battleSquaddieId: "player_soldier_0",
-            coordinate: battleSquaddieCoordinate ?? { q: 0, r: 0 },
+            originMapCoordinate: battleSquaddieCoordinate ?? { q: 0, r: 0 },
         })
 
         const battleSquaddie2 = BattleSquaddieService.newBattleSquaddie({
@@ -241,7 +247,7 @@ describe("Battle HUD", () => {
             missionMap: missionMap,
             squaddieTemplateId: "player_soldier",
             battleSquaddieId: "player_soldier_1",
-            coordinate: { q: 0, r: 1 },
+            originMapCoordinate: { q: 0, r: 1 },
         })
 
         const gameEngineState = GameEngineStateService.new({
@@ -294,6 +300,7 @@ describe("Battle HUD", () => {
             longswordAction,
             healSelfAction,
             playerSoldierBattleSquaddie,
+            playerSoldierSquaddieTemplate,
             battleSquaddie2,
         }
     }
@@ -424,7 +431,7 @@ describe("Battle HUD", () => {
                 missionMap,
                 squaddieTemplateId: battleSquaddie.squaddieTemplateId,
                 battleSquaddieId: battleSquaddie.battleSquaddieId,
-                coordinate: {
+                originMapCoordinate: {
                     q: 0,
                     r: 0,
                 },
@@ -843,7 +850,7 @@ describe("Battle HUD", () => {
                         .missionMap,
                 squaddieTemplateId: "enemy",
                 battleSquaddieId: "enemy",
-                coordinate: { q: 0, r: 2 },
+                originMapCoordinate: { q: 0, r: 2 },
             })
 
             gameEngineState.messageBoard.sendMessage({
@@ -1006,7 +1013,7 @@ describe("Battle HUD", () => {
                         },
                     })
                 )
-                BattleActionRecorderService.battleActionFinishedAnimating(
+                BattleActionRecorderService.addAnimatingBattleActionToAlreadyAnimatedThisTurn(
                     gameEngineState.battleOrchestratorState.battleState
                         .battleActionRecorder
                 )
@@ -1146,6 +1153,43 @@ describe("Battle HUD", () => {
             messageSpy.mockRestore()
         })
 
+        it("will update the origin map coordinate to match the current", () => {
+            MissionMapService.updateBattleSquaddieCoordinate({
+                missionMap:
+                    gameEngineState.battleOrchestratorState.battleState
+                        .missionMap,
+                battleSquaddieId:
+                    endTurnBattleAction.actor.actorBattleSquaddieId,
+                coordinate: {
+                    q: 0,
+                    r: 2,
+                },
+            })
+
+            battleHUDListener.receiveMessage({
+                type: MessageBoardMessageType.PLAYER_ENDS_TURN,
+                gameEngineState,
+                battleAction: endTurnBattleAction,
+            })
+
+            const mapInfo = MissionMapService.getByBattleSquaddieId(
+                gameEngineState.battleOrchestratorState.battleState.missionMap,
+                endTurnBattleAction.actor.actorBattleSquaddieId
+            )
+            expect(
+                HexCoordinateService.areEqual(mapInfo.originMapCoordinate, {
+                    q: 0,
+                    r: 2,
+                })
+            ).toBeTruthy()
+            expect(
+                HexCoordinateService.areEqual(
+                    mapInfo.originMapCoordinate,
+                    mapInfo.currentMapCoordinate
+                )
+            ).toBeTruthy()
+        })
+
         describe("End turn", () => {
             beforeEach(() => {
                 battleHUDListener.receiveMessage({
@@ -1163,7 +1207,7 @@ describe("Battle HUD", () => {
                     )
                 ).toEqual(endTurnBattleAction)
                 expect(
-                    SquaddieTurnService.getUnallocatedActionPoints(
+                    SquaddieTurnService.getActionPointsThatCouldBeSpentOnMovement(
                         playerSoldierBattleSquaddie.squaddieTurn
                     )
                 ).toEqual(0)
@@ -1465,7 +1509,7 @@ describe("Battle HUD", () => {
                         .missionMap,
                 squaddieTemplateId: thiefBattleSquaddie.squaddieTemplateId,
                 battleSquaddieId: thiefBattleSquaddie.battleSquaddieId,
-                coordinate: {
+                originMapCoordinate: {
                     q: 1,
                     r: 2,
                 },
@@ -1490,6 +1534,61 @@ describe("Battle HUD", () => {
                 battleHUDListener,
                 MessageBoardMessageType.PLAYER_CONFIRMS_ACTION
             )
+        })
+
+        it("will update the origin map coordinate to match the current", () => {
+            MissionMapService.updateBattleSquaddieCoordinate({
+                missionMap:
+                    gameEngineState.battleOrchestratorState.battleState
+                        .missionMap,
+                battleSquaddieId: BattleActionDecisionStepService.getActor(
+                    gameEngineState.battleOrchestratorState.battleState
+                        .battleActionDecisionStep
+                ).battleSquaddieId,
+                coordinate: {
+                    q: 1,
+                    r: 1,
+                },
+            })
+
+            gameEngineState.messageBoard.sendMessage({
+                type: MessageBoardMessageType.PLAYER_CONFIRMS_ACTION,
+                battleActionDecisionStep:
+                    gameEngineState.battleOrchestratorState.battleState
+                        .battleActionDecisionStep,
+                missionMap:
+                    gameEngineState.battleOrchestratorState.battleState
+                        .missionMap,
+                objectRepository: gameEngineState.repository,
+                battleActionRecorder:
+                    gameEngineState.battleOrchestratorState.battleState
+                        .battleActionRecorder,
+                numberGenerator:
+                    gameEngineState.battleOrchestratorState.numberGenerator,
+                missionStatistics:
+                    gameEngineState.battleOrchestratorState.battleState
+                        .missionStatistics,
+            })
+
+            const mapInfo = MissionMapService.getByBattleSquaddieId(
+                gameEngineState.battleOrchestratorState.battleState.missionMap,
+                BattleActionDecisionStepService.getActor(
+                    gameEngineState.battleOrchestratorState.battleState
+                        .battleActionDecisionStep
+                ).battleSquaddieId
+            )
+            expect(
+                HexCoordinateService.areEqual(mapInfo.originMapCoordinate, {
+                    q: 1,
+                    r: 1,
+                })
+            ).toBeTruthy()
+            expect(
+                HexCoordinateService.areEqual(
+                    mapInfo.originMapCoordinate,
+                    mapInfo.currentMapCoordinate
+                )
+            ).toBeTruthy()
         })
 
         it("should create a confirmed action in the action builder", () => {
@@ -1517,42 +1616,6 @@ describe("Battle HUD", () => {
                         .battleActionDecisionStep
                 )
             ).toBeTruthy()
-        })
-
-        it("should consume the squaddie action points", () => {
-            gameEngineState.messageBoard.sendMessage({
-                type: MessageBoardMessageType.PLAYER_CONFIRMS_ACTION,
-                battleActionDecisionStep:
-                    gameEngineState.battleOrchestratorState.battleState
-                        .battleActionDecisionStep,
-                missionMap:
-                    gameEngineState.battleOrchestratorState.battleState
-                        .missionMap,
-                objectRepository: gameEngineState.repository,
-                battleActionRecorder:
-                    gameEngineState.battleOrchestratorState.battleState
-                        .battleActionRecorder,
-                numberGenerator:
-                    gameEngineState.battleOrchestratorState.numberGenerator,
-                missionStatistics:
-                    gameEngineState.battleOrchestratorState.battleState
-                        .missionStatistics,
-            })
-            const { squaddieTemplate } = getResultOrThrowError(
-                ObjectRepositoryService.getSquaddieByBattleId(
-                    gameEngineState.repository,
-                    playerSoldierBattleSquaddie.battleSquaddieId
-                )
-            )
-
-            const { unallocatedActionPoints } =
-                SquaddieService.getNumberOfActionPoints({
-                    squaddieTemplate,
-                    battleSquaddie: playerSoldierBattleSquaddie,
-                })
-            expect(unallocatedActionPoints).toBe(
-                3 - longswordAction.resourceCost.actionPoints
-            )
         })
 
         it("should apply the cooldown", () => {
@@ -1780,7 +1843,7 @@ describe("Battle HUD", () => {
                 })
             )
 
-            BattleActionRecorderService.battleActionFinishedAnimating(
+            BattleActionRecorderService.addAnimatingBattleActionToAlreadyAnimatedThisTurn(
                 gameEngineState.battleOrchestratorState.battleState
                     .battleActionRecorder
             )
@@ -1855,7 +1918,7 @@ describe("Battle HUD", () => {
                         },
                     })
                 )
-                BattleActionRecorderService.battleActionFinishedAnimating(
+                BattleActionRecorderService.addAnimatingBattleActionToAlreadyAnimatedThisTurn(
                     gameEngineState.battleOrchestratorState.battleState
                         .battleActionRecorder
                 )
@@ -1955,7 +2018,7 @@ describe("Battle HUD", () => {
         let gameEngineState: GameEngineState
         let battleHUDListener: BattleHUDListener
         let battleSquaddie: BattleSquaddie
-        let movementCalculatorSpy: MockInstance
+        let isMovementPossibleSpy: MockInstance
         let messageSpy: MockInstance
 
         beforeEach(() => {
@@ -1989,16 +2052,26 @@ describe("Battle HUD", () => {
             messageSpy = vi.spyOn(gameEngineState.messageBoard, "sendMessage")
         })
         afterEach(() => {
-            if (movementCalculatorSpy) {
-                movementCalculatorSpy.mockRestore()
-            }
+            if (isMovementPossibleSpy) isMovementPossibleSpy.mockRestore()
             messageSpy.mockRestore()
         })
-
         it("do not create an action if player selects starting location", () => {
             gameEngineState.messageBoard.sendMessage({
                 type: MessageBoardMessageType.MOVE_SQUADDIE_TO_COORDINATE,
-                gameEngineState,
+                missionMap:
+                    gameEngineState.battleOrchestratorState.battleState
+                        .missionMap,
+                objectRepository: gameEngineState.repository,
+                messageBoard: gameEngineState.messageBoard,
+                battleActionDecisionStep:
+                    gameEngineState.battleOrchestratorState.battleState
+                        .battleActionDecisionStep,
+                campaignResources: gameEngineState.campaign.resources,
+                battleState:
+                    gameEngineState.battleOrchestratorState.battleState,
+                battleActionRecorder:
+                    gameEngineState.battleOrchestratorState.battleState
+                        .battleActionRecorder,
                 battleSquaddieId: battleSquaddie.battleSquaddieId,
                 targetCoordinate: { q: 0, r: 0 },
             })
@@ -2012,13 +2085,26 @@ describe("Battle HUD", () => {
         })
 
         it("does not complete the action if the movement is invalid", () => {
-            movementCalculatorSpy = vi
+            isMovementPossibleSpy = vi
                 .spyOn(MovementCalculatorService, "isMovementPossible")
                 .mockReturnValue(false)
 
             gameEngineState.messageBoard.sendMessage({
                 type: MessageBoardMessageType.MOVE_SQUADDIE_TO_COORDINATE,
-                gameEngineState,
+                missionMap:
+                    gameEngineState.battleOrchestratorState.battleState
+                        .missionMap,
+                objectRepository: gameEngineState.repository,
+                messageBoard: gameEngineState.messageBoard,
+                battleActionDecisionStep:
+                    gameEngineState.battleOrchestratorState.battleState
+                        .battleActionDecisionStep,
+                campaignResources: gameEngineState.campaign.resources,
+                battleState:
+                    gameEngineState.battleOrchestratorState.battleState,
+                battleActionRecorder:
+                    gameEngineState.battleOrchestratorState.battleState
+                        .battleActionRecorder,
                 battleSquaddieId: battleSquaddie.battleSquaddieId,
                 targetCoordinate: { q: -100, r: 9001 },
             })
@@ -2033,13 +2119,26 @@ describe("Battle HUD", () => {
 
         describe("movement is valid", () => {
             beforeEach(() => {
-                movementCalculatorSpy = vi
+                isMovementPossibleSpy = vi
                     .spyOn(MovementCalculatorService, "isMovementPossible")
                     .mockReturnValue(true)
 
                 gameEngineState.messageBoard.sendMessage({
                     type: MessageBoardMessageType.MOVE_SQUADDIE_TO_COORDINATE,
-                    gameEngineState,
+                    missionMap:
+                        gameEngineState.battleOrchestratorState.battleState
+                            .missionMap,
+                    objectRepository: gameEngineState.repository,
+                    messageBoard: gameEngineState.messageBoard,
+                    battleActionDecisionStep:
+                        gameEngineState.battleOrchestratorState.battleState
+                            .battleActionDecisionStep,
+                    campaignResources: gameEngineState.campaign.resources,
+                    battleState:
+                        gameEngineState.battleOrchestratorState.battleState,
+                    battleActionRecorder:
+                        gameEngineState.battleOrchestratorState.battleState
+                            .battleActionRecorder,
                     battleSquaddieId: battleSquaddie.battleSquaddieId,
                     targetCoordinate: { q: 0, r: 2 },
                 })
@@ -2055,7 +2154,7 @@ describe("Battle HUD", () => {
                 ).toBeTruthy()
             })
 
-            it("adds a battle action to the history", () => {
+            it("adds a battle action to the animation queue", () => {
                 const battleAction =
                     BattleActionRecorderService.peekAtAnimationQueue(
                         gameEngineState.battleOrchestratorState.battleState
@@ -2078,34 +2177,27 @@ describe("Battle HUD", () => {
                 )
             })
 
-            it("consumes the squaddie actions", () => {
+            it("spends refundable movement action points", () => {
                 expect(
-                    SquaddieTurnService.getUnallocatedActionPoints(
+                    SquaddieTurnService.getMovementActionPointsSpentButCanBeRefunded(
                         battleSquaddie.squaddieTurn
                     )
-                ).toEqual(DEFAULT_ACTION_POINTS_PER_TURN - 1)
-            })
-
-            it("adds a battle action to move", () => {
-                const squaddieBattleAction = BattleActionService.new({
-                    actor: {
-                        actorBattleSquaddieId: battleSquaddie.battleSquaddieId,
-                    },
-                    action: { isMovement: true },
-                    effect: {
-                        movement: {
-                            startCoordinate: { q: 0, r: 0 },
-                            endCoordinate: { q: 0, r: 2 },
-                        },
-                    },
-                })
-
+                ).toBe(1)
                 expect(
-                    BattleActionRecorderService.peekAtAnimationQueue(
-                        gameEngineState.battleOrchestratorState.battleState
-                            .battleActionRecorder
+                    SquaddieTurnService.getActionPointsThatCouldBeSpentOnMovement(
+                        battleSquaddie.squaddieTurn
                     )
-                ).toEqual(squaddieBattleAction)
+                ).toEqual(DEFAULT_ACTION_POINTS_PER_TURN)
+
+                const { unSpentActionPoints, movementActionPoints } =
+                    SquaddieService.getActionPointSpend({
+                        battleSquaddie,
+                    })
+                expect(unSpentActionPoints).toBe(
+                    DEFAULT_ACTION_POINTS_PER_TURN - 1
+                )
+                expect(movementActionPoints.previewedByPlayer).toBe(0)
+                expect(movementActionPoints.spentButCanBeRefunded).toBe(1)
             })
 
             it("updates the squaddie coordinate", () => {
@@ -2115,7 +2207,7 @@ describe("Battle HUD", () => {
                     battleSquaddie.battleSquaddieId
                 )
                 expect(mapDatum).not.toBeUndefined()
-                expect(mapDatum.mapCoordinate).toEqual({ q: 0, r: 2 })
+                expect(mapDatum.currentMapCoordinate).toEqual({ q: 0, r: 2 })
             })
 
             it("will submit an event saying the action is ready", () => {
@@ -2131,7 +2223,7 @@ describe("Battle HUD", () => {
 
         describe("add an additional movement action during a turn", () => {
             beforeEach(() => {
-                movementCalculatorSpy = vi
+                isMovementPossibleSpy = vi
                     .spyOn(MovementCalculatorService, "isMovementPossible")
                     .mockReturnValue(true)
 
@@ -2152,20 +2244,40 @@ describe("Battle HUD", () => {
                         },
                     })
                 )
-                BattleActionRecorderService.battleActionFinishedAnimating(
+                BattleActionRecorderService.addAnimatingBattleActionToAlreadyAnimatedThisTurn(
                     gameEngineState.battleOrchestratorState.battleState
                         .battleActionRecorder
                 )
 
+                SquaddieTurnService.setMovementActionPointsSpentAndCannotBeRefunded(
+                    {
+                        squaddieTurn: battleSquaddie.squaddieTurn,
+                        actionPoints: 1,
+                    }
+                )
+
                 gameEngineState.messageBoard.sendMessage({
                     type: MessageBoardMessageType.MOVE_SQUADDIE_TO_COORDINATE,
-                    gameEngineState,
+                    missionMap:
+                        gameEngineState.battleOrchestratorState.battleState
+                            .missionMap,
+                    objectRepository: gameEngineState.repository,
+                    messageBoard: gameEngineState.messageBoard,
+                    battleActionDecisionStep:
+                        gameEngineState.battleOrchestratorState.battleState
+                            .battleActionDecisionStep,
+                    campaignResources: gameEngineState.campaign.resources,
+                    battleState:
+                        gameEngineState.battleOrchestratorState.battleState,
+                    battleActionRecorder:
+                        gameEngineState.battleOrchestratorState.battleState
+                            .battleActionRecorder,
                     battleSquaddieId: battleSquaddie.battleSquaddieId,
                     targetCoordinate: { q: 0, r: 2 },
                 })
             })
 
-            it("adds a movement action and confirmed target to the action builder", () => {
+            it("adds a movement decision step and confirmed target to the action builder", () => {
                 expect(
                     expectSquaddieIsMovingToGivenLocation(
                         gameEngineState,
@@ -2175,7 +2287,7 @@ describe("Battle HUD", () => {
                 ).toBeTruthy()
             })
 
-            it("will update squaddie coordinate to destination and spend action points", () => {
+            it("will update squaddie coordinate to destination spend refundable action points", () => {
                 expect(
                     MissionMapService.getByBattleSquaddieId(
                         gameEngineState.battleOrchestratorState.battleState
@@ -2185,10 +2297,21 @@ describe("Battle HUD", () => {
                 ).toEqual({
                     battleSquaddieId: battleSquaddie.battleSquaddieId,
                     squaddieTemplateId: battleSquaddie.squaddieTemplateId,
-                    mapCoordinate: { q: 0, r: 2 },
+                    originMapCoordinate: { q: 0, r: 0 },
+                    currentMapCoordinate: { q: 0, r: 2 },
                 })
                 expect(
-                    SquaddieTurnService.getUnallocatedActionPoints(
+                    SquaddieTurnService.getMovementActionPointsSpentAndCannotBeRefunded(
+                        battleSquaddie.squaddieTurn
+                    )
+                ).toEqual(1)
+                expect(
+                    SquaddieTurnService.getMovementActionPointsSpentButCanBeRefunded(
+                        battleSquaddie.squaddieTurn
+                    )
+                ).toEqual(1)
+                expect(
+                    SquaddieTurnService.getActionPointsThatCouldBeSpentOnMovement(
                         battleSquaddie.squaddieTurn
                     )
                 ).toEqual(DEFAULT_ACTION_POINTS_PER_TURN - 1)

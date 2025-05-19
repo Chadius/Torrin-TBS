@@ -24,8 +24,12 @@ import { HexCoordinate } from "../hexMap/hexCoordinate/hexCoordinate"
 import { SquaddieTurnService } from "./turn"
 
 export interface SquaddieActionPointsExplanation {
-    unallocatedActionPoints: number
-    movementActionPoints: number
+    unSpentActionPoints: number
+    movementActionPoints: {
+        previewedByPlayer: number
+        spentButCanBeRefunded: number
+        spentAndCannotBeRefunded: number
+    }
 }
 
 export interface SquaddieArmorExplanation {
@@ -72,13 +76,14 @@ export const SquaddieService = {
             damageType,
         })
     },
-    getNumberOfActionPoints: ({
+    getActionPointSpend: ({
         battleSquaddie,
     }: {
-        squaddieTemplate: SquaddieTemplate
         battleSquaddie: BattleSquaddie
     }): SquaddieActionPointsExplanation => {
-        return getNumberOfActionPoints({ battleSquaddie })
+        return SquaddieTurnService.getActionPointSpend(
+            battleSquaddie.squaddieTurn
+        )
     },
     searchPathCoordinatesByNumberOfMovementActions: ({
         searchPath,
@@ -138,7 +143,6 @@ export const SquaddieService = {
         battleSquaddie: BattleSquaddie
     }): {
         canAct: boolean
-        hasActionPointsRemaining: boolean
         isDead: boolean
     } => {
         return canSquaddieActRightNow({ squaddieTemplate, battleSquaddie })
@@ -324,22 +328,6 @@ export const SquaddieService = {
     },
 }
 
-const getNumberOfActionPoints = ({
-    battleSquaddie,
-}: {
-    battleSquaddie: BattleSquaddie
-}): SquaddieActionPointsExplanation => {
-    return {
-        unallocatedActionPoints: SquaddieTurnService.getUnallocatedActionPoints(
-            battleSquaddie.squaddieTurn
-        ),
-        movementActionPoints:
-            SquaddieTurnService.getActionPointsReservedForMovement(
-                battleSquaddie.squaddieTurn
-            ),
-    }
-}
-
 const getArmorClass = ({
     squaddieTemplate,
 }: {
@@ -425,28 +413,21 @@ const canPlayerControlSquaddieRightNow = ({
     playerCanControlThisSquaddieRightNow: boolean
     squaddieIsNormallyControllableByPlayer: boolean
 } => {
-    const squaddieIsAlive = isSquaddieAlive({
-        squaddieTemplate,
-        battleSquaddie,
-    })
-
-    let { unallocatedActionPoints } = SquaddieService.getNumberOfActionPoints({
+    const { canAct, isDead } = canSquaddieActRightNow({
         squaddieTemplate,
         battleSquaddie,
     })
 
     const playerControlledAffiliation: boolean =
         squaddieTemplate.squaddieId.affiliation === SquaddieAffiliation.PLAYER
-    const squaddieCanCurrentlyAct: boolean =
-        unallocatedActionPoints > 0 && squaddieIsAlive
 
     return {
         squaddieHasThePlayerControlledAffiliation: playerControlledAffiliation,
-        squaddieCanCurrentlyAct,
+        squaddieCanCurrentlyAct: canAct,
         playerCanControlThisSquaddieRightNow:
-            playerControlledAffiliation && squaddieCanCurrentlyAct,
+            playerControlledAffiliation && canAct,
         squaddieIsNormallyControllableByPlayer:
-            playerControlledAffiliation && squaddieIsAlive,
+            playerControlledAffiliation && !isDead,
     }
 }
 
@@ -472,7 +453,6 @@ const canSquaddieActRightNow = ({
     battleSquaddie: BattleSquaddie
 }): {
     canAct: boolean
-    hasActionPointsRemaining: boolean
     isDead: boolean
 } => {
     const squaddieIsAlive = isSquaddieAlive({
@@ -480,17 +460,20 @@ const canSquaddieActRightNow = ({
         battleSquaddie,
     })
 
-    let { unallocatedActionPoints } = SquaddieService.getNumberOfActionPoints({
-        squaddieTemplate,
+    let movementActionPoints =
+        SquaddieTurnService.getActionPointsThatCouldBeSpentOnMovement(
+            battleSquaddie.squaddieTurn
+        )
+
+    let { unSpentActionPoints } = SquaddieService.getActionPointSpend({
         battleSquaddie,
     })
 
     const hasActionPointsRemaining: boolean =
-        squaddieIsAlive && unallocatedActionPoints > 0
+        squaddieIsAlive && (unSpentActionPoints > 0 || movementActionPoints > 0)
 
     return {
         canAct: hasActionPointsRemaining,
-        hasActionPointsRemaining: hasActionPointsRemaining,
         isDead: !squaddieIsAlive,
     }
 }

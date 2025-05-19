@@ -112,12 +112,17 @@ export const BattleSaveStateService = {
                 })
         )
         battleSaveState.squaddieMapPlacements.forEach(
-            (coordinateData: MissionMapSquaddieCoordinate) =>
+            (coordinateData: MissionMapSquaddieCoordinate) => {
                 MissionMapService.updateBattleSquaddieCoordinate({
                     missionMap: battleOrchestratorState.battleState.missionMap,
                     battleSquaddieId: coordinateData.battleSquaddieId,
-                    coordinate: coordinateData.mapCoordinate,
+                    coordinate: coordinateData.currentMapCoordinate,
                 })
+                MissionMapService.setOriginMapCoordinateToCurrentMapCoordinate(
+                    battleOrchestratorState.battleState.missionMap,
+                    coordinateData.battleSquaddieId
+                )
+            }
         )
 
         for (let squaddieBattleId in battleSaveState.inBattleAttributesBySquaddieBattleId) {

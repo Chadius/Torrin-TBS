@@ -73,7 +73,7 @@ describe("BattleHUDState", () => {
                         missionMap: missionMap,
                         squaddieTemplateId: "player_soldier",
                         battleSquaddieId: battleSquaddieId,
-                        coordinate: { q: 0, r: index },
+                        originMapCoordinate: { q: 0, r: index },
                     })
                 }
             )

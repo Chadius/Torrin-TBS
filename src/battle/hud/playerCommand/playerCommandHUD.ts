@@ -192,7 +192,13 @@ export const PlayerCommandStateService = {
             playerCommandState.consideredActionTemplateId
         ) {
             gameEngineState.messageBoard.sendMessage({
-                type: MessageBoardMessageType.PLAYER_CONSIDERS_ACTION,
+                type: MessageBoardMessageType.PLAYER_CANCELS_PLAYER_ACTION_CONSIDERATIONS,
+                playerCommandState:
+                    gameEngineState.battleOrchestratorState.battleHUDState
+                        .summaryHUDState.playerCommandState,
+                battleActionRecorder:
+                    gameEngineState.battleOrchestratorState.battleState
+                        .battleActionRecorder,
                 playerConsideredActions:
                     gameEngineState.battleOrchestratorState.battleState
                         .playerConsideredActions,
@@ -208,13 +214,6 @@ export const PlayerCommandStateService = {
                     gameEngineState.battleOrchestratorState.battleState
                         .battleActionDecisionStep,
                 objectRepository: gameEngineState.repository,
-                useAction: {
-                    actionTemplateId: undefined,
-                    isEndTurn: false,
-                },
-                cancelAction: {
-                    actionTemplate: undefined,
-                },
             })
             return
         }

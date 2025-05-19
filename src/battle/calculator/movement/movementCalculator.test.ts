@@ -71,7 +71,7 @@ describe("movement calculator", () => {
             missionMap,
             battleSquaddieId: battleSquaddie.battleSquaddieId,
             squaddieTemplateId: battleSquaddie.squaddieTemplateId,
-            coordinate: { q: 0, r: 0 },
+            originMapCoordinate: { q: 0, r: 0 },
         })
 
         gameEngineState = GameEngineStateService.new({
@@ -105,7 +105,10 @@ describe("movement calculator", () => {
 
             const isMovementPossible: boolean =
                 MovementCalculatorService.isMovementPossible({
-                    gameEngineState,
+                    missionMap:
+                        gameEngineState.battleOrchestratorState.battleState
+                            .missionMap,
+                    objectRepository: gameEngineState.repository,
                     battleSquaddie,
                     squaddieTemplate,
                     destination: { q: 0, r: 1 },
@@ -138,7 +141,10 @@ describe("movement calculator", () => {
 
             const isMovementPossible: boolean =
                 MovementCalculatorService.isMovementPossible({
-                    gameEngineState,
+                    missionMap:
+                        gameEngineState.battleOrchestratorState.battleState
+                            .missionMap,
+                    objectRepository: gameEngineState.repository,
                     battleSquaddie,
                     squaddieTemplate,
                     destination: { q: 0, r: 1 },
@@ -179,7 +185,10 @@ describe("movement calculator", () => {
                 )
 
             MovementCalculatorService.isMovementPossible({
-                gameEngineState,
+                missionMap:
+                    gameEngineState.battleOrchestratorState.battleState
+                        .missionMap,
+                objectRepository: gameEngineState.repository,
                 battleSquaddie,
                 squaddieTemplate,
                 destination: { q: 0, r: 1 },
@@ -190,7 +199,7 @@ describe("movement calculator", () => {
                 pathfinderSpy.mock.calls[0][0].searchLimit
             expect(searchParameters.ignoreTerrainCost).toBeTruthy()
             expect(searchParameters.maximumMovementCost).toEqual(
-                SquaddieTurnService.getUnallocatedActionPoints(
+                SquaddieTurnService.getActionPointsThatCouldBeSpentOnMovement(
                     battleSquaddie.squaddieTurn
                 ) *
                     (battleSquaddie.inBattleAttributes.armyAttributes.movement
@@ -204,7 +213,16 @@ describe("movement calculator", () => {
         beforeEach(() => {
             MovementCalculatorService.setBattleActionDecisionStepReadyToAnimate(
                 {
-                    gameEngineState,
+                    battleActionDecisionStep:
+                        gameEngineState.battleOrchestratorState.battleState
+                            .battleActionDecisionStep,
+                    missionMap:
+                        gameEngineState.battleOrchestratorState.battleState
+                            .missionMap,
+                    campaignResources: gameEngineState.campaign.resources,
+                    battleState:
+                        gameEngineState.battleOrchestratorState.battleState,
+                    objectRepository: gameEngineState.repository,
                     battleSquaddie,
                     squaddieTemplate,
                     destination: { q: 0, r: 1 },
@@ -257,7 +275,11 @@ describe("movement calculator", () => {
 
     it("queueBattleActionToMove adds a move action to the battle queue", () => {
         MovementCalculatorService.queueBattleActionToMove({
-            gameEngineState,
+            missionMap:
+                gameEngineState.battleOrchestratorState.battleState.missionMap,
+            battleActionRecorder:
+                gameEngineState.battleOrchestratorState.battleState
+                    .battleActionRecorder,
             battleSquaddie,
             destination: { q: 0, r: 1 },
         })
@@ -331,7 +353,7 @@ describe("movement calculator", () => {
                     missionMap,
                     battleSquaddieId: battleSquaddie.battleSquaddieId,
                     squaddieTemplateId: battleSquaddie.squaddieTemplateId,
-                    coordinate: info.coordinate,
+                    originMapCoordinate: info.coordinate,
                 })
             })
             ;({ battleSquaddie: player0 } = getResultOrThrowError(
@@ -368,7 +390,16 @@ describe("movement calculator", () => {
         it("will move through allies to get to the destination", () => {
             MovementCalculatorService.setBattleActionDecisionStepReadyToAnimate(
                 {
-                    gameEngineState,
+                    battleActionDecisionStep:
+                        gameEngineState.battleOrchestratorState.battleState
+                            .battleActionDecisionStep,
+                    missionMap:
+                        gameEngineState.battleOrchestratorState.battleState
+                            .missionMap,
+                    campaignResources: gameEngineState.campaign.resources,
+                    battleState:
+                        gameEngineState.battleOrchestratorState.battleState,
+                    objectRepository: gameEngineState.repository,
                     battleSquaddie: player0,
                     squaddieTemplate,
                     destination: { q: 0, r: 2 },
@@ -389,7 +420,16 @@ describe("movement calculator", () => {
         it("will move around enemies to get to the destination", () => {
             MovementCalculatorService.setBattleActionDecisionStepReadyToAnimate(
                 {
-                    gameEngineState,
+                    battleActionDecisionStep:
+                        gameEngineState.battleOrchestratorState.battleState
+                            .battleActionDecisionStep,
+                    missionMap:
+                        gameEngineState.battleOrchestratorState.battleState
+                            .missionMap,
+                    campaignResources: gameEngineState.campaign.resources,
+                    battleState:
+                        gameEngineState.battleOrchestratorState.battleState,
+                    objectRepository: gameEngineState.repository,
                     battleSquaddie: player1,
                     squaddieTemplate,
                     destination: { q: 0, r: 4 },

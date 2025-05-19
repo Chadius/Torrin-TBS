@@ -383,6 +383,7 @@ export class GameEngine {
             MessageBoardMessageType.SELECT_AND_LOCK_NEXT_SQUADDIE,
             MessageBoardMessageType.PLAYER_CANCELS_PLAYER_ACTION_CONSIDERATIONS,
             MessageBoardMessageType.PLAYER_CONSIDERS_ACTION,
+            MessageBoardMessageType.PLAYER_CONSIDERS_MOVEMENT,
             MessageBoardMessageType.PLAYER_SELECTION_IS_INVALID,
         ].forEach((messageBoardMessageType) => {
             this.gameEngineState.messageBoard.addListener(

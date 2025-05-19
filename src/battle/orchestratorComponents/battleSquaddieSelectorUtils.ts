@@ -21,8 +21,6 @@ import {
     Trait,
     TraitStatusStorageService,
 } from "../../trait/traitStatusStorage"
-import { SquaddieAffiliationService } from "../../squaddie/squaddieAffiliation"
-import { ActionTemplateService } from "../../action/template/actionTemplate"
 import { SearchResultAdapterService } from "../../hexMap/pathfinder/searchResults/searchResultAdapter"
 import {
     SearchPathAdapter,
@@ -30,25 +28,37 @@ import {
 } from "../../search/searchPathAdapter/searchPathAdapter"
 import { MapSearchService } from "../../hexMap/pathfinder/pathGeneration/mapSearch"
 import { SearchLimitService } from "../../hexMap/pathfinder/pathGeneration/searchLimit"
+import { CampaignResources } from "../../campaign/campaignResources"
+import { BattleState } from "../battleState/battleState"
+import { SquaddieTurnService } from "../../squaddie/turn"
 
 export const BattleSquaddieSelectorService = {
     createSearchPathAndHighlightMovementPath: ({
-        gameEngineState,
         squaddieTemplate,
         battleSquaddie,
         clickedHexCoordinate,
+        missionMap,
+        objectRepository,
+        campaignResources,
+        battleState,
     }: {
-        gameEngineState: GameEngineState
         squaddieTemplate: SquaddieTemplate
         battleSquaddie: BattleSquaddie
         clickedHexCoordinate: HexCoordinate
+        missionMap: MissionMap
+        objectRepository: ObjectRepository
+        campaignResources: CampaignResources
+        battleState: BattleState
     }) => {
-        return createSearchPath(
-            gameEngineState,
+        return createSearchPath({
             squaddieTemplate,
             battleSquaddie,
-            clickedHexCoordinate
-        )
+            clickedHexCoordinate,
+            missionMap,
+            objectRepository,
+            campaignResources,
+            battleState,
+        })
     },
     getClosestRouteForSquaddieToReachDestination: ({
         gameEngineState,
@@ -69,7 +79,9 @@ export const BattleSquaddieSelectorService = {
         actionPointsRemaining?: number
     }): SearchPathAdapter => {
         const searchResults = getAllTilesSquaddieCanReach({
-            gameEngineState,
+            missionMap:
+                gameEngineState.battleOrchestratorState.battleState.missionMap,
+            objectRepository: gameEngineState.repository,
             battleSquaddie,
             squaddieTemplate,
             stopCoordinate,
@@ -212,153 +224,28 @@ export const BattleSquaddieSelectorService = {
             missionMap: missionMap,
         })
     },
-    getBestActionAndCoordinateToActFrom: ({
-        actorBattleSquaddieId,
-        targetBattleSquaddieId,
-        gameEngineState,
-    }: {
-        actorBattleSquaddieId: string
-        targetBattleSquaddieId: string
-        gameEngineState: GameEngineState
-    }): {
-        useThisActionTemplateId: string
-        moveToThisLocation: HexCoordinate
-    } => {
-        const objectRepository = gameEngineState.repository
-        const map =
-            gameEngineState.battleOrchestratorState.battleState.missionMap
-
-        const {
-            battleSquaddie: actorBattleSquaddie,
-            squaddieTemplate: actorSquaddieTemplate,
-        } = getResultOrThrowError(
-            ObjectRepositoryService.getSquaddieByBattleId(
-                objectRepository,
-                actorBattleSquaddieId
-            )
-        )
-
-        const actorAndTargetAreAllies = areActorAndTargetAllies(
-            objectRepository,
-            targetBattleSquaddieId,
-            actorSquaddieTemplate
-        )
-
-        const actionsToTargetWith = actorAndTargetAreAllies
-            ? SquaddieService.getActionsThatTargetAlly({
-                  squaddieTemplate: actorSquaddieTemplate,
-                  objectRepository,
-              })
-            : SquaddieService.getActionsThatTargetFoe({
-                  squaddieTemplate: actorSquaddieTemplate,
-                  objectRepository,
-              })
-
-        const { mapCoordinate: targetMapCoordinate } =
-            MissionMapService.getByBattleSquaddieId(map, targetBattleSquaddieId)
-
-        const highestPriorityActionThatCanBeUsedOnTarget =
-            actionsToTargetWith.reduce(
-                (
-                    usableActionInfo: {
-                        actionTemplateId: string
-                        destination: HexCoordinate
-                    },
-                    actionTemplateId
-                ) => {
-                    if (usableActionInfo) {
-                        return usableActionInfo
-                    }
-
-                    const actionTemplate =
-                        ObjectRepositoryService.getActionTemplateById(
-                            objectRepository,
-                            actionTemplateId
-                        )
-                    if (!actionTemplate) {
-                        return usableActionInfo
-                    }
-
-                    const actionEffectTemplates =
-                        ActionTemplateService.getActionEffectTemplates(
-                            actionTemplate
-                        )
-                    if (actionEffectTemplates.length === 0) {
-                        return usableActionInfo
-                    }
-
-                    let unallocatedActionPoints =
-                        SquaddieService.getNumberOfActionPoints({
-                            squaddieTemplate: actorSquaddieTemplate,
-                            battleSquaddie: actorBattleSquaddie,
-                        }).unallocatedActionPoints -
-                        actionTemplate.resourceCost.actionPoints
-                    if (unallocatedActionPoints <= 0) {
-                        return usableActionInfo
-                    }
-
-                    const closestRoute =
-                        BattleSquaddieSelectorService.getClosestRouteForSquaddieToReachDestination(
-                            {
-                                gameEngineState,
-                                battleSquaddie: actorBattleSquaddie,
-                                squaddieTemplate: actorSquaddieTemplate,
-                                stopCoordinate: targetMapCoordinate,
-                                distanceRangeFromDestination: {
-                                    minimum:
-                                        actionTemplate.targetConstraints
-                                            .minimumRange,
-                                    maximum:
-                                        actionTemplate.targetConstraints
-                                            .maximumRange,
-                                },
-                                actionPointsRemaining: unallocatedActionPoints,
-                            }
-                        )
-
-                    return isValidValue(closestRoute)
-                        ? {
-                              actionTemplateId: actionTemplate.id,
-                              destination:
-                                  SearchPathAdapterService.getHead(
-                                      closestRoute
-                                  ),
-                          }
-                        : usableActionInfo
-                },
-                undefined
-            )
-
-        if (highestPriorityActionThatCanBeUsedOnTarget) {
-            return {
-                useThisActionTemplateId:
-                    highestPriorityActionThatCanBeUsedOnTarget.actionTemplateId,
-                moveToThisLocation:
-                    highestPriorityActionThatCanBeUsedOnTarget.destination,
-            }
-        }
-
-        if (!actorAndTargetAreAllies) {
-            return undefined
-        }
-
-        return getAsCloseAsPossibleOnlyUsingMovement(
-            gameEngineState,
-            actorBattleSquaddie,
-            actorSquaddieTemplate,
-            targetMapCoordinate
-        )
-    },
 }
 
-const createSearchPath = (
-    gameEngineState: GameEngineState,
-    squaddieTemplate: SquaddieTemplate,
-    battleSquaddie: BattleSquaddie,
+const createSearchPath = ({
+    squaddieTemplate,
+    battleSquaddie,
+    clickedHexCoordinate,
+    missionMap,
+    objectRepository,
+    campaignResources,
+    battleState,
+}: {
+    squaddieTemplate: SquaddieTemplate
+    battleSquaddie: BattleSquaddie
     clickedHexCoordinate: HexCoordinate
-) => {
+    missionMap: MissionMap
+    objectRepository: ObjectRepository
+    campaignResources: CampaignResources
+    battleState: BattleState
+}) => {
     const searchResults = getAllTilesSquaddieCanReach({
-        gameEngineState,
+        missionMap,
+        objectRepository,
         battleSquaddie,
         squaddieTemplate,
         stopCoordinate: clickedHexCoordinate,
@@ -370,13 +257,16 @@ const createSearchPath = (
             mapCoordinate: clickedHexCoordinate,
         })
 
-    const noDirectRouteToDestination = closestRoute === null
+    const noDirectRouteToDestination = !isValidValue(closestRoute)
     if (noDirectRouteToDestination) {
         return
     }
 
-    gameEngineState.battleOrchestratorState.battleState.squaddieMovePath =
-        closestRoute
+    battleState.squaddieMovePath ||= []
+    battleState.squaddieMovePath.length = 0
+    closestRoute.forEach((connection) => {
+        battleState.squaddieMovePath.push(connection)
+    })
 
     const { squaddieIsNormallyControllableByPlayer } =
         SquaddieService.canPlayerControlSquaddieRightNow({
@@ -388,8 +278,8 @@ const createSearchPath = (
         MapHighlightService.convertSearchPathToHighlightCoordinates({
             searchPath: closestRoute,
             battleSquaddieId: battleSquaddie.battleSquaddieId,
-            repository: gameEngineState.repository,
-            campaignResources: gameEngineState.campaign.resources,
+            repository: objectRepository,
+            campaignResources,
             squaddieIsNormallyControllableByPlayer,
         })
     const actionRangeOnMap = MapGraphicsLayerService.new({
@@ -397,49 +287,47 @@ const createSearchPath = (
         highlightedTileDescriptions: routeTilesByDistance,
         type: MapGraphicsLayerType.CLICKED_ON_CONTROLLABLE_SQUADDIE,
     })
-    TerrainTileMapService.removeAllGraphicsLayers(
-        gameEngineState.battleOrchestratorState.battleState.missionMap
-            .terrainTileMap
-    )
+    TerrainTileMapService.removeAllGraphicsLayers(missionMap.terrainTileMap)
     TerrainTileMapService.addGraphicsLayer(
-        gameEngineState.battleOrchestratorState.battleState.missionMap
-            .terrainTileMap,
+        missionMap.terrainTileMap,
         actionRangeOnMap
     )
 }
 
 const getAllTilesSquaddieCanReach = ({
-    gameEngineState,
     battleSquaddie,
     squaddieTemplate,
     stopCoordinate,
     actionPointsRemaining,
+    missionMap,
+    objectRepository,
 }: {
-    gameEngineState: GameEngineState
     battleSquaddie: BattleSquaddie
     squaddieTemplate: SquaddieTemplate
+    missionMap: MissionMap
+    objectRepository: ObjectRepository
     stopCoordinate?: HexCoordinate
     actionPointsRemaining?: number
 }): SearchResult => {
-    const mapCoordinate = MissionMapService.getByBattleSquaddieId(
-        gameEngineState.battleOrchestratorState.battleState.missionMap,
-        battleSquaddie.battleSquaddieId
-    ).mapCoordinate
+    const { currentMapCoordinate, originMapCoordinate } =
+        MissionMapService.getByBattleSquaddieId(
+            missionMap,
+            battleSquaddie.battleSquaddieId
+        )
 
     if (actionPointsRemaining === undefined) {
-        ;({ unallocatedActionPoints: actionPointsRemaining } =
-            SquaddieService.getNumberOfActionPoints({
-                squaddieTemplate,
-                battleSquaddie,
-            }))
+        actionPointsRemaining =
+            SquaddieTurnService.getActionPointsThatCouldBeSpentOnMovement(
+                battleSquaddie.squaddieTurn
+            )
     }
 
     return MapSearchService.calculatePathsToDestinations({
-        missionMap:
-            gameEngineState.battleOrchestratorState.battleState.missionMap,
-        objectRepository: gameEngineState.repository,
+        missionMap,
+        objectRepository,
         destinationCoordinates: stopCoordinate ? [stopCoordinate] : [],
-        startCoordinate: mapCoordinate,
+        currentMapCoordinate,
+        originMapCoordinate,
         searchLimit: SearchLimitService.new({
             baseSearchLimit: SearchLimitService.landBasedMovement(),
             canStopOnSquaddies: true,
@@ -544,7 +432,8 @@ const getSquaddieAttackCoordinates = ({
                             const actionRangeResults =
                                 MapSearchService.calculateAllPossiblePathsFromStartingCoordinate(
                                     {
-                                        startCoordinate: coordinate,
+                                        currentMapCoordinate: coordinate,
+                                        originMapCoordinate: coordinate,
                                         missionMap,
                                         objectRepository: repository,
                                         searchLimit: SearchLimitService.new({
@@ -690,54 +579,4 @@ const isAlreadyAtTheLocation = ({
         )
 
     return missionMapCoordinateDatum.battleSquaddieId === battleSquaddieId
-}
-
-const getAsCloseAsPossibleOnlyUsingMovement = (
-    gameEngineState: GameEngineState,
-    actorBattleSquaddie: BattleSquaddie,
-    actorSquaddieTemplate: SquaddieTemplate,
-    targetMapCoordinate: HexCoordinate
-): {
-    useThisActionTemplateId: string
-    moveToThisLocation: HexCoordinate
-} => {
-    const closestRoute =
-        BattleSquaddieSelectorService.getClosestRouteForSquaddieToReachDestination(
-            {
-                gameEngineState,
-                battleSquaddie: actorBattleSquaddie,
-                squaddieTemplate: actorSquaddieTemplate,
-                stopCoordinate: targetMapCoordinate,
-                distanceRangeFromDestination: {
-                    minimum: 0,
-                    maximum: 1,
-                },
-            }
-        )
-
-    if (!isValidValue(closestRoute)) {
-        return undefined
-    }
-
-    return {
-        useThisActionTemplateId: undefined,
-        moveToThisLocation: SearchPathAdapterService.getHead(closestRoute),
-    }
-}
-
-const areActorAndTargetAllies = (
-    objectRepository: ObjectRepository,
-    targetBattleSquaddieId: string,
-    actorSquaddieTemplate: SquaddieTemplate
-) => {
-    const { squaddieTemplate: targetSquaddieTemplate } = getResultOrThrowError(
-        ObjectRepositoryService.getSquaddieByBattleId(
-            objectRepository,
-            targetBattleSquaddieId
-        )
-    )
-    return SquaddieAffiliationService.areSquaddieAffiliationsAllies({
-        actingAffiliation: actorSquaddieTemplate.squaddieId.affiliation,
-        targetAffiliation: targetSquaddieTemplate.squaddieId.affiliation,
-    })
 }

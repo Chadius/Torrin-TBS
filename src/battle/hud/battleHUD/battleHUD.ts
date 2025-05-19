@@ -148,6 +148,8 @@ export const BattleHUDService = {
         gameEngineState: GameEngineState,
         battleAction: BattleAction
     ) => {
+        const missionMap =
+            gameEngineState.battleOrchestratorState.battleState.missionMap
         const { battleSquaddie } = getResultOrThrowError(
             ObjectRepositoryService.getSquaddieByBattleId(
                 gameEngineState.repository,
@@ -158,12 +160,22 @@ export const BattleHUDService = {
             )
         )
 
-        const { mapCoordinate } = MissionMapService.getByBattleSquaddieId(
-            gameEngineState.battleOrchestratorState.battleState.missionMap,
-            battleSquaddie.battleSquaddieId
+        const { currentMapCoordinate } =
+            MissionMapService.getByBattleSquaddieId(
+                gameEngineState.battleOrchestratorState.battleState.missionMap,
+                battleSquaddie.battleSquaddieId
+            )
+
+        processEndTurnAction(
+            gameEngineState,
+            battleSquaddie,
+            currentMapCoordinate
         )
 
-        processEndTurnAction(gameEngineState, battleSquaddie, mapCoordinate)
+        MissionMapService.setOriginMapCoordinateToCurrentMapCoordinate(
+            missionMap,
+            battleSquaddie.battleSquaddieId
+        )
 
         TerrainTileMapService.removeAllGraphicsLayers(
             gameEngineState.battleOrchestratorState.battleState.missionMap
@@ -252,7 +264,7 @@ export const BattleHUDService = {
             objectRepository: message.objectRepository,
         })
 
-        const { mapCoordinate: startLocation } =
+        const { currentMapCoordinate, originMapCoordinate } =
             MissionMapService.getByBattleSquaddieId(
                 message.missionMap,
                 battleSquaddieId
@@ -268,7 +280,8 @@ export const BattleHUDService = {
                 repository: message.objectRepository,
                 missionMap: message.missionMap,
                 battleSquaddieId: battleSquaddieId,
-                startCoordinate: startLocation,
+                currentMapCoordinate,
+                originMapCoordinate,
                 campaignResources: message.campaignResources,
                 squaddieTurnOverride:
                     squaddieTemplate.squaddieId.affiliation ===
@@ -385,8 +398,8 @@ export const BattleHUDService = {
             return
         }
 
-        SquaddieTurnService.spendActionPointsAndReservedPoints({
-            data: actingBattleSquaddie.squaddieTurn,
+        SquaddieTurnService.setSpentMovementActionPointsAsNotRefundable({
+            squaddieTurn: actingBattleSquaddie.squaddieTurn,
             actionTemplate,
         })
         InBattleAttributesService.addActionCooldown({
@@ -453,14 +466,18 @@ export const BattleHUDService = {
             actingBattleSquaddie,
             actingSquaddieTemplate,
         })
+
+        MissionMapService.setOriginMapCoordinateToCurrentMapCoordinate(
+            message.missionMap,
+            actingBattleSquaddie.battleSquaddieId
+        )
     },
     tryToMoveSquaddieToLocation: (
         message: MessageBoardMessageMoveSquaddieToCoordinate
     ) => {
-        const gameEngineState = message.gameEngineState
         const { battleSquaddie, squaddieTemplate } = getResultOrThrowError(
             ObjectRepositoryService.getSquaddieByBattleId(
-                gameEngineState.repository,
+                message.objectRepository,
                 message.battleSquaddieId
             )
         )
@@ -469,17 +486,17 @@ export const BattleHUDService = {
             HexCoordinateService.areEqual(
                 destination,
                 MissionMapService.getByBattleSquaddieId(
-                    gameEngineState.battleOrchestratorState.battleState
-                        .missionMap,
+                    message.missionMap,
                     battleSquaddie.battleSquaddieId
-                ).mapCoordinate
+                ).currentMapCoordinate
             )
         )
             return
 
         if (
             !MovementCalculatorService.isMovementPossible({
-                gameEngineState,
+                missionMap: message.missionMap,
+                objectRepository: message.objectRepository,
                 battleSquaddie,
                 squaddieTemplate,
                 destination,
@@ -488,29 +505,33 @@ export const BattleHUDService = {
             return
 
         MovementCalculatorService.setBattleActionDecisionStepReadyToAnimate({
-            gameEngineState,
+            battleActionDecisionStep: message.battleActionDecisionStep,
+            missionMap: message.missionMap,
+            campaignResources: message.campaignResources,
+            battleState: message.battleState,
+            objectRepository: message.objectRepository,
             battleSquaddie,
             squaddieTemplate,
             destination,
         })
-        MovementCalculatorService.spendActionPointsMoving({
-            gameEngineState,
+        MovementCalculatorService.spendActionPointsOnRefundableMovement({
+            searchPath: message.battleState.squaddieMovePath,
+            objectRepository: message.objectRepository,
             battleSquaddie,
-            destination,
         })
         MovementCalculatorService.queueBattleActionToMove({
-            gameEngineState,
+            missionMap: message.missionMap,
+            battleActionRecorder: message.battleActionRecorder,
             battleSquaddie,
             destination,
         })
         MissionMapService.updateBattleSquaddieCoordinate({
-            missionMap:
-                gameEngineState.battleOrchestratorState.battleState.missionMap,
+            missionMap: message.missionMap,
             battleSquaddieId: battleSquaddie.battleSquaddieId,
             coordinate: destination,
         })
 
-        gameEngineState.messageBoard.sendMessage({
+        message.messageBoard.sendMessage({
             type: MessageBoardMessageType.PLAYER_CONFIRMS_DECISION_STEP_ACTOR,
             recommendedMode: BattleOrchestratorMode.PLAYER_HUD_CONTROLLER,
         })
@@ -653,7 +674,7 @@ const playerControlledSquaddieNeedsNextAction = (
             .terrainTileMap
     )
 
-    const { mapCoordinate: startLocation } =
+    const { currentMapCoordinate, originMapCoordinate } =
         MissionMapService.getByBattleSquaddieId(
             gameEngineState.battleOrchestratorState.battleState.missionMap,
             battleSquaddie.battleSquaddieId
@@ -664,7 +685,8 @@ const playerControlledSquaddieNeedsNextAction = (
             missionMap:
                 gameEngineState.battleOrchestratorState.battleState.missionMap,
             battleSquaddieId: battleSquaddie.battleSquaddieId,
-            startCoordinate: startLocation,
+            currentMapCoordinate,
+            originMapCoordinate,
             campaignResources: gameEngineState.campaign.resources,
         })
     const actionRangeOnMap = MapGraphicsLayerService.new({

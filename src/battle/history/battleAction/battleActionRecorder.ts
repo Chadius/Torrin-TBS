@@ -50,7 +50,7 @@ export const BattleActionRecorderService = {
             battleActionRecorder.readyToAnimateQueue
         )
     },
-    battleActionFinishedAnimating: (
+    addAnimatingBattleActionToAlreadyAnimatedThisTurn: (
         battleActionRecorder: BattleActionRecorder
     ) => {
         if (!battleActionRecorder) {
@@ -67,6 +67,17 @@ export const BattleActionRecorderService = {
             battleActionRecorder.actionsAlreadyAnimatedThisTurn,
             actionThatFinishedAnimating
         )
+        BattleActionQueueService.dequeue(
+            battleActionRecorder.readyToAnimateQueue
+        )
+    },
+    dequeueBattleActionFromReadyToAnimateQueue: (
+        battleActionRecorder: BattleActionRecorder
+    ) => {
+        if (!battleActionRecorder) {
+            return
+        }
+
         BattleActionQueueService.dequeue(
             battleActionRecorder.readyToAnimateQueue
         )

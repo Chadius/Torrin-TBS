@@ -345,14 +345,14 @@ describe("calculator", () => {
                 missionMap,
                 battleSquaddieId: player1SquaddieTemplateId,
                 squaddieTemplateId: player1DynamicId,
-                coordinate: { q: 0, r: 0 },
+                originMapCoordinate: { q: 0, r: 0 },
             })
 
             MissionMapService.addSquaddie({
                 missionMap,
                 battleSquaddieId: enemy1StaticId,
                 squaddieTemplateId: enemy1DynamicId,
-                coordinate: { q: 0, r: 1 },
+                originMapCoordinate: { q: 0, r: 1 },
             })
         })
 
@@ -642,14 +642,14 @@ describe("calculator", () => {
                 missionMap,
                 battleSquaddieId: player1SquaddieTemplateId,
                 squaddieTemplateId: player1DynamicId,
-                coordinate: { q: 0, r: 0 },
+                originMapCoordinate: { q: 0, r: 0 },
             })
 
             MissionMapService.addSquaddie({
                 missionMap,
                 battleSquaddieId: ally1DynamicId,
                 squaddieTemplateId: ally1StaticId,
-                coordinate: { q: 0, r: 2 },
+                originMapCoordinate: { q: 0, r: 2 },
             })
 
             healsLostHitPoints = ActionTemplateService.new({
@@ -818,7 +818,7 @@ describe("calculator", () => {
                 missionMap,
                 battleSquaddieId: player1SquaddieTemplateId,
                 squaddieTemplateId: player1DynamicId,
-                coordinate: { q: 0, r: 0 },
+                originMapCoordinate: { q: 0, r: 0 },
             })
 
             armorCircumstanceModifier = AttributeModifierService.new({
@@ -918,14 +918,14 @@ describe("calculator", () => {
                 missionMap,
                 battleSquaddieId: player1SquaddieTemplateId,
                 squaddieTemplateId: player1DynamicId,
-                coordinate: { q: 0, r: 0 },
+                originMapCoordinate: { q: 0, r: 0 },
             })
 
             MissionMapService.addSquaddie({
                 missionMap,
                 battleSquaddieId: enemy1StaticId,
                 squaddieTemplateId: enemy1DynamicId,
-                coordinate: { q: 0, r: 1 },
+                originMapCoordinate: { q: 0, r: 1 },
             })
         })
 
@@ -1094,7 +1094,7 @@ describe("calculator", () => {
                         effect: { squaddie: [] },
                     })
                 )
-                BattleActionRecorderService.battleActionFinishedAnimating(
+                BattleActionRecorderService.addAnimatingBattleActionToAlreadyAnimatedThisTurn(
                     battleActionRecorder
                 )
 
@@ -1147,7 +1147,7 @@ describe("calculator", () => {
                         effect: { squaddie: [] },
                     })
                 )
-                BattleActionRecorderService.battleActionFinishedAnimating(
+                BattleActionRecorderService.addAnimatingBattleActionToAlreadyAnimatedThisTurn(
                     battleActionRecorder
                 )
 
@@ -1284,14 +1284,14 @@ describe("calculator", () => {
                 missionMap,
                 battleSquaddieId: player1SquaddieTemplateId,
                 squaddieTemplateId: player1DynamicId,
-                coordinate: { q: 0, r: 0 },
+                originMapCoordinate: { q: 0, r: 0 },
             })
 
             MissionMapService.addSquaddie({
                 missionMap,
                 battleSquaddieId: enemy1StaticId,
                 squaddieTemplateId: enemy1DynamicId,
-                coordinate: { q: 0, r: 1 },
+                originMapCoordinate: { q: 0, r: 1 },
             })
         })
 
@@ -1402,7 +1402,7 @@ describe("calculator", () => {
                     effect: { squaddie: [] },
                 })
             )
-            BattleActionRecorderService.battleActionFinishedAnimating(
+            BattleActionRecorderService.addAnimatingBattleActionToAlreadyAnimatedThisTurn(
                 gameEngineState.battleOrchestratorState.battleState
                     .battleActionRecorder
             )
@@ -1695,14 +1695,14 @@ describe("calculator", () => {
                 missionMap,
                 battleSquaddieId: player1SquaddieTemplateId,
                 squaddieTemplateId: player1DynamicId,
-                coordinate: { q: 0, r: 0 },
+                originMapCoordinate: { q: 0, r: 0 },
             })
 
             MissionMapService.addSquaddie({
                 missionMap,
                 battleSquaddieId: enemy1StaticId,
                 squaddieTemplateId: enemy1DynamicId,
-                coordinate: { q: 0, r: 1 },
+                originMapCoordinate: { q: 0, r: 1 },
             })
         })
 

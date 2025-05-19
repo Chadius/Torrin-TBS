@@ -78,6 +78,8 @@ describe("playerCommandHUD", () => {
             repository: objectRepository,
             campaign: CampaignService.default(),
         })
+        gameEngineState.battleOrchestratorState.battleHUDState.summaryHUDState =
+            SummaryHUDStateService.new()
 
         actionNeedsTarget = ActionTemplateService.new({
             id: "actionNeedsTarget",
@@ -474,10 +476,7 @@ describe("playerCommandHUD", () => {
                 })
                 expect(messageSpy).toBeCalledWith(
                     expect.objectContaining({
-                        type: MessageBoardMessageType.PLAYER_CONSIDERS_ACTION,
-                        cancelAction: {
-                            actionTemplate: undefined,
-                        },
+                        type: MessageBoardMessageType.PLAYER_CANCELS_PLAYER_ACTION_CONSIDERATIONS,
                     })
                 )
             })

@@ -238,11 +238,6 @@ describe("Object Repository", () => {
             objectRepository,
             battleSquaddieBase
         )
-        expect(
-            SquaddieTurnService.hasActionPointsRemaining(
-                battleSquaddieBase.squaddieTurn
-            )
-        ).toBeTruthy()
 
         const turnEnded: SquaddieTurn = SquaddieTurnService.new()
         SquaddieTurnService.endTurn(turnEnded)
@@ -264,11 +259,6 @@ describe("Object Repository", () => {
         )
 
         expect(squaddieTemplate).toStrictEqual(squaddieTemplate)
-        expect(
-            SquaddieTurnService.hasActionPointsRemaining(
-                battleSquaddie.squaddieTurn
-            )
-        ).toBeFalsy()
     })
 
     it("should throw error if you update a battle squaddie to a non existent template", () => {

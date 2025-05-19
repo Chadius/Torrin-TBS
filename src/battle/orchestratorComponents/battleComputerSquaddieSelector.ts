@@ -232,7 +232,8 @@ export class BattleComputerSquaddieSelector
                     gameEngineState.battleOrchestratorState.battleState
                         .missionMap,
                 objectRepository: gameEngineState.repository,
-                startCoordinate: targetCoordinate,
+                originMapCoordinate: targetCoordinate,
+                currentMapCoordinate: targetCoordinate,
                 searchLimit: SearchLimitService.new({
                     baseSearchLimit: SearchLimitService.targeting(),
                     maximumDistance: 0,
@@ -366,14 +367,14 @@ export class BattleComputerSquaddieSelector
 
         const { x: squaddieScreenLocationX, y: squaddieScreenLocationY } =
             ConvertCoordinateService.convertMapCoordinatesToScreenLocation({
-                mapCoordinate: datum.mapCoordinate,
+                mapCoordinate: datum.currentMapCoordinate,
                 cameraLocation:
                     gameEngineState.battleOrchestratorState.battleState.camera.getWorldLocation(),
             })
 
         const { x: squaddieWorldLocationX, y: squaddieWorldLocationY } =
             ConvertCoordinateService.convertMapCoordinatesToWorldLocation({
-                mapCoordinate: datum.mapCoordinate,
+                mapCoordinate: datum.currentMapCoordinate,
             })
 
         if (
@@ -443,14 +444,17 @@ export class BattleComputerSquaddieSelector
         )
 
         if (movement != undefined) {
-            SquaddieTurnService.spendActionPointsForMovement({
+            SquaddieTurnService.setMovementActionPointsPreviewedByPlayer({
                 squaddieTurn: battleSquaddie.squaddieTurn,
                 actionPoints: movement,
             })
+            SquaddieTurnService.spendPreviewedMovementActionPointsToRefundable({
+                squaddieTurn: battleSquaddie.squaddieTurn,
+            })
         }
 
-        SquaddieTurnService.spendActionPointsAndReservedPoints({
-            data: battleSquaddie.squaddieTurn,
+        SquaddieTurnService.setSpentMovementActionPointsAsNotRefundable({
+            squaddieTurn: battleSquaddie.squaddieTurn,
             endTurn,
             actionTemplate,
         })
@@ -489,7 +493,7 @@ export class BattleComputerSquaddieSelector
                 (battleActionDecisionStep) =>
                     battleActionDecisionStep.action.movement
             )
-            .forEach((battleActionDecisionStep) =>
+            .forEach((battleActionDecisionStep) => {
                 MissionMapService.updateBattleSquaddieCoordinate({
                     missionMap:
                         gameEngineState.battleOrchestratorState.battleState
@@ -498,7 +502,12 @@ export class BattleComputerSquaddieSelector
                     coordinate:
                         battleActionDecisionStep.target.targetCoordinate,
                 })
-            )
+                MissionMapService.setOriginMapCoordinateToCurrentMapCoordinate(
+                    gameEngineState.battleOrchestratorState.battleState
+                        .missionMap,
+                    battleSquaddie.battleSquaddieId
+                )
+            })
     }
 
     private createBattleActions(
@@ -510,7 +519,7 @@ export class BattleComputerSquaddieSelector
                 battleActions: BattleAction[],
                 battleActionDecisionStep: BattleActionDecisionStep
             ) => {
-                const { mapCoordinate: startLocation } =
+                const { currentMapCoordinate: startLocation } =
                     MissionMapService.getByBattleSquaddieId(
                         gameEngineState.battleOrchestratorState.battleState
                             .missionMap,
@@ -644,15 +653,23 @@ export class BattleComputerSquaddieSelector
             .filter((step) => step.action.movement === true)
             .forEach((movementStep) => {
                 let numberOfActionPointsSpentMoving: number
+
                 BattleSquaddieSelectorService.createSearchPathAndHighlightMovementPath(
                     {
-                        gameEngineState: gameEngineState,
                         squaddieTemplate,
                         battleSquaddie,
                         clickedHexCoordinate:
                             movementStep.target.targetCoordinate,
+                        missionMap:
+                            gameEngineState.battleOrchestratorState.battleState
+                                .missionMap,
+                        objectRepository: gameEngineState.repository,
+                        campaignResources: gameEngineState.campaign.resources,
+                        battleState:
+                            gameEngineState.battleOrchestratorState.battleState,
                     }
                 )
+
                 let coordinatesByMoveActions: {
                     [movementActions: number]: HexCoordinate[]
                 } =
@@ -715,7 +732,7 @@ const drawSquaddieAtInitialPositionAsCameraPans = (
         MissionMapService.getByBattleSquaddieId(
             gameEngineState.battleOrchestratorState.battleState.missionMap,
             battleSquaddieId
-        ).mapCoordinate
+        ).currentMapCoordinate
 
     DrawSquaddieIconOnMapUtilities.drawSquaddieMapIconAtMapCoordinate({
         graphics: graphicsContext,

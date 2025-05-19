@@ -67,7 +67,7 @@ export interface PlayerActionTargetStateMachineContext {
     targetResults: {
         validCoordinates: HexCoordinate[]
         validTargets: {
-            [battleSquaddieId: string]: { mapCoordinate: HexCoordinate }
+            [battleSquaddieId: string]: { currentMapCoordinate: HexCoordinate }
         }
     }
 

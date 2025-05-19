@@ -22,74 +22,90 @@ describe("Squaddie Can Perform Action", () => {
             {
                 actionTemplateId: "onePointAction",
                 actionPointCost: 1,
-                startingActionPoints: 0,
+                movementActionPoints: {
+                    spentAndCannotBeRefunded: 3,
+                },
+                actionPointsRemaining: 0,
                 expectedMessage: "Need 1 action point",
             },
             {
                 actionTemplateId: "twoPointAction",
                 actionPointCost: 2,
-                startingActionPoints: 0,
+                movementActionPoints: {
+                    spentAndCannotBeRefunded: 3,
+                },
+                actionPointsRemaining: 0,
                 expectedMessage: "Need 2 action points",
             },
             {
                 actionTemplateId: "twoPointAction",
                 actionPointCost: 2,
-                startingActionPoints: 1,
+                movementActionPoints: {
+                    spentAndCannotBeRefunded: 2,
+                },
+                actionPointsRemaining: 1,
                 expectedMessage: "Need 2 action points",
             },
             {
                 actionTemplateId: "threePointAction",
                 actionPointCost: 3,
-                startingActionPoints: 0,
+                movementActionPoints: {
+                    spentAndCannotBeRefunded: 3,
+                },
+                actionPointsRemaining: 0,
                 expectedMessage: "Need 3 action points",
             },
             {
                 actionTemplateId: "threePointAction",
                 actionPointCost: 3,
-                startingActionPoints: 1,
+                movementActionPoints: {
+                    spentAndCannotBeRefunded: 2,
+                },
+                actionPointsRemaining: 1,
                 expectedMessage: "Need 3 action points",
             },
             {
                 actionTemplateId: "threePointAction",
                 actionPointCost: 3,
-                startingActionPoints: 2,
+                movementActionPoints: {
+                    spentAndCannotBeRefunded: 1,
+                },
+                actionPointsRemaining: 2,
                 expectedMessage: "Need 3 action points",
             },
         ]
 
         it.each(testNotEnoughActionPoints)(
-            `$actionTemplateId $startingActionPoints is NOT possible`,
+            `$actionTemplateId with $actionPointsRemaining points remaining is NOT possible`,
             ({
                 actionTemplateId,
                 actionPointCost,
-                startingActionPoints,
+                movementActionPoints,
                 expectedMessage,
+                actionPointsRemaining,
             }) => {
-                const {
-                    objectRepository,
-                    battleSquaddie,
-                    squaddieTemplate,
-                    actionTemplate,
-                } = setup({
+                const { battleSquaddie, actionTemplate } = setup({
                     actionTemplateId: actionTemplateId,
                     actionPointCost: actionPointCost,
-                    startingActionPoints: startingActionPoints,
+                    movementActionPoints,
                 })
                 expect(
-                    SquaddieService.getNumberOfActionPoints({
+                    SquaddieService.getActionPointSpend({
                         battleSquaddie,
-                        squaddieTemplate,
                     })
                 ).toEqual({
-                    movementActionPoints: 3 - startingActionPoints,
-                    unallocatedActionPoints: startingActionPoints,
+                    movementActionPoints: {
+                        previewedByPlayer: 0,
+                        spentButCanBeRefunded: 0,
+                        spentAndCannotBeRefunded:
+                            movementActionPoints.spentAndCannotBeRefunded,
+                    },
+                    unSpentActionPoints: actionPointsRemaining,
                 })
                 expect(
                     SquaddieCanPerformActionCheck.canPerform({
                         battleSquaddie,
                         actionTemplate,
-                        objectRepository,
-                        playerConsideredActions: undefined,
                     })
                 ).toEqual({
                     isValid: false,
@@ -103,69 +119,116 @@ describe("Squaddie Can Perform Action", () => {
             {
                 actionTemplateId: "onePointAction",
                 actionPointCost: 1,
-                startingActionPoints: 1,
+                actionPointsRemaining: 1,
+                movementActionPoints: {
+                    spentAndCannotBeRefunded: 2,
+                },
             },
             {
                 actionTemplateId: "onePointAction",
                 actionPointCost: 1,
-                startingActionPoints: 2,
+                actionPointsRemaining: 2,
+                movementActionPoints: {
+                    spentAndCannotBeRefunded: 1,
+                },
             },
             {
                 actionTemplateId: "onePointAction",
                 actionPointCost: 1,
-                startingActionPoints: 3,
+                actionPointsRemaining: 3,
+                movementActionPoints: {},
             },
             {
                 actionTemplateId: "twoPointAction",
                 actionPointCost: 2,
-                startingActionPoints: 2,
+                actionPointsRemaining: 2,
+                movementActionPoints: {
+                    spentAndCannotBeRefunded: 1,
+                },
             },
             {
                 actionTemplateId: "twoPointAction",
                 actionPointCost: 2,
-                startingActionPoints: 3,
+                actionPointsRemaining: 3,
+                movementActionPoints: {},
             },
             {
                 actionTemplateId: "threePointAction",
                 actionPointCost: 3,
-                startingActionPoints: 3,
+                actionPointsRemaining: 3,
+                movementActionPoints: {},
             },
         ]
 
         it.each(testHasEnoughActionPoints)(
-            `$actionTemplateId $startingActionPoints is possible`,
-            ({ actionTemplateId, actionPointCost, startingActionPoints }) => {
-                const {
-                    objectRepository,
-                    battleSquaddie,
-                    squaddieTemplate,
-                    actionTemplate,
-                } = setup({
+            `$actionTemplateId with $actionPointsRemaining points remaining is possible`,
+            ({
+                actionTemplateId,
+                actionPointCost,
+                actionPointsRemaining,
+                movementActionPoints,
+            }) => {
+                const { battleSquaddie, actionTemplate } = setup({
                     actionTemplateId: actionTemplateId,
                     actionPointCost: actionPointCost,
-                    startingActionPoints: startingActionPoints,
+                    movementActionPoints,
                 })
                 expect(
-                    SquaddieService.getNumberOfActionPoints({
+                    SquaddieService.getActionPointSpend({
                         battleSquaddie,
-                        squaddieTemplate,
                     })
                 ).toEqual({
-                    movementActionPoints: 3 - startingActionPoints,
-                    unallocatedActionPoints: startingActionPoints,
+                    movementActionPoints: {
+                        previewedByPlayer: 0,
+                        spentButCanBeRefunded: 0,
+                        spentAndCannotBeRefunded:
+                            movementActionPoints.spentAndCannotBeRefunded || 0,
+                    },
+                    unSpentActionPoints: actionPointsRemaining,
                 })
                 expect(
                     SquaddieCanPerformActionCheck.canPerform({
                         battleSquaddie,
                         actionTemplate,
-                        objectRepository,
-                        playerConsideredActions: undefined,
                     })
                 ).toEqual({
                     isValid: true,
                 })
             }
         )
+
+        it("cannot perform action if points were spent moving, even if they can be refunded", () => {
+            const { battleSquaddie, actionTemplate } = setup({
+                actionTemplateId: "onePointAction",
+                actionPointCost: 1,
+                movementActionPoints: {
+                    spentAndCannotBeRefunded: 1,
+                    spentButCanBeRefunded: 2,
+                },
+            })
+            expect(
+                SquaddieService.getActionPointSpend({
+                    battleSquaddie,
+                })
+            ).toEqual({
+                movementActionPoints: {
+                    previewedByPlayer: 0,
+                    spentButCanBeRefunded: 2,
+                    spentAndCannotBeRefunded: 1,
+                },
+                unSpentActionPoints: 0,
+            })
+            expect(
+                SquaddieCanPerformActionCheck.canPerform({
+                    battleSquaddie,
+                    actionTemplate,
+                })
+            ).toEqual({
+                isValid: false,
+                reason: ActionPerformFailureReason.TOO_FEW_ACTIONS_REMAINING,
+                message: "Need 1 action point",
+            })
+        })
     })
 
     describe("Player is considering an action while checking highlighted actions", () => {
@@ -175,44 +238,39 @@ describe("Squaddie Can Perform Action", () => {
         })
 
         it("You can afford the action if you have more than the action point cost + considered action points", () => {
-            const { objectRepository, battleSquaddie, actionTemplate } = setup({
+            const { battleSquaddie, actionTemplate } = setup({
                 actionTemplateId: "action1PointCost",
                 actionPointCost: 1,
-                startingActionPoints: 3,
+                movementActionPoints: {},
             })
-            playerConsideredActions.movement = {
-                actionPointCost: 1,
-                coordinates: [],
-                destination: { q: 0, r: 0 },
-            }
+            SquaddieTurnService.setMovementActionPointsPreviewedByPlayer({
+                squaddieTurn: battleSquaddie.squaddieTurn,
+                actionPoints: 1,
+            })
+
             expect(
                 SquaddieCanPerformActionCheck.canPerform({
                     battleSquaddie,
                     actionTemplate,
-                    objectRepository,
-                    playerConsideredActions,
                 })
             ).toEqual({
                 isValid: true,
             })
         })
-        it("You can afford if too many action points are considered but there will be a warning", () => {
-            const { objectRepository, battleSquaddie, actionTemplate } = setup({
+        it("You can afford the action but there is a warning if too many action points are refunded", () => {
+            const { battleSquaddie, actionTemplate } = setup({
                 actionTemplateId: "action1PointCost",
                 actionPointCost: 1,
-                startingActionPoints: 1,
+                movementActionPoints: {
+                    previewedByPlayer: 2,
+                    spentAndCannotBeRefunded: 1,
+                },
             })
-            playerConsideredActions.movement = {
-                actionPointCost: 1,
-                coordinates: [],
-                destination: { q: 0, r: 0 },
-            }
+            playerConsideredActions.actionTemplateId = "action1PointCost"
             expect(
                 SquaddieCanPerformActionCheck.canPerform({
                     battleSquaddie,
                     actionTemplate,
-                    objectRepository,
-                    playerConsideredActions,
                 })
             ).toEqual(
                 expect.objectContaining({
@@ -223,18 +281,18 @@ describe("Squaddie Can Perform Action", () => {
             )
         })
         it("The marked action points are ignored if it's marked because of this action", () => {
-            const { objectRepository, battleSquaddie, actionTemplate } = setup({
+            const { battleSquaddie, actionTemplate } = setup({
                 actionTemplateId: "action1PointCost",
                 actionPointCost: 1,
-                startingActionPoints: 1,
+                movementActionPoints: {
+                    spentAndCannotBeRefunded: 2,
+                },
             })
             playerConsideredActions.actionTemplateId = "action1PointCost"
             expect(
                 SquaddieCanPerformActionCheck.canPerform({
                     battleSquaddie,
                     actionTemplate,
-                    objectRepository,
-                    playerConsideredActions,
                 })
             ).toEqual(
                 expect.objectContaining({
@@ -245,10 +303,10 @@ describe("Squaddie Can Perform Action", () => {
     })
 
     it("Cannot perform action that is on cooldown", () => {
-        const { battleSquaddie, actionTemplate, objectRepository } = setup({
+        const { battleSquaddie, actionTemplate } = setup({
             actionTemplateId: "3 rounds of cooldown",
             actionPointCost: 0,
-            startingActionPoints: 3,
+            movementActionPoints: {},
         })
 
         let playerConsideredActions = PlayerConsideredActionsService.new()
@@ -261,9 +319,7 @@ describe("Squaddie Can Perform Action", () => {
         expect(
             SquaddieCanPerformActionCheck.canPerform({
                 battleSquaddie,
-                objectRepository,
                 actionTemplate,
-                playerConsideredActions,
             }).isValid
         ).toBeTruthy()
         InBattleAttributesService.addActionCooldown({
@@ -275,9 +331,7 @@ describe("Squaddie Can Perform Action", () => {
         expect(
             SquaddieCanPerformActionCheck.canPerform({
                 battleSquaddie,
-                objectRepository,
                 actionTemplate,
-                playerConsideredActions,
             }).isValid
         ).toBeFalsy()
     })
@@ -286,11 +340,15 @@ describe("Squaddie Can Perform Action", () => {
 const setup = ({
     actionTemplateId,
     actionPointCost,
-    startingActionPoints,
+    movementActionPoints,
 }: {
     actionTemplateId: string
     actionPointCost: number
-    startingActionPoints: number
+    movementActionPoints: {
+        previewedByPlayer?: number
+        spentButCanBeRefunded?: number
+        spentAndCannotBeRefunded?: number
+    }
 }) => {
     const objectRepository = ObjectRepositoryService.new()
     const actionTemplate = ActionTemplateService.new({
@@ -310,9 +368,17 @@ const setup = ({
             objectRepository: objectRepository,
             actionTemplateIds: [actionTemplateId],
         })
-    SquaddieTurnService.spendActionPointsForMovement({
+    SquaddieTurnService.setMovementActionPointsSpentAndCannotBeRefunded({
         squaddieTurn: battleSquaddie.squaddieTurn,
-        actionPoints: 3 - startingActionPoints,
+        actionPoints: movementActionPoints.spentAndCannotBeRefunded || 0,
+    })
+    SquaddieTurnService.setMovementActionPointsSpentButCanBeRefunded({
+        squaddieTurn: battleSquaddie.squaddieTurn,
+        actionPoints: movementActionPoints.spentButCanBeRefunded || 0,
+    })
+    SquaddieTurnService.setMovementActionPointsPreviewedByPlayer({
+        squaddieTurn: battleSquaddie.squaddieTurn,
+        actionPoints: movementActionPoints.previewedByPlayer || 0,
     })
     return {
         objectRepository,

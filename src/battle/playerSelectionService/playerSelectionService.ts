@@ -145,10 +145,10 @@ export const PlayerSelectionService = {
             ),
             new PlayerClicksOnSquaddieSelectorPanel(dataBlob),
             new PlayerClicksOnTheMapToMoveTheSelectedSquaddieBehavior(dataBlob),
+            new PlayerPressesNextButtonBehavior(dataBlob),
             new PlayerMovesOffMapToCancelConsideredActions(dataBlob),
             new PlayerHoversOverSquaddieToPeekAtItBehavior(dataBlob),
             new PlayerConsidersMovementForSelectedSquaddie(dataBlob),
-            new PlayerPressesNextButtonBehavior(dataBlob),
         ])
 
         if (selectWorkingBehaviorTree.run()) {
@@ -229,7 +229,20 @@ export const PlayerSelectionService = {
                     type: MessageBoardMessageType.MOVE_SQUADDIE_TO_COORDINATE,
                     battleSquaddieId: context.actorBattleSquaddieId,
                     targetCoordinate: { q, r },
-                    gameEngineState,
+                    missionMap:
+                        gameEngineState.battleOrchestratorState.battleState
+                            .missionMap,
+                    objectRepository: gameEngineState.repository,
+                    messageBoard: gameEngineState.messageBoard,
+                    battleActionDecisionStep:
+                        gameEngineState.battleOrchestratorState.battleState
+                            .battleActionDecisionStep,
+                    campaignResources: gameEngineState.campaign.resources,
+                    battleState:
+                        gameEngineState.battleOrchestratorState.battleState,
+                    battleActionRecorder:
+                        gameEngineState.battleOrchestratorState.battleState
+                            .battleActionRecorder,
                 }
                 gameEngineState.messageBoard.sendMessage(messageSent)
                 return PlayerSelectionChangesService.new({ messageSent })
@@ -301,8 +314,39 @@ export const PlayerSelectionService = {
                 gameEngineState.messageBoard.sendMessage(messageSent)
                 return PlayerSelectionChangesService.new({ messageSent })
             case PlayerIntent.CONSIDER_MOVING_SQUADDIE:
+                if (context.movement == undefined) {
+                    messageSent = {
+                        type: MessageBoardMessageType.PLAYER_CANCELS_PLAYER_ACTION_CONSIDERATIONS,
+                        missionMap:
+                            gameEngineState.battleOrchestratorState.battleState
+                                .missionMap,
+                        summaryHUDState:
+                            gameEngineState.battleOrchestratorState
+                                .battleHUDState.summaryHUDState,
+                        battleActionDecisionStep:
+                            gameEngineState.battleOrchestratorState.battleState
+                                .battleActionDecisionStep,
+                        battleActionRecorder:
+                            gameEngineState.battleOrchestratorState.battleState
+                                .battleActionRecorder,
+                        playerConsideredActions:
+                            gameEngineState.battleOrchestratorState.battleState
+                                .playerConsideredActions,
+                        playerDecisionHUD:
+                            gameEngineState.battleOrchestratorState
+                                .playerDecisionHUD,
+                        playerCommandState:
+                            gameEngineState.battleOrchestratorState
+                                .battleHUDState.summaryHUDState
+                                .playerCommandState,
+                        objectRepository: gameEngineState.repository,
+                    }
+                    gameEngineState.messageBoard.sendMessage(messageSent)
+                    return PlayerSelectionChangesService.new({ messageSent })
+                }
+
                 messageSent = {
-                    type: MessageBoardMessageType.PLAYER_CONSIDERS_ACTION,
+                    type: MessageBoardMessageType.PLAYER_CONSIDERS_MOVEMENT,
                     playerConsideredActions:
                         gameEngineState.battleOrchestratorState.battleState
                             .playerConsideredActions,
@@ -319,15 +363,7 @@ export const PlayerSelectionService = {
                         gameEngineState.battleOrchestratorState.battleState
                             .battleActionDecisionStep,
                     objectRepository: gameEngineState.repository,
-                    useAction: {
-                        isEndTurn: false,
-                        actionTemplateId: undefined,
-                        movement: context.movement,
-                    },
-                    cancelAction: {
-                        movement: context.movement == undefined,
-                        actionTemplate: context.movement != undefined,
-                    },
+                    movementDecision: context.movement,
                 }
                 gameEngineState.messageBoard.sendMessage(messageSent)
                 return PlayerSelectionChangesService.new({ messageSent })
@@ -469,7 +505,7 @@ const playerSelectsAnAction = ({
         BattleActionDecisionStepService.getActor(
             actionBuilderState
         ).battleSquaddieId
-    const { mapCoordinate } = MissionMapService.getByBattleSquaddieId(
+    const { currentMapCoordinate } = MissionMapService.getByBattleSquaddieId(
         gameEngineState.battleOrchestratorState.battleState.missionMap,
         battleSquaddieId
     )
@@ -488,7 +524,7 @@ const playerSelectsAnAction = ({
         messageBoard: gameEngineState.messageBoard,
         actionTemplateId: context.actionTemplateId,
         battleSquaddieId: context.actorBattleSquaddieId,
-        mapStartingCoordinate: mapCoordinate,
+        mapStartingCoordinate: currentMapCoordinate,
     }
 
     gameEngineState.messageBoard.sendMessage(messageSent)
@@ -1257,11 +1293,9 @@ class PlayerConsidersMovementForSelectedSquaddie implements BehaviorTreeTask {
             )
         )
 
-        const { unallocatedActionPoints } =
-            SquaddieService.getNumberOfActionPoints({
-                battleSquaddie,
-                squaddieTemplate,
-            })
+        const { unSpentActionPoints } = SquaddieService.getActionPointSpend({
+            battleSquaddie,
+        })
 
         const closestRoute =
             BattleSquaddieSelectorService.getClosestRouteForSquaddieToReachDestination(
@@ -1276,7 +1310,7 @@ class PlayerConsidersMovementForSelectedSquaddie implements BehaviorTreeTask {
                     actionPointsRemaining:
                         squaddieTemplate.squaddieId.affiliation ===
                         SquaddieAffiliation.PLAYER
-                            ? unallocatedActionPoints
+                            ? unSpentActionPoints
                             : 0,
                     stopCoordinate: coordinate,
                 }

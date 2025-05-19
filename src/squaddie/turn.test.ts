@@ -6,7 +6,6 @@ import {
 import { ActionEffectTemplateService } from "../action/template/actionEffectTemplate"
 import { ActionResourceCostService } from "../action/actionResourceCost"
 import { beforeEach, describe, expect, it } from "vitest"
-import { PlayerConsideredActionsService } from "../battle/battleState/playerConsideredActions"
 import {
     ObjectRepository,
     ObjectRepositoryService,
@@ -17,6 +16,7 @@ import { SquaddieAffiliation } from "./squaddieAffiliation"
 import {
     ActionPerformFailureReason,
     DEFAULT_ACTION_POINTS_PER_TURN,
+    SquaddieTurn,
     SquaddieTurnService,
 } from "./turn"
 import { InBattleAttributesService } from "../battle/stats/inBattleAttributes"
@@ -59,16 +59,11 @@ describe("SquaddieTurn and resources", () => {
 
     describe("action points before and after the phase", () => {
         it("is created with 3 action points", () => {
-            expect(battleSquaddie.squaddieTurn.unallocatedActionPoints).toBe(3)
-        })
-
-        it("should give refresh action points at the end of a round", () => {
-            SquaddieTurnService.spendActionPointsAndReservedPoints({
-                data: battleSquaddie.squaddieTurn,
-                actionTemplate: actionSpends2ActionPoints,
-            })
-            SquaddieTurnService.refreshActionPoints(battleSquaddie.squaddieTurn)
-            expect(battleSquaddie.squaddieTurn.unallocatedActionPoints).toBe(3)
+            expect(
+                SquaddieTurnService.getActionPointsThatCouldBeSpentOnMovement(
+                    battleSquaddie.squaddieTurn
+                )
+            ).toBe(DEFAULT_ACTION_POINTS_PER_TURN)
         })
     })
 
@@ -85,25 +80,44 @@ describe("SquaddieTurn and resources", () => {
                     }),
                 ],
             })
-            SquaddieTurnService.spendActionPointsAndReservedPoints({
-                data: battleSquaddie.squaddieTurn,
+            SquaddieTurnService.spendPreviewedMovementActionPointsToRefundable({
+                squaddieTurn: battleSquaddie.squaddieTurn,
+            })
+            SquaddieTurnService.setSpentMovementActionPointsAsNotRefundable({
+                squaddieTurn: battleSquaddie.squaddieTurn,
                 actionTemplate,
             })
-            expect(battleSquaddie.squaddieTurn.unallocatedActionPoints).toBe(2)
+            expect(
+                SquaddieTurnService.getActionPointsThatCouldBeSpentOnMovement(
+                    battleSquaddie.squaddieTurn
+                )
+            ).toBe(DEFAULT_ACTION_POINTS_PER_TURN - 1)
         })
         it("should spend multiple action points if action uses more", () => {
-            SquaddieTurnService.spendActionPointsAndReservedPoints({
-                data: battleSquaddie.squaddieTurn,
+            SquaddieTurnService.spendPreviewedMovementActionPointsToRefundable({
+                squaddieTurn: battleSquaddie.squaddieTurn,
+            })
+
+            SquaddieTurnService.setSpentMovementActionPointsAsNotRefundable({
+                squaddieTurn: battleSquaddie.squaddieTurn,
                 actionTemplate: actionSpends2ActionPoints,
             })
-            expect(battleSquaddie.squaddieTurn.unallocatedActionPoints).toBe(1)
+            expect(
+                SquaddieTurnService.getActionPointsThatCouldBeSpentOnMovement(
+                    battleSquaddie.squaddieTurn
+                )
+            ).toBe(DEFAULT_ACTION_POINTS_PER_TURN - 2)
         })
     })
 
     describe("canPerformAction", () => {
         it("should report when an action cannot be performed because it lacks action points", () => {
-            SquaddieTurnService.spendActionPointsAndReservedPoints({
-                data: battleSquaddie.squaddieTurn,
+            SquaddieTurnService.spendPreviewedMovementActionPointsToRefundable({
+                squaddieTurn: battleSquaddie.squaddieTurn,
+            })
+
+            SquaddieTurnService.setSpentMovementActionPointsAsNotRefundable({
+                squaddieTurn: battleSquaddie.squaddieTurn,
                 actionTemplate: actionSpends2ActionPoints,
             })
             const query = SquaddieTurnService.canPerformAction({
@@ -115,37 +129,36 @@ describe("SquaddieTurn and resources", () => {
                 ActionPerformFailureReason.TOO_FEW_ACTIONS_REMAINING
             )
         })
-        it("should report when an action can be performed but there are too many action points considered", () => {
-            const playerConsideredActions = PlayerConsideredActionsService.new()
-            playerConsideredActions.movement = {
-                actionPointCost: 2,
-                coordinates: [],
-                destination: { q: 0, r: 0 },
-            }
-
+        it("cannot perform the action because it would have to spend too many points on movement", () => {
+            SquaddieTurnService.spendPreviewedMovementActionPointsToRefundable({
+                squaddieTurn: battleSquaddie.squaddieTurn,
+            })
+            SquaddieTurnService.setSpentMovementActionPointsAsNotRefundable({
+                squaddieTurn: battleSquaddie.squaddieTurn,
+                actionTemplate: actionSpends2ActionPoints,
+            })
             const query = SquaddieTurnService.canPerformAction({
                 actionTemplate: actionSpends2ActionPoints,
-                playerConsideredActions,
-                objectRepository,
+                battleSquaddie,
+            })
+            expect(query.canPerform).toBeFalsy()
+            expect(query.reason).toBe(
+                ActionPerformFailureReason.TOO_FEW_ACTIONS_REMAINING
+            )
+        })
+        it("should report when an action can be performed but there are too many action points previewed", () => {
+            SquaddieTurnService.setMovementActionPointsPreviewedByPlayer({
+                squaddieTurn: battleSquaddie.squaddieTurn,
+                actionPoints: 2,
+            })
+            const query = SquaddieTurnService.canPerformAction({
+                actionTemplate: actionSpends2ActionPoints,
                 battleSquaddie,
             })
             expect(query.canPerform).toBeTruthy()
             expect(query.reason).toBe(
                 ActionPerformFailureReason.CAN_PERFORM_BUT_TOO_MANY_CONSIDERED_ACTION_POINTS
             )
-        })
-        it("should report when an action can be performed even if too many points are considered because this action is considered", () => {
-            const playerConsideredActions = PlayerConsideredActionsService.new()
-            playerConsideredActions.actionTemplateId =
-                actionSpends2ActionPoints.id
-
-            const query = SquaddieTurnService.canPerformAction({
-                actionTemplate: actionSpends2ActionPoints,
-                playerConsideredActions,
-                objectRepository,
-                battleSquaddie,
-            })
-            expect(query.canPerform).toBeTruthy()
         })
         it("should report when an action cannot be performed because it is on cooldown", () => {
             InBattleAttributesService.addActionCooldown({
@@ -165,52 +178,209 @@ describe("SquaddieTurn and resources", () => {
         })
     })
 
-    describe("spend action points on movement", () => {
-        it("can spend action points on movement", () => {
-            SquaddieTurnService.spendActionPointsForMovement({
-                squaddieTurn: battleSquaddie.squaddieTurn,
-                actionPoints: 1,
-            })
+    describe("movement action points", () => {
+        it("can spend movement points for moving the squaddie", () => {
+            SquaddieTurnService.setMovementActionPointsSpentAndCannotBeRefunded(
+                {
+                    squaddieTurn: battleSquaddie.squaddieTurn,
+                    actionPoints: 1,
+                }
+            )
             expect(
-                SquaddieTurnService.getActionPointsReservedForMovement(
+                SquaddieTurnService.getMovementActionPointsSpentAndCannotBeRefunded(
                     battleSquaddie.squaddieTurn
                 )
             ).toBe(1)
             expect(
-                SquaddieTurnService.getUnallocatedActionPoints(
+                SquaddieTurnService.getActionPointsThatCouldBeSpentOnMovement(
+                    battleSquaddie.squaddieTurn
+                )
+            ).toBe(2)
+            SquaddieTurnService.spendPreviewedMovementActionPointsToRefundable({
+                squaddieTurn: battleSquaddie.squaddieTurn,
+            })
+            SquaddieTurnService.setSpentMovementActionPointsAsNotRefundable({
+                squaddieTurn: battleSquaddie.squaddieTurn,
+                actionTemplate: actionSpends2ActionPoints,
+            })
+            expect(
+                SquaddieTurnService.getActionPointsThatCouldBeSpentOnMovement(
+                    battleSquaddie.squaddieTurn
+                )
+            ).toBe(0)
+            expect(
+                SquaddieTurnService.getActionPointsThatCouldBeSpentOnMovement(
+                    battleSquaddie.squaddieTurn
+                )
+            ).toBe(0)
+        })
+        it("can set aside action points to preview movement that will not cost action points", () => {
+            SquaddieTurnService.setMovementActionPointsPreviewedByPlayer({
+                squaddieTurn: battleSquaddie.squaddieTurn,
+                actionPoints: 1,
+            })
+            expect(
+                SquaddieTurnService.getMovementActionPointsSpentAndCannotBeRefunded(
+                    battleSquaddie.squaddieTurn
+                )
+            ).toBe(0)
+            expect(
+                SquaddieTurnService.getMovementActionPointsPreviewedByPlayer(
+                    battleSquaddie.squaddieTurn
+                )
+            ).toBe(1)
+            expect(
+                SquaddieTurnService.getActionPointsThatCouldBeSpentOnMovement(
+                    battleSquaddie.squaddieTurn
+                )
+            ).toBe(DEFAULT_ACTION_POINTS_PER_TURN)
+            expect(
+                SquaddieTurnService.getActionPointsThatCouldBeSpentOnMovement(
+                    battleSquaddie.squaddieTurn
+                )
+            ).toBe(DEFAULT_ACTION_POINTS_PER_TURN)
+        })
+        it("can spend previewed movement action points and make the refundable", () => {
+            SquaddieTurnService.setMovementActionPointsPreviewedByPlayer({
+                squaddieTurn: battleSquaddie.squaddieTurn,
+                actionPoints: 1,
+            })
+            SquaddieTurnService.spendPreviewedMovementActionPointsToRefundable({
+                squaddieTurn: battleSquaddie.squaddieTurn,
+            })
+            expect(
+                SquaddieTurnService.getMovementActionPointsPreviewedByPlayer(
+                    battleSquaddie.squaddieTurn
+                )
+            ).toBe(0)
+            expect(
+                SquaddieTurnService.getMovementActionPointsSpentButCanBeRefunded(
+                    battleSquaddie.squaddieTurn
+                )
+            ).toBe(1)
+            expect(
+                SquaddieTurnService.getMovementActionPointsSpentAndCannotBeRefunded(
+                    battleSquaddie.squaddieTurn
+                )
+            ).toBe(0)
+            expect(
+                SquaddieTurnService.getActionPointSpend(
+                    battleSquaddie.squaddieTurn
+                ).unSpentActionPoints
+            ).toBe(2)
+            expect(
+                SquaddieTurnService.getActionPointsThatCouldBeSpentOnMovement(
+                    battleSquaddie.squaddieTurn
+                )
+            ).toBe(2 + 1)
+        })
+        it("can convert spent movement action points so they cannot be refunded", () => {
+            SquaddieTurnService.setMovementActionPointsPreviewedByPlayer({
+                squaddieTurn: battleSquaddie.squaddieTurn,
+                actionPoints: 1,
+            })
+            SquaddieTurnService.spendPreviewedMovementActionPointsToRefundable({
+                squaddieTurn: battleSquaddie.squaddieTurn,
+            })
+            SquaddieTurnService.setSpentMovementActionPointsAsNotRefundable({
+                squaddieTurn: battleSquaddie.squaddieTurn,
+            })
+            expect(
+                SquaddieTurnService.getMovementActionPointsSpentButCanBeRefunded(
+                    battleSquaddie.squaddieTurn
+                )
+            ).toBe(0)
+            expect(
+                SquaddieTurnService.getMovementActionPointsSpentAndCannotBeRefunded(
+                    battleSquaddie.squaddieTurn
+                )
+            ).toBe(1)
+            expect(
+                SquaddieTurnService.getActionPointsThatCouldBeSpentOnMovement(
                     battleSquaddie.squaddieTurn
                 )
             ).toBe(2)
             expect(
-                SquaddieTurnService.hasActionPointsRemaining(
+                SquaddieTurnService.getActionPointsThatCouldBeSpentOnMovement(
                     battleSquaddie.squaddieTurn
                 )
-            ).toBeTruthy()
+            ).toBe(2)
         })
     })
 
     describe("end turn", () => {
         it("will not have action points after ending its turn", () => {
             SquaddieTurnService.endTurn(battleSquaddie.squaddieTurn)
+            expect(battleSquaddie.squaddieTurn.endTurn).toBe(true)
             expect(
-                SquaddieTurnService.hasActionPointsRemaining(
+                SquaddieTurnService.getActionPointsThatCouldBeSpentOnMovement(
                     battleSquaddie.squaddieTurn
                 )
-            ).toBeFalsy()
-            expect(battleSquaddie.squaddieTurn.unallocatedActionPoints).toBe(0)
+            ).toBe(0)
+            expect(
+                SquaddieTurnService.getMovementActionPointsSpentButCanBeRefunded(
+                    battleSquaddie.squaddieTurn
+                )
+            ).toBe(0)
+            expect(
+                SquaddieTurnService.getMovementActionPointsSpentAndCannotBeRefunded(
+                    battleSquaddie.squaddieTurn
+                )
+            ).toBe(DEFAULT_ACTION_POINTS_PER_TURN)
+            expect(
+                SquaddieTurnService.getActionPointSpend(
+                    battleSquaddie.squaddieTurn
+                ).unSpentActionPoints
+            ).toBe(0)
         })
     })
 
     describe("begin new turn", () => {
         it("will regain its action points", () => {
             SquaddieTurnService.endTurn(battleSquaddie.squaddieTurn)
-            expect(battleSquaddie.squaddieTurn.unallocatedActionPoints).toEqual(
-                0
+            SquaddieTurnService.setMovementActionPointsSpentAndCannotBeRefunded(
+                {
+                    squaddieTurn: battleSquaddie.squaddieTurn,
+                    actionPoints: 1,
+                }
             )
+
             SquaddieTurnService.beginNewTurn(battleSquaddie.squaddieTurn)
-            expect(battleSquaddie.squaddieTurn.unallocatedActionPoints).toEqual(
-                DEFAULT_ACTION_POINTS_PER_TURN
+            expect(battleSquaddie.squaddieTurn.endTurn).toBe(false)
+            expect(battleSquaddie.squaddieTurn.actionTemplatePoints).toBe(0)
+            expect(
+                battleSquaddie.squaddieTurn.movementActionPoints
+                    .previewedByPlayer
+            ).toBe(0)
+            expect(
+                battleSquaddie.squaddieTurn.movementActionPoints
+                    .spentAndCannotBeRefunded
+            ).toBe(0)
+            expect(
+                battleSquaddie.squaddieTurn.movementActionPoints
+                    .spentButCanBeRefunded
+            ).toBe(0)
+        })
+    })
+
+    describe("get action point spend", () => {
+        it("returns the number of action points and preview movement points", () => {
+            let squaddieTurn: SquaddieTurn = SquaddieTurnService.new()
+            let { unSpentActionPoints, movementActionPoints } =
+                SquaddieTurnService.getActionPointSpend(squaddieTurn)
+            expect(unSpentActionPoints).toBe(3)
+            expect(movementActionPoints.previewedByPlayer).toBe(0)
+
+            SquaddieTurnService.setMovementActionPointsSpentAndCannotBeRefunded(
+                {
+                    squaddieTurn: squaddieTurn,
+                    actionPoints: 1,
+                }
             )
+            ;({ unSpentActionPoints, movementActionPoints } =
+                SquaddieTurnService.getActionPointSpend(squaddieTurn))
+            expect(unSpentActionPoints).toBe(2)
+            expect(movementActionPoints.previewedByPlayer).toBe(0)
         })
     })
 })

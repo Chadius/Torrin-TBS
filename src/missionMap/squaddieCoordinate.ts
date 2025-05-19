@@ -3,7 +3,8 @@ import { HexCoordinate } from "../hexMap/hexCoordinate/hexCoordinate"
 export interface MissionMapSquaddieCoordinate {
     battleSquaddieId: string
     squaddieTemplateId: string
-    mapCoordinate: HexCoordinate
+    currentMapCoordinate: HexCoordinate
+    originMapCoordinate: HexCoordinate
 }
 
 export const MissionMapSquaddieCoordinateService = {
@@ -13,7 +14,8 @@ export const MissionMapSquaddieCoordinateService = {
         return {
             squaddieTemplateId: datum.squaddieTemplateId,
             battleSquaddieId: datum.battleSquaddieId,
-            mapCoordinate: datum.mapCoordinate,
+            currentMapCoordinate: datum.currentMapCoordinate,
+            originMapCoordinate: datum.originMapCoordinate,
         }
     },
     isValid: (data: MissionMapSquaddieCoordinate): boolean => {

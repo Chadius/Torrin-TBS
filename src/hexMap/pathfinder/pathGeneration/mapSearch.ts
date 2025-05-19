@@ -40,37 +40,43 @@ import { AttributeType } from "../../../squaddie/attribute/attributeType"
 export const MapSearchService = {
     calculateAllPossiblePathsFromStartingCoordinate: ({
         missionMap,
-        startCoordinate,
+        originMapCoordinate,
+        currentMapCoordinate,
         searchLimit,
         objectRepository,
     }: {
         missionMap: MissionMap
-        startCoordinate: HexCoordinate
+        originMapCoordinate: HexCoordinate
+        currentMapCoordinate: HexCoordinate
         searchLimit: SearchLimit
         objectRepository: ObjectRepository
     }): SearchResult =>
         calculateAllPossiblePathsFromStartingCoordinate({
             missionMap,
-            startCoordinate,
+            originMapCoordinate,
+            currentMapCoordinate,
             searchLimit,
             objectRepository,
         }),
     calculatePathsToDestinations: ({
         missionMap,
-        startCoordinate,
+        originMapCoordinate,
+        currentMapCoordinate,
         searchLimit,
         destinationCoordinates,
         objectRepository,
     }: {
         missionMap: MissionMap
         searchLimit: SearchLimit
-        startCoordinate: HexCoordinate
+        originMapCoordinate: HexCoordinate
+        currentMapCoordinate: HexCoordinate
         objectRepository: ObjectRepository
         destinationCoordinates: HexCoordinate[]
     }): SearchResult => {
         return calculateAllPossiblePathsFromStartingCoordinate({
             missionMap,
-            startCoordinate,
+            originMapCoordinate,
+            currentMapCoordinate,
             searchLimit,
             objectRepository,
             destinationCoordinates,
@@ -80,13 +86,15 @@ export const MapSearchService = {
 
 const calculateAllPossiblePathsFromStartingCoordinate = ({
     missionMap,
-    startCoordinate,
+    originMapCoordinate,
+    currentMapCoordinate,
     searchLimit,
     objectRepository,
     destinationCoordinates,
 }: {
     missionMap: MissionMap
-    startCoordinate: HexCoordinate
+    originMapCoordinate: HexCoordinate
+    currentMapCoordinate: HexCoordinate
     searchLimit: SearchLimit
     objectRepository: ObjectRepository
     destinationCoordinates?: HexCoordinate[]
@@ -101,10 +109,16 @@ const calculateAllPossiblePathsFromStartingCoordinate = ({
               )
             : undefined
 
+    const battleSquaddieAtStartCoordinate = getSquaddieAtStartCoordinate({
+        missionMap: missionMap,
+        startCoordinate: currentMapCoordinate,
+        objectRepository: objectRepository,
+    })?.battleSquaddie
+
     const allPossiblePaths: {
         [key: string]: SearchConnection<HexCoordinate>[]
     } = NodeArrayAStarPathfinder.getPathsToAllReachableNodes({
-        startNode: startCoordinate,
+        startNode: originMapCoordinate,
         graph: convertTerrainTileMapToSearchGraph({
             tiles: missionMap.terrainTileMap,
             searchLimit,
@@ -117,11 +131,8 @@ const calculateAllPossiblePathsFromStartingCoordinate = ({
                 searchLimit,
                 missionMap,
                 objectRepository,
-                battleSquaddieAtStartCoordinate: getSquaddieAtStartCoordinate({
-                    missionMap: missionMap,
-                    startCoordinate: startCoordinate,
-                    objectRepository: objectRepository,
-                })?.battleSquaddie,
+                battleSquaddieAtStartCoordinate:
+                    battleSquaddieAtStartCoordinate,
             }),
         earlyStopSearchingCondition: (
             nodeRecord: SearchNodeRecord<HexCoordinate>
@@ -141,11 +152,12 @@ const calculateAllPossiblePathsFromStartingCoordinate = ({
         searchLimit,
         allPossiblePaths: allPossiblePaths,
         missionMap,
+        battleSquaddieAtStartCoordinate,
     })
 
     return addStopCoordinatesAndNoMovementPaths({
         allPossiblePaths: postFilteredPaths,
-        startCoordinate,
+        startCoordinate: originMapCoordinate,
     })
 }
 
@@ -317,10 +329,12 @@ const filterCoordinatesYouCannotStopOn = ({
     allPossiblePaths,
     missionMap,
     searchLimit,
+    battleSquaddieAtStartCoordinate,
 }: {
     allPossiblePaths: { [_: string]: SearchConnection<HexCoordinate>[] }
     missionMap: MissionMap
     searchLimit: SearchLimit
+    battleSquaddieAtStartCoordinate: BattleSquaddie
 }) => {
     const pathsToKeep = Object.values(allPossiblePaths)
         .filter((possiblePath) => possiblePath.length > 0)
@@ -347,6 +361,7 @@ const filterCoordinatesYouCannotStopOn = ({
                 path: possiblePath,
                 searchLimit,
                 missionMap,
+                battleSquaddieAtStartCoordinate,
             })
         )
 
@@ -421,17 +436,22 @@ const canStopBecauseThereIsNoSquaddie = ({
     path,
     searchLimit,
     missionMap,
+    battleSquaddieAtStartCoordinate,
 }: {
     path: SearchConnection<HexCoordinate>[]
     searchLimit: SearchLimit
     missionMap: MissionMap
+    battleSquaddieAtStartCoordinate: BattleSquaddie
 }): boolean => {
+    const squaddieAtEndOfPath = MissionMapService.getBattleSquaddieAtCoordinate(
+        missionMap,
+        SearchPathAdapterService.getHead(path)
+    ).battleSquaddieId
+
     return (
         searchLimit.canStopOnSquaddies ||
-        !MissionMapService.getBattleSquaddieAtCoordinate(
-            missionMap,
-            SearchPathAdapterService.getHead(path)
-        ).battleSquaddieId
+        !squaddieAtEndOfPath ||
+        squaddieAtEndOfPath === battleSquaddieAtStartCoordinate.battleSquaddieId
     )
 }
 

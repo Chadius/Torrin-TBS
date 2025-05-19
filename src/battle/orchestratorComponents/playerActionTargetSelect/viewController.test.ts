@@ -156,7 +156,7 @@ describe("Player Action Target Select View Controller", () => {
             missionMap: missionMap,
             squaddieTemplateId: knightBattleSquaddie.squaddieTemplateId,
             battleSquaddieId: knightBattleSquaddie.battleSquaddieId,
-            coordinate: { q: 1, r: 1 },
+            originMapCoordinate: { q: 1, r: 1 },
         })
         ;({ battleSquaddie: citizenBattleSquaddie } =
             SquaddieRepositoryService.createNewSquaddieAndAddToRepository({
@@ -171,7 +171,7 @@ describe("Player Action Target Select View Controller", () => {
             missionMap: missionMap,
             squaddieTemplateId: citizenBattleSquaddie.squaddieTemplateId,
             battleSquaddieId: citizenBattleSquaddie.battleSquaddieId,
-            coordinate: { q: 0, r: 1 },
+            originMapCoordinate: { q: 0, r: 1 },
         })
         ;({ battleSquaddie: thiefBattleSquaddie } =
             SquaddieRepositoryService.createNewSquaddieAndAddToRepository({
@@ -193,7 +193,7 @@ describe("Player Action Target Select View Controller", () => {
             missionMap: missionMap,
             squaddieTemplateId: thiefBattleSquaddie.squaddieTemplateId,
             battleSquaddieId: thiefBattleSquaddie.battleSquaddieId,
-            coordinate: { q: 1, r: 2 },
+            originMapCoordinate: { q: 1, r: 2 },
         })
         ;({ battleSquaddie: thief2BattleSquaddie } =
             SquaddieRepositoryService.createNewSquaddieAndAddToRepository({
@@ -215,7 +215,7 @@ describe("Player Action Target Select View Controller", () => {
             missionMap: missionMap,
             squaddieTemplateId: thief2BattleSquaddie.squaddieTemplateId,
             battleSquaddieId: thief2BattleSquaddie.battleSquaddieId,
-            coordinate: { q: 1, r: 0 },
+            originMapCoordinate: { q: 1, r: 0 },
         })
 
         BattleActionDecisionStepService.setActor({
@@ -258,16 +258,17 @@ describe("Player Action Target Select View Controller", () => {
                     .battleActionDecisionStep,
             actionTemplateId: longswordAction.id,
         })
-        const { mapCoordinate } = MissionMapService.getByBattleSquaddieId(
-            missionMap,
-            thiefBattleSquaddie.battleSquaddieId
-        )
+        const { currentMapCoordinate } =
+            MissionMapService.getByBattleSquaddieId(
+                missionMap,
+                thiefBattleSquaddie.battleSquaddieId
+            )
 
         BattleActionDecisionStepService.setConsideredTarget({
             actionDecisionStep:
                 playerActionTargetSelectViewController.componentData.getContext()
                     .battleActionDecisionStep,
-            targetCoordinate: mapCoordinate,
+            targetCoordinate: currentMapCoordinate,
         })
         playerActionTargetSelectViewController.componentData.setContext({
             ...playerActionTargetSelectViewController.componentData.getContext(),
@@ -280,7 +281,7 @@ describe("Player Action Target Select View Controller", () => {
                     .targetResults,
                 validTargets: {
                     [thiefBattleSquaddie.battleSquaddieId]: {
-                        mapCoordinate: { q: 1, r: 2 },
+                        currentMapCoordinate: { q: 1, r: 2 },
                     },
                 },
             },
@@ -833,21 +834,21 @@ describe("Player Action Target Select View Controller", () => {
                     MissionMapService.getByBattleSquaddieId(
                         missionMap,
                         thiefBattleSquaddie.battleSquaddieId
-                    ).mapCoordinate
+                    ).currentMapCoordinate
                 playerActionTargetSelectViewController.componentData.getContext().targetResults.validTargets[
                     thiefBattleSquaddie.battleSquaddieId
                 ] = {
-                    mapCoordinate: thiefMapCoordinate,
+                    currentMapCoordinate: thiefMapCoordinate,
                 }
                 const thief2MapCoordinate =
                     MissionMapService.getByBattleSquaddieId(
                         missionMap,
                         thief2BattleSquaddie.battleSquaddieId
-                    ).mapCoordinate
+                    ).currentMapCoordinate
                 playerActionTargetSelectViewController.componentData.getContext().targetResults.validTargets[
                     thief2BattleSquaddie.battleSquaddieId
                 ] = {
-                    mapCoordinate: thief2MapCoordinate,
+                    currentMapCoordinate: thief2MapCoordinate,
                 }
                 playerActionTargetSelectViewController.componentData
                     .getContext()

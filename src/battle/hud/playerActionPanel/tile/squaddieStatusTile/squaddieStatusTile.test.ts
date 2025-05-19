@@ -561,6 +561,51 @@ describe("Squaddie Status Tile", () => {
         let battleSquaddie: BattleSquaddie
         let actionCosts1ActionPoint: ActionTemplate
 
+        const drawActionPointBarAndGetValues = () => {
+            const tile = SquaddieStatusTileService.new({
+                gameEngineState,
+                battleSquaddieId: "battleJoeTheSoldier",
+                horizontalPosition: ActionTilePosition.ACTOR_STATUS,
+            })
+
+            SquaddieStatusTileService.updateTileUsingSquaddie({
+                tile,
+                missionMap:
+                    gameEngineState.battleOrchestratorState.battleState
+                        .missionMap,
+                playerConsideredActions:
+                    gameEngineState.battleOrchestratorState.battleState
+                        .playerConsideredActions,
+                battleActionDecisionStep:
+                    gameEngineState.battleOrchestratorState.battleState
+                        .battleActionDecisionStep,
+                objectRepository: gameEngineState.repository,
+            })
+
+            SquaddieStatusTileService.draw({
+                tile,
+                graphicsContext: mockP5GraphicsContext,
+                resourceHandler,
+            })
+
+            const uiObjects = DataBlobService.get<SquaddieStatusTileUIObjects>(
+                tile.data,
+                "uiObjects"
+            )
+
+            const dataBlob = uiObjects.actionPoints.actionPointMeterDataBlob
+            return {
+                currentValue: DataBlobService.get<number>(
+                    dataBlob,
+                    "currentValue"
+                ),
+                highlightedValue: DataBlobService.get<number>(
+                    dataBlob,
+                    "highlightedValue"
+                ),
+            }
+        }
+
         beforeEach(() => {
             const squaddieTemplate = SquaddieTemplateService.new({
                 squaddieId: SquaddieIdService.new({
@@ -602,11 +647,21 @@ describe("Squaddie Status Tile", () => {
                 battleSquaddieId: "battleJoeTheSoldier",
             })
         })
-        it("should draw the current number of action points", () => {
-            SquaddieTurnService.spendActionPointsForMovement({
+        it("should text the number of action points based on the number of spent points that cannot be refunded", () => {
+            SquaddieTurnService.setMovementActionPointsPreviewedByPlayer({
                 squaddieTurn: battleSquaddie.squaddieTurn,
                 actionPoints: 1,
             })
+            SquaddieTurnService.setMovementActionPointsSpentButCanBeRefunded({
+                squaddieTurn: battleSquaddie.squaddieTurn,
+                actionPoints: 1,
+            })
+            SquaddieTurnService.setMovementActionPointsSpentAndCannotBeRefunded(
+                {
+                    squaddieTurn: battleSquaddie.squaddieTurn,
+                    actionPoints: 2,
+                }
+            )
             const tile = SquaddieStatusTileService.new({
                 gameEngineState,
                 battleSquaddieId: "battleJoeTheSoldier",
@@ -633,18 +688,35 @@ describe("Squaddie Status Tile", () => {
             })
 
             expect(graphicsBufferSpies["text"]).toBeCalledWith(
-                expect.stringMatching(`AP 2`),
+                expect.stringMatching(`AP 1`),
                 expect.anything(),
                 expect.anything(),
                 expect.anything(),
                 expect.anything()
             )
         })
-        it("should draw a meter representing the current action points when the user considers an action", () => {
-            SquaddieTurnService.spendActionPointsForMovement({
-                squaddieTurn: battleSquaddie.squaddieTurn,
-                actionPoints: 1,
-            })
+        it("should empty the meter when player considers ending the turn", () => {
+            SquaddieTurnService.setMovementActionPointsSpentAndCannotBeRefunded(
+                {
+                    squaddieTurn: battleSquaddie.squaddieTurn,
+                    actionPoints: 2,
+                }
+            )
+            gameEngineState.battleOrchestratorState.battleState.playerConsideredActions.endTurn =
+                true
+            const { currentValue, highlightedValue } =
+                drawActionPointBarAndGetValues()
+            expect(currentValue).toEqual(1)
+            expect(highlightedValue).toEqual(1)
+        })
+
+        it("should draw a meter representing the current action points when the user considers an action after previewing movement", () => {
+            SquaddieTurnService.setMovementActionPointsSpentAndCannotBeRefunded(
+                {
+                    squaddieTurn: battleSquaddie.squaddieTurn,
+                    actionPoints: 1,
+                }
+            )
             gameEngineState.battleOrchestratorState.battleState.playerConsideredActions.actionTemplateId =
                 "action costs 1 action point"
             const tile = SquaddieStatusTileService.new({
@@ -688,99 +760,78 @@ describe("Squaddie Status Tile", () => {
             expect(DataBlobService.get<number>(dataBlob, "maxValue")).toEqual(3)
         })
 
-        it("should empty the meter when player considers ending the turn", () => {
-            SquaddieTurnService.spendActionPointsForMovement({
-                squaddieTurn: battleSquaddie.squaddieTurn,
-                actionPoints: 2,
-            })
-            gameEngineState.battleOrchestratorState.battleState.playerConsideredActions.endTurn =
-                true
-            const tile = SquaddieStatusTileService.new({
-                gameEngineState,
-                battleSquaddieId: "battleJoeTheSoldier",
-                horizontalPosition: ActionTilePosition.ACTOR_STATUS,
-            })
-
-            SquaddieStatusTileService.updateTileUsingSquaddie({
-                tile,
-                missionMap:
-                    gameEngineState.battleOrchestratorState.battleState
-                        .missionMap,
-                playerConsideredActions:
-                    gameEngineState.battleOrchestratorState.battleState
-                        .playerConsideredActions,
-                battleActionDecisionStep:
-                    gameEngineState.battleOrchestratorState.battleState
-                        .battleActionDecisionStep,
-                objectRepository: gameEngineState.repository,
-            })
-
-            SquaddieStatusTileService.draw({
-                tile,
-                graphicsContext: mockP5GraphicsContext,
-                resourceHandler,
-            })
-
-            const uiObjects = DataBlobService.get<SquaddieStatusTileUIObjects>(
-                tile.data,
-                "uiObjects"
-            )
-
-            const dataBlob = uiObjects.actionPoints.actionPointMeterDataBlob
-            expect(
-                DataBlobService.get<number>(dataBlob, "currentValue")
-            ).toEqual(1)
-            expect(
-                DataBlobService.get<number>(dataBlob, "highlightedValue")
-            ).toEqual(1)
-        })
-
-        it("should mark points when player considers moving", () => {
-            gameEngineState.battleOrchestratorState.battleState.playerConsideredActions.movement =
+        describe("highlights on the action point meter while moving", () => {
+            const tests = [
                 {
-                    coordinates: [],
-                    destination: { q: 0, r: 0 },
-                    actionPointCost: 2,
+                    pointsAlreadySpent: 0,
+                    pointsThatCanBeRefunded: 0,
+                    movementPreviewCost: 2,
+                    expectedCurrentValue: 3,
+                    expectedHighlightedValue: 2,
+                },
+                {
+                    pointsAlreadySpent: 0,
+                    pointsThatCanBeRefunded: 2,
+                    movementPreviewCost: 2,
+                    expectedCurrentValue: 1,
+                    expectedHighlightedValue: 0,
+                },
+                {
+                    pointsAlreadySpent: 0,
+                    pointsThatCanBeRefunded: 2,
+                    movementPreviewCost: 2,
+                    expectedCurrentValue: 1,
+                    expectedHighlightedValue: 0,
+                },
+                {
+                    pointsAlreadySpent: 0,
+                    pointsThatCanBeRefunded: 2,
+                    movementPreviewCost: 1,
+                    expectedCurrentValue: 2,
+                    expectedHighlightedValue: 1,
+                },
+                {
+                    pointsAlreadySpent: 0,
+                    pointsThatCanBeRefunded: 2,
+                    movementPreviewCost: 3,
+                    expectedCurrentValue: 1,
+                    expectedHighlightedValue: 1,
+                },
+            ]
+
+            it.each(tests)(
+                `spend $pointsAlreadySpent + $pointsThatCanBeRefunded, preview $movementPreviewCost, expect $expectedCurrentValue with highlighted $expectedHighlightedValue`,
+                ({
+                    pointsAlreadySpent,
+                    pointsThatCanBeRefunded,
+                    movementPreviewCost,
+                    expectedCurrentValue,
+                    expectedHighlightedValue,
+                }) => {
+                    SquaddieTurnService.setMovementActionPointsSpentAndCannotBeRefunded(
+                        {
+                            squaddieTurn: battleSquaddie.squaddieTurn,
+                            actionPoints: pointsAlreadySpent,
+                        }
+                    )
+                    SquaddieTurnService.setMovementActionPointsSpentButCanBeRefunded(
+                        {
+                            squaddieTurn: battleSquaddie.squaddieTurn,
+                            actionPoints: pointsThatCanBeRefunded,
+                        }
+                    )
+                    SquaddieTurnService.setMovementActionPointsPreviewedByPlayer(
+                        {
+                            squaddieTurn: battleSquaddie.squaddieTurn,
+                            actionPoints: movementPreviewCost,
+                        }
+                    )
+                    const { currentValue, highlightedValue } =
+                        drawActionPointBarAndGetValues()
+                    expect(currentValue).toEqual(expectedCurrentValue)
+                    expect(highlightedValue).toEqual(expectedHighlightedValue)
                 }
-
-            const tile = SquaddieStatusTileService.new({
-                gameEngineState,
-                battleSquaddieId: "battleJoeTheSoldier",
-                horizontalPosition: ActionTilePosition.ACTOR_STATUS,
-            })
-
-            SquaddieStatusTileService.updateTileUsingSquaddie({
-                tile,
-                missionMap:
-                    gameEngineState.battleOrchestratorState.battleState
-                        .missionMap,
-                playerConsideredActions:
-                    gameEngineState.battleOrchestratorState.battleState
-                        .playerConsideredActions,
-                battleActionDecisionStep:
-                    gameEngineState.battleOrchestratorState.battleState
-                        .battleActionDecisionStep,
-                objectRepository: gameEngineState.repository,
-            })
-
-            SquaddieStatusTileService.draw({
-                tile,
-                graphicsContext: mockP5GraphicsContext,
-                resourceHandler,
-            })
-
-            const uiObjects = DataBlobService.get<SquaddieStatusTileUIObjects>(
-                tile.data,
-                "uiObjects"
             )
-
-            const dataBlob = uiObjects.actionPoints.actionPointMeterDataBlob
-            expect(
-                DataBlobService.get<number>(dataBlob, "currentValue")
-            ).toEqual(3)
-            expect(
-                DataBlobService.get<number>(dataBlob, "highlightedValue")
-            ).toEqual(2)
         })
     })
 
@@ -852,7 +903,7 @@ describe("Squaddie Status Tile", () => {
                 missionMap,
                 battleSquaddieId: battleSquaddie.battleSquaddieId,
                 squaddieTemplateId: battleSquaddie.squaddieTemplateId,
-                coordinate: { q: 0, r: 2 },
+                originMapCoordinate: { q: 0, r: 2 },
             })
             gameEngineState.battleOrchestratorState.battleState.missionMap =
                 missionMap

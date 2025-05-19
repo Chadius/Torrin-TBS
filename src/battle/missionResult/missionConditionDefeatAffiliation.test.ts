@@ -195,13 +195,13 @@ describe("Mission Condition: Defeat All Squaddies of a given Affiliation", () =>
             missionMap,
             squaddieTemplateId: enemy1Dynamic.squaddieTemplateId,
             battleSquaddieId: enemy1Dynamic.battleSquaddieId,
-            coordinate: { q: 0, r: 0 },
+            originMapCoordinate: { q: 0, r: 0 },
         })
         MissionMapService.addSquaddie({
             missionMap,
             squaddieTemplateId: enemy2Dynamic.squaddieTemplateId,
             battleSquaddieId: enemy2Dynamic.battleSquaddieId,
-            coordinate: { q: 0, r: 1 },
+            originMapCoordinate: { q: 0, r: 1 },
         })
         InBattleAttributesService.takeDamage({
             inBattleAttributes: enemy1Dynamic.inBattleAttributes,
@@ -230,13 +230,13 @@ describe("Mission Condition: Defeat All Squaddies of a given Affiliation", () =>
             missionMap,
             squaddieTemplateId: enemy1Dynamic.squaddieTemplateId,
             battleSquaddieId: enemy1Dynamic.battleSquaddieId,
-            coordinate: { q: 0, r: 0 },
+            originMapCoordinate: { q: 0, r: 0 },
         })
         MissionMapService.addSquaddie({
             missionMap,
             squaddieTemplateId: player1Dynamic.squaddieTemplateId,
             battleSquaddieId: player1Dynamic.battleSquaddieId,
-            coordinate: { q: 0, r: 1 },
+            originMapCoordinate: { q: 0, r: 1 },
         })
         expect(
             MissionShouldBeComplete(
@@ -269,13 +269,13 @@ describe("Mission Condition: Defeat All Squaddies of a given Affiliation", () =>
             missionMap,
             squaddieTemplateId: enemy1Dynamic.squaddieTemplateId,
             battleSquaddieId: enemy1Dynamic.battleSquaddieId,
-            coordinate: { q: 0, r: 0 },
+            originMapCoordinate: { q: 0, r: 0 },
         })
         MissionMapService.addSquaddie({
             missionMap,
             squaddieTemplateId: player1Dynamic.squaddieTemplateId,
             battleSquaddieId: player1Dynamic.battleSquaddieId,
-            coordinate: { q: 0, r: 1 },
+            originMapCoordinate: { q: 0, r: 1 },
         })
         InBattleAttributesService.takeDamage({
             inBattleAttributes: enemy1Dynamic.inBattleAttributes,

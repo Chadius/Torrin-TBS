@@ -44,23 +44,25 @@ describe("battleActionRecorder", () => {
             )
         ).toBeTruthy()
     })
-    it("can add a battle action to the ready to animate queue", () => {
-        const battleActionRecorder: BattleActionRecorder =
-            BattleActionRecorderService.new()
-        BattleActionRecorderService.addReadyToAnimateBattleAction(
-            battleActionRecorder,
-            battleActionMovement
-        )
-        expect(
-            BattleActionRecorderService.isAnimationQueueEmpty(
-                battleActionRecorder
+    describe("Adding a movement action", () => {
+        it("can add a battle action to the ready to animate queue", () => {
+            const battleActionRecorder: BattleActionRecorder =
+                BattleActionRecorderService.new()
+            BattleActionRecorderService.addReadyToAnimateBattleAction(
+                battleActionRecorder,
+                battleActionMovement
             )
-        ).toBeFalsy()
-        expect(
-            BattleActionRecorderService.peekAtAnimationQueue(
-                battleActionRecorder
-            )
-        ).toEqual(battleActionMovement)
+            expect(
+                BattleActionRecorderService.isAnimationQueueEmpty(
+                    battleActionRecorder
+                )
+            ).toBeFalsy()
+            expect(
+                BattleActionRecorderService.peekAtAnimationQueue(
+                    battleActionRecorder
+                )
+            ).toEqual(battleActionMovement)
+        })
     })
     it("can move the front of the ready to animate queue to the animated this turn list", () => {
         const battleActionRecorder: BattleActionRecorder =
@@ -69,7 +71,7 @@ describe("battleActionRecorder", () => {
             battleActionRecorder,
             battleActionMovement
         )
-        BattleActionRecorderService.battleActionFinishedAnimating(
+        BattleActionRecorderService.addAnimatingBattleActionToAlreadyAnimatedThisTurn(
             battleActionRecorder
         )
         expect(
@@ -95,7 +97,7 @@ describe("battleActionRecorder", () => {
             battleActionRecorder,
             battleActionMovement
         )
-        BattleActionRecorderService.battleActionFinishedAnimating(
+        BattleActionRecorderService.addAnimatingBattleActionToAlreadyAnimatedThisTurn(
             battleActionRecorder
         )
         BattleActionRecorderService.turnComplete(battleActionRecorder)
@@ -123,6 +125,28 @@ describe("battleActionRecorder", () => {
         expect(battleActions).toHaveLength(1)
         expect(battleActions[0]).toEqual(battleActionMovement)
     })
+    it("can remove the already animated battle action without adding it to the record", () => {
+        const battleActionRecorder: BattleActionRecorder =
+            BattleActionRecorderService.new()
+        BattleActionRecorderService.addReadyToAnimateBattleAction(
+            battleActionRecorder,
+            battleActionMovement
+        )
+        BattleActionRecorderService.dequeueBattleActionFromReadyToAnimateQueue(
+            battleActionRecorder
+        )
+
+        expect(
+            BattleActionRecorderService.isAnimationQueueEmpty(
+                battleActionRecorder
+            )
+        ).toBeTruthy()
+        expect(
+            BattleActionRecorderService.isAlreadyAnimatedQueueEmpty(
+                battleActionRecorder
+            )
+        ).toBeTruthy()
+    })
     it("knows the last animated action", () => {
         const battleActionRecorder: BattleActionRecorder =
             BattleActionRecorderService.new()
@@ -141,10 +165,10 @@ describe("battleActionRecorder", () => {
             )
         ).toBeUndefined()
 
-        BattleActionRecorderService.battleActionFinishedAnimating(
+        BattleActionRecorderService.addAnimatingBattleActionToAlreadyAnimatedThisTurn(
             battleActionRecorder
         )
-        BattleActionRecorderService.battleActionFinishedAnimating(
+        BattleActionRecorderService.addAnimatingBattleActionToAlreadyAnimatedThisTurn(
             battleActionRecorder
         )
         expect(
@@ -213,14 +237,18 @@ describe("battleActionRecorder", () => {
             original,
             endTurnBattleAction
         )
-        BattleActionRecorderService.battleActionFinishedAnimating(original)
+        BattleActionRecorderService.addAnimatingBattleActionToAlreadyAnimatedThisTurn(
+            original
+        )
         BattleActionRecorderService.turnComplete(original)
 
         BattleActionRecorderService.addReadyToAnimateBattleAction(
             original,
             actionAnimatingBattleAction
         )
-        BattleActionRecorderService.battleActionFinishedAnimating(original)
+        BattleActionRecorderService.addAnimatingBattleActionToAlreadyAnimatedThisTurn(
+            original
+        )
         BattleActionRecorderService.addReadyToAnimateBattleAction(
             original,
             readyToAnimateBattleAction

@@ -378,7 +378,7 @@ export class BattleMapDisplay implements BattleOrchestratorComponent {
                     TerrainTileMapService.isCoordinateOnMap(
                         gameEngineState.battleOrchestratorState.battleState
                             .missionMap.terrainTileMap,
-                        datum.mapCoordinate
+                        datum.currentMapCoordinate
                     )
                 const squaddieIsHidden: boolean =
                     MissionMapService.isSquaddieHiddenFromDrawing(
@@ -408,7 +408,7 @@ export class BattleMapDisplay implements BattleOrchestratorComponent {
                             graphicsContext,
                             camera: gameEngineState.battleOrchestratorState
                                 .battleState.camera,
-                            mapCoordinate: datum.mapCoordinate,
+                            mapCoordinate: datum.currentMapCoordinate,
                             circleInfo:
                                 DRAW_SQUADDIE_ICON_ON_MAP_LAYOUT.actorSquaddie,
                         }
@@ -421,7 +421,7 @@ export class BattleMapDisplay implements BattleOrchestratorComponent {
                             graphicsContext,
                             camera: gameEngineState.battleOrchestratorState
                                 .battleState.camera,
-                            mapCoordinate: datum.mapCoordinate,
+                            mapCoordinate: datum.currentMapCoordinate,
                             circleInfo:
                                 DRAW_SQUADDIE_ICON_ON_MAP_LAYOUT.targetEnemySquaddie,
                         }
@@ -432,7 +432,7 @@ export class BattleMapDisplay implements BattleOrchestratorComponent {
                         graphics: graphicsContext,
                         squaddieRepository: gameEngineState.repository,
                         battleSquaddieId,
-                        mapCoordinate: datum.mapCoordinate,
+                        mapCoordinate: datum.currentMapCoordinate,
                         camera: gameEngineState.battleOrchestratorState
                             .battleState.camera,
                         resourceHandler,

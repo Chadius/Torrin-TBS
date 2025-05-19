@@ -141,7 +141,7 @@ describe("PlayerActionTargetSelect State Machine", () => {
             missionMap,
             battleSquaddieId,
             squaddieTemplateId,
-            coordinate: { q: 0, r: 0 },
+            originMapCoordinate: { q: 0, r: 0 },
         })
 
         battleActionDecisionStep = BattleActionDecisionStepService.new()
@@ -297,7 +297,7 @@ describe("PlayerActionTargetSelect State Machine", () => {
                     missionMap,
                     battleSquaddieId: `${target}`,
                     squaddieTemplateId: `${target}`,
-                    coordinate: mapCoordinate,
+                    originMapCoordinate: mapCoordinate,
                 })
             })
 
@@ -325,9 +325,9 @@ describe("PlayerActionTargetSelect State Machine", () => {
 
             expect(context.targetResults.validTargets).toEqual(
                 expect.objectContaining({
-                    "1": { mapCoordinate: { q: 0, r: 1 } },
-                    "2": { mapCoordinate: { q: 0, r: 2 } },
-                    "3": { mapCoordinate: { q: 0, r: 3 } },
+                    "1": { currentMapCoordinate: { q: 0, r: 1 } },
+                    "2": { currentMapCoordinate: { q: 0, r: 2 } },
+                    "3": { currentMapCoordinate: { q: 0, r: 3 } },
                 })
             )
         })
@@ -462,7 +462,7 @@ describe("PlayerActionTargetSelect State Machine", () => {
                     missionMap,
                     battleSquaddieId: "ally",
                     squaddieTemplateId: "ally",
-                    coordinate: { q: 0, r: 1 },
+                    originMapCoordinate: { q: 0, r: 1 },
                 })
 
                 SquaddieRepositoryService.createNewSquaddieAndAddToRepository({
@@ -477,7 +477,7 @@ describe("PlayerActionTargetSelect State Machine", () => {
                     missionMap,
                     battleSquaddieId: "enemy",
                     squaddieTemplateId: "enemy",
-                    coordinate: { q: 0, r: 2 },
+                    originMapCoordinate: { q: 0, r: 2 },
                 })
 
                 targetingResults = new TargetingResults()
@@ -700,9 +700,9 @@ describe("PlayerActionTargetSelect State Machine", () => {
                         context: PlayerActionTargetStateMachineContext
                     ) => {
                         context.targetResults.validTargets = {
-                            "1": { mapCoordinate: { q: 0, r: 1 } },
-                            "2": { mapCoordinate: { q: 0, r: 2 } },
-                            "3": { mapCoordinate: { q: 0, r: 3 } },
+                            "1": { currentMapCoordinate: { q: 0, r: 1 } },
+                            "2": { currentMapCoordinate: { q: 0, r: 2 } },
+                            "3": { currentMapCoordinate: { q: 0, r: 3 } },
                         }
                     },
                 }
@@ -744,25 +744,25 @@ describe("PlayerActionTargetSelect State Machine", () => {
                         missionMap,
                         battleSquaddieId: "1",
                         squaddieTemplateId: "valid target",
-                        coordinate: { q: 0, r: 1 },
+                        originMapCoordinate: { q: 0, r: 1 },
                     })
                     MissionMapService.addSquaddie({
                         missionMap,
                         battleSquaddieId: "2",
                         squaddieTemplateId: "valid target",
-                        coordinate: { q: 0, r: 2 },
+                        originMapCoordinate: { q: 0, r: 2 },
                     })
                     MissionMapService.addSquaddie({
                         missionMap,
                         battleSquaddieId: "3",
                         squaddieTemplateId: "valid target",
-                        coordinate: { q: 0, r: 3 },
+                        originMapCoordinate: { q: 0, r: 3 },
                     })
                     MissionMapService.addSquaddie({
                         missionMap,
                         battleSquaddieId,
                         squaddieTemplateId,
-                        coordinate: { q: 0, r: 0 },
+                        originMapCoordinate: { q: 0, r: 0 },
                     })
 
                     messageSpy = vi.spyOn(messageBoard, "sendMessage")
@@ -864,8 +864,8 @@ describe("PlayerActionTargetSelect State Machine", () => {
                     stateMachine.currentState =
                         PlayerActionTargetStateEnum.WAITING_FOR_PLAYER_TO_SELECT_TARGET
                     context.targetResults.validTargets = {
-                        "1": { mapCoordinate: { q: 0, r: 1 } },
-                        "2": { mapCoordinate: { q: 0, r: 2 } },
+                        "1": { currentMapCoordinate: { q: 0, r: 1 } },
+                        "2": { currentMapCoordinate: { q: 0, r: 2 } },
                     }
                     stateMachine.getActionLogic(
                         PlayerActionTargetActionEnum.WAITING_FOR_PLAYER_TO_SELECT_TARGET
@@ -1058,8 +1058,8 @@ describe("PlayerActionTargetSelect State Machine", () => {
                     stateMachine.currentState =
                         PlayerActionTargetStateEnum.WAITING_FOR_PLAYER_TO_SELECT_TARGET
                     context.targetResults.validTargets = {
-                        "1": { mapCoordinate: { q: 0, r: 1 } },
-                        "2": { mapCoordinate: { q: 0, r: 2 } },
+                        "1": { currentMapCoordinate: { q: 0, r: 1 } },
+                        "2": { currentMapCoordinate: { q: 0, r: 2 } },
                     }
                     stateMachine.getActionLogic(
                         PlayerActionTargetActionEnum.WAITING_FOR_PLAYER_TO_SELECT_TARGET
@@ -1162,7 +1162,7 @@ describe("PlayerActionTargetSelect State Machine", () => {
                         context: PlayerActionTargetStateMachineContext
                     ) => {
                         context.targetResults.validTargets = {
-                            "1": { mapCoordinate: { q: 0, r: 1 } },
+                            "1": { currentMapCoordinate: { q: 0, r: 1 } },
                         }
                     },
                 }
@@ -1301,7 +1301,7 @@ describe("PlayerActionTargetSelect State Machine", () => {
             stateMachine.currentState =
                 PlayerActionTargetStateEnum.WAITING_FOR_PLAYER_CONFIRM
             context.targetResults.validTargets = {
-                "1": { mapCoordinate: { q: 0, r: 1 } },
+                "1": { currentMapCoordinate: { q: 0, r: 1 } },
             }
             stateMachine.getActionLogic(
                 PlayerActionTargetActionEnum.TRIGGER_TARGETS_AUTOMATICALLY_SELECTED
@@ -1458,7 +1458,7 @@ describe("PlayerActionTargetSelect State Machine", () => {
                 stateMachine.currentState =
                     PlayerActionTargetStateEnum.WAITING_FOR_PLAYER_CONFIRM
                 context.targetResults.validTargets = {
-                    "1": { mapCoordinate: { q: 0, r: 1 } },
+                    "1": { currentMapCoordinate: { q: 0, r: 1 } },
                 }
                 stateMachine.getActionLogic(
                     PlayerActionTargetActionEnum.TRIGGER_TARGETS_AUTOMATICALLY_SELECTED
@@ -1555,10 +1555,10 @@ describe("PlayerActionTargetSelect State Machine", () => {
             stateMachine.currentState =
                 PlayerActionTargetStateEnum.WAITING_FOR_PLAYER_TO_SELECT_TARGET
             stateMachine.context.targetResults.validTargets["1"] = {
-                mapCoordinate: { q: 0, r: 1 },
+                currentMapCoordinate: { q: 0, r: 1 },
             }
             stateMachine.context.targetResults.validTargets["2"] = {
-                mapCoordinate: { q: 0, r: 2 },
+                currentMapCoordinate: { q: 0, r: 2 },
             }
             clickOnTarget()
             let update = stateMachine.update()

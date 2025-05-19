@@ -196,7 +196,8 @@ describe("BattleSquaddieMover", () => {
                     missionMap: map,
                     objectRepository: objectRepository,
                     destinationCoordinates: [{ q: 1, r: 1 }],
-                    startCoordinate: { q: 0, r: 0 },
+                    originMapCoordinate: { q: 0, r: 0 },
+                    currentMapCoordinate: { q: 0, r: 0 },
                     searchLimit: SearchLimitService.new({
                         baseSearchLimit: SearchLimitService.landBasedMovement(),
                         canStopOnSquaddies: true,
@@ -241,7 +242,7 @@ describe("BattleSquaddieMover", () => {
                     missionMap: map,
                     squaddieTemplateId: "player_1",
                     battleSquaddieId: "player_1",
-                    coordinate: { q: 0, r: 0 },
+                    originMapCoordinate: { q: 0, r: 0 },
                 })
 
                 let mockResourceHandler = mocks.mockResourceHandler(
@@ -324,7 +325,7 @@ const moveSquaddieAndGetGameEngineState = ({
         missionMap: missionMap,
         squaddieTemplateId,
         battleSquaddieId,
-        coordinate: startCoordinate,
+        originMapCoordinate: startCoordinate,
     })
 
     const searchResults: SearchResult =
@@ -332,7 +333,8 @@ const moveSquaddieAndGetGameEngineState = ({
             missionMap,
             objectRepository: objectRepository,
             destinationCoordinates: [endCoordinate],
-            startCoordinate,
+            originMapCoordinate: startCoordinate,
+            currentMapCoordinate: startCoordinate,
             searchLimit: SearchLimitService.new({
                 baseSearchLimit: SearchLimitService.landBasedMovement(),
                 canStopOnSquaddies: true,

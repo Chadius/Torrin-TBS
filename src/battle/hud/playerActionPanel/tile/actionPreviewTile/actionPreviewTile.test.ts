@@ -154,14 +154,14 @@ describe("Action Preview Tile", () => {
                 missionMap,
                 battleSquaddieId: "player_0",
                 squaddieTemplateId: "player_0",
-                coordinate: { q: 0, r: 0 },
+                originMapCoordinate: { q: 0, r: 0 },
             })
 
             MissionMapService.addSquaddie({
                 missionMap,
                 battleSquaddieId: "enemy_0",
                 squaddieTemplateId: "enemy name",
-                coordinate: { q: 0, r: 1 },
+                originMapCoordinate: { q: 0, r: 1 },
             })
 
             gameEngineState = GameEngineStateService.new({
@@ -599,7 +599,7 @@ describe("Action Preview Tile", () => {
                     missionMap,
                     battleSquaddieId: "player_0",
                     squaddieTemplateId: "player_0",
-                    coordinate: { q: 0, r: 0 },
+                    originMapCoordinate: { q: 0, r: 0 },
                 })
                 gameEngineState = GameEngineStateService.new({
                     resourceHandler: undefined,

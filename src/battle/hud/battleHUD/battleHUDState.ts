@@ -103,7 +103,7 @@ export const BattleHUDStateService = {
                     MissionMapService.getByBattleSquaddieId(
                         missionMap,
                         currentBattleSquaddieId
-                    ).mapCoordinate
+                    ).currentMapCoordinate
                 )
             )
                 continue

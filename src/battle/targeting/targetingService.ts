@@ -168,15 +168,16 @@ const findValidTargets = ({
         actingBattleSquaddie.battleSquaddieId
     )
     const invalidSourceTiles = sourceTiles?.length <= 0
-    const invalidSquaddieLocation = squaddieInfo?.mapCoordinate === undefined
+    const invalidSquaddieLocation =
+        squaddieInfo?.currentMapCoordinate === undefined
     if (invalidSourceTiles && invalidSquaddieLocation) {
         return new TargetingResults()
     }
 
     let startCoordinates = sourceTiles
     if (!sourceTiles || sourceTiles.length <= 0) {
-        startCoordinates = squaddieInfo?.mapCoordinate
-            ? [squaddieInfo.mapCoordinate]
+        startCoordinates = squaddieInfo?.currentMapCoordinate
+            ? [squaddieInfo.currentMapCoordinate]
             : []
     }
 
@@ -184,7 +185,8 @@ const findValidTargets = ({
         MapSearchService.calculateAllPossiblePathsFromStartingCoordinate({
             missionMap: map,
             objectRepository: squaddieRepository,
-            startCoordinate: startCoordinates[0],
+            originMapCoordinate: startCoordinates[0],
+            currentMapCoordinate: startCoordinates[0],
             searchLimit: SearchLimitService.new({
                 baseSearchLimit: SearchLimitService.targeting(),
                 passThroughWalls: TraitStatusStorageService.getStatus(
@@ -371,7 +373,7 @@ const highlightTargetRange = ({
 
     if (
         !MissionMapService.getByBattleSquaddieId(missionMap, battleSquaddieId)
-            .mapCoordinate
+            .currentMapCoordinate
     )
         return []
 

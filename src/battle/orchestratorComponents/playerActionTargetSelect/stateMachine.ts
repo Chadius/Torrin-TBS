@@ -278,7 +278,7 @@ export class PlayerActionTargetStateMachine extends StateMachine<
                             context.messageParameters.summaryHUDState,
                         targetCoordinate: Object.values(
                             context.targetResults.validTargets
-                        )[0].mapCoordinate,
+                        )[0].currentMapCoordinate,
                     })
                 },
             [PlayerActionTargetActionEnum.WAITING_FOR_PLAYER_CONFIRM]: (
@@ -350,7 +350,7 @@ export class PlayerActionTargetStateMachine extends StateMachine<
                         targetCoordinate:
                             context.targetResults.validTargets[
                                 battleSquaddieIdSelected
-                            ].mapCoordinate,
+                            ].currentMapCoordinate,
                         summaryHUDState:
                             context.messageParameters.summaryHUDState,
                     })
@@ -473,13 +473,14 @@ const countTargetsEntry = (context: PlayerActionTargetStateMachineContext) => {
         )
 
     targetBattleSquaddieIds.forEach((battleSquaddieId) => {
-        const { mapCoordinate } = MissionMapService.getByBattleSquaddieId(
-            context.missionMap,
-            battleSquaddieId
-        )
+        const { currentMapCoordinate } =
+            MissionMapService.getByBattleSquaddieId(
+                context.missionMap,
+                battleSquaddieId
+            )
 
         context.targetResults.validTargets[battleSquaddieId] = {
-            mapCoordinate,
+            currentMapCoordinate: currentMapCoordinate,
         }
     })
 
@@ -633,7 +634,7 @@ const parseMouseEventsWhenPlayerCanSelectTarget = (
         return Object.entries(context.targetResults.validTargets)
             .filter(([_, battleSquaddieMapCoordinate]) =>
                 HexCoordinateService.areEqual(
-                    battleSquaddieMapCoordinate.mapCoordinate,
+                    battleSquaddieMapCoordinate.currentMapCoordinate,
                     mapCoordinate
                 )
             )

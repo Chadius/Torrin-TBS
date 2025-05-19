@@ -3,6 +3,7 @@ import {
     MessageBoardMessage,
     MessageBoardMessagePlayerCancelsPlayerActionConsiderations,
     MessageBoardMessagePlayerConsidersAction,
+    MessageBoardMessagePlayerConsidersMovement,
     MessageBoardMessagePlayerSelectionIsInvalid,
     MessageBoardMessageSelectAndLockNextSquaddie,
     MessageBoardMessageType,
@@ -26,6 +27,9 @@ import { MissionMapSquaddieCoordinateService } from "../../../missionMap/squaddi
 import { ConvertCoordinateService } from "../../../hexMap/convertCoordinates"
 import { BattleActionDecisionStepService } from "../../actionDecision/battleActionDecisionStep"
 import { PlayerCommandStateService } from "../playerCommand/playerCommandHUD"
+import { ObjectRepositoryService } from "../../objectRepository"
+import { getResultOrThrowError } from "../../../utils/ResultOrError"
+import { SquaddieTurnService } from "../../../squaddie/turn"
 
 const INVALID_SELECTION_POP_UP_DURATION_MS = 2000
 
@@ -49,6 +53,9 @@ export class PlayerDecisionHUDListener implements MessageBoardListener {
                 break
             case MessageBoardMessageType.PLAYER_CONSIDERS_ACTION:
                 playerConsidersAction(message)
+                break
+            case MessageBoardMessageType.PLAYER_CONSIDERS_MOVEMENT:
+                playerConsidersMovement(message)
                 break
             case MessageBoardMessageType.PLAYER_CANCELS_PLAYER_ACTION_CONSIDERATIONS:
                 cancelPlayerActionConsiderations(message)
@@ -138,25 +145,57 @@ const playerConsidersAction = (
             message.playerConsideredActions.actionTemplateId =
                 message.useAction.actionTemplateId
             message.playerConsideredActions.endTurn = false
+            message.playerConsideredActions.movement = undefined
             break
         case !!message.useAction.isEndTurn:
             message.playerConsideredActions.actionTemplateId = undefined
             message.playerConsideredActions.endTurn = true
-            break
-        case !!message.useAction.movement:
-            message.playerConsideredActions.movement =
-                message.useAction.movement
+            message.playerConsideredActions.movement = undefined
             break
     }
 
-    if (message.cancelAction?.actionTemplate) {
-        message.playerConsideredActions.actionTemplateId = undefined
-        message.playerConsideredActions.endTurn = false
+    if (
+        message.summaryHUDState.squaddieStatusTiles[
+            ActionTilePosition.ACTOR_STATUS
+        ]
+    ) {
+        SquaddieStatusTileService.updateTileUsingSquaddie({
+            tile: message.summaryHUDState.squaddieStatusTiles[
+                ActionTilePosition.ACTOR_STATUS
+            ],
+            missionMap: message.missionMap,
+            playerConsideredActions: message.playerConsideredActions,
+            battleActionDecisionStep: message.battleActionDecisionStep,
+            objectRepository: message.objectRepository,
+        })
     }
 
-    if (message.cancelAction?.movement) {
-        message.playerConsideredActions.movement = undefined
-    }
+    PlayerDecisionHUDService.clearPopupWindow(
+        message.playerDecisionHUD,
+        PopupWindowType.PLAYER_INVALID_SELECTION
+    )
+}
+
+const playerConsidersMovement = (
+    message: MessageBoardMessagePlayerConsidersMovement
+) => {
+    const { battleSquaddie } = getResultOrThrowError(
+        ObjectRepositoryService.getSquaddieByBattleId(
+            message.objectRepository,
+            BattleActionDecisionStepService.getActor(
+                message.battleActionDecisionStep
+            ).battleSquaddieId
+        )
+    )
+
+    message.playerConsideredActions.endTurn = false
+    message.playerConsideredActions.actionTemplateId = undefined
+    message.playerConsideredActions.movement = message.movementDecision
+
+    SquaddieTurnService.setMovementActionPointsPreviewedByPlayer({
+        squaddieTurn: battleSquaddie.squaddieTurn,
+        actionPoints: message.movementDecision.actionPointCost,
+    })
 
     if (
         message.summaryHUDState.squaddieStatusTiles[
@@ -183,26 +222,44 @@ const playerConsidersAction = (
 const cancelPlayerActionConsiderations = (
     message: MessageBoardMessagePlayerCancelsPlayerActionConsiderations
 ) => {
-    playerConsidersAction({
-        useAction: {
-            actionTemplateId: "",
-            isEndTurn: false,
-            movement: undefined,
-        },
-        type: MessageBoardMessageType.PLAYER_CONSIDERS_ACTION,
-        playerConsideredActions: message.playerConsideredActions,
-        summaryHUDState: message.summaryHUDState,
-        playerDecisionHUD: message.playerDecisionHUD,
-        missionMap: message.missionMap,
-        battleActionDecisionStep: message.battleActionDecisionStep,
-        objectRepository: message.objectRepository,
-        cancelAction: {
-            actionTemplate: true,
-            movement: true,
-        },
+    const { battleSquaddie } = getResultOrThrowError(
+        ObjectRepositoryService.getSquaddieByBattleId(
+            message.objectRepository,
+            BattleActionDecisionStepService.getActor(
+                message.battleActionDecisionStep
+            ).battleSquaddieId
+        )
+    )
+
+    message.playerConsideredActions.actionTemplateId = undefined
+    message.playerConsideredActions.endTurn = false
+    SquaddieTurnService.setMovementActionPointsPreviewedByPlayer({
+        squaddieTurn: battleSquaddie.squaddieTurn,
+        actionPoints: 0,
     })
 
     PlayerCommandStateService.removeSelection(message.playerCommandState)
+
+    if (
+        message.summaryHUDState.squaddieStatusTiles[
+            ActionTilePosition.ACTOR_STATUS
+        ]
+    ) {
+        SquaddieStatusTileService.updateTileUsingSquaddie({
+            tile: message.summaryHUDState.squaddieStatusTiles[
+                ActionTilePosition.ACTOR_STATUS
+            ],
+            missionMap: message.missionMap,
+            playerConsideredActions: message.playerConsideredActions,
+            battleActionDecisionStep: message.battleActionDecisionStep,
+            objectRepository: message.objectRepository,
+        })
+    }
+
+    PlayerDecisionHUDService.clearPopupWindow(
+        message.playerDecisionHUD,
+        PopupWindowType.PLAYER_INVALID_SELECTION
+    )
 }
 
 const selectAndLockNextSquaddie = (
@@ -290,8 +347,8 @@ const panCameraToSquaddie = (
         const selectedWorldCoordinates =
             ConvertCoordinateService.convertMapCoordinatesToWorldLocation({
                 mapCoordinate: {
-                    q: selectedMapCoordinates.mapCoordinate.q,
-                    r: selectedMapCoordinates.mapCoordinate.r,
+                    q: selectedMapCoordinates.currentMapCoordinate.q,
+                    r: selectedMapCoordinates.currentMapCoordinate.r,
                 },
             })
         gameEngineState.battleOrchestratorState.battleState.camera.pan({

@@ -11,7 +11,6 @@ import {
     ActionTemplate,
     ActionTemplateService,
 } from "../../action/template/actionTemplate"
-import { PlayerConsideredActions } from "../battleState/playerConsideredActions"
 import { BattleActionRecorder } from "../history/battleAction/battleActionRecorder"
 import {
     TargetingResults,
@@ -81,11 +80,7 @@ export const ValidityCheckService = {
                 const actorCanAffordToUseTheActionCheckResults =
                     checkIfActorCanAffordToUseTheAction({
                         battleSquaddie,
-                        objectRepository,
                         actionTemplate,
-                        playerConsideredActions:
-                            gameEngineState.battleOrchestratorState.battleState
-                                .playerConsideredActions,
                         battleActionRecorder:
                             gameEngineState.battleOrchestratorState.battleState
                                 .battleActionRecorder,
@@ -134,23 +129,17 @@ export const ValidityCheckService = {
 
 const checkIfActorCanAffordToUseTheAction = ({
     battleSquaddie,
-    objectRepository,
     actionTemplate,
-    playerConsideredActions,
     battleActionRecorder,
 }: {
     battleSquaddie: BattleSquaddie
-    objectRepository: ObjectRepository
     actionTemplate: ActionTemplate
-    playerConsideredActions: PlayerConsideredActions
     battleActionRecorder: BattleActionRecorder
 }): ActionCheckResult[] => {
     return [
         SquaddieCanPerformActionCheck.canPerform({
             battleSquaddie,
-            objectRepository,
             actionTemplate,
-            playerConsideredActions,
         }),
 
         PerRoundCheck.withinLimitedUsesThisRound({
