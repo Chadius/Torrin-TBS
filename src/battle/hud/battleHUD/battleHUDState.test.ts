@@ -94,7 +94,7 @@ describe("BattleHUDState", () => {
 
         it("can be initialized with a given squaddie team", () => {
             expect(battleHUDState.squaddieListing.teamId).toEqual(playerTeam.id)
-            expect(battleHUDState.squaddieListing.currentIndex).toEqual(0)
+            expect(battleHUDState.squaddieListing.currentIndex).toBeUndefined()
             expect(battleHUDState.squaddieListing.battleSquaddieIds).toEqual([
                 ...playerTeam.battleSquaddieIds,
             ])
@@ -156,17 +156,6 @@ describe("BattleHUDState", () => {
                     battleHUDState.squaddieSelectorPanel
                 )
             ).toBe("playerSquaddie0")
-        })
-
-        it("skips the currently selected squaddie", () => {
-            expect(
-                BattleHUDStateService.getNextSquaddieId({
-                    battleHUDState,
-                    objectRepository,
-                    missionMap,
-                    selectedBattleSquaddieId: "playerSquaddie0",
-                })
-            ).toEqual("playerSquaddie1")
         })
 
         it("skips any squaddie who took their turn", () => {
@@ -266,6 +255,56 @@ describe("BattleHUDState", () => {
                     battleHUDState.squaddieSelectorPanel
                 )
             ).toBeUndefined()
+        })
+
+        it("if only one squaddie is available, return that squaddie", () => {
+            // sir_camil is 0
+            // nahla is 1
+            // set to sir_camil
+            // current index is 0
+            // sir_camil ends his turn
+            // call again it should skip to nahla
+            // call again, it should stay on nahla
+            // I get it, it skips if the character is already selected
+            // So it skips Nahla as she is already selected
+            // and it skips Sir Camil because his turn is over
+
+            playerTeam.battleSquaddieIds
+                .slice(0, 2)
+                .forEach((battleSquaddieId) => {
+                    const { battleSquaddie } = getResultOrThrowError(
+                        ObjectRepositoryService.getSquaddieByBattleId(
+                            objectRepository,
+                            battleSquaddieId
+                        )
+                    )
+
+                    SquaddieTurnService.endTurn(battleSquaddie.squaddieTurn)
+                })
+            expect(
+                BattleHUDStateService.getNextSquaddieId({
+                    battleHUDState,
+                    objectRepository,
+                    missionMap,
+                })
+            ).toBe("playerSquaddie2")
+            expect(
+                SquaddieSelectorPanelService.getSelectedBattleSquaddieId(
+                    battleHUDState.squaddieSelectorPanel
+                )
+            ).toBe("playerSquaddie2")
+            expect(
+                BattleHUDStateService.getNextSquaddieId({
+                    battleHUDState,
+                    objectRepository,
+                    missionMap,
+                })
+            ).toBe("playerSquaddie2")
+            expect(
+                SquaddieSelectorPanelService.getSelectedBattleSquaddieId(
+                    battleHUDState.squaddieSelectorPanel
+                )
+            ).toBe("playerSquaddie2")
         })
     })
 })

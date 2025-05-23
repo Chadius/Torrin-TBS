@@ -917,28 +917,6 @@ describe("Player Decision HUD", () => {
             ).toBeTruthy()
         })
 
-        it("skips the currently selected squaddie", () => {
-            gameEngineState.battleOrchestratorState.battleState.battleActionDecisionStep =
-                BattleActionDecisionStepService.new()
-
-            BattleActionDecisionStepService.setActor({
-                actionDecisionStep:
-                    gameEngineState.battleOrchestratorState.battleState
-                        .battleActionDecisionStep,
-                battleSquaddieId: "playerSquaddie0",
-            })
-
-            gameEngineState.messageBoard.sendMessage({
-                type: MessageBoardMessageType.SELECT_AND_LOCK_NEXT_SQUADDIE,
-                gameEngineState,
-            })
-
-            const calls = getPlayerSelectsAndLocksSquaddieCalls()
-            expect(calls[0][0].battleSquaddieSelectedId).toEqual(
-                "playerSquaddie1"
-            )
-        })
-
         it("shows the squaddie selector panel with the first squaddie already selected", () => {
             gameEngineState.messageBoard.sendMessage({
                 type: MessageBoardMessageType.SELECT_AND_LOCK_NEXT_SQUADDIE,

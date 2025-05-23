@@ -289,10 +289,6 @@ const selectAndLockNextSquaddie = (
         objectRepository: gameEngineState.repository,
         missionMap:
             gameEngineState.battleOrchestratorState.battleState.missionMap,
-        selectedBattleSquaddieId: BattleActionDecisionStepService.getActor(
-            gameEngineState.battleOrchestratorState.battleState
-                ?.battleActionDecisionStep
-        )?.battleSquaddieId,
     })
 
     if (nextBattleSquaddieId == undefined) {

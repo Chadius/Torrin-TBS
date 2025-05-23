@@ -22,10 +22,6 @@ export class UpdateSquaddieSelectorPanelButtonDrawingArea
         this.dataBlob = dataBlob
     }
 
-    clone(): UpdateSquaddieSelectorPanelButtonDrawingArea {
-        return new UpdateSquaddieSelectorPanelButtonDrawingArea(this.dataBlob)
-    }
-
     run(): boolean {
         const context = DataBlobService.get<SquaddieSelectorPanelButtonContext>(
             this.dataBlob,

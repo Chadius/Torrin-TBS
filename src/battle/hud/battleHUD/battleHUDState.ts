@@ -57,69 +57,88 @@ export const BattleHUDStateService = {
         battleHUDState,
         objectRepository,
         missionMap,
-        selectedBattleSquaddieId,
     }: {
         battleHUDState: BattleHUDState
         objectRepository: ObjectRepository
         missionMap: MissionMap
-        selectedBattleSquaddieId?: string
     }): string => {
         if (battleHUDState?.squaddieListing?.battleSquaddieIds === undefined) {
             return undefined
         }
-        for (
-            let i = 0;
-            i < battleHUDState.squaddieListing.battleSquaddieIds.length * 2;
-            i++
-        ) {
-            let currentBattleSquaddieId =
-                battleHUDState.squaddieListing.battleSquaddieIds[
-                    battleHUDState.squaddieListing.currentIndex
-                ]
-            battleHUDState.squaddieListing.currentIndex =
-                (battleHUDState.squaddieListing.currentIndex + 1) %
-                battleHUDState.squaddieListing.battleSquaddieIds.length
 
-            if (currentBattleSquaddieId === selectedBattleSquaddieId) continue
+        const selectableSquaddies =
+            battleHUDState.squaddieListing.battleSquaddieIds
+                .map((battleSquaddieId, squaddieListingIndex) => {
+                    const { battleSquaddie, squaddieTemplate } =
+                        getResultOrThrowError(
+                            ObjectRepositoryService.getSquaddieByBattleId(
+                                objectRepository,
+                                battleSquaddieId
+                            )
+                        )
 
-            const { battleSquaddie, squaddieTemplate } = getResultOrThrowError(
-                ObjectRepositoryService.getSquaddieByBattleId(
-                    objectRepository,
-                    currentBattleSquaddieId
-                )
-            )
+                    if (
+                        !SquaddieService.canPlayerControlSquaddieRightNow({
+                            battleSquaddie,
+                            squaddieTemplate,
+                        }).squaddieCanCurrentlyAct
+                    )
+                        return undefined
 
-            if (
-                !SquaddieService.canPlayerControlSquaddieRightNow({
-                    battleSquaddie,
-                    squaddieTemplate,
-                }).squaddieCanCurrentlyAct
-            )
-                continue
+                    if (
+                        !TerrainTileMapService.isCoordinateOnMap(
+                            missionMap.terrainTileMap,
+                            MissionMapService.getByBattleSquaddieId(
+                                missionMap,
+                                battleSquaddieId
+                            ).currentMapCoordinate
+                        )
+                    )
+                        return undefined
 
-            if (
-                !TerrainTileMapService.isCoordinateOnMap(
-                    missionMap.terrainTileMap,
-                    MissionMapService.getByBattleSquaddieId(
-                        missionMap,
-                        currentBattleSquaddieId
-                    ).currentMapCoordinate
-                )
-            )
-                continue
+                    return {
+                        battleSquaddieId,
+                        squaddieListingIndex,
+                    }
+                })
+                .filter((x) => x)
 
+        if (selectableSquaddies.length === 0) {
+            battleHUDState.squaddieListing.currentIndex = undefined
             SquaddieSelectorPanelService.selectSquaddie(
                 battleHUDState.squaddieSelectorPanel,
-                currentBattleSquaddieId
+                undefined
             )
-            return currentBattleSquaddieId
+            return undefined
         }
 
+        if (selectableSquaddies.length === 1) {
+            battleHUDState.squaddieListing.currentIndex =
+                selectableSquaddies[0].squaddieListingIndex
+            SquaddieSelectorPanelService.selectSquaddie(
+                battleHUDState.squaddieSelectorPanel,
+                selectableSquaddies[0].battleSquaddieId
+            )
+            return selectableSquaddies[0].battleSquaddieId
+        }
+
+        const alreadySelectedIndex = selectableSquaddies.findIndex(
+            ({ squaddieListingIndex }) =>
+                squaddieListingIndex ===
+                battleHUDState.squaddieListing.currentIndex
+        )
+        let nextBattleSquaddieId =
+            alreadySelectedIndex === -1 ||
+            alreadySelectedIndex >= selectableSquaddies.length - 1
+                ? selectableSquaddies[0]
+                : selectableSquaddies[alreadySelectedIndex + 1]
+        battleHUDState.squaddieListing.currentIndex =
+            nextBattleSquaddieId.squaddieListingIndex
         SquaddieSelectorPanelService.selectSquaddie(
             battleHUDState.squaddieSelectorPanel,
-            undefined
+            nextBattleSquaddieId.battleSquaddieId
         )
-        return undefined
+        return nextBattleSquaddieId.battleSquaddieId
     },
 }
 
@@ -159,7 +178,7 @@ const resetSquaddieListingForTeam = ({
     battleHUDState.squaddieListing = {
         teamId: team.id,
         battleSquaddieIds: [...team.battleSquaddieIds],
-        currentIndex: 0,
+        currentIndex: undefined,
     }
     battleHUDState.squaddieSelectorPanel = SquaddieSelectorPanelService.new({
         battleSquaddieIds: team.battleSquaddieIds,
