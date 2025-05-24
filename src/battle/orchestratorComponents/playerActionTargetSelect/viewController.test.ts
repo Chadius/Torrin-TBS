@@ -596,39 +596,77 @@ describe("Player Action Target Select View Controller", () => {
             ;({ explanationLabelText } = drawSelectTargetUIElements())
             expect(explanationLabelText).toEqual("Cool")
         })
-        it("cancel select target button is slightly below the actor squaddie", () => {
-            const screenLocation: ScreenLocation = {
-                x: ScreenDimensions.SCREEN_WIDTH / 2,
-                y: ScreenDimensions.SCREEN_HEIGHT / 2,
-            }
-
-            const screenLocationSpy = vi
-                .spyOn(
-                    ConvertCoordinateService,
-                    "convertMapCoordinatesToScreenLocation"
-                )
-                .mockReturnValue({
-                    x: screenLocation.x,
-                    y: screenLocation.y,
-                })
+        it("will put the cancel select target button slightly below the actor squaddie if valid targets are offscreen", () => {
+            playerActionTargetSelectViewController.componentData.getContext().targetResults.validTargets =
+                {
+                    "target really far under actor": {
+                        currentMapCoordinate: { q: 2, r: 9000 },
+                    },
+                }
 
             considerAttackingWithLongsword()
             const { cancelButtonArea } = drawSelectTargetUIElements()
 
-            const cancelButtonTestLocation: ScreenLocation = {
-                x: screenLocation.x,
-                y: screenLocation.y + HEX_TILE_WIDTH + WINDOW_SPACING.SPACING2,
-            }
+            const expectedScreenLocation =
+                ConvertCoordinateService.convertMapCoordinatesToScreenLocation({
+                    mapCoordinate: { q: 1, r: 1 },
+                    cameraLocation:
+                        playerActionTargetSelectViewController.componentData
+                            .getContext()
+                            .camera.getWorldLocation(),
+                })
 
             expect(
                 RectAreaService.isInside(
                     cancelButtonArea,
-                    cancelButtonTestLocation.x,
-                    cancelButtonTestLocation.y
+                    expectedScreenLocation.x,
+                    expectedScreenLocation.y +
+                        HEX_TILE_WIDTH +
+                        WINDOW_SPACING.SPACING2
                 )
             ).toBe(true)
-            expect(expectScreenLocationIsCalled(screenLocationSpy)).toBeTruthy()
         })
+
+        it("will put the cancel select target button below all valid targets if they are below the squaddie", () => {
+            playerActionTargetSelectViewController.componentData.getContext().targetResults.validTargets =
+                {
+                    "target under actor": {
+                        currentMapCoordinate: { q: 2, r: 0 },
+                    },
+                    "target further under": {
+                        currentMapCoordinate: { q: 3, r: 0 },
+                    },
+                    "target not underneath": {
+                        currentMapCoordinate: { q: 4, r: 2 },
+                    },
+                }
+
+            const expectedCoordinateToDrawUnder =
+                playerActionTargetSelectViewController.componentData.getContext()
+                    .targetResults.validTargets["target further under"]
+                    .currentMapCoordinate
+            const expectedScreenLocation =
+                ConvertCoordinateService.convertMapCoordinatesToScreenLocation({
+                    mapCoordinate: expectedCoordinateToDrawUnder,
+                    cameraLocation:
+                        playerActionTargetSelectViewController.componentData
+                            .getContext()
+                            .camera.getWorldLocation(),
+                })
+
+            considerAttackingWithLongsword()
+            const { cancelButtonArea } = drawSelectTargetUIElements()
+            expect(
+                RectAreaService.isInside(
+                    cancelButtonArea,
+                    expectedScreenLocation.x,
+                    expectedScreenLocation.y +
+                        HEX_TILE_WIDTH +
+                        WINDOW_SPACING.SPACING2
+                )
+            ).toBe(true)
+        })
+
         it("if acting squaddie is at left edge of screen, put cancel button at left edge of screen", () => {
             const screenLocation: ScreenLocation = {
                 x: 0,

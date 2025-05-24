@@ -84,7 +84,7 @@ export class PlayerActionTargetSelect implements BattleOrchestratorComponent {
         })
     }
 
-    uiControlSettings(gameEngineState: GameEngineState): UIControlSettings {
+    uiControlSettings(_: GameEngineState): UIControlSettings {
         return new UIControlSettings({})
     }
 

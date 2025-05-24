@@ -9,6 +9,7 @@ import {
 import { ButtonStatus } from "../../../../ui/button/buttonStatus"
 import { LabelService } from "../../../../ui/label"
 import {
+    GOLDEN_RATIO,
     HORIZONTAL_ALIGN,
     VERTICAL_ALIGN,
     WINDOW_SPACING,
@@ -21,6 +22,8 @@ import { MissionMapService } from "../../../../missionMap/missionMap"
 import { PlayerActionTargetLayout } from "./playerActionTargetLayout"
 import { PlayerActionTargetStateMachineUIObjects } from "../playerActionTargetStateMachineUIObjects"
 import { PlayerActionTargetStateMachineContext } from "../playerActionTargetStateMachineContext"
+import { HexCoordinate } from "../../../../hexMap/hexCoordinate/hexCoordinate"
+import { HEX_TILE_RADIUS } from "../../../../graphicsConstants"
 
 export class PlayerActionTargetShouldCreateCancelButton
     implements BehaviorTreeTask
@@ -75,36 +78,7 @@ export class PlayerActionTargetCreateCancelButton implements BehaviorTreeTask {
         const context: PlayerActionTargetStateMachineContext =
             this.dataBlob.getContext()
 
-        const actorBattleSquaddieId = BattleActionDecisionStepService.getActor(
-            context.battleActionDecisionStep
-        ).battleSquaddieId
-
-        const targetCoordinate = MissionMapService.getByBattleSquaddieId(
-            context.missionMap,
-            actorBattleSquaddieId
-        ).currentMapCoordinate
-        const targetLocation = targetCoordinate
-            ? ConvertCoordinateService.convertMapCoordinatesToScreenLocation({
-                  mapCoordinate: targetCoordinate,
-                  cameraLocation: context.camera.getWorldLocation(),
-              })
-            : undefined
-
-        const cancelButtonArea: RectArea = targetCoordinate
-            ? RectAreaService.new({
-                  centerX: targetLocation.x,
-                  width: layout.cancelButton.width,
-                  top: targetLocation.y + layout.cancelButton.topOffset,
-                  height: layout.cancelButton.height,
-                  margin: layout.cancelButton.margin,
-              })
-            : RectAreaService.new({
-                  centerX: ScreenDimensions.SCREEN_WIDTH / 2,
-                  width: layout.cancelButton.width,
-                  centerY: ScreenDimensions.SCREEN_HEIGHT / 2,
-                  height: layout.cancelButton.height,
-                  margin: layout.cancelButton.margin,
-              })
+        const cancelButtonArea: RectArea = this.calculatePositionForButton()
 
         if (RectAreaService.left(cancelButtonArea) < 0) {
             RectAreaService.setLeft(cancelButtonArea, WINDOW_SPACING.SPACING1)
@@ -209,5 +183,111 @@ export class PlayerActionTargetCreateCancelButton implements BehaviorTreeTask {
         this.dataBlob.setUIObjects(uiObjects)
 
         return true
+    }
+
+    calculatePositionForButton(): RectArea {
+        const layout: PlayerActionTargetLayout = this.dataBlob.getLayout()
+        const context: PlayerActionTargetStateMachineContext =
+            this.dataBlob.getContext()
+
+        const actorBattleSquaddieId = BattleActionDecisionStepService.getActor(
+            context.battleActionDecisionStep
+        ).battleSquaddieId
+
+        const actorMapCoordinate = MissionMapService.getByBattleSquaddieId(
+            context.missionMap,
+            actorBattleSquaddieId
+        ).currentMapCoordinate
+
+        const centerOfScreenRectArea = RectAreaService.new({
+            centerX: ScreenDimensions.SCREEN_WIDTH / 2,
+            width: layout.cancelButton.width,
+            centerY: ScreenDimensions.SCREEN_HEIGHT / 2,
+            height: layout.cancelButton.height,
+            margin: layout.cancelButton.margin,
+        })
+
+        if (!actorMapCoordinate) {
+            return centerOfScreenRectArea
+        }
+
+        let candidateCoordinate: HexCoordinate = {
+            q: actorMapCoordinate.q,
+            r: actorMapCoordinate.r,
+        }
+
+        let candidateScreenLocation =
+            ConvertCoordinateService.convertMapCoordinatesToScreenLocation({
+                mapCoordinate: candidateCoordinate,
+                cameraLocation: context.camera.getWorldLocation(),
+            })
+
+        const mapCoordinatesDirectlyBelowActor =
+            this.targetMapCoordinatesDirectlyBelowActor(
+                actorMapCoordinate,
+                context
+            )
+
+        if (mapCoordinatesDirectlyBelowActor.length > 0) {
+            candidateScreenLocation.y =
+                ConvertCoordinateService.convertMapCoordinatesToScreenLocation({
+                    mapCoordinate: {
+                        q: mapCoordinatesDirectlyBelowActor[0].q,
+                        r: 0,
+                    },
+                    cameraLocation: context.camera.getWorldLocation(),
+                }).y
+        }
+
+        const locationIsTooLowOnScreen =
+            candidateScreenLocation.y >=
+            ScreenDimensions.SCREEN_HEIGHT -
+                (ScreenDimensions.SCREEN_WIDTH / 12) * GOLDEN_RATIO
+        if (locationIsTooLowOnScreen) {
+            candidateScreenLocation =
+                ConvertCoordinateService.convertMapCoordinatesToScreenLocation({
+                    mapCoordinate: candidateCoordinate,
+                    cameraLocation: context.camera.getWorldLocation(),
+                })
+        }
+
+        return RectAreaService.new({
+            centerX: candidateScreenLocation.x,
+            width: layout.cancelButton.width,
+            top: candidateScreenLocation.y + layout.cancelButton.topOffset,
+            height: layout.cancelButton.height,
+            margin: layout.cancelButton.margin,
+        })
+    }
+
+    private targetMapCoordinatesDirectlyBelowActor = (
+        actorMapCoordinate: HexCoordinate,
+        context: PlayerActionTargetStateMachineContext
+    ) => {
+        const actorScreenLocation =
+            ConvertCoordinateService.convertMapCoordinatesToScreenLocation({
+                mapCoordinate: actorMapCoordinate,
+                cameraLocation: context.camera.getWorldLocation(),
+            })
+
+        return Object.values(context.targetResults.validTargets)
+            .filter((targetResult) => !!targetResult.currentMapCoordinate)
+            .filter((targetResult) => {
+                const targetScreenLocation =
+                    ConvertCoordinateService.convertMapCoordinatesToScreenLocation(
+                        {
+                            mapCoordinate: targetResult.currentMapCoordinate,
+                            cameraLocation: context.camera.getWorldLocation(),
+                        }
+                    )
+                const targetIsBelowActor =
+                    targetScreenLocation.y > actorScreenLocation.y
+                const targetIsLinedUpWithActor =
+                    Math.abs(targetScreenLocation.x - actorScreenLocation.x) <
+                    HEX_TILE_RADIUS
+                return targetIsBelowActor && targetIsLinedUpWithActor
+            })
+            .map((targetResult) => targetResult.currentMapCoordinate)
+            .sort((a, b) => b.q - a.q)
     }
 }
