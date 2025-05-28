@@ -215,7 +215,10 @@ const isSquaddieCurrentlyTakingATurn = ({
 }): boolean => {
     if (
         BattleActionDecisionStepService.isActorSet(battleActionDecisionStep) &&
-        BattleActionDecisionStepService.isActionSet(battleActionDecisionStep)
+        BattleActionDecisionStepService.isActionSet(battleActionDecisionStep) &&
+        BattleActionDecisionStepService.isTargetConsidered(
+            battleActionDecisionStep
+        )
     ) {
         return true
     }

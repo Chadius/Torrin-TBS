@@ -5,7 +5,6 @@ import {
 import { getValidValueOrDefault } from "../../../utils/objectValidityCheck"
 import {
     MessageBoardMessageMoveSquaddieToCoordinate,
-    MessageBoardMessagePlayerCancelsPlayerActionConsiderations,
     MessageBoardMessagePlayerCancelsTargetConfirmation,
     MessageBoardMessagePlayerCancelsTargetSelection,
     MessageBoardMessagePlayerConfirmsAction,
@@ -84,10 +83,6 @@ export const BattleHUDService = {
             missionMap: message.missionMap,
             objectRepository: message.objectRepository,
             campaignResources: message.campaignResources,
-        })
-
-        BattleActionDecisionStepService.removeAction({
-            actionDecisionStep: message.battleActionDecisionStep,
         })
 
         BattleActionDecisionStepService.removeTarget({
@@ -535,26 +530,6 @@ export const BattleHUDService = {
             type: MessageBoardMessageType.PLAYER_CONFIRMS_DECISION_STEP_ACTOR,
             recommendedMode: BattleOrchestratorMode.PLAYER_HUD_CONTROLLER,
         })
-    },
-    cancelSquaddieSelectionAtStartOfTurn: (
-        message: MessageBoardMessagePlayerCancelsPlayerActionConsiderations
-    ) => {
-        if (
-            OrchestratorUtilities.isSquaddieCurrentlyTakingATurn({
-                battleActionDecisionStep: message.battleActionDecisionStep,
-                battleActionRecorder: message.battleActionRecorder,
-            })
-        ) {
-            return
-        }
-
-        TerrainTileMapService.removeGraphicsLayerByType(
-            message.missionMap.terrainTileMap,
-            MapGraphicsLayerType.CLICKED_ON_CONTROLLABLE_SQUADDIE
-        )
-
-        BattleActionDecisionStepService.reset(message.battleActionDecisionStep)
-        SummaryHUDStateService.reset(message.summaryHUDState)
     },
     playerControlledSquaddieNeedsNextAction: (
         message: MessageBoardMessagePlayerControlledSquaddieNeedsNextAction

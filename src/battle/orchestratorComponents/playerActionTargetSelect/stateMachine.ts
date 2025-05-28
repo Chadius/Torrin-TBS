@@ -597,6 +597,7 @@ const parseMouseEventsWhenPlayerCanConfirm = (
         (button) => button.id === PLAYER_ACTION_CONFIRM_CREATE_OK_BUTTON_ID
     )
     if (didButtonSwitchFromActiveToHover(confirmOKButton)) {
+        confirmOKButton.clearStatus()
         context.playerIntent.targetConfirmed = true
     }
 
@@ -607,6 +608,7 @@ const parseMouseEventsWhenPlayerCanConfirm = (
         didButtonSwitchFromActiveToHover(cancelButton) ||
         didPlayerClickOnMouseCancelButton(context)
     ) {
+        cancelButton.clearStatus()
         if (context.playerIntent.targetSelection.automaticallySelected)
             context.playerIntent.actionCancelled = true
         else context.playerIntent.targetCancelled = true
@@ -626,6 +628,7 @@ const parseMouseEventsWhenPlayerCanSelectTarget = (
         didButtonSwitchFromActiveToHover(cancelButton) ||
         didPlayerClickOnMouseCancelButton(context)
     ) {
+        cancelButton.clearStatus()
         context.playerIntent.actionCancelled = true
         return
     }
@@ -673,6 +676,8 @@ const parseMouseEventsWhenPlayerCanSelectTarget = (
                             mapCoordinateClickedOn,
                             context
                         )
+                    } else {
+                        context.playerIntent.targetCancelled = false
                     }
                     break
                 case OrchestratorComponentMouseEventType.LOCATION:

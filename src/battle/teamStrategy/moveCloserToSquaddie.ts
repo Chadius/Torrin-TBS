@@ -60,7 +60,6 @@ export class MoveCloserToSquaddie implements TeamStrategyCalculator {
             return undefined
         }
 
-        // TODO why is current map coordinate updating but not origin?
         const {
             battleSquaddie,
             squaddieTemplate,

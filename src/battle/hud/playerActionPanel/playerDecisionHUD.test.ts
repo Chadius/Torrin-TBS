@@ -729,9 +729,20 @@ describe("Player Decision HUD", () => {
                 resourceHandler: gameEngineState.resourceHandler,
                 graphicsBuffer: mockP5GraphicsContext,
             })
-        })
 
-        it("resets the player decisions", () => {
+            BattleActionDecisionStepService.setActor({
+                actionDecisionStep:
+                    gameEngineState.battleOrchestratorState.battleState
+                        .battleActionDecisionStep,
+                battleSquaddieId: battleSquaddie.battleSquaddieId,
+            })
+            BattleActionDecisionStepService.addAction({
+                actionDecisionStep:
+                    gameEngineState.battleOrchestratorState.battleState
+                        .battleActionDecisionStep,
+                actionTemplateId: "longsword",
+            })
+
             gameEngineState.battleOrchestratorState.battleHUDState.summaryHUDState.playerCommandState =
                 PlayerCommandStateService.new()
             gameEngineState.battleOrchestratorState.battleHUDState.summaryHUDState.playerCommandState.battleSquaddieId =
@@ -765,7 +776,9 @@ describe("Player Decision HUD", () => {
                         .summaryHUDState.playerCommandState,
                 objectRepository: gameEngineState.repository,
             })
+        })
 
+        it("resets the player command state", () => {
             expect(
                 gameEngineState.battleOrchestratorState.battleHUDState
                     .summaryHUDState.playerCommandState
@@ -779,6 +792,20 @@ describe("Player Decision HUD", () => {
                     squaddieAffiliationHue: 10,
                 })
             )
+        })
+        it("removes the action and targets from the battle action decision", () => {
+            expect(
+                BattleActionDecisionStepService.isActionSet(
+                    gameEngineState.battleOrchestratorState.battleState
+                        .battleActionDecisionStep
+                )
+            ).toBeFalsy()
+            expect(
+                BattleActionDecisionStepService.isTargetConsidered(
+                    gameEngineState.battleOrchestratorState.battleState
+                        .battleActionDecisionStep
+                )
+            ).toBeFalsy()
         })
     })
 

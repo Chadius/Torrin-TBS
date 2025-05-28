@@ -226,7 +226,7 @@ describe("Orchestration Utils", () => {
             ).toBeFalsy()
         })
 
-        it("is if the squaddie is previewing a decision", () => {
+        it("is not if the squaddie has not targeted something", () => {
             gameEngineState.battleOrchestratorState.battleState.battleActionDecisionStep =
                 BattleActionDecisionStepService.new()
 
@@ -252,7 +252,7 @@ describe("Orchestration Utils", () => {
                         gameEngineState.battleOrchestratorState.battleState
                             .battleActionRecorder,
                 })
-            ).toBeTruthy()
+            ).toBeFalsy()
         })
 
         it("is if the squaddie already made a decision that does not end the turn", () => {
@@ -1071,33 +1071,6 @@ describe("Orchestration Utils", () => {
             ).toBeUndefined()
 
             messageSpy.mockRestore()
-        })
-        it("sends message if the squaddie is playable and previewing", () => {
-            gameEngineState.battleOrchestratorState.battleState.battleActionDecisionStep =
-                BattleActionDecisionStepService.new()
-            BattleActionDecisionStepService.setActor({
-                actionDecisionStep:
-                    gameEngineState.battleOrchestratorState.battleState
-                        .battleActionDecisionStep,
-                battleSquaddieId: knightBattleSquaddie.battleSquaddieId,
-            })
-            BattleActionDecisionStepService.addAction({
-                actionDecisionStep:
-                    gameEngineState.battleOrchestratorState.battleState
-                        .battleActionDecisionStep,
-                actionTemplateId: "actionTemplateId",
-            })
-
-            OrchestratorUtilities.messageAndHighlightPlayableSquaddieTakingATurn(
-                {
-                    gameEngineState,
-                }
-            )
-
-            expect(messageSpy).toBeCalledWith({
-                type: MessageBoardMessageType.PLAYER_CONTROLLED_SQUADDIE_NEEDS_NEXT_ACTION,
-                gameEngineState,
-            })
         })
         it("does not send message if the squaddie is not playable", () => {
             gameEngineState.battleOrchestratorState.battleState.battleActionDecisionStep =

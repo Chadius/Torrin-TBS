@@ -231,6 +231,10 @@ const cancelPlayerActionConsiderations = (
         )
     )
 
+    BattleActionDecisionStepService.removeAction({
+        actionDecisionStep: message.battleActionDecisionStep,
+    })
+
     message.playerConsideredActions.actionTemplateId = undefined
     message.playerConsideredActions.endTurn = false
     SquaddieTurnService.setMovementActionPointsPreviewedByPlayer({

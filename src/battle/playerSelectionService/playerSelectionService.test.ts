@@ -471,6 +471,23 @@ describe("Player Selection Service", () => {
                             .battleActionDecisionStep,
                     movement: true,
                 })
+                BattleActionRecorderService.addReadyToAnimateBattleAction(
+                    gameEngineState.battleOrchestratorState.battleState
+                        .battleActionRecorder,
+                    BattleActionService.new({
+                        actor: {
+                            actorBattleSquaddieId:
+                                playerBattleSquaddie2.battleSquaddieId,
+                        },
+                        action: { isMovement: true },
+                        effect: {
+                            movement: {
+                                startCoordinate: { q: 0, r: 0 },
+                                endCoordinate: { q: 0, r: 0 },
+                            },
+                        },
+                    })
+                )
 
                 clickOnSquaddieSelectorAndCalculateContext(
                     playerBattleSquaddie2.battleSquaddieId

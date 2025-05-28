@@ -727,6 +727,21 @@ describe("PlayerActionTargetSelect State Machine", () => {
             ])
         })
 
+        const selectActionAndWaitToTarget = (messageSpy: MockInstance) => {
+            stateMachine.currentState =
+                PlayerActionTargetStateEnum.WAITING_FOR_PLAYER_TO_SELECT_TARGET
+            context.targetResults.validTargets = {
+                "1": { currentMapCoordinate: { q: 0, r: 1 } },
+                "2": { currentMapCoordinate: { q: 0, r: 2 } },
+            }
+            stateMachine.getActionLogic(
+                PlayerActionTargetActionEnum.WAITING_FOR_PLAYER_TO_SELECT_TARGET
+            )(context)
+            messageSpy = vi.spyOn(context.messageBoard, "sendMessage")
+            stateMachine.update()
+            return messageSpy
+        }
+
         describe("waiting for the user to select a target", () => {
             beforeEach(() => {
                 stateMachine.getActionLogic(
@@ -861,43 +876,44 @@ describe("PlayerActionTargetSelect State Machine", () => {
                 let messageSpy: MockInstance
 
                 beforeEach(() => {
-                    stateMachine.currentState =
-                        PlayerActionTargetStateEnum.WAITING_FOR_PLAYER_TO_SELECT_TARGET
-                    context.targetResults.validTargets = {
-                        "1": { currentMapCoordinate: { q: 0, r: 1 } },
-                        "2": { currentMapCoordinate: { q: 0, r: 2 } },
-                    }
-                    stateMachine.getActionLogic(
-                        PlayerActionTargetActionEnum.WAITING_FOR_PLAYER_TO_SELECT_TARGET
-                    )(context)
-                    messageSpy = vi.spyOn(context.messageBoard, "sendMessage")
-                    stateMachine.update()
+                    messageSpy = selectActionAndWaitToTarget(messageSpy)
                 })
 
                 afterEach(() => {
                     if (messageSpy) messageSpy.mockRestore()
                 })
 
-                it("clicking on a valid target will trigger a transition", () => {
-                    clickOnTarget()
+                const selectValidTargetTests = [
+                    {
+                        name: "clicking on a valid target",
+                        action: () => {
+                            clickOnTarget()
+                        },
+                    },
+                ]
 
-                    let update = stateMachine.update()
-                    update.actions.forEach((action) => {
-                        stateMachine.getActionLogic(action)(context)
-                    })
+                it.each(selectValidTargetTests)(
+                    `$name will trigger a transition`,
+                    ({ action }) => {
+                        action()
+                        let update = stateMachine.update()
+                        update.actions.forEach((action) => {
+                            stateMachine.getActionLogic(action)(context)
+                        })
 
-                    update = stateMachine.update()
-                    expect(update.transitionFired).toEqual(
-                        PlayerActionTargetTransitionEnum.PLAYER_CONSIDERS_TARGET_SELECTION
-                    )
+                        update = stateMachine.update()
+                        expect(update.transitionFired).toEqual(
+                            PlayerActionTargetTransitionEnum.PLAYER_CONSIDERS_TARGET_SELECTION
+                        )
 
-                    expect(update.targetedState).toEqual(
-                        PlayerActionTargetStateEnum.WAITING_FOR_PLAYER_CONFIRM
-                    )
-                    expect(update.actions).toEqual([
-                        PlayerActionTargetActionEnum.TRIGGER_PLAYER_CONSIDERS_TARGET_SELECTION,
-                    ])
-                })
+                        expect(update.targetedState).toEqual(
+                            PlayerActionTargetStateEnum.WAITING_FOR_PLAYER_CONFIRM
+                        )
+                        expect(update.actions).toEqual([
+                            PlayerActionTargetActionEnum.TRIGGER_PLAYER_CONSIDERS_TARGET_SELECTION,
+                        ])
+                    }
+                )
 
                 const notATargetTests = [
                     {
@@ -1051,21 +1067,11 @@ describe("PlayerActionTargetSelect State Machine", () => {
                 },
             ]
 
-            describe("player cancels when they could have selected a target", () => {
+            describe("player cancels before selecting a target", () => {
                 let messageSpy: MockInstance
 
                 beforeEach(() => {
-                    stateMachine.currentState =
-                        PlayerActionTargetStateEnum.WAITING_FOR_PLAYER_TO_SELECT_TARGET
-                    context.targetResults.validTargets = {
-                        "1": { currentMapCoordinate: { q: 0, r: 1 } },
-                        "2": { currentMapCoordinate: { q: 0, r: 2 } },
-                    }
-                    stateMachine.getActionLogic(
-                        PlayerActionTargetActionEnum.WAITING_FOR_PLAYER_TO_SELECT_TARGET
-                    )(context)
-                    messageSpy = vi.spyOn(context.messageBoard, "sendMessage")
-                    stateMachine.update()
+                    messageSpy = selectActionAndWaitToTarget(messageSpy)
                 })
 
                 afterEach(() => {
@@ -1106,6 +1112,14 @@ describe("PlayerActionTargetSelect State Machine", () => {
                         stateMachine.getActionLogic(
                             PlayerActionTargetActionEnum.TRIGGER_PLAYER_CANCELS_ACTION_SELECTION
                         )(context)
+                    })
+
+                    it("sends a message indicating the player cancels the action", () => {
+                        expect(messageSpy).toHaveBeenCalledWith(
+                            expect.objectContaining({
+                                type: MessageBoardMessageType.PLAYER_CANCELS_PLAYER_ACTION_CONSIDERATIONS,
+                            })
+                        )
                     })
 
                     it("sends a message indicating the player unselected the targets", () => {
