@@ -23,10 +23,6 @@ import { SquaddieTemplate } from "../../../../../campaign/squaddieTemplate"
 import { ActionCalculator } from "../../../../calculator/actionCalculator/calculator"
 import { CalculatedResult } from "../../../../history/calculatedResult"
 import { DegreeOfSuccess } from "../../../../calculator/actionCalculator/degreeOfSuccess"
-import {
-    DataBlob,
-    DataBlobService,
-} from "../../../../../utils/dataBlob/dataBlob"
 import { BehaviorTreeTask } from "../../../../../utils/behaviorTree/task"
 import { SequenceComposite } from "../../../../../utils/behaviorTree/composite/sequence/sequence"
 import { InverterDecorator } from "../../../../../utils/behaviorTree/decorator/inverter/inverter"
@@ -45,13 +41,22 @@ import {
 import { MissionMap } from "../../../../../missionMap/missionMap"
 import { BattleActionRecorder } from "../../../../history/battleAction/battleActionRecorder"
 import { NumberGeneratorStrategy } from "../../../../numberGenerator/strategy"
+import { CreateNextNamesOfDegreesOfSuccessTextBoxAction } from "./uiObjects/namesOfDegreesOfSuccess"
+import { DrawRectanglesAction } from "../../../../../ui/rectangle/drawRectanglesAction"
+import { ComponentDataBlob } from "../../../../../utils/dataBlob/componentDataBlob"
+import { Rectangle } from "../../../../../ui/rectangle/rectangle"
 
 export interface ActionPreviewTile {
     forecast: CalculatedResult
-    data: DataBlob
+    data: ComponentDataBlob<
+        ActionPreviewTileLayout,
+        ActionPreviewTileContext,
+        ActionPreviewTileUIObjects
+    >
     drawBehaviorTree: BehaviorTreeTask
 }
 
+const actionPreviewTileWidth = ScreenDimensions.SCREEN_WIDTH / 6
 const shortWidth = ScreenDimensions.SCREEN_WIDTH / 6 / (GOLDEN_RATIO + 1)
 const longWidth = ScreenDimensions.SCREEN_WIDTH / 6 / GOLDEN_RATIO
 
@@ -83,11 +88,24 @@ export interface ActionPreviewTileLayout {
             showChanceOfSuccess: boolean
         }[]
     }
+    namesOfDegreesOfSuccess: {
+        width: number
+        fontSize: number
+        fontColor: number[]
+        margin: number[]
+    }
     chancesOfDegreesOfSuccess: {
         width: number
         fontSize: number
         fontColor: number[]
         margin: number[]
+        bar: {
+            colorByDegreeOfSuccess: { [degree in DegreeOfSuccess]: number[] }
+            lengthPerChance: number
+            horizontalOffset: number
+            height: number
+            cornerRadius: number[]
+        }
     }
     effectsOfDegreesOfSuccess: {
         width: number
@@ -98,7 +116,6 @@ export interface ActionPreviewTileLayout {
         linesOfTextRange: { minimum: number }
         fontColor: number[]
         margin: number[]
-        horizAlign: HORIZONTAL_ALIGN
     }
     modifiers: {
         topOffset: number
@@ -135,9 +152,17 @@ export interface ActionPreviewTileContext {
 export interface ActionPreviewTileUIObjects {
     graphicsContext: GraphicsBuffer
     infoTextBox: TextBox
+    namesOfDegreesOfSuccessTextBoxes: {
+        degreeOfSuccess: DegreeOfSuccess
+        textBox: TextBox
+    }[]
     chancesOfDegreesOfSuccessTextBoxes: {
         degreeOfSuccess: DegreeOfSuccess
         textBox: TextBox
+    }[]
+    chancesOfDegreesOfSuccessRectangles: {
+        degreeOfSuccess: DegreeOfSuccess
+        bar: Rectangle
     }[]
     effectsOfDegreesOfSuccessTextBoxes: {
         degreeOfSuccess: DegreeOfSuccess
@@ -183,7 +208,12 @@ export const ActionPreviewTileService = {
             numberGenerator,
         })
 
-        const dataBlob: DataBlob = DataBlobService.new()
+        const dataBlob: ComponentDataBlob<
+            ActionPreviewTileLayout,
+            ActionPreviewTileContext,
+            ActionPreviewTileUIObjects
+        > = new ComponentDataBlob()
+        const shortDegreesOfSuccessWidth = shortWidth * 0.6
         const layout: ActionPreviewTileLayout = {
             topRowOffset: 38,
             targetName: {
@@ -242,22 +272,39 @@ export const ActionPreviewTileService = {
                     },
                 ],
             },
-            chancesOfDegreesOfSuccess: {
+            namesOfDegreesOfSuccess: {
                 fontSize: 16,
-                width: shortWidth,
+                width: shortDegreesOfSuccessWidth,
                 fontColor: [0, 0, 192 - 128],
                 margin: [0, 0, 0, WINDOW_SPACING.SPACING1],
             },
-            effectsOfDegreesOfSuccess: {
-                width: longWidth,
+            chancesOfDegreesOfSuccess: {
+                fontSize: 16,
+                width: shortDegreesOfSuccessWidth,
                 fontColor: [0, 0, 192 - 128],
-                margin: [
-                    0,
+                margin: [0, 0, 0, 0],
+                bar: {
+                    colorByDegreeOfSuccess: {
+                        [DegreeOfSuccess.CRITICAL_SUCCESS]: [5, 40, 40],
+                        [DegreeOfSuccess.SUCCESS]: [5, 40, 30],
+                        [DegreeOfSuccess.FAILURE]: [240, 40, 40],
+                        [DegreeOfSuccess.CRITICAL_FAILURE]: [240, 10, 10],
+                        [DegreeOfSuccess.NONE]: [5, 10, 10],
+                    },
+                    horizontalOffset: 2,
+                    lengthPerChance: actionPreviewTileWidth / 36,
+                    height: 16,
+                    cornerRadius: [0, 6, 6, 0],
+                },
+            },
+            effectsOfDegreesOfSuccess: {
+                width:
+                    actionPreviewTileWidth -
+                    shortDegreesOfSuccessWidth -
+                    shortDegreesOfSuccessWidth -
                     WINDOW_SPACING.SPACING2,
-                    0,
-                    WINDOW_SPACING.SPACING1,
-                ],
-                horizAlign: HORIZONTAL_ALIGN.RIGHT,
+                fontColor: [0, 0, 192 - 128],
+                margin: [0, 0, 0, WINDOW_SPACING.SPACING1],
                 fontSizeRange: {
                     preferred: 16,
                     minimum: 8,
@@ -303,27 +350,20 @@ export const ActionPreviewTileService = {
             battleActionDecisionStep,
         })
 
-        DataBlobService.add<ActionPreviewTileLayout>(dataBlob, "layout", layout)
-
-        DataBlobService.add<ActionPreviewTileContext>(
-            dataBlob,
-            "context",
-            context
-        )
+        dataBlob.setLayout(layout)
+        dataBlob.setContext(context)
 
         const uiObjects: ActionPreviewTileUIObjects = {
             infoTextBox: undefined,
             graphicsContext: undefined,
+            namesOfDegreesOfSuccessTextBoxes: undefined,
             chancesOfDegreesOfSuccessTextBoxes: undefined,
+            chancesOfDegreesOfSuccessRectangles: undefined,
             effectsOfDegreesOfSuccessTextBoxes: undefined,
             targetNameTextBox: undefined,
             modifiers: undefined,
         }
-        DataBlobService.add<ActionPreviewTileUIObjects>(
-            dataBlob,
-            "uiObjects",
-            uiObjects
-        )
+        dataBlob.setUIObjects(uiObjects)
         const drawBehaviorTree = createDrawingBehaviorTree(dataBlob)
 
         return {
@@ -339,17 +379,10 @@ export const ActionPreviewTileService = {
         tile: ActionPreviewTile
         graphicsContext: GraphicsBuffer
     }) => {
-        const uiObjects = DataBlobService.get<ActionPreviewTileUIObjects>(
-            tile.data,
-            "uiObjects"
-        )
+        const uiObjects = tile.data.getUIObjects()
         uiObjects.graphicsContext = graphicsContext
 
-        const context = DataBlobService.get<ActionPreviewTileContext>(
-            tile.data,
-            "context"
-        )
-
+        const context = tile.data.getContext()
         ActionTilePositionService.drawBackground({
             squaddieAffiliation: context.squaddieAffiliation,
             graphicsContext,
@@ -360,72 +393,106 @@ export const ActionPreviewTileService = {
     },
 }
 
-const createDrawingBehaviorTree = (blackboard: DataBlob) => {
-    const createTargetNameTextBoxTree = new SequenceComposite(blackboard, [
+const createDrawingBehaviorTree = (
+    dataBlob: ComponentDataBlob<
+        ActionPreviewTileLayout,
+        ActionPreviewTileContext,
+        ActionPreviewTileUIObjects
+    >
+) => {
+    const createTargetNameTextBoxTree = new SequenceComposite(dataBlob, [
         new InverterDecorator(
-            blackboard,
-            new DoesUIObjectExistCondition(blackboard, "targetName")
+            dataBlob,
+            new DoesUIObjectExistCondition(dataBlob, "targetName")
         ),
-        new CreateTargetNameTextBoxesAction(blackboard),
+        new CreateTargetNameTextBoxesAction(dataBlob),
     ])
-    const createChancesOfDegreesOfSuccessTextBoxesTree = new SequenceComposite(
-        blackboard,
+    const createNamesOfDegreesOfSuccessTextBoxesTree = new SequenceComposite(
+        dataBlob,
         [
             new InverterDecorator(
-                blackboard,
+                dataBlob,
                 new DoesUIObjectExistCondition(
-                    blackboard,
-                    "chancesOfDegreesOfSuccessTextBoxes"
+                    dataBlob,
+                    "namesOfDegreesOfSuccessTextBoxes"
                 )
             ),
             new UntilFailDecorator(
-                blackboard,
-                new CreateNextChancesOfDegreesOfSuccessTextBoxAction(blackboard)
+                dataBlob,
+                new CreateNextNamesOfDegreesOfSuccessTextBoxAction(dataBlob)
+            ),
+        ]
+    )
+    const createChancesOfDegreesOfSuccessTextBoxesTree = new SequenceComposite(
+        dataBlob,
+        [
+            new InverterDecorator(
+                dataBlob,
+                new DoesUIObjectExistCondition(
+                    dataBlob,
+                    "chancesOfDegreesOfSuccessTextBoxes"
+                )
+            ),
+            new InverterDecorator(
+                dataBlob,
+                new DoesUIObjectExistCondition(
+                    dataBlob,
+                    "chancesOfDegreesOfSuccessRectangles"
+                )
+            ),
+            new UntilFailDecorator(
+                dataBlob,
+                new CreateNextChancesOfDegreesOfSuccessTextBoxAction(dataBlob)
             ),
         ]
     )
     const createEffectsOfDegreesOfSuccessTextBoxesTree = new SequenceComposite(
-        blackboard,
+        dataBlob,
         [
             new InverterDecorator(
-                blackboard,
+                dataBlob,
                 new DoesUIObjectExistCondition(
-                    blackboard,
+                    dataBlob,
                     "effectsOfDegreesOfSuccessTextBoxes"
                 )
             ),
             new UntilFailDecorator(
-                blackboard,
-                new CreateNextEffectsOfDegreesOfSuccessTextBoxAction(blackboard)
+                dataBlob,
+                new CreateNextEffectsOfDegreesOfSuccessTextBoxAction(dataBlob)
             ),
         ]
     )
-    const createModifiersTextBoxesTree = new SequenceComposite(blackboard, [
+    const createModifiersTextBoxesTree = new SequenceComposite(dataBlob, [
         new InverterDecorator(
-            blackboard,
-            new DoesUIObjectExistCondition(blackboard, "modifiersTextBoxes")
+            dataBlob,
+            new DoesUIObjectExistCondition(dataBlob, "modifiersTextBoxes")
         ),
         new UntilFailDecorator(
-            blackboard,
-            new CreateLeftModifiersTextBoxAction(blackboard)
+            dataBlob,
+            new CreateLeftModifiersTextBoxAction(dataBlob)
         ),
         new UntilFailDecorator(
-            blackboard,
-            new CreateRightModifiersTextBoxAction(blackboard)
+            dataBlob,
+            new CreateRightModifiersTextBoxAction(dataBlob)
         ),
     ])
 
-    const drawTextBoxTree = new SequenceComposite(blackboard, [
-        new DoesUIObjectExistCondition(blackboard, "graphicsContext"),
+    const drawTextBoxTree = new SequenceComposite(dataBlob, [
+        new DoesUIObjectExistCondition(dataBlob, "graphicsContext"),
         new DrawTextBoxesAction(
-            blackboard,
-            (blackboard: DataBlob) => {
-                const uiObjects =
-                    DataBlobService.get<ActionPreviewTileUIObjects>(
-                        blackboard,
-                        "uiObjects"
-                    )
+            dataBlob,
+            (
+                dataBlob: ComponentDataBlob<
+                    ActionPreviewTileLayout,
+                    ActionPreviewTileContext,
+                    ActionPreviewTileUIObjects
+                >
+            ) => {
+                const uiObjects = dataBlob.getUIObjects()
                 return [
+                    ...uiObjects.namesOfDegreesOfSuccessTextBoxes.map(
+                        (a) => a.textBox
+                    ),
                     ...uiObjects.chancesOfDegreesOfSuccessTextBoxes.map(
                         (a) => a.textBox
                     ),
@@ -437,22 +504,54 @@ const createDrawingBehaviorTree = (blackboard: DataBlob) => {
                     uiObjects.targetNameTextBox,
                 ].filter((x) => x)
             },
-            (blackboard: DataBlob) => {
-                const uiObjects =
-                    DataBlobService.get<ActionPreviewTileUIObjects>(
-                        blackboard,
-                        "uiObjects"
-                    )
+            (
+                dataBlob: ComponentDataBlob<
+                    ActionPreviewTileLayout,
+                    ActionPreviewTileContext,
+                    ActionPreviewTileUIObjects
+                >
+            ) => {
+                const uiObjects = dataBlob.getUIObjects()
                 return uiObjects.graphicsContext
             }
         ),
     ])
 
+    const drawRectangles = new DrawRectanglesAction(
+        dataBlob,
+        (
+            dataBlob: ComponentDataBlob<
+                ActionPreviewTileLayout,
+                ActionPreviewTileContext,
+                ActionPreviewTileUIObjects
+            >
+        ) => {
+            const uiObjects = dataBlob.getUIObjects()
+            return [
+                ...uiObjects.chancesOfDegreesOfSuccessRectangles.map(
+                    (x) => x.bar
+                ),
+            ].filter((x) => x)
+        },
+        (
+            dataBlob: ComponentDataBlob<
+                ActionPreviewTileLayout,
+                ActionPreviewTileContext,
+                ActionPreviewTileUIObjects
+            >
+        ) => {
+            const uiObjects = dataBlob.getUIObjects()
+            return uiObjects.graphicsContext
+        }
+    )
+
     const drawBehaviorTree: BehaviorTreeTask = new ExecuteAllComposite(
-        blackboard,
+        dataBlob,
         [
             createTargetNameTextBoxTree,
+            createNamesOfDegreesOfSuccessTextBoxesTree,
             createChancesOfDegreesOfSuccessTextBoxesTree,
+            drawRectangles,
             createEffectsOfDegreesOfSuccessTextBoxesTree,
             createModifiersTextBoxesTree,
             drawTextBoxTree,
@@ -510,19 +609,27 @@ const createActionPreviewTileContext = ({
 }
 
 class DoesUIObjectExistCondition implements BehaviorTreeTask {
-    dataBlob: DataBlob
+    dataBlob: ComponentDataBlob<
+        ActionPreviewTileLayout,
+        ActionPreviewTileContext,
+        ActionPreviewTileUIObjects
+    >
     uiObjectKey: string
 
-    constructor(blackboard: DataBlob, uiObjectKey: string) {
+    constructor(
+        blackboard: ComponentDataBlob<
+            ActionPreviewTileLayout,
+            ActionPreviewTileContext,
+            ActionPreviewTileUIObjects
+        >,
+        uiObjectKey: string
+    ) {
         this.dataBlob = blackboard
         this.uiObjectKey = uiObjectKey
     }
 
     run(): boolean {
-        const uiObjects = DataBlobService.get<ActionPreviewTileUIObjects>(
-            this.dataBlob,
-            "uiObjects"
-        )
+        const uiObjects = this.dataBlob.getUIObjects()
         return (
             uiObjects[this.uiObjectKey as keyof typeof uiObjects] !== undefined
         )

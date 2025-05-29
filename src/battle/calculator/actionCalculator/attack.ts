@@ -372,7 +372,6 @@ const getDegreeOfSuccess = ({
     targetBattleSquaddie,
     targetSquaddieTemplate,
     actorContext,
-    actorBattleSquaddie,
 }: {
     actionEffectTemplate: ActionEffectTemplate
     targetBattleSquaddie: BattleSquaddie
@@ -413,7 +412,6 @@ const getAllPossibleDegreesOfSuccess = ({
     targetBattleSquaddie,
     targetSquaddieTemplate,
     actorContext,
-    actorBattleSquaddie,
 }: {
     actionEffectTemplate: ActionEffectTemplate
     targetBattleSquaddie: BattleSquaddie
@@ -467,7 +465,6 @@ const getAllPossibleDegreesOfSuccess = ({
 
 const calculateEffectBasedOnDegreeOfSuccess = ({
     actionEffectTemplate,
-    actorContext,
     degreeOfSuccess,
     targetSquaddieTemplate,
     targetBattleSquaddie,
@@ -693,7 +690,7 @@ const calculateChanceOfDegreeOfSuccessBasedOnActingSquaddieModifierTotal = (
                 [DegreeOfSuccess.SUCCESS]: 1,
                 [DegreeOfSuccess.FAILURE]: 0,
                 [DegreeOfSuccess.CRITICAL_FAILURE]: 0,
-                [DegreeOfSuccess.NONE]: 0,
+                [DegreeOfSuccess.NONE]: undefined,
             }
         case actingSquaddieModifierTotal < -19:
             return {
@@ -701,12 +698,12 @@ const calculateChanceOfDegreeOfSuccessBasedOnActingSquaddieModifierTotal = (
                 [DegreeOfSuccess.SUCCESS]: 0,
                 [DegreeOfSuccess.FAILURE]: 1,
                 [DegreeOfSuccess.CRITICAL_FAILURE]: 35,
-                [DegreeOfSuccess.NONE]: 0,
+                [DegreeOfSuccess.NONE]: undefined,
             }
         default:
             return {
                 ...chanceOutOf36[actingSquaddieModifierTotal],
-                [DegreeOfSuccess.NONE]: 0,
+                [DegreeOfSuccess.NONE]: undefined,
             }
     }
 }

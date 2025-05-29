@@ -71,7 +71,7 @@ import {
 } from "./components/continueGameButton"
 import { LoadSaveStateService } from "../dataLoader/playerData/loadSaveState"
 import { MessageBoardMessageType } from "../message/messageBoardMessage"
-import { DrawRectangleAction } from "../ui/rectangle/drawRectangleAction"
+import { DrawRectanglesAction } from "../ui/rectangle/drawRectanglesAction"
 import { DrawTextBoxesAction } from "../ui/textBox/drawTextBoxesAction"
 import { DrawImagesAction } from "../ui/imageUI/drawImagesAction"
 import p5 from "p5"
@@ -791,7 +791,7 @@ export class TitleScreen implements GameEngineComponent {
                 objectKey: "graphicsContext",
             }),
             new ExecuteAllComposite(this.data, [
-                new DrawRectangleAction(
+                new DrawRectanglesAction(
                     this.data,
                     (
                         dataBlob: ComponentDataBlob<
@@ -802,7 +802,7 @@ export class TitleScreen implements GameEngineComponent {
                     ) => {
                         const uiObjects: TitleScreenUIObjects =
                             dataBlob.getUIObjects()
-                        return uiObjects.background
+                        return [uiObjects.background]
                     },
                     getGraphicsContext
                 ),

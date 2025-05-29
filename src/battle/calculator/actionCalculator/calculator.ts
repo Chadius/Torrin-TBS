@@ -762,7 +762,7 @@ const getAllPossibleDegreesOfSuccess = ({
     ) {
         degreesOfSuccess[DegreeOfSuccess.FAILURE] +=
             degreesOfSuccess[DegreeOfSuccess.CRITICAL_FAILURE]
-        degreesOfSuccess[DegreeOfSuccess.CRITICAL_FAILURE] = 0
+        degreesOfSuccess[DegreeOfSuccess.CRITICAL_FAILURE] = undefined
     }
     if (
         TraitStatusStorageService.getStatus(
@@ -772,11 +772,13 @@ const getAllPossibleDegreesOfSuccess = ({
     ) {
         degreesOfSuccess[DegreeOfSuccess.SUCCESS] +=
             degreesOfSuccess[DegreeOfSuccess.CRITICAL_SUCCESS]
-        degreesOfSuccess[DegreeOfSuccess.CRITICAL_SUCCESS] = 0
+        degreesOfSuccess[DegreeOfSuccess.CRITICAL_SUCCESS] = undefined
     }
 
     return Object.fromEntries(
-        Object.entries(degreesOfSuccess).filter(([_, chance]) => chance > 0)
+        Object.entries(degreesOfSuccess).filter(
+            ([_, chance]) => chance != undefined
+        )
     )
 }
 

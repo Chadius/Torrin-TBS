@@ -30,7 +30,6 @@ import {
 } from "../../objectRepository"
 import { MissionMap, MissionMapService } from "../../../missionMap/missionMap"
 import { TerrainTileMapService } from "../../../hexMap/terrainTileMap"
-import { OrchestratorUtilities } from "../../orchestratorComponents/orchestratorUtils"
 import {
     BattleActionDecisionStep,
     BattleActionDecisionStepService,
@@ -48,7 +47,6 @@ import {
     TraitStatusStorageService,
 } from "../../../trait/traitStatusStorage"
 import { CampaignService } from "../../../campaign/campaign"
-import { DrawSquaddieIconOnMapUtilities } from "../../animation/drawSquaddieIconOnMap/drawSquaddieIconOnMap"
 import { BattleCamera } from "../../battleCamera"
 import {
     BattleSquaddieTeam,
@@ -878,34 +876,6 @@ describe("Battle HUD", () => {
             expect(graphicsLayer.type).toEqual(
                 MapGraphicsLayerType.HOVERED_OVER_NORMALLY_UNCONTROLLABLE_SQUADDIE
             )
-        })
-    })
-    describe("Player cancels target selection they were considering", () => {
-        let gameEngineState: GameEngineState
-        let battleHUDListener: BattleHUDListener
-        let battleSquaddie: BattleSquaddie
-        let longswordAction: ActionTemplate
-        let addGraphicsLayerSpy: MockInstance
-
-        beforeEach(() => {
-            ;({
-                gameEngineState,
-                playerSoldierBattleSquaddie: battleSquaddie,
-                longswordAction,
-            } = createGameEngineState({
-                battleSquaddieCoordinate: { q: 1, r: 1 },
-            }))
-
-            addGraphicsLayerSpy = vi.spyOn(
-                DrawSquaddieIconOnMapUtilities,
-                "highlightSquaddieRange"
-            )
-
-            battleHUDListener = new BattleHUDListener("battleHUDListener")
-        })
-
-        afterEach(() => {
-            addGraphicsLayerSpy.mockRestore()
         })
     })
     describe("Player cancels target confirmation", () => {

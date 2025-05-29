@@ -1,9 +1,5 @@
 import { BehaviorTreeTask } from "../../../../../../utils/behaviorTree/task"
 import {
-    DataBlob,
-    DataBlobService,
-} from "../../../../../../utils/dataBlob/dataBlob"
-import {
     ActionTilePosition,
     ActionTilePositionService,
 } from "../../actionTilePosition"
@@ -13,40 +9,38 @@ import {
     ActionPreviewTileContext,
     ActionPreviewTileLayout,
     ActionPreviewTileUIObjects,
+    ShowDegreeOfSuccessEvenIfNoEffect,
 } from "../actionPreviewTile"
 import { ActionPreviewTileDegreesOfSuccessService } from "./degreesOfSuccess"
+import { ComponentDataBlob } from "../../../../../../utils/dataBlob/componentDataBlob"
+import { BattleActionSquaddieChange } from "../../../../../history/battleAction/battleActionSquaddieChange"
+import { DegreeOfSuccess } from "../../../../../calculator/actionCalculator/degreeOfSuccess"
+import { RectangleService } from "../../../../../../ui/rectangle/rectangle"
 
 export class CreateNextChancesOfDegreesOfSuccessTextBoxAction
     implements BehaviorTreeTask
 {
-    dataBlob: DataBlob
+    dataBlob: ComponentDataBlob<
+        ActionPreviewTileLayout,
+        ActionPreviewTileContext,
+        ActionPreviewTileUIObjects
+    >
 
-    constructor(blackboard: DataBlob) {
+    constructor(
+        blackboard: ComponentDataBlob<
+            ActionPreviewTileLayout,
+            ActionPreviewTileContext,
+            ActionPreviewTileUIObjects
+        >
+    ) {
         this.dataBlob = blackboard
     }
 
     run(): boolean {
-        const uiObjects = DataBlobService.get<ActionPreviewTileUIObjects>(
-            this.dataBlob,
-            "uiObjects"
-        )
-
-        let context: ActionPreviewTileContext = DataBlobService.get(
-            this.dataBlob,
-            "context"
-        )
-
+        const uiObjects = this.dataBlob.getUIObjects()
+        let context: ActionPreviewTileContext = this.dataBlob.getContext()
         const degreesOfSuccessLayoutConstants =
-            DataBlobService.get<ActionPreviewTileLayout>(
-                this.dataBlob,
-                "layout"
-            ).degreesOfSuccess
-
-        const chancesOfDegreesOfSuccessLayoutConstants =
-            DataBlobService.get<ActionPreviewTileLayout>(
-                this.dataBlob,
-                "layout"
-            ).chancesOfDegreesOfSuccess
+            this.dataBlob.getLayout().degreesOfSuccess
 
         const targetForecast = context.forecast.changesPerEffect[0]
         const boundingBox =
@@ -58,16 +52,11 @@ export class CreateNextChancesOfDegreesOfSuccessTextBoxAction
         const { forecastedChange, degreeOfSuccessToDraw } =
             ActionPreviewTileDegreesOfSuccessService.findNextDegreeOfSuccessToDraw(
                 degreesOfSuccessLayoutConstants.rowOrder,
-                uiObjects.chancesOfDegreesOfSuccessTextBoxes,
+                uiObjects.chancesOfDegreesOfSuccessTextBoxes ?? [],
                 targetForecast,
                 context.actionTemplate
             )
         if (!degreeOfSuccessToDraw) return false
-
-        const messageToShow = degreeOfSuccessToDraw.showChanceOfSuccess
-            ? `${((forecastedChange.chanceOfDegreeOfSuccess * 100) / 36).toFixed()}% ${degreeOfSuccessToDraw.suffix}`
-            : ""
-
         const top =
             ActionPreviewTileDegreesOfSuccessService.calculateTopOfNextDegreesOfSuccessRow(
                 {
@@ -78,13 +67,69 @@ export class CreateNextChancesOfDegreesOfSuccessTextBoxAction
                 }
             )
 
+        this.addTextDescription({
+            uiObjects,
+            forecastedChange,
+            degreeOfSuccessToDraw,
+            top,
+        })
+
+        this.addRectangle({
+            uiObjects,
+            forecastedChange,
+            degreeOfSuccessToDraw,
+            top,
+        })
+
+        this.dataBlob.setUIObjects(uiObjects)
+        return true
+    }
+
+    private addTextDescription({
+        uiObjects,
+        forecastedChange,
+        degreeOfSuccessToDraw,
+        top,
+    }: {
+        uiObjects: ActionPreviewTileUIObjects
+        forecastedChange: BattleActionSquaddieChange
+        degreeOfSuccessToDraw: {
+            degreeOfSuccess: DegreeOfSuccess
+            suffix: string
+            showEvenIfNoEffect: ShowDegreeOfSuccessEvenIfNoEffect
+            showChanceOfSuccess: boolean
+        }
+        top: number
+    }) {
+        const chancesOfDegreesOfSuccessLayoutConstants =
+            this.dataBlob.getLayout().chancesOfDegreesOfSuccess
+        const degreesOfSuccessLayoutConstants =
+            this.dataBlob.getLayout().degreesOfSuccess
+
+        const boundingBox =
+            ActionTilePositionService.getBoundingBoxBasedOnActionTilePosition(
+                ActionTilePosition.ACTION_PREVIEW
+            )
+
+        uiObjects.chancesOfDegreesOfSuccessTextBoxes ||= []
+        const areWeDrawingTheFirstDegreeOfSuccessTextBox =
+            uiObjects.chancesOfDegreesOfSuccessTextBoxes.length === 0
+        const chanceOfDegreeOfSuccessText =
+            areWeDrawingTheFirstDegreeOfSuccessTextBox
+                ? `${forecastedChange.chanceOfDegreeOfSuccess}/36`
+                : forecastedChange.chanceOfDegreeOfSuccess
+
+        const messageToShow = degreeOfSuccessToDraw.showChanceOfSuccess
+            ? `${chanceOfDegreeOfSuccessText}`
+            : ""
+
         uiObjects.chancesOfDegreesOfSuccessTextBoxes.push({
             degreeOfSuccess: degreeOfSuccessToDraw.degreeOfSuccess,
             textBox: TextBoxService.new({
                 fontColor: chancesOfDegreesOfSuccessLayoutConstants.fontColor,
                 fontSize: chancesOfDegreesOfSuccessLayoutConstants.fontSize,
                 area: RectAreaService.new({
-                    left: RectAreaService.left(boundingBox),
+                    right: RectAreaService.right(boundingBox),
                     top,
                     width: chancesOfDegreesOfSuccessLayoutConstants.width,
                     height: degreesOfSuccessLayoutConstants.height,
@@ -93,13 +138,61 @@ export class CreateNextChancesOfDegreesOfSuccessTextBoxAction
                 text: messageToShow,
             }),
         })
+    }
 
-        DataBlobService.add<ActionPreviewTileUIObjects>(
-            this.dataBlob,
-            "uiObjects",
-            uiObjects
-        )
+    private addRectangle({
+        uiObjects,
+        forecastedChange,
+        degreeOfSuccessToDraw,
+        top,
+    }: {
+        uiObjects: ActionPreviewTileUIObjects
+        forecastedChange: BattleActionSquaddieChange
+        degreeOfSuccessToDraw: {
+            degreeOfSuccess: DegreeOfSuccess
+            suffix: string
+            showEvenIfNoEffect: ShowDegreeOfSuccessEvenIfNoEffect
+            showChanceOfSuccess: boolean
+        }
+        top: number
+    }) {
+        uiObjects.chancesOfDegreesOfSuccessRectangles ||= []
+        if (forecastedChange.actorDegreeOfSuccess == DegreeOfSuccess.NONE)
+            return
+        if (forecastedChange.chanceOfDegreeOfSuccess == 0) return
 
-        return true
+        const boundingBox =
+            ActionTilePositionService.getBoundingBoxBasedOnActionTilePosition(
+                ActionTilePosition.ACTION_PREVIEW
+            )
+        const chancesOfDegreesOfSuccessLayoutConstants =
+            this.dataBlob.getLayout().chancesOfDegreesOfSuccess
+
+        uiObjects.chancesOfDegreesOfSuccessRectangles.push({
+            degreeOfSuccess: degreeOfSuccessToDraw.degreeOfSuccess,
+            bar: RectangleService.new({
+                noStroke: true,
+                area: RectAreaService.new({
+                    left:
+                        RectAreaService.left(boundingBox) +
+                        chancesOfDegreesOfSuccessLayoutConstants.bar
+                            .horizontalOffset,
+                    top,
+                    width:
+                        chancesOfDegreesOfSuccessLayoutConstants.bar
+                            .lengthPerChance *
+                        forecastedChange.chanceOfDegreeOfSuccess,
+                    height: chancesOfDegreesOfSuccessLayoutConstants.bar.height,
+                    margin: chancesOfDegreesOfSuccessLayoutConstants.margin,
+                }),
+                fillColor:
+                    chancesOfDegreesOfSuccessLayoutConstants.bar
+                        .colorByDegreeOfSuccess[
+                        degreeOfSuccessToDraw.degreeOfSuccess
+                    ],
+                cornerRadius:
+                    chancesOfDegreesOfSuccessLayoutConstants.bar.cornerRadius,
+            }),
+        })
     }
 }

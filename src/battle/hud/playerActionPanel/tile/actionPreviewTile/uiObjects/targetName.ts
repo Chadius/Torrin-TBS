@@ -15,24 +15,28 @@ import {
     ActionPreviewTileLayout,
     ActionPreviewTileUIObjects,
 } from "../actionPreviewTile"
+import { ComponentDataBlob } from "../../../../../../utils/dataBlob/componentDataBlob"
 
 export class CreateTargetNameTextBoxesAction implements BehaviorTreeTask {
-    dataBlob: DataBlob
+    dataBlob: ComponentDataBlob<
+        ActionPreviewTileLayout,
+        ActionPreviewTileContext,
+        ActionPreviewTileUIObjects
+    >
 
-    constructor(blackboard: DataBlob) {
-        this.dataBlob = blackboard
+    constructor(
+        dataBlob: ComponentDataBlob<
+            ActionPreviewTileLayout,
+            ActionPreviewTileContext,
+            ActionPreviewTileUIObjects
+        >
+    ) {
+        this.dataBlob = dataBlob
     }
 
     run(): boolean {
-        const uiObjects = DataBlobService.get<ActionPreviewTileUIObjects>(
-            this.dataBlob,
-            "uiObjects"
-        )
-
-        let context: ActionPreviewTileContext = DataBlobService.get(
-            this.dataBlob,
-            "context"
-        )
+        const uiObjects = this.dataBlob.getUIObjects()
+        let context: ActionPreviewTileContext = this.dataBlob.getContext()
 
         const targetBattleSquaddieId =
             context.forecast.changesPerEffect[0].squaddieChanges[0]
@@ -44,10 +48,7 @@ export class CreateTargetNameTextBoxesAction implements BehaviorTreeTask {
             ActionTilePositionService.getBoundingBoxBasedOnActionTilePosition(
                 ActionTilePosition.ACTION_PREVIEW
             )
-        const layoutConstants = DataBlobService.get<ActionPreviewTileLayout>(
-            this.dataBlob,
-            "layout"
-        ).targetName
+        const layoutConstants = this.dataBlob.getLayout().targetName
 
         const textInfo = TextHandlingService.fitTextWithinSpace({
             text: targetName,
@@ -70,16 +71,7 @@ export class CreateTargetNameTextBoxesAction implements BehaviorTreeTask {
             text: textInfo.text,
         })
 
-        DataBlobService.add<ActionPreviewTileUIObjects>(
-            this.dataBlob,
-            "uiObjects",
-            uiObjects
-        )
-
+        this.dataBlob.setUIObjects(uiObjects)
         return true
-    }
-
-    clone(): BehaviorTreeTask {
-        return new CreateTargetNameTextBoxesAction(this.dataBlob)
     }
 }

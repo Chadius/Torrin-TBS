@@ -1,9 +1,5 @@
 import { BehaviorTreeTask } from "../../../../../../utils/behaviorTree/task"
 import {
-    DataBlob,
-    DataBlobService,
-} from "../../../../../../utils/dataBlob/dataBlob"
-import {
     ActionTilePosition,
     ActionTilePositionService,
 } from "../../actionTilePosition"
@@ -28,38 +24,38 @@ import {
     AttributeTypeService,
 } from "../../../../../../squaddie/attribute/attributeType"
 import { DegreeOfSuccess } from "../../../../../calculator/actionCalculator/degreeOfSuccess"
+import { ComponentDataBlob } from "../../../../../../utils/dataBlob/componentDataBlob"
 
 export class CreateNextEffectsOfDegreesOfSuccessTextBoxAction
     implements BehaviorTreeTask
 {
-    dataBlob: DataBlob
+    dataBlob: ComponentDataBlob<
+        ActionPreviewTileLayout,
+        ActionPreviewTileContext,
+        ActionPreviewTileUIObjects
+    >
 
-    constructor(blackboard: DataBlob) {
+    constructor(
+        blackboard: ComponentDataBlob<
+            ActionPreviewTileLayout,
+            ActionPreviewTileContext,
+            ActionPreviewTileUIObjects
+        >
+    ) {
         this.dataBlob = blackboard
     }
 
     run(): boolean {
-        const uiObjects = DataBlobService.get<ActionPreviewTileUIObjects>(
-            this.dataBlob,
-            "uiObjects"
-        )
-
-        let context: ActionPreviewTileContext = DataBlobService.get(
-            this.dataBlob,
-            "context"
-        )
-
+        const uiObjects = this.dataBlob.getUIObjects()
+        let context: ActionPreviewTileContext = this.dataBlob.getContext()
         const degreesOfSuccessLayoutConstants =
-            DataBlobService.get<ActionPreviewTileLayout>(
-                this.dataBlob,
-                "layout"
-            ).degreesOfSuccess
+            this.dataBlob.getLayout().degreesOfSuccess
 
         const effectsOfDegreesOfSuccessLayoutConstants =
-            DataBlobService.get<ActionPreviewTileLayout>(
-                this.dataBlob,
-                "layout"
-            ).effectsOfDegreesOfSuccess
+            this.dataBlob.getLayout().effectsOfDegreesOfSuccess
+
+        const namesOfDegreesOfSuccessLayoutConstants =
+            this.dataBlob.getLayout().namesOfDegreesOfSuccess
 
         const targetForecast = context.forecast.changesPerEffect[0]
         const boundingBox =
@@ -121,30 +117,21 @@ export class CreateNextEffectsOfDegreesOfSuccessTextBoxAction
                 fontColor: effectsOfDegreesOfSuccessLayoutConstants.fontColor,
                 fontSize: textInfo.fontSize,
                 area: RectAreaService.new({
-                    right: RectAreaService.right(boundingBox),
+                    left:
+                        RectAreaService.left(boundingBox) +
+                        namesOfDegreesOfSuccessLayoutConstants.width +
+                        namesOfDegreesOfSuccessLayoutConstants.margin[1],
                     top,
                     width: effectsOfDegreesOfSuccessLayoutConstants.width,
                     height: degreesOfSuccessLayoutConstants.height,
                     margin: effectsOfDegreesOfSuccessLayoutConstants.margin,
                 }),
                 text: textInfo.text,
-                horizAlign: effectsOfDegreesOfSuccessLayoutConstants.horizAlign,
             }),
         })
 
-        DataBlobService.add<ActionPreviewTileUIObjects>(
-            this.dataBlob,
-            "uiObjects",
-            uiObjects
-        )
-
+        this.dataBlob.setUIObjects(uiObjects)
         return true
-    }
-
-    clone(): BehaviorTreeTask {
-        return new CreateNextEffectsOfDegreesOfSuccessTextBoxAction(
-            this.dataBlob
-        )
     }
 }
 

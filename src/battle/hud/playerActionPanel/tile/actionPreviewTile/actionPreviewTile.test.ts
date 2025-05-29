@@ -224,65 +224,54 @@ describe("Action Preview Tile", () => {
         })
 
         describe("chance of degrees of success", () => {
-            it("will text the chance to critically succeed", () => {
+            it("will text the degrees of success that are displayed", () => {
+                ActionPreviewTileService.draw({
+                    tile,
+                    graphicsContext: graphicsBuffer,
+                })
+                expect(getAllDrawnText(graphicsBufferSpies["text"])).includes(
+                    "crit"
+                )
+                expect(getAllDrawnText(graphicsBufferSpies["text"])).includes(
+                    "hit"
+                )
+                expect(getAllDrawnText(graphicsBufferSpies["text"])).includes(
+                    "miss"
+                )
+                expect(getAllDrawnText(graphicsBufferSpies["text"])).includes(
+                    "botch"
+                )
+            })
+            it("will text the chances of each degree of success, adding a key for the first", () => {
                 ActionPreviewTileService.draw({
                     tile: tile,
                     graphicsContext: graphicsBuffer,
                 })
                 expect(getAllDrawnText(graphicsBufferSpies["text"])).includes(
-                    "3% crit"
+                    "1/36"
                 )
-            })
-            it("will text the chance to hit", () => {
-                ActionPreviewTileService.draw({
-                    tile: tile,
-                    graphicsContext: graphicsBuffer,
-                })
-
                 expect(getAllDrawnText(graphicsBufferSpies["text"])).includes(
-                    "69% hit"
+                    "25"
                 )
-            })
-            it("will text the chance to miss if there is an effect", () => {
-                const forecastSpy = generateForecastSpy([
-                    BattleActionSquaddieChangeService.new({
-                        battleSquaddieId: "enemy_0",
-                        actorDegreeOfSuccess: DegreeOfSuccess.FAILURE,
-                        damageExplanation: DamageExplanationService.new({
-                            raw: 1,
-                            absorbed: 0,
-                            net: 1,
-                        }),
-                        chanceOfDegreeOfSuccess: 18,
-                        attributesAfter: InBattleAttributesService.new({
-                            currentHitPoints: 1,
-                        }),
-                    }),
-                ])
-
-                createAndDrawTile(
-                    gameEngineState,
-                    objectRepository,
-                    graphicsBuffer
-                )
-
                 expect(getAllDrawnText(graphicsBufferSpies["text"])).includes(
-                    "50% miss"
+                    "9"
                 )
-                expect(forecastSpy).toBeCalled()
-                forecastSpy.mockRestore()
+                expect(getAllDrawnText(graphicsBufferSpies["text"])).includes(
+                    "1"
+                )
             })
-            it("will text the chance to miss even if there is no chance of critically missing", () => {
+
+            it("will text every possible degree forecasted and skip those that are not", () => {
                 const forecastSpy = generateForecastSpy([
                     BattleActionSquaddieChangeService.new({
                         battleSquaddieId: "enemy_0",
                         actorDegreeOfSuccess: DegreeOfSuccess.SUCCESS,
-                        chanceOfDegreeOfSuccess: 18,
+                        chanceOfDegreeOfSuccess: 20,
                     }),
                     BattleActionSquaddieChangeService.new({
                         battleSquaddieId: "enemy_0",
                         actorDegreeOfSuccess: DegreeOfSuccess.FAILURE,
-                        chanceOfDegreeOfSuccess: 18,
+                        chanceOfDegreeOfSuccess: 16,
                     }),
                 ])
 
@@ -293,33 +282,10 @@ describe("Action Preview Tile", () => {
                 )
 
                 expect(getAllDrawnText(graphicsBufferSpies["text"])).includes(
-                    "50% miss"
+                    "20/36"
                 )
-                expect(forecastSpy).toBeCalled()
-                forecastSpy.mockRestore()
-            })
-            it("will text the chance to critically miss if there is no effect", () => {
-                const forecastSpy = generateForecastSpy([
-                    BattleActionSquaddieChangeService.new({
-                        battleSquaddieId: "enemy_0",
-                        actorDegreeOfSuccess: DegreeOfSuccess.CRITICAL_FAILURE,
-                        damageExplanation: DamageExplanationService.new({
-                            raw: 0,
-                            absorbed: 0,
-                            net: 0,
-                        }),
-                        chanceOfDegreeOfSuccess: 18,
-                    }),
-                ])
-
-                createAndDrawTile(
-                    gameEngineState,
-                    objectRepository,
-                    graphicsBuffer
-                )
-
                 expect(getAllDrawnText(graphicsBufferSpies["text"])).includes(
-                    "50% botch"
+                    "16"
                 )
                 expect(forecastSpy).toBeCalled()
                 forecastSpy.mockRestore()
@@ -336,7 +302,7 @@ describe("Action Preview Tile", () => {
                         absorbed: 0,
                         net: 0,
                     }),
-                    chanceOfDegreeOfSuccess: 18,
+                    chanceOfDegreeOfSuccess: 20,
                 }),
                 BattleActionSquaddieChangeService.new({
                     battleSquaddieId: "enemy_0",
@@ -346,7 +312,7 @@ describe("Action Preview Tile", () => {
                         absorbed: 0,
                         net: 0,
                     }),
-                    chanceOfDegreeOfSuccess: 18,
+                    chanceOfDegreeOfSuccess: 16,
                 }),
             ])
 
@@ -368,11 +334,9 @@ describe("Action Preview Tile", () => {
             })
 
             expect(getAllDrawnText(graphicsBufferSpies["text"])).includes(
-                "50% miss"
+                "20/36"
             )
-            expect(getAllDrawnText(graphicsBufferSpies["text"])).includes(
-                "50% botch"
-            )
+            expect(getAllDrawnText(graphicsBufferSpies["text"])).includes("16")
             expect(forecastSpy).toBeCalled()
             forecastSpy.mockRestore()
         })
@@ -411,7 +375,7 @@ describe("Action Preview Tile", () => {
             })
 
             expect(getAllDrawnText(graphicsBufferSpies["text"])).not.includes(
-                "100% "
+                "36/36 "
             )
             expect(getAllDrawnText(graphicsBufferSpies["text"])).includes(
                 "1 damage"

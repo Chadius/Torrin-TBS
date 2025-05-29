@@ -3,35 +3,28 @@ import { DataBlob } from "../../utils/dataBlob/dataBlob"
 import { Rectangle, RectangleService } from "./rectangle"
 import { GraphicsBuffer } from "../../utils/graphics/graphicsRenderer"
 
-export class DrawRectangleAction implements BehaviorTreeTask {
+export class DrawRectanglesAction implements BehaviorTreeTask {
     dataBlob: DataBlob
-    getRectangle: (dataBlob: DataBlob) => Rectangle
+    getRectangles: (dataBlob: DataBlob) => Rectangle[]
     getGraphicsContext: (dataBlob: DataBlob) => GraphicsBuffer
 
     constructor(
         dataBlob: DataBlob,
-        getBackground: (dataBlob: DataBlob) => Rectangle,
+        getRectangles: (dataBlob: DataBlob) => Rectangle[],
         getGraphicsContext: (dataBlob: DataBlob) => GraphicsBuffer
     ) {
         this.dataBlob = dataBlob
-        this.getRectangle = getBackground
+        this.getRectangles = getRectangles
         this.getGraphicsContext = getGraphicsContext
     }
 
     run(): boolean {
-        const background = this.getRectangle(this.dataBlob)
+        const rectangles = this.getRectangles(this.dataBlob)
         const graphicsContext = this.getGraphicsContext(this.dataBlob)
-        if (!background || !graphicsContext) return false
-
-        RectangleService.draw(background, graphicsContext)
-        return true
-    }
-
-    clone(): DrawRectangleAction {
-        return new DrawRectangleAction(
-            this.dataBlob,
-            this.getRectangle,
-            this.getGraphicsContext
+        if (rectangles?.length === 0 || !graphicsContext) return false
+        rectangles.forEach((rectangle) =>
+            RectangleService.draw(rectangle, graphicsContext)
         )
+        return true
     }
 }

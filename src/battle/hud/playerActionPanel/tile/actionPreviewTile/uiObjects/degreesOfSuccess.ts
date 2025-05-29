@@ -8,15 +8,14 @@ import {
 } from "../../../../../history/battleAction/battleActionSquaddieChange"
 import { ActionEffectTemplateService } from "../../../../../../action/template/actionEffectTemplate"
 import {
+    ActionPreviewTileContext,
     ActionPreviewTileLayout,
+    ActionPreviewTileUIObjects,
     ShowDegreeOfSuccessEvenIfNoEffect,
 } from "../actionPreviewTile"
-import {
-    DataBlob,
-    DataBlobService,
-} from "../../../../../../utils/dataBlob/dataBlob"
 import { RectArea, RectAreaService } from "../../../../../../ui/rectArea"
 import { WINDOW_SPACING } from "../../../../../../ui/constants"
+import { ComponentDataBlob } from "../../../../../../utils/dataBlob/componentDataBlob"
 
 export const ActionPreviewTileDegreesOfSuccessService = {
     findNextDegreeOfSuccessToDraw: (
@@ -39,7 +38,11 @@ export const ActionPreviewTileDegreesOfSuccessService = {
         degreeOfSuccessUIObjects,
         boundingBox,
     }: {
-        blackboard: DataBlob
+        blackboard: ComponentDataBlob<
+            ActionPreviewTileLayout,
+            ActionPreviewTileContext,
+            ActionPreviewTileUIObjects
+        >
         degreeOfSuccessUIObjects: {
             degreeOfSuccess: DegreeOfSuccess
             textBox: TextBox
@@ -135,7 +138,11 @@ const calculateTopOfNextDegreesOfSuccessRow = ({
     degreeOfSuccessUIObjects,
     boundingBox,
 }: {
-    blackboard: DataBlob
+    blackboard: ComponentDataBlob<
+        ActionPreviewTileLayout,
+        ActionPreviewTileContext,
+        ActionPreviewTileUIObjects
+    >
     degreeOfSuccessUIObjects: {
         degreeOfSuccess: DegreeOfSuccess
         textBox: TextBox
@@ -148,5 +155,4 @@ const calculateTopOfNextDegreesOfSuccessRow = ({
                   .textBox.area
           ) +
           WINDOW_SPACING.SPACING1 / 2
-        : DataBlobService.get<ActionPreviewTileLayout>(blackboard, "layout")
-              .topRowOffset + RectAreaService.top(boundingBox)
+        : blackboard.getLayout().topRowOffset + RectAreaService.top(boundingBox)

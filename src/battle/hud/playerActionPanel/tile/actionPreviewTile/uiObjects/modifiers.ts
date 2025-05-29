@@ -1,9 +1,5 @@
 import { BehaviorTreeTask } from "../../../../../../utils/behaviorTree/task"
 import {
-    DataBlob,
-    DataBlobService,
-} from "../../../../../../utils/dataBlob/dataBlob"
-import {
     RollModifierType,
     RollModifierTypeService,
 } from "../../../../../calculator/actionCalculator/rollResult"
@@ -24,30 +20,29 @@ import {
     AttributeTypeAndAmount,
     AttributeTypeService,
 } from "../../../../../../squaddie/attribute/attributeType"
+import { ComponentDataBlob } from "../../../../../../utils/dataBlob/componentDataBlob"
 
 export class CreateLeftModifiersTextBoxAction implements BehaviorTreeTask {
-    dataBlob: DataBlob
+    dataBlob: ComponentDataBlob<
+        ActionPreviewTileLayout,
+        ActionPreviewTileContext,
+        ActionPreviewTileUIObjects
+    >
 
-    constructor(blackboard: DataBlob) {
+    constructor(
+        blackboard: ComponentDataBlob<
+            ActionPreviewTileLayout,
+            ActionPreviewTileContext,
+            ActionPreviewTileUIObjects
+        >
+    ) {
         this.dataBlob = blackboard
     }
 
     run(): boolean {
-        const uiObjects = DataBlobService.get<ActionPreviewTileUIObjects>(
-            this.dataBlob,
-            "uiObjects"
-        )
-
-        let context: ActionPreviewTileContext = DataBlobService.get(
-            this.dataBlob,
-            "context"
-        )
-
-        const modifiersLayoutConstants =
-            DataBlobService.get<ActionPreviewTileLayout>(
-                this.dataBlob,
-                "layout"
-            ).modifiers
+        const uiObjects = this.dataBlob.getUIObjects()
+        let context: ActionPreviewTileContext = this.dataBlob.getContext()
+        const modifiersLayoutConstants = this.dataBlob.getLayout().modifiers
 
         const leftSideRollModifiers =
             context.forecast.changesPerEffect[0].actorContext.actorRoll
@@ -125,43 +120,32 @@ export class CreateLeftModifiersTextBoxAction implements BehaviorTreeTask {
             })
         )
 
-        DataBlobService.add<ActionPreviewTileUIObjects>(
-            this.dataBlob,
-            "uiObjects",
-            uiObjects
-        )
-
+        this.dataBlob.setUIObjects(uiObjects)
         return true
-    }
-
-    clone(): BehaviorTreeTask {
-        return new CreateLeftModifiersTextBoxAction(this.dataBlob)
     }
 }
 
 export class CreateRightModifiersTextBoxAction implements BehaviorTreeTask {
-    dataBlob: DataBlob
+    dataBlob: ComponentDataBlob<
+        ActionPreviewTileLayout,
+        ActionPreviewTileContext,
+        ActionPreviewTileUIObjects
+    >
 
-    constructor(blackboard: DataBlob) {
+    constructor(
+        blackboard: ComponentDataBlob<
+            ActionPreviewTileLayout,
+            ActionPreviewTileContext,
+            ActionPreviewTileUIObjects
+        >
+    ) {
         this.dataBlob = blackboard
     }
 
     run(): boolean {
-        const uiObjects = DataBlobService.get<ActionPreviewTileUIObjects>(
-            this.dataBlob,
-            "uiObjects"
-        )
-
-        let context: ActionPreviewTileContext = DataBlobService.get(
-            this.dataBlob,
-            "context"
-        )
-
-        const modifiersLayoutConstants =
-            DataBlobService.get<ActionPreviewTileLayout>(
-                this.dataBlob,
-                "layout"
-            ).modifiers
+        const uiObjects = this.dataBlob.getUIObjects()
+        let context: ActionPreviewTileContext = this.dataBlob.getContext()
+        const modifiersLayoutConstants = this.dataBlob.getLayout().modifiers
 
         const rightSideTargetAttributeModifiers =
             context.forecast.changesPerEffect[0].actorContext
@@ -225,17 +209,8 @@ export class CreateRightModifiersTextBoxAction implements BehaviorTreeTask {
             })
         )
 
-        DataBlobService.add<ActionPreviewTileUIObjects>(
-            this.dataBlob,
-            "uiObjects",
-            uiObjects
-        )
-
+        this.dataBlob.setUIObjects(uiObjects)
         return true
-    }
-
-    clone(): BehaviorTreeTask {
-        return new CreateRightModifiersTextBoxAction(this.dataBlob)
     }
 }
 

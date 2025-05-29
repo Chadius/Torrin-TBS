@@ -20,7 +20,7 @@ import { DrawImagesAction } from "../../../../../ui/imageUI/drawImagesAction"
 import { UpdateSquaddieSelectorPanelButtonDrawingArea } from "./behaviorTreeTask/updateSquaddieSelectorPanelButtonDrawingArea"
 import { UpdateSquaddieSelectorPanelButtonName } from "./behaviorTreeTask/updateSquaddieSelectorPanelButtonName"
 import { DoesObjectHaveKeyExistCondition } from "../../../../../utils/behaviorTree/condition/doesObjectHaveKeyExistCondition"
-import { DrawRectangleAction } from "../../../../../ui/rectangle/drawRectangleAction"
+import { DrawRectanglesAction } from "../../../../../ui/rectangle/drawRectanglesAction"
 import { UpdateSquaddieSelectorPanelButtonBackground } from "./behaviorTreeTask/updateSquaddieSelectorPanelButtonBackground"
 import { MouseButton, MousePress } from "../../../../../utils/mouseConfig"
 import { SquaddieAffiliation } from "../../../../../squaddie/squaddieAffiliation"
@@ -336,15 +336,15 @@ const createDrawingBehaviorTree = ({
     graphicsContext: GraphicsBuffer
     resourceHandler: ResourceHandler
 }): BehaviorTreeTask => {
-    const drawBackgroundAction = new DrawRectangleAction(
+    const drawBackgroundAction = new DrawRectanglesAction(
         data,
-        (data: DataBlob): Rectangle => {
+        (data: DataBlob): Rectangle[] => {
             const uiObjects =
                 DataBlobService.get<SquaddieSelectorPanelButtonObjects>(
                     data,
                     "uiObjects"
                 )
-            return uiObjects.background
+            return [uiObjects.background]
         },
         (_: DataBlob): GraphicsBuffer => {
             return graphicsContext
