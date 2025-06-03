@@ -28,6 +28,7 @@ import { TerrainTileMapService } from "../../hexMap/terrainTileMap"
 import {
     CoordinateSystem,
     HexCoordinate,
+    HexCoordinateService,
 } from "../../hexMap/hexCoordinate/hexCoordinate"
 import {
     BattleAction,
@@ -42,11 +43,12 @@ import { TargetingResultsService } from "../targeting/targetingService"
 import { BehaviorTreeTask } from "../../utils/behaviorTree/task"
 import { DataBlob, DataBlobService } from "../../utils/dataBlob/dataBlob"
 import { SelectorComposite } from "../../utils/behaviorTree/composite/selector/selector"
-import { BattleSquaddieSelectorService } from "../orchestratorComponents/battleSquaddieSelectorUtils"
 import { SquaddieAffiliation } from "../../squaddie/squaddieAffiliation"
 import { PlayerClicksOnSquaddieSelectorPanel } from "./contextCalculator/playerClicksOnSquaddieSelectorPanel"
 import { PlayerMovesOffMapToCancelConsideredActions } from "./contextCalculator/playerMovesOffMapToCancelConsideredActions"
 import { SearchPathAdapterService } from "../../search/searchPathAdapter/searchPathAdapter"
+import { SearchResultsCacheService } from "../../hexMap/pathfinder/searchResults/searchResultsCache"
+import { SearchLimitService } from "../../hexMap/pathfinder/pathGeneration/searchLimit"
 
 export interface PlayerContextDataBlob extends DataBlob {
     data: {
@@ -214,6 +216,9 @@ export const PlayerSelectionService = {
                     selectionMethod: {
                         mouse: context.mouseMovement,
                     },
+                    squaddieAllMovementCache:
+                        gameEngineState.battleOrchestratorState.cache
+                            .searchResultsCache,
                 }
                 gameEngineState.messageBoard.sendMessage(messageSent)
                 return PlayerSelectionChangesService.new({ messageSent })
@@ -243,6 +248,9 @@ export const PlayerSelectionService = {
                     battleActionRecorder:
                         gameEngineState.battleOrchestratorState.battleState
                             .battleActionRecorder,
+                    squaddieAllMovementCache:
+                        gameEngineState.battleOrchestratorState.cache
+                            .searchResultsCache,
                 }
                 gameEngineState.messageBoard.sendMessage(messageSent)
                 return PlayerSelectionChangesService.new({ messageSent })
@@ -1280,12 +1288,8 @@ class PlayerConsidersMovementForSelectedSquaddie implements BehaviorTreeTask {
         gameEngineState: GameEngineState
         battleSquaddieId: string
     }): MovementDecision {
-        const cached =
-            gameEngineState.battleOrchestratorState.battleState.mapDataBlob.get<MovementDecision>(
-                coordinate
-            )
-        if (cached !== undefined) return cached
-
+        const missionMap =
+            gameEngineState.battleOrchestratorState.battleState.missionMap
         const { battleSquaddie, squaddieTemplate } = getResultOrThrowError(
             ObjectRepositoryService.getSquaddieByBattleId(
                 gameEngineState.repository,
@@ -1297,32 +1301,59 @@ class PlayerConsidersMovementForSelectedSquaddie implements BehaviorTreeTask {
             battleSquaddie,
         })
 
-        const closestRoute =
-            BattleSquaddieSelectorService.getClosestRouteForSquaddieToReachDestination(
-                {
-                    gameEngineState,
-                    battleSquaddie,
-                    squaddieTemplate,
-                    distanceRangeFromDestination: {
-                        minimum: 0,
-                        maximum: 0,
-                    },
-                    actionPointsRemaining:
-                        squaddieTemplate.squaddieId.affiliation ===
-                        SquaddieAffiliation.PLAYER
-                            ? unSpentActionPoints
-                            : 0,
-                    stopCoordinate: coordinate,
-                }
+        const { currentMapCoordinate, originMapCoordinate } =
+            MissionMapService.getByBattleSquaddieId(
+                missionMap,
+                battleSquaddie.battleSquaddieId
             )
 
-        if (closestRoute == undefined) {
-            gameEngineState.battleOrchestratorState.battleState.mapDataBlob.add<MovementDecision>(
-                coordinate,
-                undefined
-            )
-            return undefined
-        }
+        const actionPointsRemaining =
+            squaddieTemplate.squaddieId.affiliation ===
+            SquaddieAffiliation.PLAYER
+                ? unSpentActionPoints
+                : 0
+
+        const allReachableCoordinates =
+            SearchResultsCacheService.calculateSquaddieAllMovement({
+                searchResultsCache:
+                    gameEngineState.battleOrchestratorState.cache
+                        .searchResultsCache,
+                battleSquaddieId,
+                currentMapCoordinate,
+                originMapCoordinate,
+                searchLimit: SearchLimitService.new({
+                    baseSearchLimit: SearchLimitService.landBasedMovement(),
+                    canStopOnSquaddies: false,
+                    maximumMovementCost:
+                        SquaddieService.getSquaddieMovementAttributes({
+                            battleSquaddie,
+                            squaddieTemplate,
+                        }).net.movementPerAction * actionPointsRemaining,
+                    squaddieAffiliation:
+                        squaddieTemplate.squaddieId.affiliation,
+                    ignoreTerrainCost:
+                        SquaddieService.getSquaddieMovementAttributes({
+                            battleSquaddie,
+                            squaddieTemplate,
+                        }).net.ignoreTerrainCost,
+                    crossOverPits:
+                        SquaddieService.getSquaddieMovementAttributes({
+                            battleSquaddie,
+                            squaddieTemplate,
+                        }).net.crossOverPits,
+                    passThroughWalls:
+                        SquaddieService.getSquaddieMovementAttributes({
+                            battleSquaddie,
+                            squaddieTemplate,
+                        }).net.passThroughWalls,
+                }),
+            })
+
+        const closestRoute =
+            allReachableCoordinates.shortestPathByCoordinate[
+                HexCoordinateService.toString(coordinate)
+            ]
+        if (closestRoute == undefined) return undefined
 
         const actionPointCost = SearchPathAdapterService.getNumberOfMoveActions(
             {
@@ -1334,16 +1365,10 @@ class PlayerConsidersMovementForSelectedSquaddie implements BehaviorTreeTask {
                     }).net.movementPerAction,
             }
         )
-
-        const movementDecision: MovementDecision = {
+        return {
             actionPointCost,
             coordinates: SearchPathAdapterService.getCoordinates(closestRoute),
             destination: SearchPathAdapterService.getHead(closestRoute),
         }
-        gameEngineState.battleOrchestratorState.battleState.mapDataBlob.add<MovementDecision>(
-            coordinate,
-            movementDecision
-        )
-        return movementDecision
     }
 }

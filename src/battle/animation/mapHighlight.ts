@@ -14,9 +14,12 @@ import { SquaddieTurn, SquaddieTurnService } from "../../squaddie/turn"
 import { BattleSquaddieSelectorService } from "../orchestratorComponents/battleSquaddieSelectorUtils"
 import { PulseColor } from "../../hexMap/pulseColor"
 import { SearchResultAdapterService } from "../../hexMap/pathfinder/searchResults/searchResultAdapter"
-import { MapSearchService } from "../../hexMap/pathfinder/pathGeneration/mapSearch"
 import { SearchLimitService } from "../../hexMap/pathfinder/pathGeneration/searchLimit"
 import { SearchPathAdapter } from "../../search/searchPathAdapter/searchPathAdapter"
+import {
+    SearchResultsCache,
+    SearchResultsCacheService,
+} from "../../hexMap/pathfinder/searchResults/searchResultsCache"
 
 export const MapHighlightService = {
     convertSearchPathToHighlightCoordinates: ({
@@ -99,6 +102,7 @@ export const MapHighlightService = {
         battleSquaddieId,
         campaignResources,
         squaddieTurnOverride,
+        squaddieAllMovementCache,
     }: {
         currentMapCoordinate: HexCoordinate
         originMapCoordinate: HexCoordinate
@@ -106,6 +110,7 @@ export const MapHighlightService = {
         repository: ObjectRepository
         battleSquaddieId: string
         campaignResources: CampaignResources
+        squaddieAllMovementCache: SearchResultsCache
         squaddieTurnOverride?: SquaddieTurn
     }): HighlightCoordinateDescription[] => {
         const { squaddieTemplate, battleSquaddie } = getResultOrThrowError(
@@ -124,38 +129,35 @@ export const MapHighlightService = {
             squaddieTurnOverride ?? battleSquaddie.squaddieTurn
         )
 
+        const searchLimit = SearchLimitService.new({
+            baseSearchLimit: SearchLimitService.landBasedMovement(),
+            maximumMovementCost:
+                movementActionPoints *
+                SquaddieService.getSquaddieMovementAttributes({
+                    battleSquaddie,
+                    squaddieTemplate,
+                }).net.movementPerAction,
+            ignoreTerrainCost: SquaddieService.getSquaddieMovementAttributes({
+                battleSquaddie,
+                squaddieTemplate,
+            }).net.ignoreTerrainCost,
+            crossOverPits: SquaddieService.getSquaddieMovementAttributes({
+                battleSquaddie,
+                squaddieTemplate,
+            }).net.crossOverPits,
+            passThroughWalls: SquaddieService.getSquaddieMovementAttributes({
+                battleSquaddie,
+                squaddieTemplate,
+            }).net.passThroughWalls,
+            squaddieAffiliation: squaddieTemplate.squaddieId.affiliation,
+        })
         const reachableCoordinateSearch: SearchResult =
-            MapSearchService.calculateAllPossiblePathsFromStartingCoordinate({
-                missionMap,
-                currentMapCoordinate,
+            SearchResultsCacheService.calculateSquaddieAllMovement({
+                searchResultsCache: squaddieAllMovementCache,
+                battleSquaddieId,
                 originMapCoordinate,
-                searchLimit: SearchLimitService.new({
-                    baseSearchLimit: SearchLimitService.landBasedMovement(),
-                    maximumMovementCost:
-                        movementActionPoints *
-                        SquaddieService.getSquaddieMovementAttributes({
-                            battleSquaddie,
-                            squaddieTemplate,
-                        }).net.movementPerAction,
-                    ignoreTerrainCost:
-                        SquaddieService.getSquaddieMovementAttributes({
-                            battleSquaddie,
-                            squaddieTemplate,
-                        }).net.ignoreTerrainCost,
-                    crossOverPits:
-                        SquaddieService.getSquaddieMovementAttributes({
-                            battleSquaddie,
-                            squaddieTemplate,
-                        }).net.crossOverPits,
-                    passThroughWalls:
-                        SquaddieService.getSquaddieMovementAttributes({
-                            battleSquaddie,
-                            squaddieTemplate,
-                        }).net.passThroughWalls,
-                    squaddieAffiliation:
-                        squaddieTemplate.squaddieId.affiliation,
-                }),
-                objectRepository: repository,
+                currentMapCoordinate,
+                searchLimit,
             })
 
         const { squaddieIsNormallyControllableByPlayer } =

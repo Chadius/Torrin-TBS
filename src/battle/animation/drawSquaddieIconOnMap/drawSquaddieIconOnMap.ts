@@ -44,6 +44,10 @@ import {
     PulseColor,
     PulseColorService,
 } from "../../../hexMap/pulseColor"
+import {
+    SearchResultsCache,
+    SearchResultsCacheService,
+} from "../../../hexMap/pathfinder/searchResults/searchResultsCache"
 
 interface DrawSquaddieIconOnMapLayout {
     ActionPointsBarColors: {
@@ -243,11 +247,13 @@ export const DrawSquaddieIconOnMapUtilities = {
         battleSquaddieId,
         repository,
         campaign,
+        squaddieAllMovementCache,
     }: {
         missionMap: MissionMap
         battleSquaddieId: string
         repository: ObjectRepository
         campaign: Campaign
+        squaddieAllMovementCache: SearchResultsCache
     }) => {
         const { originMapCoordinate, currentMapCoordinate } =
             MissionMapService.getByBattleSquaddieId(
@@ -262,6 +268,7 @@ export const DrawSquaddieIconOnMapUtilities = {
                 currentMapCoordinate,
                 originMapCoordinate,
                 campaignResources: campaign.resources,
+                squaddieAllMovementCache,
             })
         const actionRangeOnMap = MapGraphicsLayerService.new({
             id: battleSquaddieId,
@@ -303,12 +310,14 @@ export const DrawSquaddieIconOnMapUtilities = {
         missionMap,
         repository,
         campaign,
+        squaddieAllMovementCache,
     }: {
         battleSquaddie: BattleSquaddie
         squaddieTemplate: SquaddieTemplate
         missionMap: MissionMap
         repository: ObjectRepository
         campaign: Campaign
+        squaddieAllMovementCache: SearchResultsCache
     }) => {
         return highlightPlayableSquaddieReachIfTheyCanAct({
             battleSquaddie,
@@ -316,6 +325,7 @@ export const DrawSquaddieIconOnMapUtilities = {
             missionMap,
             repository,
             campaign,
+            squaddieAllMovementCache,
         })
     },
     tintSquaddieMapIconIfTheyCannotAct: (
@@ -753,12 +763,14 @@ const highlightPlayableSquaddieReachIfTheyCanAct = ({
     missionMap,
     repository,
     campaign,
+    squaddieAllMovementCache,
 }: {
     battleSquaddie: BattleSquaddie
     squaddieTemplate: SquaddieTemplate
     missionMap: MissionMap
     repository: ObjectRepository
     campaign: Campaign
+    squaddieAllMovementCache: SearchResultsCache
 }) => {
     let { canAct } = SquaddieService.canSquaddieActRightNow({
         squaddieTemplate,
@@ -780,6 +792,7 @@ const highlightPlayableSquaddieReachIfTheyCanAct = ({
         battleSquaddieId: battleSquaddie.battleSquaddieId,
         repository: repository,
         campaign,
+        squaddieAllMovementCache,
     })
 }
 

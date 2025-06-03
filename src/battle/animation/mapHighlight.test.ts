@@ -41,6 +41,10 @@ import { AttributeType } from "../../squaddie/attribute/attributeType"
 import { SearchPathAdapterService } from "../../search/searchPathAdapter/searchPathAdapter"
 import { SearchConnection } from "../../search/searchGraph/graph"
 import { HexCoordinate } from "../../hexMap/hexCoordinate/hexCoordinate"
+import {
+    SearchResultsCache,
+    SearchResultsCacheService,
+} from "../../hexMap/pathfinder/searchResults/searchResultsCache"
 
 describe("map highlight generator", () => {
     let terrainAllSingleMovement: TerrainTileMap
@@ -307,16 +311,21 @@ describe("map highlight generator", () => {
                 }
             )
 
+            const missionMap = MissionMapService.new({
+                terrainTileMap: terrainAllSingleMovement,
+            })
             const highlightedDescription: HighlightCoordinateDescription[] =
                 MapHighlightService.highlightAllCoordinatesWithinSquaddieRange({
-                    missionMap: MissionMapService.new({
-                        terrainTileMap: terrainAllSingleMovement,
-                    }),
+                    missionMap,
                     currentMapCoordinate: { q: 0, r: 2 },
                     originMapCoordinate: { q: 0, r: 2 },
                     repository: objectRepository,
                     battleSquaddieId: battleSquaddie.battleSquaddieId,
                     campaignResources,
+                    squaddieAllMovementCache: SearchResultsCacheService.new({
+                        missionMap,
+                        objectRepository,
+                    }),
                 })
 
             expect(highlightedDescription).toEqual(
@@ -326,16 +335,22 @@ describe("map highlight generator", () => {
         it("highlights correct coordinates when squaddie has multiple actions", () => {
             createSquaddie(SquaddieAffiliation.PLAYER)
 
+            const missionMap = MissionMapService.new({
+                terrainTileMap: terrainAllSingleMovement,
+            })
+
             const highlightedDescription: HighlightCoordinateDescription[] =
                 MapHighlightService.highlightAllCoordinatesWithinSquaddieRange({
-                    missionMap: MissionMapService.new({
-                        terrainTileMap: terrainAllSingleMovement,
-                    }),
+                    missionMap,
                     currentMapCoordinate: { q: 0, r: 2 },
                     originMapCoordinate: { q: 0, r: 2 },
                     repository: objectRepository,
                     battleSquaddieId: battleSquaddie.battleSquaddieId,
                     campaignResources,
+                    squaddieAllMovementCache: SearchResultsCacheService.new({
+                        missionMap,
+                        objectRepository,
+                    }),
                 })
 
             expect(highlightedDescription).toEqual(
@@ -353,17 +368,23 @@ describe("map highlight generator", () => {
                 }
             )
 
+            const missionMap = MissionMapService.new({
+                terrainTileMap: terrainAllSingleMovement,
+            })
+
             const highlightedDescription: HighlightCoordinateDescription[] =
                 MapHighlightService.highlightAllCoordinatesWithinSquaddieRange({
-                    missionMap: MissionMapService.new({
-                        terrainTileMap: terrainAllSingleMovement,
-                    }),
+                    missionMap,
                     currentMapCoordinate: { q: 0, r: 2 },
                     originMapCoordinate: { q: 0, r: 2 },
                     repository: objectRepository,
                     battleSquaddieId: battleSquaddie.battleSquaddieId,
                     campaignResources,
                     squaddieTurnOverride: turnWith1Action,
+                    squaddieAllMovementCache: SearchResultsCacheService.new({
+                        missionMap,
+                        objectRepository,
+                    }),
                 })
 
             expect(highlightedDescription).toEqual(
@@ -373,16 +394,22 @@ describe("map highlight generator", () => {
         it("highlights correct coordinates when squaddie has to deal with double movement terrain", () => {
             createSquaddie(SquaddieAffiliation.PLAYER)
 
+            const missionMap = MissionMapService.new({
+                terrainTileMap: terrainAllDoubleMovement,
+            })
+
             const highlightedDescription: HighlightCoordinateDescription[] =
                 MapHighlightService.highlightAllCoordinatesWithinSquaddieRange({
-                    missionMap: MissionMapService.new({
-                        terrainTileMap: terrainAllDoubleMovement,
-                    }),
+                    missionMap,
                     currentMapCoordinate: { q: 0, r: 2 },
                     originMapCoordinate: { q: 0, r: 2 },
                     repository: objectRepository,
                     battleSquaddieId: battleSquaddie.battleSquaddieId,
                     campaignResources,
+                    squaddieAllMovementCache: SearchResultsCacheService.new({
+                        missionMap,
+                        objectRepository,
+                    }),
                 })
 
             expect(highlightedDescription).toEqual([
@@ -419,16 +446,21 @@ describe("map highlight generator", () => {
                     amount: 1,
                 })
             )
+            const missionMap = MissionMapService.new({
+                terrainTileMap: terrainAllDoubleMovement,
+            })
             const highlightedDescription: HighlightCoordinateDescription[] =
                 MapHighlightService.highlightAllCoordinatesWithinSquaddieRange({
-                    missionMap: MissionMapService.new({
-                        terrainTileMap: terrainAllDoubleMovement,
-                    }),
+                    missionMap,
                     currentMapCoordinate: { q: 0, r: 2 },
                     originMapCoordinate: { q: 0, r: 2 },
                     repository: objectRepository,
                     battleSquaddieId: battleSquaddie.battleSquaddieId,
                     campaignResources,
+                    squaddieAllMovementCache: SearchResultsCacheService.new({
+                        missionMap,
+                        objectRepository,
+                    }),
                 })
 
             expect(highlightedDescription).toEqual(
@@ -471,16 +503,21 @@ describe("map highlight generator", () => {
         })
 
         it("highlights correct coordinates when squaddie has a ranged weapon", () => {
+            const missionMap = MissionMapService.new({
+                terrainTileMap: terrainAlternatingPits,
+            })
             const highlightedDescription: HighlightCoordinateDescription[] =
                 MapHighlightService.highlightAllCoordinatesWithinSquaddieRange({
-                    missionMap: MissionMapService.new({
-                        terrainTileMap: terrainAlternatingPits,
-                    }),
+                    missionMap,
                     currentMapCoordinate: { q: 0, r: 4 },
                     originMapCoordinate: { q: 0, r: 4 },
                     repository: objectRepository,
                     battleSquaddieId: battleSquaddie.battleSquaddieId,
                     campaignResources,
+                    squaddieAllMovementCache: SearchResultsCacheService.new({
+                        missionMap,
+                        objectRepository,
+                    }),
                 })
 
             expect(highlightedDescription).toEqual([

@@ -55,6 +55,8 @@ import {
     MockInstance,
     vi,
 } from "vitest"
+import { SearchResultsCacheService } from "../../hexMap/pathfinder/searchResults/searchResultsCache"
+import { PlayerCommandStateService } from "../hud/playerCommand/playerCommandHUD"
 
 describe("Orchestration Utils", () => {
     let knightSquaddieTemplate: SquaddieTemplate
@@ -706,6 +708,14 @@ describe("Orchestration Utils", () => {
                 repository: squaddieRepository,
                 campaign: CampaignService.default(),
             })
+
+            gameEngineState.battleOrchestratorState.cache.searchResultsCache =
+                SearchResultsCacheService.new({
+                    missionMap:
+                        gameEngineState.battleOrchestratorState.battleState
+                            .missionMap,
+                    objectRepository: gameEngineState.repository,
+                })
         })
         afterEach(() => {
             addGraphicsLayerSpy.mockRestore()
@@ -725,6 +735,13 @@ describe("Orchestration Utils", () => {
                     TerrainTileMapService,
                     "addGraphicsLayer"
                 )
+                gameEngineState.battleOrchestratorState.cache.searchResultsCache =
+                    SearchResultsCacheService.new({
+                        missionMap:
+                            gameEngineState.battleOrchestratorState.battleState
+                                .missionMap,
+                        objectRepository: gameEngineState.repository,
+                    })
             })
 
             const highlightPlayerControlledSquaddieRangeAndReturnHighlightedCoordinates =
@@ -737,6 +754,9 @@ describe("Orchestration Utils", () => {
                                 .missionMap,
                         objectRepository: gameEngineState.repository,
                         campaignResources: gameEngineState.campaign.resources,
+                        squaddieAllMovementCache:
+                            gameEngineState.battleOrchestratorState.cache
+                                .searchResultsCache,
                     })
                     const addedMapGraphicsLayer =
                         addGraphicsLayerSpy.mock.calls[0][1]
@@ -854,6 +874,14 @@ describe("Orchestration Utils", () => {
                 originMapCoordinate: { q: 0, r: 3 },
             })
             gameEngineState.battleOrchestratorState.battleState.missionMap = map
+            gameEngineState.battleOrchestratorState.cache.searchResultsCache =
+                SearchResultsCacheService.new({
+                    missionMap:
+                        gameEngineState.battleOrchestratorState.battleState
+                            .missionMap,
+                    objectRepository: gameEngineState.repository,
+                })
+
             addGraphicsLayerSpy = vi.spyOn(
                 TerrainTileMapService,
                 "addGraphicsLayer"
@@ -867,6 +895,9 @@ describe("Orchestration Utils", () => {
                         .missionMap,
                 objectRepository: gameEngineState.repository,
                 campaignResources: gameEngineState.campaign.resources,
+                squaddieAllMovementCache:
+                    gameEngineState.battleOrchestratorState.cache
+                        .searchResultsCache,
             })
 
             const addedMapGraphicsLayer: MapGraphicsLayer =
@@ -930,6 +961,16 @@ describe("Orchestration Utils", () => {
                 battleSquaddieId: knightBattleSquaddie.battleSquaddieId,
                 originMapCoordinate: { q: 0, r: 2 },
             })
+            BattleActionDecisionStepService.setActor({
+                actionDecisionStep:
+                    gameEngineState.battleOrchestratorState.battleState
+                        .battleActionDecisionStep,
+                battleSquaddieId: knightBattleSquaddie.battleSquaddieId,
+            })
+            gameEngineState.battleOrchestratorState.battleHUDState.summaryHUDState =
+                SummaryHUDStateService.new()
+            gameEngineState.battleOrchestratorState.battleHUDState.summaryHUDState.playerCommandState =
+                PlayerCommandStateService.new()
             BattleActionRecorderService.addReadyToAnimateBattleAction(
                 gameEngineState.battleOrchestratorState.battleState
                     .battleActionRecorder,

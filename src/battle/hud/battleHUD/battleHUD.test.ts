@@ -2,6 +2,7 @@ import { MessageBoard } from "../../../message/messageBoard"
 import { BattleHUDService } from "./battleHUD"
 import {
     MessageBoardMessage,
+    MessageBoardMessagePlayerControlledSquaddieNeedsNextAction,
     MessageBoardMessageType,
 } from "../../../message/messageBoardMessage"
 import { BattlePhase } from "../../orchestratorComponents/battlePhaseTracker"
@@ -53,7 +54,7 @@ import {
     BattleSquaddieTeamService,
 } from "../../battleSquaddieTeam"
 import { SummaryHUDStateService } from "../summary/summaryHUD"
-import { BattleHUDStateService } from "./battleHUDState"
+import { BattleHUDState, BattleHUDStateService } from "./battleHUDState"
 import {
     BattlePhaseState,
     BattlePhaseStateService,
@@ -117,6 +118,8 @@ import { SquaddieSelectorPanelService } from "../playerActionPanel/squaddieSelec
 import { PlayerConsideredActionsService } from "../../battleState/playerConsideredActions"
 import { ButtonStatus } from "../../../ui/button/buttonStatus"
 import { CampaignResourcesService } from "../../../campaign/campaignResources"
+import { PlayerCommandStateService } from "../playerCommand/playerCommandHUD"
+import { SearchResultsCacheService } from "../../../hexMap/pathfinder/searchResults/searchResultsCache"
 
 describe("Battle HUD", () => {
     let mockP5GraphicsContext: MockedP5GraphicsBuffer
@@ -285,6 +288,13 @@ describe("Battle HUD", () => {
 
         gameEngineState.battleOrchestratorState.battleState.battleActionDecisionStep =
             BattleActionDecisionStepService.new()
+        gameEngineState.battleOrchestratorState.cache.searchResultsCache =
+            SearchResultsCacheService.new({
+                missionMap:
+                    gameEngineState.battleOrchestratorState.battleState
+                        .missionMap,
+                objectRepository: gameEngineState.repository,
+            })
 
         BattleActionDecisionStepService.setActor({
             actionDecisionStep:
@@ -461,6 +471,13 @@ describe("Battle HUD", () => {
                     mockP5GraphicsContext
                 ),
             })
+            gameEngineState.battleOrchestratorState.cache.searchResultsCache =
+                SearchResultsCacheService.new({
+                    missionMap:
+                        gameEngineState.battleOrchestratorState.battleState
+                            .missionMap,
+                    objectRepository: gameEngineState.repository,
+                })
 
             const battleHUDListener = new BattleHUDListener("battleHUDListener")
             gameEngineState.messageBoard.addListener(
@@ -701,6 +718,9 @@ describe("Battle HUD", () => {
                             .summaryHUDState,
                     objectRepository: gameEngineState.repository,
                     campaignResources: CampaignResourcesService.default(),
+                    squaddieAllMovementCache:
+                        gameEngineState.battleOrchestratorState.cache
+                            .searchResultsCache,
                 })
 
                 expect(
@@ -732,6 +752,9 @@ describe("Battle HUD", () => {
                 selectionMethod: {
                     mouse: { x: 0, y: 0 },
                 },
+                squaddieAllMovementCache:
+                    gameEngineState.battleOrchestratorState.cache
+                        .searchResultsCache,
             })
 
             expect(
@@ -776,6 +799,9 @@ describe("Battle HUD", () => {
                 selectionMethod: {
                     mouse: { x: 0, y: 0 },
                 },
+                squaddieAllMovementCache:
+                    gameEngineState.battleOrchestratorState.cache
+                        .searchResultsCache,
             })
             SummaryHUDStateService.draw({
                 summaryHUDState:
@@ -815,6 +841,9 @@ describe("Battle HUD", () => {
                 selectionMethod: {
                     mouse: { x: 0, y: 0 },
                 },
+                squaddieAllMovementCache:
+                    gameEngineState.battleOrchestratorState.cache
+                        .searchResultsCache,
             })
 
             const graphicsLayer = TerrainTileMapService.getGraphicsLayer({
@@ -865,6 +894,9 @@ describe("Battle HUD", () => {
                 selectionMethod: {
                     mouse: { x: 0, y: 0 },
                 },
+                squaddieAllMovementCache:
+                    gameEngineState.battleOrchestratorState.cache
+                        .searchResultsCache,
             })
 
             const graphicsLayer = TerrainTileMapService.getGraphicsLayer({
@@ -1911,6 +1943,9 @@ describe("Battle HUD", () => {
                         .battleActionRecorder,
                 battleSquaddieId: battleSquaddie.battleSquaddieId,
                 targetCoordinate: { q: 0, r: 0 },
+                squaddieAllMovementCache:
+                    gameEngineState.battleOrchestratorState.cache
+                        .searchResultsCache,
             })
 
             expect(
@@ -1944,6 +1979,9 @@ describe("Battle HUD", () => {
                         .battleActionRecorder,
                 battleSquaddieId: battleSquaddie.battleSquaddieId,
                 targetCoordinate: { q: -100, r: 9001 },
+                squaddieAllMovementCache:
+                    gameEngineState.battleOrchestratorState.cache
+                        .searchResultsCache,
             })
 
             expect(
@@ -1978,6 +2016,9 @@ describe("Battle HUD", () => {
                             .battleActionRecorder,
                     battleSquaddieId: battleSquaddie.battleSquaddieId,
                     targetCoordinate: { q: 0, r: 2 },
+                    squaddieAllMovementCache:
+                        gameEngineState.battleOrchestratorState.cache
+                            .searchResultsCache,
                 })
             })
 
@@ -2111,6 +2152,9 @@ describe("Battle HUD", () => {
                             .battleActionRecorder,
                     battleSquaddieId: battleSquaddie.battleSquaddieId,
                     targetCoordinate: { q: 0, r: 2 },
+                    squaddieAllMovementCache:
+                        gameEngineState.battleOrchestratorState.cache
+                            .searchResultsCache,
                 })
             })
 
@@ -2228,7 +2272,21 @@ describe("Battle HUD", () => {
 
             gameEngineState.messageBoard.sendMessage({
                 type: MessageBoardMessageType.PLAYER_CONTROLLED_SQUADDIE_NEEDS_NEXT_ACTION,
-                gameEngineState,
+                objectRepository: gameEngineState.repository,
+                battleSquaddieId: BattleActionDecisionStepService.getActor(
+                    gameEngineState.battleOrchestratorState.battleState
+                        .battleActionDecisionStep
+                ).battleSquaddieId,
+                missionMap:
+                    gameEngineState.battleOrchestratorState.battleState
+                        .missionMap,
+                playerCommandState:
+                    gameEngineState.battleOrchestratorState.battleHUDState
+                        .summaryHUDState.playerCommandState,
+                campaignResources: gameEngineState.campaign.resources,
+                squaddieAllMovementCache:
+                    gameEngineState.battleOrchestratorState.cache
+                        .searchResultsCache,
             })
         })
         afterEach(() => {
@@ -2242,6 +2300,48 @@ describe("Battle HUD", () => {
             expect(mapGraphicsLayer.type).toEqual(
                 MapGraphicsLayerType.CLICKED_ON_CONTROLLABLE_SQUADDIE
             )
+        })
+        it("invalidates the playerCommandState's player action validity", () => {
+            const battleHUDState: BattleHUDState = BattleHUDStateService.new({})
+            battleHUDState.summaryHUDState = SummaryHUDStateService.new()
+            battleHUDState.summaryHUDState.playerCommandState =
+                PlayerCommandStateService.new()
+            gameEngineState.battleOrchestratorState.battleHUDState =
+                battleHUDState
+            gameEngineState.battleOrchestratorState.battleHUDState.summaryHUDState.playerCommandState.actionValidity =
+                {
+                    actionId: {
+                        isValid: true,
+                        warning: false,
+                        messages: ["here is a message"],
+                    },
+                }
+
+            const message: MessageBoardMessagePlayerControlledSquaddieNeedsNextAction =
+                {
+                    type: MessageBoardMessageType.PLAYER_CONTROLLED_SQUADDIE_NEEDS_NEXT_ACTION,
+                    objectRepository: gameEngineState.repository,
+                    battleSquaddieId: BattleActionDecisionStepService.getActor(
+                        gameEngineState.battleOrchestratorState.battleState
+                            .battleActionDecisionStep
+                    ).battleSquaddieId,
+                    missionMap:
+                        gameEngineState.battleOrchestratorState.battleState
+                            .missionMap,
+                    playerCommandState:
+                        gameEngineState.battleOrchestratorState.battleHUDState
+                            .summaryHUDState.playerCommandState,
+                    campaignResources: gameEngineState.campaign.resources,
+                    squaddieAllMovementCache:
+                        gameEngineState.battleOrchestratorState.cache
+                            .searchResultsCache,
+                }
+
+            gameEngineState.messageBoard.sendMessage(message)
+            expect(
+                gameEngineState.battleOrchestratorState.battleHUDState
+                    .summaryHUDState.playerCommandState.actionValidity
+            ).toBeUndefined()
         })
     })
 })

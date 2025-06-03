@@ -18,6 +18,11 @@ import {
     PlayerDecisionHUD,
     PlayerDecisionHUDService,
 } from "../hud/playerActionPanel/playerDecisionHUD"
+import { SearchResultsCache } from "../../hexMap/pathfinder/searchResults/searchResultsCache"
+
+export type BattleCache = {
+    searchResultsCache: SearchResultsCache
+}
 
 export class BattleOrchestratorState {
     battleHUD: BattleHUD
@@ -26,6 +31,7 @@ export class BattleOrchestratorState {
     battleState: BattleState
     battleHUDState: BattleHUDState
     cutsceneQueue: CutsceneIdQueue
+    cache: BattleCache
 
     constructor({
         numberGenerator,
@@ -56,6 +62,9 @@ export class BattleOrchestratorState {
             cutsceneIdsToPlay || []
         )
         this.playerDecisionHUD = PlayerDecisionHUDService.new()
+        this.cache = {
+            searchResultsCache: undefined,
+        }
     }
 
     get isValid(): boolean {

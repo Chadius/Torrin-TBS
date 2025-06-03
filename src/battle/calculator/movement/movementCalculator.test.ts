@@ -1,4 +1,3 @@
-import { SearchResultsService } from "../../../hexMap/pathfinder/searchResults/searchResult"
 import { MovementCalculatorService } from "./movementCalculator"
 import {
     GameEngineState,
@@ -34,14 +33,10 @@ import {
     vi,
 } from "vitest"
 import { AttributeType } from "../../../squaddie/attribute/attributeType"
-import {
-    SearchPathAdapter,
-    SearchPathAdapterService,
-} from "../../../search/searchPathAdapter/searchPathAdapter"
-import { MapSearchService } from "../../../hexMap/pathfinder/pathGeneration/mapSearch"
+import { SearchPathAdapterService } from "../../../search/searchPathAdapter/searchPathAdapter"
 import { SearchLimit } from "../../../hexMap/pathfinder/pathGeneration/searchLimit"
-import { HexCoordinateService } from "../../../hexMap/hexCoordinate/hexCoordinate"
 import { SquaddieTurnService } from "../../../squaddie/turn"
+import { SearchResultsCacheService } from "../../../hexMap/pathfinder/searchResults/searchResultsCache"
 
 describe("movement calculator", () => {
     let pathfinderSpy: MockInstance
@@ -85,6 +80,13 @@ describe("movement calculator", () => {
             }),
             campaign: CampaignService.default(),
         })
+        gameEngineState.battleOrchestratorState.cache.searchResultsCache =
+            SearchResultsCacheService.new({
+                missionMap:
+                    gameEngineState.battleOrchestratorState.battleState
+                        .missionMap,
+                objectRepository: gameEngineState.repository,
+            })
     })
     afterEach(() => {
         if (pathfinderSpy) {
@@ -94,24 +96,22 @@ describe("movement calculator", () => {
 
     describe("isMovementPossible", () => {
         it("is not possible if the pathfinder says it is not", () => {
-            pathfinderSpy = vi
-                .spyOn(MapSearchService, "calculatePathsToDestinations")
-                .mockReturnValue(
-                    SearchResultsService.new({
-                        stopCoordinatesReached: [],
-                        shortestPathByCoordinate: {},
-                    })
-                )
+            pathfinderSpy = vi.spyOn(
+                SearchResultsCacheService,
+                "calculateSquaddieAllMovement"
+            )
 
             const isMovementPossible: boolean =
                 MovementCalculatorService.isMovementPossible({
                     missionMap:
                         gameEngineState.battleOrchestratorState.battleState
                             .missionMap,
-                    objectRepository: gameEngineState.repository,
+                    squaddieAllMovementCache:
+                        gameEngineState.battleOrchestratorState.cache
+                            .searchResultsCache,
                     battleSquaddie,
                     squaddieTemplate,
-                    destination: { q: 0, r: 1 },
+                    destination: { q: 9001, r: -9001 },
                 })
 
             expect(isMovementPossible).toBeFalsy()
@@ -119,32 +119,19 @@ describe("movement calculator", () => {
         })
 
         it("is possible if the pathfinder says it is", () => {
-            const validPathToDestination: SearchPathAdapter = []
-            SearchPathAdapterService.add({
-                path: validPathToDestination,
-                newCoordinate: { q: 0, r: 1 },
-                costToMoveToNewCoordinate: 1,
-                startCoordinate: { q: 0, r: 0 },
-            })
-
-            pathfinderSpy = vi
-                .spyOn(MapSearchService, "calculatePathsToDestinations")
-                .mockReturnValue(
-                    SearchResultsService.new({
-                        stopCoordinatesReached: [],
-                        shortestPathByCoordinate: {
-                            [HexCoordinateService.toString({ q: 0, r: 1 })]:
-                                validPathToDestination,
-                        },
-                    })
-                )
+            pathfinderSpy = vi.spyOn(
+                SearchResultsCacheService,
+                "calculateSquaddieAllMovement"
+            )
 
             const isMovementPossible: boolean =
                 MovementCalculatorService.isMovementPossible({
                     missionMap:
                         gameEngineState.battleOrchestratorState.battleState
                             .missionMap,
-                    objectRepository: gameEngineState.repository,
+                    squaddieAllMovementCache:
+                        gameEngineState.battleOrchestratorState.cache
+                            .searchResultsCache,
                     battleSquaddie,
                     squaddieTemplate,
                     destination: { q: 0, r: 1 },
@@ -175,20 +162,18 @@ describe("movement calculator", () => {
                 })
             )
 
-            pathfinderSpy = vi
-                .spyOn(MapSearchService, "calculatePathsToDestinations")
-                .mockReturnValue(
-                    SearchResultsService.new({
-                        stopCoordinatesReached: [],
-                        shortestPathByCoordinate: {},
-                    })
-                )
+            pathfinderSpy = vi.spyOn(
+                SearchResultsCacheService,
+                "calculateSquaddieAllMovement"
+            )
 
             MovementCalculatorService.isMovementPossible({
                 missionMap:
                     gameEngineState.battleOrchestratorState.battleState
                         .missionMap,
-                objectRepository: gameEngineState.repository,
+                squaddieAllMovementCache:
+                    gameEngineState.battleOrchestratorState.cache
+                        .searchResultsCache,
                 battleSquaddie,
                 squaddieTemplate,
                 destination: { q: 0, r: 1 },

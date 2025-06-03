@@ -32,6 +32,7 @@ describe("search path adapter", () => {
         }
 
         searchResult = SearchResultsService.new({
+            id: "searchResultAdapter tests",
             shortestPathByCoordinate: {
                 [HexCoordinateService.toString({ q: 0, r: 0 })]: [],
                 [HexCoordinateService.toString({ q: 0, r: 1 })]: [

@@ -5,24 +5,28 @@ import {
 import { getValidValueOrDefault } from "../../../utils/objectValidityCheck"
 import { SearchPathAdapter } from "../../../search/searchPathAdapter/searchPathAdapter"
 
-export type SearchPathByCoordinate = {
-    [key: string]: SearchPathAdapter
-}
-
 export interface SearchResult {
+    id: string
     shortestPathByCoordinate: SearchPathByCoordinate
     stopCoordinatesReached: HexCoordinate[]
 }
 
+export type SearchPathByCoordinate = {
+    [key: string]: SearchPathAdapter
+}
+
 export const SearchResultsService = {
     new: ({
+        id,
         shortestPathByCoordinate,
         stopCoordinatesReached,
     }: {
+        id: string
         shortestPathByCoordinate: SearchPathByCoordinate
         stopCoordinatesReached?: HexCoordinate[]
     }): SearchResult => {
         return {
+            id,
             shortestPathByCoordinate,
             stopCoordinatesReached: getValidValueOrDefault(
                 stopCoordinatesReached,

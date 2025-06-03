@@ -30,6 +30,7 @@ import {
 } from "../actionDecision/battleActionDecisionStep"
 import { ScreenLocation } from "../../utils/mouseConfig"
 import { CampaignResources } from "../../campaign/campaignResources"
+import { SearchResultsCache } from "../../hexMap/pathfinder/searchResults/searchResultsCache"
 
 export const OrchestratorUtilities = {
     isSquaddieCurrentlyTakingATurn: ({
@@ -52,17 +53,20 @@ export const OrchestratorUtilities = {
         missionMap,
         objectRepository,
         campaignResources,
+        squaddieAllMovementCache,
     }: {
         battleSquaddieToHighlightId: string
         missionMap: MissionMap
         objectRepository: ObjectRepository
         campaignResources: CampaignResources
+        squaddieAllMovementCache: SearchResultsCache
     }) =>
         highlightSquaddieRange({
             battleSquaddieToHighlightId: battleSquaddieToHighlightId,
             missionMap: missionMap,
             objectRepository: objectRepository,
             campaignResources: campaignResources,
+            squaddieAllMovementCache,
         }),
     getSquaddieAtScreenLocation: ({
         screenLocation,
@@ -269,7 +273,19 @@ const messageAndHighlightPlayableSquaddieTakingATurn = ({
 
     gameEngineState.messageBoard.sendMessage({
         type: MessageBoardMessageType.PLAYER_CONTROLLED_SQUADDIE_NEEDS_NEXT_ACTION,
-        gameEngineState: gameEngineState,
+        objectRepository: gameEngineState.repository,
+        battleSquaddieId: BattleActionDecisionStepService.getActor(
+            gameEngineState.battleOrchestratorState.battleState
+                .battleActionDecisionStep
+        ).battleSquaddieId,
+        missionMap:
+            gameEngineState.battleOrchestratorState.battleState.missionMap,
+        playerCommandState:
+            gameEngineState.battleOrchestratorState.battleHUDState
+                .summaryHUDState.playerCommandState,
+        campaignResources: gameEngineState.campaign.resources,
+        squaddieAllMovementCache:
+            gameEngineState.battleOrchestratorState.cache.searchResultsCache,
     })
 
     gameEngineState.messageBoard.sendMessage({
@@ -353,11 +369,13 @@ const highlightSquaddieRange = ({
     missionMap,
     objectRepository,
     campaignResources,
+    squaddieAllMovementCache,
 }: {
     battleSquaddieToHighlightId: string
     missionMap: MissionMap
     objectRepository: ObjectRepository
     campaignResources: CampaignResources
+    squaddieAllMovementCache: SearchResultsCache
 }) => {
     const { currentMapCoordinate, originMapCoordinate } =
         MissionMapService.getByBattleSquaddieId(
@@ -385,6 +403,7 @@ const highlightSquaddieRange = ({
                 SquaddieAffiliation.PLAYER
                     ? undefined
                     : SquaddieTurnService.new(),
+            squaddieAllMovementCache,
         })
 
     const { squaddieIsNormallyControllableByPlayer } =

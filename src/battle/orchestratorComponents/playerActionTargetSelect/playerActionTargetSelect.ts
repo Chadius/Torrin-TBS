@@ -185,6 +185,9 @@ export class PlayerActionTargetSelect implements BattleOrchestratorComponent {
             playerCommandState:
                 gameEngineState.battleOrchestratorState.battleHUDState
                     .summaryHUDState.playerCommandState,
+            squaddieAllMovementCache:
+                gameEngineState.battleOrchestratorState.cache
+                    .searchResultsCache,
         })
     }
 

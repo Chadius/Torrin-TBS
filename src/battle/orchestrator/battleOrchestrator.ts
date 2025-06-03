@@ -7,6 +7,7 @@ import {
     OrchestratorComponentMouseEventType,
 } from "./battleOrchestratorComponent"
 import {
+    BattleCache,
     BattleOrchestratorState,
     BattleOrchestratorStateService,
 } from "./battleOrchestratorState"
@@ -50,6 +51,9 @@ import { PlayerDecisionHUDService } from "../hud/playerActionPanel/playerDecisio
 import { SummaryHUDStateService } from "../hud/summary/summaryHUD"
 import { SquaddieSelectorPanelService } from "../hud/playerActionPanel/squaddieSelectorPanel/squaddieSelectorPanel"
 import { PlayerActionTargetSelect } from "../orchestratorComponents/playerActionTargetSelect/playerActionTargetSelect"
+import { MissionMap } from "../../missionMap/missionMap"
+import { ObjectRepository } from "../objectRepository"
+import { SearchResultsCacheService } from "../../hexMap/pathfinder/searchResults/searchResultsCache"
 
 export enum BattleOrchestratorMode {
     UNKNOWN = "UNKNOWN",
@@ -244,6 +248,12 @@ export class BattleOrchestrator implements GameEngineComponent {
         if (gameEngineState.fileState.loadSaveState.applicationStartedLoad) {
             return
         }
+        this.initializeCache({
+            cache: gameEngineState.battleOrchestratorState.cache,
+            missionMap:
+                gameEngineState.battleOrchestratorState.battleState.missionMap,
+            objectRepository: gameEngineState.repository,
+        })
         this.displayMapAndPlayerHUD(gameEngineState, graphicsContext)
 
         if (this.mode === BattleOrchestratorMode.PLAYER_HUD_CONTROLLER) {
@@ -644,5 +654,22 @@ export class BattleOrchestrator implements GameEngineComponent {
 
         this._battleComplete = false
         this._previousUpdateTimestamp = undefined
+    }
+
+    private initializeCache({
+        cache,
+        missionMap,
+        objectRepository,
+    }: {
+        cache: BattleCache
+        missionMap: MissionMap
+        objectRepository: ObjectRepository
+    }) {
+        if (cache.searchResultsCache == undefined) {
+            cache.searchResultsCache = SearchResultsCacheService.new({
+                missionMap,
+                objectRepository,
+            })
+        }
     }
 }

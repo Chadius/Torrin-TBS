@@ -60,6 +60,8 @@ import {
 } from "vitest"
 import { MapSearchTestUtils } from "../../hexMap/pathfinder/pathGeneration/mapSearchTests/mapSearchTestUtils"
 import { MissionMapService } from "../../missionMap/missionMap"
+import { SearchResultsCacheService } from "../../hexMap/pathfinder/searchResults/searchResultsCache"
+import { SearchLimitService } from "../../hexMap/pathfinder/pathGeneration/searchLimit"
 
 describe("Battle State", () => {
     it("overrides team strategy for non-player teams", () => {
@@ -463,6 +465,7 @@ describe("Battle State", () => {
                 }),
                 campaign: CampaignService.default(),
             })
+
             MissionMapService.addSquaddie({
                 missionMap:
                     gameEngineState.battleOrchestratorState.battleState
@@ -471,6 +474,14 @@ describe("Battle State", () => {
                 squaddieTemplateId: battleSquaddie.squaddieTemplateId,
                 originMapCoordinate: { q: 0, r: 0 },
             })
+
+            gameEngineState.battleOrchestratorState.cache.searchResultsCache =
+                SearchResultsCacheService.new({
+                    missionMap:
+                        gameEngineState.battleOrchestratorState.battleState
+                            .missionMap,
+                    objectRepository: gameEngineState.repository,
+                })
 
             moveAction = BattleActionService.new({
                 actor: { actorBattleSquaddieId: "battleSquaddieId" },
@@ -760,6 +771,34 @@ describe("Battle State", () => {
             updateTileUsingSquaddieSpy.mockRestore()
         })
 
+        it("will invalidate the movement cache for this squaddie", () => {
+            SearchResultsCacheService.calculateSquaddieAllMovement({
+                searchResultsCache:
+                    gameEngineState.battleOrchestratorState.cache
+                        .searchResultsCache,
+                battleSquaddieId: battleSquaddie.battleSquaddieId,
+                originMapCoordinate: { q: 0, r: 0 },
+                currentMapCoordinate: { q: 0, r: 0 },
+                searchLimit: SearchLimitService.landBasedMovement(),
+            })
+
+            gameEngineState.messageBoard.sendMessage({
+                type: MessageBoardMessageType.BATTLE_ACTION_FINISHES_ANIMATION,
+                gameEngineState,
+                graphicsContext: new MockedP5GraphicsBuffer(),
+                resourceHandler: gameEngineState.resourceHandler,
+            })
+
+            expect(
+                SearchResultsCacheService.hasSquaddieAllMovement({
+                    searchResultsCache:
+                        gameEngineState.battleOrchestratorState.cache
+                            .searchResultsCache,
+                    battleSquaddieId: battleSquaddie.battleSquaddieId,
+                })
+            ).toBeFalsy()
+        })
+
         describe("Squaddie still has a turn after finishing the action", () => {
             beforeEach(() => {
                 gameEngineState.messageBoard.sendMessage({
@@ -821,6 +860,7 @@ describe("Battle State", () => {
     describe("squaddie turn ends because they are out of actions", () => {
         let gameEngineState: GameEngineState
         let objectRepository: ObjectRepository
+        let battleSquaddieId = "battleSquaddieId"
 
         beforeEach(() => {
             objectRepository = ObjectRepositoryService.new()
@@ -833,7 +873,7 @@ describe("Battle State", () => {
                         movementPerAction: 2,
                     }),
                 }),
-                battleId: "battleSquaddieId",
+                battleId: battleSquaddieId,
                 name: "actor",
                 objectRepository: objectRepository,
                 templateId: "actor",
@@ -846,9 +886,19 @@ describe("Battle State", () => {
                     battleState: BattleStateService.newBattleState({
                         missionId: "test mission",
                         campaignId: "test campaign",
+                        missionMap:
+                            MapSearchTestUtils.create1row5columnsAllFlatTerrain(),
                     }),
                 }),
             })
+
+            gameEngineState.battleOrchestratorState.cache.searchResultsCache =
+                SearchResultsCacheService.new({
+                    missionMap:
+                        gameEngineState.battleOrchestratorState.battleState
+                            .missionMap,
+                    objectRepository: gameEngineState.repository,
+                })
 
             const battleStateListener: BattleStateListener =
                 new BattleStateListener("battleStateListener")
@@ -1000,6 +1050,32 @@ describe("Battle State", () => {
                 gameEngineState.battleOrchestratorState.battleState
                     .playerConsideredActions
             ).toEqual({})
+        })
+
+        it("will invalidate the movement cache for this squaddie", () => {
+            SearchResultsCacheService.calculateSquaddieAllMovement({
+                searchResultsCache:
+                    gameEngineState.battleOrchestratorState.cache
+                        .searchResultsCache,
+                battleSquaddieId,
+                originMapCoordinate: { q: 0, r: 0 },
+                currentMapCoordinate: { q: 0, r: 0 },
+                searchLimit: SearchLimitService.landBasedMovement(),
+            })
+
+            gameEngineState.messageBoard.sendMessage({
+                type: MessageBoardMessageType.SQUADDIE_TURN_ENDS,
+                gameEngineState,
+            })
+
+            expect(
+                SearchResultsCacheService.hasSquaddieAllMovement({
+                    searchResultsCache:
+                        gameEngineState.battleOrchestratorState.cache
+                            .searchResultsCache,
+                    battleSquaddieId,
+                })
+            ).toBeFalsy()
         })
     })
 })

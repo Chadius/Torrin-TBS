@@ -60,6 +60,9 @@ export interface PlayerCommandState {
         buttonArea: RectArea
         message: string
     }
+    actionValidity: {
+        [actionTemplateId: string]: ActionValidityStatus
+    }
 
     squaddieAffiliationHue: number
     actionButtons: ActionButton[]
@@ -77,6 +80,7 @@ export const PlayerCommandStateService = {
             actionButtons: [],
             squaddieAffiliationHue:
                 HUE_BY_SQUADDIE_AFFILIATION[SquaddieAffiliation.UNKNOWN],
+            actionValidity: undefined,
         }
     },
     removeSelection: (playerCommandState: PlayerCommandState) => {
@@ -135,17 +139,23 @@ export const PlayerCommandStateService = {
             })
         }
 
-        const actionValidity = ValidityCheckService.calculateActionValidity({
-            objectRepository: gameEngineState.repository,
-            battleSquaddieId: BattleActionDecisionStepService.getActor(
-                gameEngineState.battleOrchestratorState.battleState
-                    .battleActionDecisionStep
-            ).battleSquaddieId,
-            gameEngineState,
-        })
+        if (playerCommandState.actionValidity == undefined) {
+            playerCommandState.actionValidity =
+                ValidityCheckService.calculateActionValidity({
+                    objectRepository: gameEngineState.repository,
+                    battleSquaddieId: BattleActionDecisionStepService.getActor(
+                        gameEngineState.battleOrchestratorState.battleState
+                            .battleActionDecisionStep
+                    ).battleSquaddieId,
+                    gameEngineState,
+                })
+        }
+
         if (
             actionButtonClicked &&
-            actionValidity[actionButtonClicked.actionTemplate.id]?.isValid
+            playerCommandState.actionValidity[
+                actionButtonClicked.actionTemplate.id
+            ]?.isValid
         ) {
             return mouseClickedOnActionButton({
                 playerCommandState,
@@ -173,11 +183,15 @@ export const PlayerCommandStateService = {
             gameEngineState.battleOrchestratorState.battleState
                 .battleActionDecisionStep
         ).battleSquaddieId
-        const actionValidity = ValidityCheckService.calculateActionValidity({
-            objectRepository: gameEngineState.repository,
-            battleSquaddieId: battleSquaddieId,
-            gameEngineState,
-        })
+
+        if (playerCommandState.actionValidity == undefined) {
+            playerCommandState.actionValidity =
+                ValidityCheckService.calculateActionValidity({
+                    objectRepository: gameEngineState.repository,
+                    battleSquaddieId: battleSquaddieId,
+                    gameEngineState,
+                })
+        }
 
         const consideredActionButton = playerCommandState.actionButtons.find(
             (actionButton) =>
@@ -224,22 +238,24 @@ export const PlayerCommandStateService = {
             ActionButtonService.getActionTemplateId(consideredActionButton)
 
         if (
-            actionValidity[playerCommandState.consideredActionTemplateId]
-                ?.messages.length > 0
+            playerCommandState.actionValidity[
+                playerCommandState.consideredActionTemplateId
+            ]?.messages.length > 0
         ) {
             playerCommandState.newInvalidPopup = {
                 buttonArea:
                     consideredActionButton.uiObjects.buttonIcon.drawArea,
                 message:
-                    actionValidity[
+                    playerCommandState.actionValidity[
                         playerCommandState.consideredActionTemplateId
                     ].messages.join("\n"),
             }
         }
 
         if (
-            !actionValidity[playerCommandState.consideredActionTemplateId]
-                ?.isValid
+            !playerCommandState.actionValidity[
+                playerCommandState.consideredActionTemplateId
+            ]?.isValid
         ) {
             return
         }
@@ -295,20 +311,23 @@ export const PlayerCommandStateService = {
         )
             return
 
-        const actionValidity = ValidityCheckService.calculateActionValidity({
-            objectRepository: gameEngineState.repository,
-            battleSquaddieId: BattleActionDecisionStepService.getActor(
-                gameEngineState.battleOrchestratorState.battleState
-                    .battleActionDecisionStep
-            ).battleSquaddieId,
-            gameEngineState,
-        })
+        if (playerCommandState.actionValidity == undefined) {
+            playerCommandState.actionValidity =
+                ValidityCheckService.calculateActionValidity({
+                    objectRepository: gameEngineState.repository,
+                    battleSquaddieId: BattleActionDecisionStepService.getActor(
+                        gameEngineState.battleOrchestratorState.battleState
+                            .battleActionDecisionStep
+                    ).battleSquaddieId,
+                    gameEngineState,
+                })
+        }
 
         drawActionButtons({
             actionButtons: playerCommandState.actionButtons,
             graphicsBuffer: graphicsBuffer,
             resourceHandler: resourceHandler,
-            actionValidity,
+            actionValidity: playerCommandState.actionValidity,
             consideredActionTemplateId:
                 playerCommandState.consideredActionTemplateId,
             selectedActionTemplateId:

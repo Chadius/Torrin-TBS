@@ -96,6 +96,7 @@ import {
     HexCoordinateService,
 } from "../../../hexMap/hexCoordinate/hexCoordinate"
 import { StateMachineUpdate } from "../../../utils/stateMachine/stateMachineUpdate"
+import { SearchResultsCacheService } from "../../../hexMap/pathfinder/searchResults/searchResultsCache"
 
 describe("PlayerActionTargetSelect State Machine", () => {
     let stateMachine: PlayerActionTargetStateMachine
@@ -174,6 +175,10 @@ describe("PlayerActionTargetSelect State Machine", () => {
             playerConsideredActions: PlayerConsideredActionsService.new(),
             playerDecisionHUD: PlayerDecisionHUDService.new(),
             playerCommandState: PlayerCommandStateService.new(),
+            squaddieAllMovementCache: SearchResultsCacheService.new({
+                missionMap,
+                objectRepository,
+            }),
         })
 
         stateMachine = new PlayerActionTargetStateMachine({
@@ -839,6 +844,9 @@ describe("PlayerActionTargetSelect State Machine", () => {
                             objectRepository: context.objectRepository,
                             campaignResources:
                                 context.messageParameters.campaignResources,
+                            squaddieAllMovementCache:
+                                context.messageParameters
+                                    .squaddieAllMovementCache,
                         })
                     }
                 )
@@ -1535,6 +1543,8 @@ describe("PlayerActionTargetSelect State Machine", () => {
                         objectRepository: context.objectRepository,
                         campaignResources:
                             context.messageParameters.campaignResources,
+                        squaddieAllMovementCache:
+                            context.messageParameters.squaddieAllMovementCache,
                     })
                 })
                 it("sends a message indicating the player unselected the action", () => {
@@ -1664,6 +1674,8 @@ describe("PlayerActionTargetSelect State Machine", () => {
                     objectRepository: context.objectRepository,
                     campaignResources:
                         context.messageParameters.campaignResources,
+                    squaddieAllMovementCache:
+                        context.messageParameters.squaddieAllMovementCache,
                 })
             })
             it("does not send a message to unselected the action", () => {

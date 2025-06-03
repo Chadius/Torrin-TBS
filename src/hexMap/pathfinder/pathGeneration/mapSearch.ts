@@ -280,6 +280,7 @@ const addStopCoordinatesAndNoMovementPaths = ({
     }
 
     return SearchResultsService.new({
+        id: undefined,
         shortestPathByCoordinate: allPossiblePaths,
         stopCoordinatesReached: stopCoordinates,
     })

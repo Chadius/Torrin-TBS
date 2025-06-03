@@ -35,6 +35,10 @@ import {
     MockInstance,
     vi,
 } from "vitest"
+import { BattleActionDecisionStepService } from "../actionDecision/battleActionDecisionStep"
+import { SummaryHUDStateService } from "../hud/summary/summaryHUD"
+import { PlayerCommandStateService } from "../hud/playerCommand/playerCommandHUD"
+import { CampaignService } from "../../campaign/campaign"
 
 describe("BattleSquaddieUsesActionOnMap", () => {
     let squaddieRepository: ObjectRepository
@@ -174,6 +178,17 @@ describe("BattleSquaddieUsesActionOnMap", () => {
         let messageSpy: MockInstance
         beforeEach(() => {
             messageSpy = vi.spyOn(gameEngineState.messageBoard, "sendMessage")
+            BattleActionDecisionStepService.setActor({
+                actionDecisionStep:
+                    gameEngineState.battleOrchestratorState.battleState
+                        .battleActionDecisionStep,
+                battleSquaddieId: "player_nahla",
+            })
+            gameEngineState.battleOrchestratorState.battleHUDState.summaryHUDState =
+                SummaryHUDStateService.new()
+            gameEngineState.battleOrchestratorState.battleHUDState.summaryHUDState.playerCommandState =
+                PlayerCommandStateService.new()
+            gameEngineState.campaign = CampaignService.default()
             endTurnForSquaddie(gameEngineState, "player_nahla")
             mapAction.update({
                 gameEngineState,
@@ -214,13 +229,6 @@ describe("BattleSquaddieUsesActionOnMap", () => {
                         .battleActionRecorder
                 )
             ).toBeFalsy()
-        })
-
-        it("clears the HUD", () => {
-            expect(
-                gameEngineState.battleOrchestratorState.battleHUDState
-                    .summaryHUDState
-            ).toBeUndefined()
         })
     })
 })

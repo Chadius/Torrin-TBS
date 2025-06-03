@@ -22,6 +22,7 @@ import { HexCoordinate } from "../../../hexMap/hexCoordinate/hexCoordinate"
 import { DataBlobService } from "../../../utils/dataBlob/dataBlob"
 import { PlayerCommandState } from "../../hud/playerCommand/playerCommandHUD"
 import { BattleCamera } from "../../battleCamera"
+import { SearchResultsCache } from "../../../hexMap/pathfinder/searchResults/searchResultsCache"
 
 export interface PlayerActionTargetStateMachineContext {
     camera: BattleCamera
@@ -39,6 +40,7 @@ export interface PlayerActionTargetStateMachineContext {
         summaryHUDState: SummaryHUDState
         playerInputState: PlayerInputState
         campaignResources: CampaignResources
+        squaddieAllMovementCache: SearchResultsCache
 
         playerCancelsPlayerActionConsiderationsParameters: {
             playerConsideredActions: PlayerConsideredActions
@@ -93,6 +95,7 @@ export const PlayerActionTargetContextService = {
         playerConsideredActions,
         playerDecisionHUD,
         playerCommandState,
+        squaddieAllMovementCache,
     }: {
         missionStatistics: MissionStatistics
         battleActionDecisionStep: BattleActionDecisionStep
@@ -108,6 +111,7 @@ export const PlayerActionTargetContextService = {
         playerDecisionHUD: PlayerDecisionHUD
         playerCommandState: PlayerCommandState
         camera: BattleCamera
+        squaddieAllMovementCache: SearchResultsCache
     }): PlayerActionTargetStateMachineContext => {
         const playerCancelsPlayerActionConsiderationsParameters = {
             playerConsideredActions,
@@ -135,6 +139,7 @@ export const PlayerActionTargetContextService = {
                     campaignResources ?? CampaignResourcesService.default(),
                 playerCancelsPlayerActionConsiderationsParameters,
                 playerConfirmsActionMessageParameters,
+                squaddieAllMovementCache,
             },
             targetResults: {
                 validCoordinates: [],

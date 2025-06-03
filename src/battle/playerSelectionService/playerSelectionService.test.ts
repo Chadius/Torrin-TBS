@@ -57,7 +57,6 @@ import {
     vi,
 } from "vitest"
 import { PlayerInputAction } from "../../ui/playerInput/playerInputState"
-import { BattleSquaddieSelectorService } from "../orchestratorComponents/battleSquaddieSelectorUtils"
 import { SquaddieSelectorPanelService } from "../hud/playerActionPanel/squaddieSelectorPanel/squaddieSelectorPanel"
 import * as mocks from "../../utils/test/mocks"
 import { MockedP5GraphicsBuffer } from "../../utils/test/mocks"
@@ -66,6 +65,7 @@ import { SquaddieSelectorPanelButtonService } from "../hud/playerActionPanel/squ
 import { RectAreaService } from "../../ui/rectArea"
 import { PlayerConsideredActionsService } from "../battleState/playerConsideredActions"
 import { CampaignResourcesService } from "../../campaign/campaignResources"
+import { SearchResultsCacheService } from "../../hexMap/pathfinder/searchResults/searchResultsCache"
 
 describe("Player Selection Service", () => {
     let gameEngineState: GameEngineState
@@ -114,6 +114,13 @@ describe("Player Selection Service", () => {
                 repository: objectRepository,
                 campaign: CampaignService.default(),
             })
+            gameEngineState.battleOrchestratorState.cache.searchResultsCache =
+                SearchResultsCacheService.new({
+                    missionMap:
+                        gameEngineState.battleOrchestratorState.battleState
+                            .missionMap,
+                    objectRepository: gameEngineState.repository,
+                })
         })
 
         it("knows the user wants to end the phase", () => {
@@ -158,6 +165,13 @@ describe("Player Selection Service", () => {
             objectRepository,
             missionMap,
         })
+        gameEngineState.battleOrchestratorState.cache.searchResultsCache =
+            SearchResultsCacheService.new({
+                missionMap:
+                    gameEngineState.battleOrchestratorState.battleState
+                        .missionMap,
+                objectRepository: gameEngineState.repository,
+            })
 
         messageSpy = vi.spyOn(gameEngineState.messageBoard, "sendMessage")
     }
@@ -586,6 +600,9 @@ describe("Player Selection Service", () => {
                         .summaryHUDState,
                 objectRepository: gameEngineState.repository,
                 campaignResources: CampaignResourcesService.default(),
+                squaddieAllMovementCache:
+                    gameEngineState.battleOrchestratorState.cache
+                        .searchResultsCache,
             }
             expect(messageSpy).toBeCalledWith(expectedMessage)
             expect(actualChanges.messageSent).toEqual(expectedMessage)
@@ -931,12 +948,7 @@ describe("Player Selection Service", () => {
 
         describe("path is possible", () => {
             let actualContext: PlayerSelectionContext
-            let pathfindingSpy: MockInstance
             beforeEach(() => {
-                pathfindingSpy = vi.spyOn(
-                    BattleSquaddieSelectorService,
-                    "getClosestRouteForSquaddieToReachDestination"
-                )
                 actualContext = hoverOverMapCoordinate({
                     mapCoordinate: {
                         q: 1,
@@ -946,40 +958,10 @@ describe("Player Selection Service", () => {
                 })
             })
 
-            afterEach(() => {
-                pathfindingSpy.mockRestore()
-            })
-
             it("knows the player wants to consider moving the squaddie", () => {
                 expect(actualContext.playerIntent).toEqual(
                     PlayerIntent.CONSIDER_MOVING_SQUADDIE
                 )
-            })
-
-            it("uses pathfinding to calculate a possible route", () => {
-                expect(pathfindingSpy).toHaveBeenCalledTimes(1)
-            })
-
-            it("will reuse pathfinding results if hovering over the same location", () => {
-                hoverOverMapCoordinate({
-                    mapCoordinate: {
-                        q: 1,
-                        r: 0,
-                    },
-                    gameEngineState,
-                })
-                expect(pathfindingSpy).toHaveBeenCalledTimes(1)
-            })
-
-            it("will calculate more pathfinding results if hovering over a different location", () => {
-                hoverOverMapCoordinate({
-                    mapCoordinate: {
-                        q: 1,
-                        r: 1,
-                    },
-                    gameEngineState,
-                })
-                expect(pathfindingSpy).toHaveBeenCalledTimes(2)
             })
 
             it("will send a message indicating the path and its cost if the path is possible", () => {
@@ -1600,7 +1582,7 @@ const createGameEngineStateWith1PlayerAnd1Enemy = ({
         },
     })
 
-    return GameEngineStateService.new({
+    const gameEngineState = GameEngineStateService.new({
         battleOrchestratorState: BattleOrchestratorStateService.new({
             battleState: BattleStateService.new({
                 missionMap,
@@ -1619,6 +1601,14 @@ const createGameEngineStateWith1PlayerAnd1Enemy = ({
             new MockedP5GraphicsBuffer()
         ),
     })
+    gameEngineState.battleOrchestratorState.cache.searchResultsCache =
+        SearchResultsCacheService.new({
+            missionMap:
+                gameEngineState.battleOrchestratorState.battleState.missionMap,
+            objectRepository: gameEngineState.repository,
+        })
+
+    return gameEngineState
 }
 
 const clickOnScreenAndCalculateChangesAndMessage = ({
@@ -1666,6 +1656,8 @@ const clickOnScreenAndCalculateChangesAndMessage = ({
         battleActionRecorder:
             gameEngineState.battleOrchestratorState.battleState
                 .battleActionRecorder,
+        squaddieAllMovementCache:
+            gameEngineState.battleOrchestratorState.cache.searchResultsCache,
     }
     return { actualChanges, expectedMessage }
 }

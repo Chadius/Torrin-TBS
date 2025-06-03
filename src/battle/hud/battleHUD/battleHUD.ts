@@ -50,7 +50,6 @@ import { SquaddieTemplate } from "../../../campaign/squaddieTemplate"
 import { BattleActionRecorderService } from "../../history/battleAction/battleActionRecorder"
 import { ActionTemplateService } from "../../../action/template/actionTemplate"
 import { CalculatedResult } from "../../history/calculatedResult"
-import { MapDataBlob } from "../../../hexMap/mapLayer/mapDataBlob"
 import { BattleStateService } from "../../battleState/battleState"
 import { SquaddieSelectorPanelService } from "../playerActionPanel/squaddieSelectorPanel/squaddieSelectorPanel"
 import { PlayerConsideredActionsService } from "../../battleState/playerConsideredActions"
@@ -83,6 +82,7 @@ export const BattleHUDService = {
             missionMap: message.missionMap,
             objectRepository: message.objectRepository,
             campaignResources: message.campaignResources,
+            squaddieAllMovementCache: message.squaddieAllMovementCache,
         })
 
         BattleActionDecisionStepService.removeTarget({
@@ -218,16 +218,15 @@ export const BattleHUDService = {
             battleSquaddie,
         })
 
-        gameEngineState.battleOrchestratorState.battleState.mapDataBlob =
-            new MapDataBlob(
-                gameEngineState.battleOrchestratorState.battleState.missionMap.terrainTileMap
-            )
         OrchestratorUtilities.highlightSquaddieRange({
             battleSquaddieToHighlightId: battleSquaddieId,
             missionMap:
                 gameEngineState.battleOrchestratorState.battleState.missionMap,
             objectRepository: gameEngineState.repository,
             campaignResources: gameEngineState.campaign.resources,
+            squaddieAllMovementCache:
+                gameEngineState.battleOrchestratorState.cache
+                    .searchResultsCache,
         })
 
         if (playerCanControlThisSquaddieRightNow) {
@@ -283,6 +282,7 @@ export const BattleHUDService = {
                     SquaddieAffiliation.PLAYER
                         ? undefined
                         : SquaddieTurnService.new(),
+                squaddieAllMovementCache: message.squaddieAllMovementCache,
             })
 
         TerrainTileMapService.removeGraphicsLayerByType(
@@ -490,11 +490,11 @@ export const BattleHUDService = {
 
         if (
             !MovementCalculatorService.isMovementPossible({
-                missionMap: message.missionMap,
-                objectRepository: message.objectRepository,
                 battleSquaddie,
                 squaddieTemplate,
                 destination,
+                squaddieAllMovementCache: message.squaddieAllMovementCache,
+                missionMap: message.missionMap,
             })
         )
             return
@@ -633,50 +633,36 @@ const clearAllHoverAndClickedLayersExceptForThisSquaddie = ({
 const playerControlledSquaddieNeedsNextAction = (
     message: MessageBoardMessagePlayerControlledSquaddieNeedsNextAction
 ) => {
-    const gameEngineState = message.gameEngineState
-    const { battleSquaddie } = getResultOrThrowError(
-        ObjectRepositoryService.getSquaddieByBattleId(
-            gameEngineState.repository,
-            BattleActionDecisionStepService.getActor(
-                gameEngineState.battleOrchestratorState.battleState
-                    .battleActionDecisionStep
-            ).battleSquaddieId
-        )
-    )
+    const objectRepository = message.objectRepository
+    const battleSquaddieId = message.battleSquaddieId
+    const missionMap = message.missionMap
+    const campaignResources = message.campaignResources
 
-    TerrainTileMapService.removeAllGraphicsLayers(
-        gameEngineState.battleOrchestratorState.battleState.missionMap
-            .terrainTileMap
-    )
+    TerrainTileMapService.removeAllGraphicsLayers(missionMap.terrainTileMap)
 
     const { currentMapCoordinate, originMapCoordinate } =
-        MissionMapService.getByBattleSquaddieId(
-            gameEngineState.battleOrchestratorState.battleState.missionMap,
-            battleSquaddie.battleSquaddieId
-        )
+        MissionMapService.getByBattleSquaddieId(missionMap, battleSquaddieId)
     const squaddieReachHighlightedOnMap =
         MapHighlightService.highlightAllCoordinatesWithinSquaddieRange({
-            repository: gameEngineState.repository,
-            missionMap:
-                gameEngineState.battleOrchestratorState.battleState.missionMap,
-            battleSquaddieId: battleSquaddie.battleSquaddieId,
+            repository: objectRepository,
+            missionMap,
+            battleSquaddieId,
             currentMapCoordinate,
             originMapCoordinate,
-            campaignResources: gameEngineState.campaign.resources,
+            campaignResources,
+            squaddieAllMovementCache: message.squaddieAllMovementCache,
         })
     const actionRangeOnMap = MapGraphicsLayerService.new({
-        id: BattleActionDecisionStepService.getActor(
-            gameEngineState.battleOrchestratorState.battleState
-                .battleActionDecisionStep
-        ).battleSquaddieId,
+        id: battleSquaddieId,
         highlightedTileDescriptions: squaddieReachHighlightedOnMap,
         type: MapGraphicsLayerType.CLICKED_ON_CONTROLLABLE_SQUADDIE,
     })
     TerrainTileMapService.addGraphicsLayer(
-        gameEngineState.battleOrchestratorState.battleState.missionMap
-            .terrainTileMap,
+        missionMap.terrainTileMap,
         actionRangeOnMap
     )
+
+    message.playerCommandState.actionValidity = undefined
 }
 
 const showHUDForControllableSquaddie = (

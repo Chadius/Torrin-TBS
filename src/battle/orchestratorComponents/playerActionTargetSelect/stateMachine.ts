@@ -330,6 +330,8 @@ export class PlayerActionTargetStateMachine extends StateMachine<
                         objectRepository: context.objectRepository,
                         campaignResources:
                             context.messageParameters.campaignResources,
+                        squaddieAllMovementCache:
+                            context.messageParameters.squaddieAllMovementCache,
                     })
                     context.playerIntent.targetSelection.battleSquaddieIds = []
                 },
@@ -377,6 +379,8 @@ export class PlayerActionTargetStateMachine extends StateMachine<
                         objectRepository: context.objectRepository,
                         campaignResources:
                             context.messageParameters.campaignResources,
+                        squaddieAllMovementCache:
+                            context.messageParameters.squaddieAllMovementCache,
                     })
 
                     context.messageBoard.sendMessage({
@@ -721,6 +725,8 @@ const parseMouseEventsWhenPlayerCanSelectTarget = (
                         objectRepository: context.objectRepository,
                         campaignResources:
                             context.messageParameters.campaignResources,
+                        squaddieAllMovementCache:
+                            context.messageParameters.squaddieAllMovementCache,
                     })
                     break
             }

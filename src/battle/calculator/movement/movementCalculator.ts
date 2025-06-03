@@ -1,5 +1,4 @@
 import { SquaddieService } from "../../../squaddie/squaddieService"
-import { SearchResult } from "../../../hexMap/pathfinder/searchResults/searchResult"
 import { SquaddieAffiliation } from "../../../squaddie/squaddieAffiliation"
 import { isValidValue } from "../../../utils/objectValidityCheck"
 import { BattleSquaddie } from "../../battleSquaddie"
@@ -18,12 +17,15 @@ import {
 } from "../../history/battleAction/battleActionRecorder"
 import { MissionMap, MissionMapService } from "../../../missionMap/missionMap"
 import { SearchResultAdapterService } from "../../../hexMap/pathfinder/searchResults/searchResultAdapter"
-import { MapSearchService } from "../../../hexMap/pathfinder/pathGeneration/mapSearch"
 import { SearchLimitService } from "../../../hexMap/pathfinder/pathGeneration/searchLimit"
 import { SearchPathAdapter } from "../../../search/searchPathAdapter/searchPathAdapter"
 import { ObjectRepository } from "../../objectRepository"
 import { CampaignResources } from "../../../campaign/campaignResources"
 import { BattleState } from "../../battleState/battleState"
+import {
+    SearchResultsCache,
+    SearchResultsCacheService,
+} from "../../../hexMap/pathfinder/searchResults/searchResultsCache"
 
 export const MovementCalculatorService = {
     isMovementPossible: ({
@@ -31,13 +33,13 @@ export const MovementCalculatorService = {
         squaddieTemplate,
         destination,
         missionMap,
-        objectRepository,
+        squaddieAllMovementCache,
     }: {
         battleSquaddie: BattleSquaddie
         squaddieTemplate: SquaddieTemplate
         destination: HexCoordinate
         missionMap: MissionMap
-        objectRepository: ObjectRepository
+        squaddieAllMovementCache: SearchResultsCache
     }): boolean => {
         const squaddieDatum = MissionMapService.getByBattleSquaddieId(
             missionMap,
@@ -49,39 +51,36 @@ export const MovementCalculatorService = {
                 battleSquaddie.squaddieTurn
             )
 
-        const searchResults: SearchResult =
-            MapSearchService.calculatePathsToDestinations({
-                missionMap,
-                objectRepository,
+        const searchLimit = SearchLimitService.new({
+            baseSearchLimit: SearchLimitService.landBasedMovement(),
+            maximumMovementCost:
+                movementActionPoints *
+                SquaddieService.getSquaddieMovementAttributes({
+                    battleSquaddie,
+                    squaddieTemplate,
+                }).net.movementPerAction,
+            squaddieAffiliation: SquaddieAffiliation.PLAYER,
+            canStopOnSquaddies: true,
+            passThroughWalls: SquaddieService.getSquaddieMovementAttributes({
+                battleSquaddie,
+                squaddieTemplate,
+            }).net.passThroughWalls,
+            crossOverPits: SquaddieService.getSquaddieMovementAttributes({
+                battleSquaddie,
+                squaddieTemplate,
+            }).net.crossOverPits,
+            ignoreTerrainCost: SquaddieService.getSquaddieMovementAttributes({
+                battleSquaddie,
+                squaddieTemplate,
+            }).net.ignoreTerrainCost,
+        })
+        const searchResults =
+            SearchResultsCacheService.calculateSquaddieAllMovement({
+                searchResultsCache: squaddieAllMovementCache,
+                searchLimit,
                 currentMapCoordinate: squaddieDatum.currentMapCoordinate,
                 originMapCoordinate: squaddieDatum.originMapCoordinate,
-                searchLimit: SearchLimitService.new({
-                    baseSearchLimit: SearchLimitService.landBasedMovement(),
-                    maximumMovementCost:
-                        movementActionPoints *
-                        SquaddieService.getSquaddieMovementAttributes({
-                            battleSquaddie,
-                            squaddieTemplate,
-                        }).net.movementPerAction,
-                    squaddieAffiliation: SquaddieAffiliation.PLAYER,
-                    canStopOnSquaddies: true,
-                    passThroughWalls:
-                        SquaddieService.getSquaddieMovementAttributes({
-                            battleSquaddie,
-                            squaddieTemplate,
-                        }).net.passThroughWalls,
-                    crossOverPits:
-                        SquaddieService.getSquaddieMovementAttributes({
-                            battleSquaddie,
-                            squaddieTemplate,
-                        }).net.crossOverPits,
-                    ignoreTerrainCost:
-                        SquaddieService.getSquaddieMovementAttributes({
-                            battleSquaddie,
-                            squaddieTemplate,
-                        }).net.ignoreTerrainCost,
-                }),
-                destinationCoordinates: [destination],
+                battleSquaddieId: battleSquaddie.battleSquaddieId,
             })
 
         const closestRoute: SearchPathAdapter =

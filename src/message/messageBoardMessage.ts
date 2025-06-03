@@ -23,6 +23,7 @@ import { PlayerConsideredActions } from "../battle/battleState/playerConsideredA
 import { PlayerDecisionHUD } from "../battle/hud/playerActionPanel/playerDecisionHUD"
 import { PlayerCommandState } from "../battle/hud/playerCommand/playerCommandHUD"
 import { BattleState } from "../battle/battleState/battleState"
+import { SearchResultsCache } from "../hexMap/pathfinder/searchResults/searchResultsCache"
 
 export type MessageBoardMessage =
     | MessageBoardMessageBase
@@ -127,6 +128,7 @@ export interface MessageBoardMessagePlayerCancelsTargetSelection {
     missionMap: MissionMap
     objectRepository: ObjectRepository
     campaignResources: CampaignResources
+    squaddieAllMovementCache: SearchResultsCache
 }
 
 export interface MessageBoardMessagePlayerCancelsTargetConfirmation {
@@ -162,6 +164,7 @@ export interface MessageBoardMessagePlayerPeeksAtSquaddie {
     missionMap: MissionMap
     objectRepository: ObjectRepository
     campaignResources: CampaignResources
+    squaddieAllMovementCache: SearchResultsCache
 }
 
 export interface MessageBoardBattleActionFinishesAnimation {
@@ -232,6 +235,7 @@ export interface MessageBoardMessageMoveSquaddieToCoordinate {
     campaignResources: CampaignResources
     battleState: BattleState
     battleActionRecorder: BattleActionRecorder
+    squaddieAllMovementCache: SearchResultsCache
 }
 
 export interface MessageBoardMessagePlayerCancelsPlayerActionConsiderations {
@@ -253,7 +257,12 @@ export interface MessageBoardMessagePlayerConfirmsDecisionStepActor {
 
 export interface MessageBoardMessagePlayerControlledSquaddieNeedsNextAction {
     type: MessageBoardMessageType.PLAYER_CONTROLLED_SQUADDIE_NEEDS_NEXT_ACTION
-    gameEngineState: GameEngineState
+    objectRepository: ObjectRepository
+    battleSquaddieId: string
+    missionMap: MissionMap
+    playerCommandState: PlayerCommandState
+    campaignResources: CampaignResources
+    squaddieAllMovementCache: SearchResultsCache
 }
 
 export interface MessageBoardMessageSquaddieTurnEnds {

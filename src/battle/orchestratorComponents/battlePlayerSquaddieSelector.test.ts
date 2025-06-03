@@ -14,7 +14,7 @@ import { BattleCamera } from "../battleCamera"
 import { ConvertCoordinateService } from "../../hexMap/convertCoordinates"
 import * as mocks from "../../utils/test/mocks"
 import { MockedP5GraphicsBuffer } from "../../utils/test/mocks"
-import { BattleState, BattleStateService } from "../battleState/battleState"
+import { BattleStateService } from "../battleState/battleState"
 import {
     GameEngineState,
     GameEngineStateService,
@@ -24,10 +24,7 @@ import { ActionTemplateService } from "../../action/template/actionTemplate"
 import { BattlePhaseState } from "./battlePhaseController"
 import { BattleHUDService } from "../hud/battleHUD/battleHUD"
 import { MouseButton, MouseConfigService } from "../../utils/mouseConfig"
-import {
-    BattleActionDecisionStep,
-    BattleActionDecisionStepService,
-} from "../actionDecision/battleActionDecisionStep"
+import { BattleActionDecisionStepService } from "../actionDecision/battleActionDecisionStep"
 import { MessageBoardMessageType } from "../../message/messageBoardMessage"
 import { RectAreaService } from "../../ui/rectArea"
 import {
@@ -62,10 +59,7 @@ import {
     TraitStatusStorageService,
 } from "../../trait/traitStatusStorage"
 import { DamageType, HealingType } from "../../squaddie/squaddieService"
-import {
-    BattleActionRecorder,
-    BattleActionRecorderService,
-} from "../history/battleAction/battleActionRecorder"
+import { BattleActionRecorderService } from "../history/battleAction/battleActionRecorder"
 import { TargetConstraintsService } from "../../action/targetConstraints"
 import {
     afterEach,
@@ -94,12 +88,8 @@ import { FileAccessHUDService } from "../hud/fileAccess/fileAccessHUD"
 import { HexCoordinate } from "../../hexMap/hexCoordinate/hexCoordinate"
 import { ValidityCheckService } from "../actionValidity/validityChecker"
 import { MapSearchTestUtils } from "../../hexMap/pathfinder/pathGeneration/mapSearchTests/mapSearchTestUtils"
-import {
-    CampaignResources,
-    CampaignResourcesService,
-} from "../../campaign/campaignResources"
-import { SearchPathAdapter } from "../../search/searchPathAdapter/searchPathAdapter"
-import { MessageBoard } from "../../message/messageBoard"
+import { CampaignResourcesService } from "../../campaign/campaignResources"
+import { SearchResultsCacheService } from "../../hexMap/pathfinder/searchResults/searchResultsCache"
 
 describe("BattleSquaddieSelector", () => {
     let selector: BattlePlayerSquaddieSelector =
@@ -362,7 +352,7 @@ describe("BattleSquaddieSelector", () => {
         battlePhaseState: BattlePhaseState
         missionMap: MissionMap
     }): GameEngineState => {
-        return GameEngineStateService.new({
+        const gameEngineState = GameEngineStateService.new({
             resourceHandler: mocks.mockResourceHandler(mockedP5GraphicsContext),
             battleOrchestratorState: BattleOrchestratorStateService.new({
                 battleHUD: BattleHUDService.new({}),
@@ -378,6 +368,14 @@ describe("BattleSquaddieSelector", () => {
             repository: objectRepository,
             campaign: CampaignService.default(),
         })
+        gameEngineState.battleOrchestratorState.cache.searchResultsCache =
+            SearchResultsCacheService.new({
+                missionMap:
+                    gameEngineState.battleOrchestratorState.battleState
+                        .missionMap,
+                objectRepository: gameEngineState.repository,
+            })
+        return gameEngineState
     }
 
     describe("automatically select the first playable controllable squaddie", () => {
@@ -613,6 +611,9 @@ describe("BattleSquaddieSelector", () => {
                         y: battleSquaddieScreenPositionY,
                     },
                 },
+                squaddieAllMovementCache:
+                    gameEngineState.battleOrchestratorState.cache
+                        .searchResultsCache,
             })
         })
     })
@@ -719,6 +720,9 @@ describe("BattleSquaddieSelector", () => {
                                     battleActionRecorder:
                                         gameEngineState.battleOrchestratorState
                                             .battleState.battleActionRecorder,
+                                    squaddieAllMovementCache:
+                                        gameEngineState.battleOrchestratorState
+                                            .cache.searchResultsCache,
                                 },
                             }),
                     })
@@ -747,6 +751,9 @@ describe("BattleSquaddieSelector", () => {
                         gameEngineState.battleOrchestratorState.battleState
                             .battleActionRecorder,
                     battleSquaddieId: "battleSquaddieId",
+                    squaddieAllMovementCache:
+                        gameEngineState.battleOrchestratorState.cache
+                            .searchResultsCache,
                 })
             })
         })

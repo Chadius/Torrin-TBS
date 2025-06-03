@@ -49,7 +49,6 @@ import { BattleActionService } from "../history/battleAction/battleAction"
 import { DrawSquaddieIconOnMapUtilities } from "../animation/drawSquaddieIconOnMap/drawSquaddieIconOnMap"
 import { SquaddieStatusTileService } from "../hud/playerActionPanel/tile/squaddieStatusTile/squaddieStatusTile"
 import { ActionTilePosition } from "../hud/playerActionPanel/tile/actionTilePosition"
-import { MapDataBlob } from "../../hexMap/mapLayer/mapDataBlob"
 import {
     PlayerConsideredActions,
     PlayerConsideredActionsService,
@@ -57,6 +56,7 @@ import {
 import { SearchPathAdapter } from "../../search/searchPathAdapter/searchPathAdapter"
 import { BattleActionsDuringTurnService } from "../history/battleAction/battleActionsDuringTurn"
 import { HexCoordinateService } from "../../hexMap/hexCoordinate/hexCoordinate"
+import { SearchResultsCacheService } from "../../hexMap/pathfinder/searchResults/searchResultsCache"
 
 export enum BattleStateValidityMissingComponent {
     MISSION_MAP = "MISSION_MAP",
@@ -71,7 +71,6 @@ export interface BattleState extends MissionObjectivesAndCutscenes {
     teamStrategiesById: { [key: string]: TeamStrategy[] }
     battlePhaseState: BattlePhaseState
     squaddieMovePath?: SearchPathAdapter
-    mapDataBlob?: MapDataBlob
     playerConsideredActions?: PlayerConsideredActions
     camera: BattleCamera
     battleActionRecorder: BattleActionRecorder
@@ -257,9 +256,6 @@ const newBattleState = ({
             battleCompletionStatus || BattleCompletionStatus.IN_PROGRESS,
         battleActionDecisionStep:
             battleActionDecisionStep ?? BattleActionDecisionStepService.new(),
-        mapDataBlob: missionMap
-            ? new MapDataBlob(missionMap.terrainTileMap)
-            : undefined,
         playerConsideredActions: PlayerConsideredActionsService.new(),
     }
 }
@@ -329,6 +325,11 @@ const battleActionFinishesAnimation = (
         battleAction.actor.actorBattleSquaddieId
     )
 
+    SearchResultsCacheService.invalidateSquaddieAllMovementCacheForAll({
+        searchResultsCache:
+            gameEngineState.battleOrchestratorState.cache.searchResultsCache,
+    })
+
     updateSummaryHUDAfterFinishingAnimation(message)
 
     DrawSquaddieIconOnMapUtilities.highlightPlayableSquaddieReachIfTheyCanAct({
@@ -338,6 +339,8 @@ const battleActionFinishesAnimation = (
             gameEngineState.battleOrchestratorState.battleState.missionMap,
         repository: gameEngineState.repository,
         campaign: gameEngineState.campaign,
+        squaddieAllMovementCache:
+            gameEngineState.battleOrchestratorState.cache.searchResultsCache,
     })
     DrawSquaddieIconOnMapUtilities.tintSquaddieMapIconIfTheyCannotAct(
         battleSquaddie,
@@ -416,6 +419,10 @@ const squaddieTurnEnds = (message: MessageBoardMessageSquaddieTurnEnds) => {
     BattleActionRecorderService.turnComplete(
         gameEngineState.battleOrchestratorState.battleState.battleActionRecorder
     )
+    SearchResultsCacheService.invalidateSquaddieAllMovementCacheForAll({
+        searchResultsCache:
+            gameEngineState.battleOrchestratorState.cache.searchResultsCache,
+    })
     gameEngineState.battleOrchestratorState.battleHUDState.summaryHUDState =
         undefined
     gameEngineState.battleOrchestratorState.battleState.playerConsideredActions =

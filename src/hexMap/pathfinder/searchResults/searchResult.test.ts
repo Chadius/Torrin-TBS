@@ -8,6 +8,7 @@ import { describe, expect, it } from "vitest"
 describe("Search Results", () => {
     it("get closest routes to destination", () => {
         const results = SearchResultsService.new({
+            id: "searchResult tests",
             shortestPathByCoordinate: {
                 [HexCoordinateService.toString({ q: 0, r: 0 })]: [],
                 [HexCoordinateService.toString({ q: 0, r: 1 })]: [
@@ -157,6 +158,7 @@ describe("Search Results", () => {
 
     it("can report all stoppable coordinates", () => {
         const results = SearchResultsService.new({
+            id: "searchResult tests",
             shortestPathByCoordinate: {
                 [HexCoordinateService.toString({ q: 0, r: 0 })]: [],
                 [HexCoordinateService.toString({ q: 0, r: 1 })]: [
