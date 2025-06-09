@@ -3,7 +3,6 @@ import {
     HexGridMovementCostService,
     HexGridTile,
 } from "./hexGridMovementCost"
-import { PulseColor } from "./pulseColor"
 import { HexCoordinate } from "./hexCoordinate/hexCoordinate"
 import {
     MapGraphicsLayer,
@@ -11,11 +10,6 @@ import {
     MapGraphicsLayerSquaddieTypes,
     MapGraphicsLayerType,
 } from "./mapLayer/mapGraphicsLayer"
-
-export type HighlightCoordinateDescription = {
-    coordinates: HexCoordinate[]
-    pulseColor: PulseColor
-}
 
 export interface TerrainTileMap {
     coordinates: HexGridTile[]

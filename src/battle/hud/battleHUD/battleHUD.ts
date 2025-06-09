@@ -275,7 +275,6 @@ export const BattleHUDService = {
                 battleSquaddieId: battleSquaddieId,
                 currentMapCoordinate,
                 originMapCoordinate,
-                campaignResources: message.campaignResources,
                 squaddieTurnOverride:
                     squaddieTemplate.squaddieId.affiliation ===
                     SquaddieAffiliation.PLAYER
@@ -648,7 +647,6 @@ const playerControlledSquaddieNeedsNextAction = (
             battleSquaddieId,
             currentMapCoordinate,
             originMapCoordinate,
-            campaignResources,
             squaddieAllMovementCache: message.squaddieAllMovementCache,
         })
     const actionRangeOnMap = MapGraphicsLayerService.new({

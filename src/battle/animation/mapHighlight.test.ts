@@ -1,6 +1,5 @@
 import { ObjectRepository, ObjectRepositoryService } from "../objectRepository"
 import {
-    HighlightCoordinateDescription,
     TerrainTileMap,
     TerrainTileMapService,
 } from "../../hexMap/terrainTileMap"
@@ -21,10 +20,6 @@ import { HIGHLIGHT_PULSE_COLOR } from "../../hexMap/hexDrawingUtils"
 import { MapHighlightService } from "./mapHighlight"
 import { MissionMapService } from "../../missionMap/missionMap"
 import { SquaddieTurnService } from "../../squaddie/turn"
-import {
-    CampaignResources,
-    CampaignResourcesService,
-} from "../../campaign/campaignResources"
 import { ActionEffectTemplateService } from "../../action/template/actionEffectTemplate"
 import {
     ActionTemplate,
@@ -42,6 +37,10 @@ import { SearchPathAdapterService } from "../../search/searchPathAdapter/searchP
 import { SearchConnection } from "../../search/searchGraph/graph"
 import { HexCoordinate } from "../../hexMap/hexCoordinate/hexCoordinate"
 import { SearchResultsCacheService } from "../../hexMap/pathfinder/searchResults/searchResultsCache"
+import {
+    HighlightCoordinateDescription,
+    HighlightCoordinateDescriptionService,
+} from "../../hexMap/highlightCoordinateDescription"
 
 describe("map highlight generator", () => {
     let terrainAllSingleMovement: TerrainTileMap
@@ -50,11 +49,8 @@ describe("map highlight generator", () => {
     let objectRepository: ObjectRepository
 
     let meleeAndRangedAction: ActionTemplate
-    let campaignResources: CampaignResources
 
     beforeEach(() => {
-        campaignResources = CampaignResourcesService.default()
-
         objectRepository = ObjectRepositoryService.new()
         terrainAllSingleMovement = TerrainTileMapService.new({
             movementCost: ["1 1 1 1 1 1 1 1 1 1 "],
@@ -166,36 +162,27 @@ describe("map highlight generator", () => {
         const highlightedTiles: HighlightCoordinateDescription[] =
             MapHighlightService.convertSearchPathToHighlightCoordinates({
                 searchPath: pathToDraw,
-                battleSquaddieId: battleSquaddie.battleSquaddieId,
-                repository: objectRepository,
                 squaddieIsNormallyControllableByPlayer: true,
             })
 
-        expect(highlightedTiles).toEqual([
-            {
-                coordinates: [{ q: 0, r: 0 }],
-                pulseColor: HIGHLIGHT_PULSE_COLOR.BLUE,
-            },
-            {
-                coordinates: [
-                    { q: 0, r: 1 },
-                    { q: 1, r: 1 },
-                ],
-                pulseColor: HIGHLIGHT_PULSE_COLOR.BLUE,
-            },
-            {
-                coordinates: [{ q: 1, r: 2 }],
-                pulseColor: HIGHLIGHT_PULSE_COLOR.BLUE,
-            },
-            {
-                coordinates: [{ q: 1, r: 3 }],
-                pulseColor: HIGHLIGHT_PULSE_COLOR.BLUE,
-            },
-            {
-                coordinates: [{ q: 2, r: 3 }],
-                pulseColor: HIGHLIGHT_PULSE_COLOR.BLUE,
-            },
-        ])
+        expect(highlightedTiles).toHaveLength(1)
+
+        expect(
+            HighlightCoordinateDescriptionService.areEqual(
+                highlightedTiles[0],
+                {
+                    coordinates: [
+                        { q: 0, r: 0 },
+                        { q: 0, r: 1 },
+                        { q: 1, r: 1 },
+                        { q: 1, r: 2 },
+                        { q: 1, r: 3 },
+                        { q: 2, r: 3 },
+                    ],
+                    pulseColor: HIGHLIGHT_PULSE_COLOR.BLUE,
+                }
+            )
+        ).toBeTruthy()
     })
 
     describe("shows movement for squaddie with no actions", () => {
@@ -229,47 +216,28 @@ describe("map highlight generator", () => {
                 battleSquaddie
             )
         }
-        const expectedMovementWith1Action = (
-            campaignResources: CampaignResources
-        ) => [
-            {
-                coordinates: [{ q: 0, r: 2 }],
-                pulseColor: HIGHLIGHT_PULSE_COLOR.BLUE,
-            },
-            {
+        const expectedMovementWith1Action =
+            (): HighlightCoordinateDescription => ({
                 coordinates: [
                     { q: 0, r: 1 },
+                    { q: 0, r: 2 },
                     { q: 0, r: 3 },
                 ],
                 pulseColor: HIGHLIGHT_PULSE_COLOR.BLUE,
-            },
-        ]
-        const expectedMovementWith3Actions = (
-            campaignResources: CampaignResources
-        ) => [
-            {
-                coordinates: [{ q: 0, r: 2 }],
-                pulseColor: HIGHLIGHT_PULSE_COLOR.BLUE,
-            },
-            {
-                coordinates: [
-                    { q: 0, r: 1 },
-                    { q: 0, r: 3 },
-                ],
-                pulseColor: HIGHLIGHT_PULSE_COLOR.BLUE,
-            },
-            {
+            })
+
+        const expectedMovementWith3Actions =
+            (): HighlightCoordinateDescription => ({
                 coordinates: [
                     { q: 0, r: 0 },
+                    { q: 0, r: 1 },
+                    { q: 0, r: 2 },
+                    { q: 0, r: 3 },
                     { q: 0, r: 4 },
+                    { q: 0, r: 5 },
                 ],
                 pulseColor: HIGHLIGHT_PULSE_COLOR.BLUE,
-            },
-            {
-                coordinates: [{ q: 0, r: 5 }],
-                pulseColor: HIGHLIGHT_PULSE_COLOR.BLUE,
-            },
-        ]
+            })
 
         it("highlights correct coordinates when squaddie has 1 action", () => {
             createSquaddie(SquaddieAffiliation.PLAYER)
@@ -290,16 +258,18 @@ describe("map highlight generator", () => {
                     originMapCoordinate: { q: 0, r: 2 },
                     repository: objectRepository,
                     battleSquaddieId: battleSquaddie.battleSquaddieId,
-                    campaignResources,
                     squaddieAllMovementCache: SearchResultsCacheService.new({
                         missionMap,
                         objectRepository,
                     }),
                 })
 
-            expect(highlightedDescription).toEqual(
-                expectedMovementWith1Action(campaignResources)
-            )
+            expect(
+                HighlightCoordinateDescriptionService.areEqual(
+                    highlightedDescription[0],
+                    expectedMovementWith1Action()
+                )
+            ).toBe(true)
         })
         it("highlights correct coordinates when squaddie has multiple actions", () => {
             createSquaddie(SquaddieAffiliation.PLAYER)
@@ -315,16 +285,18 @@ describe("map highlight generator", () => {
                     originMapCoordinate: { q: 0, r: 2 },
                     repository: objectRepository,
                     battleSquaddieId: battleSquaddie.battleSquaddieId,
-                    campaignResources,
                     squaddieAllMovementCache: SearchResultsCacheService.new({
                         missionMap,
                         objectRepository,
                     }),
                 })
 
-            expect(highlightedDescription).toEqual(
-                expectedMovementWith3Actions(campaignResources)
-            )
+            expect(
+                HighlightCoordinateDescriptionService.areEqual(
+                    highlightedDescription[0],
+                    expectedMovementWith3Actions()
+                )
+            ).toBe(true)
         })
         it("highlights correct coordinates when applying the number of actions override", () => {
             createSquaddie(SquaddieAffiliation.PLAYER)
@@ -348,7 +320,6 @@ describe("map highlight generator", () => {
                     originMapCoordinate: { q: 0, r: 2 },
                     repository: objectRepository,
                     battleSquaddieId: battleSquaddie.battleSquaddieId,
-                    campaignResources,
                     squaddieTurnOverride: turnWith1Action,
                     squaddieAllMovementCache: SearchResultsCacheService.new({
                         missionMap,
@@ -356,9 +327,12 @@ describe("map highlight generator", () => {
                     }),
                 })
 
-            expect(highlightedDescription).toEqual(
-                expectedMovementWith1Action(campaignResources)
-            )
+            expect(
+                HighlightCoordinateDescriptionService.areEqual(
+                    highlightedDescription[0],
+                    expectedMovementWith1Action()
+                )
+            ).toBe(true)
         })
         it("highlights correct coordinates when squaddie has to deal with double movement terrain", () => {
             createSquaddie(SquaddieAffiliation.PLAYER)
@@ -374,26 +348,25 @@ describe("map highlight generator", () => {
                     originMapCoordinate: { q: 0, r: 2 },
                     repository: objectRepository,
                     battleSquaddieId: battleSquaddie.battleSquaddieId,
-                    campaignResources,
                     squaddieAllMovementCache: SearchResultsCacheService.new({
                         missionMap,
                         objectRepository,
                     }),
                 })
 
-            expect(highlightedDescription).toEqual([
-                {
-                    coordinates: [{ q: 0, r: 2 }],
-                    pulseColor: HIGHLIGHT_PULSE_COLOR.BLUE,
-                },
-                {
-                    coordinates: [
-                        { q: 0, r: 1 },
-                        { q: 0, r: 3 },
-                    ],
-                    pulseColor: HIGHLIGHT_PULSE_COLOR.BLUE,
-                },
-            ])
+            expect(
+                HighlightCoordinateDescriptionService.areEqual(
+                    highlightedDescription[0],
+                    {
+                        coordinates: [
+                            { q: 0, r: 2 },
+                            { q: 0, r: 1 },
+                            { q: 0, r: 3 },
+                        ],
+                        pulseColor: HIGHLIGHT_PULSE_COLOR.BLUE,
+                    }
+                )
+            ).toBe(true)
         })
         it("highlights correct coordinates with squaddie can ignore double movement terrain", () => {
             createSquaddie(SquaddieAffiliation.PLAYER)
@@ -421,16 +394,18 @@ describe("map highlight generator", () => {
                     originMapCoordinate: { q: 0, r: 2 },
                     repository: objectRepository,
                     battleSquaddieId: battleSquaddie.battleSquaddieId,
-                    campaignResources,
                     squaddieAllMovementCache: SearchResultsCacheService.new({
                         missionMap,
                         objectRepository,
                     }),
                 })
 
-            expect(highlightedDescription).toEqual(
-                expectedMovementWith1Action(campaignResources)
-            )
+            expect(
+                HighlightCoordinateDescriptionService.areEqual(
+                    highlightedDescription[0],
+                    expectedMovementWith1Action()
+                )
+            ).toBe(true)
         })
     })
 
@@ -478,33 +453,37 @@ describe("map highlight generator", () => {
                     originMapCoordinate: { q: 0, r: 4 },
                     repository: objectRepository,
                     battleSquaddieId: battleSquaddie.battleSquaddieId,
-                    campaignResources,
                     squaddieAllMovementCache: SearchResultsCacheService.new({
                         missionMap,
                         objectRepository,
                     }),
                 })
 
-            expect(highlightedDescription).toEqual([
-                {
-                    coordinates: [{ q: 0, r: 4 }],
-                    pulseColor: HIGHLIGHT_PULSE_COLOR.PALE_BLUE,
-                },
-                {
-                    coordinates: [
-                        { q: 0, r: 3 },
-                        { q: 0, r: 5 },
-                    ],
-                    pulseColor: HIGHLIGHT_PULSE_COLOR.PALE_BLUE,
-                },
-                {
-                    coordinates: [
-                        { q: 0, r: 1 },
-                        { q: 0, r: 7 },
-                    ],
-                    pulseColor: HIGHLIGHT_PULSE_COLOR.PURPLE,
-                },
-            ])
+            expect(
+                HighlightCoordinateDescriptionService.areEqual(
+                    highlightedDescription[0],
+                    {
+                        coordinates: [
+                            { q: 0, r: 4 },
+                            { q: 0, r: 3 },
+                            { q: 0, r: 5 },
+                        ],
+                        pulseColor: HIGHLIGHT_PULSE_COLOR.PALE_BLUE,
+                    }
+                )
+            ).toBe(true)
+            expect(
+                HighlightCoordinateDescriptionService.areEqual(
+                    highlightedDescription[1],
+                    {
+                        coordinates: [
+                            { q: 0, r: 1 },
+                            { q: 0, r: 7 },
+                        ],
+                        pulseColor: HIGHLIGHT_PULSE_COLOR.PURPLE,
+                    }
+                )
+            ).toBe(true)
         })
     })
 })

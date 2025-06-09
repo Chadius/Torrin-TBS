@@ -44,10 +44,7 @@ import {
     PulseColor,
     PulseColorService,
 } from "../../../hexMap/pulseColor"
-import {
-    SearchResultsCache,
-    SearchResultsCacheService,
-} from "../../../hexMap/pathfinder/searchResults/searchResultsCache"
+import { SearchResultsCache } from "../../../hexMap/pathfinder/searchResults/searchResultsCache"
 
 interface DrawSquaddieIconOnMapLayout {
     ActionPointsBarColors: {

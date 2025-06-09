@@ -3,7 +3,8 @@ import {
     HexCoordinateService,
 } from "../hexCoordinate/hexCoordinate"
 import { PulseColor } from "../pulseColor"
-import { HighlightCoordinateDescription } from "../terrainTileMap"
+
+import { HighlightCoordinateDescription } from "../highlightCoordinateDescription"
 
 export interface MapGraphicsLayerHighlight {
     coordinate: HexCoordinate

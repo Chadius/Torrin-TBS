@@ -397,7 +397,6 @@ const highlightSquaddieRange = ({
             battleSquaddieId: battleSquaddie.battleSquaddieId,
             originMapCoordinate,
             currentMapCoordinate,
-            campaignResources,
             squaddieTurnOverride:
                 squaddieTemplate.squaddieId.affiliation ===
                 SquaddieAffiliation.PLAYER

@@ -277,8 +277,6 @@ const createSearchPath = ({
     const routeTilesByDistance =
         MapHighlightService.convertSearchPathToHighlightCoordinates({
             searchPath: closestRoute,
-            battleSquaddieId: battleSquaddie.battleSquaddieId,
-            repository: objectRepository,
             squaddieIsNormallyControllableByPlayer,
         })
     const actionRangeOnMap = MapGraphicsLayerService.new({
