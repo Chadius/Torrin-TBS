@@ -1,19 +1,6 @@
 import { HexGridMovementCost } from "../hexMap/hexGridMovementCost"
 import { AttributeType } from "../squaddie/attribute/attributeType"
 
-export enum MissionMapMovementIconKey {
-    MOVE_1_ACTION_CONTROLLABLE_SQUADDIE = "MOVE_1_ACTION_CONTROLLABLE_SQUADDIE",
-    MOVE_2_ACTIONS_CONTROLLABLE_SQUADDIE = "MOVE_2_ACTIONS_CONTROLLABLE_SQUADDIE",
-    MOVE_3_ACTIONS_CONTROLLABLE_SQUADDIE = "MOVE_3_ACTIONS_CONTROLLABLE_SQUADDIE",
-    MOVE_1_ACTION_UNCONTROLLABLE_SQUADDIE = "MOVE_1_ACTION_UNCONTROLLABLE_SQUADDIE",
-    MOVE_2_ACTIONS_UNCONTROLLABLE_SQUADDIE = "MOVE_2_ACTIONS_UNCONTROLLABLE_SQUADDIE",
-    MOVE_3_ACTIONS_UNCONTROLLABLE_SQUADDIE = "MOVE_3_ACTIONS_UNCONTROLLABLE_SQUADDIE",
-}
-
-export enum MissionMapAttackIconKey {
-    ATTACK_1_ACTION = "ATTACK_1_ACTION",
-}
-
 export enum MissionAttributeIconKey {
     ARMOR_CLASS = "ARMOR_CLASS",
 }
@@ -28,12 +15,6 @@ export interface MapTilesResources {
 }
 
 export interface CampaignResources {
-    missionMapMovementIconResourceKeys: {
-        [movementIcon in MissionMapMovementIconKey]: string
-    }
-    missionMapAttackIconResourceKeys: {
-        [attackIcon in MissionMapAttackIconKey]: string
-    }
     missionAttributeIconResourceKeys: {
         [attributeIconKey in MissionAttributeIconKey]: string
     }
@@ -54,24 +35,6 @@ export interface CampaignResources {
 export const CampaignResourcesService = {
     default: (): CampaignResources => {
         return {
-            missionMapMovementIconResourceKeys: {
-                [MissionMapMovementIconKey.MOVE_1_ACTION_CONTROLLABLE_SQUADDIE]:
-                    "map icon move 1 action",
-                [MissionMapMovementIconKey.MOVE_2_ACTIONS_CONTROLLABLE_SQUADDIE]:
-                    "map icon move 2 actions",
-                [MissionMapMovementIconKey.MOVE_3_ACTIONS_CONTROLLABLE_SQUADDIE]:
-                    "map icon move 3 actions",
-                [MissionMapMovementIconKey.MOVE_1_ACTION_UNCONTROLLABLE_SQUADDIE]:
-                    "map icon move 1 action small",
-                [MissionMapMovementIconKey.MOVE_2_ACTIONS_UNCONTROLLABLE_SQUADDIE]:
-                    "map icon move 2 actions small",
-                [MissionMapMovementIconKey.MOVE_3_ACTIONS_UNCONTROLLABLE_SQUADDIE]:
-                    "map icon move 3 actions small",
-            },
-            missionMapAttackIconResourceKeys: {
-                [MissionMapAttackIconKey.ATTACK_1_ACTION]:
-                    "map icon attack 1 action",
-            },
             missionAttributeIconResourceKeys: {
                 [MissionAttributeIconKey.ARMOR_CLASS]: "armor class icon",
             },
@@ -108,12 +71,6 @@ export const CampaignResourcesService = {
     },
     clone: (original: CampaignResources): CampaignResources => ({
         endTurnIconResourceKey: original.endTurnIconResourceKey,
-        missionMapMovementIconResourceKeys: {
-            ...original.missionMapMovementIconResourceKeys,
-        },
-        missionMapAttackIconResourceKeys: {
-            ...original.missionMapAttackIconResourceKeys,
-        },
         missionAttributeIconResourceKeys: {
             ...original.missionAttributeIconResourceKeys,
         },

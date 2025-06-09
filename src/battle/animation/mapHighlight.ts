@@ -26,13 +26,11 @@ export const MapHighlightService = {
         searchPath,
         repository,
         battleSquaddieId,
-        campaignResources,
         squaddieIsNormallyControllableByPlayer,
     }: {
         searchPath: SearchPathAdapter
         repository: ObjectRepository
         battleSquaddieId: string
-        campaignResources: CampaignResources
         squaddieIsNormallyControllableByPlayer: boolean
     }): HighlightCoordinateDescription[] => {
         const coordinatesByNumberOfMovementActions =
@@ -42,46 +40,7 @@ export const MapHighlightService = {
                 searchPath,
             })
         return Object.entries(coordinatesByNumberOfMovementActions).map(
-            ([numberOfMoveActionsStr, coordinateTraveledList]) => {
-                const numberOfMoveActions: number = Number(
-                    numberOfMoveActionsStr
-                )
-                let imageOverlayName: string
-                switch (numberOfMoveActions) {
-                    case 0:
-                        imageOverlayName = ""
-                        break
-                    case 1:
-                        imageOverlayName =
-                            squaddieIsNormallyControllableByPlayer
-                                ? campaignResources
-                                      .missionMapMovementIconResourceKeys
-                                      .MOVE_1_ACTION_CONTROLLABLE_SQUADDIE
-                                : campaignResources
-                                      .missionMapMovementIconResourceKeys
-                                      .MOVE_1_ACTION_UNCONTROLLABLE_SQUADDIE
-                        break
-                    case 2:
-                        imageOverlayName =
-                            squaddieIsNormallyControllableByPlayer
-                                ? campaignResources
-                                      .missionMapMovementIconResourceKeys
-                                      .MOVE_2_ACTIONS_CONTROLLABLE_SQUADDIE
-                                : campaignResources
-                                      .missionMapMovementIconResourceKeys
-                                      .MOVE_2_ACTIONS_UNCONTROLLABLE_SQUADDIE
-                        break
-                    default:
-                        imageOverlayName =
-                            squaddieIsNormallyControllableByPlayer
-                                ? campaignResources
-                                      .missionMapMovementIconResourceKeys
-                                      .MOVE_3_ACTIONS_CONTROLLABLE_SQUADDIE
-                                : campaignResources
-                                      .missionMapMovementIconResourceKeys
-                                      .MOVE_3_ACTIONS_UNCONTROLLABLE_SQUADDIE
-                        break
-                }
+            ([_, coordinateTraveledList]) => {
                 return {
                     coordinates: coordinateTraveledList.map((loc) => {
                         return loc
@@ -89,7 +48,6 @@ export const MapHighlightService = {
                     pulseColor: squaddieIsNormallyControllableByPlayer
                         ? HIGHLIGHT_PULSE_COLOR.BLUE
                         : HIGHLIGHT_PULSE_COLOR.PALE_BLUE,
-                    overlayImageResourceName: imageOverlayName,
                 }
             }
         )
@@ -216,34 +174,18 @@ const highlightAllCoordinatesWithinSquaddieMovementRange = ({
         {
             coordinates: [{ ...originMapCoordinate }],
             pulseColor: pulseMovementColor,
-            overlayImageResourceName: "",
         },
         {
             coordinates: [],
             pulseColor: pulseMovementColor,
-            overlayImageResourceName: squaddieIsNormallyControllableByPlayer
-                ? campaignResources.missionMapMovementIconResourceKeys
-                      .MOVE_1_ACTION_CONTROLLABLE_SQUADDIE
-                : campaignResources.missionMapMovementIconResourceKeys
-                      .MOVE_1_ACTION_UNCONTROLLABLE_SQUADDIE,
         },
         {
             coordinates: [],
             pulseColor: pulseMovementColor,
-            overlayImageResourceName: squaddieIsNormallyControllableByPlayer
-                ? campaignResources.missionMapMovementIconResourceKeys
-                      .MOVE_2_ACTIONS_CONTROLLABLE_SQUADDIE
-                : campaignResources.missionMapMovementIconResourceKeys
-                      .MOVE_2_ACTIONS_UNCONTROLLABLE_SQUADDIE,
         },
         {
             coordinates: [],
             pulseColor: pulseMovementColor,
-            overlayImageResourceName: squaddieIsNormallyControllableByPlayer
-                ? campaignResources.missionMapMovementIconResourceKeys
-                      .MOVE_3_ACTIONS_CONTROLLABLE_SQUADDIE
-                : campaignResources.missionMapMovementIconResourceKeys
-                      .MOVE_3_ACTIONS_UNCONTROLLABLE_SQUADDIE,
         },
     ]
     Object.entries(
@@ -300,7 +242,5 @@ const addAttackRangeOntoMovementRange = ({
     return {
         coordinates: attackCoordinates,
         pulseColor: pulseActionColor,
-        overlayImageResourceName:
-            campaignResources.missionMapAttackIconResourceKeys.ATTACK_1_ACTION,
     }
 }

@@ -499,7 +499,6 @@ describe("Terrain Tile Map", () => {
                             { q: 0, r: 2 },
                             { q: 1, r: 1 },
                         ],
-                        overlayImageResourceName: "lowest layer",
                     },
                     {
                         pulseColor: HIGHLIGHT_PULSE_COLOR.BLUE,
@@ -516,12 +515,10 @@ describe("Terrain Tile Map", () => {
                     {
                         pulseColor: HIGHLIGHT_PULSE_COLOR.BLUE,
                         coordinates: [{ q: 0, r: 2 }],
-                        overlayImageResourceName: "mid layer",
                     },
                     {
                         pulseColor: HIGHLIGHT_PULSE_COLOR.BLUE,
                         coordinates: [{ q: 1, r: 2 }],
-                        overlayImageResourceName: "mid layer 2",
                     },
                 ],
                 type: MapGraphicsLayerType.UNKNOWN,
@@ -534,7 +531,6 @@ describe("Terrain Tile Map", () => {
                     {
                         pulseColor: HIGHLIGHT_PULSE_COLOR.BLUE,
                         coordinates: [{ q: 0, r: 2 }],
-                        overlayImageResourceName: "top layer",
                     },
                 ],
                 type: MapGraphicsLayerType.UNKNOWN,
@@ -552,17 +548,14 @@ describe("Terrain Tile Map", () => {
                     {
                         coordinate: { q: 0, r: 2 },
                         pulseColor: HIGHLIGHT_PULSE_COLOR.BLUE,
-                        overlayImageResourceName: "top layer",
                     },
                     {
                         coordinate: { q: 1, r: 1 },
                         pulseColor: HIGHLIGHT_PULSE_COLOR.BLUE,
-                        overlayImageResourceName: "lowest layer",
                     },
                     {
                         coordinate: { q: 1, r: 2 },
                         pulseColor: HIGHLIGHT_PULSE_COLOR.BLUE,
-                        overlayImageResourceName: "mid layer 2",
                     },
                 ])
             )

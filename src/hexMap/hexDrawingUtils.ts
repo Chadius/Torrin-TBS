@@ -28,6 +28,7 @@ export enum HighlightPulseColorNames {
     RED = "RED",
     BLUE = "BLUE",
     PALE_BLUE = "PALE_BLUE",
+    GREEN = "GREEN",
 }
 
 export const HIGHLIGHT_PULSE_COLOR: {
@@ -76,6 +77,19 @@ export const HIGHLIGHT_PULSE_COLOR: {
         hue: 240,
         saturation: 30,
         brightness: 80,
+        alpha: {
+            low: 140,
+            high: 190,
+        },
+        pulse: {
+            period: 2000,
+            formula: PULSE_COLOR_FORMULA_TYPE.SINE,
+        },
+    }),
+    GREEN: PulseColorService.new({
+        hue: 100,
+        saturation: 100,
+        brightness: 100,
         alpha: {
             low: 140,
             high: 190,

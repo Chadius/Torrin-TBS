@@ -279,7 +279,6 @@ const createSearchPath = ({
             searchPath: closestRoute,
             battleSquaddieId: battleSquaddie.battleSquaddieId,
             repository: objectRepository,
-            campaignResources,
             squaddieIsNormallyControllableByPlayer,
         })
     const actionRangeOnMap = MapGraphicsLayerService.new({

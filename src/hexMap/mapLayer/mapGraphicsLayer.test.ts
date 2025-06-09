@@ -31,7 +31,6 @@ describe("Map Graphics Layer", () => {
                             { q: 0, r: 1 },
                         ],
                         pulseColor: HIGHLIGHT_PULSE_COLOR.BLUE,
-                        overlayImageResourceName: "1 move icon",
                     },
                 ],
                 type: MapGraphicsLayerType.UNKNOWN,
@@ -42,33 +41,7 @@ describe("Map Graphics Layer", () => {
                 {
                     coordinates: [{ q: 0, r: 2 }],
                     pulseColor: HIGHLIGHT_PULSE_COLOR.RED,
-                    overlayImageResourceName: "1 move attack",
                 }
-            )
-        })
-        it("can get highlighted tile descriptions", () => {
-            const coordinatesByResourceName =
-                MapGraphicsLayerService.getHighlightedTileDescriptions(
-                    mapGraphicsLayer
-                )
-
-            expect(coordinatesByResourceName).toHaveLength(2)
-            expect(coordinatesByResourceName).toEqual(
-                expect.arrayContaining([
-                    {
-                        coordinates: [
-                            { q: 0, r: 0 },
-                            { q: 0, r: 1 },
-                        ],
-                        pulseColor: HIGHLIGHT_PULSE_COLOR.BLUE,
-                        overlayImageResourceName: "1 move icon",
-                    },
-                    {
-                        coordinates: [{ q: 0, r: 2 }],
-                        pulseColor: HIGHLIGHT_PULSE_COLOR.RED,
-                        overlayImageResourceName: "1 move attack",
-                    },
-                ])
             )
         })
         it("can get a list of tiles with their coordinates and image and pulse color", () => {
@@ -80,17 +53,14 @@ describe("Map Graphics Layer", () => {
                     {
                         coordinate: { q: 0, r: 0 },
                         pulseColor: HIGHLIGHT_PULSE_COLOR.BLUE,
-                        overlayImageResourceName: "1 move icon",
                     },
                     {
                         coordinate: { q: 0, r: 1 },
                         pulseColor: HIGHLIGHT_PULSE_COLOR.BLUE,
-                        overlayImageResourceName: "1 move icon",
                     },
                     {
                         coordinate: { q: 0, r: 2 },
                         pulseColor: HIGHLIGHT_PULSE_COLOR.RED,
-                        overlayImageResourceName: "1 move attack",
                     },
                 ])
             )
@@ -138,27 +108,6 @@ describe("Map Graphics Layer", () => {
                     r: 0,
                 })
             ).toBeFalsy()
-        })
-        it("can return all of its highlighted tiles, excluding some coordinates", () => {
-            const coordinatesByResourceName =
-                MapGraphicsLayerService.getHighlightedTileDescriptions(
-                    mapGraphicsLayer,
-                    [
-                        { q: 0, r: 1 },
-                        { q: 0, r: 2 },
-                    ]
-                )
-
-            expect(coordinatesByResourceName).toHaveLength(1)
-            expect(coordinatesByResourceName).toEqual(
-                expect.arrayContaining([
-                    {
-                        coordinates: [{ q: 0, r: 0 }],
-                        pulseColor: HIGHLIGHT_PULSE_COLOR.BLUE,
-                        overlayImageResourceName: "1 move icon",
-                    },
-                ])
-            )
         })
     })
 })

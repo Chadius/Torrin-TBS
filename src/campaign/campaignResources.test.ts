@@ -5,8 +5,6 @@ import {
     CampaignResources,
     CampaignResourcesService,
     MissionAttributeIconKey,
-    MissionMapAttackIconKey,
-    MissionMapMovementIconKey,
 } from "./campaignResources"
 import { AttributeType } from "../squaddie/attribute/attributeType"
 import { HexGridMovementCost } from "../hexMap/hexGridMovementCost"
@@ -18,30 +16,6 @@ describe("campaign resources", () => {
         beforeEach(() => {
             original = CampaignResourcesService.default()
             cloned = CampaignResourcesService.clone(original)
-        })
-
-        it("missionMapMovementIconResourceKeys", () => {
-            Object.keys(original.missionMapMovementIconResourceKeys).forEach(
-                (keyString) => {
-                    const key: MissionMapMovementIconKey =
-                        keyString as MissionMapMovementIconKey
-                    expect(
-                        cloned.missionMapMovementIconResourceKeys[key]
-                    ).toEqual(original.missionMapMovementIconResourceKeys[key])
-                }
-            )
-        })
-
-        it("missionMapAttackIconResourceKeys", () => {
-            Object.keys(original.missionMapAttackIconResourceKeys).forEach(
-                (keyString) => {
-                    const key: MissionMapAttackIconKey =
-                        keyString as MissionMapAttackIconKey
-                    expect(
-                        cloned.missionMapAttackIconResourceKeys[key]
-                    ).toEqual(original.missionMapAttackIconResourceKeys[key])
-                }
-            )
         })
 
         it("missionAttributeIconResourceKeys", () => {

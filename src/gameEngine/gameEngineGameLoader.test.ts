@@ -126,14 +126,6 @@ describe("GameEngineGameLoader", () => {
                     const expectedResourceKeys = [
                         ...Object.values(
                             campaignFileData.resources
-                                .missionMapMovementIconResourceKeys
-                        ),
-                        ...Object.values(
-                            campaignFileData.resources
-                                .missionMapAttackIconResourceKeys
-                        ),
-                        ...Object.values(
-                            campaignFileData.resources
                                 .missionAttributeIconResourceKeys
                         ),
                         ...Object.values(

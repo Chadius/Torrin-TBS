@@ -408,7 +408,6 @@ const highlightTargetRange = ({
             {
                 coordinates: actionRange,
                 pulseColor: HIGHLIGHT_PULSE_COLOR.RED,
-                overlayImageResourceName: "map icon attack 1 action",
             },
         ],
         type: MapGraphicsLayerType.CLICKED_ON_CONTROLLABLE_SQUADDIE,

@@ -41,10 +41,7 @@ import { AttributeType } from "../../squaddie/attribute/attributeType"
 import { SearchPathAdapterService } from "../../search/searchPathAdapter/searchPathAdapter"
 import { SearchConnection } from "../../search/searchGraph/graph"
 import { HexCoordinate } from "../../hexMap/hexCoordinate/hexCoordinate"
-import {
-    SearchResultsCache,
-    SearchResultsCacheService,
-} from "../../hexMap/pathfinder/searchResults/searchResultsCache"
+import { SearchResultsCacheService } from "../../hexMap/pathfinder/searchResults/searchResultsCache"
 
 describe("map highlight generator", () => {
     let terrainAllSingleMovement: TerrainTileMap
@@ -171,7 +168,6 @@ describe("map highlight generator", () => {
                 searchPath: pathToDraw,
                 battleSquaddieId: battleSquaddie.battleSquaddieId,
                 repository: objectRepository,
-                campaignResources,
                 squaddieIsNormallyControllableByPlayer: true,
             })
 
@@ -179,7 +175,6 @@ describe("map highlight generator", () => {
             {
                 coordinates: [{ q: 0, r: 0 }],
                 pulseColor: HIGHLIGHT_PULSE_COLOR.BLUE,
-                overlayImageResourceName: "",
             },
             {
                 coordinates: [
@@ -187,30 +182,18 @@ describe("map highlight generator", () => {
                     { q: 1, r: 1 },
                 ],
                 pulseColor: HIGHLIGHT_PULSE_COLOR.BLUE,
-                overlayImageResourceName:
-                    campaignResources.missionMapMovementIconResourceKeys
-                        .MOVE_1_ACTION_CONTROLLABLE_SQUADDIE,
             },
             {
                 coordinates: [{ q: 1, r: 2 }],
                 pulseColor: HIGHLIGHT_PULSE_COLOR.BLUE,
-                overlayImageResourceName:
-                    campaignResources.missionMapMovementIconResourceKeys
-                        .MOVE_2_ACTIONS_CONTROLLABLE_SQUADDIE,
             },
             {
                 coordinates: [{ q: 1, r: 3 }],
                 pulseColor: HIGHLIGHT_PULSE_COLOR.BLUE,
-                overlayImageResourceName:
-                    campaignResources.missionMapMovementIconResourceKeys
-                        .MOVE_3_ACTIONS_CONTROLLABLE_SQUADDIE,
             },
             {
                 coordinates: [{ q: 2, r: 3 }],
                 pulseColor: HIGHLIGHT_PULSE_COLOR.BLUE,
-                overlayImageResourceName:
-                    campaignResources.missionMapMovementIconResourceKeys
-                        .MOVE_3_ACTIONS_CONTROLLABLE_SQUADDIE,
             },
         ])
     })
@@ -252,7 +235,6 @@ describe("map highlight generator", () => {
             {
                 coordinates: [{ q: 0, r: 2 }],
                 pulseColor: HIGHLIGHT_PULSE_COLOR.BLUE,
-                overlayImageResourceName: "",
             },
             {
                 coordinates: [
@@ -260,9 +242,6 @@ describe("map highlight generator", () => {
                     { q: 0, r: 3 },
                 ],
                 pulseColor: HIGHLIGHT_PULSE_COLOR.BLUE,
-                overlayImageResourceName:
-                    campaignResources.missionMapMovementIconResourceKeys
-                        .MOVE_1_ACTION_CONTROLLABLE_SQUADDIE,
             },
         ]
         const expectedMovementWith3Actions = (
@@ -271,7 +250,6 @@ describe("map highlight generator", () => {
             {
                 coordinates: [{ q: 0, r: 2 }],
                 pulseColor: HIGHLIGHT_PULSE_COLOR.BLUE,
-                overlayImageResourceName: "",
             },
             {
                 coordinates: [
@@ -279,9 +257,6 @@ describe("map highlight generator", () => {
                     { q: 0, r: 3 },
                 ],
                 pulseColor: HIGHLIGHT_PULSE_COLOR.BLUE,
-                overlayImageResourceName:
-                    campaignResources.missionMapMovementIconResourceKeys
-                        .MOVE_1_ACTION_CONTROLLABLE_SQUADDIE,
             },
             {
                 coordinates: [
@@ -289,16 +264,10 @@ describe("map highlight generator", () => {
                     { q: 0, r: 4 },
                 ],
                 pulseColor: HIGHLIGHT_PULSE_COLOR.BLUE,
-                overlayImageResourceName:
-                    campaignResources.missionMapMovementIconResourceKeys
-                        .MOVE_2_ACTIONS_CONTROLLABLE_SQUADDIE,
             },
             {
                 coordinates: [{ q: 0, r: 5 }],
                 pulseColor: HIGHLIGHT_PULSE_COLOR.BLUE,
-                overlayImageResourceName:
-                    campaignResources.missionMapMovementIconResourceKeys
-                        .MOVE_3_ACTIONS_CONTROLLABLE_SQUADDIE,
             },
         ]
 
@@ -416,7 +385,6 @@ describe("map highlight generator", () => {
                 {
                     coordinates: [{ q: 0, r: 2 }],
                     pulseColor: HIGHLIGHT_PULSE_COLOR.BLUE,
-                    overlayImageResourceName: "",
                 },
                 {
                     coordinates: [
@@ -424,9 +392,6 @@ describe("map highlight generator", () => {
                         { q: 0, r: 3 },
                     ],
                     pulseColor: HIGHLIGHT_PULSE_COLOR.BLUE,
-                    overlayImageResourceName:
-                        campaignResources.missionMapMovementIconResourceKeys
-                            .MOVE_2_ACTIONS_CONTROLLABLE_SQUADDIE,
                 },
             ])
         })
@@ -524,7 +489,6 @@ describe("map highlight generator", () => {
                 {
                     coordinates: [{ q: 0, r: 4 }],
                     pulseColor: HIGHLIGHT_PULSE_COLOR.PALE_BLUE,
-                    overlayImageResourceName: "",
                 },
                 {
                     coordinates: [
@@ -532,9 +496,6 @@ describe("map highlight generator", () => {
                         { q: 0, r: 5 },
                     ],
                     pulseColor: HIGHLIGHT_PULSE_COLOR.PALE_BLUE,
-                    overlayImageResourceName:
-                        campaignResources.missionMapMovementIconResourceKeys
-                            .MOVE_1_ACTION_UNCONTROLLABLE_SQUADDIE,
                 },
                 {
                     coordinates: [
@@ -542,9 +503,6 @@ describe("map highlight generator", () => {
                         { q: 0, r: 7 },
                     ],
                     pulseColor: HIGHLIGHT_PULSE_COLOR.PURPLE,
-                    overlayImageResourceName:
-                        campaignResources.missionMapAttackIconResourceKeys
-                            .ATTACK_1_ACTION,
                 },
             ])
         })

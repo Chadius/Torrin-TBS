@@ -15,7 +15,6 @@ import {
 export type HighlightCoordinateDescription = {
     coordinates: HexCoordinate[]
     pulseColor: PulseColor
-    overlayImageResourceName?: string
 }
 
 export interface TerrainTileMap {

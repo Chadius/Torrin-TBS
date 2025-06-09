@@ -4,12 +4,10 @@ import {
 } from "../hexCoordinate/hexCoordinate"
 import { PulseColor } from "../pulseColor"
 import { HighlightCoordinateDescription } from "../terrainTileMap"
-import { isValidValue } from "../../utils/objectValidityCheck"
 
 export interface MapGraphicsLayerHighlight {
     coordinate: HexCoordinate
     pulseColor: PulseColor
-    overlayImageResourceName: string
 }
 
 export enum MapGraphicsLayerType {
@@ -58,52 +56,6 @@ export const MapGraphicsLayerService = {
     getHighlights: (
         mapGraphicsLayer: MapGraphicsLayer
     ): MapGraphicsLayerHighlight[] => mapGraphicsLayer.highlights,
-    getHighlightedTileDescriptions: (
-        mapGraphicsLayer: MapGraphicsLayer,
-        coordinatesToExclude?: HexCoordinate[]
-    ): HighlightCoordinateDescription[] =>
-        mapGraphicsLayer.overlayImageResourceNames
-            .map((overlayImageResourceName) => {
-                const firstHighlight = mapGraphicsLayer.highlights.find(
-                    (highlight) =>
-                        highlight.overlayImageResourceName ===
-                        overlayImageResourceName
-                )
-                if (!isValidValue(firstHighlight)) {
-                    return undefined
-                }
-
-                const pulseColor = firstHighlight.pulseColor
-                return {
-                    coordinates: mapGraphicsLayer.highlights
-                        .filter(
-                            (highlight) =>
-                                highlight.overlayImageResourceName ===
-                                overlayImageResourceName
-                        )
-                        .filter((highlight) => {
-                            if (
-                                !isValidValue(coordinatesToExclude) ||
-                                coordinatesToExclude.length === 0
-                            ) {
-                                return true
-                            }
-
-                            return !coordinatesToExclude.some(
-                                (coordinateToExclude) =>
-                                    coordinateToExclude.q ===
-                                        highlight.coordinate.q &&
-                                    coordinateToExclude.r ===
-                                        highlight.coordinate.r
-                            )
-                        })
-                        .map((highlight) => highlight.coordinate),
-                    pulseColor,
-                    overlayImageResourceName,
-                }
-            })
-            .filter((x) => x)
-            .filter((description) => description.coordinates.length > 0),
     addHighlightedTileDescription: (
         mapGraphicsLayer: MapGraphicsLayer,
         highlightedTileDescription: HighlightCoordinateDescription
@@ -136,18 +88,6 @@ const addHighlightedTileDescription = (
         highlightedTileDescription.coordinates.map((coordinate) => ({
             coordinate: coordinate,
             pulseColor: highlightedTileDescription.pulseColor,
-            overlayImageResourceName:
-                highlightedTileDescription.overlayImageResourceName,
         }))
     mapGraphicsLayer.highlights.push(...highlights)
-
-    if (
-        !mapGraphicsLayer.overlayImageResourceNames.includes(
-            highlightedTileDescription.overlayImageResourceName
-        )
-    ) {
-        mapGraphicsLayer.overlayImageResourceNames.push(
-            highlightedTileDescription.overlayImageResourceName
-        )
-    }
 }

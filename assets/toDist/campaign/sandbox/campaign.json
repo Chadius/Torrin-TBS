@@ -4,17 +4,6 @@
     "sandbox"
   ],
   "resources": {
-    "missionMapMovementIconResourceKeys": {
-      "MOVE_1_ACTION_CONTROLLABLE_SQUADDIE": "map icon move 1 action",
-      "MOVE_2_ACTIONS_CONTROLLABLE_SQUADDIE": "map icon move 2 actions",
-      "MOVE_3_ACTIONS_CONTROLLABLE_SQUADDIE": "map icon move 3 actions",
-      "MOVE_1_ACTION_UNCONTROLLABLE_SQUADDIE": "map icon move 1 action small",
-      "MOVE_2_ACTIONS_UNCONTROLLABLE_SQUADDIE": "map icon move 2 actions small",
-      "MOVE_3_ACTIONS_UNCONTROLLABLE_SQUADDIE": "map icon move 3 actions small"
-    },
-    "missionMapAttackIconResourceKeys": {
-      "ATTACK_1_ACTION": "map icon attack 1 action"
-    },
     "missionAttributeIconResourceKeys": {
       "ARMOR_CLASS": "armor class icon"
     },

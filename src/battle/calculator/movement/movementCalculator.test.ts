@@ -245,15 +245,10 @@ describe("movement calculator", () => {
             expect(highlights).toContainEqual({
                 coordinate: { q: 0, r: 0 },
                 pulseColor: HIGHLIGHT_PULSE_COLOR.BLUE,
-                overlayImageResourceName: "",
             })
             expect(highlights).toContainEqual({
                 coordinate: { q: 0, r: 1 },
                 pulseColor: HIGHLIGHT_PULSE_COLOR.BLUE,
-                overlayImageResourceName:
-                    gameEngineState.campaign.resources
-                        .missionMapMovementIconResourceKeys
-                        .MOVE_1_ACTION_CONTROLLABLE_SQUADDIE,
             })
         })
     })

@@ -486,17 +486,6 @@ describe("Targeting Service", () => {
                 gameEngineState.battleOrchestratorState.battleState.missionMap
                     .terrainTileMap
             )
-            expect(
-                MapGraphicsLayerService.getHighlightedTileDescriptions(
-                    callArgs[1]
-                )
-            ).toEqual([
-                {
-                    coordinates: actionRange,
-                    pulseColor: HIGHLIGHT_PULSE_COLOR.RED,
-                    overlayImageResourceName: "map icon attack 1 action",
-                },
-            ])
         })
     })
 
