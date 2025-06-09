@@ -20,7 +20,6 @@ import { SearchResultAdapterService } from "../../../hexMap/pathfinder/searchRes
 import { SearchLimitService } from "../../../hexMap/pathfinder/pathGeneration/searchLimit"
 import { SearchPathAdapter } from "../../../search/searchPathAdapter/searchPathAdapter"
 import { ObjectRepository } from "../../objectRepository"
-import { CampaignResources } from "../../../campaign/campaignResources"
 import { BattleState } from "../../battleState/battleState"
 import {
     SearchResultsCache,
@@ -97,7 +96,6 @@ export const MovementCalculatorService = {
         battleActionDecisionStep,
         missionMap,
         battleState,
-        campaignResources,
         objectRepository,
     }: {
         battleSquaddie: BattleSquaddie
@@ -105,7 +103,6 @@ export const MovementCalculatorService = {
         destination: HexCoordinate
         battleActionDecisionStep: BattleActionDecisionStep
         missionMap: MissionMap
-        campaignResources: CampaignResources
         battleState: BattleState
         objectRepository: ObjectRepository
     }) => {
@@ -115,7 +112,6 @@ export const MovementCalculatorService = {
             clickedHexCoordinate: destination,
             missionMap,
             objectRepository,
-            campaignResources,
             battleState,
         })
 

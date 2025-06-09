@@ -305,7 +305,7 @@ describe("Battle State", () => {
             const playerTemplate: SquaddieTemplate =
                 SquaddieTemplateService.new({
                     squaddieId: SquaddieIdService.new({
-                        templateId: "player template",
+                        squaddieTemplateId: "player template",
                         name: "player template",
                         affiliation: SquaddieAffiliation.PLAYER,
                     }),
@@ -355,7 +355,7 @@ describe("Battle State", () => {
             const enemyTemplate: SquaddieTemplate = SquaddieTemplateService.new(
                 {
                     squaddieId: SquaddieIdService.new({
-                        templateId: "enemy template",
+                        squaddieTemplateId: "enemy template",
                         name: "enemy template",
                         affiliation: SquaddieAffiliation.ENEMY,
                     }),

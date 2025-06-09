@@ -32,7 +32,10 @@ import {
     ObjectRepositoryService,
 } from "../../objectRepository"
 import { MissionMap, MissionMapService } from "../../../missionMap/missionMap"
-import { DRAW_SQUADDIE_ICON_ON_MAP_LAYOUT } from "../../animation/drawSquaddieIconOnMap/drawSquaddieIconOnMap"
+import {
+    DRAW_SQUADDIE_ICON_ON_MAP_LAYOUT,
+    DrawSquaddieIconOnMapUtilities,
+} from "../../animation/drawSquaddieIconOnMap/drawSquaddieIconOnMap"
 import { RectAreaService } from "../../../ui/rectArea"
 import {
     PlayerActionTargetCreateCancelButton,
@@ -48,7 +51,6 @@ import {
     MapGraphicsLayerService,
     MapGraphicsLayerType,
 } from "../../../hexMap/mapLayer/mapGraphicsLayer"
-import { HIGHLIGHT_PULSE_COLOR } from "../../../hexMap/hexDrawingUtils"
 import { LabelService } from "../../../ui/label"
 import { PlayerActionTargetLayout } from "./playerActionTarget/playerActionTargetLayout"
 import { PlayerActionConfirmLayout } from "./playerActionConfirm/playerActionConfirmLayout"
@@ -353,6 +355,17 @@ export class PlayerActionTargetSelectViewController {
                 contextInfo.missionMap.terrainTileMap
             )
 
+            const highlightedColor =
+                MapGraphicsLayerService.getActionTemplateHighlightedTileDescriptionColor(
+                    {
+                        objectRepository: contextInfo.objectRepository,
+                        actionTemplateId:
+                            BattleActionDecisionStepService.getAction(
+                                contextInfo.battleActionDecisionStep
+                            ).actionTemplateId,
+                    }
+                )
+
             const actionRangeOnMap = MapGraphicsLayerService.new({
                 id: BattleActionDecisionStepService.getActor(
                     contextInfo.battleActionDecisionStep
@@ -362,7 +375,7 @@ export class PlayerActionTargetSelectViewController {
                         coordinates: Object.values(
                             contextInfo.targetResults.validTargets
                         ).map((t) => t.currentMapCoordinate),
-                        pulseColor: HIGHLIGHT_PULSE_COLOR.RED,
+                        pulseColor: highlightedColor,
                     },
                 ],
                 type: MapGraphicsLayerType.CLICKED_ON_CONTROLLABLE_SQUADDIE,
@@ -468,6 +481,12 @@ export class PlayerActionTargetSelectViewController {
                     })
             )
         uiObjects.mapIcons.targets.mapIcons ||= []
+        const mapIconLayout = DrawSquaddieIconOnMapUtilities.getMapIconLayout({
+            objectRepository,
+            actionTemplateId: BattleActionDecisionStepService.getAction(
+                battleActionDecisionStep
+            )?.actionTemplateId,
+        })
 
         squaddiesToHighlight.forEach((battleSquaddieId) => {
             const mapIcon =
@@ -477,10 +496,7 @@ export class PlayerActionTargetSelectViewController {
                     throwErrorIfNotFound: false,
                 })
             uiObjects.mapIcons.targets.mapIcons.push(mapIcon)
-            mapIcon.setPulseColor(
-                DRAW_SQUADDIE_ICON_ON_MAP_LAYOUT.targetEnemySquaddie
-                    .pulseColorForMapIcon
-            )
+            mapIcon.setPulseColor(mapIconLayout.pulseColorForMapIcon)
         })
 
         if (squaddiesToHighlight.length > 0) {

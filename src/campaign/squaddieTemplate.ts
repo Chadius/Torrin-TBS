@@ -11,9 +11,6 @@ import {
     ObjectRepository,
     ObjectRepositoryService,
 } from "../battle/objectRepository"
-import { SquaddieAffiliation } from "../squaddie/squaddieAffiliation"
-import { SquaddieMovementService } from "../squaddie/movement"
-import { Trait, TraitStatusStorageService } from "../trait/traitStatusStorage"
 
 export interface SquaddieTemplate {
     squaddieId: SquaddieId
@@ -69,24 +66,6 @@ export const SquaddieTemplateService = {
         )
         return resourceKeys
     },
-    getTargetingTemplate: () =>
-        newSquaddieTemplate({
-            squaddieId: SquaddieIdService.new({
-                templateId: "_targetingSquaddieTemplate",
-                name: "_targetingSquaddieTemplate",
-                affiliation: SquaddieAffiliation.UNKNOWN,
-            }),
-            attributes: ArmyAttributesService.new({
-                movement: SquaddieMovementService.new({
-                    movementPerAction: 1,
-                    traits: TraitStatusStorageService.newUsingTraitValues({
-                        [Trait.HUSTLE]: true,
-                        [Trait.ELUSIVE]: true,
-                    }),
-                }),
-            }),
-            actionTemplateIds: [],
-        }),
 }
 
 const sanitize = (data: SquaddieTemplate): SquaddieTemplate => {

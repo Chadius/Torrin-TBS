@@ -96,7 +96,7 @@ describe("Armor Attribute affects Armor Attacks", () => {
 
         const actingTemplate = SquaddieTemplateService.new({
             squaddieId: SquaddieIdService.new({
-                templateId: "actingTemplate",
+                squaddieTemplateId: "actingTemplate",
                 name: "actingTemplate",
                 affiliation: SquaddieAffiliation.PLAYER,
             }),
@@ -123,7 +123,7 @@ describe("Armor Attribute affects Armor Attacks", () => {
 
         const targetTemplate = SquaddieTemplateService.new({
             squaddieId: SquaddieIdService.new({
-                templateId: "targetTemplate",
+                squaddieTemplateId: "targetTemplate",
                 name: "targetTemplate",
                 affiliation: SquaddieAffiliation.ENEMY,
             }),

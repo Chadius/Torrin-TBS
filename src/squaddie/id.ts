@@ -16,20 +16,20 @@ export interface SquaddieId {
 
 export const SquaddieIdService = {
     new: ({
-        templateId,
+        squaddieTemplateId,
         name,
         affiliation,
         resources,
         traits,
     }: {
-        templateId: string
+        squaddieTemplateId: string
         name: string
         affiliation: SquaddieAffiliation
         resources?: SquaddieResource
         traits?: TraitStatusStorage
     }) => {
         const data: SquaddieId = {
-            templateId,
+            templateId: squaddieTemplateId,
             name,
             affiliation,
             resources,

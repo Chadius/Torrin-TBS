@@ -185,7 +185,7 @@ describe("Orchestration Utils", () => {
                 SquaddieTemplateService.new({
                     attributes: ArmyAttributesService.default(),
                     squaddieId: SquaddieIdService.new({
-                        templateId: "templateId",
+                        squaddieTemplateId: "templateId",
                         name: "name",
                         affiliation: SquaddieAffiliation.PLAYER,
                     }),
@@ -318,7 +318,7 @@ describe("Orchestration Utils", () => {
             repository = ObjectRepositoryService.new()
             squaddieTemplate = SquaddieTemplateService.new({
                 squaddieId: SquaddieIdService.new({
-                    templateId: "squaddieTemplate",
+                    squaddieTemplateId: "squaddieTemplate",
                     name: "Squaddie Template",
                     affiliation: SquaddieAffiliation.PLAYER,
                 }),
@@ -484,7 +484,7 @@ describe("Orchestration Utils", () => {
 
             const playerSquaddieTemplate = SquaddieTemplateService.new({
                 squaddieId: SquaddieIdService.new({
-                    templateId: "playerSquaddieTemplate",
+                    squaddieTemplateId: "playerSquaddieTemplate",
                     name: "Player Squaddie Template",
                     affiliation: SquaddieAffiliation.PLAYER,
                 }),
@@ -517,7 +517,7 @@ describe("Orchestration Utils", () => {
 
             const enemySquaddieTemplate = SquaddieTemplateService.new({
                 squaddieId: SquaddieIdService.new({
-                    templateId: "enemySquaddieTemplate",
+                    squaddieTemplateId: "enemySquaddieTemplate",
                     name: "Enemy Squaddie Template",
                     affiliation: SquaddieAffiliation.ENEMY,
                 }),
@@ -753,7 +753,6 @@ describe("Orchestration Utils", () => {
                             gameEngineState.battleOrchestratorState.battleState
                                 .missionMap,
                         objectRepository: gameEngineState.repository,
-                        campaignResources: gameEngineState.campaign.resources,
                         squaddieAllMovementCache:
                             gameEngineState.battleOrchestratorState.cache
                                 .searchResultsCache,
@@ -894,7 +893,6 @@ describe("Orchestration Utils", () => {
                     gameEngineState.battleOrchestratorState.battleState
                         .missionMap,
                 objectRepository: gameEngineState.repository,
-                campaignResources: gameEngineState.campaign.resources,
                 squaddieAllMovementCache:
                     gameEngineState.battleOrchestratorState.cache
                         .searchResultsCache,

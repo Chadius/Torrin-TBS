@@ -354,6 +354,14 @@ export class BattleMapDisplay implements BattleOrchestratorComponent {
         let targetedBattleSquaddieIds: string[] =
             this.getTargetedBattleSquaddieIds(gameEngineState)
 
+        const mapIconLayout = DrawSquaddieIconOnMapUtilities.getMapIconLayout({
+            objectRepository: gameEngineState.repository,
+            actionTemplateId: BattleActionDecisionStepService.getAction(
+                gameEngineState.battleOrchestratorState.battleState
+                    .battleActionDecisionStep
+            )?.actionTemplateId,
+        })
+
         ObjectRepositoryService.getBattleSquaddieIterator(
             gameEngineState.repository
         )
@@ -422,8 +430,7 @@ export class BattleMapDisplay implements BattleOrchestratorComponent {
                             camera: gameEngineState.battleOrchestratorState
                                 .battleState.camera,
                             mapCoordinate: datum.currentMapCoordinate,
-                            circleInfo:
-                                DRAW_SQUADDIE_ICON_ON_MAP_LAYOUT.targetEnemySquaddie,
+                            circleInfo: mapIconLayout,
                         }
                     )
                 }

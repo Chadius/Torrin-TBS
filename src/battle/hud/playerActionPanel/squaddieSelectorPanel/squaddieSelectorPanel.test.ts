@@ -92,7 +92,7 @@ describe("Squaddie Selector Panel", () => {
             }) => {
                 const squaddieTemplate = SquaddieTemplateService.new({
                     squaddieId: SquaddieIdService.new({
-                        templateId: squaddieTemplateId,
+                        squaddieTemplateId: squaddieTemplateId,
                         name,
                         affiliation: SquaddieAffiliation.PLAYER,
                         resources: SquaddieResourceService.new({

@@ -27,7 +27,6 @@ import { SquaddieService } from "../../squaddie/squaddieService"
 
 describe("battleSquaddieSelectorUtils", () => {
     let objectRepository: ObjectRepository
-    let enemyActor: BattleSquaddie
 
     let meleeAttack: ActionTemplate
     let rangedAttack: ActionTemplate
@@ -73,15 +72,14 @@ describe("battleSquaddieSelectorUtils", () => {
             objectRepository,
             rangedAttack
         )
-        ;({ battleSquaddie: enemyActor } =
-            SquaddieRepositoryService.createNewSquaddieAndAddToRepository({
-                objectRepository,
-                templateId: "enemyActor",
-                battleId: "enemyActor",
-                name: "enemyActor",
-                affiliation: SquaddieAffiliation.ENEMY,
-                actionTemplateIds: [],
-            }))
+        SquaddieRepositoryService.createNewSquaddieAndAddToRepository({
+            objectRepository,
+            templateId: "enemyActor",
+            battleId: "enemyActor",
+            name: "enemyActor",
+            affiliation: SquaddieAffiliation.ENEMY,
+            actionTemplateIds: [],
+        })
 
         map = MissionMapService.new({
             terrainTileMap: TerrainTileMapService.new({

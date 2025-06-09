@@ -609,7 +609,7 @@ describe("Squaddie Status Tile", () => {
         beforeEach(() => {
             const squaddieTemplate = SquaddieTemplateService.new({
                 squaddieId: SquaddieIdService.new({
-                    templateId: "JoeTheSoldier",
+                    squaddieTemplateId: "JoeTheSoldier",
                     name: "Joe the Soldier",
                     affiliation: SquaddieAffiliation.PLAYER,
                 }),
@@ -1407,7 +1407,7 @@ const createSquaddieOfGivenAffiliation = ({
 }) => {
     const squaddieTemplate = SquaddieTemplateService.new({
         squaddieId: SquaddieIdService.new({
-            templateId: "JoeTheSoldier",
+            squaddieTemplateId: "JoeTheSoldier",
             name: "Joe the Soldier",
             affiliation: affiliation ?? SquaddieAffiliation.PLAYER,
         }),

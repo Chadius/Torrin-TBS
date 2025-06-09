@@ -20,7 +20,10 @@ import { HIGHLIGHT_PULSE_COLOR } from "../../hexMap/hexDrawingUtils"
 import { MapHighlightService } from "./mapHighlight"
 import { MissionMapService } from "../../missionMap/missionMap"
 import { SquaddieTurnService } from "../../squaddie/turn"
-import { ActionEffectTemplateService } from "../../action/template/actionEffectTemplate"
+import {
+    ActionEffectTemplateService,
+    TargetBySquaddieAffiliationRelation,
+} from "../../action/template/actionEffectTemplate"
 import {
     ActionTemplate,
     ActionTemplateService,
@@ -41,6 +44,8 @@ import {
     HighlightCoordinateDescription,
     HighlightCoordinateDescriptionService,
 } from "../../hexMap/highlightCoordinateDescription"
+import { CoordinateGeneratorShape } from "../targeting/coordinateGenerator"
+import { HealingType } from "../../squaddie/squaddieService"
 
 describe("map highlight generator", () => {
     let terrainAllSingleMovement: TerrainTileMap
@@ -49,6 +54,7 @@ describe("map highlight generator", () => {
     let objectRepository: ObjectRepository
 
     let meleeAndRangedAction: ActionTemplate
+    let healingAction: ActionTemplate
 
     beforeEach(() => {
         objectRepository = ObjectRepositoryService.new()
@@ -73,6 +79,13 @@ describe("map highlight generator", () => {
             }),
             actionEffectTemplates: [
                 ActionEffectTemplateService.new({
+                    squaddieAffiliationRelation: {
+                        [TargetBySquaddieAffiliationRelation.TARGET_SELF]:
+                            false,
+                        [TargetBySquaddieAffiliationRelation.TARGET_ALLY]:
+                            false,
+                        [TargetBySquaddieAffiliationRelation.TARGET_FOE]: true,
+                    },
                     traits: TraitStatusStorageService.newUsingTraitValues({
                         [Trait.ATTACK]: true,
                     }),
@@ -82,6 +95,32 @@ describe("map highlight generator", () => {
         ObjectRepositoryService.addActionTemplate(
             objectRepository,
             meleeAndRangedAction
+        )
+
+        healingAction = ActionTemplateService.new({
+            id: "healingAction",
+            name: "healingAction",
+            targetConstraints: {
+                minimumRange: 0,
+                maximumRange: 2,
+                coordinateGeneratorShape: CoordinateGeneratorShape.BLOOM,
+            },
+            actionEffectTemplates: [
+                ActionEffectTemplateService.new({
+                    squaddieAffiliationRelation: {
+                        [TargetBySquaddieAffiliationRelation.TARGET_SELF]: true,
+                        [TargetBySquaddieAffiliationRelation.TARGET_ALLY]: true,
+                        [TargetBySquaddieAffiliationRelation.TARGET_FOE]: false,
+                    },
+                    healingDescriptions: {
+                        [HealingType.LOST_HIT_POINTS]: 2,
+                    },
+                }),
+            ],
+        })
+        ObjectRepositoryService.addActionTemplate(
+            objectRepository,
+            healingAction
         )
     })
 
@@ -135,7 +174,7 @@ describe("map highlight generator", () => {
         const squaddieWith2Movement: SquaddieTemplate =
             SquaddieTemplateService.new({
                 squaddieId: SquaddieIdService.new({
-                    templateId: "2movement",
+                    squaddieTemplateId: "2movement",
                     name: "2 movement",
                     affiliation: SquaddieAffiliation.UNKNOWN,
                 }),
@@ -192,7 +231,7 @@ describe("map highlight generator", () => {
         const createSquaddie = (affiliation: SquaddieAffiliation) => {
             squaddieWithMovement1 = SquaddieTemplateService.new({
                 squaddieId: SquaddieIdService.new({
-                    templateId: "templateId",
+                    squaddieTemplateId: "templateId",
                     name: "template",
                     affiliation: affiliation,
                 }),
@@ -409,56 +448,79 @@ describe("map highlight generator", () => {
         })
     })
 
-    describe("shows attack tile when squaddie cannot move to coordinate but can attack", () => {
-        let squaddieWithOneMovement: SquaddieTemplate
-        let battleSquaddie: BattleSquaddie
-
-        beforeEach(() => {
-            squaddieWithOneMovement = SquaddieTemplateService.new({
+    describe("shows targeted tiles when squaddie cannot move to coordinate but can reach with actions", () => {
+        const addSquaddie = ({
+            squaddieTemplateId,
+            name,
+            affiliation,
+            battleSquaddieId,
+            actionTemplateIds,
+        }: {
+            squaddieTemplateId: string
+            name: string
+            affiliation: SquaddieAffiliation
+            battleSquaddieId: string
+            actionTemplateIds: string[]
+        }) => {
+            let squaddieTemplate = SquaddieTemplateService.new({
                 squaddieId: SquaddieIdService.new({
-                    templateId: "templateId",
-                    name: "template",
-                    affiliation: SquaddieAffiliation.UNKNOWN,
+                    squaddieTemplateId,
+                    name,
+                    affiliation,
                 }),
                 attributes: ArmyAttributesService.new({
                     movement: SquaddieMovementService.new({
                         movementPerAction: 1,
                     }),
                 }),
-                actionTemplateIds: [meleeAndRangedAction.id],
+                actionTemplateIds,
             })
             ObjectRepositoryService.addSquaddieTemplate(
                 objectRepository,
-                squaddieWithOneMovement
+                squaddieTemplate
             )
 
-            battleSquaddie = BattleSquaddieService.new({
-                battleSquaddieId: "battleId",
-                squaddieTemplate: squaddieWithOneMovement,
+            let battleSquaddie = BattleSquaddieService.new({
+                battleSquaddieId,
+                squaddieTemplate,
             })
             ObjectRepositoryService.addBattleSquaddie(
                 objectRepository,
                 battleSquaddie
             )
-        })
+        }
 
-        it("highlights correct coordinates when squaddie has a ranged weapon", () => {
+        const generateHighlightedDescription = (battleSquaddieId: string) => {
             const missionMap = MissionMapService.new({
                 terrainTileMap: terrainAlternatingPits,
             })
-            const highlightedDescription: HighlightCoordinateDescription[] =
-                MapHighlightService.highlightAllCoordinatesWithinSquaddieRange({
+            return MapHighlightService.highlightAllCoordinatesWithinSquaddieRange(
+                {
                     missionMap,
                     currentMapCoordinate: { q: 0, r: 4 },
                     originMapCoordinate: { q: 0, r: 4 },
                     repository: objectRepository,
-                    battleSquaddieId: battleSquaddie.battleSquaddieId,
+                    battleSquaddieId,
                     squaddieAllMovementCache: SearchResultsCacheService.new({
                         missionMap,
                         objectRepository,
                     }),
-                })
+                }
+            )
+        }
 
+        it("highlights correct coordinates when uncontrollable squaddie can only attack", () => {
+            addSquaddie({
+                squaddieTemplateId: "uncontrollableOneMovementAttackOnly",
+                name: "Uncontrollable One Movement Attack Only",
+                affiliation: SquaddieAffiliation.UNKNOWN,
+                battleSquaddieId: "uncontrollableOneMovementAttackOnly",
+                actionTemplateIds: [meleeAndRangedAction.id],
+            })
+
+            const highlightedDescription = generateHighlightedDescription(
+                "uncontrollableOneMovementAttackOnly"
+            )
             expect(
                 HighlightCoordinateDescriptionService.areEqual(
                     highlightedDescription[0],
@@ -481,6 +543,87 @@ describe("map highlight generator", () => {
                             { q: 0, r: 7 },
                         ],
                         pulseColor: HIGHLIGHT_PULSE_COLOR.PURPLE,
+                    }
+                )
+            ).toBe(true)
+        })
+
+        it("highlights correct coordinates when player controllable squaddie can only attack", () => {
+            addSquaddie({
+                squaddieTemplateId: "playerControllableOneMovementAttackOnly",
+                name: "Player Controllable One Movement Attack Only",
+                affiliation: SquaddieAffiliation.PLAYER,
+                battleSquaddieId:
+                    "playerControllableBattleSquaddieWithAttacksOnly",
+                actionTemplateIds: [meleeAndRangedAction.id],
+            })
+
+            const highlightedDescription = generateHighlightedDescription(
+                "playerControllableBattleSquaddieWithAttacksOnly"
+            )
+
+            expect(
+                HighlightCoordinateDescriptionService.areEqual(
+                    highlightedDescription[0],
+                    {
+                        coordinates: [
+                            { q: 0, r: 4 },
+                            { q: 0, r: 3 },
+                            { q: 0, r: 5 },
+                        ],
+                        pulseColor: HIGHLIGHT_PULSE_COLOR.BLUE,
+                    }
+                )
+            ).toBe(true)
+            expect(
+                HighlightCoordinateDescriptionService.areEqual(
+                    highlightedDescription[1],
+                    {
+                        coordinates: [
+                            { q: 0, r: 1 },
+                            { q: 0, r: 7 },
+                        ],
+                        pulseColor: HIGHLIGHT_PULSE_COLOR.RED,
+                    }
+                )
+            ).toBe(true)
+        })
+        it("highlights correct coordinates when player controllable squaddie can only heal", () => {
+            addSquaddie({
+                squaddieTemplateId: "playerControllableOneMovementHealingOnly",
+                name: "Player Controllable One Movement Healing Only",
+                affiliation: SquaddieAffiliation.PLAYER,
+                battleSquaddieId:
+                    "playerControllableBattleSquaddieWithHealingOnly",
+                actionTemplateIds: [healingAction.id],
+            })
+
+            const highlightedDescription = generateHighlightedDescription(
+                "playerControllableBattleSquaddieWithHealingOnly"
+            )
+
+            expect(
+                HighlightCoordinateDescriptionService.areEqual(
+                    highlightedDescription[0],
+                    {
+                        coordinates: [
+                            { q: 0, r: 4 },
+                            { q: 0, r: 3 },
+                            { q: 0, r: 5 },
+                        ],
+                        pulseColor: HIGHLIGHT_PULSE_COLOR.BLUE,
+                    }
+                )
+            ).toBe(true)
+            expect(
+                HighlightCoordinateDescriptionService.areEqual(
+                    highlightedDescription[1],
+                    {
+                        coordinates: [
+                            { q: 0, r: 1 },
+                            { q: 0, r: 7 },
+                        ],
+                        pulseColor: HIGHLIGHT_PULSE_COLOR.GREEN,
                     }
                 )
             ).toBe(true)

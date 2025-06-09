@@ -166,23 +166,29 @@ const getHighlightsForAttackRange = ({
     squaddieIsNormallyControllableByPlayer: boolean
     actionPointsRemaining: number
 }): HighlightCoordinateDescription[] => {
-    const attackCoordinates =
-        BattleSquaddieSelectorService.getAttackCoordinates({
-            objectRepository,
-            battleSquaddieId,
-            reachableCoordinateSearch,
-            missionMap,
-            actionPointsRemaining,
-        })
+    const {
+        targetsFoes: attackCoordinates,
+        doesNotTargetFoes: assistCoordinates,
+    } = BattleSquaddieSelectorService.getActionTargetCoordinates({
+        objectRepository,
+        battleSquaddieId,
+        reachableCoordinateSearch,
+        missionMap,
+        actionPointsRemaining,
+    })
 
-    const pulseActionColor: PulseColor = squaddieIsNormallyControllableByPlayer
+    const attackColor: PulseColor = squaddieIsNormallyControllableByPlayer
         ? HIGHLIGHT_PULSE_COLOR.RED
         : HIGHLIGHT_PULSE_COLOR.PURPLE
 
     return [
         {
             coordinates: attackCoordinates,
-            pulseColor: pulseActionColor,
+            pulseColor: attackColor,
         },
-    ]
+        {
+            coordinates: assistCoordinates,
+            pulseColor: HIGHLIGHT_PULSE_COLOR.GREEN,
+        },
+    ].filter((description) => description.coordinates.length > 0)
 }

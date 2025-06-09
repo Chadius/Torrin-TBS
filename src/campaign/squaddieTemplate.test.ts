@@ -26,7 +26,7 @@ describe("Squaddie Template", () => {
             const squaddieWithoutAttributes: SquaddieTemplate =
                 SquaddieTemplateService.new({
                     squaddieId: SquaddieIdService.new({
-                        templateId: "id",
+                        squaddieTemplateId: "id",
                         affiliation: SquaddieAffiliation.PLAYER,
                         name: "id",
                     }),
@@ -85,7 +85,7 @@ describe("Squaddie Template", () => {
         })
         const squaddieTemplate = SquaddieTemplateService.new({
             squaddieId: SquaddieIdService.new({
-                templateId: "squaddieTemplate",
+                squaddieTemplateId: "squaddieTemplate",
                 name: "squaddieTemplate",
                 affiliation: SquaddieAffiliation.PLAYER,
                 resources: SquaddieResourceService.new({
@@ -126,7 +126,7 @@ describe("Squaddie Template", () => {
         })
         const squaddieTemplate = SquaddieTemplateService.new({
             squaddieId: SquaddieIdService.new({
-                templateId: "squaddieTemplate",
+                squaddieTemplateId: "squaddieTemplate",
                 name: "squaddieTemplate",
                 affiliation: SquaddieAffiliation.PLAYER,
                 resources: SquaddieResourceService.new({

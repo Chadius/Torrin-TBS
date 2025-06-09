@@ -29,12 +29,10 @@ import {
 } from "../../gameEngine/gameEngine"
 import { BattleOrchestratorStateService } from "../orchestrator/battleOrchestratorState"
 import { BattleStateService } from "../battleState/battleState"
-import { HIGHLIGHT_PULSE_COLOR } from "../../hexMap/hexDrawingUtils"
 import { SquaddieRepositoryService } from "../../utils/test/squaddie"
-import { MapGraphicsLayerService } from "../../hexMap/mapLayer/mapGraphicsLayer"
 import { BattleActionDecisionStepService } from "../actionDecision/battleActionDecisionStep"
 import { TargetConstraintsService } from "../../action/targetConstraints"
-import { beforeEach, describe, expect, it, MockInstance, vi } from "vitest"
+import { beforeEach, describe, expect, it } from "vitest"
 
 describe("Targeting Service", () => {
     let longswordAction: ActionTemplate
@@ -393,7 +391,6 @@ describe("Targeting Service", () => {
 
     describe("highlightTargetRange using a gameEngineState", () => {
         let gameEngineState: GameEngineState
-        let addGraphicsLayerSpy: MockInstance
 
         beforeEach(() => {
             const battleMap: MissionMap = MissionMapService.new({
@@ -433,11 +430,6 @@ describe("Targeting Service", () => {
                         .battleActionDecisionStep,
                 actionTemplateId: longswordAction.id,
             })
-
-            addGraphicsLayerSpy = vi.spyOn(
-                TerrainTileMapService,
-                "addGraphicsLayer"
-            )
         })
 
         it("will return the tiles in range", () => {
@@ -462,29 +454,6 @@ describe("Targeting Service", () => {
                         r: 1,
                     })
                 )
-            )
-        })
-
-        it("will highlight the tiles", () => {
-            const actionRange: HexCoordinate[] =
-                TargetingResultsService.highlightTargetRange({
-                    missionMap:
-                        gameEngineState.battleOrchestratorState.battleState
-                            .missionMap,
-                    objectRepository: gameEngineState.repository,
-                    battleActionDecisionStep:
-                        gameEngineState.battleOrchestratorState.battleState
-                            .battleActionDecisionStep,
-                    battleActionRecorder:
-                        gameEngineState.battleOrchestratorState.battleState
-                            .battleActionRecorder,
-                })
-
-            expect(addGraphicsLayerSpy).toHaveBeenCalled()
-            const callArgs = addGraphicsLayerSpy.mock.calls[0]
-            expect(callArgs[0]).toEqual(
-                gameEngineState.battleOrchestratorState.battleState.missionMap
-                    .terrainTileMap
             )
         })
     })

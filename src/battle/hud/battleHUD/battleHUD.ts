@@ -21,7 +21,6 @@ import { getResultOrThrowError } from "../../../utils/ResultOrError"
 import { MissionMap, MissionMapService } from "../../../missionMap/missionMap"
 import { OrchestratorUtilities } from "../../orchestratorComponents/orchestratorUtils"
 import { BattleActionDecisionStepService } from "../../actionDecision/battleActionDecisionStep"
-import { HIGHLIGHT_PULSE_COLOR } from "../../../hexMap/hexDrawingUtils"
 import { TargetingResultsService } from "../../targeting/targetingService"
 import { BattleSquaddie, BattleSquaddieService } from "../../battleSquaddie"
 import {
@@ -81,7 +80,6 @@ export const BattleHUDService = {
             battleSquaddieToHighlightId: battleSquaddieToHighlightId,
             missionMap: message.missionMap,
             objectRepository: message.objectRepository,
-            campaignResources: message.campaignResources,
             squaddieAllMovementCache: message.squaddieAllMovementCache,
         })
 
@@ -109,6 +107,15 @@ export const BattleHUDService = {
             battleActionDecisionStep: message.battleActionDecisionStep,
             battleActionRecorder: message.battleActionRecorder,
         })
+        const highlightedColor =
+            MapGraphicsLayerService.getActionTemplateHighlightedTileDescriptionColor(
+                {
+                    objectRepository: message.objectRepository,
+                    actionTemplateId: BattleActionDecisionStepService.getAction(
+                        message.battleActionDecisionStep
+                    ).actionTemplateId,
+                }
+            )
 
         MapGraphicsLayerSquaddieTypes.forEach((t) =>
             TerrainTileMapService.removeGraphicsLayerByType(
@@ -124,7 +131,7 @@ export const BattleHUDService = {
             highlightedTileDescriptions: [
                 {
                     coordinates: actionRange,
-                    pulseColor: HIGHLIGHT_PULSE_COLOR.RED,
+                    pulseColor: highlightedColor,
                 },
             ],
             type: MapGraphicsLayerType.CLICKED_ON_CONTROLLABLE_SQUADDIE,
@@ -222,7 +229,6 @@ export const BattleHUDService = {
             missionMap:
                 gameEngineState.battleOrchestratorState.battleState.missionMap,
             objectRepository: gameEngineState.repository,
-            campaignResources: gameEngineState.campaign.resources,
             squaddieAllMovementCache:
                 gameEngineState.battleOrchestratorState.cache
                     .searchResultsCache,
@@ -500,7 +506,6 @@ export const BattleHUDService = {
         MovementCalculatorService.setBattleActionDecisionStepReadyToAnimate({
             battleActionDecisionStep: message.battleActionDecisionStep,
             missionMap: message.missionMap,
-            campaignResources: message.campaignResources,
             battleState: message.battleState,
             objectRepository: message.objectRepository,
             battleSquaddie,
@@ -634,7 +639,6 @@ const playerControlledSquaddieNeedsNextAction = (
     const objectRepository = message.objectRepository
     const battleSquaddieId = message.battleSquaddieId
     const missionMap = message.missionMap
-    const campaignResources = message.campaignResources
 
     TerrainTileMapService.removeAllGraphicsLayers(missionMap.terrainTileMap)
 

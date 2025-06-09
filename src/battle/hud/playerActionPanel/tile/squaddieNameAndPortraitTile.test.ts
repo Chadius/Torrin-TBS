@@ -47,7 +47,7 @@ describe("Squaddie Name and Portrait Tile", () => {
     it("Can read a squaddie to populate all of its needed fields", () => {
         const squaddieTemplate = SquaddieTemplateService.new({
             squaddieId: SquaddieIdService.new({
-                templateId: "JoeTheSoldier",
+                squaddieTemplateId: "JoeTheSoldier",
                 name: "Joe the Soldier",
                 affiliation: SquaddieAffiliation.PLAYER,
                 resources: SquaddieResourceService.new({
@@ -86,7 +86,7 @@ describe("Squaddie Name and Portrait Tile", () => {
     it("Will use the squaddie's affiliation icon if they do not have a portrait icon", () => {
         const squaddieTemplate = SquaddieTemplateService.new({
             squaddieId: SquaddieIdService.new({
-                templateId: "GenericEnemy",
+                squaddieTemplateId: "GenericEnemy",
                 name: "Generic Enemy",
                 affiliation: SquaddieAffiliation.ENEMY,
             }),
@@ -325,7 +325,7 @@ const createSquaddieOfGivenAffiliation = ({
     objectRepository = ObjectRepositoryService.new()
     const squaddieTemplate = SquaddieTemplateService.new({
         squaddieId: SquaddieIdService.new({
-            templateId: "JoeTheSoldier",
+            squaddieTemplateId: "JoeTheSoldier",
             name: "Joe the Soldier",
             affiliation: affiliation ?? SquaddieAffiliation.PLAYER,
             resources: SquaddieResourceService.new({

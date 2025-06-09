@@ -88,8 +88,8 @@ export const HIGHLIGHT_PULSE_COLOR: {
     }),
     GREEN: PulseColorService.new({
         hue: 100,
-        saturation: 100,
-        brightness: 100,
+        saturation: 80,
+        brightness: 80,
         alpha: {
             low: 140,
             high: 190,

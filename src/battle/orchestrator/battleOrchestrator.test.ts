@@ -1103,7 +1103,7 @@ describe("Battle Orchestrator", () => {
                 nullState.repository = ObjectRepositoryService.new()
                 const squaddieTemplate = SquaddieTemplateService.new({
                     squaddieId: SquaddieIdService.new({
-                        templateId: "squaddieTemplateId",
+                        squaddieTemplateId: "squaddieTemplateId",
                         name: "squaddie",
                         affiliation: SquaddieAffiliation.PLAYER,
                         resources: SquaddieResourceService.new({

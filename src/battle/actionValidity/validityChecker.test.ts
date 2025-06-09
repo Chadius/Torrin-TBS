@@ -55,7 +55,7 @@ describe("validity checker", () => {
             repo: objectRepository,
             squaddieTemplate: SquaddieTemplateService.new({
                 squaddieId: SquaddieIdService.new({
-                    templateId: "squaddieTemplate",
+                    squaddieTemplateId: "squaddieTemplate",
                     name: "squaddieTemplate",
                     affiliation: SquaddieAffiliation.PLAYER,
                 }),

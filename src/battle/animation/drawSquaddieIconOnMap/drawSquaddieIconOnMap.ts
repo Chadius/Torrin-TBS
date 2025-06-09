@@ -23,7 +23,6 @@ import { SquaddieTemplate } from "../../../campaign/squaddieTemplate"
 import { HexCoordinate } from "../../../hexMap/hexCoordinate/hexCoordinate"
 import { MissionMap, MissionMapService } from "../../../missionMap/missionMap"
 import { MapHighlightService } from "../mapHighlight"
-import { Campaign } from "../../../campaign/campaign"
 import { DEFAULT_ACTION_POINTS_PER_TURN } from "../../../squaddie/turn"
 import { isValidValue } from "../../../utils/objectValidityCheck"
 import { TerrainTileMapService } from "../../../hexMap/terrainTileMap"
@@ -45,6 +44,8 @@ import {
     PulseColorService,
 } from "../../../hexMap/pulseColor"
 import { SearchResultsCache } from "../../../hexMap/pathfinder/searchResults/searchResultsCache"
+import { HIGHLIGHT_PULSE_COLOR } from "../../../hexMap/hexDrawingUtils"
+import { ActionTemplateService } from "../../../action/template/actionTemplate"
 
 interface DrawSquaddieIconOnMapLayout {
     ActionPointsBarColors: {
@@ -88,7 +89,21 @@ interface DrawSquaddieIconOnMapLayout {
             pulseColor: PulseColor
         }
     }
-    targetEnemySquaddie: {
+    targetFoeSquaddie: {
+        pulseColorForMapIcon: PulseColor
+        circleHighlight: {
+            radius: {
+                range: {
+                    low: number
+                    high: number
+                }
+                periodInMilliseconds: number
+                formula: PULSE_COLOR_FORMULA_TYPE
+            }
+            pulseColor: PulseColor
+        }
+    }
+    targetOtherSquaddie: {
         pulseColorForMapIcon: PulseColor
         circleHighlight: {
             radius: {
@@ -170,9 +185,9 @@ export const DRAW_SQUADDIE_ICON_ON_MAP_LAYOUT: DrawSquaddieIconOnMapLayout = {
             }),
         },
     },
-    targetEnemySquaddie: {
+    targetFoeSquaddie: {
         pulseColorForMapIcon: {
-            hue: 10,
+            hue: HIGHLIGHT_PULSE_COLOR.RED.hue,
             saturation: 60,
             brightness: {
                 low: 100,
@@ -194,7 +209,45 @@ export const DRAW_SQUADDIE_ICON_ON_MAP_LAYOUT: DrawSquaddieIconOnMapLayout = {
                 formula: PULSE_COLOR_FORMULA_TYPE.LINEAR,
             },
             pulseColor: PulseColorService.new({
-                hue: 10,
+                hue: HIGHLIGHT_PULSE_COLOR.RED.hue,
+                saturation: 100,
+                brightness: 80,
+                alpha: {
+                    low: 256 * 2,
+                    high: 0,
+                },
+                pulse: {
+                    period: 2000,
+                    formula: PULSE_COLOR_FORMULA_TYPE.LINEAR,
+                },
+            }),
+        },
+    },
+    targetOtherSquaddie: {
+        pulseColorForMapIcon: {
+            hue: HIGHLIGHT_PULSE_COLOR.GREEN.hue,
+            saturation: 60,
+            brightness: {
+                low: 100,
+                high: 50,
+            },
+            alpha: 256,
+            pulse: {
+                period: 5000,
+                formula: PULSE_COLOR_FORMULA_TYPE.SINE,
+            },
+        },
+        circleHighlight: {
+            radius: {
+                range: {
+                    low: 0,
+                    high: HEX_TILE_RADIUS,
+                },
+                periodInMilliseconds: 2000,
+                formula: PULSE_COLOR_FORMULA_TYPE.LINEAR,
+            },
+            pulseColor: PulseColorService.new({
+                hue: HIGHLIGHT_PULSE_COLOR.GREEN.hue,
                 saturation: 100,
                 brightness: 80,
                 alpha: {
@@ -243,13 +296,11 @@ export const DrawSquaddieIconOnMapUtilities = {
         missionMap,
         battleSquaddieId,
         repository,
-        campaign,
         squaddieAllMovementCache,
     }: {
         missionMap: MissionMap
         battleSquaddieId: string
         repository: ObjectRepository
-        campaign: Campaign
         squaddieAllMovementCache: SearchResultsCache
     }) => {
         const { originMapCoordinate, currentMapCoordinate } =
@@ -264,7 +315,6 @@ export const DrawSquaddieIconOnMapUtilities = {
                 battleSquaddieId,
                 currentMapCoordinate,
                 originMapCoordinate,
-                campaignResources: campaign.resources,
                 squaddieAllMovementCache,
             })
         const actionRangeOnMap = MapGraphicsLayerService.new({
@@ -306,14 +356,12 @@ export const DrawSquaddieIconOnMapUtilities = {
         squaddieTemplate,
         missionMap,
         repository,
-        campaign,
         squaddieAllMovementCache,
     }: {
         battleSquaddie: BattleSquaddie
         squaddieTemplate: SquaddieTemplate
         missionMap: MissionMap
         repository: ObjectRepository
-        campaign: Campaign
         squaddieAllMovementCache: SearchResultsCache
     }) => {
         return highlightPlayableSquaddieReachIfTheyCanAct({
@@ -321,7 +369,6 @@ export const DrawSquaddieIconOnMapUtilities = {
             squaddieTemplate,
             missionMap,
             repository,
-            campaign,
             squaddieAllMovementCache,
         })
     },
@@ -433,6 +480,25 @@ export const DrawSquaddieIconOnMapUtilities = {
         )
         graphicsContext.circle(circleCenter.x, circleCenter.y, circleRadius * 2)
         graphicsContext.pop()
+    },
+    getMapIconLayout: ({
+        objectRepository,
+        actionTemplateId,
+    }: {
+        objectRepository: ObjectRepository
+        actionTemplateId: string
+    }) => {
+        if (!actionTemplateId)
+            return DRAW_SQUADDIE_ICON_ON_MAP_LAYOUT.targetOtherSquaddie
+
+        const actionTemplate = ObjectRepositoryService.getActionTemplateById(
+            objectRepository,
+            actionTemplateId
+        )
+
+        return ActionTemplateService.doesItTargetFoesFirst(actionTemplate)
+            ? DRAW_SQUADDIE_ICON_ON_MAP_LAYOUT.targetFoeSquaddie
+            : DRAW_SQUADDIE_ICON_ON_MAP_LAYOUT.targetOtherSquaddie
     },
 }
 
@@ -759,14 +825,12 @@ const highlightPlayableSquaddieReachIfTheyCanAct = ({
     squaddieTemplate,
     missionMap,
     repository,
-    campaign,
     squaddieAllMovementCache,
 }: {
     battleSquaddie: BattleSquaddie
     squaddieTemplate: SquaddieTemplate
     missionMap: MissionMap
     repository: ObjectRepository
-    campaign: Campaign
     squaddieAllMovementCache: SearchResultsCache
 }) => {
     let { canAct } = SquaddieService.canSquaddieActRightNow({
@@ -788,7 +852,6 @@ const highlightPlayableSquaddieReachIfTheyCanAct = ({
         missionMap: missionMap,
         battleSquaddieId: battleSquaddie.battleSquaddieId,
         repository: repository,
-        campaign,
         squaddieAllMovementCache,
     })
 }

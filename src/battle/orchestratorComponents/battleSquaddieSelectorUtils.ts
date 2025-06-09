@@ -28,9 +28,9 @@ import {
 } from "../../search/searchPathAdapter/searchPathAdapter"
 import { MapSearchService } from "../../hexMap/pathfinder/pathGeneration/mapSearch"
 import { SearchLimitService } from "../../hexMap/pathfinder/pathGeneration/searchLimit"
-import { CampaignResources } from "../../campaign/campaignResources"
 import { BattleState } from "../battleState/battleState"
 import { SquaddieTurnService } from "../../squaddie/turn"
+import { ActionEffectTemplateService } from "../../action/template/actionEffectTemplate"
 
 export const BattleSquaddieSelectorService = {
     createSearchPathAndHighlightMovementPath: ({
@@ -39,7 +39,6 @@ export const BattleSquaddieSelectorService = {
         clickedHexCoordinate,
         missionMap,
         objectRepository,
-        campaignResources,
         battleState,
     }: {
         squaddieTemplate: SquaddieTemplate
@@ -47,7 +46,6 @@ export const BattleSquaddieSelectorService = {
         clickedHexCoordinate: HexCoordinate
         missionMap: MissionMap
         objectRepository: ObjectRepository
-        campaignResources: CampaignResources
         battleState: BattleState
     }) => {
         return createSearchPath({
@@ -56,7 +54,6 @@ export const BattleSquaddieSelectorService = {
             clickedHexCoordinate,
             missionMap,
             objectRepository,
-            campaignResources,
             battleState,
         })
     },
@@ -190,7 +187,7 @@ export const BattleSquaddieSelectorService = {
             mapCoordinate: closestRouteThatCostsFewestActions,
         })
     },
-    getAttackCoordinates: ({
+    getActionTargetCoordinates: ({
         objectRepository,
         battleSquaddieId,
         reachableCoordinateSearch,
@@ -202,7 +199,10 @@ export const BattleSquaddieSelectorService = {
         reachableCoordinateSearch: SearchResult
         missionMap: MissionMap
         actionPointsRemaining: number
-    }): HexCoordinate[] => {
+    }): {
+        targetsFoes: HexCoordinate[]
+        doesNotTargetFoes: HexCoordinate[]
+    } => {
         const { squaddieTemplate, battleSquaddie } = getResultOrThrowError(
             ObjectRepositoryService.getSquaddieByBattleId(
                 objectRepository,
@@ -232,7 +232,6 @@ const createSearchPath = ({
     clickedHexCoordinate,
     missionMap,
     objectRepository,
-    campaignResources,
     battleState,
 }: {
     squaddieTemplate: SquaddieTemplate
@@ -240,7 +239,6 @@ const createSearchPath = ({
     clickedHexCoordinate: HexCoordinate
     missionMap: MissionMap
     objectRepository: ObjectRepository
-    campaignResources: CampaignResources
     battleState: BattleState
 }) => {
     const searchResults = getAllTilesSquaddieCanReach({
@@ -366,10 +364,16 @@ const getSquaddieAttackCoordinates = ({
     reachableCoordinateSearch: SearchResult
     actionPointsRemaining: number
     missionMap: MissionMap
-}): HexCoordinate[] => {
-    const attackCoordinates: HexCoordinate[] = []
-    const getCoordinatesToAddToAttackCoordinates = (
-        actionRangeResults: SearchResult
+}): {
+    targetsFoes: HexCoordinate[]
+    doesNotTargetFoes: HexCoordinate[]
+} => {
+    const attackFoesCoordinates: HexCoordinate[] = []
+    const otherCoordinates: HexCoordinate[] = []
+
+    const getCoordinatesToAddToCoordinates = (
+        actionRangeResults: SearchResult,
+        accumulatedCoordinates: HexCoordinate[]
     ) => {
         return SearchResultAdapterService.getCoordinatesWithPaths(
             actionRangeResults
@@ -377,7 +381,7 @@ const getSquaddieAttackCoordinates = ({
             .filter(
                 (coordinate) =>
                     !HexCoordinateService.includes(
-                        attackCoordinates,
+                        accumulatedCoordinates,
                         coordinate
                     )
             )
@@ -392,6 +396,9 @@ const getSquaddieAttackCoordinates = ({
     squaddieTemplate.actionTemplateIds
         .map((id) =>
             ObjectRepositoryService.getActionTemplateById(repository, id)
+        )
+        .filter(
+            (actionTemplate) => actionTemplate.actionEffectTemplates.length > 0
         )
         .forEach((actionTemplate) => {
             allCoordinatesSquaddieCanMoveTo
@@ -423,6 +430,11 @@ const getSquaddieAttackCoordinates = ({
                     )
                 })
                 .forEach((coordinate) => {
+                    const targetsFoes =
+                        ActionEffectTemplateService.doesItTargetFoes(
+                            actionTemplate.actionEffectTemplates[0]
+                        )
+
                     actionTemplate.actionEffectTemplates.forEach(
                         (actionSquaddieEffectTemplate) => {
                             let uniqueCoordinates: HexCoordinate[]
@@ -456,16 +468,29 @@ const getSquaddieAttackCoordinates = ({
                                     }
                                 )
 
-                            uniqueCoordinates =
-                                getCoordinatesToAddToAttackCoordinates(
-                                    actionRangeResults
-                                )
-                            attackCoordinates.push(...uniqueCoordinates)
+                            if (targetsFoes) {
+                                uniqueCoordinates =
+                                    getCoordinatesToAddToCoordinates(
+                                        actionRangeResults,
+                                        attackFoesCoordinates
+                                    )
+                                attackFoesCoordinates.push(...uniqueCoordinates)
+                            } else {
+                                uniqueCoordinates =
+                                    getCoordinatesToAddToCoordinates(
+                                        actionRangeResults,
+                                        otherCoordinates
+                                    )
+                                otherCoordinates.push(...uniqueCoordinates)
+                            }
                         }
                     )
                 })
         })
-    return attackCoordinates
+    return {
+        targetsFoes: attackFoesCoordinates,
+        doesNotTargetFoes: otherCoordinates,
+    }
 }
 
 const getReachableCoordinatesByDistanceFromStopCoordinate = ({

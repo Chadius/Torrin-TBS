@@ -50,7 +50,6 @@ import { ComponentDataBlob } from "../../../utils/dataBlob/componentDataBlob"
 import { BattleCamera } from "../../battleCamera"
 import { DataBlobService } from "../../../utils/dataBlob/dataBlob"
 import { PlayerInputStateService } from "../../../ui/playerInput/playerInputState"
-import { CampaignResourcesService } from "../../../campaign/campaignResources"
 import { MissionStatisticsService } from "../../missionStatistics/missionStatistics"
 import { PlayerConsideredActionsService } from "../../battleState/playerConsideredActions"
 import { PlayerDecisionHUDService } from "../../hud/playerActionPanel/playerDecisionHUD"
@@ -68,6 +67,8 @@ import { ImageUI, ImageUILoadingBehavior } from "../../../ui/imageUI/imageUI"
 import { PLAYER_ACTION_SELECT_TARGET_CREATE_CANCEL_BUTTON_ID } from "./playerActionTarget/cancelButton"
 import { PLAYER_ACTION_CONFIRM_CREATE_OK_BUTTON_ID } from "./playerActionConfirm/okButton"
 import { PLAYER_ACTION_CONFIRM_CREATE_CANCEL_BUTTON_ID } from "./playerActionConfirm/cancelButton"
+import { CampaignResourcesService } from "../../../campaign/campaignResources"
+import { SearchResultsCacheService } from "../../../hexMap/pathfinder/searchResults/searchResultsCache"
 
 describe("Player Action Target Select View Controller", () => {
     let playerActionTargetSelectViewController: PlayerActionTargetSelectViewController
@@ -108,6 +109,10 @@ describe("Player Action Target Select View Controller", () => {
             summaryHUDState: SummaryHUDStateService.new(),
             campaignResources: CampaignResourcesService.default(),
             missionStatistics: MissionStatisticsService.new({}),
+            squaddieAllMovementCache: SearchResultsCacheService.new({
+                missionMap,
+                objectRepository,
+            }),
             playerConsideredActions: PlayerConsideredActionsService.new(),
             playerDecisionHUD: PlayerDecisionHUDService.new(),
             playerCommandState: PlayerCommandStateService.new(),

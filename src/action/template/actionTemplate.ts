@@ -183,6 +183,14 @@ export const ActionTemplateService = {
     ): ActionEffectTemplate[] => getActionEffectTemplates(actionTemplate),
     doesActionTemplateHeal: (actionTemplate: ActionTemplate): boolean =>
         doesActionTemplateHeal(actionTemplate),
+    doesItTargetFoesFirst: (actionTemplate: ActionTemplate): boolean =>
+        ActionEffectTemplateService.doesItTargetFoes(
+            actionTemplate.actionEffectTemplates[0]
+        ),
+    doesItNotTargetFoesFirst: (actionTemplate: ActionTemplate): boolean =>
+        !ActionEffectTemplateService.doesItTargetFoes(
+            actionTemplate.actionEffectTemplates[0]
+        ),
 }
 
 const sanitize = (template: ActionTemplate): ActionTemplate => {
@@ -202,7 +210,7 @@ const sanitize = (template: ActionTemplate): ActionTemplate => {
         template.actionEffectTemplates,
         []
     )
-    template.actionEffectTemplates.forEach((actionEffectTemplate, index) => {
+    template.actionEffectTemplates.forEach((actionEffectTemplate) => {
         ActionEffectTemplateService.sanitize(actionEffectTemplate)
     })
     return template

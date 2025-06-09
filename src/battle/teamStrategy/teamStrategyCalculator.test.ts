@@ -29,7 +29,7 @@ describe("team strategy calculator", () => {
             const squaddieTemplate: SquaddieTemplate =
                 SquaddieTemplateService.new({
                     squaddieId: SquaddieIdService.new({
-                        templateId: "squaddieTemplateId",
+                        squaddieTemplateId: "squaddieTemplateId",
                         name: "squaddieTemplateName",
                         affiliation: SquaddieAffiliation.PLAYER,
                     }),

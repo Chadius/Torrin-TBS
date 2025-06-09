@@ -5,6 +5,17 @@ import {
 } from "./mapGraphicsLayer"
 import { HIGHLIGHT_PULSE_COLOR } from "../hexDrawingUtils"
 import { beforeEach, describe, expect, it } from "vitest"
+import {
+    ActionEffectTemplate,
+    ActionEffectTemplateService,
+    TargetBySquaddieAffiliationRelation,
+} from "../../action/template/actionEffectTemplate"
+import { DamageType, HealingType } from "../../squaddie/squaddieService"
+import { ActionTemplateService } from "../../action/template/actionTemplate"
+import {
+    ObjectRepository,
+    ObjectRepositoryService,
+} from "../../battle/objectRepository"
 
 describe("Map Graphics Layer", () => {
     it("has an Id", () => {
@@ -108,6 +119,72 @@ describe("Map Graphics Layer", () => {
                     r: 0,
                 })
             ).toBeFalsy()
+        })
+    })
+
+    describe("get the action template color", () => {
+        let healSelf: ActionEffectTemplate
+        let hurtOthers: ActionEffectTemplate
+        let objectRepository: ObjectRepository
+
+        beforeEach(() => {
+            healSelf = ActionEffectTemplateService.new({
+                healingDescriptions: {
+                    [HealingType.LOST_HIT_POINTS]: 1,
+                },
+                squaddieAffiliationRelation: {
+                    [TargetBySquaddieAffiliationRelation.TARGET_SELF]: true,
+                },
+            })
+            hurtOthers = ActionEffectTemplateService.new({
+                damageDescriptions: {
+                    [DamageType.BODY]: 2,
+                },
+                squaddieAffiliationRelation: {
+                    [TargetBySquaddieAffiliationRelation.TARGET_FOE]: true,
+                },
+            })
+            objectRepository = ObjectRepositoryService.new()
+        })
+
+        it("if the first template targets foes the color is attack colored", () => {
+            const hurtThenHeal = ActionTemplateService.new({
+                id: "hurtThenHeal",
+                name: "hurtThenHeal",
+                actionEffectTemplates: [hurtOthers, healSelf],
+            })
+            ObjectRepositoryService.addActionTemplate(
+                objectRepository,
+                hurtThenHeal
+            )
+            expect(
+                MapGraphicsLayerService.getActionTemplateHighlightedTileDescriptionColor(
+                    {
+                        objectRepository,
+                        actionTemplateId: hurtThenHeal.id,
+                    }
+                )
+            ).toEqual(HIGHLIGHT_PULSE_COLOR.RED)
+        })
+
+        it("if the first template does not target foes the color is assist colored", () => {
+            const healThenHurt = ActionTemplateService.new({
+                id: "healThenHurt",
+                name: "healThenHurt",
+                actionEffectTemplates: [healSelf, hurtOthers],
+            })
+            ObjectRepositoryService.addActionTemplate(
+                objectRepository,
+                healThenHurt
+            )
+            expect(
+                MapGraphicsLayerService.getActionTemplateHighlightedTileDescriptionColor(
+                    {
+                        objectRepository,
+                        actionTemplateId: healThenHurt.id,
+                    }
+                )
+            ).toEqual(HIGHLIGHT_PULSE_COLOR.GREEN)
         })
     })
 })

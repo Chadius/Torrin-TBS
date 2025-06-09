@@ -1,5 +1,7 @@
+import { beforeEach, describe, expect, it } from "vitest"
 import { ActionDecisionType, ActionTemplateService } from "./actionTemplate"
 import {
+    ActionEffectTemplate,
     ActionEffectTemplateService,
     TargetBySquaddieAffiliationRelation,
 } from "./actionEffectTemplate"
@@ -9,7 +11,6 @@ import {
     TraitStatusStorageService,
 } from "../../trait/traitStatusStorage"
 import { TargetConstraintsService } from "../targetConstraints"
-import { describe, expect, it } from "vitest"
 import { CoordinateGeneratorShape } from "../../battle/targeting/coordinateGenerator"
 
 describe("ActionTemplate", () => {
@@ -260,35 +261,70 @@ describe("ActionTemplate", () => {
         })
     })
 
-    it("can get all action templates", () => {
-        const healSelf = ActionEffectTemplateService.new({
-            healingDescriptions: {
-                [HealingType.LOST_HIT_POINTS]: 1,
-            },
-            squaddieAffiliationRelation: {
-                [TargetBySquaddieAffiliationRelation.TARGET_SELF]: true,
-            },
-        })
-        const hurtOthers = ActionEffectTemplateService.new({
-            damageDescriptions: {
-                [DamageType.BODY]: 2,
-            },
-            squaddieAffiliationRelation: {
-                [TargetBySquaddieAffiliationRelation.TARGET_FOE]: true,
-            },
+    describe("knows when an action template aims at foes", () => {
+        let healSelf: ActionEffectTemplate
+        let hurtOthers: ActionEffectTemplate
+
+        beforeEach(() => {
+            healSelf = ActionEffectTemplateService.new({
+                healingDescriptions: {
+                    [HealingType.LOST_HIT_POINTS]: 1,
+                },
+                squaddieAffiliationRelation: {
+                    [TargetBySquaddieAffiliationRelation.TARGET_SELF]: true,
+                },
+            })
+            hurtOthers = ActionEffectTemplateService.new({
+                damageDescriptions: {
+                    [DamageType.BODY]: 2,
+                },
+                squaddieAffiliationRelation: {
+                    [TargetBySquaddieAffiliationRelation.TARGET_FOE]: true,
+                },
+            })
         })
 
-        const hurtOthersAndHealSelf = ActionTemplateService.new({
-            id: "hurtOthersAndHealSelf",
-            name: "hurtOthersAndHealSelf",
-            actionEffectTemplates: [hurtOthers, healSelf],
+        it("can get all action templates", () => {
+            const hurtOthersAndHealSelf = ActionTemplateService.new({
+                id: "hurtOthersAndHealSelf",
+                name: "hurtOthersAndHealSelf",
+                actionEffectTemplates: [hurtOthers, healSelf],
+            })
+
+            expect(
+                ActionTemplateService.getActionEffectTemplates(
+                    hurtOthersAndHealSelf
+                )
+            ).toEqual([hurtOthers, healSelf])
         })
 
-        expect(
-            ActionTemplateService.getActionEffectTemplates(
-                hurtOthersAndHealSelf
-            )
-        ).toEqual([hurtOthers, healSelf])
+        it("if the first template targets foes the action targets foes", () => {
+            const hurtThenHeal = ActionTemplateService.new({
+                id: "hurtThenHeal",
+                name: "hurtThenHeal",
+                actionEffectTemplates: [hurtOthers, healSelf],
+            })
+            expect(
+                ActionTemplateService.doesItTargetFoesFirst(hurtThenHeal)
+            ).toBeTruthy()
+            expect(
+                ActionTemplateService.doesItNotTargetFoesFirst(hurtThenHeal)
+            ).toBeFalsy()
+        })
+
+        it("if the first template does not targets foes the action does not targets foes", () => {
+            const healThenHurt = ActionTemplateService.new({
+                id: "healThenHurt",
+                name: "healThenHurt",
+                actionEffectTemplates: [healSelf, hurtOthers],
+            })
+            expect(
+                ActionTemplateService.doesItTargetFoesFirst(healThenHurt)
+            ).toBeFalsy()
+            expect(
+                ActionTemplateService.doesItNotTargetFoesFirst(healThenHurt)
+            ).toBeTruthy()
+        })
     })
 
     describe("rank", () => {

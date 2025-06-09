@@ -102,7 +102,7 @@ describe("Squaddie Id", () => {
         const sanitizeSpy = vi.spyOn(TraitStatusStorageService, "sanitize")
         SquaddieIdService.new({
             name: "squaddieTemplate",
-            templateId: "squaddieTemplate",
+            squaddieTemplateId: "squaddieTemplate",
             affiliation: SquaddieAffiliation.PLAYER,
             traits: TraitStatusStorageService.newUsingTraitValues({}),
         })

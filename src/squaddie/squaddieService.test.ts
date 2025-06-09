@@ -580,7 +580,7 @@ describe("Squaddie Service", () => {
         ) => {
             const squaddieTemplate = SquaddieTemplateService.new({
                 squaddieId: SquaddieIdService.new({
-                    templateId: "battleSquaddie",
+                    squaddieTemplateId: "battleSquaddie",
                     name: "battleSquaddie",
                     affiliation: SquaddieAffiliation.PLAYER,
                 }),

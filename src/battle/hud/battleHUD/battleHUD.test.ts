@@ -420,7 +420,7 @@ describe("Battle HUD", () => {
                 squaddieId: SquaddieIdService.new({
                     name: "squaddie template",
                     affiliation: teamAffiliation,
-                    templateId: "templateId",
+                    squaddieTemplateId: "templateId",
                 }),
             })
             const battleSquaddie = BattleSquaddieService.new({
@@ -860,7 +860,7 @@ describe("Battle HUD", () => {
                 repo: gameEngineState.repository,
                 squaddieTemplate: SquaddieTemplateService.new({
                     squaddieId: SquaddieIdService.new({
-                        templateId: "enemy",
+                        squaddieTemplateId: "enemy",
                         name: "enemy",
                         affiliation: SquaddieAffiliation.ENEMY,
                     }),

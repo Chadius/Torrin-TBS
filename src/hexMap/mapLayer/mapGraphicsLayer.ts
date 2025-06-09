@@ -5,6 +5,12 @@ import {
 import { PulseColor } from "../pulseColor"
 
 import { HighlightCoordinateDescription } from "../highlightCoordinateDescription"
+import {
+    ObjectRepository,
+    ObjectRepositoryService,
+} from "../../battle/objectRepository"
+import { ActionTemplateService } from "../../action/template/actionTemplate"
+import { HIGHLIGHT_PULSE_COLOR } from "../hexDrawingUtils"
 
 export interface MapGraphicsLayerHighlight {
     coordinate: HexCoordinate
@@ -79,6 +85,17 @@ export const MapGraphicsLayerService = {
     },
     getCoordinates: (mapGraphicsLayer: MapGraphicsLayer): HexCoordinate[] =>
         mapGraphicsLayer.highlights.map((highlight) => highlight.coordinate),
+    getActionTemplateHighlightedTileDescriptionColor: ({
+        actionTemplateId,
+        objectRepository,
+    }: {
+        actionTemplateId: string
+        objectRepository: ObjectRepository
+    }): PulseColor =>
+        getActionTemplateHighlightedTileDescriptionColor({
+            actionTemplateId,
+            objectRepository,
+        }),
 }
 
 const addHighlightedTileDescription = (
@@ -91,4 +108,20 @@ const addHighlightedTileDescription = (
             pulseColor: highlightedTileDescription.pulseColor,
         }))
     mapGraphicsLayer.highlights.push(...highlights)
+}
+
+const getActionTemplateHighlightedTileDescriptionColor = ({
+    actionTemplateId,
+    objectRepository,
+}: {
+    actionTemplateId: string
+    objectRepository: ObjectRepository
+}): PulseColor => {
+    const actionTemplate = ObjectRepositoryService.getActionTemplateById(
+        objectRepository,
+        actionTemplateId
+    )
+    return ActionTemplateService.doesItTargetFoesFirst(actionTemplate)
+        ? HIGHLIGHT_PULSE_COLOR.RED
+        : HIGHLIGHT_PULSE_COLOR.GREEN
 }

@@ -523,7 +523,7 @@ describe("move towards closest squaddie in range", () => {
             repository,
             SquaddieTemplateService.new({
                 squaddieId: SquaddieIdService.new({
-                    templateId: "enemy",
+                    squaddieTemplateId: "enemy",
                     name: "enemy",
                     affiliation: SquaddieAffiliation.ENEMY,
                 }),

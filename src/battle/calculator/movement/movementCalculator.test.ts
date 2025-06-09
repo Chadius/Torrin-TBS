@@ -204,7 +204,6 @@ describe("movement calculator", () => {
                     missionMap:
                         gameEngineState.battleOrchestratorState.battleState
                             .missionMap,
-                    campaignResources: gameEngineState.campaign.resources,
                     battleState:
                         gameEngineState.battleOrchestratorState.battleState,
                     objectRepository: gameEngineState.repository,
@@ -376,7 +375,6 @@ describe("movement calculator", () => {
                     missionMap:
                         gameEngineState.battleOrchestratorState.battleState
                             .missionMap,
-                    campaignResources: gameEngineState.campaign.resources,
                     battleState:
                         gameEngineState.battleOrchestratorState.battleState,
                     objectRepository: gameEngineState.repository,
@@ -406,7 +404,6 @@ describe("movement calculator", () => {
                     missionMap:
                         gameEngineState.battleOrchestratorState.battleState
                             .missionMap,
-                    campaignResources: gameEngineState.campaign.resources,
                     battleState:
                         gameEngineState.battleOrchestratorState.battleState,
                     objectRepository: gameEngineState.repository,

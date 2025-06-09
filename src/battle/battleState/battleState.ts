@@ -338,7 +338,6 @@ const battleActionFinishesAnimation = (
         missionMap:
             gameEngineState.battleOrchestratorState.battleState.missionMap,
         repository: gameEngineState.repository,
-        campaign: gameEngineState.campaign,
         squaddieAllMovementCache:
             gameEngineState.battleOrchestratorState.cache.searchResultsCache,
     })

@@ -14,7 +14,6 @@ import {
 import { BattleOrchestratorMode } from "../orchestrator/battleOrchestrator"
 import { GraphicsConfig } from "../../utils/graphics/graphicsConfig"
 import { UIControlSettings } from "../orchestrator/uiControlSettings"
-import { HIGHLIGHT_PULSE_COLOR } from "../../hexMap/hexDrawingUtils"
 import { HexCoordinate } from "../../hexMap/hexCoordinate/hexCoordinate"
 import { TeamStrategy } from "../teamStrategy/teamStrategy"
 import { DetermineNextDecisionService } from "../teamStrategy/determineNextDecision"
@@ -221,11 +220,17 @@ export class BattleComputerSquaddieSelector
         )
     }
 
-    private highlightTargetRange(
-        gameEngineState: GameEngineState,
-        targetCoordinate: HexCoordinate,
+    private highlightTargetRange({
+        gameEngineState,
+        actionTemplateId,
+        targetCoordinate,
+        battleSquaddieId,
+    }: {
+        gameEngineState: GameEngineState
+        actionTemplateId: string
+        targetCoordinate: HexCoordinate
         battleSquaddieId: string
-    ) {
+    }) {
         const searchResult: SearchResult =
             MapSearchService.calculateAllPossiblePathsFromStartingCoordinate({
                 missionMap:
@@ -244,12 +249,20 @@ export class BattleComputerSquaddieSelector
         const tilesTargeted: HexCoordinate[] =
             SearchResultAdapterService.getCoordinatesWithPaths(searchResult)
 
+        const highlightedColor =
+            MapGraphicsLayerService.getActionTemplateHighlightedTileDescriptionColor(
+                {
+                    objectRepository: gameEngineState.repository,
+                    actionTemplateId,
+                }
+            )
+
         const actionRangeOnMap = MapGraphicsLayerService.new({
             id: battleSquaddieId,
             highlightedTileDescriptions: [
                 {
                     coordinates: tilesTargeted,
-                    pulseColor: HIGHLIGHT_PULSE_COLOR.RED,
+                    pulseColor: highlightedColor,
                 },
             ],
             type: MapGraphicsLayerType.CLICKED_ON_CONTROLLABLE_SQUADDIE,
@@ -468,18 +481,24 @@ export class BattleComputerSquaddieSelector
     ) {
         const firstActionTemplateDecisionStep = battleActionDecisionSteps.find(
             (battleActionDecisionStep) =>
-                battleActionDecisionStep.action.actionTemplateId !== undefined
+                BattleActionDecisionStepService.getAction(
+                    battleActionDecisionStep
+                ).actionTemplateId != undefined
         )
         if (!firstActionTemplateDecisionStep) {
             return
         }
 
         this.showSelectedActionWaitTime = Date.now()
-        this.highlightTargetRange(
+        this.highlightTargetRange({
             gameEngineState,
-            firstActionTemplateDecisionStep.target.targetCoordinate,
-            battleSquaddie.battleSquaddieId
-        )
+            actionTemplateId: BattleActionDecisionStepService.getAction(
+                firstActionTemplateDecisionStep
+            ).actionTemplateId,
+            targetCoordinate:
+                firstActionTemplateDecisionStep.target.targetCoordinate,
+            battleSquaddieId: battleSquaddie.battleSquaddieId,
+        })
     }
 
     private updateSquaddieLocationForEachMovementDecisionStep(
@@ -663,7 +682,6 @@ export class BattleComputerSquaddieSelector
                             gameEngineState.battleOrchestratorState.battleState
                                 .missionMap,
                         objectRepository: gameEngineState.repository,
-                        campaignResources: gameEngineState.campaign.resources,
                         battleState:
                             gameEngineState.battleOrchestratorState.battleState,
                     }

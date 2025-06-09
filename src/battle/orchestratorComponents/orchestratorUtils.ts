@@ -29,7 +29,6 @@ import {
     BattleActionDecisionStepService,
 } from "../actionDecision/battleActionDecisionStep"
 import { ScreenLocation } from "../../utils/mouseConfig"
-import { CampaignResources } from "../../campaign/campaignResources"
 import { SearchResultsCache } from "../../hexMap/pathfinder/searchResults/searchResultsCache"
 
 export const OrchestratorUtilities = {
@@ -52,20 +51,17 @@ export const OrchestratorUtilities = {
         battleSquaddieToHighlightId,
         missionMap,
         objectRepository,
-        campaignResources,
         squaddieAllMovementCache,
     }: {
         battleSquaddieToHighlightId: string
         missionMap: MissionMap
         objectRepository: ObjectRepository
-        campaignResources: CampaignResources
         squaddieAllMovementCache: SearchResultsCache
     }) =>
         highlightSquaddieRange({
             battleSquaddieToHighlightId: battleSquaddieToHighlightId,
             missionMap: missionMap,
             objectRepository: objectRepository,
-            campaignResources: campaignResources,
             squaddieAllMovementCache,
         }),
     getSquaddieAtScreenLocation: ({
@@ -368,13 +364,11 @@ const highlightSquaddieRange = ({
     battleSquaddieToHighlightId,
     missionMap,
     objectRepository,
-    campaignResources,
     squaddieAllMovementCache,
 }: {
     battleSquaddieToHighlightId: string
     missionMap: MissionMap
     objectRepository: ObjectRepository
-    campaignResources: CampaignResources
     squaddieAllMovementCache: SearchResultsCache
 }) => {
     const { currentMapCoordinate, originMapCoordinate } =

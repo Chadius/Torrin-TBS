@@ -17,7 +17,6 @@ import {
     ActionEffectTemplate,
     TargetBySquaddieAffiliationRelation,
 } from "../../action/template/actionEffectTemplate"
-import { HIGHLIGHT_PULSE_COLOR } from "../../hexMap/hexDrawingUtils"
 import { ActionTemplate } from "../../action/template/actionTemplate"
 import { TerrainTileMapService } from "../../hexMap/terrainTileMap"
 import {
@@ -402,12 +401,19 @@ const highlightTargetRange = ({
 
     TerrainTileMapService.removeAllGraphicsLayers(missionMap.terrainTileMap)
 
+    const highlightedColor =
+        MapGraphicsLayerService.getActionTemplateHighlightedTileDescriptionColor(
+            {
+                objectRepository: objectRepository,
+                actionTemplateId: previewedActionTemplate.id,
+            }
+        )
     const actionRangeOnMap = MapGraphicsLayerService.new({
         id: battleSquaddieId,
         highlightedTileDescriptions: [
             {
                 coordinates: actionRange,
-                pulseColor: HIGHLIGHT_PULSE_COLOR.RED,
+                pulseColor: highlightedColor,
             },
         ],
         type: MapGraphicsLayerType.CLICKED_ON_CONTROLLABLE_SQUADDIE,

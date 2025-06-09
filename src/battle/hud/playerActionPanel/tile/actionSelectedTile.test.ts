@@ -43,7 +43,7 @@ describe("Action Selected Tile", () => {
 
         const squaddieTemplate = SquaddieTemplateService.new({
             squaddieId: SquaddieIdService.new({
-                templateId: "JoeTheSoldier",
+                squaddieTemplateId: "JoeTheSoldier",
                 name: "Joe the Soldier",
                 affiliation: SquaddieAffiliation.PLAYER,
                 resources: SquaddieResourceService.new({
