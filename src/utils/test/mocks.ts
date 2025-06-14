@@ -33,6 +33,8 @@ vi.mock("p5", () => {
             textAlign: vi.fn(),
             textSize: vi.fn(),
             textWidth: vi.fn().mockReturnValue(10),
+            textAscent: vi.fn().mockReturnValue(12),
+            textDescent: vi.fn().mockReturnValue(13),
             tint: vi.fn(),
             translate: vi.fn(),
             beginShape: vi.fn(),
@@ -211,6 +213,14 @@ export class MockedP5GraphicsBuffer implements GraphicsBuffer {
 
     textWidth(text: string): number {
         return this.mockedP5.textWidth(text)
+    }
+
+    textAscent(): number {
+        return this.mockedP5.textAscent()
+    }
+
+    textDescent(): number {
+        return this.mockedP5.textDescent()
     }
 
     tint(

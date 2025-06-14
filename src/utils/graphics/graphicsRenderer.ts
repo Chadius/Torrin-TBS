@@ -73,6 +73,10 @@ export interface GraphicsBuffer {
 
     textWidth(text: string): number
 
+    textAscent(): number
+
+    textDescent(): number
+
     tint(
         hue: number,
         saturation: number,

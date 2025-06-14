@@ -155,6 +155,22 @@ export const TextHandlingService = {
     },
     titleCase: (input: string): string =>
         input.charAt(0).toUpperCase() + input.slice(1).toLowerCase(),
+    calculateMaximumHeightOfFont: ({
+        fontSize,
+        graphicsContext,
+    }: {
+        fontSize: number
+        graphicsContext: GraphicsBuffer
+    }): number => {
+        graphicsContext.push()
+        graphicsContext.textSize(fontSize)
+        const maxHeight =
+            graphicsContext.textAscent() +
+            graphicsContext.textDescent() +
+            fontSize
+        graphicsContext.pop()
+        return maxHeight
+    },
 }
 
 const updateTextFitToSatisfyMinimumLinesOfTextConstraint = ({
@@ -329,7 +345,6 @@ const reduceTextWidthByAddingLineBreaks = ({
     })
 
     if (indexToInsertNewLine == undefined) return
-
     splitText[indexOfLongLine] =
         lineToBreak.substring(0, indexToInsertNewLine) +
         "\n" +
@@ -343,6 +358,8 @@ const getWhitespaceIndexesOfLine = (lineToBreak: string) => {
     let i = -1
     while (pos != -1) {
         pos = lineToBreak.indexOf(" ", i + 1)
+        if (pos == -1) continue
+
         i = pos
         whitespaceIndexes.push(i)
     }
@@ -365,12 +382,11 @@ const findIndexToBreakLineWithANewLine = ({
     graphicsContext: GraphicsBuffer
 }): number => {
     let guessIndex =
-        (lineToBreak.length * linePixelWidths[indexOfLongLine]) /
-        maximumPixelWidth
+        (maximumPixelWidth / linePixelWidths[indexOfLongLine]) *
+        lineToBreak.length
+    const whitespacesReversed = [...whitespaceIndexes].reverse()
     const getMaxWordBreakIndexThatIsLessThan = (maximum: number): number =>
-        whitespaceIndexes
-            .reverse()
-            .find((wordBreakIndex) => wordBreakIndex < maximum)
+        whitespacesReversed.find((wordBreakIndex) => wordBreakIndex < maximum)
 
     let wordBreakIndex = getMaxWordBreakIndexThatIsLessThan(guessIndex)
 
@@ -386,6 +402,6 @@ const findIndexToBreakLineWithANewLine = ({
     }
     if (wordBreakIndex > 0) return wordBreakIndex
 
-    if (whitespaceIndexes.length > 1) return whitespaceIndexes[1]
+    if (whitespaceIndexes.length > 0) return whitespaceIndexes[0]
     return undefined
 }

@@ -53,6 +53,7 @@ import {
     TargetingResults,
     TargetingResultsService,
 } from "../../targeting/targetingService"
+import { PlayerConsideredActions } from "../../battleState/playerConsideredActions"
 
 describe("summaryHUD", () => {
     let graphicsBuffer: MockedP5GraphicsBuffer
@@ -1090,6 +1091,9 @@ describe("summaryHUD", () => {
                 battleActionDecisionStep:
                     gameEngineState.battleOrchestratorState.battleState
                         .battleActionDecisionStep,
+                playerConsideredActions:
+                    gameEngineState.battleOrchestratorState.battleState
+                        .playerConsideredActions,
                 objectRepository,
             })
 
@@ -1097,6 +1101,38 @@ describe("summaryHUD", () => {
             expect(summaryHUDState.actionSelectedTile.actionName).toEqual(
                 "NeedsTarget"
             )
+        })
+
+        describe("Player Considerations will create a tile", () => {
+            it("will create tiles when the mouse moves a tile to consider it", () => {
+                gameEngineState.battleOrchestratorState.battleState.playerConsideredActions.actionTemplateId =
+                    "actionTemplate0"
+
+                SummaryHUDStateService.createActorTiles({
+                    summaryHUDState,
+                    battleActionDecisionStep:
+                        gameEngineState.battleOrchestratorState.battleState
+                            .battleActionDecisionStep,
+                    campaignResources: gameEngineState.campaign.resources,
+                    objectRepository,
+                })
+
+                SummaryHUDStateService.createActionTiles({
+                    summaryHUDState,
+                    battleActionDecisionStep:
+                        gameEngineState.battleOrchestratorState.battleState
+                            .battleActionDecisionStep,
+                    playerConsideredActions:
+                        gameEngineState.battleOrchestratorState.battleState
+                            .playerConsideredActions,
+                    objectRepository,
+                })
+
+                expect(summaryHUDState.actionSelectedTile).not.toBeUndefined()
+                expect(summaryHUDState.actionSelectedTile.actionName).toEqual(
+                    "NeedsTarget"
+                )
+            })
         })
     })
 

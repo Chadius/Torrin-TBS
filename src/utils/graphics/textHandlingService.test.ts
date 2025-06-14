@@ -49,6 +49,37 @@ describe("Text Handling Service", () => {
         strokeWeightSpy.mockRestore()
         textWidthSpy.mockRestore()
     })
+    it("asks the graphics buffer for the maximum text height", () => {
+        let pushSpy = vi.spyOn(mockGraphicsContext, "push")
+        let popSpy = vi.spyOn(mockGraphicsContext, "pop")
+        let textSizeSpy = vi.spyOn(mockGraphicsContext, "textSize")
+        let textAscentSpy = vi
+            .spyOn(mockGraphicsContext, "textAscent")
+            .mockReturnValue(2)
+        let textDescentSpy = vi
+            .spyOn(mockGraphicsContext, "textDescent")
+            .mockReturnValue(3)
+
+        expect(
+            TextHandlingService.calculateMaximumHeightOfFont({
+                fontSize: 10,
+                graphicsContext: mockGraphicsContext,
+            })
+        ).toBeCloseTo(2 + 3 + 10)
+
+        expect(textSizeSpy).toBeCalledWith(10)
+        expect(textDescentSpy).toBeCalledWith()
+        expect(textAscentSpy).toBeCalledWith()
+
+        expect(pushSpy).toBeCalled()
+        expect(popSpy).toBeCalled()
+
+        pushSpy.mockRestore()
+        popSpy.mockRestore()
+        textSizeSpy.mockRestore()
+        textAscentSpy.mockRestore()
+        textDescentSpy.mockRestore()
+    })
     test.each`
         inputString     | approximateLength
         ${"ABCDEFG"}    | ${0.8 * 10 * 7 + 1}
