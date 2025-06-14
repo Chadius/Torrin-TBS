@@ -487,6 +487,16 @@ describe("Player Decision HUD", () => {
                         .playerConsideredActions.actionTemplateId
                 ).toEqual(longswordAction.id)
             })
+            it("creates a tile with the action", () => {
+                expect(
+                    gameEngineState.battleOrchestratorState.battleHUDState
+                        .summaryHUDState.actionSelectedTile
+                ).not.toBeUndefined()
+                expect(
+                    gameEngineState.battleOrchestratorState.battleHUDState
+                        .summaryHUDState.actionSelectedTile.actionName
+                ).toEqual(longswordAction.name)
+            })
         })
         it("clears the invalid selection popup window when a valid action is considered", () => {
             PlayerDecisionHUDService.createPlayerInvalidSelectionPopup({

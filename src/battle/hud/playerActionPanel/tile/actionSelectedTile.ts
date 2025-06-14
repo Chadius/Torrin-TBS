@@ -3,32 +3,56 @@ import {
     ObjectRepositoryService,
 } from "../../../objectRepository"
 import { getResultOrThrowError } from "../../../../utils/ResultOrError"
-import { ResourceHandler } from "../../../../resource/resourceHandler"
 import { GraphicsBuffer } from "../../../../utils/graphics/graphicsRenderer"
 import {
     ActionTilePosition,
     ActionTilePositionService,
 } from "./actionTilePosition"
 import { SquaddieAffiliation } from "../../../../squaddie/squaddieAffiliation"
-import {
-    ImageUI,
-    ImageUILoadingBehavior,
-    ImageUIService,
-} from "../../../../ui/imageUI/imageUI"
 import { RectArea, RectAreaService } from "../../../../ui/rectArea"
 import { WINDOW_SPACING } from "../../../../ui/constants"
 import { isValidValue } from "../../../../utils/objectValidityCheck"
 import { TextBox, TextBoxService } from "../../../../ui/textBox/textBox"
 import { HUE_BY_SQUADDIE_AFFILIATION } from "../../../../graphicsConstants"
-import { TextHandlingService } from "../../../../utils/graphics/textHandlingService"
+import {
+    FontSizeRange,
+    LinesOfTextRange,
+    TextHandlingService,
+} from "../../../../utils/graphics/textHandlingService"
 import {
     ActionTemplate,
     ActionTemplateService,
 } from "../../../../action/template/actionTemplate"
 import { AttributeModifierService } from "../../../../squaddie/attribute/attributeModifier"
-import { AttributeType } from "../../../../squaddie/attribute/attributeType"
+import {
+    AttributeType,
+    AttributeTypeService,
+} from "../../../../squaddie/attribute/attributeType"
 
-const layoutConstants = {
+// TODO Must update text constraints, must break up on lines (do this in a separate branch)
+// TODO Must update text constraints, add an optional maximum size (do this in a separate branch)
+
+type ActionSelectedTileLayout = {
+    actionNameText: {
+        fontSizeRange: FontSizeRange
+        linesOfTextRange: LinesOfTextRange
+    }
+    information: {
+        fontSizeRange: FontSizeRange
+        linesOfTextRange: LinesOfTextRange
+        topMargin: number
+        variableNameFontColor: number[]
+        amountLeftOffsetRatio: number
+        amountFontColor: number[]
+    }
+    description: {
+        fontSizeRange: FontSizeRange
+        linesOfTextRange: LinesOfTextRange
+        bottomMargin: number
+    }
+}
+
+const layoutConstants: ActionSelectedTileLayout = {
     actionNameText: {
         fontSizeRange: {
             preferred: 24,
@@ -36,17 +60,24 @@ const layoutConstants = {
         },
         linesOfTextRange: { minimum: 1 },
     },
-    actionIcon: {
-        defaultTop: 24,
-    },
-    actionDescription: {
+    information: {
         fontSizeRange: {
             preferred: 10,
             minimum: 10,
         },
         linesOfTextRange: { minimum: 1 },
         topMargin: 2,
-        fontColor: [0, 0, 192 - 64],
+        variableNameFontColor: [0, 0, 192 - 64],
+        amountLeftOffsetRatio: 0.7,
+        amountFontColor: [0, 0, 192 - 48],
+    },
+    description: {
+        fontSizeRange: {
+            preferred: 10,
+            minimum: 10,
+        },
+        linesOfTextRange: { minimum: 1 },
+        bottomMargin: WINDOW_SPACING.SPACING2,
     },
 }
 
@@ -55,8 +86,8 @@ export interface ActionSelectedTile {
     horizontalPosition: ActionTilePosition
     squaddieAffiliation: SquaddieAffiliation
     buttonIconResourceName: string
-    actionIconImage?: ImageUI
     actionNameTextBox?: TextBox
+    actionDescriptionTextBox?: TextBox
     actionTemplateId: string
     actionInformationTextBoxes: TextBox[]
 }
@@ -97,12 +128,10 @@ export const ActionSelectedTileService = {
     draw: ({
         tile,
         graphicsContext,
-        resourceHandler,
         objectRepository,
     }: {
         tile: ActionSelectedTile
         graphicsContext: GraphicsBuffer
-        resourceHandler: ResourceHandler
         objectRepository: ObjectRepository
     }) => {
         ActionTilePositionService.drawBackground({
@@ -113,119 +142,20 @@ export const ActionSelectedTileService = {
         createActionNameTextBox(tile, graphicsContext)
         drawActionNameTextBox(tile, graphicsContext)
 
-        createActionIconImage(tile)
-        repositionActionIconImageUnderActionNameTextBox(tile)
-        drawActionIconImage({
-            tile: tile,
-            graphicsContext: graphicsContext,
-            resourceHandler: resourceHandler,
-        })
         createActionInformationTextBoxes({
             tile: tile,
             graphicsContext: graphicsContext,
             objectRepository,
         })
-        repositionActionInformationTextBoxesUnderActionIconImage(tile)
         drawActionInformationTextBoxes(tile, graphicsContext)
-    },
-}
 
-const createActionIconImage = (tile: ActionSelectedTile) => {
-    if (tile.actionIconImage) return
-
-    const overallBoundingBox =
-        ActionTilePositionService.getBoundingBoxBasedOnActionTilePosition(
-            tile.horizontalPosition
-        )
-
-    tile.actionIconImage = new ImageUI({
-        imageLoadingBehavior: {
-            resourceKey: tile.buttonIconResourceName,
-            loadingBehavior: ImageUILoadingBehavior.USE_CUSTOM_AREA_CALLBACK,
-            customAreaCallback: ({
-                imageSize,
-                originalArea,
-            }: {
-                imageSize: { width: number; height: number }
-                originalArea: RectArea
-            }): RectArea => {
-                const imageWidth = Math.min(
-                    imageSize.width,
-                    RectAreaService.width(overallBoundingBox)
-                )
-                const imageHeight = ImageUIService.scaleImageHeight({
-                    desiredWidth: imageWidth,
-                    imageWidth: imageSize.width,
-                    imageHeight: imageSize.height,
-                })
-
-                return RectAreaService.new({
-                    centerX: RectAreaService.centerX(originalArea),
-                    top: RectAreaService.top(originalArea),
-                    width: imageWidth,
-                    height: imageHeight,
-                })
-            },
-        },
-        area: RectAreaService.new({
-            left: RectAreaService.left(overallBoundingBox),
-            top:
-                RectAreaService.top(overallBoundingBox) +
-                layoutConstants.actionIcon.defaultTop,
-            width: RectAreaService.width(overallBoundingBox),
-            height: 0,
-        }),
-    })
-}
-
-const repositionActionIconImageUnderActionNameTextBox = (
-    tile: ActionSelectedTile
-) => {
-    if (!tile.actionNameTextBox) return
-
-    RectAreaService.move(tile.actionIconImage.drawArea, {
-        left: RectAreaService.left(tile.actionIconImage.drawArea),
-        top:
-            RectAreaService.bottom(tile.actionNameTextBox.area) +
-            WINDOW_SPACING.SPACING1,
-    })
-}
-
-const repositionActionInformationTextBoxesUnderActionIconImage = (
-    tile: ActionSelectedTile
-) => {
-    if (!tile.actionIconImage) return
-    if (!tile.actionIconImage.isImageLoaded()) return
-    if (tile.actionInformationTextBoxes.length === 0) return
-
-    RectAreaService.move(tile.actionInformationTextBoxes[0].area, {
-        left: RectAreaService.left(tile.actionInformationTextBoxes[0].area),
-        top:
-            RectAreaService.bottom(tile.actionIconImage.drawArea) +
-            WINDOW_SPACING.SPACING1,
-    })
-
-    for (let i = 1; i < tile.actionInformationTextBoxes.length; i++) {
-        RectAreaService.move(tile.actionInformationTextBoxes[i].area, {
-            left: RectAreaService.left(tile.actionInformationTextBoxes[i].area),
-            top:
-                RectAreaService.bottom(
-                    tile.actionInformationTextBoxes[i - 1].area
-                ) + WINDOW_SPACING.SPACING1,
+        createActionTemplateDescriptionTextBox({
+            tile,
+            graphicsContext,
+            objectRepository,
         })
-    }
-}
-
-const drawActionIconImage = ({
-    tile,
-    graphicsContext,
-    resourceHandler,
-}: {
-    tile: ActionSelectedTile
-    graphicsContext: GraphicsBuffer
-    resourceHandler: ResourceHandler
-}) => {
-    tile.actionIconImage.draw({ graphicsContext, resourceHandler })
+        drawActionTemplateDescriptionTextBox(tile, graphicsContext)
+    },
 }
 
 const createActionNameTextBox = (
@@ -294,67 +224,60 @@ const createActionInformationTextBoxes = ({
     if (!actionTemplate) return
     if (tile.actionInformationTextBoxes.length > 0) return
 
+    const overallBoundingBox =
+        ActionTilePositionService.getBoundingBoxBasedOnActionTilePosition(
+            tile.horizontalPosition
+        )
+
     let top =
-        RectAreaService.bottom(tile.actionIconImage.drawArea) +
-        WINDOW_SPACING.SPACING1
-    if (shouldDrawActionPoints(actionTemplate)) {
-        createActionPointCostTextBoxUnderIcon({
-            tile,
-            graphicsContext,
-            actionTemplate,
-            top,
-        })
-        top +=
-            RectAreaService.height(
-                tile.actionInformationTextBoxes[
-                    tile.actionInformationTextBoxes.length - 1
-                ].area
-            ) + WINDOW_SPACING.SPACING1
-    }
+        RectAreaService.top(overallBoundingBox) +
+        WINDOW_SPACING.SPACING1 +
+        layoutConstants.actionNameText.fontSizeRange.preferred
+
+    const actionPointCostBottom = createActionPointCostTextBoxesAndGetBottom({
+        graphicsContext,
+        actionTemplate,
+        tile,
+        top,
+    })
+    top = actionPointCostBottom + layoutConstants.information.topMargin
+
+    const rangesBottom = createRangeTextBoxesAndGetBottom({
+        graphicsContext,
+        actionTemplate,
+        tile,
+        top,
+    })
+    top = rangesBottom + layoutConstants.information.topMargin
 
     if (shouldDrawActionsPerRound(actionTemplate)) {
-        createActionsPerRoundTextBox({
+        const perRoundBottom = createActionsPerRoundTextBox({
             tile,
             graphicsContext,
             actionTemplate,
             top,
         })
-        top +=
-            RectAreaService.height(
-                tile.actionInformationTextBoxes[
-                    tile.actionInformationTextBoxes.length - 1
-                ].area
-            ) + WINDOW_SPACING.SPACING1
+        top = perRoundBottom + layoutConstants.information.topMargin
     }
 
     if (shouldDrawCooldown(actionTemplate)) {
-        createCooldownTextBox({
+        const cooldownBottom = createCooldownTextBox({
             graphicsContext,
             actionTemplate,
             tile,
             top,
         })
-        top +=
-            RectAreaService.height(
-                tile.actionInformationTextBoxes[
-                    tile.actionInformationTextBoxes.length - 1
-                ].area
-            ) + WINDOW_SPACING.SPACING1
+        top = cooldownBottom + layoutConstants.information.topMargin
     }
 
-    if (shouldDrawActionRange(actionTemplate)) {
-        createActionRangeTextBox({
+    if (shouldDrawDamageOrHealing(actionTemplate)) {
+        const damageOrHealingBottom = createDamageOrHealingTextBoxes({
             graphicsContext,
             actionTemplate,
             tile,
             top,
         })
-        top +=
-            RectAreaService.height(
-                tile.actionInformationTextBoxes[
-                    tile.actionInformationTextBoxes.length - 1
-                ].area
-            ) + WINDOW_SPACING.SPACING1
+        top = damageOrHealingBottom + layoutConstants.information.topMargin
     }
 
     if (shouldDrawActionTemplateEffects(actionTemplate)) {
@@ -367,7 +290,7 @@ const createActionInformationTextBoxes = ({
     }
 }
 
-const createActionPointCostTextBoxUnderIcon = ({
+const createActionPointCostTextBoxesAndGetBottom = ({
     tile,
     graphicsContext,
     actionTemplate,
@@ -377,14 +300,81 @@ const createActionPointCostTextBoxUnderIcon = ({
     graphicsContext: GraphicsBuffer
     actionTemplate: ActionTemplate
     top: number
-}) => {
-    const text = `Action Points: ${actionTemplate.resourceCost.actionPoints}`
-    createActionDescriptionTextBoxAndAdd({
-        tile: tile,
-        text: text,
-        graphicsContext: graphicsContext,
+}): number => {
+    const textBoxAreas = createNameAndAmountTextBoxes({
+        tile,
+        graphicsContext,
         top,
+        variableName: `AP`,
+        variableAmountDescription: `${actionTemplate.resourceCost.actionPoints}`,
     })
+    return Math.max(...textBoxAreas.map((area) => RectAreaService.bottom(area)))
+}
+
+const createNameAndAmountTextBoxes = ({
+    tile,
+    graphicsContext,
+    top,
+    variableName,
+    variableAmountDescription,
+}: {
+    tile: ActionSelectedTile
+    graphicsContext: GraphicsBuffer
+    top: number
+    variableName?: string
+    variableAmountDescription?: string
+}): RectArea[] => {
+    const overallBoundingBox =
+        ActionTilePositionService.getBoundingBoxBasedOnActionTilePosition(
+            tile.horizontalPosition
+        )
+    const overallWidth =
+        RectAreaService.width(overallBoundingBox) - WINDOW_SPACING.SPACING2
+    const textBoxAreas: RectArea[] = []
+
+    if (!variableName) return textBoxAreas
+    textBoxAreas.push(
+        createInformationTextBox({
+            tile,
+            textFitting: {
+                text: variableName,
+                widthRatio: layoutConstants.information.amountLeftOffsetRatio,
+                graphicsContext,
+                fontSizeRange: layoutConstants.information.fontSizeRange,
+                linesOfTextRange: layoutConstants.information.linesOfTextRange,
+            },
+            textBox: {
+                leftOffset: 0,
+                topOffset: top,
+                fontColor: layoutConstants.information.variableNameFontColor,
+            },
+        })
+    )
+
+    if (!variableAmountDescription) return textBoxAreas
+
+    textBoxAreas.push(
+        createInformationTextBox({
+            tile,
+            textFitting: {
+                text: variableAmountDescription,
+                widthRatio:
+                    1 - layoutConstants.information.amountLeftOffsetRatio,
+                graphicsContext,
+                fontSizeRange: layoutConstants.information.fontSizeRange,
+                linesOfTextRange: layoutConstants.information.linesOfTextRange,
+            },
+            textBox: {
+                leftOffset:
+                    overallWidth *
+                    layoutConstants.information.amountLeftOffsetRatio,
+                topOffset: top,
+                fontColor: layoutConstants.information.amountFontColor,
+            },
+        })
+    )
+
+    return textBoxAreas
 }
 
 const createActionsPerRoundTextBox = ({
@@ -398,55 +388,74 @@ const createActionsPerRoundTextBox = ({
     actionTemplate: ActionTemplate
     top: number
 }) => {
-    const text = `${actionTemplate.resourceCost.numberOfTimesPerRound} per round`
-    createActionDescriptionTextBoxAndAdd({
-        tile: tile,
-        text: text,
-        graphicsContext: graphicsContext,
+    const textBoxAreas = createNameAndAmountTextBoxes({
+        tile,
+        graphicsContext,
         top,
+        variableName: `Per round`,
+        variableAmountDescription: `${actionTemplate.resourceCost.numberOfTimesPerRound}`,
     })
+    return Math.max(...textBoxAreas.map((area) => RectAreaService.bottom(area)))
 }
 
-const createActionDescriptionTextBoxAndAdd = ({
+const createInformationTextBox = ({
     tile,
-    text,
-    graphicsContext,
-    top,
+    textFitting: {
+        text,
+        widthRatio,
+        graphicsContext,
+        fontSizeRange,
+        linesOfTextRange,
+    },
+    textBox: { leftOffset, topOffset, fontColor },
 }: {
     tile: ActionSelectedTile
-    text: string
-    graphicsContext: GraphicsBuffer
-    top: number
-}) => {
+    textFitting: {
+        text: string
+        widthRatio: number
+        graphicsContext: GraphicsBuffer
+        fontSizeRange: FontSizeRange
+        linesOfTextRange: LinesOfTextRange
+    }
+    textBox: {
+        leftOffset: number
+        topOffset: number
+        fontColor: number[]
+    }
+}): RectArea => {
     const overallBoundingBox =
         ActionTilePositionService.getBoundingBoxBasedOnActionTilePosition(
             tile.horizontalPosition
         )
 
+    const availableTextWidth =
+        (RectAreaService.width(overallBoundingBox) - WINDOW_SPACING.SPACING2) *
+        widthRatio
+
     const textInfo = TextHandlingService.fitTextWithinSpace({
         text,
-        maximumWidth:
-            RectAreaService.width(overallBoundingBox) - WINDOW_SPACING.SPACING2,
+        maximumWidth: availableTextWidth,
         graphicsContext,
-        fontSizeRange: layoutConstants.actionDescription.fontSizeRange,
-        linesOfTextRange: layoutConstants.actionDescription.linesOfTextRange,
+        fontSizeRange,
+        linesOfTextRange,
     })
 
-    tile.actionInformationTextBoxes.push(
-        TextBoxService.new({
-            area: RectAreaService.new({
-                left:
-                    RectAreaService.left(overallBoundingBox) +
-                    WINDOW_SPACING.SPACING1,
-                top,
-                width: textInfo.width,
-                height: textInfo.text.split("\n").length * textInfo.fontSize,
-            }),
-            fontColor: layoutConstants.actionDescription.fontColor,
-            text: textInfo.text,
-            fontSize: textInfo.fontSize,
-        })
-    )
+    const textBox: TextBox = TextBoxService.new({
+        ...textInfo,
+        area: RectAreaService.new({
+            left:
+                RectAreaService.left(overallBoundingBox) +
+                WINDOW_SPACING.SPACING1 +
+                leftOffset,
+            width: textInfo.width,
+            top: topOffset,
+            height: textInfo.text.split("\n").length * textInfo.fontSize,
+        }),
+        fontColor,
+    })
+
+    tile.actionInformationTextBoxes.push(textBox)
+    return textBox.area
 }
 
 const createCooldownTextBox = ({
@@ -461,20 +470,58 @@ const createCooldownTextBox = ({
     top: number
 }) => {
     const cooldownTurns: number = actionTemplate.resourceCost.cooldownTurns
-    const text =
-        cooldownTurns == 1
-            ? "Cooldown: next turn"
-            : `Cooldown: ${cooldownTurns}turns`
-
-    createActionDescriptionTextBoxAndAdd({
-        tile: tile,
-        text: text,
-        graphicsContext: graphicsContext,
+    const textBoxAreas = createNameAndAmountTextBoxes({
+        tile,
+        graphicsContext,
         top,
+        variableName: `Cooldown`,
+        variableAmountDescription: `${cooldownTurns}`,
     })
+    return Math.max(...textBoxAreas.map((area) => RectAreaService.bottom(area)))
 }
 
-const createActionRangeTextBox = ({
+const createRangeTextBoxesAndGetBottom = ({
+    tile,
+    graphicsContext,
+    actionTemplate,
+    top,
+}: {
+    tile: ActionSelectedTile
+    graphicsContext: GraphicsBuffer
+    actionTemplate: ActionTemplate
+    top: number
+}): number => {
+    const templateRange =
+        ActionTemplateService.getActionTemplateRange(actionTemplate)
+    const minimumRange = isValidValue(templateRange) ? templateRange[0] : 0
+    const maximumRange = isValidValue(templateRange) ? templateRange[1] : 0
+
+    let rangeNameText = `Range`
+    let showRangeAmount = true
+    switch (true) {
+        case minimumRange <= 1 && maximumRange == 1:
+            rangeNameText = "Melee"
+            showRangeAmount = false
+            break
+        case minimumRange == 0 && maximumRange == 0:
+            rangeNameText = "Self Only"
+            showRangeAmount = false
+            break
+    }
+
+    const textBoxAreas = createNameAndAmountTextBoxes({
+        tile,
+        graphicsContext,
+        top,
+        variableName: rangeNameText,
+        variableAmountDescription: showRangeAmount
+            ? `${minimumRange}-${maximumRange}`
+            : undefined,
+    })
+    return Math.max(...textBoxAreas.map((area) => RectAreaService.bottom(area)))
+}
+
+const createDamageOrHealingTextBoxes = ({
     tile,
     graphicsContext,
     actionTemplate,
@@ -485,19 +532,18 @@ const createActionRangeTextBox = ({
     actionTemplate: ActionTemplate
     top: number
 }) => {
-    const templateRange =
-        ActionTemplateService.getActionTemplateRange(actionTemplate)
-    const minimumRange = isValidValue(templateRange) ? templateRange[0] : 0
-    const maximumRange = isValidValue(templateRange) ? templateRange[1] : 0
+    const totalDamage = ActionTemplateService.getTotalDamage(actionTemplate)
+    const totalHealing = ActionTemplateService.getTotalHealing(actionTemplate)
 
-    const text = `Range: ${minimumRange} - ${maximumRange}`
-
-    createActionDescriptionTextBoxAndAdd({
-        tile: tile,
-        text: text,
-        graphicsContext: graphicsContext,
+    const textBoxAreas = createNameAndAmountTextBoxes({
+        tile,
+        graphicsContext,
         top,
+        variableName: totalDamage > 0 ? "Damage" : "Healing",
+        variableAmountDescription:
+            totalDamage > 0 ? `${totalDamage}` : `${totalHealing}`,
     })
+    return Math.max(...textBoxAreas.map((area) => RectAreaService.bottom(area)))
 }
 
 const createActionTemplateEffectTextBox = ({
@@ -511,38 +557,6 @@ const createActionTemplateEffectTextBox = ({
     actionTemplate: ActionTemplate
     top: number
 }) => {
-    const {
-        damageDescription,
-        healingDescription,
-        attributeModifierDescription,
-    } = getActionTemplateEffectDescriptions(actionTemplate)
-
-    const text = [
-        damageDescription,
-        healingDescription,
-        attributeModifierDescription,
-    ].join(" ")
-
-    createActionDescriptionTextBoxAndAdd({
-        tile: tile,
-        text: text,
-        graphicsContext: graphicsContext,
-        top,
-    })
-}
-
-const getActionTemplateEffectDescriptions = (
-    actionTemplate: ActionTemplate
-): {
-    damageDescription: string
-    healingDescription: string
-    attributeModifierDescription: string
-} => {
-    const totalDamage = ActionTemplateService.getTotalDamage(actionTemplate)
-    const totalHealing = ActionTemplateService.getTotalHealing(actionTemplate)
-    const damageDescription = totalDamage > 0 ? `${totalDamage} damage` : ""
-    const healingDescription = totalHealing > 0 ? `${totalHealing} healing` : ""
-
     const attributeModifierSums: {
         type: AttributeType
         amount: number
@@ -550,23 +564,36 @@ const getActionTemplateEffectDescriptions = (
         ActionTemplateService.getAttributeModifiers(actionTemplate)
     )
 
-    const attributeModifierDescription = attributeModifierSums
-        .map((attributeModifierDescription) =>
-            AttributeModifierService.readableDescription(
-                attributeModifierDescription
-            )
-        )
-        .join("\n")
+    let textBoxTop = top
+    const textBoxAreas = attributeModifierSums.reduce(
+        (allTextBoxRectAreas: RectArea[], currentDescription) => {
+            const textBoxAreas = createNameAndAmountTextBoxes({
+                tile,
+                graphicsContext,
+                top: textBoxTop,
+                variableName: AttributeTypeService.readableName(
+                    currentDescription.type
+                ),
+                variableAmountDescription: AttributeTypeService.isBinary(
+                    currentDescription.type
+                )
+                    ? undefined
+                    : `${TextHandlingService.padPlusOnPositiveNumber(currentDescription.amount)}`,
+            })
 
-    return {
-        damageDescription,
-        healingDescription,
-        attributeModifierDescription,
-    }
+            allTextBoxRectAreas.push(...textBoxAreas)
+
+            textBoxTop =
+                Math.max(
+                    ...textBoxAreas.map((area) => RectAreaService.bottom(area))
+                ) + layoutConstants.information.topMargin
+
+            return allTextBoxRectAreas
+        },
+        []
+    )
+    return Math.max(...textBoxAreas.map((area) => RectAreaService.bottom(area)))
 }
-
-const shouldDrawActionPoints = (actionTemplate: ActionTemplate) =>
-    actionTemplate.resourceCost.actionPoints !== 1
 
 const shouldDrawActionsPerRound = (actionTemplate: ActionTemplate) =>
     actionTemplate.resourceCost.numberOfTimesPerRound != undefined
@@ -575,22 +602,16 @@ const shouldDrawCooldown = (actionTemplate: ActionTemplate) =>
     actionTemplate.resourceCost.cooldownTurns != undefined &&
     actionTemplate.resourceCost.cooldownTurns > 0
 
-const shouldDrawActionRange = (actionTemplate: ActionTemplate) => {
-    const templateRange =
-        ActionTemplateService.getActionTemplateRange(actionTemplate)
-    const minRangeIsWorthDescribing =
-        !isValidValue(templateRange) || templateRange[0] > 1
-    const maxRangeIsWorthDescribing =
-        !isValidValue(templateRange) || templateRange[1] > 1
-    return minRangeIsWorthDescribing || maxRangeIsWorthDescribing
-}
-const shouldDrawActionTemplateEffects = (actionTemplate: ActionTemplate) => {
+const shouldDrawDamageOrHealing = (actionTemplate: ActionTemplate) => {
     const totalDamage = ActionTemplateService.getTotalDamage(actionTemplate)
     const totalHealing = ActionTemplateService.getTotalHealing(actionTemplate)
+    return totalDamage > 0 || totalHealing > 0
+}
+
+const shouldDrawActionTemplateEffects = (actionTemplate: ActionTemplate) => {
     const attributeModifiers =
         ActionTemplateService.getAttributeModifiers(actionTemplate)
-
-    return totalDamage > 0 || totalHealing > 0 || attributeModifiers.length > 0
+    return attributeModifiers.length > 0
 }
 
 const drawActionInformationTextBoxes = (
@@ -600,4 +621,66 @@ const drawActionInformationTextBoxes = (
     tile?.actionInformationTextBoxes.forEach((textBox) => {
         TextBoxService.draw(textBox, graphicsContext)
     })
+}
+
+const createActionTemplateDescriptionTextBox = ({
+    tile,
+    graphicsContext,
+    objectRepository,
+}: {
+    tile: ActionSelectedTile
+    graphicsContext: GraphicsBuffer
+    objectRepository: ObjectRepository
+}) => {
+    if (tile.actionDescriptionTextBox) return
+
+    const actionTemplate = ObjectRepositoryService.getActionTemplateById(
+        objectRepository,
+        tile.actionTemplateId
+    )
+    if (!actionTemplate) return
+
+    const overallBoundingBox =
+        ActionTilePositionService.getBoundingBoxBasedOnActionTilePosition(
+            tile.horizontalPosition
+        )
+    const squaddieAffiliationHue: number =
+        HUE_BY_SQUADDIE_AFFILIATION[tile.squaddieAffiliation]
+    const textColor = [squaddieAffiliationHue, 7, 192]
+
+    const textInfo = TextHandlingService.fitTextWithinSpace({
+        text: actionTemplate.userReadableDescription,
+        maximumWidth:
+            RectAreaService.width(overallBoundingBox) - WINDOW_SPACING.SPACING2,
+        graphicsContext,
+        fontSizeRange: layoutConstants.description.fontSizeRange, // TODO use different constants for the description should be smaller
+        linesOfTextRange: layoutConstants.description.linesOfTextRange, // TODO use different constants for the description should have 3 lines
+    })
+
+    tile.actionDescriptionTextBox = TextBoxService.new({
+        text: textInfo.text,
+        fontSize: textInfo.fontSize,
+        fontColor: textColor,
+        area: RectAreaService.new({
+            left:
+                RectAreaService.left(overallBoundingBox) +
+                WINDOW_SPACING.SPACING1,
+            width:
+                RectAreaService.width(overallBoundingBox) -
+                WINDOW_SPACING.SPACING2,
+            bottom:
+                RectAreaService.bottom(overallBoundingBox) -
+                layoutConstants.description.bottomMargin,
+            height: textInfo.fontSize * textInfo.text.split("\n").length,
+        }),
+    })
+}
+
+const drawActionTemplateDescriptionTextBox = (
+    tile: ActionSelectedTile,
+    graphicsContext: GraphicsBuffer
+) => {
+    if (isValidValue(tile.actionDescriptionTextBox)) {
+        TextBoxService.draw(tile.actionDescriptionTextBox, graphicsContext)
+    }
 }
