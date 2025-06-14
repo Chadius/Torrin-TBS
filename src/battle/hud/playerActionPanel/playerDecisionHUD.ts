@@ -30,6 +30,7 @@ import { PlayerCommandStateService } from "../playerCommand/playerCommandHUD"
 import { ObjectRepositoryService } from "../../objectRepository"
 import { getResultOrThrowError } from "../../../utils/ResultOrError"
 import { SquaddieTurnService } from "../../../squaddie/turn"
+import { SummaryHUDStateService } from "../summary/summaryHUD"
 
 const INVALID_SELECTION_POP_UP_DURATION_MS = 2000
 
@@ -169,6 +170,13 @@ const playerConsidersAction = (
             objectRepository: message.objectRepository,
         })
     }
+
+    SummaryHUDStateService.createActionTiles({
+        summaryHUDState: message.summaryHUDState,
+        battleActionDecisionStep: message.battleActionDecisionStep,
+        playerConsideredActions: message.playerConsideredActions,
+        objectRepository: message.objectRepository,
+    })
 
     PlayerDecisionHUDService.clearPopupWindow(
         message.playerDecisionHUD,

@@ -1143,7 +1143,6 @@ describe("Battle HUD", () => {
         let gameEngineState: GameEngineState
         let playerSoldierBattleSquaddie: BattleSquaddie
         let longswordAction: ActionTemplate
-        let healSelfAction: ActionTemplate
         let messageSpy: MockInstance
 
         beforeEach(() => {
@@ -1151,7 +1150,6 @@ describe("Battle HUD", () => {
                 gameEngineState,
                 playerSoldierBattleSquaddie,
                 longswordAction,
-                healSelfAction,
             } = createGameEngineState({}))
 
             const repository = gameEngineState.repository

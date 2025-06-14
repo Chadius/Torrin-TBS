@@ -43,6 +43,7 @@ import {
 import { NumberGeneratorStrategy } from "../../numberGenerator/strategy"
 import { BattleActionRecorder } from "../../history/battleAction/battleActionRecorder"
 import { CampaignResources } from "../../../campaign/campaignResources"
+import { PlayerConsideredActions } from "../../battleState/playerConsideredActions"
 
 export const SUMMARY_HUD_PEEK_EXPIRATION_MS = 2000
 
@@ -203,7 +204,6 @@ export const SummaryHUDStateService = {
         drawSelectedActionTile({
             summaryHUDState,
             graphicsBuffer,
-            resourceHandler,
             gameEngineState,
         })
         drawActionPreviewTile({
@@ -280,19 +280,22 @@ export const SummaryHUDStateService = {
         summaryHUDState,
         objectRepository,
         battleActionDecisionStep,
+        playerConsideredActions,
     }: {
         summaryHUDState: SummaryHUDState
         objectRepository: ObjectRepository
         battleActionDecisionStep: BattleActionDecisionStep
+        playerConsideredActions?: PlayerConsideredActions
     }) => {
-        const selectedAction = BattleActionDecisionStepService.getAction(
-            battleActionDecisionStep
-        )
+        const selectedAction =
+            BattleActionDecisionStepService.getAction(battleActionDecisionStep)
+                ?.actionTemplateId ?? playerConsideredActions?.actionTemplateId
+
         if (!selectedAction) return
 
         const actionTemplate = ObjectRepositoryService.getActionTemplateById(
             objectRepository,
-            selectedAction.actionTemplateId
+            selectedAction
         )
         if (!actionTemplate) return
 
@@ -573,18 +576,18 @@ const drawSelectedActionTile = ({
     graphicsBuffer,
     gameEngineState,
     summaryHUDState,
-    resourceHandler,
 }: {
     graphicsBuffer: GraphicsBuffer
     gameEngineState: GameEngineState
     summaryHUDState: SummaryHUDState
-    resourceHandler: ResourceHandler
 }) => {
     if (
         !BattleActionDecisionStepService.getAction(
             gameEngineState.battleOrchestratorState.battleState
                 .battleActionDecisionStep
-        )
+        ) &&
+        !gameEngineState.battleOrchestratorState.battleState
+            ?.playerConsideredActions?.actionTemplateId
     ) {
         summaryHUDState.actionSelectedTile = undefined
         return
@@ -594,7 +597,6 @@ const drawSelectedActionTile = ({
 
     ActionSelectedTileService.draw({
         tile: summaryHUDState.actionSelectedTile,
-        resourceHandler,
         graphicsContext: graphicsBuffer,
         objectRepository: gameEngineState.repository,
     })

@@ -6,6 +6,10 @@ interface TextFit {
     width: number
 }
 
+export type FontSizeRange = { minimum: number; preferred: number }
+export type LinesOfTextRange = {
+    minimum: number
+}
 export const TextHandlingService = {
     calculateLengthOfLineOfText: ({
         text,
@@ -63,10 +67,8 @@ export const TextHandlingService = {
         text: string
         width: number
         graphicsContext: GraphicsBuffer
-        fontSizeRange?: { minimum: number; preferred: number }
-        linesOfTextRange?: {
-            minimum: number
-        }
+        fontSizeRange?: FontSizeRange
+        linesOfTextRange?: LinesOfTextRange
     }): TextFit => {
         let inProgressTextFit: TextFit = {
             text,
@@ -131,7 +133,7 @@ const updateTextFitToSatisfyMinimumLinesOfTextConstraint = ({
     linesOfTextRange,
 }: {
     inProgressTextFit: TextFit
-    linesOfTextRange?: { minimum: number }
+    linesOfTextRange?: LinesOfTextRange
 }): TextFit => {
     const textPerLine: string[] = inProgressTextFit.text.split("\n")
     let numberOfNewLinesToAdd = linesOfTextRange.minimum - textPerLine.length
@@ -158,7 +160,7 @@ const doesTextFitViolateMinimumLinesOfTextConstraint = ({
     linesOfTextRange,
 }: {
     inProgressTextFit: TextFit
-    linesOfTextRange?: { minimum: number }
+    linesOfTextRange?: LinesOfTextRange
 }): boolean => {
     if (
         linesOfTextRange?.minimum == undefined ||
@@ -180,7 +182,7 @@ const doesTextFitViolateFontSizeConstraint = ({
     inProgressTextFit: TextFit
     width: number
     graphicsContext: GraphicsBuffer
-    fontSizeRange?: { minimum: number; preferred: number }
+    fontSizeRange?: FontSizeRange
 }): boolean => {
     if (
         fontSizeRange?.minimum == undefined ||
@@ -203,7 +205,7 @@ const updateTextFitViolateFontSizeConstraint = ({
     graphicsContext,
 }: {
     inProgressTextFit: TextFit
-    fontSizeRange: { minimum: number; preferred: number }
+    fontSizeRange: FontSizeRange
     width: number
     graphicsContext: GraphicsBuffer
 }): TextFit => {

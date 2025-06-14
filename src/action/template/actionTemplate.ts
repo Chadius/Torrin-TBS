@@ -29,6 +29,7 @@ export enum ActionDecisionType {
 export interface ActionTemplate {
     id: string
     name: string
+    description: string
     rank?: number
     resourceCost?: ActionResourceCost
     actionEffectTemplates: ActionEffectTemplate[]
@@ -45,6 +46,7 @@ export const ActionTemplateService = {
         buttonIconResourceKey,
         rank,
         targetConstraints,
+        description,
     }: {
         id: string
         name: string
@@ -53,6 +55,7 @@ export const ActionTemplateService = {
         buttonIconResourceKey?: string
         rank?: number
         targetConstraints?: TargetConstraints
+        description?: string
     }): ActionTemplate => {
         return sanitize({
             id,
@@ -63,6 +66,7 @@ export const ActionTemplateService = {
             buttonIconResourceKey,
             targetConstraints:
                 targetConstraints ?? TargetConstraintsService.new({}),
+            description: description ?? "TODO ADD DESCRIPTION HERE",
         })
     },
     multipleAttackPenaltyMultiplier: (

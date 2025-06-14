@@ -124,29 +124,10 @@ describe("Action Selected Tile", () => {
             MockedGraphicsBufferService.resetSpies(graphicsBufferSpies)
         })
 
-        it("will draw the action icon", () => {
-            ActionSelectedTileService.draw({
-                tile,
-                graphicsContext: graphicsBuffer,
-                resourceHandler,
-                objectRepository,
-            })
-
-            expect(getResourceSpy).toBeCalledWith(
-                actionTemplate.buttonIconResourceKey
-            )
-
-            expect(graphicsBufferSpies["image"]).toBeCalled()
-            const drawSpyCalls = graphicsBufferSpies["image"].mock.calls
-            expect(
-                drawSpyCalls.some((call) => call[0] === fakeImage)
-            ).toBeTruthy()
-        })
         it("will draw the name of the action", () => {
             ActionSelectedTileService.draw({
                 tile,
                 graphicsContext: graphicsBuffer,
-                resourceHandler,
                 objectRepository,
             })
             expect(graphicsBufferSpies["text"]).toBeCalled()
