@@ -30,6 +30,9 @@ describe("ActionTemplate", () => {
         expect(justMovement.targetConstraints.coordinateGeneratorShape).toEqual(
             CoordinateGeneratorShape.BLOOM
         )
+        expect(justMovement.userReadableDescription).toEqual(
+            "Missing Description"
+        )
     })
 
     it("can create a template with new action effects", () => {
@@ -41,14 +44,16 @@ describe("ActionTemplate", () => {
             }),
         })
 
-        const justMovement = ActionTemplateService.new({
+        const attackAction = ActionTemplateService.new({
             id: "strike",
             name: "strike",
             actionEffectTemplates: [attackTemplate],
+            userReadableDescription: "Attack!",
         })
 
-        expect(justMovement.actionEffectTemplates).toHaveLength(1)
-        expect(justMovement.actionEffectTemplates[0]).toEqual(attackTemplate)
+        expect(attackAction.actionEffectTemplates).toHaveLength(1)
+        expect(attackAction.actionEffectTemplates[0]).toEqual(attackTemplate)
+        expect(attackAction.userReadableDescription).toEqual("Attack!")
     })
 
     describe("Range", () => {

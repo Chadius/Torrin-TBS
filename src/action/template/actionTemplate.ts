@@ -31,6 +31,7 @@ export interface ActionTemplate {
     name: string
     rank?: number
     resourceCost?: ActionResourceCost
+    userReadableDescription: string
     actionEffectTemplates: ActionEffectTemplate[]
     buttonIconResourceKey: string
     targetConstraints: TargetConstraints
@@ -45,6 +46,7 @@ export const ActionTemplateService = {
         buttonIconResourceKey,
         rank,
         targetConstraints,
+        userReadableDescription,
     }: {
         id: string
         name: string
@@ -53,6 +55,7 @@ export const ActionTemplateService = {
         buttonIconResourceKey?: string
         rank?: number
         targetConstraints?: TargetConstraints
+        userReadableDescription?: string
     }): ActionTemplate => {
         return sanitize({
             id,
@@ -63,6 +66,8 @@ export const ActionTemplateService = {
             buttonIconResourceKey,
             targetConstraints:
                 targetConstraints ?? TargetConstraintsService.new({}),
+            userReadableDescription:
+                userReadableDescription ?? "Missing Description",
         })
     },
     multipleAttackPenaltyMultiplier: (

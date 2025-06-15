@@ -2,6 +2,7 @@
   {
     "name": "Bite",
     "id": "demon_slither_bite",
+    "userReadableDescription": "Attack AC of an adjacent foe.",
     "targetConstraints": {
       "minimumRange": 0,
       "maximumRange": 1,
@@ -31,6 +32,7 @@
   {
     "name": "Arrow",
     "id": "demon_locust_arrow",
+    "userReadableDescription": "Attack AC of a foe from 2-3 tiles away.",
     "targetConstraints": {
       "minimumRange": 2,
       "maximumRange": 3,

@@ -39,6 +39,7 @@ export const TestPlayerArmyData = () => {
         ActionTemplateService.new({
             id: "nahla_water_cannon",
             name: "water cannon",
+            userReadableDescription: "Attack AC up to 2 tiles away.",
             targetConstraints: TargetConstraintsService.new({
                 minimumRange: 0,
                 maximumRange: 2,
@@ -62,6 +63,8 @@ export const TestPlayerArmyData = () => {
         ActionTemplateService.new({
             id: "young_nahla_healing_touch",
             name: "healing touch",
+            userReadableDescription:
+                "Heal 2 HP to yourself or an adjacent ally.",
             resourceCost: ActionResourceCostService.new({
                 actionPoints: 2,
             }),
@@ -91,6 +94,7 @@ export const TestPlayerArmyData = () => {
         ActionTemplateService.new({
             id: "sir_camil_longsword",
             name: "longsword",
+            userReadableDescription: "Attack AC of an adjacent foe.",
             targetConstraints: TargetConstraintsService.new({
                 minimumRange: 0,
                 maximumRange: 1,

@@ -2,6 +2,7 @@
   {
     "id": "nahla_water_cannon",
     "name": "water cannon",
+    "userReadableDescription": "Attack AC up to 2 tiles away.",
     "targetConstraints": {
       "minimumRange": 0,
       "maximumRange": 2,
@@ -33,6 +34,7 @@
   {
     "id": "young_nahla_healing_touch",
     "name": "healing touch",
+    "userReadableDescription": "Heal yourself or an adjacent ally.",
     "resourceCost": {
       "actionPoints": 2
     },
@@ -68,6 +70,7 @@
   {
     "id": "young_nahla_torrent_surge",
     "name": "torrent surge",
+    "userReadableDescription": "Pass through enemies and ignore terrain penalties for the rest of the round.",
     "targetConstraints": {
       "minimumRange": 0,
       "maximumRange": 0,
@@ -116,6 +119,7 @@
   {
     "id": "sir_camil_longsword",
     "name": "longsword",
+    "userReadableDescription": "Attack AC of an adjacent foe.",
     "targetConstraints": {
       "minimumRange": 0,
       "maximumRange": 1,
@@ -147,6 +151,7 @@
   {
     "id": "sir_camil_raise_shield",
     "name": "raise shield",
+    "userReadableDescription": "Increase AC and absorb 1 HP of damage until the start of your next turn.",
     "resourceCost": {
       "actionPoints": 1,
       "numberOfTimesPerRound": 1
@@ -195,6 +200,7 @@
   {
     "id": "petra-shard-stab",
     "name": "shard stab",
+    "userReadableDescription": "Attack AC of an adjacent foe. Deals extra damage if enemy is Flanked or Off-Guard.",
     "targetConstraints": {
       "minimumRange": 0,
       "maximumRange": 1,
