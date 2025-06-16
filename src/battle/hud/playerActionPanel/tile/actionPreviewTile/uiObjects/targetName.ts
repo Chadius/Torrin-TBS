@@ -1,9 +1,5 @@
 import { BehaviorTreeTask } from "../../../../../../utils/behaviorTree/task"
 import {
-    DataBlob,
-    DataBlobService,
-} from "../../../../../../utils/dataBlob/dataBlob"
-import {
     ActionTilePosition,
     ActionTilePositionService,
 } from "../../actionTilePosition"
@@ -52,7 +48,7 @@ export class CreateTargetNameTextBoxesAction implements BehaviorTreeTask {
 
         const textInfo = TextHandlingService.fitTextWithinSpace({
             text: targetName,
-            width: layoutConstants.width,
+            maximumWidth: layoutConstants.width,
             graphicsContext: uiObjects.graphicsContext,
             fontSizeRange: layoutConstants.fontSizeRange,
             linesOfTextRange: layoutConstants.linesOfTextRange,

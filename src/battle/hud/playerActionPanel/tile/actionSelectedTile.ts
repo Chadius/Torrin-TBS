@@ -244,7 +244,7 @@ const createActionNameTextBox = (
 
     const textInfo = TextHandlingService.fitTextWithinSpace({
         text: tile.actionName,
-        width:
+        maximumWidth:
             RectAreaService.width(overallBoundingBox) - WINDOW_SPACING.SPACING2,
         graphicsContext,
         fontSizeRange: layoutConstants.actionNameText.fontSizeRange,
@@ -425,7 +425,7 @@ const createActionDescriptionTextBoxAndAdd = ({
 
     const textInfo = TextHandlingService.fitTextWithinSpace({
         text,
-        width:
+        maximumWidth:
             RectAreaService.width(overallBoundingBox) - WINDOW_SPACING.SPACING2,
         graphicsContext,
         fontSizeRange: layoutConstants.actionDescription.fontSizeRange,

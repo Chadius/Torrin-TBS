@@ -123,7 +123,7 @@ const setPortraitNameTextBox = (
 
     const textInfo = TextHandlingService.fitTextWithinSpace({
         text: tile.squaddieName,
-        width:
+        maximumWidth:
             RectAreaService.width(overallBoundingBox) - WINDOW_SPACING.SPACING2,
         graphicsContext,
         fontSizeRange: layoutConstants.portraitNameText.fontSizeRange,

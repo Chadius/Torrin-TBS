@@ -1,4 +1,4 @@
-import { TextHandlingService } from "./textHandlingService"
+import { TextFit, TextHandlingService } from "./textHandlingService"
 import { MockedP5GraphicsBuffer } from "../test/mocks"
 import {
     afterEach,
@@ -51,9 +51,9 @@ describe("Text Handling Service", () => {
     })
     test.each`
         inputString     | approximateLength
-        ${"ABCDEFG"}    | ${0.8 * 10 * 7}
-        ${"01234"}      | ${0.8 * 10 * 5}
-        ${"a sly fox."} | ${0.62 * 10 * 10}
+        ${"ABCDEFG"}    | ${0.8 * 10 * 7 + 1}
+        ${"01234"}      | ${0.8 * 10 * 5 + 1}
+        ${"a sly fox."} | ${0.62 * 10 * 10 + 1}
     `(
         "$inputString estimated length is close to: $approximateLength",
         ({ inputString, approximateLength }) => {
@@ -66,11 +66,9 @@ describe("Text Handling Service", () => {
             ).toBeCloseTo(approximateLength)
         }
     )
-    describe("determine font size", () => {
+    describe("change font to ensure it fits size", () => {
         let textWidthSpy: MockInstance
         let textSizeSpy: MockInstance
-
-        beforeEach(() => {})
 
         afterEach(() => {
             if (textWidthSpy) textWidthSpy.mockRestore()
@@ -84,7 +82,7 @@ describe("Text Handling Service", () => {
             expect(
                 TextHandlingService.fitTextWithinSpace({
                     text: "Hi",
-                    width: 9001,
+                    maximumWidth: 9001,
                     fontSizeRange: {
                         preferred: 12,
                         minimum: 8,
@@ -100,7 +98,7 @@ describe("Text Handling Service", () => {
                 width: 24,
             })
         })
-        it("Will split the text across multiple lines if it does not fit on a single line", () => {
+        it("Will split the text across multiple lines if there is a minimum number of lines needed", () => {
             textWidthSpy = vi
                 .spyOn(mockGraphicsContext, "textWidth")
                 .mockImplementation((text: string) => {
@@ -109,7 +107,7 @@ describe("Text Handling Service", () => {
             expect(
                 TextHandlingService.fitTextWithinSpace({
                     text: "111 222 33",
-                    width: 9001,
+                    maximumWidth: 9001,
                     fontSizeRange: {
                         preferred: 10,
                         minimum: 8,
@@ -138,23 +136,26 @@ describe("Text Handling Service", () => {
                     return text.length * fontSize
                 })
             expect(
-                TextHandlingService.fitTextWithinSpace({
-                    text: "12345",
-                    width: 50,
-                    fontSizeRange: {
-                        preferred: 20,
-                        minimum: 10,
-                    },
-                    linesOfTextRange: {
-                        minimum: 1,
-                    },
-                    graphicsContext: mockGraphicsContext,
-                })
-            ).toEqual({
-                text: "12345",
-                fontSize: 10,
-                width: 50,
-            })
+                expectTextFitToBeCloseTo(
+                    TextHandlingService.fitTextWithinSpace({
+                        text: "12345",
+                        maximumWidth: 50,
+                        fontSizeRange: {
+                            preferred: 20,
+                            minimum: 10,
+                        },
+                        linesOfTextRange: {
+                            minimum: 1,
+                        },
+                        graphicsContext: mockGraphicsContext,
+                    }),
+                    {
+                        text: "12345",
+                        fontSize: 10,
+                        width: 50,
+                    }
+                )
+            ).toBeTruthy()
         })
     })
     it("can pad a + in front of positive numbers", () => {
@@ -167,4 +168,157 @@ describe("Text Handling Service", () => {
         expect(TextHandlingService.titleCase("CAT")).toEqual("Cat")
         expect(TextHandlingService.titleCase("0cat")).toEqual("0cat")
     })
+    describe("split text on multiple lines", () => {
+        let textWidthSpy: MockInstance
+        let textSizeSpy: MockInstance
+
+        beforeEach(() => {
+            let fontSize = 20
+            textSizeSpy = vi
+                .spyOn(mockGraphicsContext, "textSize")
+                .mockImplementation((size: number) => {
+                    fontSize = size
+                })
+            textWidthSpy = vi
+                .spyOn(mockGraphicsContext, "textWidth")
+                .mockImplementation((text: string) => {
+                    return text.length * fontSize
+                })
+        })
+
+        afterEach(() => {
+            if (textWidthSpy) textWidthSpy.mockRestore()
+            if (textSizeSpy) textSizeSpy.mockRestore()
+        })
+
+        it("will add line breaks to split text on multiple lines", () => {
+            expect(
+                expectTextFitToBeCloseTo(
+                    TextHandlingService.fitTextWithinSpace({
+                        text: "1 3 5",
+                        maximumWidth: 20,
+                        fontSizeRange: {
+                            preferred: 10,
+                            minimum: 10,
+                        },
+                        linesOfTextRange: {
+                            minimum: 1,
+                        },
+                        graphicsContext: mockGraphicsContext,
+                    }),
+                    {
+                        text: "1\n3\n5",
+                        fontSize: 10,
+                        width: 10,
+                    }
+                )
+            ).toBeTruthy()
+        })
+
+        it("will not add line breaks if already at the maximum lines of text", () => {
+            expect(
+                expectTextFitToBeCloseTo(
+                    TextHandlingService.fitTextWithinSpace({
+                        text: "1 3 5",
+                        maximumWidth: 20,
+                        fontSizeRange: {
+                            preferred: 10,
+                            minimum: 10,
+                        },
+                        linesOfTextRange: {
+                            maximum: 1,
+                        },
+                        graphicsContext: mockGraphicsContext,
+                    }),
+                    {
+                        text: "1 3 5",
+                        fontSize: 10,
+                        width: 50,
+                    }
+                )
+            ).toBeTruthy()
+        })
+
+        it("will not modify the text if the only word is too long", () => {
+            expect(
+                expectTextFitToBeCloseTo(
+                    TextHandlingService.fitTextWithinSpace({
+                        text: "12345",
+                        maximumWidth: 20,
+                        fontSizeRange: {
+                            preferred: 10,
+                            minimum: 10,
+                        },
+                        linesOfTextRange: {
+                            minimum: 1,
+                        },
+                        graphicsContext: mockGraphicsContext,
+                    }),
+                    {
+                        text: "12345",
+                        fontSize: 10,
+                        width: 50,
+                    }
+                )
+            ).toBeTruthy()
+        })
+
+        it("will move the second word to a new line if the first word is too long", () => {
+            expect(
+                expectTextFitToBeCloseTo(
+                    TextHandlingService.fitTextWithinSpace({
+                        text: "123 5",
+                        maximumWidth: 20,
+                        fontSizeRange: {
+                            preferred: 10,
+                            minimum: 10,
+                        },
+                        linesOfTextRange: {
+                            minimum: 1,
+                        },
+                        graphicsContext: mockGraphicsContext,
+                    }),
+                    {
+                        text: "123\n5",
+                        fontSize: 10,
+                        width: 30,
+                    }
+                )
+            ).toBeTruthy()
+        })
+
+        it("will not modify text if the line is short enough", () => {
+            expect(
+                expectTextFitToBeCloseTo(
+                    TextHandlingService.fitTextWithinSpace({
+                        text: "12\n3\n5",
+                        maximumWidth: 20,
+                        fontSizeRange: {
+                            preferred: 10,
+                            minimum: 10,
+                        },
+                        linesOfTextRange: {
+                            minimum: 1,
+                        },
+                        graphicsContext: mockGraphicsContext,
+                    }),
+                    {
+                        text: "12\n3\n5",
+                        fontSize: 10,
+                        width: 20,
+                    }
+                )
+            ).toBeTruthy()
+        })
+    })
 })
+
+const expectTextFitToBeCloseTo = (
+    actual: TextFit,
+    expected: TextFit
+): boolean => {
+    expect(actual.text).toEqual(expected.text)
+    expect(actual.fontSize).toBeCloseTo(expected.fontSize)
+    expect(actual.width).toBeCloseTo(expected.width)
+    return true
+}

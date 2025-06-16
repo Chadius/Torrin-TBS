@@ -98,7 +98,7 @@ export class CreateLeftModifiersTextBoxAction implements BehaviorTreeTask {
 
         const textInfo = TextHandlingService.fitTextWithinSpace({
             text: messageToShow,
-            width: modifiersLayoutConstants.leftColumn.width,
+            maximumWidth: modifiersLayoutConstants.leftColumn.width,
             graphicsContext: uiObjects.graphicsContext,
             fontSizeRange: modifiersLayoutConstants.fontSizeRange,
             linesOfTextRange: modifiersLayoutConstants.linesOfTextRange,
@@ -188,7 +188,7 @@ export class CreateRightModifiersTextBoxAction implements BehaviorTreeTask {
 
         const textInfo = TextHandlingService.fitTextWithinSpace({
             text: messageToShow,
-            width: modifiersLayoutConstants.rightColumn.width,
+            maximumWidth: modifiersLayoutConstants.rightColumn.width,
             graphicsContext: uiObjects.graphicsContext,
             fontSizeRange: modifiersLayoutConstants.fontSizeRange,
             linesOfTextRange: modifiersLayoutConstants.linesOfTextRange,

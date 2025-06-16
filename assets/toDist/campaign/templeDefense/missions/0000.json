@@ -610,7 +610,7 @@
             "type": "DIALOGUE",
             "id": "turn2_0",
             "speakerName": "Sir Camil",
-            "dialogueText": "All of this bright yellow sand\ncuts our movement in half.",
+            "dialogueText": "All of this bright yellow sand cuts our movement in half.",
             "speakerPortraitResourceKey": "sir camil cutscene portrait",
             "animationDuration": 0
           },

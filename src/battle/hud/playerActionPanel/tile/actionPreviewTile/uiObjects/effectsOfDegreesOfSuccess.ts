@@ -103,7 +103,7 @@ export class CreateNextEffectsOfDegreesOfSuccessTextBoxAction
 
         const textInfo = TextHandlingService.fitTextWithinSpace({
             text: messageToShow,
-            width: effectsOfDegreesOfSuccessLayoutConstants.width,
+            maximumWidth: effectsOfDegreesOfSuccessLayoutConstants.width,
             graphicsContext: uiObjects.graphicsContext,
             fontSizeRange:
                 effectsOfDegreesOfSuccessLayoutConstants.fontSizeRange,
