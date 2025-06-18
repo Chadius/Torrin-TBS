@@ -924,6 +924,47 @@ describe("mapSearch", () => {
                 ).toBeTruthy()
             })
         })
+
+        it("does not need a squaddie at the start location", () => {
+            const missionMap =
+                MapSearchTestUtils.create1row5columnsAllFlatTerrain()
+            const objectRepository = ObjectRepositoryService.new()
+            SquaddieRepositoryService.createNewSquaddieAndAddToRepository({
+                name: "name",
+                templateId: "squaddieTemplateId",
+                battleId: "battleSquaddieId",
+                affiliation: SquaddieAffiliation.PLAYER,
+                objectRepository,
+                actionTemplateIds: [],
+            })
+            MissionMapService.addSquaddie({
+                missionMap,
+                battleSquaddieId: "battleSquaddieId",
+                squaddieTemplateId: "squaddieTemplateId",
+                originMapCoordinate: { q: 0, r: 1 },
+            })
+
+            const searchResults = MapSearchService.calculatePathsToDestinations(
+                {
+                    missionMap,
+                    searchLimit: {
+                        ...SearchLimitService.landBasedMovement(),
+                        maximumDistance: 1,
+                    },
+                    originMapCoordinate: { q: 0, r: 0 },
+                    currentMapCoordinate: { q: 0, r: 0 },
+                    objectRepository: ObjectRepositoryService.new(),
+                    destinationCoordinates: [{ q: 0, r: 1 }],
+                }
+            )
+
+            expect(
+                MapSearchTestUtils.expectPathExists({
+                    searchResults,
+                    mapCoordinate: { q: 0, r: 0 },
+                })
+            ).toBeTruthy()
+        })
     })
     describe("searchForPathsToDestinations", () => {
         let missionMap: MissionMap

@@ -452,7 +452,8 @@ const canStopBecauseThereIsNoSquaddie = ({
     return (
         searchLimit.canStopOnSquaddies ||
         !squaddieAtEndOfPath ||
-        squaddieAtEndOfPath === battleSquaddieAtStartCoordinate.battleSquaddieId
+        squaddieAtEndOfPath ===
+            battleSquaddieAtStartCoordinate?.battleSquaddieId
     )
 }
 
