@@ -357,6 +357,12 @@
       {
         "triggeringEvent": "START_OF_TURN",
         "systemReactedToTrigger": false,
+        "cutsceneId": "turn4",
+        "turn": 4
+      },
+      {
+        "triggeringEvent": "START_OF_TURN",
+        "systemReactedToTrigger": false,
         "cutsceneId": "turn5",
         "turn": 5
       },
@@ -485,37 +491,11 @@
             "speakerPortraitPosition": "LEFT",
             "speakerName": "How to play",
             "speakerNamePosition": "CENTER",
-            "dialogueText": "Use Nahla and Sir Camil.\nEach get 3 Action Points.\nMoving and acting costs AP.",
+            "dialogueText": "Use Nahla and Sir Camil.\nEach get 3 Action Points (AP).",
             "dialogueTextPosition": "CENTER",
             "animationDuration": 0,
             "comment": "Sir Camil and Nahla's portraits, their map icons and the squaddie selector.",
             "backgroundColor": [32,7,63]
-          }
-          ,{
-            "type": "DIALOGUE",
-            "id": "how_to_play_2",
-            "speakerPortraitResourceKey": "how-to-play-move",
-            "speakerPortraitPosition": "LEFT",
-            "speakerName": "Moving",
-            "speakerNamePosition": "CENTER",
-            "dialogueText": "Move: Click on a tile to move there.\nMore movement costs more AP.\nHover to check the AP cost.",
-            "dialogueTextPosition": "CENTER",
-            "comment": "Multiple pictures show the AP meter glowing as Nahla considers where to move.",
-            "animationDuration": 0,
-            "backgroundColor": [33,10,57]
-          }
-          ,{
-            "type": "DIALOGUE",
-            "id": "how_to_play_3",
-            "speakerPortraitResourceKey": "how-to-play-act",
-            "speakerPortraitPosition": "LEFT",
-            "speakerName": "Using Actions",
-            "speakerNamePosition": "CENTER",
-            "dialogueText": "Click on action buttons to act\nthen choose a target.\nClick OK to confirm.",
-            "dialogueTextPosition": "CENTER",
-            "comment": "Nahla's action buttons are here. Then show the action tile. Indicate the target is automatically chosen if there's only 1. Finish up with the preview tile indicating double damage on critical hits.",
-            "animationDuration": 0,
-            "backgroundColor": [33,11,50]
           }
           ,{
             "type": "DIALOGUE",
@@ -524,7 +504,7 @@
             "speakerPortraitPosition": "LEFT",
             "speakerName": "Hi, Nahla",
             "speakerNamePosition": "CENTER",
-            "dialogueText": "Keep her in the back.\nShe can heal 2 HP by touch.\nMake sure you have 2 AP.",
+            "dialogueText": "This is Nahla.\nShe can attack at range.\nShe can spend 2 AP to heal.",
             "dialogueTextPosition": "CENTER",
             "comment": "Nahla's portrait and map icon are here. Show a situation where she won't have enough action points to heal.",
             "animationDuration": 0,
@@ -532,40 +512,14 @@
           }
           ,{
             "type": "DIALOGUE",
-            "id": "how_to_play_nahla_2",
-            "speakerPortraitResourceKey": "how-to-play-young-nahla-2",
-            "speakerPortraitPosition": "LEFT",
-            "speakerName": "Nahla hustle",
-            "speakerNamePosition": "CENTER",
-            "dialogueText": "Nahla has Torrent Surge.\nIgnore movement penalties\nand pass through enemies.",
-            "dialogueTextPosition": "CENTER",
-            "comment": "Show the Torrent Surge button here. Show a patch of sand she can dash through. Show an enemy she can now move past (just draw an arrow). Show her status bar with the Elusive & Hustle icons.",
-            "animationDuration": 0,
-            "backgroundColor": [196,13,66]
-          }
-          ,{
-            "type": "DIALOGUE",
             "id": "how_to_play_sir_camil_1",
-            "speakerPortraitResourceKey": "how-to-play-sir-camil-1",
-            "speakerPortraitPosition": "LEFT",
-            "speakerName": "Sir Camil!",
-            "speakerNamePosition": "CENTER",
-            "dialogueText": "Let Sir Camil take the lead!\nHe can take more damage.\nLongsword is more accurate.",
-            "dialogueTextPosition": "CENTER",
-            "comment": "Sir Camil's portrait and map icon. Highlight his armor and health compare to Nahla's.",
-            "animationDuration": 0,
-            "backgroundColor": [32,14,27]
-          }
-          ,{
-            "type": "DIALOGUE",
-            "id": "how_to_play_sir_camil_2",
             "speakerPortraitResourceKey": "how-to-play-sir-camil-2",
             "speakerPortraitPosition": "LEFT",
             "speakerName": "Sir Camil!",
             "speakerNamePosition": "CENTER",
-            "dialogueText": "Raise his Shield to block.\nHe is less likely to get hit.\nHe can Absorb 1 HP of damage.",
+            "dialogueText": "Sir Camil can take more hits.\nRaise his Shield\nfor even more defense.",
             "dialogueTextPosition": "CENTER",
-            "comment": "Show the buff panel showcasing his Absorb HP and Armor+ Icons",
+            "comment": "Sir Camil's portrait and map icon. Show Raise Shield increasing his defense.",
             "animationDuration": 0,
             "backgroundColor": [32,14,27]
           }
@@ -590,7 +544,7 @@
             "type": "DIALOGUE",
             "id": "turn1_0",
             "speakerName": "Nahla",
-            "dialogueText": "Ugh! Demons!\nI'll stay back and shoot them.\nI can also heal if I'm close.",
+            "dialogueText": "Ugh! Demons!\nSir Camil, can you go first?",
             "speakerPortraitResourceKey": "young nahla cutscene portrait",
             "animationDuration": 0
           },
@@ -598,8 +552,35 @@
             "type": "DIALOGUE",
             "id": "turn1_1",
             "speakerName": "Sir Camil",
-            "dialogueText": "My longsword will fell them!\nMy Shield will protect me.\nI'll take the lead!",
+            "dialogueText": "Yes. I'll go first.\nClick next to the demon\nso I can move into melee.",
             "speakerPortraitResourceKey": "sir camil cutscene portrait",
+            "animationDuration": 0
+          },
+          {
+            "type": "DIALOGUE",
+            "id": "turn1_2",
+            "speakerName": "Sir Camil",
+            "dialogueText": "Then click on the longsword\nand click OK to strike\nthe demon!",
+            "speakerPortraitResourceKey": "sir camil cutscene portrait",
+            "animationDuration": 0
+          },
+          {
+            "type": "DIALOGUE",
+            "id": "turn1_3",
+            "speakerName": "Nahla",
+            "dialogueText": "Once you're done, I will act.\nIf I move right behind you,\nI can use my Water Cannon!",
+            "speakerPortraitResourceKey": "young nahla cutscene portrait",
+            "animationDuration": 0
+          },
+          {
+            "type": "DIALOGUE",
+            "id": "turn1_4",
+            "speakerPortraitResourceKey": "young nahla cutscene portrait",
+            "speakerPortraitPosition": "LEFT",
+            "speakerName": "Nahla",
+            "speakerNamePosition": "LEFT",
+            "dialogueText": "I can select End Turn\nif I have nothing else to do.",
+            "dialogueTextPosition": "LEFT",
             "animationDuration": 0
           }
         ]
@@ -610,27 +591,32 @@
             "type": "DIALOGUE",
             "id": "turn2_0",
             "speakerName": "Sir Camil",
-            "dialogueText": "All of this bright yellow sand cuts our movement in half.",
+            "dialogueText": "Be careful where you move.\nThe blue circles note\nyour movement range.",
             "speakerPortraitResourceKey": "sir camil cutscene portrait",
             "animationDuration": 0
           },
           {
             "type": "DIALOGUE",
             "id": "turn2_1",
-            "speakerPortraitResourceKey": "young nahla cutscene portrait",
-            "speakerPortraitPosition": "LEFT",
-            "speakerName": "Nahla",
-            "speakerNamePosition": "LEFT",
-            "dialogueText": "If I use Torrent Surge,\nthe sand won't slow me down.",
-            "dialogueTextPosition": "LEFT",
+            "speakerName": "Sir Camil",
+            "dialogueText": "But the further you travel,\nthe more AP you spend.",
+            "speakerPortraitResourceKey": "sir camil cutscene portrait",
             "animationDuration": 0
           },
           {
             "type": "DIALOGUE",
             "id": "turn2_2",
-            "speakerPortraitResourceKey": "sir camil cutscene portrait",
-            "speakerName": "Sir Camil",
-            "dialogueText": "Watch out for that locust!\nIt attacks from 2-3 tiles away,\nlet me go first and bait it.",
+            "speakerName": "Nahla",
+            "dialogueText": "I can redo my movement\nbefore taking an action.",
+            "speakerPortraitResourceKey": "young nahla cutscene portrait",
+            "animationDuration": 0
+          },
+          {
+            "type": "DIALOGUE",
+            "id": "turn2_3",
+            "speakerName": "Nahla",
+            "dialogueText": "And I can preview how much\n AP I will spend moving.\nThe AP meter will glow.",
+            "speakerPortraitResourceKey": "young nahla cutscene portrait",
             "animationDuration": 0
           }
         ]
@@ -683,22 +669,66 @@
           }
         ]
       },
+      "turn4": {
+        "directions": [
+          {
+            "type": "DIALOGUE",
+            "id": "turn4_0",
+            "speakerName": "Nahla",
+            "dialogueText": "The sand tiles slows us down.\nNormally I can move 2 tiles\n per AP, but sand halves it!",
+            "speakerPortraitResourceKey": "young nahla cutscene portrait",
+            "animationDuration": 0
+          },
+          {
+            "type": "DIALOGUE",
+            "id": "turn4_1",
+            "speakerName": "Sir Camil",
+            "dialogueText": "You have Torrent Surge.\nUse it to gain Hustle status.\nThen you can ignore the sand.",
+            "speakerPortraitResourceKey": "sir camil cutscene portrait",
+            "animationDuration": 0
+          },
+          {
+            "type": "DIALOGUE",
+            "id": "turn4_2",
+            "speakerName": "Sir Camil",
+            "dialogueText": "But let me go first\n and attract the demons.",
+            "speakerPortraitResourceKey": "sir camil cutscene portrait",
+            "animationDuration": 0
+          }
+        ]
+      },
       "turn5": {
         "directions": [
           {
             "type": "DIALOGUE",
             "id": "turn5_0",
-            "speakerName": "Sir Camil",
-            "dialogueText": "Each attack loses accuracy.\nThe 3rd attack will miss.",
-            "speakerPortraitResourceKey": "sir camil cutscene portrait",
+            "speakerName": "Nahla",
+            "dialogueText": "Don't you get tired swinging\n your sword so much?\nYour 3rd swing never hits!",
+            "speakerPortraitResourceKey": "young nahla cutscene portrait",
             "animationDuration": 0
           },
           {
             "type": "DIALOGUE",
             "id": "turn5_1",
             "speakerName": "Sir Camil",
-            "dialogueText": "Well, probably it will miss.\nTry to Raise your Shield.\nOr step away from the enemy.",
+            "dialogueText": "Yes, the 2nd and 3rd attacks\nduring the same round\ntake a penalty.",
             "speakerPortraitResourceKey": "sir camil cutscene portrait",
+            "animationDuration": 0
+          },
+          {
+            "type": "DIALOGUE",
+            "id": "turn5_2",
+            "speakerName": "Sir Camil",
+            "dialogueText": "I should Raise my Shield\ninstead of attacking 3 times.",
+            "speakerPortraitResourceKey": "sir camil cutscene portrait",
+            "animationDuration": 0
+          },
+          {
+            "type": "DIALOGUE",
+            "id": "turn5_3",
+            "speakerName": "Nahla",
+            "dialogueText": "Or you could retreat\nso they spend AP moving\ninstead of attacking.",
+            "speakerPortraitResourceKey": "young nahla cutscene portrait",
             "animationDuration": 0
           }
         ]
@@ -717,7 +747,7 @@
             "type": "DIALOGUE",
             "id": "nahla_is_injured_1",
             "speakerName": "Nahla",
-            "dialogueText": "2 Action Points\nto heal 2 Hit Points.\nAnd I have to be close.",
+            "dialogueText": "2 AP\nto heal 2 Hit Points.",
             "speakerPortraitResourceKey": "young nahla cutscene portrait",
             "animationDuration": 0
           }
@@ -737,7 +767,7 @@
             "type": "DIALOGUE",
             "id": "sir_camil_is_injured_1",
             "speakerName": "Nahla",
-            "dialogueText": "Sure! I have Healing Touch.\nI need to get close to you.\nIt costs 2 Action Points.",
+            "dialogueText": "Sure! I have Healing Touch.\nI need to get close to you.\nIt costs 2 AP.",
             "speakerPortraitResourceKey": "young nahla cutscene portrait",
             "animationDuration": 0
           }
