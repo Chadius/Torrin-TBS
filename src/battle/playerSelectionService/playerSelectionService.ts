@@ -1318,6 +1318,10 @@ class PlayerConsidersMovementForSelectedSquaddie implements BehaviorTreeTask {
                 searchResultsCache:
                     gameEngineState.battleOrchestratorState.cache
                         .searchResultsCache,
+                missionMap:
+                    gameEngineState.battleOrchestratorState.battleState
+                        .missionMap,
+                objectRepository: gameEngineState.repository,
                 battleSquaddieId,
                 currentMapCoordinate,
                 originMapCoordinate,

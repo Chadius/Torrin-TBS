@@ -9,8 +9,6 @@ import {
 } from "../../hexCoordinate/hexCoordinate"
 
 export interface SearchResultsCache {
-    missionMap: MissionMap
-    objectRepository: ObjectRepository
     squaddieAllMovement: {
         [battleSquaddieId: string]: {
             [originMapLocationString: string]: SearchResult
@@ -23,16 +21,8 @@ enum SearchResultsCacheType {
 }
 
 export const SearchResultsCacheService = {
-    new: ({
-        missionMap,
-        objectRepository,
-    }: {
-        missionMap: MissionMap
-        objectRepository: ObjectRepository
-    }): SearchResultsCache => {
+    new: (): SearchResultsCache => {
         return {
-            missionMap,
-            objectRepository,
             squaddieAllMovement: {},
         }
     },
@@ -42,12 +32,16 @@ export const SearchResultsCacheService = {
         battleSquaddieId,
         originMapCoordinate,
         currentMapCoordinate,
+        missionMap,
+        objectRepository,
     }: {
         searchResultsCache: SearchResultsCache
         battleSquaddieId: string
         originMapCoordinate: HexCoordinate
         currentMapCoordinate: HexCoordinate
         searchLimit: SearchLimit
+        missionMap: MissionMap
+        objectRepository: ObjectRepository
     }) => {
         const secondaryKey = HexCoordinateService.toString(currentMapCoordinate)
         if (
@@ -67,11 +61,11 @@ export const SearchResultsCacheService = {
         }
         const searchResult =
             MapSearchService.calculateAllPossiblePathsFromStartingCoordinate({
-                missionMap: searchResultsCache.missionMap,
+                missionMap,
                 originMapCoordinate,
                 currentMapCoordinate,
                 searchLimit,
-                objectRepository: searchResultsCache.objectRepository,
+                objectRepository,
             })
         storeSearchResultsInCache({
             searchResultsCache,

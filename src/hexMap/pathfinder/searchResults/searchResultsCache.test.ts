@@ -73,10 +73,7 @@ describe("Search Results Cache", () => {
             "calculateAllPossiblePathsFromStartingCoordinate"
         )
 
-        searchResultsCache = SearchResultsCacheService.new({
-            missionMap,
-            objectRepository,
-        })
+        searchResultsCache = SearchResultsCacheService.new()
     })
 
     afterEach(() => {
@@ -100,6 +97,8 @@ describe("Search Results Cache", () => {
                 originMapCoordinate,
                 currentMapCoordinate: { q: 0, r: 1 },
                 searchLimit,
+                missionMap,
+                objectRepository,
             })
 
             expect(calculateAllPathsSpy).toHaveBeenCalledWith({
@@ -141,6 +140,8 @@ describe("Search Results Cache", () => {
                 originMapCoordinate,
                 currentMapCoordinate: { q: 0, r: 1 },
                 searchLimit,
+                missionMap,
+                objectRepository,
             })
 
             expect(calculateAllPathsSpy).toHaveBeenCalledOnce()
@@ -151,6 +152,8 @@ describe("Search Results Cache", () => {
                 originMapCoordinate,
                 currentMapCoordinate: { q: 0, r: 1 },
                 searchLimit,
+                missionMap,
+                objectRepository,
             })
 
             expect(calculateAllPathsSpy).toHaveBeenCalledOnce()
@@ -171,6 +174,8 @@ describe("Search Results Cache", () => {
                 originMapCoordinate,
                 currentMapCoordinate: { q: 0, r: 1 },
                 searchLimit,
+                missionMap,
+                objectRepository,
             })
 
             expect(calculateAllPathsSpy).toHaveBeenCalledOnce()
@@ -181,6 +186,8 @@ describe("Search Results Cache", () => {
                 originMapCoordinate,
                 currentMapCoordinate: { q: 0, r: 0 },
                 searchLimit,
+                missionMap,
+                objectRepository,
             })
 
             expect(calculateAllPathsSpy).toHaveBeenCalledTimes(2)
@@ -201,6 +208,8 @@ describe("Search Results Cache", () => {
                 originMapCoordinate,
                 currentMapCoordinate: { q: 0, r: 1 },
                 searchLimit,
+                missionMap,
+                objectRepository,
             })
 
             expect(
@@ -238,6 +247,8 @@ describe("Search Results Cache", () => {
                 originMapCoordinate,
                 currentMapCoordinate: { q: 0, r: 1 },
                 searchLimit,
+                missionMap,
+                objectRepository,
             })
             SearchResultsCacheService.calculateSquaddieAllMovement({
                 searchResultsCache,
@@ -245,6 +256,8 @@ describe("Search Results Cache", () => {
                 originMapCoordinate: { q: 0, r: 4 },
                 currentMapCoordinate: { q: 0, r: 4 },
                 searchLimit,
+                missionMap,
+                objectRepository,
             })
 
             expect(
@@ -293,6 +306,8 @@ describe("Search Results Cache", () => {
                 originMapCoordinate,
                 currentMapCoordinate: { q: 0, r: 1 },
                 searchLimit,
+                missionMap,
+                objectRepository,
             })
 
             expect(

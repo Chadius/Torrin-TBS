@@ -102,6 +102,8 @@ export const MapHighlightService = {
                 originMapCoordinate,
                 currentMapCoordinate,
                 searchLimit,
+                missionMap,
+                objectRepository: repository,
             })
 
         const { squaddieIsNormallyControllableByPlayer } =

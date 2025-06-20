@@ -51,8 +51,6 @@ import { PlayerDecisionHUDService } from "../hud/playerActionPanel/playerDecisio
 import { SummaryHUDStateService } from "../hud/summary/summaryHUD"
 import { SquaddieSelectorPanelService } from "../hud/playerActionPanel/squaddieSelectorPanel/squaddieSelectorPanel"
 import { PlayerActionTargetSelect } from "../orchestratorComponents/playerActionTargetSelect/playerActionTargetSelect"
-import { MissionMap } from "../../missionMap/missionMap"
-import { ObjectRepository } from "../objectRepository"
 import { SearchResultsCacheService } from "../../hexMap/pathfinder/searchResults/searchResultsCache"
 
 export enum BattleOrchestratorMode {
@@ -250,9 +248,6 @@ export class BattleOrchestrator implements GameEngineComponent {
         }
         this.initializeCache({
             cache: gameEngineState.battleOrchestratorState.cache,
-            missionMap:
-                gameEngineState.battleOrchestratorState.battleState.missionMap,
-            objectRepository: gameEngineState.repository,
         })
         this.displayMapAndPlayerHUD(gameEngineState, graphicsContext)
 
@@ -656,20 +651,9 @@ export class BattleOrchestrator implements GameEngineComponent {
         this._previousUpdateTimestamp = undefined
     }
 
-    private initializeCache({
-        cache,
-        missionMap,
-        objectRepository,
-    }: {
-        cache: BattleCache
-        missionMap: MissionMap
-        objectRepository: ObjectRepository
-    }) {
+    private initializeCache({ cache }: { cache: BattleCache }) {
         if (cache.searchResultsCache == undefined) {
-            cache.searchResultsCache = SearchResultsCacheService.new({
-                missionMap,
-                objectRepository,
-            })
+            cache.searchResultsCache = SearchResultsCacheService.new()
         }
     }
 }

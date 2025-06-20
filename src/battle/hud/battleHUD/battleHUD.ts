@@ -498,6 +498,7 @@ export const BattleHUDService = {
                 squaddieTemplate,
                 destination,
                 squaddieAllMovementCache: message.squaddieAllMovementCache,
+                objectRepository: message.objectRepository,
                 missionMap: message.missionMap,
             })
         )

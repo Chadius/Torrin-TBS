@@ -32,12 +32,14 @@ export const MovementCalculatorService = {
         squaddieTemplate,
         destination,
         missionMap,
+        objectRepository,
         squaddieAllMovementCache,
     }: {
         battleSquaddie: BattleSquaddie
         squaddieTemplate: SquaddieTemplate
         destination: HexCoordinate
         missionMap: MissionMap
+        objectRepository: ObjectRepository
         squaddieAllMovementCache: SearchResultsCache
     }): boolean => {
         const squaddieDatum = MissionMapService.getByBattleSquaddieId(
@@ -80,6 +82,8 @@ export const MovementCalculatorService = {
                 currentMapCoordinate: squaddieDatum.currentMapCoordinate,
                 originMapCoordinate: squaddieDatum.originMapCoordinate,
                 battleSquaddieId: battleSquaddie.battleSquaddieId,
+                missionMap,
+                objectRepository,
             })
 
         const closestRoute: SearchPathAdapter =

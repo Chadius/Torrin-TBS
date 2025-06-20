@@ -119,7 +119,6 @@ import { PlayerConsideredActionsService } from "../../battleState/playerConsider
 import { ButtonStatus } from "../../../ui/button/buttonStatus"
 import { CampaignResourcesService } from "../../../campaign/campaignResources"
 import { PlayerCommandStateService } from "../playerCommand/playerCommandHUD"
-import { SearchResultsCacheService } from "../../../hexMap/pathfinder/searchResults/searchResultsCache"
 
 describe("Battle HUD", () => {
     let mockP5GraphicsContext: MockedP5GraphicsBuffer
@@ -288,13 +287,6 @@ describe("Battle HUD", () => {
 
         gameEngineState.battleOrchestratorState.battleState.battleActionDecisionStep =
             BattleActionDecisionStepService.new()
-        gameEngineState.battleOrchestratorState.cache.searchResultsCache =
-            SearchResultsCacheService.new({
-                missionMap:
-                    gameEngineState.battleOrchestratorState.battleState
-                        .missionMap,
-                objectRepository: gameEngineState.repository,
-            })
 
         BattleActionDecisionStepService.setActor({
             actionDecisionStep:
@@ -471,13 +463,6 @@ describe("Battle HUD", () => {
                     mockP5GraphicsContext
                 ),
             })
-            gameEngineState.battleOrchestratorState.cache.searchResultsCache =
-                SearchResultsCacheService.new({
-                    missionMap:
-                        gameEngineState.battleOrchestratorState.battleState
-                            .missionMap,
-                    objectRepository: gameEngineState.repository,
-                })
 
             const battleHUDListener = new BattleHUDListener("battleHUDListener")
             gameEngineState.messageBoard.addListener(

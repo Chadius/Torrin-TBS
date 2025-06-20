@@ -80,13 +80,6 @@ describe("movement calculator", () => {
             }),
             campaign: CampaignService.default(),
         })
-        gameEngineState.battleOrchestratorState.cache.searchResultsCache =
-            SearchResultsCacheService.new({
-                missionMap:
-                    gameEngineState.battleOrchestratorState.battleState
-                        .missionMap,
-                objectRepository: gameEngineState.repository,
-            })
     })
     afterEach(() => {
         if (pathfinderSpy) {
@@ -112,6 +105,7 @@ describe("movement calculator", () => {
                     battleSquaddie,
                     squaddieTemplate,
                     destination: { q: 9001, r: -9001 },
+                    objectRepository: gameEngineState.repository,
                 })
 
             expect(isMovementPossible).toBeFalsy()
@@ -135,6 +129,7 @@ describe("movement calculator", () => {
                     battleSquaddie,
                     squaddieTemplate,
                     destination: { q: 0, r: 1 },
+                    objectRepository: gameEngineState.repository,
                 })
 
             expect(isMovementPossible).toBeTruthy()
@@ -177,6 +172,7 @@ describe("movement calculator", () => {
                 battleSquaddie,
                 squaddieTemplate,
                 destination: { q: 0, r: 1 },
+                objectRepository: gameEngineState.repository,
             })
 
             expect(pathfinderSpy).toHaveBeenCalled()

@@ -297,10 +297,7 @@ describe("map highlight generator", () => {
                     originMapCoordinate: { q: 0, r: 2 },
                     repository: objectRepository,
                     battleSquaddieId: battleSquaddie.battleSquaddieId,
-                    squaddieAllMovementCache: SearchResultsCacheService.new({
-                        missionMap,
-                        objectRepository,
-                    }),
+                    squaddieAllMovementCache: SearchResultsCacheService.new(),
                 })
 
             expect(
@@ -324,10 +321,7 @@ describe("map highlight generator", () => {
                     originMapCoordinate: { q: 0, r: 2 },
                     repository: objectRepository,
                     battleSquaddieId: battleSquaddie.battleSquaddieId,
-                    squaddieAllMovementCache: SearchResultsCacheService.new({
-                        missionMap,
-                        objectRepository,
-                    }),
+                    squaddieAllMovementCache: SearchResultsCacheService.new(),
                 })
 
             expect(
@@ -360,10 +354,7 @@ describe("map highlight generator", () => {
                     repository: objectRepository,
                     battleSquaddieId: battleSquaddie.battleSquaddieId,
                     squaddieTurnOverride: turnWith1Action,
-                    squaddieAllMovementCache: SearchResultsCacheService.new({
-                        missionMap,
-                        objectRepository,
-                    }),
+                    squaddieAllMovementCache: SearchResultsCacheService.new(),
                 })
 
             expect(
@@ -387,10 +378,7 @@ describe("map highlight generator", () => {
                     originMapCoordinate: { q: 0, r: 2 },
                     repository: objectRepository,
                     battleSquaddieId: battleSquaddie.battleSquaddieId,
-                    squaddieAllMovementCache: SearchResultsCacheService.new({
-                        missionMap,
-                        objectRepository,
-                    }),
+                    squaddieAllMovementCache: SearchResultsCacheService.new(),
                 })
 
             expect(
@@ -433,10 +421,7 @@ describe("map highlight generator", () => {
                     originMapCoordinate: { q: 0, r: 2 },
                     repository: objectRepository,
                     battleSquaddieId: battleSquaddie.battleSquaddieId,
-                    squaddieAllMovementCache: SearchResultsCacheService.new({
-                        missionMap,
-                        objectRepository,
-                    }),
+                    squaddieAllMovementCache: SearchResultsCacheService.new(),
                 })
 
             expect(
@@ -501,10 +486,7 @@ describe("map highlight generator", () => {
                     originMapCoordinate: { q: 0, r: 4 },
                     repository: objectRepository,
                     battleSquaddieId,
-                    squaddieAllMovementCache: SearchResultsCacheService.new({
-                        missionMap,
-                        objectRepository,
-                    }),
+                    squaddieAllMovementCache: SearchResultsCacheService.new(),
                 }
             )
         }

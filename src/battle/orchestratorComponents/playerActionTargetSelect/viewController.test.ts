@@ -109,10 +109,7 @@ describe("Player Action Target Select View Controller", () => {
             summaryHUDState: SummaryHUDStateService.new(),
             campaignResources: CampaignResourcesService.default(),
             missionStatistics: MissionStatisticsService.new({}),
-            squaddieAllMovementCache: SearchResultsCacheService.new({
-                missionMap,
-                objectRepository,
-            }),
+            squaddieAllMovementCache: SearchResultsCacheService.new(),
             playerConsideredActions: PlayerConsideredActionsService.new(),
             playerDecisionHUD: PlayerDecisionHUDService.new(),
             playerCommandState: PlayerCommandStateService.new(),

@@ -175,10 +175,7 @@ describe("PlayerActionTargetSelect State Machine", () => {
             playerConsideredActions: PlayerConsideredActionsService.new(),
             playerDecisionHUD: PlayerDecisionHUDService.new(),
             playerCommandState: PlayerCommandStateService.new(),
-            squaddieAllMovementCache: SearchResultsCacheService.new({
-                missionMap,
-                objectRepository,
-            }),
+            squaddieAllMovementCache: SearchResultsCacheService.new(),
         })
 
         stateMachine = new PlayerActionTargetStateMachine({

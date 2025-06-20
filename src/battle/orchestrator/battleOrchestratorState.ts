@@ -18,7 +18,10 @@ import {
     PlayerDecisionHUD,
     PlayerDecisionHUDService,
 } from "../hud/playerActionPanel/playerDecisionHUD"
-import { SearchResultsCache } from "../../hexMap/pathfinder/searchResults/searchResultsCache"
+import {
+    SearchResultsCache,
+    SearchResultsCacheService,
+} from "../../hexMap/pathfinder/searchResults/searchResultsCache"
 
 export type BattleCache = {
     searchResultsCache: SearchResultsCache
@@ -63,7 +66,7 @@ export class BattleOrchestratorState {
         )
         this.playerDecisionHUD = PlayerDecisionHUDService.new()
         this.cache = {
-            searchResultsCache: undefined,
+            searchResultsCache: SearchResultsCacheService.new(),
         }
     }
 

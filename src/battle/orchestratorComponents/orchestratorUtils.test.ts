@@ -55,7 +55,6 @@ import {
     MockInstance,
     vi,
 } from "vitest"
-import { SearchResultsCacheService } from "../../hexMap/pathfinder/searchResults/searchResultsCache"
 import { PlayerCommandStateService } from "../hud/playerCommand/playerCommandHUD"
 
 describe("Orchestration Utils", () => {
@@ -708,14 +707,6 @@ describe("Orchestration Utils", () => {
                 repository: squaddieRepository,
                 campaign: CampaignService.default(),
             })
-
-            gameEngineState.battleOrchestratorState.cache.searchResultsCache =
-                SearchResultsCacheService.new({
-                    missionMap:
-                        gameEngineState.battleOrchestratorState.battleState
-                            .missionMap,
-                    objectRepository: gameEngineState.repository,
-                })
         })
         afterEach(() => {
             addGraphicsLayerSpy.mockRestore()
@@ -735,13 +726,6 @@ describe("Orchestration Utils", () => {
                     TerrainTileMapService,
                     "addGraphicsLayer"
                 )
-                gameEngineState.battleOrchestratorState.cache.searchResultsCache =
-                    SearchResultsCacheService.new({
-                        missionMap:
-                            gameEngineState.battleOrchestratorState.battleState
-                                .missionMap,
-                        objectRepository: gameEngineState.repository,
-                    })
             })
 
             const highlightPlayerControlledSquaddieRangeAndReturnHighlightedCoordinates =
@@ -873,13 +857,6 @@ describe("Orchestration Utils", () => {
                 originMapCoordinate: { q: 0, r: 3 },
             })
             gameEngineState.battleOrchestratorState.battleState.missionMap = map
-            gameEngineState.battleOrchestratorState.cache.searchResultsCache =
-                SearchResultsCacheService.new({
-                    missionMap:
-                        gameEngineState.battleOrchestratorState.battleState
-                            .missionMap,
-                    objectRepository: gameEngineState.repository,
-                })
 
             addGraphicsLayerSpy = vi.spyOn(
                 TerrainTileMapService,

@@ -114,13 +114,6 @@ describe("Player Selection Service", () => {
                 repository: objectRepository,
                 campaign: CampaignService.default(),
             })
-            gameEngineState.battleOrchestratorState.cache.searchResultsCache =
-                SearchResultsCacheService.new({
-                    missionMap:
-                        gameEngineState.battleOrchestratorState.battleState
-                            .missionMap,
-                    objectRepository: gameEngineState.repository,
-                })
         })
 
         it("knows the user wants to end the phase", () => {
@@ -166,12 +159,7 @@ describe("Player Selection Service", () => {
             missionMap,
         })
         gameEngineState.battleOrchestratorState.cache.searchResultsCache =
-            SearchResultsCacheService.new({
-                missionMap:
-                    gameEngineState.battleOrchestratorState.battleState
-                        .missionMap,
-                objectRepository: gameEngineState.repository,
-            })
+            SearchResultsCacheService.new()
 
         messageSpy = vi.spyOn(gameEngineState.messageBoard, "sendMessage")
     }
@@ -1601,12 +1589,6 @@ const createGameEngineStateWith1PlayerAnd1Enemy = ({
             new MockedP5GraphicsBuffer()
         ),
     })
-    gameEngineState.battleOrchestratorState.cache.searchResultsCache =
-        SearchResultsCacheService.new({
-            missionMap:
-                gameEngineState.battleOrchestratorState.battleState.missionMap,
-            objectRepository: gameEngineState.repository,
-        })
 
     return gameEngineState
 }

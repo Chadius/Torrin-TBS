@@ -89,7 +89,6 @@ import { HexCoordinate } from "../../hexMap/hexCoordinate/hexCoordinate"
 import { ValidityCheckService } from "../actionValidity/validityChecker"
 import { MapSearchTestUtils } from "../../hexMap/pathfinder/pathGeneration/mapSearchTests/mapSearchTestUtils"
 import { CampaignResourcesService } from "../../campaign/campaignResources"
-import { SearchResultsCacheService } from "../../hexMap/pathfinder/searchResults/searchResultsCache"
 
 describe("BattleSquaddieSelector", () => {
     let selector: BattlePlayerSquaddieSelector =
@@ -351,8 +350,8 @@ describe("BattleSquaddieSelector", () => {
     }: {
         battlePhaseState: BattlePhaseState
         missionMap: MissionMap
-    }): GameEngineState => {
-        const gameEngineState = GameEngineStateService.new({
+    }): GameEngineState =>
+        GameEngineStateService.new({
             resourceHandler: mocks.mockResourceHandler(mockedP5GraphicsContext),
             battleOrchestratorState: BattleOrchestratorStateService.new({
                 battleHUD: BattleHUDService.new({}),
@@ -368,15 +367,6 @@ describe("BattleSquaddieSelector", () => {
             repository: objectRepository,
             campaign: CampaignService.default(),
         })
-        gameEngineState.battleOrchestratorState.cache.searchResultsCache =
-            SearchResultsCacheService.new({
-                missionMap:
-                    gameEngineState.battleOrchestratorState.battleState
-                        .missionMap,
-                objectRepository: gameEngineState.repository,
-            })
-        return gameEngineState
-    }
 
     describe("automatically select the first playable controllable squaddie", () => {
         let gameEngineState: GameEngineState

@@ -475,14 +475,6 @@ describe("Battle State", () => {
                 originMapCoordinate: { q: 0, r: 0 },
             })
 
-            gameEngineState.battleOrchestratorState.cache.searchResultsCache =
-                SearchResultsCacheService.new({
-                    missionMap:
-                        gameEngineState.battleOrchestratorState.battleState
-                            .missionMap,
-                    objectRepository: gameEngineState.repository,
-                })
-
             moveAction = BattleActionService.new({
                 actor: { actorBattleSquaddieId: "battleSquaddieId" },
                 action: { isMovement: true },
@@ -780,6 +772,10 @@ describe("Battle State", () => {
                 originMapCoordinate: { q: 0, r: 0 },
                 currentMapCoordinate: { q: 0, r: 0 },
                 searchLimit: SearchLimitService.landBasedMovement(),
+                missionMap:
+                    gameEngineState.battleOrchestratorState.battleState
+                        .missionMap,
+                objectRepository: gameEngineState.repository,
             })
 
             gameEngineState.messageBoard.sendMessage({
@@ -891,14 +887,6 @@ describe("Battle State", () => {
                     }),
                 }),
             })
-
-            gameEngineState.battleOrchestratorState.cache.searchResultsCache =
-                SearchResultsCacheService.new({
-                    missionMap:
-                        gameEngineState.battleOrchestratorState.battleState
-                            .missionMap,
-                    objectRepository: gameEngineState.repository,
-                })
 
             const battleStateListener: BattleStateListener =
                 new BattleStateListener("battleStateListener")
@@ -1061,6 +1049,10 @@ describe("Battle State", () => {
                 originMapCoordinate: { q: 0, r: 0 },
                 currentMapCoordinate: { q: 0, r: 0 },
                 searchLimit: SearchLimitService.landBasedMovement(),
+                missionMap:
+                    gameEngineState.battleOrchestratorState.battleState
+                        .missionMap,
+                objectRepository: gameEngineState.repository,
             })
 
             gameEngineState.messageBoard.sendMessage({
