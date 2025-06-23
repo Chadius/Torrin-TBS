@@ -3,7 +3,7 @@ import { defineConfig, loadEnv } from "vite"
 export default defineConfig(({ mode }) => {
     process.env = { ...process.env, ...loadEnv(mode, process.cwd()) }
 
-    const version = "0.0.043"
+    const version = "0.0.044"
     const environmentVariables = {
         "process.env.CAMPAIGN_ID":
             JSON.stringify(process.env.CAMPAIGN_ID) ||
