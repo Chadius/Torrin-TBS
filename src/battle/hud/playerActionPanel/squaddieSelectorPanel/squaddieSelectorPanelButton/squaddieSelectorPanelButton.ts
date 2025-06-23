@@ -36,6 +36,7 @@ interface SelectedStatusLayout {
 interface ButtonLayout {
     backgroundColor: [number, number, number]
     font: {
+        strokeWeight: number
         color: [number, number, number]
         sizeRange: {
             preferred: number
@@ -272,6 +273,7 @@ const createLayout = (): SquaddieSelectorPanelButtonLayout => {
             backgroundColor[2] + 30,
         ],
         font: {
+            strokeWeight: 2,
             color: [fontColor[0], 80, 20],
             sizeRange: {
                 preferred: 14,
@@ -293,6 +295,7 @@ const createLayout = (): SquaddieSelectorPanelButtonLayout => {
             backgroundColor[2] + 20,
         ],
         font: {
+            strokeWeight: 2,
             color: [fontColor[0], fontColor[1], fontColor[2]],
             sizeRange: {
                 preferred: 12,
@@ -309,6 +312,7 @@ const createLayout = (): SquaddieSelectorPanelButtonLayout => {
             backgroundColor[2] - 10,
         ],
         font: {
+            strokeWeight: 2,
             color: fontColor,
             sizeRange: {
                 preferred: 12,

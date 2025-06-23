@@ -1,4 +1,8 @@
-import { TextFit, TextHandlingService } from "./textHandlingService"
+import {
+    TEXT_WIDTH_MULTIPLIER,
+    TextFit,
+    TextHandlingService,
+} from "./textHandlingService"
 import { MockedP5GraphicsBuffer } from "../test/mocks"
 import {
     afterEach,
@@ -34,7 +38,7 @@ describe("Text Handling Service", () => {
                 strokeWeight: 3,
                 graphicsContext: mockGraphicsContext,
             })
-        ).toBeCloseTo(9001 * 1.2)
+        ).toBeCloseTo(9001 * TEXT_WIDTH_MULTIPLIER)
 
         expect(textWidthSpy).toBeCalledWith("Wow! 3 Apples!")
         expect(textSizeSpy).toBeCalledWith(10)
@@ -111,23 +115,29 @@ describe("Text Handling Service", () => {
                 .spyOn(mockGraphicsContext, "textWidth")
                 .mockReturnValue(24)
             expect(
-                TextHandlingService.fitTextWithinSpace({
-                    text: "Hi",
-                    maximumWidth: 9001,
-                    fontSizeRange: {
-                        preferred: 12,
-                        minimum: 8,
-                    },
-                    linesOfTextRange: {
-                        minimum: 1,
-                    },
-                    graphicsContext: mockGraphicsContext,
-                })
-            ).toEqual({
-                text: "Hi",
-                fontSize: 12,
-                width: 24,
-            })
+                expectTextFitToBeCloseTo(
+                    TextHandlingService.fitTextWithinSpace({
+                        text: "Hi",
+                        maximumWidth: 9001,
+                        font: {
+                            fontSizeRange: {
+                                preferred: 12,
+                                minimum: 8,
+                            },
+                            strokeWeight: 1,
+                        },
+                        linesOfTextRange: {
+                            minimum: 1,
+                        },
+                        graphicsContext: mockGraphicsContext,
+                    }),
+                    {
+                        text: "Hi",
+                        fontSize: 12,
+                        width: 2 * 12 * TEXT_WIDTH_MULTIPLIER,
+                    }
+                )
+            ).toBeTruthy()
         })
         it("Will split the text across multiple lines if there is a minimum number of lines needed", () => {
             textWidthSpy = vi
@@ -136,23 +146,29 @@ describe("Text Handling Service", () => {
                     return text.length * 100
                 })
             expect(
-                TextHandlingService.fitTextWithinSpace({
-                    text: "111 222 33",
-                    maximumWidth: 9001,
-                    fontSizeRange: {
-                        preferred: 10,
-                        minimum: 8,
-                    },
-                    linesOfTextRange: {
-                        minimum: 2,
-                    },
-                    graphicsContext: mockGraphicsContext,
-                })
-            ).toEqual({
-                text: "111 222\n33",
-                fontSize: 10,
-                width: 700,
-            })
+                expectTextFitToBeCloseTo(
+                    TextHandlingService.fitTextWithinSpace({
+                        text: "111 222 33",
+                        maximumWidth: 9001,
+                        font: {
+                            fontSizeRange: {
+                                preferred: 10,
+                                minimum: 8,
+                            },
+                            strokeWeight: 1,
+                        },
+                        linesOfTextRange: {
+                            minimum: 2,
+                        },
+                        graphicsContext: mockGraphicsContext,
+                    }),
+                    {
+                        text: "111 222\n33",
+                        fontSize: 10,
+                        width: 70 * 10 * TEXT_WIDTH_MULTIPLIER,
+                    }
+                )
+            ).toBeTruthy()
         })
         it("Will reduce the font size if it does not fit on a single line", () => {
             let fontSize = 20
@@ -171,9 +187,12 @@ describe("Text Handling Service", () => {
                     TextHandlingService.fitTextWithinSpace({
                         text: "12345",
                         maximumWidth: 50,
-                        fontSizeRange: {
-                            preferred: 20,
-                            minimum: 10,
+                        font: {
+                            fontSizeRange: {
+                                preferred: 20,
+                                minimum: 10,
+                            },
+                            strokeWeight: 1,
                         },
                         linesOfTextRange: {
                             minimum: 1,
@@ -183,7 +202,7 @@ describe("Text Handling Service", () => {
                     {
                         text: "12345",
                         fontSize: 10,
-                        width: 50,
+                        width: 50 * TEXT_WIDTH_MULTIPLIER,
                     }
                 )
             ).toBeTruthy()
@@ -228,9 +247,12 @@ describe("Text Handling Service", () => {
                     TextHandlingService.fitTextWithinSpace({
                         text: "1 3 5",
                         maximumWidth: 20,
-                        fontSizeRange: {
-                            preferred: 10,
-                            minimum: 10,
+                        font: {
+                            fontSizeRange: {
+                                preferred: 10,
+                                minimum: 10,
+                            },
+                            strokeWeight: 1,
                         },
                         linesOfTextRange: {
                             minimum: 1,
@@ -240,7 +262,7 @@ describe("Text Handling Service", () => {
                     {
                         text: "1\n3\n5",
                         fontSize: 10,
-                        width: 10,
+                        width: 10 * TEXT_WIDTH_MULTIPLIER,
                     }
                 )
             ).toBeTruthy()
@@ -252,9 +274,12 @@ describe("Text Handling Service", () => {
                     TextHandlingService.fitTextWithinSpace({
                         text: "1 3 5",
                         maximumWidth: 20,
-                        fontSizeRange: {
-                            preferred: 10,
-                            minimum: 10,
+                        font: {
+                            fontSizeRange: {
+                                preferred: 10,
+                                minimum: 10,
+                            },
+                            strokeWeight: 1,
                         },
                         linesOfTextRange: {
                             maximum: 1,
@@ -264,7 +289,7 @@ describe("Text Handling Service", () => {
                     {
                         text: "1 3 5",
                         fontSize: 10,
-                        width: 50,
+                        width: 50 * TEXT_WIDTH_MULTIPLIER,
                     }
                 )
             ).toBeTruthy()
@@ -276,9 +301,12 @@ describe("Text Handling Service", () => {
                     TextHandlingService.fitTextWithinSpace({
                         text: "12345",
                         maximumWidth: 20,
-                        fontSizeRange: {
-                            preferred: 10,
-                            minimum: 10,
+                        font: {
+                            fontSizeRange: {
+                                preferred: 10,
+                                minimum: 10,
+                            },
+                            strokeWeight: 1,
                         },
                         linesOfTextRange: {
                             minimum: 1,
@@ -288,7 +316,7 @@ describe("Text Handling Service", () => {
                     {
                         text: "12345",
                         fontSize: 10,
-                        width: 50,
+                        width: 50 * TEXT_WIDTH_MULTIPLIER,
                     }
                 )
             ).toBeTruthy()
@@ -300,9 +328,12 @@ describe("Text Handling Service", () => {
                     TextHandlingService.fitTextWithinSpace({
                         text: "123 5",
                         maximumWidth: 20,
-                        fontSizeRange: {
-                            preferred: 10,
-                            minimum: 10,
+                        font: {
+                            fontSizeRange: {
+                                preferred: 10,
+                                minimum: 10,
+                            },
+                            strokeWeight: 1,
                         },
                         linesOfTextRange: {
                             minimum: 1,
@@ -312,7 +343,7 @@ describe("Text Handling Service", () => {
                     {
                         text: "123\n5",
                         fontSize: 10,
-                        width: 30,
+                        width: 30 * TEXT_WIDTH_MULTIPLIER,
                     }
                 )
             ).toBeTruthy()
@@ -324,9 +355,12 @@ describe("Text Handling Service", () => {
                     TextHandlingService.fitTextWithinSpace({
                         text: "12\n3\n5",
                         maximumWidth: 20,
-                        fontSizeRange: {
-                            preferred: 10,
-                            minimum: 10,
+                        font: {
+                            fontSizeRange: {
+                                preferred: 10,
+                                minimum: 10,
+                            },
+                            strokeWeight: 1,
                         },
                         linesOfTextRange: {
                             minimum: 1,
@@ -336,7 +370,7 @@ describe("Text Handling Service", () => {
                     {
                         text: "12\n3\n5",
                         fontSize: 10,
-                        width: 20,
+                        width: 20 * TEXT_WIDTH_MULTIPLIER,
                     }
                 )
             ).toBeTruthy()

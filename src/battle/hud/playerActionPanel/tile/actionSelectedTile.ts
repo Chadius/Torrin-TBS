@@ -31,6 +31,7 @@ import {
 
 type ActionSelectedTileLayout = {
     actionNameText: {
+        strokeWeight: number
         fontSizeRange: FontSizeRange
         linesOfTextRange: LinesOfTextRange
     }
@@ -41,9 +42,11 @@ type ActionSelectedTileLayout = {
         variableNameFontColor: number[]
         amountLeftOffsetRatio: number
         amountFontColor: number[]
+        strokeWeight: number
     }
     description: {
         fontSizeRange: FontSizeRange
+        strokeWeight: number
         linesOfTextRange: LinesOfTextRange
         bottomMargin: number
     }
@@ -51,6 +54,7 @@ type ActionSelectedTileLayout = {
 
 const layoutConstants: ActionSelectedTileLayout = {
     actionNameText: {
+        strokeWeight: 2,
         fontSizeRange: {
             preferred: 24,
             minimum: 10,
@@ -58,6 +62,7 @@ const layoutConstants: ActionSelectedTileLayout = {
         linesOfTextRange: {},
     },
     information: {
+        strokeWeight: 1,
         fontSizeRange: {
             preferred: 10,
             minimum: 10,
@@ -69,6 +74,7 @@ const layoutConstants: ActionSelectedTileLayout = {
         amountFontColor: [0, 0, 192 - 48],
     },
     description: {
+        strokeWeight: 2,
         fontSizeRange: {
             preferred: 10,
             minimum: 8,
@@ -174,7 +180,10 @@ const createActionNameTextBox = (
         maximumWidth:
             RectAreaService.width(overallBoundingBox) - WINDOW_SPACING.SPACING2,
         graphicsContext,
-        fontSizeRange: layoutConstants.actionNameText.fontSizeRange,
+        font: {
+            fontSizeRange: layoutConstants.actionNameText.fontSizeRange,
+            strokeWeight: layoutConstants.actionNameText.strokeWeight,
+        },
         linesOfTextRange: layoutConstants.actionNameText.linesOfTextRange,
     })
 
@@ -337,6 +346,7 @@ const createNameAndAmountTextBoxes = ({
                 text: variableName,
                 widthRatio: layoutConstants.information.amountLeftOffsetRatio,
                 graphicsContext,
+                strokeWeight: layoutConstants.information.strokeWeight,
                 fontSizeRange: layoutConstants.information.fontSizeRange,
                 linesOfTextRange: layoutConstants.information.linesOfTextRange,
             },
@@ -358,6 +368,7 @@ const createNameAndAmountTextBoxes = ({
                 widthRatio:
                     1 - layoutConstants.information.amountLeftOffsetRatio,
                 graphicsContext,
+                strokeWeight: layoutConstants.information.strokeWeight,
                 fontSizeRange: layoutConstants.information.fontSizeRange,
                 linesOfTextRange: layoutConstants.information.linesOfTextRange,
             },
@@ -402,6 +413,7 @@ const createInformationTextBox = ({
         widthRatio,
         graphicsContext,
         fontSizeRange,
+        strokeWeight,
         linesOfTextRange,
     },
     textBox: { leftOffset, topOffset, fontColor },
@@ -412,6 +424,7 @@ const createInformationTextBox = ({
         widthRatio: number
         graphicsContext: GraphicsBuffer
         fontSizeRange: FontSizeRange
+        strokeWeight: number
         linesOfTextRange: LinesOfTextRange
     }
     textBox: {
@@ -433,7 +446,10 @@ const createInformationTextBox = ({
         text,
         maximumWidth: availableTextWidth,
         graphicsContext,
-        fontSizeRange,
+        font: {
+            fontSizeRange,
+            strokeWeight,
+        },
         linesOfTextRange,
     })
 
@@ -650,7 +666,10 @@ const createActionTemplateDescriptionTextBox = ({
         maximumWidth:
             RectAreaService.width(overallBoundingBox) - WINDOW_SPACING.SPACING2,
         graphicsContext,
-        fontSizeRange: layoutConstants.description.fontSizeRange,
+        font: {
+            fontSizeRange: layoutConstants.description.fontSizeRange,
+            strokeWeight: layoutConstants.description.strokeWeight,
+        },
         linesOfTextRange: layoutConstants.description.linesOfTextRange,
     })
 

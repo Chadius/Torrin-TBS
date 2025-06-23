@@ -73,6 +73,7 @@ export interface ActionPreviewTileLayout {
         width: number
         fontColor: number[]
         margin: number[]
+        strokeWeight: number
         fontSizeRange: {
             preferred: number
             minimum: number
@@ -109,6 +110,7 @@ export interface ActionPreviewTileLayout {
     }
     effectsOfDegreesOfSuccess: {
         width: number
+        strokeWeight: number
         fontSizeRange: {
             preferred: number
             minimum: number
@@ -119,6 +121,7 @@ export interface ActionPreviewTileLayout {
     }
     modifiers: {
         topOffset: number
+        strokeWeight: number
         fontSizeRange: {
             preferred: number
             minimum: number
@@ -226,6 +229,7 @@ export const ActionPreviewTileService = {
                     WINDOW_SPACING.SPACING1,
                     WINDOW_SPACING.SPACING2,
                 ],
+                strokeWeight: 4,
                 fontSizeRange: {
                     preferred: 18,
                     minimum: 8,
@@ -305,6 +309,7 @@ export const ActionPreviewTileService = {
                     WINDOW_SPACING.SPACING2,
                 fontColor: [0, 0, 192 - 128],
                 margin: [0, 0, 0, WINDOW_SPACING.SPACING1],
+                strokeWeight: 2,
                 fontSizeRange: {
                     preferred: 16,
                     minimum: 8,
@@ -313,6 +318,7 @@ export const ActionPreviewTileService = {
             },
             modifiers: {
                 topOffset: WINDOW_SPACING.SPACING1,
+                strokeWeight: 1,
                 fontSizeRange: {
                     preferred: 12,
                     minimum: 8,

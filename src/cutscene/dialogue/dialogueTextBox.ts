@@ -3,17 +3,66 @@ import { RectAreaService } from "../../ui/rectArea"
 import { GraphicsBuffer } from "../../utils/graphics/graphicsRenderer"
 import {
     DIALOGUE_FONT_STYLE_CONSTANTS,
-    DIALOGUE_SPEAKER_NAME_BOX_STYLE_CONSTANTS,
     DIALOGUE_TEXT_BOX_STYLE_CONSTANTS,
     DialogueComponent,
     DialogueFontStyle,
     DialoguePosition,
     DialogueTextService,
-    StyleFontConstants,
-    StyleTextBoxConstants,
+    ThirdOfScreenAlignment,
 } from "./constants"
 import { ScreenDimensions } from "../../utils/graphics/graphicsConfig"
-import { TextHandlingService } from "../../utils/graphics/textHandlingService"
+import {
+    LinesOfTextRange,
+    TextHandlingService,
+} from "../../utils/graphics/textHandlingService"
+import { HORIZONTAL_ALIGN, WINDOW_SPACING } from "../../ui/constants"
+
+export interface DialogTextBoxLayout extends ThirdOfScreenAlignment {
+    fillColor: number[]
+    horizontalMargin: number
+    topOffset: number
+    topFraction: number
+    maxPixelWidth: number
+    textBoxMargin: [number, number, number, number]
+    linesOfTextRange: LinesOfTextRange
+}
+
+const DIALOGUE_SPEAKER_NAME_BOX_STYLE_CONSTANTS: {
+    [t in DialoguePosition]: DialogTextBoxLayout
+} = {
+    [DialoguePosition.CENTER]: {
+        fillColor: [200, 10, 50],
+        maxPixelWidth: ScreenDimensions.SCREEN_WIDTH / 3,
+        linesOfTextRange: { maximum: 1 },
+        horizontalMargin: WINDOW_SPACING.SPACING1,
+        thirdOfScreenAlignment: HORIZONTAL_ALIGN.CENTER,
+        thirdOfScreenSubAlignment: HORIZONTAL_ALIGN.LEFT,
+        topOffset: -5 * WINDOW_SPACING.SPACING1,
+        topFraction: 0.7,
+        textBoxMargin: [
+            WINDOW_SPACING.SPACING1 * 1.3,
+            0,
+            0,
+            WINDOW_SPACING.SPACING1,
+        ],
+    },
+    [DialoguePosition.LEFT]: {
+        fillColor: [200, 10, 50],
+        maxPixelWidth: ScreenDimensions.SCREEN_WIDTH / 3,
+        linesOfTextRange: { maximum: 3 },
+        horizontalMargin: WINDOW_SPACING.SPACING1,
+        thirdOfScreenAlignment: HORIZONTAL_ALIGN.LEFT,
+        thirdOfScreenSubAlignment: HORIZONTAL_ALIGN.LEFT,
+        topOffset: -5 * WINDOW_SPACING.SPACING1,
+        topFraction: 0.7,
+        textBoxMargin: [
+            WINDOW_SPACING.SPACING1 * 1.3,
+            0,
+            0,
+            WINDOW_SPACING.SPACING1,
+        ],
+    },
+}
 
 export class DialogueTextBox {
     dialogueText: string
@@ -37,16 +86,22 @@ export class DialogueTextBox {
         this.position = position || DialoguePosition.CENTER
         this.fontStyle = fontStyle || DialogueFontStyle.BLACK
         this.dialogueComponent = dialogueComponent
-
-        this.createUIObjects(this.dialogueComponent)
     }
 
     draw(graphicsContext: GraphicsBuffer) {
-        LabelService.draw(this.dialogueTextLabel, graphicsContext)
+        if (!this.dialogueTextLabel) {
+            this.createUIObjects(this.dialogueComponent, graphicsContext)
+        }
+        if (this.dialogueTextLabel) {
+            LabelService.draw(this.dialogueTextLabel, graphicsContext)
+        }
     }
 
-    private createUIObjects(dialogueComponent: DialogueComponent) {
-        let rectStyle: StyleTextBoxConstants
+    private createUIObjects(
+        dialogueComponent: DialogueComponent,
+        graphicsContext: GraphicsBuffer
+    ) {
+        let rectStyle: DialogTextBoxLayout
         if (dialogueComponent === DialogueComponent.DIALOGUE_BOX) {
             rectStyle = DIALOGUE_TEXT_BOX_STYLE_CONSTANTS[this.position]
         } else if (dialogueComponent === DialogueComponent.SPEAKER_NAME) {
@@ -54,82 +109,47 @@ export class DialogueTextBox {
         }
 
         const fontStyle = DIALOGUE_FONT_STYLE_CONSTANTS[this.fontStyle]
-        const { textToDraw, dialogueBoxWidth } = constrainTextAndGetBoundingBox(
-            {
-                rectStyle,
-                dialogueText: this.dialogueText,
-                fontStyle,
-            }
-        )
-
-        let dialogueBoxHeight: number = 0
-        if (dialogueComponent === DialogueComponent.DIALOGUE_BOX) {
-            rectStyle = DIALOGUE_TEXT_BOX_STYLE_CONSTANTS[this.position]
-            dialogueBoxHeight =
-                (textToDraw.length + 1) * fontStyle.fontSize +
-                rectStyle.textBoxMargin[0] +
-                rectStyle.textBoxMargin[2]
-        } else if (dialogueComponent === DialogueComponent.SPEAKER_NAME) {
-            rectStyle = DIALOGUE_SPEAKER_NAME_BOX_STYLE_CONSTANTS[this.position]
-            dialogueBoxHeight = fontStyle.fontSize * 1.5
-        }
+        const textFit = TextHandlingService.fitTextWithinSpace({
+            text: this.dialogueText,
+            graphicsContext,
+            maximumWidth: rectStyle.maxPixelWidth,
+            font: {
+                strokeWeight: fontStyle.strokeWeight,
+                fontSizeRange: fontStyle.fontSizeRange,
+            },
+            linesOfTextRange: rectStyle.linesOfTextRange,
+        })
 
         let dialogueTextLabelLeft: number =
             DialogueTextService.calculateLeftAlignSide({
                 rectStyle,
-                dialogueBoxWidth,
+                dialogueBoxWidth: textFit.width,
                 horizontalMargin: rectStyle.horizontalMargin,
             })
 
         this.dialogueTextLabel = LabelService.new({
+            text: textFit.text,
+            fillColor: rectStyle.fillColor,
+            fontSize: textFit.fontSize,
             textBoxMargin: rectStyle.textBoxMargin,
             area: RectAreaService.new({
-                left: dialogueTextLabelLeft,
                 top:
                     ScreenDimensions.SCREEN_HEIGHT * rectStyle.topFraction +
                     rectStyle.topOffset,
-                width: dialogueBoxWidth,
-                height: dialogueBoxHeight,
+                width:
+                    textFit.width +
+                    rectStyle.textBoxMargin[1] +
+                    rectStyle.textBoxMargin[3],
+                left: dialogueTextLabelLeft,
+                height:
+                    TextHandlingService.calculateMaximumHeightOfFont({
+                        fontSize: textFit.fontSize,
+                        graphicsContext,
+                    }) * textFit.text.split("\n").length,
             }),
-            fillColor: rectStyle.fillColor,
-            text: textToDraw.join("\n"),
-            fontSize: fontStyle.fontSize,
             fontColor: fontStyle.fontColor,
             horizAlign: fontStyle.horizAlign,
             vertAlign: fontStyle.vertAlign,
         })
     }
-}
-
-const constrainTextAndGetBoundingBox = ({
-    rectStyle,
-    dialogueText,
-    fontStyle,
-}: {
-    rectStyle: StyleTextBoxConstants
-    dialogueText: string
-    fontStyle: StyleFontConstants
-}): { textToDraw: string[]; dialogueBoxWidth: number } => {
-    const textPerLine: string[] = dialogueText
-        .split("\n")
-        .reduce((collectedLines: string[], line: string) => {
-            collectedLines.push(
-                line.slice(0, rectStyle.maxNumberOfCharactersPerLine)
-            )
-            return collectedLines
-        }, [])
-    const textToDraw = textPerLine.slice(0, rectStyle.maxNumberLinesOfText)
-    const lengthOfLongestLine: number = Math.max(
-        ...textToDraw.map((t) =>
-            TextHandlingService.approximateLengthOfLineOfText({
-                text: t,
-                strokeWeight: fontStyle.strokeWeight,
-                fontSize: fontStyle.fontSize,
-            })
-        )
-    )
-
-    const dialogueBoxWidth =
-        lengthOfLongestLine + rectStyle.horizontalMargin * 2
-    return { textToDraw, dialogueBoxWidth }
 }

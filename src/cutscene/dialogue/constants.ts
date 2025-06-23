@@ -5,6 +5,8 @@ import {
 } from "../../ui/constants"
 import { ScreenDimensions } from "../../utils/graphics/graphicsConfig"
 import { TextBoxMargin } from "../../ui/label"
+import { DialogTextBoxLayout } from "./dialogueTextBox"
+import { FontSizeRange } from "../../utils/graphics/textHandlingService"
 
 export enum DialoguePosition {
     CENTER = "CENTER",
@@ -23,18 +25,8 @@ export interface ThirdOfScreenAlignment {
     thirdOfScreenSubAlignment: HORIZONTAL_ALIGN
 }
 
-export interface StyleTextBoxConstants extends ThirdOfScreenAlignment {
-    fillColor: number[]
-    horizontalMargin: number
-    topOffset: number
-    topFraction: number
-    maxNumberOfCharactersPerLine: number
-    maxNumberLinesOfText: number
-    textBoxMargin: number[]
-}
-
 export const DIALOGUE_TEXT_BOX_STYLE_CONSTANTS: {
-    [t in DialoguePosition]: StyleTextBoxConstants
+    [t in DialoguePosition]: DialogTextBoxLayout
 } = {
     [DialoguePosition.CENTER]: {
         fillColor: [200, 10, 50],
@@ -43,8 +35,8 @@ export const DIALOGUE_TEXT_BOX_STYLE_CONSTANTS: {
         thirdOfScreenAlignment: HORIZONTAL_ALIGN.CENTER,
         thirdOfScreenSubAlignment: HORIZONTAL_ALIGN.CENTER,
         topFraction: 0.7,
-        maxNumberOfCharactersPerLine: 30,
-        maxNumberLinesOfText: 3,
+        maxPixelWidth: ScreenDimensions.SCREEN_WIDTH / 3,
+        linesOfTextRange: { maximum: 3 },
         textBoxMargin: [
             WINDOW_SPACING.SPACING2,
             WINDOW_SPACING.SPACING2,
@@ -54,55 +46,18 @@ export const DIALOGUE_TEXT_BOX_STYLE_CONSTANTS: {
     },
     [DialoguePosition.LEFT]: {
         fillColor: [200, 10, 50],
-        maxNumberOfCharactersPerLine: 30,
-        maxNumberLinesOfText: 3,
         horizontalMargin: WINDOW_SPACING.SPACING2,
         topOffset: WINDOW_SPACING.SPACING1,
         thirdOfScreenAlignment: HORIZONTAL_ALIGN.LEFT,
         thirdOfScreenSubAlignment: HORIZONTAL_ALIGN.LEFT,
         topFraction: 0.7,
+        maxPixelWidth: ScreenDimensions.SCREEN_WIDTH / 3,
+        linesOfTextRange: { maximum: 3 },
         textBoxMargin: [
             WINDOW_SPACING.SPACING2,
             WINDOW_SPACING.SPACING2,
             WINDOW_SPACING.SPACING2,
             WINDOW_SPACING.SPACING2,
-        ],
-    },
-}
-
-export const DIALOGUE_SPEAKER_NAME_BOX_STYLE_CONSTANTS: {
-    [t in DialoguePosition]: StyleTextBoxConstants
-} = {
-    [DialoguePosition.CENTER]: {
-        fillColor: [200, 10, 50],
-        maxNumberOfCharactersPerLine: 15,
-        maxNumberLinesOfText: 1,
-        horizontalMargin: WINDOW_SPACING.SPACING1,
-        thirdOfScreenAlignment: HORIZONTAL_ALIGN.CENTER,
-        thirdOfScreenSubAlignment: HORIZONTAL_ALIGN.LEFT,
-        topOffset: -5 * WINDOW_SPACING.SPACING1,
-        topFraction: 0.7,
-        textBoxMargin: [
-            WINDOW_SPACING.SPACING1 * 1.3,
-            0,
-            0,
-            WINDOW_SPACING.SPACING1,
-        ],
-    },
-    [DialoguePosition.LEFT]: {
-        fillColor: [200, 10, 50],
-        maxNumberOfCharactersPerLine: 15,
-        maxNumberLinesOfText: 1,
-        horizontalMargin: WINDOW_SPACING.SPACING1,
-        thirdOfScreenAlignment: HORIZONTAL_ALIGN.LEFT,
-        thirdOfScreenSubAlignment: HORIZONTAL_ALIGN.LEFT,
-        topOffset: -5 * WINDOW_SPACING.SPACING1,
-        topFraction: 0.7,
-        textBoxMargin: [
-            WINDOW_SPACING.SPACING1 * 1.3,
-            0,
-            0,
-            WINDOW_SPACING.SPACING1,
         ],
     },
 }
@@ -114,15 +69,10 @@ export enum DialogueFontStyle {
 
 export interface StyleFontConstants {
     fontColor: number[]
-    fontSize: number
+    fontSizeRange: FontSizeRange
     horizAlign?: HORIZONTAL_ALIGN
     vertAlign?: VERTICAL_ALIGN
     strokeWeight: number
-    widthRatio: {
-        uppercase: number
-        number: number
-        default: number
-    }
 }
 
 export interface PopupWindowConstants {
@@ -145,23 +95,19 @@ export const DIALOGUE_FONT_STYLE_CONSTANTS: {
 } = {
     [DialogueFontStyle.BLACK]: {
         fontColor: [0, 0, 0],
-        fontSize: WINDOW_SPACING.SPACING4,
-        strokeWeight: 4,
-        widthRatio: {
-            uppercase: 0.8,
-            number: 0.8,
-            default: 0.5,
+        fontSizeRange: {
+            preferred: WINDOW_SPACING.SPACING4,
+            minimum: WINDOW_SPACING.SPACING2 + WINDOW_SPACING.SPACING1,
         },
+        strokeWeight: 4,
     },
     [DialogueFontStyle.WARNING_POPUP]: {
         fontColor: [245, 20, 90],
-        fontSize: 16,
-        strokeWeight: 4,
-        widthRatio: {
-            uppercase: 0.8,
-            number: 0.8,
-            default: 0.62,
+        fontSizeRange: {
+            preferred: WINDOW_SPACING.SPACING2,
+            minimum: WINDOW_SPACING.SPACING2,
         },
+        strokeWeight: 4,
     },
 }
 

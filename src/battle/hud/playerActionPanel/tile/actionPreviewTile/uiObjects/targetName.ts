@@ -50,7 +50,10 @@ export class CreateTargetNameTextBoxesAction implements BehaviorTreeTask {
             text: targetName,
             maximumWidth: layoutConstants.width,
             graphicsContext: uiObjects.graphicsContext,
-            fontSizeRange: layoutConstants.fontSizeRange,
+            font: {
+                strokeWeight: layoutConstants.strokeWeight,
+                fontSizeRange: layoutConstants.fontSizeRange,
+            },
             linesOfTextRange: layoutConstants.linesOfTextRange,
         })
 

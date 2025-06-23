@@ -33,14 +33,6 @@ export class UpdateSquaddieSelectorPanelButtonName implements BehaviorTreeTask {
         this.graphicsContext = graphicsContext
     }
 
-    clone(): UpdateSquaddieSelectorPanelButtonName {
-        return new UpdateSquaddieSelectorPanelButtonName(
-            this.dataBlob,
-            this.objectRepository,
-            this.graphicsContext
-        )
-    }
-
     run(): boolean {
         const layout: SquaddieSelectorPanelButtonLayout =
             DataBlobService.get<SquaddieSelectorPanelButtonLayout>(
@@ -68,6 +60,7 @@ export class UpdateSquaddieSelectorPanelButtonName implements BehaviorTreeTask {
         )
 
         let layoutConstantsToUseBasedOnSelectable: {
+            strokeWeight: number
             fontSizeRange: {
                 preferred: number
                 minimum: number
@@ -84,12 +77,16 @@ export class UpdateSquaddieSelectorPanelButtonName implements BehaviorTreeTask {
         switch (true) {
             case status.current.squaddieIsSelected:
                 layoutConstantsToUseBasedOnSelectable = {
+                    strokeWeight:
+                        layout.selectedSquaddieButton.font.strokeWeight,
                     fontSizeRange: layout.selectedSquaddieButton.font.sizeRange,
                     fontColor: layout.selectedSquaddieButton.font.color,
                 }
                 break
             case status.current.squaddieIsControllable:
                 layoutConstantsToUseBasedOnSelectable = {
+                    strokeWeight:
+                        layout.controllableSquaddieButton.font.strokeWeight,
                     fontSizeRange:
                         layout.controllableSquaddieButton.font.sizeRange,
                     fontColor: layout.controllableSquaddieButton.font.color,
@@ -97,6 +94,8 @@ export class UpdateSquaddieSelectorPanelButtonName implements BehaviorTreeTask {
                 break
             default:
                 layoutConstantsToUseBasedOnSelectable = {
+                    strokeWeight:
+                        layout.uncontrollableSquaddieButton.font.strokeWeight,
                     fontSizeRange:
                         layout.uncontrollableSquaddieButton.font.sizeRange,
                     fontColor: layout.uncontrollableSquaddieButton.font.color,
@@ -121,7 +120,12 @@ export class UpdateSquaddieSelectorPanelButtonName implements BehaviorTreeTask {
             text: name,
             maximumWidth: RectAreaService.width(areaToRender),
             graphicsContext: this.graphicsContext,
-            fontSizeRange: layoutConstantsToUseBasedOnSelectable.fontSizeRange,
+            font: {
+                strokeWeight:
+                    layoutConstantsToUseBasedOnSelectable.strokeWeight,
+                fontSizeRange:
+                    layoutConstantsToUseBasedOnSelectable.fontSizeRange,
+            },
             linesOfTextRange: { minimum: 1 },
         })
 

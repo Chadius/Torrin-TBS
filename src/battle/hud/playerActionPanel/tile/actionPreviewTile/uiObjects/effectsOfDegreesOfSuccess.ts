@@ -105,8 +105,12 @@ export class CreateNextEffectsOfDegreesOfSuccessTextBoxAction
             text: messageToShow,
             maximumWidth: effectsOfDegreesOfSuccessLayoutConstants.width,
             graphicsContext: uiObjects.graphicsContext,
-            fontSizeRange:
-                effectsOfDegreesOfSuccessLayoutConstants.fontSizeRange,
+            font: {
+                fontSizeRange:
+                    effectsOfDegreesOfSuccessLayoutConstants.fontSizeRange,
+                strokeWeight:
+                    effectsOfDegreesOfSuccessLayoutConstants.strokeWeight,
+            },
             linesOfTextRange:
                 effectsOfDegreesOfSuccessLayoutConstants.linesOfTextRange,
         })

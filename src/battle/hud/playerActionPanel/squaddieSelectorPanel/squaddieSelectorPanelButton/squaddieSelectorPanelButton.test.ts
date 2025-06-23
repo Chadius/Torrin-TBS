@@ -275,6 +275,7 @@ describe("Squaddie Selector Panel Button", () => {
             let strokeWeightBeforeSelected: number =
                 drawButtonAndGetLastSpyCallArgs<number>({
                     button: button,
+                    expectedNumberOfCalls: 4,
                     graphicsSpy: graphicsBufferSpies["strokeWeight"],
                 })
 
@@ -292,6 +293,7 @@ describe("Squaddie Selector Panel Button", () => {
             let strokeWeightAfterSelected: number =
                 drawButtonAndGetLastSpyCallArgs<number>({
                     button: button,
+                    expectedNumberOfCalls: 4,
                     graphicsSpy: graphicsBufferSpies["strokeWeight"],
                 })
 

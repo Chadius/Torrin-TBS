@@ -29,6 +29,7 @@ import {
 
 const layoutConstants = {
     portraitNameText: {
+        strokeWeight: 2,
         fontSizeRange: {
             preferred: 32,
             minimum: 10,
@@ -126,7 +127,10 @@ const setPortraitNameTextBox = (
         maximumWidth:
             RectAreaService.width(overallBoundingBox) - WINDOW_SPACING.SPACING2,
         graphicsContext,
-        fontSizeRange: layoutConstants.portraitNameText.fontSizeRange,
+        font: {
+            fontSizeRange: layoutConstants.portraitNameText.fontSizeRange,
+            strokeWeight: layoutConstants.portraitNameText.strokeWeight,
+        },
         linesOfTextRange: layoutConstants.portraitNameText.linesOfTextRange,
     })
 

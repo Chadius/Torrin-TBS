@@ -504,7 +504,7 @@
             "speakerPortraitPosition": "LEFT",
             "speakerName": "Hi, Nahla",
             "speakerNamePosition": "CENTER",
-            "dialogueText": "This is Nahla.\nShe can attack at range.\nShe can spend 2 AP to heal.",
+            "dialogueText": "This is Nahla. She can attack at range. She can spend 2 AP to heal.",
             "dialogueTextPosition": "CENTER",
             "comment": "Nahla's portrait and map icon are here. Show a situation where she won't have enough action points to heal.",
             "animationDuration": 0,
@@ -517,7 +517,7 @@
             "speakerPortraitPosition": "LEFT",
             "speakerName": "Sir Camil!",
             "speakerNamePosition": "CENTER",
-            "dialogueText": "Sir Camil can take more hits.\nRaise his Shield\nfor even more defense.",
+            "dialogueText": "Sir Camil can take more hits. Raise his Shield for even more defense.",
             "dialogueTextPosition": "CENTER",
             "comment": "Sir Camil's portrait and map icon. Show Raise Shield increasing his defense.",
             "animationDuration": 0,
@@ -552,7 +552,7 @@
             "type": "DIALOGUE",
             "id": "turn1_1",
             "speakerName": "Sir Camil",
-            "dialogueText": "Yes. I'll go first.\nClick next to the demon\nso I can move into melee.",
+            "dialogueText": "Yes. I'll go first.\nClick next to the demon so I can move into melee.",
             "speakerPortraitResourceKey": "sir camil cutscene portrait",
             "animationDuration": 0
           },
@@ -560,7 +560,7 @@
             "type": "DIALOGUE",
             "id": "turn1_2",
             "speakerName": "Sir Camil",
-            "dialogueText": "Then click on the longsword\nand click OK to strike\nthe demon!",
+            "dialogueText": "Then click on the longsword and click OK\n to strike the demon!",
             "speakerPortraitResourceKey": "sir camil cutscene portrait",
             "animationDuration": 0
           },
@@ -568,7 +568,7 @@
             "type": "DIALOGUE",
             "id": "turn1_3",
             "speakerName": "Nahla",
-            "dialogueText": "Once you're done, I will act.\nIf I move right behind you,\nI can use my Water Cannon!",
+            "dialogueText": "Once you're done, I will act. If I move right behind you, I can use my Water Cannon!",
             "speakerPortraitResourceKey": "young nahla cutscene portrait",
             "animationDuration": 0
           },
@@ -579,7 +579,7 @@
             "speakerPortraitPosition": "LEFT",
             "speakerName": "Nahla",
             "speakerNamePosition": "LEFT",
-            "dialogueText": "I can select End Turn\nif I have nothing else to do.",
+            "dialogueText": "Or if you defeated the demon, I can select End Turn.",
             "dialogueTextPosition": "LEFT",
             "animationDuration": 0
           }
@@ -591,7 +591,7 @@
             "type": "DIALOGUE",
             "id": "turn2_0",
             "speakerName": "Sir Camil",
-            "dialogueText": "Be careful where you move.\nThe blue circles note\nyour movement range.",
+            "dialogueText": "Be careful where you move. The blue circles note your movement range.",
             "speakerPortraitResourceKey": "sir camil cutscene portrait",
             "animationDuration": 0
           },
@@ -599,7 +599,7 @@
             "type": "DIALOGUE",
             "id": "turn2_1",
             "speakerName": "Sir Camil",
-            "dialogueText": "But the further you travel,\nthe more AP you spend.",
+            "dialogueText": "But the further you travel, the more AP you spend.",
             "speakerPortraitResourceKey": "sir camil cutscene portrait",
             "animationDuration": 0
           },
@@ -607,7 +607,7 @@
             "type": "DIALOGUE",
             "id": "turn2_2",
             "speakerName": "Nahla",
-            "dialogueText": "I can redo my movement\nbefore taking an action.",
+            "dialogueText": "I can redo my movement before taking an action.",
             "speakerPortraitResourceKey": "young nahla cutscene portrait",
             "animationDuration": 0
           },
@@ -615,7 +615,7 @@
             "type": "DIALOGUE",
             "id": "turn2_3",
             "speakerName": "Nahla",
-            "dialogueText": "And I can preview how much\n AP I will spend moving.\nThe AP meter will glow.",
+            "dialogueText": "And I can preview how much AP I will spend moving.\nThe AP meter will highlight how much I will spend.",
             "speakerPortraitResourceKey": "young nahla cutscene portrait",
             "animationDuration": 0
           }
@@ -630,7 +630,7 @@
             "speakerPortraitPosition": "LEFT",
             "speakerName": "Nahla",
             "speakerNamePosition": "LEFT",
-            "dialogueText": "Move the camera\nby moving the mouse\nto the edge of the screen.",
+            "dialogueText": "Move the camera by moving the mouse to the edges of the screen.",
             "dialogueTextPosition": "LEFT",
             "animationDuration": 0
           },
@@ -652,7 +652,7 @@
             "speakerPortraitPosition": "LEFT",
             "speakerName": "Nahla",
             "speakerNamePosition": "LEFT",
-            "dialogueText": "I was going to say that!\nClick and drag the map\nalso works!",
+            "dialogueText": "I was going to say that!\nClick and dragging the map also works!",
             "dialogueTextPosition": "LEFT",
             "animationDuration": 0
           },
@@ -663,7 +663,7 @@
             "speakerPortraitPosition": "CENTER",
             "speakerName": "Sir Camil",
             "speakerNamePosition": "CENTER",
-            "dialogueText": "Holding Shift\n and the arrow keys\nwill also scroll.",
+            "dialogueText": "Holding Shift and the arrow keys will also scroll.",
             "dialogueTextPosition": "CENTER",
             "animationDuration": 0
           }
@@ -675,7 +675,7 @@
             "type": "DIALOGUE",
             "id": "turn4_0",
             "speakerName": "Nahla",
-            "dialogueText": "The sand tiles slows us down.\nNormally I can move 2 tiles\n per AP, but sand halves it!",
+            "dialogueText": "The sand tiles slows us down. Normally I can move 2 tiles per AP, but sand halves it!",
             "speakerPortraitResourceKey": "young nahla cutscene portrait",
             "animationDuration": 0
           },
@@ -683,7 +683,7 @@
             "type": "DIALOGUE",
             "id": "turn4_1",
             "speakerName": "Sir Camil",
-            "dialogueText": "You have Torrent Surge.\nUse it to gain Hustle status.\nThen you can ignore the sand.",
+            "dialogueText": "You have Torrent Surge.\nUse it to gain Hustle status. Then you can ignore the sand.",
             "speakerPortraitResourceKey": "sir camil cutscene portrait",
             "animationDuration": 0
           },
@@ -691,7 +691,7 @@
             "type": "DIALOGUE",
             "id": "turn4_2",
             "speakerName": "Sir Camil",
-            "dialogueText": "But let me go first\n and attract the demons.",
+            "dialogueText": "But let me go first and attract the demons.",
             "speakerPortraitResourceKey": "sir camil cutscene portrait",
             "animationDuration": 0
           }
@@ -703,7 +703,7 @@
             "type": "DIALOGUE",
             "id": "turn5_0",
             "speakerName": "Nahla",
-            "dialogueText": "Don't you get tired swinging\n your sword so much?\nYour 3rd swing never hits!",
+            "dialogueText": "Don't you get tired swinging your sword so much?\nYour 3rd swing never hits!",
             "speakerPortraitResourceKey": "young nahla cutscene portrait",
             "animationDuration": 0
           },
@@ -711,7 +711,7 @@
             "type": "DIALOGUE",
             "id": "turn5_1",
             "speakerName": "Sir Camil",
-            "dialogueText": "Yes, the 2nd and 3rd attacks\nduring the same round\ntake a penalty.",
+            "dialogueText": "Yes, the 2nd and 3rd attacks during the same round take a penalty.",
             "speakerPortraitResourceKey": "sir camil cutscene portrait",
             "animationDuration": 0
           },
@@ -719,7 +719,7 @@
             "type": "DIALOGUE",
             "id": "turn5_2",
             "speakerName": "Sir Camil",
-            "dialogueText": "I should Raise my Shield\ninstead of attacking 3 times.",
+            "dialogueText": "The 3rd attack has a larger penalty, I should Raise my Shield instead.",
             "speakerPortraitResourceKey": "sir camil cutscene portrait",
             "animationDuration": 0
           },
@@ -727,7 +727,7 @@
             "type": "DIALOGUE",
             "id": "turn5_3",
             "speakerName": "Nahla",
-            "dialogueText": "Or you could retreat\nso they spend AP moving\ninstead of attacking.",
+            "dialogueText": "Or you could retreat so the demons waste their time moving instead of attacking.",
             "speakerPortraitResourceKey": "young nahla cutscene portrait",
             "animationDuration": 0
           }
@@ -747,7 +747,7 @@
             "type": "DIALOGUE",
             "id": "nahla_is_injured_1",
             "speakerName": "Nahla",
-            "dialogueText": "2 AP\nto heal 2 Hit Points.",
+            "dialogueText": "I spend 2 AP to heal 2 Hit Points.",
             "speakerPortraitResourceKey": "young nahla cutscene portrait",
             "animationDuration": 0
           }
@@ -767,7 +767,15 @@
             "type": "DIALOGUE",
             "id": "sir_camil_is_injured_1",
             "speakerName": "Nahla",
-            "dialogueText": "Sure! I have Healing Touch.\nI need to get close to you.\nIt costs 2 AP.",
+            "dialogueText": "Sure! I have Healing Touch. I need to get close to you. It costs 2 AP.",
+            "speakerPortraitResourceKey": "young nahla cutscene portrait",
+            "animationDuration": 0
+          },
+          {
+            "type": "DIALOGUE",
+            "id": "sir_camil_is_injured_2",
+            "speakerName": "Nahla",
+            "dialogueText": "Maybe you could back up towards me? I can only spend 1 AP to move and the other 2 AP to heal.",
             "speakerPortraitResourceKey": "young nahla cutscene portrait",
             "animationDuration": 0
           }
