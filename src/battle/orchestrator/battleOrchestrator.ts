@@ -52,6 +52,7 @@ import { SummaryHUDStateService } from "../hud/summary/summaryHUD"
 import { SquaddieSelectorPanelService } from "../hud/playerActionPanel/squaddieSelectorPanel/squaddieSelectorPanel"
 import { PlayerActionTargetSelect } from "../orchestratorComponents/playerActionTargetSelect/playerActionTargetSelect"
 import { SearchResultsCacheService } from "../../hexMap/pathfinder/searchResults/searchResultsCache"
+import { ActionSelectedTileService } from "../hud/playerActionPanel/tile/actionSelectedTile/actionSelectedTile"
 
 export enum BattleOrchestratorMode {
     UNKNOWN = "UNKNOWN",
@@ -415,16 +416,34 @@ export class BattleOrchestrator implements GameEngineComponent {
         }
     }
 
-    public mouseMoved(state: GameEngineState, mouseLocation: ScreenLocation) {
+    public mouseMoved(
+        gameEngineState: GameEngineState,
+        mouseLocation: ScreenLocation
+    ) {
         const mouseEvent: OrchestratorComponentMouseEvent = {
             eventType: OrchestratorComponentMouseEventType.LOCATION,
             mouseLocation,
         }
 
-        this.getCurrentComponent()?.mouseEventHappened(state, mouseEvent)
+        this.getCurrentComponent()?.mouseEventHappened(
+            gameEngineState,
+            mouseEvent
+        )
 
         if (this.uiControlSettings.letMouseScrollCamera === true) {
-            this.mapDisplay.mouseEventHappened(state, mouseEvent)
+            this.mapDisplay.mouseEventHappened(gameEngineState, mouseEvent)
+        }
+        if (this.uiControlSettings.displayPlayerHUD === true) {
+            if (
+                gameEngineState.battleOrchestratorState.battleHUDState
+                    .summaryHUDState.actionSelectedTile != undefined
+            ) {
+                ActionSelectedTileService.mouseMoved({
+                    tile: gameEngineState.battleOrchestratorState.battleHUDState
+                        .summaryHUDState.actionSelectedTile,
+                    mouseLocation,
+                })
+            }
         }
     }
 

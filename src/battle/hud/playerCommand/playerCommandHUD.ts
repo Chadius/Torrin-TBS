@@ -276,6 +276,7 @@ export const PlayerCommandStateService = {
                 gameEngineState.battleOrchestratorState.battleState
                     .battleActionDecisionStep,
             objectRepository: gameEngineState.repository,
+            glossary: gameEngineState.battleOrchestratorState.glossary,
             useAction: {
                 actionTemplateId: isActionButtonEndTurn(consideredActionButton)
                     ? undefined
@@ -390,7 +391,9 @@ const createQueuedPopupIfNeeded = (
     const windowWidth: number = TextHandlingService.calculateLengthOfLineOfText(
         {
             text: playerCommandState.newInvalidPopup.message,
-            fontSize: DIALOGUE_FONT_STYLE_CONSTANTS.WARNING_POPUP.fontSize,
+            fontSize:
+                DIALOGUE_FONT_STYLE_CONSTANTS.WARNING_POPUP.fontSizeRange
+                    .preferred,
             strokeWeight:
                 DIALOGUE_FONT_STYLE_CONSTANTS.WARNING_POPUP.strokeWeight,
             graphicsContext: graphicsBuffer,
@@ -402,7 +405,9 @@ const createQueuedPopupIfNeeded = (
         popupWindow: PopupWindowService.new({
             coordinateSystem: CoordinateSystem.SCREEN,
             label: LabelService.new({
-                fontSize: DIALOGUE_FONT_STYLE_CONSTANTS.WARNING_POPUP.fontSize,
+                fontSize:
+                    DIALOGUE_FONT_STYLE_CONSTANTS.WARNING_POPUP.fontSizeRange
+                        .preferred,
                 fontColor:
                     DIALOGUE_FONT_STYLE_CONSTANTS.WARNING_POPUP.fontColor,
                 textBoxMargin: WARNING_POPUP_TEXT_CONSTANTS.label.textBoxMargin,

@@ -530,6 +530,7 @@ const playerSelectsAnAction = ({
             gameEngineState.battleOrchestratorState.battleState
                 .battleActionDecisionStep,
         messageBoard: gameEngineState.messageBoard,
+        glossary: gameEngineState.battleOrchestratorState.glossary,
         actionTemplateId: context.actionTemplateId,
         battleSquaddieId: context.actorBattleSquaddieId,
         mapStartingCoordinate: currentMapCoordinate,

@@ -100,7 +100,7 @@ export class CreateLeftModifiersTextBoxAction implements BehaviorTreeTask {
             text: messageToShow,
             maximumWidth: modifiersLayoutConstants.leftColumn.width,
             graphicsContext: uiObjects.graphicsContext,
-            font: {
+            fontDescription: {
                 fontSizeRange: modifiersLayoutConstants.fontSizeRange,
                 strokeWeight: modifiersLayoutConstants.strokeWeight,
             },
@@ -193,7 +193,7 @@ export class CreateRightModifiersTextBoxAction implements BehaviorTreeTask {
             text: messageToShow,
             maximumWidth: modifiersLayoutConstants.rightColumn.width,
             graphicsContext: uiObjects.graphicsContext,
-            font: {
+            fontDescription: {
                 strokeWeight: modifiersLayoutConstants.strokeWeight,
                 fontSizeRange: modifiersLayoutConstants.fontSizeRange,
             },

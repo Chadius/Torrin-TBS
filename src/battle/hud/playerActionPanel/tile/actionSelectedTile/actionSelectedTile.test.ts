@@ -1,28 +1,28 @@
 import {
     ObjectRepository,
     ObjectRepositoryService,
-} from "../../../objectRepository"
-import { SquaddieTemplateService } from "../../../../campaign/squaddieTemplate"
-import { SquaddieIdService } from "../../../../squaddie/id"
-import { SquaddieAffiliation } from "../../../../squaddie/squaddieAffiliation"
-import { SquaddieResourceService } from "../../../../squaddie/resource"
-import { SquaddieEmotion } from "../../../animation/actionAnimation/actionAnimationConstants"
-import { BattleSquaddieService } from "../../../battleSquaddie"
+} from "../../../../objectRepository"
+import { SquaddieTemplateService } from "../../../../../campaign/squaddieTemplate"
+import { SquaddieIdService } from "../../../../../squaddie/id"
+import { SquaddieAffiliation } from "../../../../../squaddie/squaddieAffiliation"
+import { SquaddieResourceService } from "../../../../../squaddie/resource"
+import { SquaddieEmotion } from "../../../../animation/actionAnimation/actionAnimationConstants"
+import { BattleSquaddieService } from "../../../../battleSquaddie"
 import {
     ActionTemplate,
     ActionTemplateService,
-} from "../../../../action/template/actionTemplate"
+} from "../../../../../action/template/actionTemplate"
 import {
     ActionSelectedTile,
     ActionSelectedTileService,
 } from "./actionSelectedTile"
-import { ActionTilePosition } from "./actionTilePosition"
-import { GraphicsBuffer } from "../../../../utils/graphics/graphicsRenderer"
-import * as mocks from "../../../../utils/test/mocks"
+import { ActionTilePosition } from "../actionTilePosition"
+import { GraphicsBuffer } from "../../../../../utils/graphics/graphicsRenderer"
+import * as mocks from "../../../../../utils/test/mocks"
 import {
     MockedGraphicsBufferService,
     MockedP5GraphicsBuffer,
-} from "../../../../utils/test/mocks"
+} from "../../../../../utils/test/mocks"
 import {
     afterEach,
     beforeEach,
@@ -32,7 +32,21 @@ import {
     MockInstance,
     vi,
 } from "vitest"
-import { ResourceHandler } from "../../../../resource/resourceHandler"
+import { ResourceHandler } from "../../../../../resource/resourceHandler"
+import {
+    ActionEffectTemplateService,
+    TargetBySquaddieAffiliationRelation,
+} from "../../../../../action/template/actionEffectTemplate"
+import {
+    AttributeModifierService,
+    AttributeSource,
+} from "../../../../../squaddie/attribute/attributeModifier"
+import {
+    AttributeType,
+    AttributeTypeService,
+} from "../../../../../squaddie/attribute/attributeType"
+import { Glossary } from "../../../../../campaign/glossary/glossary"
+import { TileAttributeLabelStackService } from "../tileAttributeLabel/tileAttributeLabelStack"
 
 describe("Action Selected Tile", () => {
     let objectRepository: ObjectRepository
@@ -68,8 +82,30 @@ describe("Action Selected Tile", () => {
         actionTemplate = ActionTemplateService.new({
             id: "actionTemplate",
             name: "Action Name",
-            actionEffectTemplates: [],
+            actionEffectTemplates: [
+                ActionEffectTemplateService.new({
+                    squaddieAffiliationRelation: {
+                        [TargetBySquaddieAffiliationRelation.TARGET_SELF]: true,
+                    },
+                    attributeModifiers: [
+                        AttributeModifierService.new({
+                            type: AttributeType.MOVEMENT,
+                            source: AttributeSource.STATUS,
+                            amount: 1,
+                        }),
+                    ],
+                }),
+            ],
             buttonIconResourceKey: "button-icon-resource-key",
+            userInformation: {
+                userReadableDescription: "userReadableDescription",
+                customGlossaryTerms: [
+                    {
+                        name: "info",
+                        definition: "customGlossaryTerm0",
+                    },
+                ],
+            },
         })
         ObjectRepositoryService.addActionTemplate(
             objectRepository,
@@ -85,6 +121,7 @@ describe("Action Selected Tile", () => {
                 horizontalPosition: ActionTilePosition.SELECTED_ACTION,
                 actionTemplateId: actionTemplate.id,
                 battleSquaddieId: "battleJoeTheSoldier",
+                glossary: new Glossary(),
             })
         })
 
@@ -96,6 +133,17 @@ describe("Action Selected Tile", () => {
                 "button-icon-resource-key"
             )
         })
+        it("creates a stack for labels", () => {
+            expect(tile.glossaryLabelStack.labels).toHaveLength(2)
+            expect(tile.glossaryLabelStack.labels[0].iconResourceKey).toEqual(
+                AttributeTypeService.getAttributeIconResourceKeyForAttributeType(
+                    AttributeType.MOVEMENT
+                )
+            )
+            expect(tile.glossaryLabelStack.labels[1].description.text).toEqual(
+                "customGlossaryTerm0"
+            )
+        })
     })
 
     describe("drawing", () => {
@@ -103,7 +151,6 @@ describe("Action Selected Tile", () => {
         let graphicsBuffer: GraphicsBuffer
         let graphicsBufferSpies: { [key: string]: MockInstance }
         const fakeImage = { width: 1, height: 1 }
-        let getResourceSpy: MockInstance
         let resourceHandler: ResourceHandler
 
         beforeEach(() => {
@@ -112,29 +159,40 @@ describe("Action Selected Tile", () => {
                 horizontalPosition: ActionTilePosition.SELECTED_ACTION,
                 actionTemplateId: actionTemplate.id,
                 battleSquaddieId: "battleJoeTheSoldier",
+                glossary: new Glossary(),
             })
             graphicsBuffer = new MockedP5GraphicsBuffer()
             graphicsBufferSpies =
                 MockedGraphicsBufferService.addSpies(graphicsBuffer)
             resourceHandler = mocks.mockResourceHandler(graphicsBuffer)
             resourceHandler.getResource = vi.fn().mockReturnValue(fakeImage)
-            getResourceSpy = vi.spyOn(resourceHandler, "getResource")
         })
         afterEach(() => {
             MockedGraphicsBufferService.resetSpies(graphicsBufferSpies)
         })
 
-        it("will draw the name of the action", () => {
+        it("will draw the label stack", () => {
+            let stackSpy = vi.spyOn(TileAttributeLabelStackService, "draw")
             ActionSelectedTileService.draw({
                 tile,
                 graphicsContext: graphicsBuffer,
                 objectRepository,
+                resourceHandler,
             })
-            expect(graphicsBufferSpies["text"]).toBeCalled()
-            const drawSpyCalls = graphicsBufferSpies["text"].mock.calls
-            expect(
-                drawSpyCalls.some((call) => call[0] === actionTemplate.name)
-            ).toBeTruthy()
+            expect(stackSpy).toBeCalled()
+            stackSpy.mockRestore()
+        })
+        it("will pass mouse movement events to the stack", () => {
+            let mouseMovedSpy = vi.spyOn(
+                TileAttributeLabelStackService,
+                "mouseMoved"
+            )
+            ActionSelectedTileService.mouseMoved({
+                tile,
+                mouseLocation: { x: 0, y: 0 },
+            })
+            expect(mouseMovedSpy).toBeCalled()
+            mouseMovedSpy.mockRestore()
         })
     })
 })

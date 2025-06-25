@@ -19,6 +19,7 @@ import {
     ActionResourceCost,
     ActionResourceCostService,
 } from "../actionResourceCost"
+import { GlossaryTerm } from "../../campaign/glossary/glossary"
 
 export enum ActionDecisionType {
     TARGET_SQUADDIE = "TARGET_SQUADDIE",
@@ -26,12 +27,17 @@ export enum ActionDecisionType {
     ACTION_SELECTION = "ACTION_SELECTION",
 }
 
+interface ActionTemplateUserInformation {
+    userReadableDescription: string
+    customGlossaryTerms: GlossaryTerm[]
+}
+
 export interface ActionTemplate {
     id: string
     name: string
     rank?: number
     resourceCost?: ActionResourceCost
-    userReadableDescription: string
+    userInformation: ActionTemplateUserInformation
     actionEffectTemplates: ActionEffectTemplate[]
     buttonIconResourceKey: string
     targetConstraints: TargetConstraints
@@ -46,7 +52,7 @@ export const ActionTemplateService = {
         buttonIconResourceKey,
         rank,
         targetConstraints,
-        userReadableDescription,
+        userInformation,
     }: {
         id: string
         name: string
@@ -55,7 +61,7 @@ export const ActionTemplateService = {
         buttonIconResourceKey?: string
         rank?: number
         targetConstraints?: TargetConstraints
-        userReadableDescription?: string
+        userInformation?: ActionTemplateUserInformation
     }): ActionTemplate => {
         return sanitize({
             id,
@@ -66,8 +72,10 @@ export const ActionTemplateService = {
             buttonIconResourceKey,
             targetConstraints:
                 targetConstraints ?? TargetConstraintsService.new({}),
-            userReadableDescription:
-                userReadableDescription ?? "Missing Description",
+            userInformation: userInformation ?? {
+                userReadableDescription: "Missing Description",
+                customGlossaryTerms: [],
+            },
         })
     },
     multipleAttackPenaltyMultiplier: (
@@ -218,6 +226,8 @@ const sanitize = (template: ActionTemplate): ActionTemplate => {
     template.actionEffectTemplates.forEach((actionEffectTemplate) => {
         ActionEffectTemplateService.sanitize(actionEffectTemplate)
     })
+
+    template.userInformation.customGlossaryTerms ||= []
     return template
 }
 

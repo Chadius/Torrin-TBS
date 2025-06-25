@@ -1,33 +1,40 @@
 import {
     ObjectRepository,
     ObjectRepositoryService,
-} from "../../../objectRepository"
-import { getResultOrThrowError } from "../../../../utils/ResultOrError"
-import { GraphicsBuffer } from "../../../../utils/graphics/graphicsRenderer"
+} from "../../../../objectRepository"
+import { getResultOrThrowError } from "../../../../../utils/ResultOrError"
+import { GraphicsBuffer } from "../../../../../utils/graphics/graphicsRenderer"
 import {
     ActionTilePosition,
     ActionTilePositionService,
-} from "./actionTilePosition"
-import { SquaddieAffiliation } from "../../../../squaddie/squaddieAffiliation"
-import { RectArea, RectAreaService } from "../../../../ui/rectArea"
-import { WINDOW_SPACING } from "../../../../ui/constants"
-import { isValidValue } from "../../../../utils/objectValidityCheck"
-import { TextBox, TextBoxService } from "../../../../ui/textBox/textBox"
-import { HUE_BY_SQUADDIE_AFFILIATION } from "../../../../graphicsConstants"
+} from "../actionTilePosition"
+import { SquaddieAffiliation } from "../../../../../squaddie/squaddieAffiliation"
+import { RectArea, RectAreaService } from "../../../../../ui/rectArea"
+import { WINDOW_SPACING } from "../../../../../ui/constants"
+import { isValidValue } from "../../../../../utils/objectValidityCheck"
+import { TextBox, TextBoxService } from "../../../../../ui/textBox/textBox"
+import { HUE_BY_SQUADDIE_AFFILIATION } from "../../../../../graphicsConstants"
 import {
     FontSizeRange,
     LinesOfTextRange,
     TextHandlingService,
-} from "../../../../utils/graphics/textHandlingService"
+} from "../../../../../utils/graphics/textHandlingService"
 import {
     ActionTemplate,
     ActionTemplateService,
-} from "../../../../action/template/actionTemplate"
-import { AttributeModifierService } from "../../../../squaddie/attribute/attributeModifier"
+} from "../../../../../action/template/actionTemplate"
+import { AttributeModifierService } from "../../../../../squaddie/attribute/attributeModifier"
 import {
     AttributeType,
     AttributeTypeService,
-} from "../../../../squaddie/attribute/attributeType"
+} from "../../../../../squaddie/attribute/attributeType"
+import {
+    TileAttributeLabelStack,
+    TileAttributeLabelStackService,
+} from "../tileAttributeLabel/tileAttributeLabelStack"
+import { Glossary } from "../../../../../campaign/glossary/glossary"
+import { ResourceHandler } from "../../../../../resource/resourceHandler"
+import { ScreenLocation } from "../../../../../utils/mouseConfig"
 
 type ActionSelectedTileLayout = {
     actionNameText: {
@@ -57,7 +64,7 @@ const layoutConstants: ActionSelectedTileLayout = {
         strokeWeight: 2,
         fontSizeRange: {
             preferred: 24,
-            minimum: 10,
+            minimum: 4,
         },
         linesOfTextRange: {},
     },
@@ -85,11 +92,11 @@ const layoutConstants: ActionSelectedTileLayout = {
 }
 
 export interface ActionSelectedTile {
+    glossaryLabelStack: TileAttributeLabelStack
     actionName: string
     horizontalPosition: ActionTilePosition
     squaddieAffiliation: SquaddieAffiliation
     buttonIconResourceName: string
-    actionNameTextBox?: TextBox
     actionDescriptionTextBox?: TextBox
     actionTemplateId: string
     actionInformationTextBoxes: TextBox[]
@@ -101,11 +108,13 @@ export const ActionSelectedTileService = {
         battleSquaddieId,
         horizontalPosition,
         actionTemplateId,
+        glossary,
     }: {
         objectRepository: ObjectRepository
         battleSquaddieId: string
         horizontalPosition: ActionTilePosition
         actionTemplateId: string
+        glossary: Glossary
     }): ActionSelectedTile => {
         const actionTemplate = ObjectRepositoryService.getActionTemplateById(
             objectRepository,
@@ -118,6 +127,10 @@ export const ActionSelectedTileService = {
                 battleSquaddieId
             )
         )
+        const glossaryLabelStack = createGlossaryLabelStack({
+            actionTemplate: actionTemplate,
+            glossary: glossary,
+        })
 
         return {
             squaddieAffiliation: squaddieTemplate.squaddieId.affiliation,
@@ -126,24 +139,25 @@ export const ActionSelectedTileService = {
             buttonIconResourceName: actionTemplate.buttonIconResourceKey,
             actionTemplateId,
             actionInformationTextBoxes: [],
+            glossaryLabelStack,
         }
     },
     draw: ({
         tile,
         graphicsContext,
         objectRepository,
+        resourceHandler,
     }: {
         tile: ActionSelectedTile
         graphicsContext: GraphicsBuffer
         objectRepository: ObjectRepository
+        resourceHandler: ResourceHandler
     }) => {
         ActionTilePositionService.drawBackground({
             squaddieAffiliation: tile.squaddieAffiliation,
             graphicsContext,
             horizontalPosition: tile.horizontalPosition,
         })
-        createActionNameTextBox(tile, graphicsContext)
-        drawActionNameTextBox(tile, graphicsContext)
 
         createActionInformationTextBoxes({
             tile: tile,
@@ -158,60 +172,24 @@ export const ActionSelectedTileService = {
             objectRepository,
         })
         drawActionTemplateDescriptionTextBox(tile, graphicsContext)
+        TileAttributeLabelStackService.draw({
+            stack: tile.glossaryLabelStack,
+            graphicsBuffer: graphicsContext,
+            resourceHandler,
+        })
     },
-}
-
-const createActionNameTextBox = (
-    tile: ActionSelectedTile,
-    graphicsContext: GraphicsBuffer
-) => {
-    if (tile.actionNameTextBox) return
-
-    const overallBoundingBox =
-        ActionTilePositionService.getBoundingBoxBasedOnActionTilePosition(
-            tile.horizontalPosition
-        )
-    const squaddieAffiliationHue: number =
-        HUE_BY_SQUADDIE_AFFILIATION[tile.squaddieAffiliation]
-    const textColor = [squaddieAffiliationHue, 7, 192]
-
-    const textInfo = TextHandlingService.fitTextWithinSpace({
-        text: tile.actionName,
-        maximumWidth:
-            RectAreaService.width(overallBoundingBox) - WINDOW_SPACING.SPACING2,
-        graphicsContext,
-        font: {
-            fontSizeRange: layoutConstants.actionNameText.fontSizeRange,
-            strokeWeight: layoutConstants.actionNameText.strokeWeight,
-        },
-        linesOfTextRange: layoutConstants.actionNameText.linesOfTextRange,
-    })
-
-    tile.actionNameTextBox = TextBoxService.new({
-        text: textInfo.text,
-        fontSize: textInfo.fontSize,
-        fontColor: textColor,
-        area: RectAreaService.new({
-            left:
-                RectAreaService.left(overallBoundingBox) +
-                WINDOW_SPACING.SPACING1,
-            top:
-                RectAreaService.top(overallBoundingBox) +
-                WINDOW_SPACING.SPACING1,
-            width:
-                RectAreaService.width(overallBoundingBox) -
-                WINDOW_SPACING.SPACING2,
-            height: textInfo.fontSize * textInfo.text.split("\n").length,
-        }),
-    })
-}
-
-const drawActionNameTextBox = (
-    tile: ActionSelectedTile,
-    graphicsContext: GraphicsBuffer
-) => {
-    if (!isValidValue(tile.actionNameTextBox)) return
-    TextBoxService.draw(tile.actionNameTextBox, graphicsContext)
+    mouseMoved: ({
+        tile,
+        mouseLocation,
+    }: {
+        tile: ActionSelectedTile
+        mouseLocation: ScreenLocation
+    }) => {
+        TileAttributeLabelStackService.mouseMoved({
+            stack: tile.glossaryLabelStack,
+            mouseLocation,
+        })
+    },
 }
 
 const createActionInformationTextBoxes = ({
@@ -235,10 +213,7 @@ const createActionInformationTextBoxes = ({
             tile.horizontalPosition
         )
 
-    let top =
-        RectAreaService.top(overallBoundingBox) +
-        WINDOW_SPACING.SPACING1 +
-        layoutConstants.actionNameText.fontSizeRange.preferred
+    let top = RectAreaService.top(overallBoundingBox) + WINDOW_SPACING.SPACING1
 
     const actionPointCostBottom = createActionPointCostTextBoxesAndGetBottom({
         graphicsContext,
@@ -446,7 +421,7 @@ const createInformationTextBox = ({
         text,
         maximumWidth: availableTextWidth,
         graphicsContext,
-        font: {
+        fontDescription: {
             fontSizeRange,
             strokeWeight,
         },
@@ -662,11 +637,11 @@ const createActionTemplateDescriptionTextBox = ({
     const textColor = [squaddieAffiliationHue, 7, 192]
 
     const textInfo = TextHandlingService.fitTextWithinSpace({
-        text: actionTemplate.userReadableDescription,
+        text: actionTemplate.userInformation.userReadableDescription,
         maximumWidth:
             RectAreaService.width(overallBoundingBox) - WINDOW_SPACING.SPACING2,
         graphicsContext,
-        font: {
+        fontDescription: {
             fontSizeRange: layoutConstants.description.fontSizeRange,
             strokeWeight: layoutConstants.description.strokeWeight,
         },
@@ -703,4 +678,37 @@ const drawActionTemplateDescriptionTextBox = (
     if (isValidValue(tile.actionDescriptionTextBox)) {
         TextBoxService.draw(tile.actionDescriptionTextBox, graphicsContext)
     }
+}
+
+const createGlossaryLabelStack = ({
+    actionTemplate,
+    glossary,
+}: {
+    actionTemplate: ActionTemplate
+    glossary: Glossary
+}) => {
+    const overallBoundingBox =
+        ActionTilePositionService.getBoundingBoxBasedOnActionTilePosition(
+            ActionTilePosition.SELECTED_ACTION
+        )
+    const glossaryLabelStack: TileAttributeLabelStack =
+        TileAttributeLabelStackService.new({
+            tilePosition: ActionTilePosition.SELECTED_ACTION,
+            bottom: RectAreaService.top(overallBoundingBox) - 1,
+        })
+
+    glossary
+        .getGlossaryTermsFromActionTemplate(actionTemplate)
+        .forEach((term) => {
+            TileAttributeLabelStackService.add({
+                stack: glossaryLabelStack,
+                newTile: {
+                    id: term.name,
+                    title: term.name,
+                    descriptionText: term.definition,
+                    iconResourceKey: term.iconResourceKey,
+                },
+            })
+        })
+    return glossaryLabelStack
 }

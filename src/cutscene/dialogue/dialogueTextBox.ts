@@ -113,7 +113,7 @@ export class DialogueTextBox {
             text: this.dialogueText,
             graphicsContext,
             maximumWidth: rectStyle.maxPixelWidth,
-            font: {
+            fontDescription: {
                 strokeWeight: fontStyle.strokeWeight,
                 fontSizeRange: fontStyle.fontSizeRange,
             },

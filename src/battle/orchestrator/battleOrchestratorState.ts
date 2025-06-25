@@ -22,6 +22,7 @@ import {
     SearchResultsCache,
     SearchResultsCacheService,
 } from "../../hexMap/pathfinder/searchResults/searchResultsCache"
+import { Glossary } from "../../campaign/glossary/glossary"
 
 export type BattleCache = {
     searchResultsCache: SearchResultsCache
@@ -35,6 +36,7 @@ export class BattleOrchestratorState {
     battleHUDState: BattleHUDState
     cutsceneQueue: CutsceneIdQueue
     cache: BattleCache
+    glossary: Glossary
 
     constructor({
         numberGenerator,
@@ -68,6 +70,7 @@ export class BattleOrchestratorState {
         this.cache = {
             searchResultsCache: SearchResultsCacheService.new(),
         }
+        this.glossary = new Glossary()
     }
 
     get isValid(): boolean {
@@ -96,17 +99,6 @@ export class BattleOrchestratorState {
             )
     }
 
-    public clone(): BattleOrchestratorState {
-        return BattleOrchestratorStateService.new({
-            battleState: BattleStateService.clone(this.battleState),
-            numberGenerator: this.numberGenerator
-                ? this.numberGenerator.clone()
-                : undefined,
-            battleHUDState: BattleHUDStateService.clone(this.battleHUDState),
-            battleHUD: this.battleHUD,
-        })
-    }
-
     public copyOtherOrchestratorState(other: BattleOrchestratorState): void {
         this.battleState = BattleStateService.clone(other.battleState)
         this.battleHUD = getValidValueOrDefault(other.battleHUD, {
@@ -114,6 +106,7 @@ export class BattleOrchestratorState {
         })
         this.numberGenerator = other.numberGenerator.clone()
         this.playerDecisionHUD = PlayerDecisionHUDService.new()
+        this.glossary = other.glossary
     }
 }
 

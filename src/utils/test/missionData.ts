@@ -719,7 +719,9 @@ export const TestMissionData = () => {
         {
             id: "demon_slither_bite",
             name: "Bite",
-            userReadableDescription: "Attack AC of an adjacent foe.",
+            userInformation: {
+                userReadableDescription: "Attack AC of an adjacent foe.",
+            },
             targetConstraints: {
                 minimumRange: 0,
                 maximumRange: 1,
@@ -745,7 +747,9 @@ export const TestMissionData = () => {
         {
             id: "short_sword",
             name: "Short sword",
-            userReadableDescription: "Attack AC of an adjacent foe.",
+            userInformation: {
+                userReadableDescription: "Attack AC of an adjacent foe.",
+            },
             targetConstraints: {
                 minimumRange: 0,
                 maximumRange: 1,
@@ -770,7 +774,9 @@ export const TestMissionData = () => {
         {
             id: "ignition",
             name: "Ignition",
-            userReadableDescription: "Attack AC of an adjacent foe.",
+            userInformation: {
+                userReadableDescription: "Attack AC of an adjacent foe.",
+            },
             targetConstraints: {
                 minimumRange: 0,
                 maximumRange: 1,

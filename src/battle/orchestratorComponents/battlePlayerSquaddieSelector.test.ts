@@ -1013,6 +1013,9 @@ describe("BattleSquaddieSelector", () => {
                                     gameEngineState.battleOrchestratorState
                                         .battleState.battleActionDecisionStep,
                                 messageBoard: gameEngineState.messageBoard,
+                                glossary:
+                                    gameEngineState.battleOrchestratorState
+                                        .glossary,
                                 battleSquaddieId: "battleSquaddieId",
                             },
                         }),
@@ -1041,6 +1044,7 @@ describe("BattleSquaddieSelector", () => {
                 battleActionDecisionStep:
                     gameEngineState.battleOrchestratorState.battleState
                         .battleActionDecisionStep,
+                glossary: gameEngineState.battleOrchestratorState.glossary,
                 messageBoard: gameEngineState.messageBoard,
                 actionTemplateId: rangedActionId,
             })

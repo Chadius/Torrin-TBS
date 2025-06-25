@@ -1171,6 +1171,7 @@ describe("Battle HUD", () => {
                 messageBoard: gameEngineState.messageBoard,
                 actionTemplateId: longswordAction.id,
                 battleSquaddieId: playerSoldierBattleSquaddie.battleSquaddieId,
+                glossary: gameEngineState.battleOrchestratorState.glossary,
                 mapStartingCoordinate: { q: 0, r: 0 },
             })
         })

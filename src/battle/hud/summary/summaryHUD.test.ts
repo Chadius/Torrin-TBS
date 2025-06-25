@@ -53,7 +53,7 @@ import {
     TargetingResults,
     TargetingResultsService,
 } from "../../targeting/targetingService"
-import { PlayerConsideredActions } from "../../battleState/playerConsideredActions"
+import { Glossary } from "../../../campaign/glossary/glossary"
 
 describe("summaryHUD", () => {
     let graphicsBuffer: MockedP5GraphicsBuffer
@@ -953,6 +953,30 @@ describe("summaryHUD", () => {
         })
     })
 
+    const createActorAndActionSelectedTiles = (
+        gameEngineState: GameEngineState
+    ) => {
+        SummaryHUDStateService.createActorTiles({
+            summaryHUDState,
+            battleActionDecisionStep:
+                gameEngineState.battleOrchestratorState.battleState
+                    .battleActionDecisionStep,
+            campaignResources: gameEngineState.campaign.resources,
+            objectRepository,
+        })
+
+        SummaryHUDStateService.createActionTiles({
+            summaryHUDState,
+            battleActionDecisionStep:
+                gameEngineState.battleOrchestratorState.battleState
+                    .battleActionDecisionStep,
+            playerConsideredActions:
+                gameEngineState.battleOrchestratorState.battleState
+                    .playerConsideredActions,
+            objectRepository,
+            glossary: new Glossary(),
+        })
+    }
     describe("player selects an action to see action tile", () => {
         let gameEngineState: GameEngineState
         beforeEach(() => {
@@ -1076,26 +1100,7 @@ describe("summaryHUD", () => {
                         .battleActionDecisionStep,
                 actionTemplateId: "actionTemplate0",
             })
-
-            SummaryHUDStateService.createActorTiles({
-                summaryHUDState,
-                battleActionDecisionStep:
-                    gameEngineState.battleOrchestratorState.battleState
-                        .battleActionDecisionStep,
-                campaignResources: gameEngineState.campaign.resources,
-                objectRepository,
-            })
-
-            SummaryHUDStateService.createActionTiles({
-                summaryHUDState,
-                battleActionDecisionStep:
-                    gameEngineState.battleOrchestratorState.battleState
-                        .battleActionDecisionStep,
-                playerConsideredActions:
-                    gameEngineState.battleOrchestratorState.battleState
-                        .playerConsideredActions,
-                objectRepository,
-            })
+            createActorAndActionSelectedTiles(gameEngineState)
 
             expect(summaryHUDState.actionSelectedTile).not.toBeUndefined()
             expect(summaryHUDState.actionSelectedTile.actionName).toEqual(
@@ -1107,26 +1112,7 @@ describe("summaryHUD", () => {
             it("will create tiles when the mouse moves a tile to consider it", () => {
                 gameEngineState.battleOrchestratorState.battleState.playerConsideredActions.actionTemplateId =
                     "actionTemplate0"
-
-                SummaryHUDStateService.createActorTiles({
-                    summaryHUDState,
-                    battleActionDecisionStep:
-                        gameEngineState.battleOrchestratorState.battleState
-                            .battleActionDecisionStep,
-                    campaignResources: gameEngineState.campaign.resources,
-                    objectRepository,
-                })
-
-                SummaryHUDStateService.createActionTiles({
-                    summaryHUDState,
-                    battleActionDecisionStep:
-                        gameEngineState.battleOrchestratorState.battleState
-                            .battleActionDecisionStep,
-                    playerConsideredActions:
-                        gameEngineState.battleOrchestratorState.battleState
-                            .playerConsideredActions,
-                    objectRepository,
-                })
+                createActorAndActionSelectedTiles(gameEngineState)
 
                 expect(summaryHUDState.actionSelectedTile).not.toBeUndefined()
                 expect(summaryHUDState.actionSelectedTile.actionName).toEqual(

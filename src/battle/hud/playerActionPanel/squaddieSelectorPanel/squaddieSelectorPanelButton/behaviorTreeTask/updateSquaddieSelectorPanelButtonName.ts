@@ -120,7 +120,7 @@ export class UpdateSquaddieSelectorPanelButtonName implements BehaviorTreeTask {
             text: name,
             maximumWidth: RectAreaService.width(areaToRender),
             graphicsContext: this.graphicsContext,
-            font: {
+            fontDescription: {
                 strokeWeight:
                     layoutConstantsToUseBasedOnSelectable.strokeWeight,
                 fontSizeRange:

@@ -35,7 +35,7 @@ import {
 import {
     ActionSelectedTile,
     ActionSelectedTileService,
-} from "../playerActionPanel/tile/actionSelectedTile"
+} from "../playerActionPanel/tile/actionSelectedTile/actionSelectedTile"
 import {
     ActionPreviewTile,
     ActionPreviewTileService,
@@ -44,6 +44,7 @@ import { NumberGeneratorStrategy } from "../../numberGenerator/strategy"
 import { BattleActionRecorder } from "../../history/battleAction/battleActionRecorder"
 import { CampaignResources } from "../../../campaign/campaignResources"
 import { PlayerConsideredActions } from "../../battleState/playerConsideredActions"
+import { Glossary } from "../../../campaign/glossary/glossary"
 
 export const SUMMARY_HUD_PEEK_EXPIRATION_MS = 2000
 
@@ -201,11 +202,6 @@ export const SummaryHUDStateService = {
             graphicsBuffer,
             gameEngineState,
         })
-        drawSelectedActionTile({
-            summaryHUDState,
-            graphicsBuffer,
-            gameEngineState,
-        })
         drawActionPreviewTile({
             summaryHUDState,
             graphicsBuffer,
@@ -219,6 +215,12 @@ export const SummaryHUDStateService = {
             resourceHandler,
             showOnlySelectedActionButton:
                 !!summaryHUDState.playerCommandState.selectedActionTemplateId,
+        })
+
+        drawSelectedActionTile({
+            summaryHUDState,
+            graphicsBuffer,
+            gameEngineState,
         })
     },
     mouseMoved: ({
@@ -281,11 +283,13 @@ export const SummaryHUDStateService = {
         objectRepository,
         battleActionDecisionStep,
         playerConsideredActions,
+        glossary,
     }: {
         summaryHUDState: SummaryHUDState
         objectRepository: ObjectRepository
         battleActionDecisionStep: BattleActionDecisionStep
         playerConsideredActions?: PlayerConsideredActions
+        glossary: Glossary
     }) => {
         const selectedAction =
             BattleActionDecisionStepService.getAction(battleActionDecisionStep)
@@ -306,6 +310,7 @@ export const SummaryHUDStateService = {
             ).battleSquaddieId,
             actionTemplateId: actionTemplate.id,
             horizontalPosition: ActionTilePosition.SELECTED_ACTION,
+            glossary,
         })
     },
     createActionPreviewTile: ({
@@ -599,6 +604,7 @@ const drawSelectedActionTile = ({
         tile: summaryHUDState.actionSelectedTile,
         graphicsContext: graphicsBuffer,
         objectRepository: gameEngineState.repository,
+        resourceHandler: gameEngineState.resourceHandler,
     })
 }
 

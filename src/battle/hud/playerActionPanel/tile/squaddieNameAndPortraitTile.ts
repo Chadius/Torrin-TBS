@@ -127,7 +127,7 @@ const setPortraitNameTextBox = (
         maximumWidth:
             RectAreaService.width(overallBoundingBox) - WINDOW_SPACING.SPACING2,
         graphicsContext,
-        font: {
+        fontDescription: {
             fontSizeRange: layoutConstants.portraitNameText.fontSizeRange,
             strokeWeight: layoutConstants.portraitNameText.strokeWeight,
         },

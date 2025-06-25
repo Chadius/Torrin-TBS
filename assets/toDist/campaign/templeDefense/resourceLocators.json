@@ -401,6 +401,11 @@
   },
   {
     "type": "IMAGE",
+    "path": "assets/ui/attribute/absorb.png",
+    "key": "attribute-icon-absorb"
+  },
+  {
+    "type": "IMAGE",
     "path": "assets/ui/attribute/movement.png",
     "key": "attribute-icon-movement"
   },

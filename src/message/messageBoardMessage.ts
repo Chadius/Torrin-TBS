@@ -24,6 +24,7 @@ import { PlayerDecisionHUD } from "../battle/hud/playerActionPanel/playerDecisio
 import { PlayerCommandState } from "../battle/hud/playerCommand/playerCommandHUD"
 import { BattleState } from "../battle/battleState/battleState"
 import { SearchResultsCache } from "../hexMap/pathfinder/searchResults/searchResultsCache"
+import { Glossary } from "../campaign/glossary/glossary"
 
 export type MessageBoardMessage =
     | MessageBoardMessageBase
@@ -184,6 +185,7 @@ export interface MessageBoardMessagePlayerSelectsActionTemplate {
     actionTemplateId: string
     battleSquaddieId: string
     mapStartingCoordinate: HexCoordinate
+    glossary: Glossary
 }
 
 export interface MessageBoardMessagePlayerSelectsTargetCoordinate {
@@ -309,6 +311,7 @@ export interface MessageBoardMessagePlayerConsidersAction {
     missionMap: MissionMap
     battleActionDecisionStep: BattleActionDecisionStep
     objectRepository: ObjectRepository
+    glossary: Glossary
     useAction: {
         actionTemplateId: string
         isEndTurn: boolean

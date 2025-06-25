@@ -30,9 +30,10 @@ describe("ActionTemplate", () => {
         expect(justMovement.targetConstraints.coordinateGeneratorShape).toEqual(
             CoordinateGeneratorShape.BLOOM
         )
-        expect(justMovement.userReadableDescription).toEqual(
+        expect(justMovement.userInformation.userReadableDescription).toEqual(
             "Missing Description"
         )
+        expect(justMovement.userInformation.customGlossaryTerms).toHaveLength(0)
     })
 
     it("can create a template with new action effects", () => {
@@ -48,12 +49,29 @@ describe("ActionTemplate", () => {
             id: "strike",
             name: "strike",
             actionEffectTemplates: [attackTemplate],
-            userReadableDescription: "Attack!",
+            userInformation: {
+                userReadableDescription: "Attack!",
+                customGlossaryTerms: [
+                    {
+                        name: "customGlossaryTerm",
+                        definition: "glossary definition",
+                    },
+                ],
+            },
         })
 
         expect(attackAction.actionEffectTemplates).toHaveLength(1)
         expect(attackAction.actionEffectTemplates[0]).toEqual(attackTemplate)
-        expect(attackAction.userReadableDescription).toEqual("Attack!")
+        expect(attackAction.userInformation.userReadableDescription).toEqual(
+            "Attack!"
+        )
+        expect(attackAction.userInformation.customGlossaryTerms).toHaveLength(1)
+        expect(attackAction.userInformation.customGlossaryTerms[0].name).toBe(
+            "customGlossaryTerm"
+        )
+        expect(
+            attackAction.userInformation.customGlossaryTerms[0].definition
+        ).toBe("glossary definition")
     })
 
     describe("Range", () => {

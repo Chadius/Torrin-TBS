@@ -474,6 +474,7 @@ describe("Player Decision HUD", () => {
                         gameEngineState.battleOrchestratorState.battleState
                             .battleActionDecisionStep,
                     objectRepository: gameEngineState.repository,
+                    glossary: gameEngineState.battleOrchestratorState.glossary,
                     useAction: {
                         actionTemplateId: longswordAction.id,
                         isEndTurn: false,
@@ -531,7 +532,7 @@ describe("Player Decision HUD", () => {
                     gameEngineState.battleOrchestratorState.battleState
                         .battleActionDecisionStep,
                 objectRepository: gameEngineState.repository,
-
+                glossary: gameEngineState.battleOrchestratorState.glossary,
                 useAction: {
                     actionTemplateId: longswordAction.id,
                     isEndTurn: false,
@@ -573,6 +574,7 @@ describe("Player Decision HUD", () => {
                         gameEngineState.battleOrchestratorState.battleState
                             .battleActionDecisionStep,
                     objectRepository: gameEngineState.repository,
+                    glossary: gameEngineState.battleOrchestratorState.glossary,
                     useAction: {
                         actionTemplateId: undefined,
                         isEndTurn: true,

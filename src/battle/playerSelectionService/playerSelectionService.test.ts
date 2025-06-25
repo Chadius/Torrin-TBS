@@ -1179,6 +1179,7 @@ describe("Player Selection Service", () => {
                     battleActionDecisionStep:
                         gameEngineState.battleOrchestratorState.battleState
                             .battleActionDecisionStep,
+                    glossary: gameEngineState.battleOrchestratorState.glossary,
                     messageBoard: gameEngineState.messageBoard,
                     actionTemplateId: rangedActionId,
                     battleSquaddieId: "PLAYER",

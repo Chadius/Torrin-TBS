@@ -176,6 +176,7 @@ const playerConsidersAction = (
         battleActionDecisionStep: message.battleActionDecisionStep,
         playerConsideredActions: message.playerConsideredActions,
         objectRepository: message.objectRepository,
+        glossary: message.glossary,
     })
 
     PlayerDecisionHUDService.clearPopupWindow(

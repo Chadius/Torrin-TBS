@@ -11,7 +11,6 @@ import { MissionConditionType } from "../missionResult/missionCondition"
 import { BattleState, BattleStateService } from "../battleState/battleState"
 import { FixedNumberGenerator } from "../numberGenerator/fixed"
 import { RandomNumberGenerator } from "../numberGenerator/random"
-import { BattleHUDStateService } from "../hud/battleHUD/battleHUDState"
 import { BattleHUDService } from "../hud/battleHUD/battleHUD"
 import { beforeEach, describe, expect, it } from "vitest"
 
@@ -97,35 +96,6 @@ describe("orchestratorState", () => {
             numberGenerator: new FixedNumberGenerator({ result: 10 }),
         }
         validityCheck(args, true, [])
-    })
-
-    it("can clone existing objects", () => {
-        let originalBattleOrchestratorState: BattleOrchestratorState =
-            BattleOrchestratorStateService.new({
-                battleHUD: BattleHUDService.new({}),
-                battleState: {
-                    ...validBattleState,
-                },
-                numberGenerator: new FixedNumberGenerator({ result: 3 }),
-                battleHUDState: BattleHUDStateService.new({}),
-            })
-
-        expect(originalBattleOrchestratorState.isValid).toBeTruthy()
-
-        const cloned: BattleOrchestratorState =
-            originalBattleOrchestratorState.clone()
-
-        expect(cloned.isValid).toBeTruthy()
-        expect(cloned).toEqual(originalBattleOrchestratorState)
-        expect(
-            Object.is(
-                cloned.numberGenerator,
-                originalBattleOrchestratorState.numberGenerator
-            )
-        ).toBeFalsy()
-        expect(cloned.battleHUDState).toEqual(
-            originalBattleOrchestratorState.battleHUDState
-        )
     })
 
     it("can change itself to match other objects", () => {

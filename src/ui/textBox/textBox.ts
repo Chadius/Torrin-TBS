@@ -74,9 +74,6 @@ export const TextBoxService = {
     isDone: (textBox: TextBox): boolean => {
         return isDone(textBox)
     },
-    stop: (textBox: TextBox) => {
-        textBox.duration = 0
-    },
 }
 
 const isDone = (textBox: TextBox): boolean => {

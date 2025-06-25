@@ -6,7 +6,10 @@ import {
     ObjectRepository,
     ObjectRepositoryService,
 } from "../battle/objectRepository"
-import { BattleOrchestratorStateService } from "../battle/orchestrator/battleOrchestratorState"
+import {
+    BattleOrchestratorState,
+    BattleOrchestratorStateService,
+} from "../battle/orchestrator/battleOrchestratorState"
 import { MissionFileFormat } from "../dataLoader/missionLoader"
 import { GameModeEnum } from "../utils/startupConfig"
 import { BattleStateService } from "../battle/battleState/battleState"
@@ -47,6 +50,7 @@ import { LoadSaveStateService } from "../dataLoader/playerData/loadSaveState"
 import { BattleCompletionStatus } from "../battle/orchestrator/missionObjectivesAndCutscenes"
 import { BattlePhase } from "../battle/orchestratorComponents/battlePhaseTracker"
 import { TitleScreenStateHelper } from "../titleScreen/titleScreenState"
+import { BattleHUDStateService } from "../battle/hud/battleHUD/battleHUDState"
 
 describe("GameEngineGameLoader", () => {
     let loader: GameEngineGameLoader
@@ -416,6 +420,21 @@ describe("GameEngineGameLoader", () => {
         })
     })
 
+    const cloneBattleOrchestratorState = (
+        original: BattleOrchestratorState
+    ): BattleOrchestratorState => {
+        return BattleOrchestratorStateService.new({
+            battleState: BattleStateService.clone(original.battleState),
+            numberGenerator: original.numberGenerator
+                ? original.numberGenerator.clone()
+                : undefined,
+            battleHUDState: BattleHUDStateService.clone(
+                original.battleHUDState
+            ),
+            battleHUD: original.battleHUD,
+        })
+    }
+
     describe("load battle save data mid battle", () => {
         let loadedBattleSaveState: BattleSaveState
         let openDialogSpy: MockInstance
@@ -504,8 +523,9 @@ describe("GameEngineGameLoader", () => {
             })
             currentState = GameEngineStateService.new({
                 titleScreenState: { ...originalState.titleScreenState },
-                battleOrchestratorState:
-                    originalState.battleOrchestratorState.clone(),
+                battleOrchestratorState: cloneBattleOrchestratorState(
+                    originalState.battleOrchestratorState
+                ),
                 campaign: { ...originalState.campaign },
                 repository: originalState.repository,
                 resourceHandler: originalState.resourceHandler,
@@ -845,8 +865,9 @@ describe("GameEngineGameLoader", () => {
             })
             currentState = GameEngineStateService.new({
                 titleScreenState: { ...originalState.titleScreenState },
-                battleOrchestratorState:
-                    originalState.battleOrchestratorState.clone(),
+                battleOrchestratorState: cloneBattleOrchestratorState(
+                    originalState.battleOrchestratorState
+                ),
                 campaign: { ...originalState.campaign },
                 repository: originalState.repository,
                 resourceHandler: originalState.resourceHandler,

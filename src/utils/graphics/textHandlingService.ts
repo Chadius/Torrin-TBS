@@ -76,18 +76,19 @@ export const TextHandlingService = {
     fitTextWithinSpace: ({
         text,
         maximumWidth,
-        font,
+        fontDescription,
         graphicsContext,
         linesOfTextRange,
     }: {
         text: string
         maximumWidth: number
         graphicsContext: GraphicsBuffer
-        font: FontDescription
+        fontDescription: FontDescription
         linesOfTextRange?: LinesOfTextRange
     }): TextFit => {
         let defaultFontSize =
-            font?.fontSizeRange?.preferred ?? DEFAULT_FONT_SIZE.preferred
+            fontDescription?.fontSizeRange?.preferred ??
+            DEFAULT_FONT_SIZE.preferred
         if (!text || text.length <= 0)
             return {
                 text,
@@ -104,7 +105,7 @@ export const TextHandlingService = {
                     calculateLengthOfLineOfText({
                         text,
                         fontSize: defaultFontSize,
-                        strokeWeight: font?.strokeWeight ?? 1,
+                        strokeWeight: fontDescription?.strokeWeight ?? 1,
                         graphicsContext,
                     })
                 )
@@ -121,7 +122,7 @@ export const TextHandlingService = {
                     inProgressTextFit,
                     maximumWidth,
                     graphicsContext,
-                    font,
+                    font: fontDescription,
                 }),
                 minimumNumberOfLines:
                     doesTextFitViolateMinimumLinesOfTextConstraint({
@@ -130,7 +131,7 @@ export const TextHandlingService = {
                     }),
                 fontSize: doesTextFitViolateFontSizeConstraint({
                     inProgressTextFit,
-                    fontSizeRange: font?.fontSizeRange,
+                    fontSizeRange: fontDescription?.fontSizeRange,
                 }),
             }
 
@@ -142,12 +143,12 @@ export const TextHandlingService = {
                     linesOfTextRange,
                     maximumPixelWidth: maximumWidth,
                     graphicsContext,
-                    font,
+                    font: fontDescription,
                 })
 
                 updateTextFitViolateFontSizeConstraint({
                     inProgressTextFit,
-                    font,
+                    font: fontDescription,
                     maximumPixelWidth: maximumWidth,
                     graphicsContext,
                 })
@@ -164,7 +165,7 @@ export const TextHandlingService = {
         inProgressTextFit.width = getWidthOfWidestLineOfText({
             inProgressTextFit: inProgressTextFit,
             graphicsContext: graphicsContext,
-            font,
+            font: fontDescription,
         })
         return inProgressTextFit
     },

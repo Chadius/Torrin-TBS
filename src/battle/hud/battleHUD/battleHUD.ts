@@ -340,6 +340,7 @@ export const BattleHUDService = {
             summaryHUDState: message.summaryHUDState,
             battleActionDecisionStep: message.battleActionDecisionStep,
             objectRepository: message.objectRepository,
+            glossary: message.glossary,
         })
 
         message.messageBoard.sendMessage({

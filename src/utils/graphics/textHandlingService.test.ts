@@ -119,7 +119,7 @@ describe("Text Handling Service", () => {
                     TextHandlingService.fitTextWithinSpace({
                         text: "Hi",
                         maximumWidth: 9001,
-                        font: {
+                        fontDescription: {
                             fontSizeRange: {
                                 preferred: 12,
                                 minimum: 8,
@@ -150,7 +150,7 @@ describe("Text Handling Service", () => {
                     TextHandlingService.fitTextWithinSpace({
                         text: "111 222 33",
                         maximumWidth: 9001,
-                        font: {
+                        fontDescription: {
                             fontSizeRange: {
                                 preferred: 10,
                                 minimum: 8,
@@ -187,7 +187,7 @@ describe("Text Handling Service", () => {
                     TextHandlingService.fitTextWithinSpace({
                         text: "12345",
                         maximumWidth: 50,
-                        font: {
+                        fontDescription: {
                             fontSizeRange: {
                                 preferred: 20,
                                 minimum: 10,
@@ -247,7 +247,7 @@ describe("Text Handling Service", () => {
                     TextHandlingService.fitTextWithinSpace({
                         text: "1 3 5",
                         maximumWidth: 20,
-                        font: {
+                        fontDescription: {
                             fontSizeRange: {
                                 preferred: 10,
                                 minimum: 10,
@@ -274,7 +274,7 @@ describe("Text Handling Service", () => {
                     TextHandlingService.fitTextWithinSpace({
                         text: "1 3 5",
                         maximumWidth: 20,
-                        font: {
+                        fontDescription: {
                             fontSizeRange: {
                                 preferred: 10,
                                 minimum: 10,
@@ -301,7 +301,7 @@ describe("Text Handling Service", () => {
                     TextHandlingService.fitTextWithinSpace({
                         text: "12345",
                         maximumWidth: 20,
-                        font: {
+                        fontDescription: {
                             fontSizeRange: {
                                 preferred: 10,
                                 minimum: 10,
@@ -328,7 +328,7 @@ describe("Text Handling Service", () => {
                     TextHandlingService.fitTextWithinSpace({
                         text: "123 5",
                         maximumWidth: 20,
-                        font: {
+                        fontDescription: {
                             fontSizeRange: {
                                 preferred: 10,
                                 minimum: 10,
@@ -355,7 +355,7 @@ describe("Text Handling Service", () => {
                     TextHandlingService.fitTextWithinSpace({
                         text: "12\n3\n5",
                         maximumWidth: 20,
-                        font: {
+                        fontDescription: {
                             fontSizeRange: {
                                 preferred: 10,
                                 minimum: 10,
