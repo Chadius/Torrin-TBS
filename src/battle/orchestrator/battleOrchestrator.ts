@@ -53,6 +53,7 @@ import { SquaddieSelectorPanelService } from "../hud/playerActionPanel/squaddieS
 import { PlayerActionTargetSelect } from "../orchestratorComponents/playerActionTargetSelect/playerActionTargetSelect"
 import { SearchResultsCacheService } from "../../hexMap/pathfinder/searchResults/searchResultsCache"
 import { ActionSelectedTileService } from "../hud/playerActionPanel/tile/actionSelectedTile/actionSelectedTile"
+import { SquaddieNameAndPortraitTileService } from "../hud/playerActionPanel/tile/squaddieNameAndPortraitTile"
 
 export enum BattleOrchestratorMode {
     UNKNOWN = "UNKNOWN",
@@ -309,21 +310,6 @@ export class BattleOrchestrator implements GameEngineComponent {
         if (
             this.uiControlSettings.displayPlayerHUD === true &&
             gameEngineState.battleOrchestratorState.battleHUDState
-                .summaryHUDState
-        ) {
-            SummaryHUDStateService.draw({
-                summaryHUDState:
-                    gameEngineState.battleOrchestratorState.battleHUDState
-                        .summaryHUDState,
-                graphicsBuffer: graphicsContext,
-                gameEngineState,
-                resourceHandler: gameEngineState.resourceHandler,
-            })
-        }
-
-        if (
-            this.uiControlSettings.displayPlayerHUD === true &&
-            gameEngineState.battleOrchestratorState.battleHUDState
                 .squaddieSelectorPanel
         ) {
             SquaddieSelectorPanelService.draw({
@@ -332,6 +318,21 @@ export class BattleOrchestrator implements GameEngineComponent {
                         .squaddieSelectorPanel,
                 objectRepository: gameEngineState.repository,
                 graphicsContext,
+                resourceHandler: gameEngineState.resourceHandler,
+            })
+        }
+
+        if (
+            this.uiControlSettings.displayPlayerHUD === true &&
+            gameEngineState.battleOrchestratorState.battleHUDState
+                .summaryHUDState
+        ) {
+            SummaryHUDStateService.draw({
+                summaryHUDState:
+                    gameEngineState.battleOrchestratorState.battleHUDState
+                        .summaryHUDState,
+                graphicsBuffer: graphicsContext,
+                gameEngineState,
                 resourceHandler: gameEngineState.resourceHandler,
             })
         }
@@ -434,6 +435,17 @@ export class BattleOrchestrator implements GameEngineComponent {
             this.mapDisplay.mouseEventHappened(gameEngineState, mouseEvent)
         }
         if (this.uiControlSettings.displayPlayerHUD === true) {
+            Object.values(
+                gameEngineState.battleOrchestratorState.battleHUDState
+                    .summaryHUDState.squaddieNameTiles
+            )
+                .filter((x) => x)
+                .forEach((squaddieNameTile) => {
+                    SquaddieNameAndPortraitTileService.mouseMoved({
+                        tile: squaddieNameTile,
+                        mouseLocation,
+                    })
+                })
             if (
                 gameEngineState.battleOrchestratorState.battleHUDState
                     .summaryHUDState.actionSelectedTile != undefined

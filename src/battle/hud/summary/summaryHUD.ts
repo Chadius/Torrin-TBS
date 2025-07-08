@@ -182,6 +182,15 @@ export const SummaryHUDStateService = {
         gameEngineState: GameEngineState
         resourceHandler: ResourceHandler
     }) => {
+        PlayerCommandStateService.draw({
+            playerCommandState: summaryHUDState.playerCommandState,
+            graphicsBuffer,
+            gameEngineState,
+            resourceHandler,
+            showOnlySelectedActionButton:
+                !!summaryHUDState.playerCommandState.selectedActionTemplateId,
+        })
+
         drawActorTiles({
             summaryHUDState,
             graphicsBuffer,
@@ -207,16 +216,6 @@ export const SummaryHUDStateService = {
             graphicsBuffer,
             gameEngineState,
         })
-
-        PlayerCommandStateService.draw({
-            playerCommandState: summaryHUDState.playerCommandState,
-            graphicsBuffer,
-            gameEngineState,
-            resourceHandler,
-            showOnlySelectedActionButton:
-                !!summaryHUDState.playerCommandState.selectedActionTemplateId,
-        })
-
         drawSelectedActionTile({
             summaryHUDState,
             graphicsBuffer,
@@ -473,6 +472,7 @@ const drawActorTiles = ({
             battleSquaddieId,
             summaryHUDState,
             actionPanelPosition: ActionTilePosition.ACTOR_NAME,
+            glossary: gameEngineState.battleOrchestratorState.glossary,
         })
     }
 
@@ -546,6 +546,7 @@ const drawTargetTiles = ({
             battleSquaddieId,
             summaryHUDState,
             actionPanelPosition: ActionTilePosition.TARGET_NAME,
+            glossary: gameEngineState.battleOrchestratorState.glossary,
         })
     }
 
@@ -749,6 +750,7 @@ const createNewPeekableTiles = ({
         battleSquaddieId: summaryHUDState.squaddieToPeekAt.battleSquaddieId,
         summaryHUDState,
         actionPanelPosition: nameTilePosition,
+        glossary: gameEngineState.battleOrchestratorState.glossary,
     })
 
     createSquaddieStatusTile({
@@ -858,11 +860,13 @@ const createSquaddieNameAndPortraitTile = ({
     battleSquaddieId,
     summaryHUDState,
     actionPanelPosition,
+    glossary,
 }: {
     gameEngineState: GameEngineState
     battleSquaddieId: string
     summaryHUDState: SummaryHUDState
     actionPanelPosition: ActionTilePosition
+    glossary: Glossary
 }) => {
     const team = gameEngineState.battleOrchestratorState.battleState.teams.find(
         (t) => t.battleSquaddieIds.includes(battleSquaddieId)
@@ -873,6 +877,7 @@ const createSquaddieNameAndPortraitTile = ({
             objectRepository: gameEngineState.repository,
             team,
             horizontalPosition: actionPanelPosition,
+            glossary,
         })
 }
 

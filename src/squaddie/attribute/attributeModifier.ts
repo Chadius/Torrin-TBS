@@ -54,9 +54,10 @@ export const AttributeModifierService = {
                 AttributeTypeService.isBinary(modifier.type):
                 return false
             case modifier.amount <= 0 &&
-                [AttributeType.ABSORB, AttributeType.MOVEMENT].includes(
-                    modifier.type
-                ):
+                [AttributeType.ABSORB].includes(modifier.type):
+                return false
+            case modifier.amount == 0 &&
+                [AttributeType.MOVEMENT].includes(modifier.type):
                 return false
             case isValidValue(modifier.numberOfUses) &&
                 modifier.numberOfUses <= 0:

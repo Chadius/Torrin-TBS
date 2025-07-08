@@ -26,6 +26,12 @@ import {
     ImageUILoadingBehavior,
     ImageUIService,
 } from "../../../../ui/imageUI/imageUI"
+import {
+    TileAttributeLabelStack,
+    TileAttributeLabelStackService,
+} from "./tileAttributeLabel/tileAttributeLabelStack"
+import { Glossary } from "../../../../campaign/glossary/glossary"
+import { ScreenLocation } from "../../../../utils/mouseConfig"
 
 const layoutConstants = {
     portraitNameText: {
@@ -46,6 +52,7 @@ export interface SquaddieNameAndPortraitTile {
     squaddiePortraitResourceKey: string
     horizontalPosition: ActionTilePosition
     battleSquaddieId: string
+    glossaryLabelStack: TileAttributeLabelStack
 }
 
 export const SquaddieNameAndPortraitTileService = {
@@ -54,11 +61,13 @@ export const SquaddieNameAndPortraitTileService = {
         battleSquaddieId,
         team,
         horizontalPosition,
+        glossary,
     }: {
         objectRepository: ObjectRepository
         battleSquaddieId: string
         team: BattleSquaddieTeam
         horizontalPosition: ActionTilePosition
+        glossary: Glossary
     }): SquaddieNameAndPortraitTile => {
         const { squaddieTemplate } = getResultOrThrowError(
             ObjectRepositoryService.getSquaddieByBattleId(
@@ -80,6 +89,12 @@ export const SquaddieNameAndPortraitTileService = {
             horizontalPosition,
             squaddieAffiliation: squaddieTemplate.squaddieId.affiliation,
             battleSquaddieId,
+            glossaryLabelStack: createGlossaryLabelStack({
+                glossary,
+                horizontalPosition,
+                objectRepository,
+                battleSquaddieId,
+            }),
         }
     },
     draw: ({
@@ -101,6 +116,11 @@ export const SquaddieNameAndPortraitTileService = {
 
         setPortraitNameTextBox(tile, graphicsContext)
         drawPortraitNameTextBox(tile, graphicsContext)
+        TileAttributeLabelStackService.draw({
+            stack: tile.glossaryLabelStack,
+            graphicsBuffer: graphicsContext,
+            resourceHandler,
+        })
     },
     getBoundingBoxBasedOnActionPanelPosition: (
         horizontalPosition: ActionTilePosition
@@ -108,6 +128,18 @@ export const SquaddieNameAndPortraitTileService = {
         ActionTilePositionService.getBoundingBoxBasedOnActionTilePosition(
             horizontalPosition
         ),
+    mouseMoved: ({
+        tile,
+        mouseLocation,
+    }: {
+        tile: SquaddieNameAndPortraitTile
+        mouseLocation: ScreenLocation
+    }) => {
+        TileAttributeLabelStackService.mouseMoved({
+            stack: tile.glossaryLabelStack,
+            mouseLocation,
+        })
+    },
 }
 
 const setPortraitNameTextBox = (
@@ -219,4 +251,48 @@ const drawPortraitNameTextBox = (
 ) => {
     if (!isValidValue(tile.squaddieNameTextBox)) return
     TextBoxService.draw(tile.squaddieNameTextBox, graphicsContext)
+}
+
+const createGlossaryLabelStack = ({
+    horizontalPosition,
+    glossary,
+    objectRepository,
+    battleSquaddieId,
+}: {
+    horizontalPosition: ActionTilePosition
+    glossary: Glossary
+    objectRepository: ObjectRepository
+    battleSquaddieId: string
+}) => {
+    const overallBoundingBox =
+        ActionTilePositionService.getBoundingBoxBasedOnActionTilePosition(
+            horizontalPosition
+        )
+    const glossaryLabelStack: TileAttributeLabelStack =
+        TileAttributeLabelStackService.new({
+            tilePosition: horizontalPosition,
+            bottom: RectAreaService.top(overallBoundingBox) - 1,
+        })
+
+    const { battleSquaddie } = getResultOrThrowError(
+        ObjectRepositoryService.getSquaddieByBattleId(
+            objectRepository,
+            battleSquaddieId
+        )
+    )
+    const glossaryTerms = glossary.getGlossaryTermsFromInBattleAttributes(
+        battleSquaddie.inBattleAttributes
+    )
+    glossaryTerms.forEach((term) => {
+        TileAttributeLabelStackService.add({
+            stack: glossaryLabelStack,
+            newTile: {
+                id: term.name,
+                title: term.name,
+                descriptionText: term.definition,
+                iconResourceKey: term.iconResourceKey,
+            },
+        })
+    })
+    return glossaryLabelStack
 }

@@ -721,6 +721,7 @@ export const TestMissionData = () => {
             name: "Bite",
             userInformation: {
                 userReadableDescription: "Attack AC of an adjacent foe.",
+                customGlossaryTerms: [],
             },
             targetConstraints: {
                 minimumRange: 0,
@@ -749,6 +750,7 @@ export const TestMissionData = () => {
             name: "Short sword",
             userInformation: {
                 userReadableDescription: "Attack AC of an adjacent foe.",
+                customGlossaryTerms: [],
             },
             targetConstraints: {
                 minimumRange: 0,
@@ -776,6 +778,7 @@ export const TestMissionData = () => {
             name: "Ignition",
             userInformation: {
                 userReadableDescription: "Attack AC of an adjacent foe.",
+                customGlossaryTerms: [],
             },
             targetConstraints: {
                 minimumRange: 0,

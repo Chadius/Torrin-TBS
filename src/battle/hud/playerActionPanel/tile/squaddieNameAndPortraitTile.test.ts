@@ -36,6 +36,23 @@ import {
     MockInstance,
     vi,
 } from "vitest"
+import { TileAttributeLabelStackService } from "./tileAttributeLabel/tileAttributeLabelStack"
+import {
+    InBattleAttributes,
+    InBattleAttributesService,
+} from "../../../stats/inBattleAttributes"
+import { Glossary } from "../../../../campaign/glossary/glossary"
+import {
+    ArmyAttributesService,
+    DefaultArmyAttributes,
+} from "../../../../squaddie/armyAttributes"
+import {
+    AttributeModifierService,
+    AttributeSource,
+} from "../../../../squaddie/attribute/attributeModifier"
+import { AttributeType } from "../../../../squaddie/attribute/attributeType"
+import { GraphicsBuffer } from "../../../../utils/graphics/graphicsRenderer"
+import { getResultOrThrowError } from "../../../../utils/ResultOrError"
 
 describe("Squaddie Name and Portrait Tile", () => {
     let objectRepository: ObjectRepository
@@ -75,6 +92,7 @@ describe("Squaddie Name and Portrait Tile", () => {
                 battleSquaddieId: "battleJoeTheSoldier",
                 team: undefined,
                 horizontalPosition: ActionTilePosition.ACTOR_NAME,
+                glossary: new Glossary(),
             })
 
         expect(tile.squaddieName).toBe("Joe the Soldier")
@@ -117,6 +135,7 @@ describe("Squaddie Name and Portrait Tile", () => {
                 battleSquaddieId: "generic_enemy_1",
                 team: enemyTeam,
                 horizontalPosition: ActionTilePosition.ACTOR_NAME,
+                glossary: new Glossary(),
             })
 
         expect(tile.squaddieName).toBe("Generic Enemy")
@@ -136,13 +155,12 @@ describe("Squaddie Name and Portrait Tile", () => {
         ]
 
         beforeEach(() => {
-            mockP5GraphicsContext = new MockedP5GraphicsBuffer()
-            resourceHandler = mocks.mockResourceHandler(mockP5GraphicsContext)
-            resourceHandler.isResourceLoaded = vi.fn().mockReturnValue(false)
-            resourceHandler.loadResource = vi.fn().mockImplementation(() => {})
-            graphicsBufferSpies = MockedGraphicsBufferService.addSpies(
-                mockP5GraphicsContext
-            )
+            ;({ mockP5GraphicsContext, resourceHandler, graphicsBufferSpies } =
+                mockGraphicsCalls(
+                    mockP5GraphicsContext,
+                    resourceHandler,
+                    graphicsBufferSpies
+                ))
         })
 
         afterEach(() => {
@@ -173,6 +191,47 @@ describe("Squaddie Name and Portrait Tile", () => {
         })
     })
 
+    const mockGraphicsCalls = (
+        mockP5GraphicsContext: MockedP5GraphicsBuffer,
+        resourceHandler: ResourceHandler,
+        graphicsBufferSpies: {
+            [p: string]: MockInstance
+        }
+    ) => {
+        mockP5GraphicsContext = new MockedP5GraphicsBuffer()
+        resourceHandler = mocks.mockResourceHandler(mockP5GraphicsContext)
+        resourceHandler.isResourceLoaded = vi.fn().mockReturnValue(false)
+        resourceHandler.loadResource = vi.fn().mockImplementation(() => {})
+        graphicsBufferSpies = MockedGraphicsBufferService.addSpies(
+            mockP5GraphicsContext
+        )
+        return { mockP5GraphicsContext, resourceHandler, graphicsBufferSpies }
+    }
+    const setupDrawingMocks = (
+        tile: SquaddieNameAndPortraitTile,
+        mockP5GraphicsContext: MockedP5GraphicsBuffer,
+        resourceHandler: ResourceHandler,
+        graphicsBufferSpies: {
+            [p: string]: MockInstance
+        }
+    ) => {
+        ;({ tile, objectRepository } = createSquaddieOfGivenAffiliation({
+            objectRepository,
+            tile,
+        }))
+        ;({ mockP5GraphicsContext, resourceHandler, graphicsBufferSpies } =
+            mockGraphicsCalls(
+                mockP5GraphicsContext,
+                resourceHandler,
+                graphicsBufferSpies
+            ))
+        return {
+            tile,
+            mockP5GraphicsContext,
+            resourceHandler,
+            graphicsBufferSpies,
+        }
+    }
     describe("portrait", () => {
         let tile: SquaddieNameAndPortraitTile
         let resourceHandler: ResourceHandler
@@ -180,18 +239,17 @@ describe("Squaddie Name and Portrait Tile", () => {
         let graphicsBufferSpies: { [key: string]: MockInstance }
 
         beforeEach(() => {
-            ;({ tile, objectRepository } = createSquaddieOfGivenAffiliation({
-                objectRepository,
+            ;({
+                mockP5GraphicsContext,
+                resourceHandler,
+                graphicsBufferSpies,
                 tile,
-            }))
-
-            mockP5GraphicsContext = new MockedP5GraphicsBuffer()
-            resourceHandler = mocks.mockResourceHandler(mockP5GraphicsContext)
-            resourceHandler.isResourceLoaded = vi.fn().mockReturnValue(false)
-            resourceHandler.loadResource = vi.fn().mockImplementation(() => {})
-            graphicsBufferSpies = MockedGraphicsBufferService.addSpies(
-                mockP5GraphicsContext
-            )
+            } = setupDrawingMocks(
+                tile,
+                mockP5GraphicsContext,
+                resourceHandler,
+                graphicsBufferSpies
+            ))
         })
 
         afterEach(() => {
@@ -242,18 +300,17 @@ describe("Squaddie Name and Portrait Tile", () => {
         let graphicsBufferSpies: { [key: string]: MockInstance }
 
         beforeEach(() => {
-            ;({ tile, objectRepository } = createSquaddieOfGivenAffiliation({
-                objectRepository,
+            ;({
+                mockP5GraphicsContext,
+                resourceHandler,
+                graphicsBufferSpies,
                 tile,
-            }))
-
-            mockP5GraphicsContext = new MockedP5GraphicsBuffer()
-            resourceHandler = mocks.mockResourceHandler(mockP5GraphicsContext)
-            resourceHandler.isResourceLoaded = vi.fn().mockReturnValue(false)
-            resourceHandler.loadResource = vi.fn().mockImplementation(() => {})
-            graphicsBufferSpies = MockedGraphicsBufferService.addSpies(
-                mockP5GraphicsContext
-            )
+            } = setupDrawingMocks(
+                tile,
+                mockP5GraphicsContext,
+                resourceHandler,
+                graphicsBufferSpies
+            ))
         })
 
         afterEach(() => {
@@ -311,6 +368,302 @@ describe("Squaddie Name and Portrait Tile", () => {
             expect(graphicsBufferSpies["text"]).toBeCalled()
         })
     })
+
+    describe("tileAttributeLabelStack", () => {
+        let tile: SquaddieNameAndPortraitTile
+        let battleSquaddie: any
+        let inBattleAttributes: InBattleAttributes
+        let glossary: Glossary
+
+        beforeEach(() => {
+            glossary = new Glossary()
+            ;({ tile, objectRepository } = createSquaddieOfGivenAffiliation({
+                objectRepository,
+                tile,
+            }))
+
+            inBattleAttributes = InBattleAttributesService.new({
+                armyAttributes: ArmyAttributesService.new({
+                    ...DefaultArmyAttributes,
+                    maxHitPoints: 5,
+                }),
+                currentHitPoints: 5,
+                attributeModifiers: [
+                    AttributeModifierService.new({
+                        type: AttributeType.ARMOR,
+                        source: AttributeSource.CIRCUMSTANCE,
+                        amount: 2,
+                        duration: 3,
+                    }),
+                    AttributeModifierService.new({
+                        type: AttributeType.HUSTLE,
+                        source: AttributeSource.STATUS,
+                        amount: 1,
+                        duration: 2,
+                    }),
+                ],
+            })
+
+            battleSquaddie = getResultOrThrowError(
+                ObjectRepositoryService.getSquaddieByBattleId(
+                    objectRepository,
+                    tile.battleSquaddieId
+                )
+            ).battleSquaddie
+            battleSquaddie.inBattleAttributes = inBattleAttributes
+        })
+
+        it("creates tileAttributeLabelStack from squaddie InBattleAttributes", () => {
+            const updatedTile =
+                SquaddieNameAndPortraitTileService.newFromBattleSquaddieId({
+                    battleSquaddieId: "battleJoeTheSoldier",
+                    team: undefined,
+                    horizontalPosition: ActionTilePosition.ACTOR_NAME,
+                    objectRepository,
+                    glossary,
+                })
+
+            expect(updatedTile.glossaryLabelStack.labels).toHaveLength(2)
+            expect(updatedTile.glossaryLabelStack.labels[0].title).toEqual(
+                "Armor +2"
+            )
+            expect(updatedTile.glossaryLabelStack.labels[1].title).toEqual(
+                "Hustle"
+            )
+        })
+
+        it("creates empty tileAttributeLabelStack when squaddie has no attribute modifiers", () => {
+            battleSquaddie.inBattleAttributes = InBattleAttributesService.new({
+                armyAttributes: ArmyAttributesService.new({
+                    ...DefaultArmyAttributes,
+                    maxHitPoints: 5,
+                }),
+                currentHitPoints: 5,
+            })
+
+            const updatedTile =
+                SquaddieNameAndPortraitTileService.newFromBattleSquaddieId({
+                    battleSquaddieId: "battleJoeTheSoldier",
+                    team: undefined,
+                    horizontalPosition: ActionTilePosition.ACTOR_NAME,
+                    objectRepository,
+                    glossary,
+                })
+
+            expect(updatedTile.glossaryLabelStack).toBeDefined()
+            expect(updatedTile.glossaryLabelStack.labels).toHaveLength(0)
+        })
+
+        it("filters out inactive attribute modifiers", () => {
+            const inactiveModifier = AttributeModifierService.new({
+                type: AttributeType.MOVEMENT,
+                source: AttributeSource.ITEM,
+                amount: 1,
+                duration: 0,
+            })
+            inBattleAttributes.attributeModifiers.push(inactiveModifier)
+
+            const updatedTile =
+                SquaddieNameAndPortraitTileService.newFromBattleSquaddieId({
+                    battleSquaddieId: "battleJoeTheSoldier",
+                    team: undefined,
+                    horizontalPosition: ActionTilePosition.ACTOR_NAME,
+                    objectRepository,
+                    glossary,
+                })
+
+            expect(updatedTile.glossaryLabelStack.labels).toHaveLength(2)
+            expect(
+                updatedTile.glossaryLabelStack.labels.some((label) =>
+                    label.title.includes("Movement")
+                )
+            ).toBe(false)
+        })
+
+        it("handles binary attribute modifiers correctly", () => {
+            battleSquaddie.inBattleAttributes = InBattleAttributesService.new({
+                armyAttributes: ArmyAttributesService.new({
+                    ...DefaultArmyAttributes,
+                    maxHitPoints: 5,
+                }),
+                currentHitPoints: 5,
+                attributeModifiers: [
+                    AttributeModifierService.new({
+                        type: AttributeType.HUSTLE,
+                        source: AttributeSource.STATUS,
+                        amount: 1,
+                        duration: 2,
+                    }),
+                    AttributeModifierService.new({
+                        type: AttributeType.ELUSIVE,
+                        source: AttributeSource.CIRCUMSTANCE,
+                        amount: 1,
+                    }),
+                ],
+            })
+
+            const updatedTile =
+                SquaddieNameAndPortraitTileService.newFromBattleSquaddieId({
+                    battleSquaddieId: "battleJoeTheSoldier",
+                    team: undefined,
+                    horizontalPosition: ActionTilePosition.ACTOR_NAME,
+                    objectRepository,
+                    glossary,
+                })
+
+            expect(updatedTile.glossaryLabelStack.labels).toHaveLength(2)
+            expect(updatedTile.glossaryLabelStack.labels[0].title).toEqual(
+                "Hustle"
+            )
+            expect(updatedTile.glossaryLabelStack.labels[1].title).toEqual(
+                "Elusive"
+            )
+        })
+
+        it("handles negative attribute modifiers", () => {
+            battleSquaddie.inBattleAttributes = InBattleAttributesService.new({
+                armyAttributes: ArmyAttributesService.new({
+                    ...DefaultArmyAttributes,
+                    maxHitPoints: 5,
+                }),
+                currentHitPoints: 5,
+                attributeModifiers: [
+                    AttributeModifierService.new({
+                        type: AttributeType.ARMOR,
+                        source: AttributeSource.CIRCUMSTANCE,
+                        amount: -2,
+                        duration: 3,
+                    }),
+                    AttributeModifierService.new({
+                        type: AttributeType.MOVEMENT,
+                        source: AttributeSource.STATUS,
+                        amount: -1,
+                        numberOfUses: 2,
+                    }),
+                ],
+            })
+
+            const updatedTile =
+                SquaddieNameAndPortraitTileService.newFromBattleSquaddieId({
+                    battleSquaddieId: "battleJoeTheSoldier",
+                    team: undefined,
+                    horizontalPosition: ActionTilePosition.ACTOR_NAME,
+                    objectRepository,
+                    glossary,
+                })
+
+            expect(updatedTile.glossaryLabelStack.labels).toHaveLength(2)
+            expect(updatedTile.glossaryLabelStack.labels[0].title).toEqual(
+                "Armor -2"
+            )
+            expect(updatedTile.glossaryLabelStack.labels[1].title).toEqual(
+                "Movement -1"
+            )
+        })
+
+        it("includes attribute source in label descriptions", () => {
+            const updatedTile =
+                SquaddieNameAndPortraitTileService.newFromBattleSquaddieId({
+                    battleSquaddieId: "battleJoeTheSoldier",
+                    team: undefined,
+                    horizontalPosition: ActionTilePosition.ACTOR_NAME,
+                    objectRepository,
+                    glossary,
+                })
+
+            const armorLabel = updatedTile.glossaryLabelStack.labels.find(
+                (label) => label.title.includes("Armor")
+            )
+            const hustleLabel = updatedTile.glossaryLabelStack.labels.find(
+                (label) => label.title.includes("Hustle")
+            )
+
+            expect(armorLabel.description.text).toContain("Circumstance")
+            expect(hustleLabel.description.text).toContain("Status")
+        })
+    })
+
+    describe("drawing", () => {
+        let tile: SquaddieNameAndPortraitTile
+        let graphicsBuffer: GraphicsBuffer
+        let graphicsBufferSpies: { [key: string]: MockInstance }
+        const fakeImage = { width: 1, height: 1 }
+        let resourceHandler: ResourceHandler
+
+        beforeEach(() => {
+            ;({ tile, objectRepository } = createSquaddieOfGivenAffiliation({
+                objectRepository,
+                tile,
+            }))
+
+            const glossary = new Glossary()
+            const inBattleAttributes = InBattleAttributesService.new({
+                armyAttributes: ArmyAttributesService.new({
+                    ...DefaultArmyAttributes,
+                    maxHitPoints: 5,
+                }),
+                currentHitPoints: 5,
+                attributeModifiers: [
+                    AttributeModifierService.new({
+                        type: AttributeType.ARMOR,
+                        source: AttributeSource.CIRCUMSTANCE,
+                        amount: 2,
+                        duration: 3,
+                    }),
+                ],
+            })
+
+            const battleSquaddie = getResultOrThrowError(
+                ObjectRepositoryService.getSquaddieByBattleId(
+                    objectRepository,
+                    tile.battleSquaddieId
+                )
+            ).battleSquaddie
+            battleSquaddie.inBattleAttributes = inBattleAttributes
+
+            tile = SquaddieNameAndPortraitTileService.newFromBattleSquaddieId({
+                battleSquaddieId: "battleJoeTheSoldier",
+                team: undefined,
+                horizontalPosition: ActionTilePosition.ACTOR_NAME,
+                objectRepository,
+                glossary,
+            })
+
+            graphicsBuffer = new MockedP5GraphicsBuffer()
+            graphicsBufferSpies =
+                MockedGraphicsBufferService.addSpies(graphicsBuffer)
+            resourceHandler = mocks.mockResourceHandler(graphicsBuffer)
+            resourceHandler.getResource = vi.fn().mockReturnValue(fakeImage)
+        })
+
+        afterEach(() => {
+            MockedGraphicsBufferService.resetSpies(graphicsBufferSpies)
+        })
+
+        it("will draw the tileAttributeLabelStack", () => {
+            let stackSpy = vi.spyOn(TileAttributeLabelStackService, "draw")
+            SquaddieNameAndPortraitTileService.draw({
+                tile,
+                graphicsContext: graphicsBuffer,
+                resourceHandler,
+            })
+            expect(stackSpy).toBeCalled()
+            stackSpy.mockRestore()
+        })
+
+        it("will pass mouse movement events to the tileAttributeLabelStack", () => {
+            let mouseMovedSpy = vi.spyOn(
+                TileAttributeLabelStackService,
+                "mouseMoved"
+            )
+            SquaddieNameAndPortraitTileService.mouseMoved({
+                tile,
+                mouseLocation: { x: 0, y: 0 },
+            })
+            expect(mouseMovedSpy).toBeCalled()
+            mouseMovedSpy.mockRestore()
+        })
+    })
 })
 
 const createSquaddieOfGivenAffiliation = ({
@@ -346,11 +699,13 @@ const createSquaddieOfGivenAffiliation = ({
         battleSquaddie: battleSquaddie,
     })
 
+    const glossary = new Glossary()
     tile = SquaddieNameAndPortraitTileService.newFromBattleSquaddieId({
         objectRepository,
         battleSquaddieId: "battleJoeTheSoldier",
         team: undefined,
         horizontalPosition: ActionTilePosition.ACTOR_NAME,
+        glossary,
     })
     return { objectRepository, tile }
 }

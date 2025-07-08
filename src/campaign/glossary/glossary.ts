@@ -10,6 +10,10 @@ import {
     AttributeModifier,
     AttributeModifierService,
 } from "../../squaddie/attribute/attributeModifier"
+import {
+    InBattleAttributes,
+    InBattleAttributesService,
+} from "../../battle/stats/inBattleAttributes"
 
 export interface GlossaryTerm {
     name: string
@@ -112,6 +116,20 @@ export class Glossary {
     ): GlossaryTerm {
         return getGlossaryTermFromAttributeModifier(this, attributeModifier)
     }
+
+    getGlossaryTermsFromInBattleAttributes(
+        inBattleAttributes: InBattleAttributes
+    ): GlossaryTerm[] {
+        const modifiers =
+            InBattleAttributesService.getAllActiveAttributeModifiers(
+                inBattleAttributes
+            )
+        return [
+            ...modifiers.map((modifier) =>
+                getGlossaryTermFromAttributeModifier(this, modifier)
+            ),
+        ]
+    }
 }
 
 const getGlossaryTermFromAttributeModifier = (
@@ -120,9 +138,30 @@ const getGlossaryTermFromAttributeModifier = (
 ): GlossaryTerm => {
     const baseGlossaryTerm = glossary.attributeType[attributeModifier.type]
 
+    const limits: string[] = []
+    if (
+        attributeModifier.numberOfUses !== undefined &&
+        attributeModifier.numberOfUses > 0
+    ) {
+        limits.push(
+            `${attributeModifier.numberOfUses} ${attributeModifier.numberOfUses == 1 ? "use" : "uses"}`
+        )
+    }
+    if (
+        attributeModifier.duration !== undefined &&
+        attributeModifier.duration > 1
+    ) {
+        limits.push(`${attributeModifier.duration} rounds`)
+    }
+
+    const limitsString = [
+        `${AttributeModifierService.getReadableAttributeSource(attributeModifier.source)}`,
+        ...limits,
+    ].join(", ")
+
     return {
         ...baseGlossaryTerm,
         name: `${AttributeModifierService.readableTypeAndAmount(attributeModifier)}`,
-        definition: `(${AttributeModifierService.getReadableAttributeSource(attributeModifier.source)}) ${baseGlossaryTerm.definition}`,
+        definition: `(${limitsString}) ${baseGlossaryTerm.definition}`,
     }
 }

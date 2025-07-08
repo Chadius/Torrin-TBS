@@ -1,4 +1,4 @@
-import { describe, expect, it } from "vitest"
+import { beforeEach, describe, expect, it } from "vitest"
 import {
     AttributeType,
     AttributeTypeService,
@@ -16,6 +16,14 @@ import {
     AttributeModifierService,
     AttributeSource,
 } from "../../squaddie/attribute/attributeModifier"
+import {
+    InBattleAttributes,
+    InBattleAttributesService,
+} from "../../battle/stats/inBattleAttributes"
+import {
+    ArmyAttributesService,
+    DefaultArmyAttributes,
+} from "../../squaddie/armyAttributes"
 
 describe("glossary", () => {
     it("will have all attribute types as glossary terms", () => {
@@ -32,6 +40,8 @@ describe("glossary", () => {
             type: AttributeType.ARMOR,
             source: AttributeSource.CIRCUMSTANCE,
             amount: 1,
+            duration: 2,
+            numberOfUses: 3,
         })
         const glossaryTerm =
             glossary.getGlossaryTermFromAttributeModifier(armorModifier)
@@ -41,7 +51,9 @@ describe("glossary", () => {
             )
         )
         expect(glossaryTerm.name).toEqual("Armor +1")
-        expect(glossaryTerm.definition.includes("(Circumstance)")).toBeTruthy()
+        expect(
+            glossaryTerm.definition.includes("(Circumstance, 3 uses, 2 rounds)")
+        ).toBeTruthy()
     })
     it("can add custom terms", () => {
         let glossary = new Glossary()
@@ -203,5 +215,147 @@ describe("glossary", () => {
                 },
             ])
         )
+    })
+
+    describe("getGlossaryTermsFromInBattleAttributes", () => {
+        let glossary: Glossary
+        let baseInBattleAttributes: InBattleAttributes
+
+        beforeEach(() => {
+            glossary = new Glossary()
+            baseInBattleAttributes = InBattleAttributesService.new({
+                armyAttributes: ArmyAttributesService.new({
+                    ...DefaultArmyAttributes,
+                    maxHitPoints: 5,
+                }),
+                currentHitPoints: 5,
+            })
+        })
+
+        it("returns empty array when no attribute modifiers are present", () => {
+            const glossaryTerms =
+                glossary.getGlossaryTermsFromInBattleAttributes(
+                    baseInBattleAttributes
+                )
+            expect(glossaryTerms).toEqual([])
+        })
+
+        it("returns glossary terms for multiple active attribute modifiers", () => {
+            const armorModifier = AttributeModifierService.new({
+                type: AttributeType.ARMOR,
+                source: AttributeSource.CIRCUMSTANCE,
+                amount: 2,
+                duration: 3,
+            })
+
+            const movementModifier = AttributeModifierService.new({
+                type: AttributeType.MOVEMENT,
+                source: AttributeSource.ITEM,
+                amount: 1,
+                numberOfUses: 2,
+            })
+
+            const inBattleAttributes = InBattleAttributesService.new({
+                armyAttributes: baseInBattleAttributes.armyAttributes,
+                currentHitPoints: 5,
+                attributeModifiers: [armorModifier, movementModifier],
+            })
+
+            const glossaryTerms =
+                glossary.getGlossaryTermsFromInBattleAttributes(
+                    inBattleAttributes
+                )
+            expect(glossaryTerms).toHaveLength(2)
+            expect(glossaryTerms).toEqual(
+                expect.arrayContaining([
+                    glossary.getGlossaryTermFromAttributeModifier(
+                        armorModifier
+                    ),
+                    glossary.getGlossaryTermFromAttributeModifier(
+                        movementModifier
+                    ),
+                ])
+            )
+        })
+
+        it("returns glossary terms for binary attribute modifiers", () => {
+            const hustleModifier = AttributeModifierService.new({
+                type: AttributeType.HUSTLE,
+                source: AttributeSource.STATUS,
+                amount: 1,
+                duration: 2,
+            })
+
+            const elusiveModifier = AttributeModifierService.new({
+                type: AttributeType.ELUSIVE,
+                source: AttributeSource.CIRCUMSTANCE,
+                amount: 1,
+                numberOfUses: 1,
+            })
+
+            const inBattleAttributes = InBattleAttributesService.new({
+                armyAttributes: baseInBattleAttributes.armyAttributes,
+                currentHitPoints: 5,
+                attributeModifiers: [hustleModifier, elusiveModifier],
+            })
+
+            const glossaryTerms =
+                glossary.getGlossaryTermsFromInBattleAttributes(
+                    inBattleAttributes
+                )
+            expect(glossaryTerms).toHaveLength(2)
+            expect(glossaryTerms).toEqual(
+                expect.arrayContaining([
+                    glossary.getGlossaryTermFromAttributeModifier(
+                        hustleModifier
+                    ),
+                    glossary.getGlossaryTermFromAttributeModifier(
+                        elusiveModifier
+                    ),
+                ])
+            )
+        })
+
+        it("filters out inactive modifiers and returns only active ones", () => {
+            const activeModifier = AttributeModifierService.new({
+                type: AttributeType.ARMOR,
+                source: AttributeSource.CIRCUMSTANCE,
+                amount: 2,
+                duration: 3,
+            })
+
+            const expiredModifier = AttributeModifierService.new({
+                type: AttributeType.MOVEMENT,
+                source: AttributeSource.ITEM,
+                amount: 1,
+                duration: 0,
+            })
+
+            const usedUpModifier = AttributeModifierService.new({
+                type: AttributeType.ABSORB,
+                source: AttributeSource.STATUS,
+                amount: 5,
+                numberOfUses: 0,
+            })
+
+            const inBattleAttributes = InBattleAttributesService.new({
+                armyAttributes: baseInBattleAttributes.armyAttributes,
+                currentHitPoints: 100,
+                attributeModifiers: [
+                    activeModifier,
+                    expiredModifier,
+                    usedUpModifier,
+                ],
+            })
+
+            const glossaryTerms =
+                glossary.getGlossaryTermsFromInBattleAttributes(
+                    inBattleAttributes
+                )
+            expect(glossaryTerms).toHaveLength(1)
+            expect(glossaryTerms[0]).toEqual(
+                glossary.getGlossaryTermFromAttributeModifier(activeModifier)
+            )
+        })
     })
 })
