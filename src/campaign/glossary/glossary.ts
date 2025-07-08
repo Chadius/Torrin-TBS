@@ -6,6 +6,10 @@ import {
     ActionTemplate,
     ActionTemplateService,
 } from "../../action/template/actionTemplate"
+import {
+    AttributeModifier,
+    AttributeModifierService,
+} from "../../squaddie/attribute/attributeModifier"
 
 export interface GlossaryTerm {
     name: string
@@ -98,21 +102,27 @@ export class Glossary {
             ActionTemplateService.getAttributeModifiers(actionTemplate)
         return [
             ...modifiers.map((modifier) =>
-                getGlossaryTermFromAttributeModifier(this, modifier.type)
+                getGlossaryTermFromAttributeModifier(this, modifier)
             ),
             ...actionTemplate.userInformation.customGlossaryTerms,
         ]
     }
     getGlossaryTermFromAttributeModifier(
-        attributeType: AttributeType
+        attributeModifier: AttributeModifier
     ): GlossaryTerm {
-        return getGlossaryTermFromAttributeModifier(this, attributeType)
+        return getGlossaryTermFromAttributeModifier(this, attributeModifier)
     }
 }
 
 const getGlossaryTermFromAttributeModifier = (
     glossary: Glossary,
-    attributeType: AttributeType
+    attributeModifier: AttributeModifier
 ): GlossaryTerm => {
-    return glossary.attributeType[attributeType]
+    const baseGlossaryTerm = glossary.attributeType[attributeModifier.type]
+
+    return {
+        ...baseGlossaryTerm,
+        name: `${AttributeModifierService.readableTypeAndAmount(attributeModifier)}`,
+        definition: `(${AttributeModifierService.getReadableAttributeSource(attributeModifier.source)}) ${baseGlossaryTerm.definition}`,
+    }
 }

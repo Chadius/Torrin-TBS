@@ -28,16 +28,20 @@ describe("glossary", () => {
     })
     it("can get a definition and icon for a given Attribute Type", () => {
         let glossary = new Glossary()
-        expect(
-            glossary.getGlossaryTermFromAttributeModifier(AttributeType.ARMOR)
-        ).toEqual({
-            name: "Armor",
-            definition: expect.any(String),
-            iconResourceKey:
-                AttributeTypeService.getAttributeIconResourceKeyForAttributeType(
-                    AttributeType.ARMOR
-                ),
+        const armorModifier = AttributeModifierService.new({
+            type: AttributeType.ARMOR,
+            source: AttributeSource.CIRCUMSTANCE,
+            amount: 1,
         })
+        const glossaryTerm =
+            glossary.getGlossaryTermFromAttributeModifier(armorModifier)
+        expect(glossaryTerm.iconResourceKey).toEqual(
+            AttributeTypeService.getAttributeIconResourceKeyForAttributeType(
+                AttributeType.ARMOR
+            )
+        )
+        expect(glossaryTerm.name).toEqual("Armor +1")
+        expect(glossaryTerm.definition.includes("(Circumstance)")).toBeTruthy()
     })
     it("can add custom terms", () => {
         let glossary = new Glossary()
@@ -116,10 +120,19 @@ describe("glossary", () => {
         ).toEqual(
             expect.arrayContaining([
                 glossary.getGlossaryTermFromAttributeModifier(
-                    AttributeType.ARMOR
+                    AttributeModifierService.new({
+                        type: AttributeType.ARMOR,
+                        source: AttributeSource.CIRCUMSTANCE,
+                        amount: 1,
+                    })
                 ),
                 glossary.getGlossaryTermFromAttributeModifier(
-                    AttributeType.ELUSIVE
+                    AttributeModifierService.new({
+                        type: AttributeType.ELUSIVE,
+                        source: AttributeSource.STATUS,
+                        amount: 1,
+                        duration: 1,
+                    })
                 ),
             ])
         )
@@ -173,7 +186,11 @@ describe("glossary", () => {
         ).toEqual(
             expect.arrayContaining([
                 glossary.getGlossaryTermFromAttributeModifier(
-                    AttributeType.MOVEMENT
+                    AttributeModifierService.new({
+                        type: AttributeType.MOVEMENT,
+                        source: AttributeSource.CIRCUMSTANCE,
+                        amount: 1,
+                    })
                 ),
                 {
                     name: "0",

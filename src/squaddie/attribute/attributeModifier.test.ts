@@ -415,4 +415,84 @@ describe("AttributeModifier", () => {
             ).toEqual("Absorb +1: Temporary HP")
         })
     })
+
+    describe("readableTypeAndAmount", () => {
+        it("returns type and amount for non-binary modifier", () => {
+            const armorModifier = AttributeModifierService.new({
+                type: AttributeType.ARMOR,
+                source: AttributeSource.CIRCUMSTANCE,
+                amount: 1,
+            })
+
+            expect(
+                AttributeModifierService.readableTypeAndAmount(armorModifier)
+            ).toEqual("Armor +1")
+        })
+
+        it("returns type and amount for negative modifier", () => {
+            const armorModifier = AttributeModifierService.new({
+                type: AttributeType.ARMOR,
+                source: AttributeSource.CIRCUMSTANCE,
+                amount: -2,
+            })
+
+            expect(
+                AttributeModifierService.readableTypeAndAmount(armorModifier)
+            ).toEqual("Armor -2")
+        })
+
+        it("returns type only for binary modifier", () => {
+            const hustleModifier = AttributeModifierService.new({
+                type: AttributeType.HUSTLE,
+                source: AttributeSource.CIRCUMSTANCE,
+                amount: 1,
+            })
+
+            expect(
+                AttributeModifierService.readableTypeAndAmount(hustleModifier)
+            ).toEqual("Hustle")
+        })
+
+        it("returns type with (0) for zero amount", () => {
+            const movementModifier = AttributeModifierService.new({
+                type: AttributeType.MOVEMENT,
+                source: AttributeSource.CIRCUMSTANCE,
+                amount: 0,
+            })
+
+            expect(
+                AttributeModifierService.readableTypeAndAmount(movementModifier)
+            ).toEqual("Movement (0)")
+        })
+    })
+
+    describe("getReadableAttributeSource", () => {
+        const testGetReadableAttributeSource = [
+            {
+                source: AttributeSource.CIRCUMSTANCE,
+                expectedString: "Circumstance",
+            },
+            {
+                source: AttributeSource.ITEM,
+                expectedString: "Item",
+            },
+            {
+                source: AttributeSource.STATUS,
+                expectedString: "Status",
+            },
+            {
+                source: AttributeSource.PROFICIENCY,
+                expectedString: "Proficiency",
+            },
+        ]
+
+        it.each(testGetReadableAttributeSource)(
+            "$source returns $expectedString",
+            ({ source, expectedString }) => {
+                expect(
+                    AttributeModifierService.getReadableAttributeSource(source)
+                ).toEqual(expectedString)
+            }
+        )
+    })
 })

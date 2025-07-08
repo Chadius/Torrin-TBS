@@ -243,6 +243,25 @@ export const AttributeModifierService = {
 
         return `${attributeTypeAsString}${attributeAmountAsString}${attributeSourceAsString}${attributeTypeDescription}`
     },
+    readableTypeAndAmount: (attributeModifier: AttributeModifier): string => {
+        let attributeAmountAsString: string
+        switch (true) {
+            case AttributeTypeService.isBinary(attributeModifier.type):
+                attributeAmountAsString = ""
+                break
+            case attributeModifier.amount == 0:
+                attributeAmountAsString = " (0)"
+                break
+            default:
+                attributeAmountAsString = ` ${TextHandlingService.padPlusOnPositiveNumber(attributeModifier.amount)}`
+                break
+        }
+
+        return `${AttributeTypeService.readableName(attributeModifier.type)}${attributeAmountAsString}`
+    },
+    getReadableAttributeSource: (attributeSource: AttributeSource): string => {
+        return getReadableAttributeSource(attributeSource)
+    },
 }
 
 const newAttributeModifier = ({
