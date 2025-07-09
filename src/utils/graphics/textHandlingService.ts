@@ -166,6 +166,7 @@ export const TextHandlingService = {
             inProgressTextFit: inProgressTextFit,
             graphicsContext: graphicsContext,
             font: fontDescription,
+            fontSize: inProgressTextFit.fontSize,
         })
         return inProgressTextFit
     },
@@ -260,6 +261,7 @@ const doesTextFitWithinAllottedWidth = ({
         inProgressTextFit: inProgressTextFit,
         graphicsContext: graphicsContext,
         font,
+        fontSize: inProgressTextFit.fontSize,
     })
     graphicsContext.pop()
     return widestWidth > maximumWidth
@@ -293,42 +295,52 @@ const updateTextFitViolateFontSizeConstraint = ({
     graphicsContext: GraphicsBuffer
     font: FontDescription
 }) => {
-    let currentFontSize = font.fontSizeRange.preferred
     graphicsContext.push()
-    let lowerBound = font.fontSizeRange.minimum
 
-    while (currentFontSize > lowerBound) {
+    let low = font.fontSizeRange.minimum
+    let high = font.fontSizeRange.preferred
+    let bestFontSize = low
+
+    while (high - low > 0.5) {
+        const currentFontSize = (low + high) / 2
         graphicsContext.textSize(currentFontSize)
+
         const widestWidth = getWidthOfWidestLineOfText({
             inProgressTextFit: inProgressTextFit,
             graphicsContext: graphicsContext,
             font,
+            fontSize: currentFontSize,
         })
-        if (widestWidth > maximumPixelWidth) {
-            currentFontSize = (currentFontSize + lowerBound) / 2
+
+        if (widestWidth <= maximumPixelWidth) {
+            bestFontSize = currentFontSize
+            low = currentFontSize
         } else {
-            lowerBound = currentFontSize
+            high = currentFontSize
         }
     }
-    graphicsContext.pop()
 
-    inProgressTextFit.fontSize = currentFontSize
+    graphicsContext.pop()
+    inProgressTextFit.fontSize = bestFontSize
 }
 
 const getWidthOfWidestLineOfText = ({
     inProgressTextFit,
     graphicsContext,
     font,
+    fontSize,
 }: {
     inProgressTextFit: TextFit
     graphicsContext: GraphicsBuffer
     font: FontDescription
+    fontSize: number
 }): number =>
     Math.max(
         ...getWidthOfEachLineOfText({
             font,
-            inProgressTextFit: inProgressTextFit,
-            graphicsContext: graphicsContext,
+            inProgressTextFit,
+            graphicsContext,
+            fontSize,
         })
     )
 
@@ -336,19 +348,18 @@ const getWidthOfEachLineOfText = ({
     inProgressTextFit,
     graphicsContext,
     font,
+    fontSize,
 }: {
     inProgressTextFit: TextFit
     graphicsContext: GraphicsBuffer
-    font: {
-        strokeWeight: number
-        fontSizeRange?: FontSizeRange
-    }
+    font: FontDescription
+    fontSize: number
 }): number[] =>
     inProgressTextFit.text.split("\n").map((text) =>
         calculateLengthOfLineOfText({
             text,
             strokeWeight: font.strokeWeight,
-            fontSize: inProgressTextFit.fontSize,
+            fontSize,
             graphicsContext,
         })
     )
@@ -376,6 +387,7 @@ const reduceTextWidthByAddingLineBreaks = ({
         inProgressTextFit: inProgressTextFit,
         graphicsContext: graphicsContext,
         font,
+        fontSize: inProgressTextFit.fontSize,
     })
 
     let indexOfLongLine = linePixelWidths.findIndex(

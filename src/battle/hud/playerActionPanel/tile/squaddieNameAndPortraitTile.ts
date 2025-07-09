@@ -40,7 +40,7 @@ const layoutConstants = {
             preferred: 32,
             minimum: 10,
         },
-        linesOfTextRange: { minimum: 2 },
+        linesOfTextRange: { minimum: 1 },
     },
 }
 
@@ -114,7 +114,9 @@ export const SquaddieNameAndPortraitTileService = {
 
         drawPortraitImage({ tile, graphicsContext, resourceHandler })
 
-        setPortraitNameTextBox(tile, graphicsContext)
+        if (!tile.squaddieNameTextBox) {
+            setPortraitNameTextBox(tile, graphicsContext)
+        }
         drawPortraitNameTextBox(tile, graphicsContext)
         TileAttributeLabelStackService.draw({
             stack: tile.glossaryLabelStack,
