@@ -86,11 +86,6 @@
   },
   {
     "type": "IMAGE",
-    "path": "assets/icon-armor-class.png",
-    "key": "armor class icon"
-  },
-  {
-    "type": "IMAGE",
     "path": "assets/gameLogoCircle.png",
     "key": "title screen logo"
   },

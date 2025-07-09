@@ -130,20 +130,10 @@ describe("GameEngineGameLoader", () => {
                     const expectedResourceKeys = [
                         ...Object.values(
                             campaignFileData.resources
-                                .missionAttributeIconResourceKeys
-                        ),
-                        ...Object.values(
-                            campaignFileData.resources
                                 .actionEffectSquaddieTemplateButtonIcons
                         ),
                         ...Object.values(
                             campaignFileData.resources.mapTiles.resourceKeys
-                        ),
-                        ...Object.values(
-                            campaignFileData.resources.attributeComparisons
-                        ),
-                        ...Object.values(
-                            campaignFileData.resources.attributeIcons
                         ),
                     ]
 

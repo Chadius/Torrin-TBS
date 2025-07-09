@@ -580,14 +580,9 @@ export class GameEngineGameLoader implements GameEngineComponent {
 
         this.loadBlocker.queueResourceToLoad([
             ...Object.values(
-                campaignResources.missionAttributeIconResourceKeys
-            ),
-            ...Object.values(
                 campaignResources.actionEffectSquaddieTemplateButtonIcons
             ),
             ...campaignResources.mapTiles.resourceKeys,
-            ...Object.values(campaignResources.attributeIcons),
-            ...Object.values(campaignResources.attributeComparisons),
         ])
 
         await MissionLoader.applyMissionData({

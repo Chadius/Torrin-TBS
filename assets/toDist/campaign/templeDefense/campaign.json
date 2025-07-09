@@ -4,9 +4,6 @@
     "0000"
   ],
   "resources": {
-      "missionAttributeIconResourceKeys": {
-      "ARMOR_CLASS": "armor class icon"
-    },
     "actionEffectSquaddieTemplateButtonIcons": {
       "UNKNOWN": "decision-button-unknown"
     },
@@ -24,16 +21,6 @@
         "pit": "map-tiles-basic-water",
         "wall": "map-tiles-basic-wall"
       }
-    },
-    "attributeIcons": {
-      "ARMOR": "attribute-icon-armor",
-      "MOVEMENT": "attribute-icon-movement",
-      "HUSTLE": "attribute-icon-hustle",
-      "ELUSIVE": "attribute-icon-elusive"
-    },
-    "attributeComparisons": {
-      "up": "attribute-up",
-      "down": "attribute-down"
     },
     "endTurnIconResourceKey": "decision-button-end"
   }

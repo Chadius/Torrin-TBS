@@ -4,9 +4,7 @@ import {
     ActionEffectTemplateButtonIconKey,
     CampaignResources,
     CampaignResourcesService,
-    MissionAttributeIconKey,
 } from "./campaignResources"
-import { AttributeType } from "../squaddie/attribute/attributeType"
 import { HexGridMovementCost } from "../hexMap/hexGridMovementCost"
 
 describe("campaign resources", () => {
@@ -16,18 +14,6 @@ describe("campaign resources", () => {
         beforeEach(() => {
             original = CampaignResourcesService.default()
             cloned = CampaignResourcesService.clone(original)
-        })
-
-        it("missionAttributeIconResourceKeys", () => {
-            Object.keys(original.missionAttributeIconResourceKeys).forEach(
-                (keyString) => {
-                    const key: MissionAttributeIconKey =
-                        keyString as MissionAttributeIconKey
-                    expect(
-                        cloned.missionAttributeIconResourceKeys[key]
-                    ).toEqual(original.missionAttributeIconResourceKeys[key])
-                }
-            )
         })
 
         it("actionEffectSquaddieTemplateButtonIcons", () => {
@@ -58,26 +44,6 @@ describe("campaign resources", () => {
                             cloned.mapTiles.defaultByTerrainCost[key]
                         ).toEqual(original.mapTiles.defaultByTerrainCost[key])
                     }
-                )
-            })
-        })
-
-        it("attributeComparisons", () => {
-            Object.keys(original.attributeComparisons).forEach((key) => {
-                expect(["up", "down"]).includes(key)
-                if (key === "up" || key === "down") {
-                    expect(cloned.attributeComparisons[key]).toEqual(
-                        original.attributeComparisons[key]
-                    )
-                }
-            })
-        })
-
-        it("attributeIcons", () => {
-            Object.keys(original.attributeIcons).forEach((key) => {
-                const attributeType: AttributeType = key as AttributeType
-                expect(cloned.attributeIcons[attributeType]).toEqual(
-                    original.attributeIcons[attributeType]
                 )
             })
         })

@@ -1,14 +1,10 @@
 import { CampaignFileFormat } from "../../campaign/campaignFileFormat"
-import { AttributeType } from "../../squaddie/attribute/attributeType"
 
 export const TestCampaignData = () => {
     const testCampaignFile: CampaignFileFormat = {
         id: "coolCampaign",
         missionIds: ["0000"],
         resources: {
-            missionAttributeIconResourceKeys: {
-                ARMOR_CLASS: "armor class icon",
-            },
             actionEffectSquaddieTemplateButtonIcons: {
                 UNKNOWN: "decision-button-unknown",
             },
@@ -26,13 +22,6 @@ export const TestCampaignData = () => {
                     pit: "map-tiles-basic-water",
                     wall: "map-tiles-basic-wall",
                 },
-            },
-            attributeIcons: {
-                [AttributeType.ARMOR]: "armor",
-            },
-            attributeComparisons: {
-                up: "attribute-up",
-                down: "attribute-down",
             },
             endTurnIconResourceKey: "end-turn",
         },
