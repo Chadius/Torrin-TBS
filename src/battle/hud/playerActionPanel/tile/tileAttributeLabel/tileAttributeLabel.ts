@@ -24,6 +24,7 @@ import {
 import { ResourceHandler } from "../../../../../resource/resourceHandler"
 import { ScreenLocation } from "../../../../../utils/mouseConfig"
 import { SquaddieAffiliation } from "../../../../../squaddie/squaddieAffiliation"
+import { ScreenDimensions } from "../../../../../utils/graphics/graphicsConfig"
 
 export interface TileAttributeLabel {
     id: string
@@ -36,6 +37,7 @@ export interface TileAttributeLabel {
 
     animationStatus: TileAttributeLabelStatus
     animationStartTime: number
+    isRightAligned?: boolean
     uiElements: {
         tileBoundingBox?: RectArea
         backgroundRectangle?: Rectangle
@@ -165,6 +167,10 @@ export const TileAttributeLabelService = {
                 tilePosition
             )
 
+        label.isRightAligned =
+            label.uiElements.tileBoundingBox.left >
+            ScreenDimensions.SCREEN_WIDTH / 2
+
         if (!isValidValue(label.uiElements.backgroundRectangle)) {
             label.uiElements.backgroundRectangle = createBackgroundRectangle(
                 bottom,
@@ -250,9 +256,12 @@ export const TileAttributeLabelService = {
                     : 0
             )
 
-            setDescriptionTextBoxRelativeToTitle({
+            setDescriptionTextBoxRelativeToTitleAndBackground({
                 label,
                 headerBottom,
+                left: RectAreaService.left(
+                    label.uiElements.backgroundRectangle.area
+                ),
             })
 
             TextBoxService.draw(
@@ -483,16 +492,22 @@ const setTitleTextBoxRelativeToBackground = ({
     )
 }
 
-const setDescriptionTextBoxRelativeToTitle = ({
+const setDescriptionTextBoxRelativeToTitleAndBackground = ({
     label,
     headerBottom,
+    left,
 }: {
     label: TileAttributeLabel
     headerBottom: number
+    left: number
 }) => {
     RectAreaService.setTop(
         label.uiElements.descriptionTextBox.area,
         headerBottom + layout.description.topMargin
+    )
+    RectAreaService.setLeft(
+        label.uiElements.descriptionTextBox.area,
+        left + layout.description.leftMargin
     )
 }
 
@@ -676,6 +691,12 @@ const updateRectangleWidthBasedOnAnimationStatus = (
             break
     }
     label.uiElements.backgroundRectangle.area.width = newWidth
+    if (label.isRightAligned) {
+        RectAreaService.setRight(
+            label.uiElements.backgroundRectangle.area,
+            ScreenDimensions.SCREEN_WIDTH
+        )
+    }
 }
 
 const updateAnimationStatusBasedOnAnimationTime = (
