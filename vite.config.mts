@@ -16,6 +16,8 @@ export default defineConfig(({ mode }) => {
             JSON.stringify(process.env.VERSION) || JSON.stringify(version),
         "process.env.LOG_MESSAGES":
             JSON.stringify(process.env.LOG_MESSAGES) || JSON.stringify("false"),
+        "process.env.DEBUG":
+            JSON.stringify(process.env.DEBUG) || JSON.stringify("false"),
         "process.env.STARTUP_MODE":
             JSON.stringify(process.env.STARTUP_MODE) ||
             JSON.stringify("TITLE_SCREEN"),
@@ -89,6 +91,9 @@ export default defineConfig(({ mode }) => {
     console.log(
         "CAMPAIGN_ID: " + environmentVariables["process.env.CAMPAIGN_ID"]
     )
+    if (environmentVariables["process.env.DEBUG"]) {
+        console.log("===DEBUG MODE===")
+    }
 
     return {
         base: "",

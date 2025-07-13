@@ -54,6 +54,8 @@ import { PlayerActionTargetSelect } from "../orchestratorComponents/playerAction
 import { SearchResultsCacheService } from "../../hexMap/pathfinder/searchResults/searchResultsCache"
 import { ActionSelectedTileService } from "../hud/playerActionPanel/tile/actionSelectedTile/actionSelectedTile"
 import { SquaddieNameAndPortraitTileService } from "../hud/playerActionPanel/tile/squaddieNameAndPortraitTile"
+import { DebugModeMenuService } from "../hud/debugModeMenu/debugModeMenu"
+import { isValidValue } from "../../utils/objectValidityCheck"
 
 export enum BattleOrchestratorMode {
     UNKNOWN = "UNKNOWN",
@@ -294,6 +296,8 @@ export class BattleOrchestrator implements GameEngineComponent {
             }
             this._previousUpdateTimestamp = Date.now()
         }
+
+        this.drawDebugMenu(gameEngineState, graphicsContext)
     }
 
     private displayMapAndPlayerHUD(
@@ -686,5 +690,22 @@ export class BattleOrchestrator implements GameEngineComponent {
         if (cache.searchResultsCache == undefined) {
             cache.searchResultsCache = SearchResultsCacheService.new()
         }
+    }
+
+    private drawDebugMenu(
+        gameEngineState: GameEngineState,
+        graphicsContext: GraphicsBuffer
+    ) {
+        if (
+            !isValidValue(
+                gameEngineState.battleOrchestratorState.battleHUD.debugMode
+            )
+        )
+            return
+        DebugModeMenuService.draw({
+            debugModeMenu:
+                gameEngineState.battleOrchestratorState.battleHUD.debugMode,
+            graphicsContext,
+        })
     }
 }

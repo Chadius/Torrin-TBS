@@ -54,9 +54,14 @@ import { SquaddieSelectorPanelService } from "../playerActionPanel/squaddieSelec
 import { PlayerConsideredActionsService } from "../../battleState/playerConsideredActions"
 import { DrawSquaddieIconOnMapUtilities } from "../../animation/drawSquaddieIconOnMap/drawSquaddieIconOnMap"
 import { InBattleAttributesService } from "../../stats/inBattleAttributes"
+import {
+    DebugModeMenu,
+    DebugModeMenuService,
+} from "../debugModeMenu/debugModeMenu"
 
 export interface BattleHUD {
     fileAccessHUD: FileAccessHUD
+    debugMode: DebugModeMenu
 }
 
 export const BattleHUDService = {
@@ -66,6 +71,10 @@ export const BattleHUDService = {
                 fileAccessHUD,
                 FileAccessHUDService.new()
             ),
+            debugMode:
+                process.env.DEBUG === "true"
+                    ? DebugModeMenuService.new()
+                    : undefined,
         }
     },
     cancelTargetSelection: (

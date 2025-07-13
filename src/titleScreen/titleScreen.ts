@@ -80,6 +80,7 @@ import {
     TitleScreenP5InstanceIsReady,
 } from "./components/externalLinkButton"
 import { ComponentDataBlob } from "../utils/dataBlob/componentDataBlob"
+import { TitleScreenCreateDebugModeTextBoxAction } from "./components/debugMode"
 
 const EXTERNAL_LINK_ITCH_IO_IMAGE_PATH =
     "assets/externalLinks/itchIo-app-icon.png"
@@ -185,6 +186,14 @@ export interface TitleScreenLayout {
         bottom: number
         fontColor: [number, number, number]
     }
+    debugMode: {
+        startColumn: number
+        endColumn: number
+        fontSize: number
+        top: number
+        height: number
+        fontColor: [number, number, number]
+    }
     externalLinks: {
         [key: string]: {
             screenLocation: {
@@ -226,6 +235,7 @@ export interface TitleScreenUIObjects {
     background: Rectangle
     titleBanner: ImageUI
     versionTextBox: TextBox
+    debugModeTextBox: TextBox
     demonSlither: {
         icon: ImageUI
         descriptionText: TextBox
@@ -274,7 +284,8 @@ export class TitleScreen implements GameEngineComponent {
 
         const layout: TitleScreenLayout = {
             colors: {
-                background: [73, 10, 46],
+                background:
+                    process.env.DEBUG === "true" ? [330, 60, 46] : [73, 10, 46],
                 backgroundText: [73, 10, 6],
                 descriptionText: [73, 10, 96],
                 playButton: [207, 67, 40],
@@ -378,6 +389,18 @@ export class TitleScreen implements GameEngineComponent {
                 bottom:
                     ScreenDimensions.SCREEN_HEIGHT - WINDOW_SPACING.SPACING1,
                 fontColor: [0, 0, 128],
+            },
+            debugMode: {
+                startColumn: 4,
+                endColumn: 9,
+                fontSize: 72,
+                top:
+                    ScreenDimensions.SCREEN_HEIGHT -
+                    WINDOW_SPACING.SPACING4 -
+                    WINDOW_SPACING.SPACING4 -
+                    WINDOW_SPACING.SPACING4,
+                height: 200,
+                fontColor: [0, 0, 160],
             },
             htmlGenerator: this.p5Instance,
             externalLinks: {
@@ -661,6 +684,7 @@ export class TitleScreen implements GameEngineComponent {
             gameDescription: undefined,
             background: undefined,
             versionTextBox: undefined,
+            debugModeTextBox: undefined,
             externalLinks: {
                 itchIo: undefined,
             },
@@ -676,6 +700,7 @@ export class TitleScreen implements GameEngineComponent {
             new TitleScreenCreateByLineAction(this.data),
             new TitleScreenCreateGameDescriptionAction(this.data),
             new TitleScreenCreateVersionTextBoxAction(this.data),
+            new TitleScreenCreateDebugModeTextBoxAction(this.data),
             new SequenceComposite(this.data, [
                 new ShouldCreateStartGameButtonAction(this.data),
                 new CreateStartGameButtonAction(this.data),
@@ -822,6 +847,7 @@ export class TitleScreen implements GameEngineComponent {
                             uiObjects.byLine,
                             uiObjects.gameDescription,
                             uiObjects.versionTextBox,
+                            uiObjects.debugModeTextBox,
                             uiObjects.nahla.descriptionText,
                             uiObjects.sirCamil.descriptionText,
                             uiObjects.demonSlither.descriptionText,
