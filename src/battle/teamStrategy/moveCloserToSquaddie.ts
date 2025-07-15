@@ -1,4 +1,5 @@
 import {
+    TeamStrategyBehaviorOverride,
     TeamStrategyCalculator,
     TeamStrategyService,
 } from "./teamStrategyCalculator"
@@ -47,6 +48,7 @@ export class MoveCloserToSquaddie implements TeamStrategyCalculator {
     }: {
         team: BattleSquaddieTeam
         gameEngineState: GameEngineState
+        behaviorOverrides: TeamStrategyBehaviorOverride
     }): BattleActionDecisionStep[] {
         if (!this.desiredBattleSquaddieId && !this.desiredAffiliation) {
             throw new Error("Move Closer to Squaddie strategy has no target")

@@ -23,6 +23,7 @@ import {
     SearchResultsCacheService,
 } from "../../hexMap/pathfinder/searchResults/searchResultsCache"
 import { Glossary } from "../../campaign/glossary/glossary"
+import { DebugModeMenuService } from "../hud/debugModeMenu/debugModeMenu"
 
 export type BattleCache = {
     searchResultsCache: SearchResultsCache
@@ -102,6 +103,7 @@ export class BattleOrchestratorState {
     public copyOtherOrchestratorState(other: BattleOrchestratorState): void {
         this.battleState = BattleStateService.clone(other.battleState)
         this.battleHUD = getValidValueOrDefault(other.battleHUD, {
+            debugMode: DebugModeMenuService.new(),
             fileAccessHUD: FileAccessHUDService.new(),
         })
         this.numberGenerator = other.numberGenerator.clone()

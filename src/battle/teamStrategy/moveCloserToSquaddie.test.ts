@@ -32,63 +32,55 @@ import { BattleActionRecorderService } from "../history/battleAction/battleActio
 import { BattleActionService } from "../history/battleAction/battleAction"
 import { beforeEach, describe, expect, it } from "vitest"
 import { SquaddieIdService } from "../../squaddie/id"
+import { DebugModeMenuService } from "../hud/debugModeMenu/debugModeMenu"
 
 describe("move towards closest squaddie in range", () => {
     let repository: ObjectRepository
     let missionMap: MissionMap
-    let targetSquaddieTemplate: SquaddieTemplate
     let targetBattleSquaddie: BattleSquaddie
-    let ignoredSquaddieStatic: SquaddieTemplate
     let ignoredSquaddieDynamic: BattleSquaddie
     let searchingSquaddieTemplate: SquaddieTemplate
-    let target: BattleSquaddie
     let allyTeam: BattleSquaddieTeam
     let gameEngineState: GameEngineState
 
     beforeEach(() => {
         repository = ObjectRepositoryService.new()
-        ;({
-            squaddieTemplate: targetSquaddieTemplate,
-            battleSquaddie: targetBattleSquaddie,
-        } = SquaddieRepositoryService.createNewSquaddieAndAddToRepository({
-            templateId: "target_squaddie",
-            battleId: "target_squaddie_0",
-            name: "Target",
-            affiliation: SquaddieAffiliation.PLAYER,
-            objectRepository: repository,
-            actionTemplateIds: [],
-        }))
-        ;({
-            squaddieTemplate: ignoredSquaddieStatic,
-            battleSquaddie: ignoredSquaddieDynamic,
-        } = SquaddieRepositoryService.createNewSquaddieAndAddToRepository({
-            templateId: "ignored_squaddie",
-            battleId: "ignored_squaddie_0",
-            name: "Ignored",
-            affiliation: SquaddieAffiliation.PLAYER,
-            objectRepository: repository,
-            actionTemplateIds: [],
-        }))
-        ;({
-            squaddieTemplate: searchingSquaddieTemplate,
-            battleSquaddie: target,
-        } = SquaddieRepositoryService.createNewSquaddieAndAddToRepository({
-            templateId: "searching_squaddie",
-            battleId: "searching_squaddie_0",
-            name: "Searching",
-            affiliation: SquaddieAffiliation.ALLY,
-            objectRepository: repository,
-            attributes: {
-                ...DefaultArmyAttributes(),
-                ...{
-                    movement: SquaddieMovementService.new({
-                        movementPerAction: 1,
-                        traits: TraitStatusStorageService.newUsingTraitValues(),
-                    }),
+        ;({ battleSquaddie: targetBattleSquaddie } =
+            SquaddieRepositoryService.createNewSquaddieAndAddToRepository({
+                templateId: "target_squaddie",
+                battleId: "target_squaddie_0",
+                name: "Target",
+                affiliation: SquaddieAffiliation.PLAYER,
+                objectRepository: repository,
+                actionTemplateIds: [],
+            }))
+        ;({ battleSquaddie: ignoredSquaddieDynamic } =
+            SquaddieRepositoryService.createNewSquaddieAndAddToRepository({
+                templateId: "ignored_squaddie",
+                battleId: "ignored_squaddie_0",
+                name: "Ignored",
+                affiliation: SquaddieAffiliation.PLAYER,
+                objectRepository: repository,
+                actionTemplateIds: [],
+            }))
+        ;({ squaddieTemplate: searchingSquaddieTemplate } =
+            SquaddieRepositoryService.createNewSquaddieAndAddToRepository({
+                templateId: "searching_squaddie",
+                battleId: "searching_squaddie_0",
+                name: "Searching",
+                affiliation: SquaddieAffiliation.ALLY,
+                objectRepository: repository,
+                attributes: {
+                    ...DefaultArmyAttributes(),
+                    ...{
+                        movement: SquaddieMovementService.new({
+                            movementPerAction: 1,
+                            traits: TraitStatusStorageService.newUsingTraitValues(),
+                        }),
+                    },
                 },
-            },
-            actionTemplateIds: [],
-        }))
+                actionTemplateIds: [],
+            }))
 
         allyTeam = {
             id: "allyTeamId",
@@ -163,6 +155,9 @@ describe("move towards closest squaddie in range", () => {
         const actualInstruction = strategy.DetermineNextInstruction({
             team: allyTeam,
             gameEngineState,
+            behaviorOverrides: DebugModeMenuService.getDebugModeFlags(
+                gameEngineState.battleOrchestratorState.battleHUD.debugMode
+            ).behaviorOverrides,
         })
 
         expect(actualInstruction).toStrictEqual([movementStep])
@@ -263,6 +258,9 @@ describe("move towards closest squaddie in range", () => {
         const actualInstruction = strategy.DetermineNextInstruction({
             team: allyTeam,
             gameEngineState,
+            behaviorOverrides: DebugModeMenuService.getDebugModeFlags(
+                gameEngineState.battleOrchestratorState.battleHUD.debugMode
+            ).behaviorOverrides,
         })
 
         expect(actualInstruction).toStrictEqual([movementStep])
@@ -275,6 +273,9 @@ describe("move towards closest squaddie in range", () => {
             strategy.DetermineNextInstruction({
                 team: allyTeam,
                 gameEngineState,
+                behaviorOverrides: DebugModeMenuService.getDebugModeFlags(
+                    gameEngineState.battleOrchestratorState.battleHUD.debugMode
+                ).behaviorOverrides,
             })
         }
 
@@ -314,6 +315,9 @@ describe("move towards closest squaddie in range", () => {
         const actualInstruction = strategy.DetermineNextInstruction({
             team: allyTeam,
             gameEngineState,
+            behaviorOverrides: DebugModeMenuService.getDebugModeFlags(
+                gameEngineState.battleOrchestratorState.battleHUD.debugMode
+            ).behaviorOverrides,
         })
         expect(actualInstruction).toBeUndefined()
     })
@@ -346,6 +350,9 @@ describe("move towards closest squaddie in range", () => {
         const actualInstruction = strategy.DetermineNextInstruction({
             team: allyTeam,
             gameEngineState,
+            behaviorOverrides: DebugModeMenuService.getDebugModeFlags(
+                gameEngineState.battleOrchestratorState.battleHUD.debugMode
+            ).behaviorOverrides,
         })
         expect(actualInstruction).toBeUndefined()
     })
@@ -399,6 +406,9 @@ describe("move towards closest squaddie in range", () => {
         const actualInstruction = strategy.DetermineNextInstruction({
             team: allyTeam,
             gameEngineState,
+            behaviorOverrides: DebugModeMenuService.getDebugModeFlags(
+                gameEngineState.battleOrchestratorState.battleHUD.debugMode
+            ).behaviorOverrides,
         })
 
         expect(actualInstruction).toStrictEqual([movementStep])
@@ -471,6 +481,9 @@ describe("move towards closest squaddie in range", () => {
         const actualInstruction = strategy.DetermineNextInstruction({
             team: allyTeam,
             gameEngineState,
+            behaviorOverrides: DebugModeMenuService.getDebugModeFlags(
+                gameEngineState.battleOrchestratorState.battleHUD.debugMode
+            ).behaviorOverrides,
         })
         expect(actualInstruction).toStrictEqual([movementStep])
     })
@@ -509,6 +522,9 @@ describe("move towards closest squaddie in range", () => {
         const actualInstruction = strategy.DetermineNextInstruction({
             team: allyTeam,
             gameEngineState,
+            behaviorOverrides: DebugModeMenuService.getDebugModeFlags(
+                gameEngineState.battleOrchestratorState.battleHUD.debugMode
+            ).behaviorOverrides,
         })
         expect(actualInstruction).toBeUndefined()
     })
@@ -581,6 +597,9 @@ describe("move towards closest squaddie in range", () => {
         const actualInstruction = strategy.DetermineNextInstruction({
             team: enemyTeam,
             gameEngineState,
+            behaviorOverrides: DebugModeMenuService.getDebugModeFlags(
+                gameEngineState.battleOrchestratorState.battleHUD.debugMode
+            ).behaviorOverrides,
         })
 
         expect(actualInstruction).toStrictEqual([movementStep])

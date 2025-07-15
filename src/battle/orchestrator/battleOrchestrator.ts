@@ -400,6 +400,14 @@ export class BattleOrchestrator implements GameEngineComponent {
         if (this.uiControlSettings.letMouseScrollCamera === true) {
             this.mapDisplay.mouseEventHappened(gameEngineState, mouseEvent)
         }
+
+        if (gameEngineState.battleOrchestratorState.battleHUD.debugMode) {
+            DebugModeMenuService.mouseReleased({
+                debugModeMenu:
+                    gameEngineState.battleOrchestratorState.battleHUD.debugMode,
+                mouseRelease,
+            })
+        }
     }
 
     public mousePressed(
@@ -418,6 +426,13 @@ export class BattleOrchestrator implements GameEngineComponent {
 
         if (this.uiControlSettings.letMouseScrollCamera === true) {
             this.mapDisplay.mouseEventHappened(gameEngineState, mouseEvent)
+        }
+        if (gameEngineState.battleOrchestratorState.battleHUD.debugMode) {
+            DebugModeMenuService.mousePressed({
+                debugModeMenu:
+                    gameEngineState.battleOrchestratorState.battleHUD.debugMode,
+                mousePress,
+            })
         }
     }
 
@@ -460,6 +475,13 @@ export class BattleOrchestrator implements GameEngineComponent {
                     mouseLocation,
                 })
             }
+        }
+        if (gameEngineState.battleOrchestratorState.battleHUD.debugMode) {
+            DebugModeMenuService.mouseMoved({
+                debugModeMenu:
+                    gameEngineState.battleOrchestratorState.battleHUD.debugMode,
+                mouseLocation,
+            })
         }
     }
 

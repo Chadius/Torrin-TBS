@@ -26,6 +26,7 @@ import {
 import { BattleOrchestratorStateService } from "../orchestrator/battleOrchestratorState"
 import { BattleStateService } from "../battleState/battleState"
 import { beforeEach, describe, expect, it } from "vitest"
+import { DebugModeMenuService } from "../hud/debugModeMenu/debugModeMenu"
 
 describe("end turn team strategy", () => {
     let playerSquaddieTemplate: SquaddieTemplate
@@ -118,6 +119,9 @@ describe("end turn team strategy", () => {
         const actualInstruction = strategy.DetermineNextInstruction({
             team: squaddieTeam,
             gameEngineState,
+            behaviorOverrides: DebugModeMenuService.getDebugModeFlags(
+                gameEngineState.battleOrchestratorState.battleHUD.debugMode
+            ).behaviorOverrides,
         })
 
         expect(actualInstruction).toStrictEqual([endTurnStep])
@@ -137,6 +141,9 @@ describe("end turn team strategy", () => {
         const actualInstruction = strategy.DetermineNextInstruction({
             team: noSquaddieTeam,
             gameEngineState,
+            behaviorOverrides: DebugModeMenuService.getDebugModeFlags(
+                gameEngineState.battleOrchestratorState.battleHUD.debugMode
+            ).behaviorOverrides,
         })
 
         expect(actualInstruction).toBeUndefined()
@@ -149,6 +156,9 @@ describe("end turn team strategy", () => {
         const actualInstruction = strategy.DetermineNextInstruction({
             team: squaddieTeam,
             gameEngineState,
+            behaviorOverrides: DebugModeMenuService.getDebugModeFlags(
+                gameEngineState.battleOrchestratorState.battleHUD.debugMode
+            ).behaviorOverrides,
         })
 
         expect(actualInstruction).toBeUndefined()

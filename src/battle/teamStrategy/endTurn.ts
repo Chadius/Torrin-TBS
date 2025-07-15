@@ -1,4 +1,5 @@
 import {
+    TeamStrategyBehaviorOverride,
     TeamStrategyCalculator,
     TeamStrategyService,
 } from "./teamStrategyCalculator"
@@ -17,6 +18,7 @@ export class EndTurnTeamStrategy implements TeamStrategyCalculator {
     }: {
         team: BattleSquaddieTeam
         gameEngineState: GameEngineState
+        behaviorOverrides: TeamStrategyBehaviorOverride
     }): BattleActionDecisionStep[] {
         const battleSquaddieIdToAct =
             TeamStrategyService.getBattleSquaddieWhoCanAct(

@@ -8,14 +8,21 @@ import { getResultOrThrowError } from "../../utils/ResultOrError"
 import { SquaddieService } from "../../squaddie/squaddieService"
 import { BattleActionDecisionStep } from "../actionDecision/battleActionDecisionStep"
 import { GameEngineState } from "../../gameEngine/gameEngine"
+import { DebugModeFlags } from "../hud/debugModeMenu/debugModeMenu"
+
+export type TeamStrategyBehaviorOverride = {
+    noActions: boolean
+}
 
 export interface TeamStrategyCalculator {
     DetermineNextInstruction({
         team,
         gameEngineState,
+        behaviorOverrides,
     }: {
         team: BattleSquaddieTeam
         gameEngineState: GameEngineState
+        behaviorOverrides: TeamStrategyBehaviorOverride
     }): BattleActionDecisionStep[]
 }
 

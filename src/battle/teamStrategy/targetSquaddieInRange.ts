@@ -1,4 +1,5 @@
 import {
+    TeamStrategyBehaviorOverride,
     TeamStrategyCalculator,
     TeamStrategyService,
 } from "./teamStrategyCalculator"
@@ -38,10 +39,16 @@ export class TargetSquaddieInRange implements TeamStrategyCalculator {
     DetermineNextInstruction({
         team,
         gameEngineState,
+        behaviorOverrides,
     }: {
         team: BattleSquaddieTeam
         gameEngineState: GameEngineState
+        behaviorOverrides: TeamStrategyBehaviorOverride
     }): BattleActionDecisionStep[] {
+        if (behaviorOverrides.noActions) {
+            return undefined
+        }
+
         if (
             !this.desiredBattleSquaddieId &&
             (!this.desiredAffiliation ||

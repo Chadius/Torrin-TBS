@@ -288,6 +288,7 @@ describe("playerCommandHUD", () => {
             expect(actionButtonSpy).toBeCalledTimes(
                 playerSquaddieTemplate.actionTemplateIds.length + 1
             )
+            actionButtonSpy.mockRestore()
         })
         it("will only draw the selected action and hide other features", () => {
             selectPlayer()

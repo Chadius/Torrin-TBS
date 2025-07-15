@@ -6,6 +6,7 @@ import { TeamStrategyCalculator } from "./teamStrategyCalculator"
 import { BattleSquaddieTeam } from "../battleSquaddieTeam"
 import { BattleActionDecisionStep } from "../actionDecision/battleActionDecisionStep"
 import { GameEngineState } from "../../gameEngine/gameEngine"
+import { DebugModeMenuService } from "../hud/debugModeMenu/debugModeMenu"
 
 export const DetermineNextDecisionService = {
     determineNextDecision: ({
@@ -49,5 +50,8 @@ const determineNextDecision = ({
     return calculator.DetermineNextInstruction({
         team,
         gameEngineState,
+        behaviorOverrides: DebugModeMenuService.getDebugModeFlags(
+            gameEngineState.battleOrchestratorState.battleHUD.debugMode
+        ).behaviorOverrides,
     })
 }

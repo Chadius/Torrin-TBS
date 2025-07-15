@@ -1,9 +1,5 @@
 import p5 from "p5"
 
-export type ColorDescription = {
-    hsb: number[]
-}
-
 export interface GraphicsBuffer {
     background(hue: number, saturation: number, brightness: number): void
 

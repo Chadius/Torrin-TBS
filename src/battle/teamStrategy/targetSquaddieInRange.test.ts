@@ -12,7 +12,6 @@ import {
 } from "../../trait/traitStatusStorage"
 import { TerrainTileMapService } from "../../hexMap/terrainTileMap"
 import { TargetSquaddieInRange } from "./targetSquaddieInRange"
-import { SquaddieTemplate } from "../../campaign/squaddieTemplate"
 import { SquaddieTurnService } from "../../squaddie/turn"
 import {
     ActionTemplate,
@@ -37,15 +36,14 @@ import { BattleStateService } from "../battleState/battleState"
 import { TargetConstraintsService } from "../../action/targetConstraints"
 import { ActionResourceCostService } from "../../action/actionResourceCost"
 import { beforeEach, describe, expect, it } from "vitest"
+import { DebugModeMenuService } from "../hud/debugModeMenu/debugModeMenu"
+import { HexCoordinate } from "../../hexMap/hexCoordinate/hexCoordinate"
 
 describe("target a squaddie within reach of actions", () => {
     let objectRepository: ObjectRepository
     let missionMap: MissionMap
-    let enemyBanditStatic: SquaddieTemplate
     let enemyBattleSquaddie: BattleSquaddie
-    let playerKnightStatic: SquaddieTemplate
     let playerKnightDynamic: BattleSquaddie
-    let allyClericStatic: SquaddieTemplate
     let allyClericDynamic: BattleSquaddie
     let shortBowAction: ActionTemplate
     let enemyTeam: BattleSquaddieTeam
@@ -81,39 +79,33 @@ describe("target a squaddie within reach of actions", () => {
             objectRepository,
             shortBowAction
         )
-        ;({
-            squaddieTemplate: enemyBanditStatic,
-            battleSquaddie: enemyBattleSquaddie,
-        } = SquaddieRepositoryService.createNewSquaddieAndAddToRepository({
-            templateId: "enemy_bandit",
-            battleId: "enemy_bandit_0",
-            name: "Bandit",
-            affiliation: SquaddieAffiliation.ENEMY,
-            objectRepository: objectRepository,
-            actionTemplateIds: [shortBowAction.id],
-        }))
-        ;({
-            squaddieTemplate: playerKnightStatic,
-            battleSquaddie: playerKnightDynamic,
-        } = SquaddieRepositoryService.createNewSquaddieAndAddToRepository({
-            templateId: "player_knight",
-            battleId: "player_knight_0",
-            name: "Knight",
-            affiliation: SquaddieAffiliation.PLAYER,
-            objectRepository: objectRepository,
-            actionTemplateIds: [],
-        }))
-        ;({
-            squaddieTemplate: allyClericStatic,
-            battleSquaddie: allyClericDynamic,
-        } = SquaddieRepositoryService.createNewSquaddieAndAddToRepository({
-            templateId: "ally_cleric",
-            battleId: "ally_cleric_0",
-            name: "Cleric",
-            affiliation: SquaddieAffiliation.ALLY,
-            objectRepository: objectRepository,
-            actionTemplateIds: [],
-        }))
+        ;({ battleSquaddie: enemyBattleSquaddie } =
+            SquaddieRepositoryService.createNewSquaddieAndAddToRepository({
+                templateId: "enemy_bandit",
+                battleId: "enemy_bandit_0",
+                name: "Bandit",
+                affiliation: SquaddieAffiliation.ENEMY,
+                objectRepository: objectRepository,
+                actionTemplateIds: [shortBowAction.id],
+            }))
+        ;({ battleSquaddie: playerKnightDynamic } =
+            SquaddieRepositoryService.createNewSquaddieAndAddToRepository({
+                templateId: "player_knight",
+                battleId: "player_knight_0",
+                name: "Knight",
+                affiliation: SquaddieAffiliation.PLAYER,
+                objectRepository: objectRepository,
+                actionTemplateIds: [],
+            }))
+        ;({ battleSquaddie: allyClericDynamic } =
+            SquaddieRepositoryService.createNewSquaddieAndAddToRepository({
+                templateId: "ally_cleric",
+                battleId: "ally_cleric_0",
+                name: "Cleric",
+                affiliation: SquaddieAffiliation.ALLY,
+                objectRepository: objectRepository,
+                actionTemplateIds: [],
+            }))
 
         missionMap = MissionMapService.new({
             terrainTileMap: TerrainTileMapService.new({
@@ -166,6 +158,9 @@ describe("target a squaddie within reach of actions", () => {
         const actualInstruction = strategy.DetermineNextInstruction({
             team: enemyTeam,
             gameEngineState,
+            behaviorOverrides: DebugModeMenuService.getDebugModeFlags(
+                gameEngineState.battleOrchestratorState.battleHUD.debugMode
+            ).behaviorOverrides,
         })
         expect(actualInstruction).toBeUndefined()
     })
@@ -183,6 +178,9 @@ describe("target a squaddie within reach of actions", () => {
             strategy.DetermineNextInstruction({
                 team: enemyTeam,
                 gameEngineState,
+                behaviorOverrides: DebugModeMenuService.getDebugModeFlags(
+                    gameEngineState.battleOrchestratorState.battleHUD.debugMode
+                ).behaviorOverrides,
             })
         }
 
@@ -214,22 +212,17 @@ describe("target a squaddie within reach of actions", () => {
         const actualInstruction = strategy.DetermineNextInstruction({
             team: enemyTeam,
             gameEngineState,
+            behaviorOverrides: DebugModeMenuService.getDebugModeFlags(
+                gameEngineState.battleOrchestratorState.battleHUD.debugMode
+            ).behaviorOverrides,
         })
-        const actionStep: BattleActionDecisionStep =
-            BattleActionDecisionStepService.new()
-        BattleActionDecisionStepService.setActor({
-            actionDecisionStep: actionStep,
-            battleSquaddieId: enemyBattleSquaddie.battleSquaddieId,
-        })
-        BattleActionDecisionStepService.addAction({
-            actionDecisionStep: actionStep,
-            actionTemplateId: shortBowAction.id,
-        })
-        BattleActionDecisionStepService.setConfirmedTarget({
-            actionDecisionStep: actionStep,
-            targetCoordinate: { q: 0, r: 1 },
-        })
-        expect(actualInstruction).toStrictEqual([actionStep])
+        expect(actualInstruction).toStrictEqual([
+            createActionStep({
+                battleSquaddieId: enemyBattleSquaddie.battleSquaddieId,
+                actionTemplateId: shortBowAction.id,
+                targetCoordinate: { q: 0, r: 1 },
+            }),
+        ])
     })
 
     it("will target squaddie by affiliation", () => {
@@ -253,6 +246,9 @@ describe("target a squaddie within reach of actions", () => {
         const actualInstruction = strategy.DetermineNextInstruction({
             team: enemyTeam,
             gameEngineState,
+            behaviorOverrides: DebugModeMenuService.getDebugModeFlags(
+                gameEngineState.battleOrchestratorState.battleHUD.debugMode
+            ).behaviorOverrides,
         })
         const actionStep: BattleActionDecisionStep =
             BattleActionDecisionStepService.new()
@@ -286,6 +282,9 @@ describe("target a squaddie within reach of actions", () => {
         const actualInstruction = strategy.DetermineNextInstruction({
             team: enemyTeam,
             gameEngineState,
+            behaviorOverrides: DebugModeMenuService.getDebugModeFlags(
+                gameEngineState.battleOrchestratorState.battleHUD.debugMode
+            ).behaviorOverrides,
         })
 
         expect(actualInstruction).toBeUndefined()
@@ -317,6 +316,41 @@ describe("target a squaddie within reach of actions", () => {
         const actualInstruction = strategy.DetermineNextInstruction({
             team: enemyTeam,
             gameEngineState,
+            behaviorOverrides: DebugModeMenuService.getDebugModeFlags(
+                gameEngineState.battleOrchestratorState.battleHUD.debugMode
+            ).behaviorOverrides,
+        })
+
+        expect(actualInstruction).toBeUndefined()
+    })
+
+    it("will not use an action if there is a behavior override preventing action", () => {
+        MissionMapService.addSquaddie({
+            missionMap,
+            squaddieTemplateId: allyClericDynamic.squaddieTemplateId,
+            battleSquaddieId: allyClericDynamic.battleSquaddieId,
+            originMapCoordinate: { q: 0, r: 2 },
+        })
+        MissionMapService.addSquaddie({
+            missionMap,
+            squaddieTemplateId: playerKnightDynamic.squaddieTemplateId,
+            battleSquaddieId: playerKnightDynamic.battleSquaddieId,
+            originMapCoordinate: { q: 0, r: 1 },
+        })
+
+        const strategy: TargetSquaddieInRange = new TargetSquaddieInRange({
+            desiredBattleSquaddieId: playerKnightDynamic.battleSquaddieId,
+        })
+
+        const actualInstruction = strategy.DetermineNextInstruction({
+            team: enemyTeam,
+            gameEngineState,
+            behaviorOverrides: {
+                ...DebugModeMenuService.getDebugModeFlags(
+                    gameEngineState.battleOrchestratorState.battleHUD.debugMode
+                ).behaviorOverrides,
+                noActions: true,
+            },
         })
 
         expect(actualInstruction).toBeUndefined()
@@ -337,22 +371,17 @@ describe("target a squaddie within reach of actions", () => {
         const actualInstruction = strategy.DetermineNextInstruction({
             team: enemyTeam,
             gameEngineState,
+            behaviorOverrides: DebugModeMenuService.getDebugModeFlags(
+                gameEngineState.battleOrchestratorState.battleHUD.debugMode
+            ).behaviorOverrides,
         })
-        const actionStep: BattleActionDecisionStep =
-            BattleActionDecisionStepService.new()
-        BattleActionDecisionStepService.setActor({
-            actionDecisionStep: actionStep,
-            battleSquaddieId: enemyBattleSquaddie.battleSquaddieId,
-        })
-        BattleActionDecisionStepService.addAction({
-            actionDecisionStep: actionStep,
-            actionTemplateId: shortBowAction.id,
-        })
-        BattleActionDecisionStepService.setConfirmedTarget({
-            actionDecisionStep: actionStep,
-            targetCoordinate: { q: 0, r: 1 },
-        })
-        expect(actualInstruction).toStrictEqual([actionStep])
+        expect(actualInstruction).toStrictEqual([
+            createActionStep({
+                battleSquaddieId: enemyBattleSquaddie.battleSquaddieId,
+                actionTemplateId: shortBowAction.id,
+                targetCoordinate: { q: 0, r: 1 },
+            }),
+        ])
     })
 
     it("will not change the currently acting squaddie", () => {
@@ -423,22 +452,17 @@ describe("target a squaddie within reach of actions", () => {
         const actualInstruction = strategy.DetermineNextInstruction({
             team: enemyTeam,
             gameEngineState,
+            behaviorOverrides: DebugModeMenuService.getDebugModeFlags(
+                gameEngineState.battleOrchestratorState.battleHUD.debugMode
+            ).behaviorOverrides,
         })
-        const actionStep: BattleActionDecisionStep =
-            BattleActionDecisionStepService.new()
-        BattleActionDecisionStepService.setActor({
-            actionDecisionStep: actionStep,
-            battleSquaddieId: enemyBattleSquaddie.battleSquaddieId,
-        })
-        BattleActionDecisionStepService.addAction({
-            actionDecisionStep: actionStep,
-            actionTemplateId: shortBowAction.id,
-        })
-        BattleActionDecisionStepService.setConfirmedTarget({
-            actionDecisionStep: actionStep,
-            targetCoordinate: { q: 0, r: 2 },
-        })
-        expect(actualInstruction).toStrictEqual([actionStep])
+        expect(actualInstruction).toStrictEqual([
+            createActionStep({
+                battleSquaddieId: enemyBattleSquaddie.battleSquaddieId,
+                actionTemplateId: shortBowAction.id,
+                targetCoordinate: { q: 0, r: 2 },
+            }),
+        ])
     })
 
     it("should pass if there are no squaddies to act", () => {
@@ -456,7 +480,36 @@ describe("target a squaddie within reach of actions", () => {
         const actualInstruction = strategy.DetermineNextInstruction({
             team: allyTeam,
             gameEngineState,
+            behaviorOverrides: DebugModeMenuService.getDebugModeFlags(
+                gameEngineState.battleOrchestratorState.battleHUD.debugMode
+            ).behaviorOverrides,
         })
         expect(actualInstruction).toBeUndefined()
     })
 })
+
+const createActionStep = ({
+    battleSquaddieId,
+    actionTemplateId,
+    targetCoordinate,
+}: {
+    battleSquaddieId: string
+    actionTemplateId: string
+    targetCoordinate: HexCoordinate
+}): BattleActionDecisionStep => {
+    const actionStep: BattleActionDecisionStep =
+        BattleActionDecisionStepService.new()
+    BattleActionDecisionStepService.setActor({
+        actionDecisionStep: actionStep,
+        battleSquaddieId,
+    })
+    BattleActionDecisionStepService.addAction({
+        actionDecisionStep: actionStep,
+        actionTemplateId,
+    })
+    BattleActionDecisionStepService.setConfirmedTarget({
+        actionDecisionStep: actionStep,
+        targetCoordinate,
+    })
+    return actionStep
+}
