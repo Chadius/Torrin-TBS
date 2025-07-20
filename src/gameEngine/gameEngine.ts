@@ -366,10 +366,16 @@ export class GameEngine {
         const cutsceneMessageListener = new CutsceneMessageListener(
             "cutsceneMessageListener"
         )
-        this.gameEngineState.messageBoard.addListener(
-            cutsceneMessageListener,
-            MessageBoardMessageType.SQUADDIE_IS_INJURED
-        )
+
+        ;[
+            MessageBoardMessageType.SQUADDIE_IS_INJURED,
+            MessageBoardMessageType.SQUADDIE_IS_DEFEATED,
+        ].forEach((messageBoardMessageType) => {
+            this.gameEngineState.messageBoard.addListener(
+                cutsceneMessageListener,
+                messageBoardMessageType
+            )
+        })
 
         this.gameEngineState.messageBoard.addListener(
             this._battleOrchestrator.playerSquaddieSelector,

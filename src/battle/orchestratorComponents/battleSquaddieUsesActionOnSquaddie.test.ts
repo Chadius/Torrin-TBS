@@ -419,15 +419,7 @@ describe("BattleSquaddieUsesActionOnSquaddie", () => {
     })
 
     it("clears the action builder when the action finishes animating", () => {
-        const missionMap: MissionMap = MissionMapService.new({
-            terrainTileMap: TerrainTileMapService.new({
-                movementCost: ["1 1 1 "],
-            }),
-        })
-
-        const gameEngineState = usePowerAttackLongswordAndReturnState({
-            missionMap,
-        })
+        const gameEngineState = usePowerAttackLongswordAndReturnState({})
         SquaddieTurnService.setMovementActionPointsPreviewedByPlayer({
             squaddieTurn: battleSquaddieBase.squaddieTurn,
             actionPoints: 1,
@@ -465,15 +457,7 @@ describe("BattleSquaddieUsesActionOnSquaddie", () => {
     })
 
     it("sends a message noting the animation is complete", () => {
-        const missionMap: MissionMap = MissionMapService.new({
-            terrainTileMap: TerrainTileMapService.new({
-                movementCost: ["1 1 1 "],
-            }),
-        })
-
-        const gameEngineState = usePowerAttackLongswordAndReturnState({
-            missionMap,
-        })
+        const gameEngineState = usePowerAttackLongswordAndReturnState({})
         SquaddieTurnService.setMovementActionPointsPreviewedByPlayer({
             squaddieTurn: battleSquaddieBase.squaddieTurn,
             actionPoints: 1,
@@ -763,21 +747,7 @@ describe("BattleSquaddieUsesActionOnSquaddie", () => {
     })
 
     it("will generate message if the target was injured", () => {
-        const missionMap: MissionMap = MissionMapService.new({
-            terrainTileMap: TerrainTileMapService.new({
-                movementCost: ["1 1 1 "],
-            }),
-        })
-
-        const gameEngineState = usePowerAttackLongswordAndReturnState({
-            missionMap,
-        })
-        expect(
-            MissionMapService.isSquaddieHiddenFromDrawing(
-                missionMap,
-                targetDynamic.battleSquaddieId
-            )
-        ).toBeFalsy()
+        const gameEngineState = usePowerAttackLongswordAndReturnState({})
 
         vi.spyOn(
             squaddieUsesActionOnSquaddie.squaddieTargetsOtherSquaddiesAnimator,
@@ -808,10 +778,61 @@ describe("BattleSquaddieUsesActionOnSquaddie", () => {
         expect(messageBoardSendSpy).toBeCalledWith({
             type: MessageBoardMessageType.SQUADDIE_IS_INJURED,
             gameEngineState,
-            battleSquaddieIdsThatWereInjured: [
-                targetDynamicSquaddieBattleSquaddieId,
-            ],
+            battleSquaddieIds: [targetDynamicSquaddieBattleSquaddieId],
+            objectRepository: gameEngineState.repository,
         })
+        messageBoardSendSpy.mockRestore()
+    })
+
+    it("will generate message if the target was defeated", () => {
+        InBattleAttributesService.takeDamage({
+            inBattleAttributes: targetDynamic.inBattleAttributes,
+            damageToTake: 9001,
+            damageType: DamageType.UNKNOWN,
+        })
+
+        const missionMap: MissionMap = MissionMapService.new({
+            terrainTileMap: TerrainTileMapService.new({
+                movementCost: ["1 1 1 "],
+            }),
+        })
+
+        const gameEngineState = usePowerAttackLongswordAndReturnState({
+            missionMap,
+        })
+
+        vi.spyOn(
+            squaddieUsesActionOnSquaddie.squaddieTargetsOtherSquaddiesAnimator,
+            "update"
+        ).mockImplementation(() => {})
+
+        const messageBoardSendSpy: MockInstance = vi.spyOn(
+            gameEngineState.messageBoard,
+            "sendMessage"
+        )
+
+        const squaddieTargetsOtherSquaddiesAnimatorHasCompletedSpy = vi
+            .spyOn(
+                squaddieUsesActionOnSquaddie.squaddieTargetsOtherSquaddiesAnimator,
+                "hasCompleted"
+            )
+            .mockReturnValue(true)
+
+        squaddieUsesActionOnSquaddie.update({
+            gameEngineState,
+            graphicsContext: mockedP5GraphicsContext,
+            resourceHandler: gameEngineState.resourceHandler,
+        })
+        expect(
+            squaddieTargetsOtherSquaddiesAnimatorHasCompletedSpy
+        ).toBeCalled()
+
+        expect(messageBoardSendSpy).toBeCalledWith(
+            expect.objectContaining({
+                type: MessageBoardMessageType.SQUADDIE_IS_DEFEATED,
+                battleSquaddieIds: [targetDynamicSquaddieBattleSquaddieId],
+            })
+        )
         messageBoardSendSpy.mockRestore()
     })
 })

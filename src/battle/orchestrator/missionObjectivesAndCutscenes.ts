@@ -7,7 +7,10 @@ import {
     MissionCutsceneCollection,
     MissionCutsceneCollectionHelper,
 } from "./missionCutsceneCollection"
-import { CutsceneTrigger } from "../../cutscene/cutsceneTrigger"
+import {
+    CutsceneTrigger,
+    CutsceneTriggerService,
+} from "../../cutscene/cutsceneTrigger"
 import { MissionCompletionStatus } from "../missionResult/missionCompletionStatus"
 
 export enum BattleCompletionStatus {
@@ -38,7 +41,7 @@ export const MissionObjectivesAndCutscenesHelper = {
         missionCompletionStatus: MissionCompletionStatus
         battleCompletionStatus: BattleCompletionStatus
     }): MissionObjectivesAndCutscenes => {
-        return {
+        return sanitize({
             missionCompletionStatus: missionCompletionStatus,
             cutsceneTriggers: cutsceneTriggers || [],
             battleCompletionStatus: battleCompletionStatus,
@@ -59,6 +62,17 @@ export const MissionObjectivesAndCutscenesHelper = {
                               numberOfRequiredConditionsToComplete: 0,
                           }),
                       ],
-        }
+        })
     },
+    sanitize: (missionObjectivesAndCutscenes: MissionObjectivesAndCutscenes) =>
+        sanitize(missionObjectivesAndCutscenes),
+}
+
+const sanitize = (
+    missionObjectivesAndCutscenes: MissionObjectivesAndCutscenes
+) => {
+    missionObjectivesAndCutscenes.cutsceneTriggers.forEach((trigger) => {
+        CutsceneTriggerService.sanitize(trigger)
+    })
+    return missionObjectivesAndCutscenes
 }

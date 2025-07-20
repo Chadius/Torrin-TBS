@@ -190,6 +190,9 @@ export const BattleStateService = {
             strategies: foundStrategies,
         }
     },
+    sanitize: (battleState: BattleState) => {
+        MissionObjectivesAndCutscenesHelper.sanitize(battleState)
+    },
 }
 
 interface BattleStateConstructorParameters {

@@ -10,7 +10,9 @@ import { TerrainTileMapService } from "../../hexMap/terrainTileMap"
 import { MissionObjectiveHelper } from "../missionResult/missionObjective"
 import { MissionRewardType } from "../missionResult/missionReward"
 import {
+    CutsceneTrigger,
     MissionDefeatCutsceneTrigger,
+    SquaddieIsDefeatedTrigger,
     SquaddieIsInjuredTrigger,
     TriggeringEvent,
 } from "../../cutscene/cutsceneTrigger"
@@ -41,10 +43,18 @@ import {
     BattleActionActorContext,
     BattleActionActorContextService,
 } from "../history/battleAction/battleActionActorContext"
-import { CutsceneQueueService } from "./cutsceneIdQueue"
-import { BattleActionRecorderService } from "../history/battleAction/battleActionRecorder"
+import {
+    BattleActionRecorder,
+    BattleActionRecorderService,
+} from "../history/battleAction/battleActionRecorder"
 import { BattleActionService } from "../history/battleAction/battleAction"
-import { beforeEach, describe, expect, it, vi } from "vitest"
+import { beforeEach, describe, expect, it, MockInstance, vi } from "vitest"
+import { ObjectRepository, ObjectRepositoryService } from "../objectRepository"
+import { SquaddieRepositoryService } from "../../utils/test/squaddie"
+import { SquaddieAffiliation } from "../../squaddie/squaddieAffiliation"
+import { DamageType } from "../../squaddie/squaddieService"
+import { InBattleAttributesService } from "../stats/inBattleAttributes"
+import { getResultOrThrowError } from "../../utils/ResultOrError"
 
 describe("Mission Cutscene Service", () => {
     let mockCutscene: Cutscene
@@ -415,6 +425,15 @@ describe("Mission Cutscene Service", () => {
             let injuredCutsceneTrigger: SquaddieIsInjuredTrigger
             const injuredCutsceneId = "injured"
             const injuredBattleSquaddieId = "injured_battle_squaddie"
+            const injuredSquaddieTemplateId = "injuredSquaddieTemplate"
+
+            const differentBattleSquaddieId = "different_battle_squaddie"
+            const differentSquaddieTemplateId = "differentSquaddieTemplate"
+
+            const attackingBattleSquaddieId = "attacker"
+            const attackerSquaddieTemplateId = "attackerSquaddieTemplate"
+
+            const differentSquaddieBattleId = "differentSquaddieBattleId"
 
             beforeEach(() => {
                 mockCutscene = CutsceneService.new({})
@@ -428,9 +447,7 @@ describe("Mission Cutscene Service", () => {
                     triggeringEvent: TriggeringEvent.SQUADDIE_IS_INJURED,
                     cutsceneId: injuredCutsceneId,
                     systemReactedToTrigger: false,
-                    battleSquaddieIdsToCheckForInjury: [
-                        injuredBattleSquaddieId,
-                    ],
+                    battleSquaddieIds: [injuredBattleSquaddieId],
                 }
 
                 targetWasInjuredContext = BattleActionActorContextService.new({
@@ -439,7 +456,7 @@ describe("Mission Cutscene Service", () => {
                 })
 
                 gameEngineStateWithInjuryCutscene = GameEngineStateService.new({
-                    repository: undefined,
+                    repository: ObjectRepositoryService.new(),
                     resourceHandler: undefined,
                     battleOrchestratorState: BattleOrchestratorStateService.new(
                         {
@@ -457,123 +474,101 @@ describe("Mission Cutscene Service", () => {
                         }
                     ),
                 })
-
-                BattleActionRecorderService.addReadyToAnimateBattleAction(
-                    gameEngineStateWithInjuryCutscene.battleOrchestratorState
-                        .battleState.battleActionRecorder,
-                    BattleActionService.new({
-                        actor: {
-                            actorBattleSquaddieId: "attacker",
-                            actorContext: targetWasInjuredContext,
-                        },
-                        action: { actionTemplateId: "attack" },
-                        effect: {
-                            squaddie: [
-                                BattleActionSquaddieChangeService.new({
-                                    battleSquaddieId: injuredBattleSquaddieId,
-                                    damageExplanation:
-                                        DamageExplanationService.new({
-                                            raw: 1,
-                                            net: 1,
-                                            absorbed: 0,
-                                        }),
-                                }),
-                            ],
-                        },
-                    })
-                )
-                BattleActionRecorderService.addAnimatingBattleActionToAlreadyAnimatedThisTurn(
-                    gameEngineStateWithInjuryCutscene.battleOrchestratorState
-                        .battleState.battleActionRecorder
-                )
+                ;[
+                    {
+                        name: "attacker",
+                        battleId: attackingBattleSquaddieId,
+                        templateId: attackerSquaddieTemplateId,
+                        affiliation: SquaddieAffiliation.PLAYER,
+                    },
+                    {
+                        name: "target",
+                        battleId: injuredBattleSquaddieId,
+                        templateId: injuredSquaddieTemplateId,
+                        affiliation: SquaddieAffiliation.ENEMY,
+                    },
+                    {
+                        name: "different",
+                        battleId: differentBattleSquaddieId,
+                        templateId: differentSquaddieTemplateId,
+                        affiliation: SquaddieAffiliation.ENEMY,
+                    },
+                ].forEach(({ name, battleId, templateId, affiliation }) => {
+                    SquaddieRepositoryService.createNewSquaddieAndAddToRepository(
+                        {
+                            name,
+                            battleId,
+                            templateId,
+                            affiliation,
+                            actionTemplateIds: [],
+                            objectRepository:
+                                gameEngineStateWithInjuryCutscene.repository,
+                        }
+                    )
+                })
             })
 
-            it("will listen to a squaddie injured message", () => {
+            it("Responds to SQUADDIE_IS_INJURED messages by searching for a cutscene", () => {
+                let finderSpy: MockInstance
                 gameEngineStateWithInjuryCutscene.messageBoard.addListener(
                     listener,
                     MessageBoardMessageType.SQUADDIE_IS_INJURED
                 )
 
-                const finderSpy = vi.spyOn(
+                finderSpy = vi.spyOn(
                     MissionCutsceneService,
                     "findCutsceneTriggersToActivateBasedOnSquaddieSquaddieAction"
                 )
-                gameEngineStateWithInjuryCutscene.battleOrchestratorState.battleState.cutsceneTriggers.push(
-                    injuredCutsceneTrigger
-                )
-                BattleActionRecorderService.addReadyToAnimateBattleAction(
-                    gameEngineStateWithInjuryCutscene.battleOrchestratorState
-                        .battleState.battleActionRecorder,
-                    BattleActionService.new({
-                        actor: {
-                            actorBattleSquaddieId: "attacker",
-                            actorContext: targetWasInjuredContext,
-                        },
-                        action: { actionTemplateId: "attack" },
-                        effect: {
-                            squaddie: [
-                                BattleActionSquaddieChangeService.new({
-                                    battleSquaddieId: injuredBattleSquaddieId,
-                                    damageExplanation:
-                                        DamageExplanationService.new({
-                                            net: 2,
-                                        }),
-                                    actorDegreeOfSuccess:
-                                        DegreeOfSuccess.SUCCESS,
-                                }),
-                            ],
-                        },
-                    })
-                )
+
+                addDamagingEffect({
+                    battleActionRecorder:
+                        gameEngineStateWithInjuryCutscene
+                            .battleOrchestratorState.battleState
+                            .battleActionRecorder,
+                    actor: {
+                        actorBattleSquaddieId: attackingBattleSquaddieId,
+                        actorContext: targetWasInjuredContext,
+                    },
+                    targetBattleSquaddieId: injuredBattleSquaddieId,
+                    netDamage: 1,
+                })
+
                 gameEngineStateWithInjuryCutscene.messageBoard.sendMessage({
                     type: MessageBoardMessageType.SQUADDIE_IS_INJURED,
                     gameEngineState: gameEngineStateWithInjuryCutscene,
-                    battleSquaddieIdsThatWereInjured: [],
+                    battleSquaddieIds: [],
+                    objectRepository:
+                        gameEngineStateWithInjuryCutscene.repository,
                 })
                 expect(finderSpy).toBeCalled()
-
-                expect(
-                    CutsceneQueueService.peek(
-                        gameEngineStateWithInjuryCutscene
-                            .battleOrchestratorState.cutsceneQueue
-                    )
-                ).toEqual(injuredCutsceneId)
                 finderSpy.mockRestore()
             })
 
-            it("will fire the cutscene if it gets a squaddie is injured without a turn limit", () => {
+            it("will fire the cutscene if it gets a squaddie is injured", () => {
                 gameEngineStateWithInjuryCutscene.battleOrchestratorState.battleState.cutsceneTriggers.push(
                     injuredCutsceneTrigger
                 )
 
-                const battleActionSquaddieChange =
-                    BattleActionSquaddieChangeService.new({
-                        battleSquaddieId: injuredBattleSquaddieId,
-                        damageExplanation: DamageExplanationService.new({
-                            net: 2,
-                        }),
-                        actorDegreeOfSuccess: DegreeOfSuccess.SUCCESS,
-                    })
-                BattleActionRecorderService.addReadyToAnimateBattleAction(
-                    gameEngineStateWithInjuryCutscene.battleOrchestratorState
-                        .battleState.battleActionRecorder,
-                    BattleActionService.new({
-                        actor: {
-                            actorBattleSquaddieId: "attacker",
-                            actorContext: targetWasInjuredContext,
-                        },
-                        action: { actionTemplateId: "attack" },
-                        effect: {
-                            squaddie: [battleActionSquaddieChange],
-                        },
-                    })
-                )
+                const battleActionSquaddieChange = addDamagingEffect({
+                    battleActionRecorder:
+                        gameEngineStateWithInjuryCutscene
+                            .battleOrchestratorState.battleState
+                            .battleActionRecorder,
+                    actor: {
+                        actorBattleSquaddieId: attackingBattleSquaddieId,
+                        actorContext: targetWasInjuredContext,
+                    },
+                    targetBattleSquaddieId: injuredBattleSquaddieId,
+                    netDamage: 2,
+                })
 
                 expect(
                     MissionCutsceneService.findCutsceneTriggersToActivateBasedOnSquaddieSquaddieAction(
                         {
                             gameEngineState: gameEngineStateWithInjuryCutscene,
                             squaddieChanges: [battleActionSquaddieChange],
+                            objectRepository:
+                                gameEngineStateWithInjuryCutscene.repository,
                         }
                     )
                 ).toEqual([injuredCutsceneTrigger])
@@ -584,76 +579,62 @@ describe("Mission Cutscene Service", () => {
                     injuredCutsceneTrigger
                 )
 
-                const battleActionSquaddieChange1 =
-                    BattleActionSquaddieChangeService.new({
-                        battleSquaddieId: injuredBattleSquaddieId,
-                        actorDegreeOfSuccess: DegreeOfSuccess.SUCCESS,
-                    })
-                BattleActionRecorderService.addReadyToAnimateBattleAction(
-                    gameEngineStateWithInjuryCutscene.battleOrchestratorState
-                        .battleState.battleActionRecorder,
-                    BattleActionService.new({
-                        actor: {
-                            actorBattleSquaddieId: "attacker",
-                            actorContext: targetWasInjuredContext,
-                        },
-                        action: { actionTemplateId: "attack" },
-                        effect: {
-                            squaddie: [battleActionSquaddieChange1],
-                        },
-                    })
-                )
+                const battleActionSquaddieChange = addDamagingEffect({
+                    battleActionRecorder:
+                        gameEngineStateWithInjuryCutscene
+                            .battleOrchestratorState.battleState
+                            .battleActionRecorder,
+                    actor: {
+                        actorBattleSquaddieId: attackingBattleSquaddieId,
+                        actorContext: targetWasInjuredContext,
+                    },
+                    targetBattleSquaddieId: injuredBattleSquaddieId,
+                    netDamage: 0,
+                })
 
                 expect(
                     MissionCutsceneService.findCutsceneTriggersToActivateBasedOnSquaddieSquaddieAction(
                         {
                             gameEngineState: gameEngineStateWithInjuryCutscene,
-                            squaddieChanges: [battleActionSquaddieChange1],
+                            squaddieChanges: [battleActionSquaddieChange],
+                            objectRepository:
+                                gameEngineStateWithInjuryCutscene.repository,
                         }
                     )
                 ).toHaveLength(0)
             })
 
-            it("will not fire the cutscene if it gets a squaddie is injured event on a different squaddie", () => {
+            it("will not fire the cutscene if a different squaddie is injured", () => {
                 gameEngineStateWithInjuryCutscene.battleOrchestratorState.battleState.cutsceneTriggers.push(
                     injuredCutsceneTrigger
                 )
 
-                const battleActionSquaddieChange2 =
-                    BattleActionSquaddieChangeService.new({
-                        battleSquaddieId: "different squaddie id",
-                        damageExplanation: DamageExplanationService.new({
-                            net: 2,
-                        }),
-                        actorDegreeOfSuccess: DegreeOfSuccess.SUCCESS,
-                    })
-
-                BattleActionRecorderService.addReadyToAnimateBattleAction(
-                    gameEngineStateWithInjuryCutscene.battleOrchestratorState
-                        .battleState.battleActionRecorder,
-                    BattleActionService.new({
-                        actor: {
-                            actorBattleSquaddieId: "attacker",
-                            actorContext: targetWasInjuredContext,
-                        },
-                        action: { actionTemplateId: "attack" },
-                        effect: {
-                            squaddie: [battleActionSquaddieChange2],
-                        },
-                    })
-                )
+                const battleActionSquaddieChange = addDamagingEffect({
+                    battleActionRecorder:
+                        gameEngineStateWithInjuryCutscene
+                            .battleOrchestratorState.battleState
+                            .battleActionRecorder,
+                    actor: {
+                        actorBattleSquaddieId: attackingBattleSquaddieId,
+                        actorContext: targetWasInjuredContext,
+                    },
+                    targetBattleSquaddieId: differentSquaddieBattleId,
+                    netDamage: 0,
+                })
 
                 expect(
                     MissionCutsceneService.findCutsceneTriggersToActivateBasedOnSquaddieSquaddieAction(
                         {
                             gameEngineState: gameEngineStateWithInjuryCutscene,
-                            squaddieChanges: [battleActionSquaddieChange2],
+                            squaddieChanges: [battleActionSquaddieChange],
+                            objectRepository:
+                                gameEngineStateWithInjuryCutscene.repository,
                         }
                     )
                 ).toHaveLength(0)
             })
 
-            describe("turn boundary", () => {
+            describe("cutscene triggers in between minimum and maximum turns if provided", () => {
                 const tests = [
                     {
                         name: "will fire between turn boundary",
@@ -701,17 +682,14 @@ describe("Mission Cutscene Service", () => {
                         turnCount,
                         expectsTriggers,
                     }) => {
-                        injuredCutsceneTrigger.minimumTurns = minimumTurns
-                        injuredCutsceneTrigger.maximumTurns = maximumTurns
-                        gameEngineStateWithInjuryCutscene.battleOrchestratorState.battleState.battlePhaseState =
-                            {
-                                turnCount,
-                                currentAffiliation: BattlePhase.PLAYER,
-                            }
+                        setTurnsForTriggerAndGame({
+                            minimumTurns,
+                            maximumTurns,
+                            turnCount,
+                            gameEngineState: gameEngineStateWithInjuryCutscene,
+                            cutsceneTriggerWithTurns: injuredCutsceneTrigger,
+                        })
 
-                        gameEngineStateWithInjuryCutscene.battleOrchestratorState.battleState.cutsceneTriggers.push(
-                            injuredCutsceneTrigger
-                        )
                         BattleActionRecorderService.addReadyToAnimateBattleAction(
                             gameEngineStateWithInjuryCutscene
                                 .battleOrchestratorState.battleState
@@ -762,6 +740,335 @@ describe("Mission Cutscene Service", () => {
                                     squaddieChanges: [
                                         battleActionSquaddieChange,
                                     ],
+                                    objectRepository:
+                                        gameEngineStateWithInjuryCutscene.repository,
+                                }
+                            )
+                        ).toEqual(expectedTriggers)
+                    }
+                )
+            })
+        })
+
+        describe("Squaddie Is Dead Cutscene Trigger (via BattleAction)", () => {
+            let targetWasDefeatedContext: BattleActionActorContext
+            let gameEngineStateWithDefeatCutscene: GameEngineState
+            let deadBattleSquaddieCutsceneTrigger: SquaddieIsDefeatedTrigger
+            const deadBattleSquaddieCutsceneId =
+                "squaddie dead by battle squaddie"
+            let deadSquaddieTemplateCutsceneTrigger: SquaddieIsDefeatedTrigger
+            const deadSquaddieTemplateCutsceneId =
+                "squaddie dead by squaddie template"
+
+            const deadBattleSquaddieId = "dead_battle_squaddie"
+            const deadSquaddieTemplateId = "dead_squaddie_template"
+
+            const attackingBattleSquaddieId = "attacking_battle_squaddie"
+            const attackingSquaddieTemplateId = "attacking_squaddie_template"
+
+            beforeEach(() => {
+                mockCutscene = CutsceneService.new({})
+                cutsceneCollection = MissionCutsceneCollectionHelper.new({
+                    cutsceneById: {
+                        [deadBattleSquaddieCutsceneId]: mockCutscene,
+                    },
+                })
+
+                deadBattleSquaddieCutsceneTrigger = {
+                    triggeringEvent: TriggeringEvent.SQUADDIE_IS_DEFEATED,
+                    cutsceneId: deadBattleSquaddieCutsceneId,
+                    systemReactedToTrigger: false,
+                    battleSquaddieIds: [deadBattleSquaddieId],
+                    squaddieTemplateIds: [],
+                }
+
+                deadSquaddieTemplateCutsceneTrigger = {
+                    triggeringEvent: TriggeringEvent.SQUADDIE_IS_DEFEATED,
+                    cutsceneId: deadSquaddieTemplateCutsceneId,
+                    systemReactedToTrigger: false,
+                    battleSquaddieIds: [],
+                    squaddieTemplateIds: [deadSquaddieTemplateId],
+                }
+
+                targetWasDefeatedContext = BattleActionActorContextService.new({
+                    actingSquaddieModifiers: undefined,
+                    actingSquaddieRoll: undefined,
+                })
+
+                gameEngineStateWithDefeatCutscene = GameEngineStateService.new({
+                    repository: ObjectRepositoryService.new(),
+                    resourceHandler: undefined,
+                    battleOrchestratorState: BattleOrchestratorStateService.new(
+                        {
+                            battleState: BattleStateService.newBattleState({
+                                missionId: "test mission",
+                                campaignId: "test campaign",
+                                missionMap: MissionMapService.new({
+                                    terrainTileMap: TerrainTileMapService.new({
+                                        movementCost: ["1 1 "],
+                                    }),
+                                }),
+                                cutsceneCollection,
+                                cutsceneTriggers: [],
+                            }),
+                        }
+                    ),
+                })
+                ;[
+                    {
+                        name: "attacker",
+                        battleId: attackingBattleSquaddieId,
+                        templateId: attackingSquaddieTemplateId,
+                        affiliation: SquaddieAffiliation.PLAYER,
+                    },
+                    {
+                        name: "is dead",
+                        battleId: deadBattleSquaddieId,
+                        templateId: deadSquaddieTemplateId,
+                        affiliation: SquaddieAffiliation.ENEMY,
+                    },
+                ].forEach(({ name, battleId, templateId, affiliation }) => {
+                    SquaddieRepositoryService.createNewSquaddieAndAddToRepository(
+                        {
+                            name,
+                            battleId,
+                            templateId,
+                            affiliation,
+                            actionTemplateIds: [],
+                            objectRepository:
+                                gameEngineStateWithDefeatCutscene.repository,
+                        }
+                    )
+                })
+            })
+
+            it("Responds to SQUADDIE_IS_DEAD messages by searching for a cutscene", () => {
+                let finderSpy: MockInstance
+                gameEngineStateWithDefeatCutscene.messageBoard.addListener(
+                    listener,
+                    MessageBoardMessageType.SQUADDIE_IS_DEFEATED
+                )
+
+                finderSpy = vi.spyOn(
+                    MissionCutsceneService,
+                    "findCutsceneTriggersToActivateBasedOnSquaddieSquaddieAction"
+                )
+
+                addDamagingEffect({
+                    battleActionRecorder:
+                        gameEngineStateWithDefeatCutscene
+                            .battleOrchestratorState.battleState
+                            .battleActionRecorder,
+                    actor: {
+                        actorBattleSquaddieId: attackingBattleSquaddieId,
+                        actorContext: targetWasDefeatedContext,
+                    },
+                    targetBattleSquaddieId: deadBattleSquaddieId,
+                    netDamage: 9001,
+                })
+
+                gameEngineStateWithDefeatCutscene.messageBoard.sendMessage({
+                    type: MessageBoardMessageType.SQUADDIE_IS_DEFEATED,
+                    gameEngineState: gameEngineStateWithDefeatCutscene,
+                    battleSquaddieIds: [],
+                    objectRepository:
+                        gameEngineStateWithDefeatCutscene.repository,
+                })
+                expect(finderSpy).toBeCalled()
+                finderSpy.mockRestore()
+            })
+
+            it("will fire the cutscene if a squaddie with a matching battle squaddie id is dead", () => {
+                gameEngineStateWithDefeatCutscene.battleOrchestratorState.battleState.cutsceneTriggers.push(
+                    deadBattleSquaddieCutsceneTrigger
+                )
+                instantKillSquaddie({
+                    battleSquaddieId: deadBattleSquaddieId,
+                    objectRepository:
+                        gameEngineStateWithDefeatCutscene.repository,
+                })
+
+                const battleActionSquaddieChange = addDamagingEffect({
+                    battleActionRecorder:
+                        gameEngineStateWithDefeatCutscene
+                            .battleOrchestratorState.battleState
+                            .battleActionRecorder,
+                    actor: {
+                        actorBattleSquaddieId: attackingBattleSquaddieId,
+                        actorContext: targetWasDefeatedContext,
+                    },
+                    targetBattleSquaddieId: deadBattleSquaddieId,
+                    netDamage: 9001,
+                })
+
+                expect(
+                    MissionCutsceneService.findCutsceneTriggersToActivateBasedOnSquaddieSquaddieAction(
+                        {
+                            gameEngineState: gameEngineStateWithDefeatCutscene,
+                            squaddieChanges: [battleActionSquaddieChange],
+                            objectRepository:
+                                gameEngineStateWithDefeatCutscene.repository,
+                        }
+                    )
+                ).toEqual([deadBattleSquaddieCutsceneTrigger])
+            })
+
+            it("will not fire the cutscene if the squaddie does not die", () => {
+                gameEngineStateWithDefeatCutscene.battleOrchestratorState.battleState.cutsceneTriggers.push(
+                    deadBattleSquaddieCutsceneTrigger
+                )
+
+                const battleActionSquaddieChange = addDamagingEffect({
+                    battleActionRecorder:
+                        gameEngineStateWithDefeatCutscene
+                            .battleOrchestratorState.battleState
+                            .battleActionRecorder,
+                    actor: {
+                        actorBattleSquaddieId: attackingBattleSquaddieId,
+                        actorContext: targetWasDefeatedContext,
+                    },
+                    targetBattleSquaddieId: deadBattleSquaddieId,
+                    netDamage: 1,
+                })
+
+                expect(
+                    MissionCutsceneService.findCutsceneTriggersToActivateBasedOnSquaddieSquaddieAction(
+                        {
+                            gameEngineState: gameEngineStateWithDefeatCutscene,
+                            squaddieChanges: [battleActionSquaddieChange],
+                            objectRepository:
+                                gameEngineStateWithDefeatCutscene.repository,
+                        }
+                    )
+                ).toHaveLength(0)
+            })
+
+            it("will fire the cutscene if a squaddie with a matching squaddie template id is dead", () => {
+                gameEngineStateWithDefeatCutscene.battleOrchestratorState.battleState.cutsceneTriggers.push(
+                    deadSquaddieTemplateCutsceneTrigger
+                )
+                instantKillSquaddie({
+                    battleSquaddieId: deadBattleSquaddieId,
+                    objectRepository:
+                        gameEngineStateWithDefeatCutscene.repository,
+                })
+
+                const battleActionSquaddieChange = addDamagingEffect({
+                    battleActionRecorder:
+                        gameEngineStateWithDefeatCutscene
+                            .battleOrchestratorState.battleState
+                            .battleActionRecorder,
+                    actor: {
+                        actorBattleSquaddieId: attackingBattleSquaddieId,
+                        actorContext: targetWasDefeatedContext,
+                    },
+                    targetBattleSquaddieId: deadBattleSquaddieId,
+                    netDamage: 9001,
+                })
+
+                expect(
+                    MissionCutsceneService.findCutsceneTriggersToActivateBasedOnSquaddieSquaddieAction(
+                        {
+                            gameEngineState: gameEngineStateWithDefeatCutscene,
+                            squaddieChanges: [battleActionSquaddieChange],
+                            objectRepository:
+                                gameEngineStateWithDefeatCutscene.repository,
+                        }
+                    )
+                ).toEqual([deadSquaddieTemplateCutsceneTrigger])
+            })
+
+            describe("cutscene triggers in between minimum and maximum turns if provided", () => {
+                const tests = [
+                    {
+                        name: "will fire between turn boundary",
+                        minimumTurns: 2,
+                        maximumTurns: 5,
+                        turnCount: 4,
+                        expectsTriggers: true,
+                    },
+                    {
+                        name: "will fire after minimumTurns",
+                        minimumTurns: 2,
+                        turnCount: 4,
+                        expectsTriggers: true,
+                    },
+                    {
+                        name: "will fire before maximumTurns",
+                        maximumTurns: 5,
+                        turnCount: 4,
+                        expectsTriggers: true,
+                    },
+                    {
+                        name: "will fire if no turns are specified",
+                        turnCount: 4,
+                        expectsTriggers: true,
+                    },
+                    {
+                        name: "not fire before minimumTurns",
+                        minimumTurns: 2,
+                        turnCount: 1,
+                        expectsTriggers: false,
+                    },
+                    {
+                        name: "not fire after maximumTurns",
+                        maximumTurns: 5,
+                        turnCount: 8,
+                        expectsTriggers: false,
+                    },
+                ]
+
+                it.each(tests)(
+                    `$name`,
+                    ({
+                        minimumTurns,
+                        maximumTurns,
+                        turnCount,
+                        expectsTriggers,
+                    }) => {
+                        setTurnsForTriggerAndGame({
+                            minimumTurns,
+                            maximumTurns,
+                            turnCount,
+                            gameEngineState: gameEngineStateWithDefeatCutscene,
+                            cutsceneTriggerWithTurns:
+                                deadBattleSquaddieCutsceneTrigger,
+                        })
+
+                        instantKillSquaddie({
+                            battleSquaddieId: deadBattleSquaddieId,
+                            objectRepository:
+                                gameEngineStateWithDefeatCutscene.repository,
+                        })
+
+                        const battleActionSquaddieChange = addDamagingEffect({
+                            battleActionRecorder:
+                                gameEngineStateWithDefeatCutscene
+                                    .battleOrchestratorState.battleState
+                                    .battleActionRecorder,
+                            actor: {
+                                actorBattleSquaddieId:
+                                    attackingBattleSquaddieId,
+                                actorContext: targetWasDefeatedContext,
+                            },
+                            targetBattleSquaddieId: deadBattleSquaddieId,
+                            netDamage: 9001,
+                        })
+
+                        const expectedTriggers = expectsTriggers
+                            ? [deadBattleSquaddieCutsceneTrigger]
+                            : []
+
+                        expect(
+                            MissionCutsceneService.findCutsceneTriggersToActivateBasedOnSquaddieSquaddieAction(
+                                {
+                                    gameEngineState:
+                                        gameEngineStateWithDefeatCutscene,
+                                    squaddieChanges: [
+                                        battleActionSquaddieChange,
+                                    ],
+                                    objectRepository:
+                                        gameEngineStateWithDefeatCutscene.repository,
                                 }
                             )
                         ).toEqual(expectedTriggers)
@@ -771,3 +1078,86 @@ describe("Mission Cutscene Service", () => {
         })
     })
 })
+
+const addDamagingEffect = ({
+    battleActionRecorder,
+    actor,
+    targetBattleSquaddieId,
+    netDamage,
+}: {
+    actor: {
+        actorBattleSquaddieId: string
+        actorContext: BattleActionActorContext
+    }
+    battleActionRecorder: BattleActionRecorder
+    targetBattleSquaddieId: string
+    netDamage: number
+}) => {
+    const battleActionSquaddieChange = BattleActionSquaddieChangeService.new({
+        battleSquaddieId: targetBattleSquaddieId,
+        damageExplanation: DamageExplanationService.new({
+            net: netDamage,
+        }),
+        actorDegreeOfSuccess: DegreeOfSuccess.SUCCESS,
+    })
+    BattleActionRecorderService.addReadyToAnimateBattleAction(
+        battleActionRecorder,
+        BattleActionService.new({
+            actor,
+            action: { actionTemplateId: "attack" },
+            effect: {
+                squaddie: [battleActionSquaddieChange],
+            },
+        })
+    )
+    return battleActionSquaddieChange
+}
+
+const instantKillSquaddie = ({
+    battleSquaddieId,
+    objectRepository,
+}: {
+    battleSquaddieId: string
+    objectRepository: ObjectRepository
+}) => {
+    const { battleSquaddie } = getResultOrThrowError(
+        ObjectRepositoryService.getSquaddieByBattleId(
+            objectRepository,
+            battleSquaddieId
+        )
+    )
+
+    InBattleAttributesService.takeDamage({
+        inBattleAttributes: battleSquaddie.inBattleAttributes,
+        damageType: DamageType.UNKNOWN,
+        damageToTake: 9001,
+    })
+}
+
+const setTurnsForTriggerAndGame = ({
+    minimumTurns,
+    maximumTurns,
+    turnCount,
+    gameEngineState,
+    cutsceneTriggerWithTurns,
+}: {
+    minimumTurns: number
+    maximumTurns: number
+    turnCount: number
+    gameEngineState: GameEngineState
+    cutsceneTriggerWithTurns: CutsceneTrigger & {
+        minimumTurns?: number
+        maximumTurns?: number
+    }
+}) => {
+    cutsceneTriggerWithTurns.minimumTurns = minimumTurns
+    cutsceneTriggerWithTurns.maximumTurns = maximumTurns
+    gameEngineState.battleOrchestratorState.battleState.battlePhaseState = {
+        turnCount,
+        currentAffiliation: BattlePhase.PLAYER,
+    }
+
+    gameEngineState.battleOrchestratorState.battleState.cutsceneTriggers.push(
+        cutsceneTriggerWithTurns
+    )
+}

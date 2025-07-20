@@ -370,13 +370,25 @@
         "triggeringEvent": "SQUADDIE_IS_INJURED",
         "systemReactedToTrigger": false,
         "cutsceneId": "nahla_is_injured",
-        "battleSquaddieIdsToCheckForInjury": ["young_nahla"]
+        "battleSquaddieIds": [
+          "young_nahla"
+        ]
       },
       {
         "triggeringEvent": "SQUADDIE_IS_INJURED",
         "systemReactedToTrigger": false,
         "cutsceneId": "sir_camil_is_injured",
-        "battleSquaddieIdsToCheckForInjury": ["sir_camil"]
+        "battleSquaddieIds": [
+          "sir_camil"
+        ]
+      },
+      {
+        "triggeringEvent": "SQUADDIE_IS_DEFEATED",
+        "cutsceneId": "killed_first_enemy",
+        "squaddieTemplateIds": [
+          "enemy_demon_slither",
+          "enemy_demon_locust"
+        ]
       }
     ],
     "cutsceneById": {
@@ -776,6 +788,50 @@
             "id": "sir_camil_is_injured_2",
             "speakerName": "Nahla",
             "dialogueText": "Maybe you could back up towards me? I can only spend 1 AP to move and the other 2 AP to heal.",
+            "speakerPortraitResourceKey": "young nahla cutscene portrait",
+            "animationDuration": 0
+          }
+        ]
+      },
+      "killed_first_enemy": {
+        "directions": [
+          {
+            "type": "DIALOGUE",
+            "id": "killed_first_enemy_0",
+            "speakerName": "Nahla",
+            "dialogueText": "Ha! Take that you awful demon!",
+            "speakerPortraitResourceKey": "young nahla cutscene portrait",
+            "animationDuration": 0
+          },
+          {
+            "type": "DIALOGUE",
+            "id": "killed_first_enemy_1",
+            "speakerName": "Sir Camil",
+            "dialogueText": "That's the spirit! Plenty more where that came from.",
+            "speakerPortraitResourceKey": "sir camil cutscene portrait",
+            "animationDuration": 0
+          },
+          {
+            "type": "DIALOGUE",
+            "id": "killed_first_enemy_2",
+            "speakerName": "Sir Camil",
+            "dialogueText": "The Slither demons have to fight up close, but they can take 2 hits.",
+            "speakerPortraitResourceKey": "sir camil cutscene portrait",
+            "animationDuration": 0
+          },
+          {
+            "type": "DIALOGUE",
+            "id": "killed_first_enemy_3",
+            "speakerName": "Nahla",
+            "dialogueText": "I'm worried about those locusts, they can shoot us from 2 or 3 spaces away.",
+            "speakerPortraitResourceKey": "young nahla cutscene portrait",
+            "animationDuration": 0
+          },
+          {
+            "type": "DIALOGUE",
+            "id": "killed_first_enemy_4",
+            "speakerName": "Nahla",
+            "dialogueText": "We can stop them in hit.",
             "speakerPortraitResourceKey": "young nahla cutscene portrait",
             "animationDuration": 0
           }

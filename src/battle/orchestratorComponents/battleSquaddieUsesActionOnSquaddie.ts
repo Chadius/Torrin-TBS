@@ -286,6 +286,8 @@ export class BattleSquaddieUsesActionOnSquaddie
 const generateMessagesBasedOnAnimationFinishedBattleAction = (
     gameEngineState: GameEngineState
 ) => {
+    const objectRepository = gameEngineState.repository
+
     const recentBattleAction = BattleActionRecorderService.peekAtAnimationQueue(
         gameEngineState.battleOrchestratorState.battleState.battleActionRecorder
     )
@@ -299,6 +301,31 @@ const generateMessagesBasedOnAnimationFinishedBattleAction = (
     gameEngineState.messageBoard.sendMessage({
         gameEngineState,
         type: MessageBoardMessageType.SQUADDIE_IS_INJURED,
-        battleSquaddieIdsThatWereInjured: damagedBattleSquaddieIds,
+        battleSquaddieIds: damagedBattleSquaddieIds,
+        objectRepository: gameEngineState.repository,
+    })
+
+    const defeatedBattleSquaddieIds: string[] =
+        recentBattleAction.effect.squaddie
+            .filter((change) => {
+                const { battleSquaddie, squaddieTemplate } =
+                    getResultOrThrowError(
+                        ObjectRepositoryService.getSquaddieByBattleId(
+                            objectRepository,
+                            change.battleSquaddieId
+                        )
+                    )
+                return !SquaddieService.isSquaddieAlive({
+                    battleSquaddie,
+                    squaddieTemplate,
+                })
+            })
+            .map((change) => change.battleSquaddieId)
+
+    gameEngineState.messageBoard.sendMessage({
+        gameEngineState,
+        type: MessageBoardMessageType.SQUADDIE_IS_DEFEATED,
+        battleSquaddieIds: defeatedBattleSquaddieIds,
+        objectRepository: gameEngineState.repository,
     })
 }

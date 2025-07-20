@@ -47,6 +47,7 @@ import {
 } from "../dataLoader/missionLoader"
 import { PlayerArmy } from "../campaign/playerArmy"
 import { ResourceHandlerBlocker } from "../dataLoader/loadBlocker/resourceHandlerBlocker"
+import { BattleStateService } from "../battle/battleState/battleState"
 
 export enum TransitionAction {
     REVERT_BACKUPS = "REVERT_BACKUPS",
@@ -260,6 +261,8 @@ export class GameEngineGameLoader implements GameEngineComponent {
                 }
             }
         )
+
+        BattleStateService.sanitize(battleOrchestratorState.battleState)
     }
 
     private resetBattleOrchestratorState(

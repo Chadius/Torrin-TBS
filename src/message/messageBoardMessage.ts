@@ -31,6 +31,7 @@ export type MessageBoardMessage =
     | MessageBoardMessageStartedPlayerPhase
     | MessageBoardMessagePlayerCanControlDifferentSquaddie
     | MessageBoardMessageSquaddieIsInjured
+    | MessageBoardMessageSquaddieIsDefeated
     | MessageBoardMessagePlayerSelectionIsInvalid
     | MessageBoardMessagePlayerCancelsTargetSelection
     | MessageBoardMessagePlayerCancelsTargetConfirmation
@@ -65,6 +66,7 @@ export enum MessageBoardMessageType {
     STARTED_PLAYER_PHASE = "STARTED_PLAYER_PHASE",
     PLAYER_CAN_CONTROL_DIFFERENT_SQUADDIE = "PLAYER_CAN_CONTROL_DIFFERENT_SQUADDIE",
     SQUADDIE_IS_INJURED = "SQUADDIE_IS_INJURED",
+    SQUADDIE_IS_DEFEATED = "SQUADDIE_IS_DEFEATED",
     PLAYER_SELECTION_IS_INVALID = "PLAYER_SELECTION_IS_INVALID",
     PLAYER_CANCELS_TARGET_SELECTION = "PLAYER_CANCELS_TARGET_SELECTION",
     PLAYER_CANCELS_TARGET_CONFIRMATION = "PLAYER_CANCELS_TARGET_CONFIRMATION",
@@ -113,7 +115,15 @@ export interface MessageBoardMessagePlayerCanControlDifferentSquaddie {
 export interface MessageBoardMessageSquaddieIsInjured {
     type: MessageBoardMessageType.SQUADDIE_IS_INJURED
     gameEngineState: GameEngineState
-    battleSquaddieIdsThatWereInjured: string[]
+    objectRepository: ObjectRepository
+    battleSquaddieIds: string[]
+}
+
+export interface MessageBoardMessageSquaddieIsDefeated {
+    type: MessageBoardMessageType.SQUADDIE_IS_DEFEATED
+    gameEngineState: GameEngineState
+    objectRepository: ObjectRepository
+    battleSquaddieIds: string[]
 }
 
 export interface MessageBoardMessagePlayerSelectionIsInvalid {

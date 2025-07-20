@@ -154,6 +154,13 @@
         "systemReactedToTrigger": false,
         "cutsceneId": "introduction",
         "turn": 0
+      },
+      {
+        "triggeringEvent": "SQUADDIE_IS_DEFEATED",
+        "cutsceneId": "killed_enemy",
+        "squaddieTemplateIds": [
+          "enemy_demon_slither"
+        ]
       }
     ],
     "cutsceneById": {
@@ -237,6 +244,17 @@
             "speakerPortraitResourceKey": "tutorial-action-points",
             "speakerPortraitPosition": "LEFT",
             "backgroundColor": [280,6,52]
+          }
+        ]
+      },
+      "killed_enemy": {
+        "directions": [
+          {
+            "type": "DIALOGUE",
+            "id": "killed_enemy_0",
+            "speakerName": "SANDBOX",
+            "speakerNamePosition": "LEFT",
+            "dialogueText": "You defeated an enemy"
           }
         ]
       }
