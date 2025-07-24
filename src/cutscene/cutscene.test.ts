@@ -3,7 +3,7 @@ import {
     DialoguePlayerState,
 } from "./dialogue/dialogueBoxPlayer"
 import { Cutscene, CutsceneService } from "./cutscene"
-import { CutsceneDecisionTriggerService } from "./DecisionTrigger"
+import { CutsceneDecisionTriggerService } from "./decisionTrigger"
 import {
     ResourceHandler,
     ResourceHandlerService,

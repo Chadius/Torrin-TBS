@@ -1,74 +1,83 @@
-export enum TriggeringEvent {
-    MISSION_VICTORY = "MISSION_VICTORY",
-    MISSION_DEFEAT = "MISSION_DEFEAT",
-    START_OF_TURN = "START_OF_TURN",
-    SQUADDIE_IS_INJURED = "SQUADDIE_IS_INJURED",
-    SQUADDIE_IS_DEFEATED = "SQUADDIE_IS_DEFEATED",
-}
+import {
+    EventTrigger,
+    EventTriggerService,
+} from "../battle/eventTrigger/eventTrigger"
+import { TriggeringEventType } from "../battle/eventTrigger/triggeringEventType"
+import { EventTriggerTurnRange } from "../battle/eventTrigger/eventTriggerTurnRange"
+import { EventTriggerSquaddie } from "../battle/eventTrigger/eventTriggerSquaddie"
+import { EventTriggerSquaddieQueryService } from "../battle/eventTrigger/eventTriggerSquaddieQuery"
 
-export interface CutsceneTrigger {
-    triggeringEvent: TriggeringEvent
-    systemReactedToTrigger: boolean
+export interface CutsceneTriggerId {
     cutsceneId: string
-
-    turn?: number
 }
 
-export const CutsceneTriggerService = {
-    sanitize: (cutscene: CutsceneTrigger) => {
-        if (!cutscene.triggeringEvent) {
-            throw new Error("Cutscene triggeringEvent is undefined")
-        }
+export const CutsceneTriggerIdService = {
+    sanitize: (cutscene: CutsceneTriggerId) => {
         if (!cutscene.cutsceneId) {
             throw new Error("Cutscene cutsceneId is undefined")
-        }
-        cutscene.systemReactedToTrigger ||= false
-
-        switch (cutscene.triggeringEvent) {
-            case TriggeringEvent.SQUADDIE_IS_INJURED:
-                return sanitizeSquaddieIsInjured(
-                    cutscene as SquaddieIsInjuredTrigger
-                )
-            case TriggeringEvent.SQUADDIE_IS_DEFEATED:
-                return sanitizeSquaddieIsDefeated(
-                    cutscene as SquaddieIsDefeatedTrigger
-                )
-            default:
-                return cutscene
         }
     },
 }
 
-export interface MissionDefeatCutsceneTrigger extends CutsceneTrigger {
-    readonly triggeringEvent: TriggeringEvent.MISSION_DEFEAT
-    systemReactedToTrigger: boolean
-    cutsceneId: string
+export interface CutsceneTrigger
+    extends EventTrigger,
+        CutsceneTriggerId,
+        EventTriggerTurnRange,
+        EventTriggerSquaddie {}
+
+export const CutsceneTriggerService = {
+    new: ({
+        triggeringEventType,
+        cutsceneId,
+    }: {
+        triggeringEventType: TriggeringEventType
+        cutsceneId: string
+    }) => {
+        return sanitizeCutsceneTriggerService({
+            triggeringEventType: triggeringEventType,
+            systemReactedToTrigger: false,
+            cutsceneId,
+            targetingSquaddie: undefined,
+        })
+    },
+    sanitize: (cutscene: CutsceneTrigger) =>
+        sanitizeCutsceneTriggerService(cutscene),
 }
 
-export interface SquaddieIsInjuredTrigger extends CutsceneTrigger {
-    readonly triggeringEvent: TriggeringEvent.SQUADDIE_IS_INJURED
-    cutsceneId: string
-    systemReactedToTrigger: boolean
-    minimumTurns?: number
-    maximumTurns?: number
-    battleSquaddieIds: string[]
+const sanitizeCutsceneTriggerService = (
+    cutscene: CutsceneTrigger
+): CutsceneTrigger => {
+    EventTriggerService.sanitize(cutscene)
+    CutsceneTriggerIdService.sanitize(cutscene)
+
+    switch (cutscene.triggeringEventType) {
+        case TriggeringEventType.SQUADDIE_IS_INJURED:
+        case TriggeringEventType.SQUADDIE_IS_DEFEATED:
+            sanitizeSquaddieFields(cutscene)
+    }
+    return cutscene
 }
 
-const sanitizeSquaddieIsInjured = (cutscene: SquaddieIsInjuredTrigger) => {
-    cutscene.battleSquaddieIds = cutscene.battleSquaddieIds ?? []
+export interface SquaddieIsInjuredTrigger
+    extends CutsceneTrigger,
+        CutsceneTriggerId,
+        EventTriggerTurnRange,
+        EventTriggerSquaddie {
+    readonly triggeringEventType: TriggeringEventType.SQUADDIE_IS_INJURED
 }
 
-export interface SquaddieIsDefeatedTrigger extends CutsceneTrigger {
-    readonly triggeringEvent: TriggeringEvent.SQUADDIE_IS_DEFEATED
-    cutsceneId: string
-    systemReactedToTrigger: boolean
-    minimumTurns?: number
-    maximumTurns?: number
-    battleSquaddieIds: string[]
-    squaddieTemplateIds: string[]
+const sanitizeSquaddieFields = (cutscene: EventTriggerSquaddie) => {
+    if (!cutscene.targetingSquaddie) {
+        cutscene.targetingSquaddie = EventTriggerSquaddieQueryService.new()
+    }
+    EventTriggerSquaddieQueryService.sanitize(cutscene.targetingSquaddie)
+    return cutscene
 }
 
-const sanitizeSquaddieIsDefeated = (cutscene: SquaddieIsDefeatedTrigger) => {
-    cutscene.battleSquaddieIds = cutscene.battleSquaddieIds ?? []
-    cutscene.squaddieTemplateIds = cutscene.squaddieTemplateIds ?? []
+export interface SquaddieIsDefeatedTrigger
+    extends CutsceneTrigger,
+        CutsceneTriggerId,
+        EventTriggerTurnRange,
+        EventTriggerSquaddie {
+    readonly triggeringEventType: TriggeringEventType.SQUADDIE_IS_DEFEATED
 }

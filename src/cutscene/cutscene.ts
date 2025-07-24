@@ -5,7 +5,7 @@ import {
 import {
     CutsceneDecisionTrigger,
     CutsceneDecisionTriggerService,
-} from "./DecisionTrigger"
+} from "./decisionTrigger"
 import { CutsceneActionPlayerType } from "./cutsceneAction"
 import {
     HORIZONTAL_ALIGN,

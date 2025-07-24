@@ -34,7 +34,6 @@ import {
     DefaultBattleSaveState,
 } from "../battle/history/battleSaveState"
 import { MissionStatisticsService } from "../battle/missionStatistics/missionStatistics"
-import { TriggeringEvent } from "../cutscene/cutsceneTrigger"
 import { SaveFile } from "../utils/fileHandling/saveFile"
 import { BattleHUDService } from "../battle/hud/battleHUD/battleHUD"
 import { BattleCamera } from "../battle/battleCamera"
@@ -51,6 +50,8 @@ import { BattleCompletionStatus } from "../battle/orchestrator/missionObjectives
 import { BattlePhase } from "../battle/orchestratorComponents/battlePhaseTracker"
 import { TitleScreenStateHelper } from "../titleScreen/titleScreenState"
 import { BattleHUDStateService } from "../battle/hud/battleHUD/battleHUDState"
+import { TriggeringEventType } from "../battle/eventTrigger/triggeringEventType"
+import { CutsceneTriggerService } from "../cutscene/cutsceneTrigger"
 
 describe("GameEngineGameLoader", () => {
     let loader: GameEngineGameLoader
@@ -450,16 +451,18 @@ describe("GameEngineGameLoader", () => {
                     },
                 ],
                 cutsceneTriggerCompletion: [
-                    {
-                        triggeringEvent: TriggeringEvent.MISSION_VICTORY,
+                    CutsceneTriggerService.new({
+                        triggeringEventType:
+                            TriggeringEventType.MISSION_VICTORY,
                         cutsceneId: "default_victory",
-                        systemReactedToTrigger: false,
-                    },
+                    }),
                     {
-                        triggeringEvent: TriggeringEvent.START_OF_TURN,
-                        cutsceneId: "introduction",
-                        systemReactedToTrigger: false,
-                        turn: 0,
+                        ...CutsceneTriggerService.new({
+                            triggeringEventType:
+                                TriggeringEventType.START_OF_TURN,
+                            cutsceneId: "introduction",
+                        }),
+                        exactTurn: 0,
                     },
                 ],
             }
@@ -500,10 +503,12 @@ describe("GameEngineGameLoader", () => {
                         ],
                         cutsceneTriggers: [
                             {
-                                cutsceneId: "introductory",
-                                triggeringEvent: TriggeringEvent.START_OF_TURN,
-                                turn: 0,
-                                systemReactedToTrigger: true,
+                                ...CutsceneTriggerService.new({
+                                    cutsceneId: "introductory",
+                                    triggeringEventType:
+                                        TriggeringEventType.START_OF_TURN,
+                                }),
+                                exactTurn: 0,
                             },
                         ],
                         missionCompletionStatus: {},
@@ -829,16 +834,18 @@ describe("GameEngineGameLoader", () => {
                     },
                 ],
                 cutsceneTriggerCompletion: [
-                    {
-                        triggeringEvent: TriggeringEvent.MISSION_VICTORY,
+                    CutsceneTriggerService.new({
+                        triggeringEventType:
+                            TriggeringEventType.MISSION_VICTORY,
                         cutsceneId: "default_victory",
-                        systemReactedToTrigger: false,
-                    },
+                    }),
                     {
-                        triggeringEvent: TriggeringEvent.START_OF_TURN,
-                        cutsceneId: "introduction",
-                        systemReactedToTrigger: false,
-                        turn: 0,
+                        ...CutsceneTriggerService.new({
+                            triggeringEventType:
+                                TriggeringEventType.START_OF_TURN,
+                            cutsceneId: "introduction",
+                        }),
+                        exactTurn: 0,
                     },
                 ],
             }
@@ -918,16 +925,18 @@ describe("GameEngineGameLoader", () => {
                         },
                     ],
                     cutsceneTriggerCompletion: [
-                        {
-                            triggeringEvent: TriggeringEvent.MISSION_VICTORY,
+                        CutsceneTriggerService.new({
+                            triggeringEventType:
+                                TriggeringEventType.MISSION_VICTORY,
                             cutsceneId: "default_victory",
-                            systemReactedToTrigger: false,
-                        },
+                        }),
                         {
-                            triggeringEvent: TriggeringEvent.START_OF_TURN,
-                            cutsceneId: "introduction",
-                            systemReactedToTrigger: false,
-                            turn: 0,
+                            ...CutsceneTriggerService.new({
+                                triggeringEventType:
+                                    TriggeringEventType.START_OF_TURN,
+                                cutsceneId: "introduction",
+                            }),
+                            exactTurn: 0,
                         },
                     ],
                 }

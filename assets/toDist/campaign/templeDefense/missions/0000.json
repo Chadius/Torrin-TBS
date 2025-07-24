@@ -321,74 +321,70 @@
   "cutscene": {
     "cutsceneTriggers": [
       {
-        "triggeringEvent": "MISSION_VICTORY",
-        "cutsceneId": "default_victory",
-        "systemReactedToTrigger": false
+        "triggeringEventType": "MISSION_VICTORY",
+        "cutsceneId": "default_victory"
       },
       {
-        "triggeringEvent": "MISSION_DEFEAT",
-        "cutsceneId": "default_defeat",
-        "systemReactedToTrigger": false
+        "triggeringEventType": "MISSION_DEFEAT",
+        "cutsceneId": "default_defeat"
       },
       {
-        "triggeringEvent": "START_OF_TURN",
-        "systemReactedToTrigger": false,
+        "triggeringEventType": "START_OF_TURN",
         "cutsceneId": "introduction",
-        "turn": 0
+        "exactTurn": 0
       },
       {
-        "triggeringEvent": "START_OF_TURN",
-        "systemReactedToTrigger": false,
+        "triggeringEventType": "START_OF_TURN",
         "cutsceneId": "turn1",
-        "turn": 1
+        "exactTurn": 1
       },
       {
-        "triggeringEvent": "START_OF_TURN",
-        "systemReactedToTrigger": false,
+        "triggeringEventType": "START_OF_TURN",
         "cutsceneId": "turn2",
-        "turn": 2
+        "exactTurn": 2
       },
       {
-        "triggeringEvent": "START_OF_TURN",
-        "systemReactedToTrigger": false,
+        "triggeringEventType": "START_OF_TURN",
         "cutsceneId": "turn3",
-        "turn": 3
+        "exactTurn": 3
       },
       {
-        "triggeringEvent": "START_OF_TURN",
-        "systemReactedToTrigger": false,
+        "triggeringEventType": "START_OF_TURN",
         "cutsceneId": "turn4",
-        "turn": 4
+        "exactTurn": 4
       },
       {
-        "triggeringEvent": "START_OF_TURN",
-        "systemReactedToTrigger": false,
+        "triggeringEventType": "START_OF_TURN",
         "cutsceneId": "turn5",
-        "turn": 5
+        "exactTurn": 5
       },
       {
-        "triggeringEvent": "SQUADDIE_IS_INJURED",
-        "systemReactedToTrigger": false,
+        "triggeringEventType": "SQUADDIE_IS_INJURED",
         "cutsceneId": "nahla_is_injured",
-        "battleSquaddieIds": [
-          "young_nahla"
-        ]
+        "targetingSquaddie": {
+          "battleSquaddieIds": [
+            "young_nahla"
+          ]
+        }
       },
       {
-        "triggeringEvent": "SQUADDIE_IS_INJURED",
-        "systemReactedToTrigger": false,
+        "triggeringEventType": "SQUADDIE_IS_INJURED",
         "cutsceneId": "sir_camil_is_injured",
-        "battleSquaddieIds": [
-          "sir_camil"
-        ]
+        "targetingSquaddie": {
+          "battleSquaddieIds": [
+            "sir_camil"
+          ]
+        }
       },
       {
-        "triggeringEvent": "SQUADDIE_IS_DEFEATED",
+        "triggeringEventType": "SQUADDIE_IS_DEFEATED",
         "cutsceneId": "killed_first_enemy",
-        "squaddieTemplateIds": [
-          "enemy_demon_slither",
-          "enemy_demon_locust"
-        ]
+        "targetingSquaddie": {
+          "squaddieTemplateIds": [
+            "enemy_demon_slither",
+            "enemy_demon_locust"
+          ]
+        }
       }
     ],
     "cutsceneById": {

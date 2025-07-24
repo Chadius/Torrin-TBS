@@ -11,18 +11,15 @@ import { MissionObjectiveHelper } from "../missionResult/missionObjective"
 import { MissionRewardType } from "../missionResult/missionReward"
 import {
     CutsceneTrigger,
-    MissionDefeatCutsceneTrigger,
+    CutsceneTriggerService,
     SquaddieIsDefeatedTrigger,
     SquaddieIsInjuredTrigger,
-    TriggeringEvent,
 } from "../../cutscene/cutsceneTrigger"
 import { BattleCompletionStatus } from "../orchestrator/missionObjectivesAndCutscenes"
-import { MissionVictoryCutsceneTrigger } from "./missionVictoryCutsceneTrigger"
 import {
     CutsceneMessageListener,
     MissionCutsceneService,
 } from "./missionCutsceneService"
-import { MissionStartOfPhaseCutsceneTrigger } from "./missionStartOfPhaseCutsceneTrigger"
 import { BattleOrchestratorMode } from "../orchestrator/battleOrchestrator"
 import { MissionConditionType } from "../missionResult/missionCondition"
 import { MissionMapService } from "../../missionMap/missionMap"
@@ -55,6 +52,7 @@ import { SquaddieAffiliation } from "../../squaddie/squaddieAffiliation"
 import { DamageType } from "../../squaddie/squaddieService"
 import { InBattleAttributesService } from "../stats/inBattleAttributes"
 import { getResultOrThrowError } from "../../utils/ResultOrError"
+import { TriggeringEventType } from "../eventTrigger/triggeringEventType"
 
 describe("Mission Cutscene Service", () => {
     let mockCutscene: Cutscene
@@ -66,8 +64,8 @@ describe("Mission Cutscene Service", () => {
     describe("CutsceneTriggers based on Victory and Defeat", () => {
         let victoryState: GameEngineState
         let defeatState: GameEngineState
-        let victoryCutsceneTrigger: MissionVictoryCutsceneTrigger
-        let defeatCutsceneTrigger: MissionDefeatCutsceneTrigger
+        let victoryCutsceneTrigger: CutsceneTrigger
+        let defeatCutsceneTrigger: CutsceneTrigger
         let cutsceneCollection: MissionCutsceneCollection
 
         beforeEach(() => {
@@ -78,11 +76,10 @@ describe("Mission Cutscene Service", () => {
                 },
             })
 
-            victoryCutsceneTrigger = {
+            victoryCutsceneTrigger = CutsceneTriggerService.new({
+                triggeringEventType: TriggeringEventType.MISSION_VICTORY,
                 cutsceneId: DEFAULT_VICTORY_CUTSCENE_ID,
-                triggeringEvent: TriggeringEvent.MISSION_VICTORY,
-                systemReactedToTrigger: false,
-            }
+            })
             victoryState = GameEngineStateService.new({
                 repository: undefined,
                 resourceHandler: undefined,
@@ -119,11 +116,11 @@ describe("Mission Cutscene Service", () => {
             victoryState.battleOrchestratorState.battleState.battleCompletionStatus =
                 BattleCompletionStatus.IN_PROGRESS
 
-            defeatCutsceneTrigger = {
+            defeatCutsceneTrigger = CutsceneTriggerService.new({
                 cutsceneId: DEFAULT_DEFEAT_CUTSCENE_ID,
-                triggeringEvent: TriggeringEvent.MISSION_DEFEAT,
-                systemReactedToTrigger: false,
-            }
+                triggeringEventType: TriggeringEventType.MISSION_DEFEAT,
+            })
+
             defeatState = GameEngineStateService.new({
                 repository: undefined,
                 resourceHandler: undefined,
@@ -320,7 +317,7 @@ describe("Mission Cutscene Service", () => {
     describe("CutsceneTriggers based on Phase", () => {
         let turn0State: GameEngineState
         let turn0StateCutsceneId = "introductory cutscene"
-        let turn0CutsceneTrigger: MissionStartOfPhaseCutsceneTrigger
+        let turn0CutsceneTrigger: CutsceneTrigger
         let cutsceneCollection: MissionCutsceneCollection
 
         beforeEach(() => {
@@ -331,12 +328,12 @@ describe("Mission Cutscene Service", () => {
             })
 
             turn0CutsceneTrigger = {
-                cutsceneId: "introductory cutscene",
-                triggeringEvent: TriggeringEvent.START_OF_TURN,
-                systemReactedToTrigger: false,
-                turn: 0,
+                ...CutsceneTriggerService.new({
+                    triggeringEventType: TriggeringEventType.START_OF_TURN,
+                    cutsceneId: "introductory cutscene",
+                }),
+                exactTurn: 0,
             }
-
             turn0State = GameEngineStateService.new({
                 repository: undefined,
                 resourceHandler: undefined,
@@ -444,10 +441,14 @@ describe("Mission Cutscene Service", () => {
                 })
 
                 injuredCutsceneTrigger = {
-                    triggeringEvent: TriggeringEvent.SQUADDIE_IS_INJURED,
+                    triggeringEventType:
+                        TriggeringEventType.SQUADDIE_IS_INJURED,
                     cutsceneId: injuredCutsceneId,
                     systemReactedToTrigger: false,
-                    battleSquaddieIds: [injuredBattleSquaddieId],
+                    targetingSquaddie: {
+                        battleSquaddieIds: [injuredBattleSquaddieId],
+                        squaddieTemplateIds: [],
+                    },
                 }
 
                 targetWasInjuredContext = BattleActionActorContextService.new({
@@ -775,19 +776,25 @@ describe("Mission Cutscene Service", () => {
                 })
 
                 deadBattleSquaddieCutsceneTrigger = {
-                    triggeringEvent: TriggeringEvent.SQUADDIE_IS_DEFEATED,
+                    triggeringEventType:
+                        TriggeringEventType.SQUADDIE_IS_DEFEATED,
                     cutsceneId: deadBattleSquaddieCutsceneId,
                     systemReactedToTrigger: false,
-                    battleSquaddieIds: [deadBattleSquaddieId],
-                    squaddieTemplateIds: [],
+                    targetingSquaddie: {
+                        battleSquaddieIds: [deadBattleSquaddieId],
+                        squaddieTemplateIds: [],
+                    },
                 }
 
                 deadSquaddieTemplateCutsceneTrigger = {
-                    triggeringEvent: TriggeringEvent.SQUADDIE_IS_DEFEATED,
+                    triggeringEventType:
+                        TriggeringEventType.SQUADDIE_IS_DEFEATED,
                     cutsceneId: deadSquaddieTemplateCutsceneId,
                     systemReactedToTrigger: false,
-                    battleSquaddieIds: [],
-                    squaddieTemplateIds: [deadSquaddieTemplateId],
+                    targetingSquaddie: {
+                        squaddieTemplateIds: [deadSquaddieTemplateId],
+                        battleSquaddieIds: [],
+                    },
                 }
 
                 targetWasDefeatedContext = BattleActionActorContextService.new({

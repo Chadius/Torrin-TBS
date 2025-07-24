@@ -13,7 +13,6 @@ import {
     DEFAULT_DEFEAT_CUTSCENE_ID,
     DEFAULT_VICTORY_CUTSCENE_ID,
 } from "../../battle/orchestrator/missionCutsceneCollection"
-import { TriggeringEvent } from "../../cutscene/cutsceneTrigger"
 import { CutsceneActionPlayerType } from "../../cutscene/cutsceneAction"
 import {
     ActionEffectTemplateService,
@@ -25,6 +24,8 @@ import {
 } from "../../action/template/actionTemplate"
 import { ArmyAttributesService } from "../../squaddie/armyAttributes"
 import { CoordinateGeneratorShape } from "../../battle/targeting/coordinateGenerator"
+import { TriggeringEventType } from "../../battle/eventTrigger/triggeringEventType"
+import { CutsceneTriggerService } from "../../cutscene/cutsceneTrigger"
 
 export const TestMissionData = () => {
     const missionData: MissionFileFormat = {
@@ -269,51 +270,55 @@ export const TestMissionData = () => {
         },
         cutscene: {
             cutsceneTriggers: [
-                {
-                    triggeringEvent: TriggeringEvent.MISSION_VICTORY,
+                CutsceneTriggerService.new({
+                    triggeringEventType: TriggeringEventType.MISSION_VICTORY,
                     cutsceneId: "default_victory",
-                    systemReactedToTrigger: false,
-                },
-                {
-                    triggeringEvent: TriggeringEvent.MISSION_DEFEAT,
+                }),
+                CutsceneTriggerService.new({
+                    triggeringEventType: TriggeringEventType.MISSION_DEFEAT,
                     cutsceneId: "default_defeat",
-                    systemReactedToTrigger: false,
+                }),
+                {
+                    ...CutsceneTriggerService.new({
+                        triggeringEventType: TriggeringEventType.START_OF_TURN,
+                        cutsceneId: "introduction",
+                    }),
+                    exactTurn: 0,
                 },
                 {
-                    triggeringEvent: TriggeringEvent.START_OF_TURN,
-                    systemReactedToTrigger: false,
-                    cutsceneId: "introduction",
-                    turn: 0,
+                    ...CutsceneTriggerService.new({
+                        triggeringEventType: TriggeringEventType.START_OF_TURN,
+                        cutsceneId: "turn1",
+                    }),
+                    exactTurn: 1,
                 },
                 {
-                    triggeringEvent: TriggeringEvent.START_OF_TURN,
-                    systemReactedToTrigger: false,
-                    cutsceneId: "turn1",
-                    turn: 1,
+                    ...CutsceneTriggerService.new({
+                        triggeringEventType: TriggeringEventType.START_OF_TURN,
+                        cutsceneId: "turn2",
+                    }),
+                    exactTurn: 2,
                 },
                 {
-                    triggeringEvent: TriggeringEvent.START_OF_TURN,
-                    systemReactedToTrigger: false,
-                    cutsceneId: "turn2",
-                    turn: 2,
+                    ...CutsceneTriggerService.new({
+                        triggeringEventType: TriggeringEventType.START_OF_TURN,
+                        cutsceneId: "turn4",
+                    }),
+                    exactTurn: 4,
                 },
                 {
-                    triggeringEvent: TriggeringEvent.START_OF_TURN,
-                    systemReactedToTrigger: false,
-                    cutsceneId: "turn4",
-                    turn: 4,
+                    ...CutsceneTriggerService.new({
+                        triggeringEventType: TriggeringEventType.START_OF_TURN,
+                        cutsceneId: "turn5",
+                    }),
+                    exactTurn: 5,
                 },
                 {
-                    triggeringEvent: TriggeringEvent.START_OF_TURN,
-                    systemReactedToTrigger: false,
-                    cutsceneId: "turn5",
-                    turn: 5,
-                },
-                {
-                    triggeringEvent: TriggeringEvent.START_OF_TURN,
-                    systemReactedToTrigger: false,
-                    cutsceneId: "turn7",
-                    turn: 7,
+                    ...CutsceneTriggerService.new({
+                        triggeringEventType: TriggeringEventType.START_OF_TURN,
+                        cutsceneId: "turn7",
+                    }),
+                    exactTurn: 7,
                 },
             ],
             cutsceneById: {

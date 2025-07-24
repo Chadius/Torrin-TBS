@@ -140,27 +140,26 @@
   "cutscene": {
     "cutsceneTriggers": [
       {
-        "triggeringEvent": "MISSION_VICTORY",
-        "cutsceneId": "default_victory",
-        "systemReactedToTrigger": false
+        "triggeringEventType": "MISSION_VICTORY",
+        "cutsceneId": "default_victory"
       },
       {
-        "triggeringEvent": "MISSION_DEFEAT",
-        "cutsceneId": "default_defeat",
-        "systemReactedToTrigger": false
+        "triggeringEventType": "MISSION_DEFEAT",
+        "cutsceneId": "default_defeat"
       },
       {
-        "triggeringEvent": "START_OF_TURN",
-        "systemReactedToTrigger": false,
+        "triggeringEventType": "START_OF_TURN",
         "cutsceneId": "introduction",
-        "turn": 0
+        "exactTurn": 0
       },
       {
-        "triggeringEvent": "SQUADDIE_IS_DEFEATED",
+        "triggeringEventType": "SQUADDIE_IS_DEFEATED",
         "cutsceneId": "killed_enemy",
-        "squaddieTemplateIds": [
-          "enemy_demon_slither"
-        ]
+        "targetingSquaddie": {
+          "squaddieTemplateIds": [
+            "enemy_demon_slither"
+          ]
+        }
       }
     ],
     "cutsceneById": {

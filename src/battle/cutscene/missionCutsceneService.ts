@@ -3,7 +3,6 @@ import {
     CutsceneTrigger,
     SquaddieIsDefeatedTrigger,
     SquaddieIsInjuredTrigger,
-    TriggeringEvent,
 } from "../../cutscene/cutsceneTrigger"
 import {
     MissionObjective,
@@ -23,6 +22,13 @@ import { BattleActionRecorderService } from "../history/battleAction/battleActio
 import { ObjectRepository, ObjectRepositoryService } from "../objectRepository"
 import { getResultOrThrowError } from "../../utils/ResultOrError"
 import { SquaddieService } from "../../squaddie/squaddieService"
+import { TriggeringEventType } from "../eventTrigger/triggeringEventType"
+
+import { EventTriggerTurnRangeService } from "../eventTrigger/eventTriggerTurnRange"
+import {
+    EventTriggerSquaddie,
+    EventTriggerSquaddieService,
+} from "../eventTrigger/eventTriggerSquaddie"
 
 export const MissionCutsceneService = {
     findCutsceneTriggersToActivateBasedOnVictoryAndDefeat: (
@@ -59,7 +65,11 @@ export const MissionCutsceneService = {
         objectRepository: ObjectRepository
     }): CutsceneTrigger[] => {
         return [
-            ...getCutscenesTriggeredByInjury(gameEngineState, squaddieChanges),
+            ...getCutscenesTriggeredByInjury({
+                gameEngineState: gameEngineState,
+                squaddieChanges: squaddieChanges,
+                objectRepository,
+            }),
             ...getCutscenesTriggeredByDefeat({
                 gameEngineState,
                 allCutsceneTriggers:
@@ -96,14 +106,16 @@ const findMissionObjectiveCutscenes = ({
         cutsceneTrigger =
             battleOrchestratorState.battleState.cutsceneTriggers.find(
                 (trigger) =>
-                    trigger.triggeringEvent === TriggeringEvent.MISSION_DEFEAT
+                    trigger.triggeringEventType ===
+                    TriggeringEventType.MISSION_DEFEAT
             )
         cutsceneId = getCutsceneIdIfTriggerIsValid(cutsceneTrigger)
     } else if (victoryObjective) {
         cutsceneTrigger =
             battleOrchestratorState.battleState.cutsceneTriggers.find(
                 (trigger) =>
-                    trigger.triggeringEvent === TriggeringEvent.MISSION_VICTORY
+                    trigger.triggeringEventType ===
+                    TriggeringEventType.MISSION_VICTORY
             )
         cutsceneId = getCutsceneIdIfTriggerIsValid(cutsceneTrigger)
     }
@@ -116,10 +128,15 @@ const addStartOfTurnTriggers = (
     cutsceneTriggersToReactTo: CutsceneTrigger[]
 ) => {
     const turnTriggersToReactTo = turnObjectives.filter((trigger) => {
-        if (trigger.triggeringEvent !== TriggeringEvent.START_OF_TURN) {
+        if (trigger.triggeringEventType !== TriggeringEventType.START_OF_TURN) {
             return false
         }
-        if (state.battleState.battlePhaseState.turnCount !== trigger.turn) {
+        if (
+            !EventTriggerTurnRangeService.isOnExactTurn({
+                trigger,
+                turnCount: state.battleState.battlePhaseState.turnCount,
+            })
+        ) {
             return false
         }
         return isTriggerReadyToReact(trigger)
@@ -199,7 +216,8 @@ const findCutsceneTriggersToActivateOnStartOfPhase = ({
         const turnObjectives =
             gameEngineState.battleOrchestratorState.battleState.cutsceneTriggers.filter(
                 (trigger) =>
-                    trigger.triggeringEvent === TriggeringEvent.START_OF_TURN
+                    trigger.triggeringEventType ===
+                    TriggeringEventType.START_OF_TURN
             )
         addStartOfTurnTriggers(
             turnObjectives,
@@ -211,8 +229,9 @@ const findCutsceneTriggersToActivateOnStartOfPhase = ({
     if (ignoreTurn0Triggers) {
         cutsceneTriggersToReactTo = cutsceneTriggersToReactTo.filter(
             (cutsceneTrigger) =>
-                cutsceneTrigger.triggeringEvent !==
-                    TriggeringEvent.START_OF_TURN || cutsceneTrigger.turn !== 0
+                cutsceneTrigger.triggeringEventType !==
+                    TriggeringEventType.START_OF_TURN ||
+                cutsceneTrigger.exactTurn !== 0
         )
     }
 
@@ -274,12 +293,17 @@ export class CutsceneMessageListener implements MessageBoardListener {
     }
 }
 
-const getCutscenesTriggeredByInjury = (
-    gameEngineState: GameEngineState,
+const getCutscenesTriggeredByInjury = ({
+    gameEngineState,
+    squaddieChanges,
+    objectRepository,
+}: {
+    gameEngineState: GameEngineState
     squaddieChanges: BattleActionSquaddieChange[]
-) => {
+    objectRepository: ObjectRepository
+}) => {
     const triggerIsInjury = (trigger: SquaddieIsInjuredTrigger): boolean =>
-        trigger.triggeringEvent === TriggeringEvent.SQUADDIE_IS_INJURED
+        trigger.triggeringEventType === TriggeringEventType.SQUADDIE_IS_INJURED
 
     const injuryTriggers =
         gameEngineState.battleOrchestratorState.battleState.cutsceneTriggers
@@ -290,31 +314,46 @@ const getCutscenesTriggeredByInjury = (
         .filter((change) => change.damage.net > 0)
         .map((change) => change.battleSquaddieId)
 
-    const triggerHasBattleSquaddieId = (
-        trigger: SquaddieIsInjuredTrigger
-    ): boolean =>
-        trigger.battleSquaddieIds.some((id) =>
-            injuredBattleSquaddieIds.includes(id)
-        )
-
-    const triggerIsAfterMinimumTurns = (
-        trigger: SquaddieIsInjuredTrigger
-    ): boolean =>
-        trigger.minimumTurns === undefined ||
-        gameEngineState.battleOrchestratorState.battleState.battlePhaseState
-            .turnCount >= trigger.minimumTurns
-
-    const triggerIsBeforeMaximumTurns = (
-        trigger: SquaddieIsInjuredTrigger
-    ): boolean =>
-        trigger.maximumTurns === undefined ||
-        gameEngineState.battleOrchestratorState.battleState.battlePhaseState
-            .turnCount <= trigger.maximumTurns
+    const injuredSquaddieTemplateIds =
+        maybeGetSquaddieTemplateIdsFromEventTriggerSquaddie({
+            eventTriggers: injuryTriggers,
+            objectRepository,
+            battleSquaddieIds: injuredBattleSquaddieIds,
+            queryType: "targetingSquaddie",
+        })
 
     return injuryTriggers
-        .filter(triggerIsBeforeMaximumTurns)
-        .filter(triggerIsAfterMinimumTurns)
-        .filter(triggerHasBattleSquaddieId)
+        .filter(
+            (trigger) =>
+                EventTriggerSquaddieService.targetingHasAtLeastOneBattleSquaddieId(
+                    {
+                        eventTrigger: trigger,
+                        battleSquaddieIds: injuredBattleSquaddieIds,
+                    }
+                ) ||
+                EventTriggerSquaddieService.targetingHasAtLeastOneSquaddieTemplateId(
+                    {
+                        eventTrigger: trigger,
+                        squaddieTemplateIds: injuredSquaddieTemplateIds,
+                    }
+                )
+        )
+        .filter((trigger) =>
+            EventTriggerTurnRangeService.isBeforeMaximumTurnsPassed({
+                trigger,
+                turnCount:
+                    gameEngineState.battleOrchestratorState.battleState
+                        .battlePhaseState?.turnCount,
+            })
+        )
+        .filter((trigger) =>
+            EventTriggerTurnRangeService.isAfterMinimumTurnsPassed({
+                trigger,
+                turnCount:
+                    gameEngineState.battleOrchestratorState.battleState
+                        .battlePhaseState?.turnCount,
+            })
+        )
 }
 
 const getCutscenesTriggeredByDefeat = ({
@@ -328,10 +367,11 @@ const getCutscenesTriggeredByDefeat = ({
     squaddieChanges: BattleActionSquaddieChange[]
     objectRepository: ObjectRepository
 }) => {
-    const deathTriggers = allCutsceneTriggers
+    const defeatTriggers = allCutsceneTriggers
         .filter(
             (trigger) =>
-                trigger.triggeringEvent === TriggeringEvent.SQUADDIE_IS_DEFEATED
+                trigger.triggeringEventType ===
+                TriggeringEventType.SQUADDIE_IS_DEFEATED
         )
         .map((trigger) => trigger as SquaddieIsDefeatedTrigger)
 
@@ -352,21 +392,64 @@ const getCutscenesTriggeredByDefeat = ({
         })
         .map((change) => change.battleSquaddieId)
 
-    const triggerHasBattleSquaddieId = (
-        trigger: SquaddieIsDefeatedTrigger
-    ): boolean =>
-        trigger.battleSquaddieIds &&
-        trigger.battleSquaddieIds.some((id) =>
-            defeatedBattleSquaddieIds.includes(id)
-        )
+    const defeatedSquaddieTemplateIds =
+        maybeGetSquaddieTemplateIdsFromEventTriggerSquaddie({
+            eventTriggers: defeatTriggers,
+            objectRepository,
+            battleSquaddieIds: defeatedBattleSquaddieIds,
+            queryType: "targetingSquaddie",
+        })
 
-    const doesExistTriggerBySquaddieTemplate = deathTriggers.some(
-        (trigger) =>
-            trigger.squaddieTemplateIds &&
-            trigger.squaddieTemplateIds.length > 0
+    return defeatTriggers
+        .filter(
+            (trigger) =>
+                EventTriggerSquaddieService.targetingHasAtLeastOneBattleSquaddieId(
+                    {
+                        eventTrigger: trigger,
+                        battleSquaddieIds: defeatedBattleSquaddieIds,
+                    }
+                ) ||
+                EventTriggerSquaddieService.targetingHasAtLeastOneSquaddieTemplateId(
+                    {
+                        eventTrigger: trigger,
+                        squaddieTemplateIds: defeatedSquaddieTemplateIds,
+                    }
+                )
+        )
+        .filter((trigger) =>
+            EventTriggerTurnRangeService.isBeforeMaximumTurnsPassed({
+                trigger,
+                turnCount:
+                    gameEngineState.battleOrchestratorState.battleState
+                        .battlePhaseState?.turnCount,
+            })
+        )
+        .filter((trigger) =>
+            EventTriggerTurnRangeService.isAfterMinimumTurnsPassed({
+                trigger,
+                turnCount:
+                    gameEngineState.battleOrchestratorState.battleState
+                        .battlePhaseState?.turnCount,
+            })
+        )
+}
+
+const maybeGetSquaddieTemplateIdsFromEventTriggerSquaddie = ({
+    eventTriggers,
+    objectRepository,
+    battleSquaddieIds,
+    queryType,
+}: {
+    eventTriggers: EventTriggerSquaddie[]
+    objectRepository: ObjectRepository
+    battleSquaddieIds: string[]
+    queryType: "targetingSquaddie"
+}) => {
+    const doesExistTriggerBySquaddieTemplate = eventTriggers.some(
+        (trigger) => trigger[queryType].squaddieTemplateIds?.length > 0
     )
-    const defeatedSquaddieTemplateIds = doesExistTriggerBySquaddieTemplate
-        ? defeatedBattleSquaddieIds.map((battleSquaddieId) => {
+    return doesExistTriggerBySquaddieTemplate
+        ? battleSquaddieIds.map((battleSquaddieId) => {
               const { squaddieTemplate } = getResultOrThrowError(
                   ObjectRepositoryService.getSquaddieByBattleId(
                       objectRepository,
@@ -376,51 +459,4 @@ const getCutscenesTriggeredByDefeat = ({
               return squaddieTemplate.squaddieId.templateId
           })
         : []
-    const triggerHasSquaddieTemplateId = (
-        trigger: SquaddieIsDefeatedTrigger
-    ): boolean =>
-        trigger.squaddieTemplateIds.some((id) =>
-            defeatedSquaddieTemplateIds.includes(id)
-        )
-
-    return deathTriggers
-        .filter(
-            (trigger) =>
-                triggerHasBattleSquaddieId(trigger) ||
-                triggerHasSquaddieTemplateId(trigger)
-        )
-        .filter((trigger) =>
-            triggerIsBeforeMaximumTurns({
-                trigger,
-                turnCount:
-                    gameEngineState.battleOrchestratorState.battleState
-                        .battlePhaseState?.turnCount,
-            })
-        )
-        .filter((trigger) =>
-            triggerIsAfterMinimumTurns({
-                trigger,
-                turnCount:
-                    gameEngineState.battleOrchestratorState.battleState
-                        .battlePhaseState?.turnCount,
-            })
-        )
 }
-
-const triggerIsAfterMinimumTurns = ({
-    trigger,
-    turnCount,
-}: {
-    trigger: { minimumTurns?: number }
-    turnCount: number
-}): boolean =>
-    trigger.minimumTurns === undefined || turnCount >= trigger.minimumTurns
-
-const triggerIsBeforeMaximumTurns = ({
-    trigger,
-    turnCount,
-}: {
-    trigger: { maximumTurns?: number }
-    turnCount: number
-}): boolean =>
-    trigger.maximumTurns === undefined || turnCount <= trigger.maximumTurns
