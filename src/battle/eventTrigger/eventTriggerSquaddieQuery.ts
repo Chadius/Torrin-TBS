@@ -4,10 +4,16 @@ export interface EventTriggerSquaddieQuery {
 }
 
 export const EventTriggerSquaddieQueryService = {
-    new: () => {
+    new: ({
+        battleSquaddieIds,
+        squaddieTemplateIds,
+    }: {
+        battleSquaddieIds?: string[]
+        squaddieTemplateIds?: string[]
+    }) => {
         return sanitizeEventTriggerSquaddieQuery({
-            battleSquaddieIds: [],
-            squaddieTemplateIds: [],
+            battleSquaddieIds: battleSquaddieIds ?? [],
+            squaddieTemplateIds: squaddieTemplateIds ?? [],
         })
     },
     sanitize: (eventTrigger: EventTriggerSquaddieQuery) => {

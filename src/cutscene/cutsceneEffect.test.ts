@@ -1,17 +1,17 @@
 import { describe, expect, it } from "vitest"
-import { EventTriggerBaseService } from "./eventTriggerBase"
+import { CutsceneEffectService } from "./cutsceneEffect"
 
-describe("EventTrigger", () => {
+describe("CutsceneEffect", () => {
     describe("Sanitize", () => {
-        it("throws an error if triggeringEventType is missing", () => {
+        it("throws an error if cutsceneId is missing", () => {
             const shouldThrowError = () => {
                 // @ts-ignore Test is intentionally throwing an error due to missing fields
-                EventTriggerBaseService.sanitize({})
+                CutsceneEffectService.sanitize({})
             }
 
             expect(() => {
                 shouldThrowError()
-            }).toThrow("triggeringEventType")
+            }).toThrow("cutsceneId")
         })
     })
 })

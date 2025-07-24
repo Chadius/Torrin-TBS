@@ -213,8 +213,8 @@ export class GameEngineGameLoader implements GameEngineComponent {
             this.missionLoaderContext.missionMap
         battleOrchestratorState.battleState.cutsceneCollection =
             this.missionLoaderContext.cutsceneInfo.cutsceneCollection
-        battleOrchestratorState.battleState.cutsceneTriggers = [
-            ...this.missionLoaderContext.cutsceneInfo.cutsceneTriggers,
+        battleOrchestratorState.battleState.battleEvents = [
+            ...this.missionLoaderContext.battleEvents,
         ]
         battleOrchestratorState.battleState.teams = [
             ...this.missionLoaderContext.squaddieData.teams,

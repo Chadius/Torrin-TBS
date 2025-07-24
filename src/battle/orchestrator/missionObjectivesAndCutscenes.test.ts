@@ -16,8 +16,8 @@ describe("Mission Objectives and Cutscenes", () => {
         const gameBoard: MissionObjectivesAndCutscenes =
             MissionObjectivesAndCutscenesHelper.new({
                 objectives: [],
+                battleEvents: [],
                 cutsceneCollection: undefined,
-                cutsceneTriggers: [],
                 missionCompletionStatus: {},
                 battleCompletionStatus: BattleCompletionStatus.IN_PROGRESS,
             })
@@ -34,8 +34,8 @@ describe("Mission Objectives and Cutscenes", () => {
         const gameBoard: MissionObjectivesAndCutscenes =
             MissionObjectivesAndCutscenesHelper.new({
                 objectives: [],
+                battleEvents: [],
                 cutsceneCollection: undefined,
-                cutsceneTriggers: [],
                 missionCompletionStatus: {},
                 battleCompletionStatus: BattleCompletionStatus.IN_PROGRESS,
             })

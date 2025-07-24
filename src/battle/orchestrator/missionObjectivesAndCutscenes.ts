@@ -7,10 +7,7 @@ import {
     MissionCutsceneCollection,
     MissionCutsceneCollectionHelper,
 } from "./missionCutsceneCollection"
-import {
-    CutsceneTrigger,
-    CutsceneTriggerService,
-} from "../../cutscene/cutsceneTrigger"
+import { BattleEvent, BattleEventService } from "../event/battleEvent"
 import { MissionCompletionStatus } from "../missionResult/missionCompletionStatus"
 
 export enum BattleCompletionStatus {
@@ -22,7 +19,7 @@ export enum BattleCompletionStatus {
 export interface MissionObjectivesAndCutscenes {
     missionCompletionStatus: MissionCompletionStatus
     battleCompletionStatus: BattleCompletionStatus
-    cutsceneTriggers: CutsceneTrigger[]
+    battleEvents: BattleEvent[]
     objectives: MissionObjective[]
     cutsceneCollection: MissionCutsceneCollection
 }
@@ -31,19 +28,19 @@ export const MissionObjectivesAndCutscenesHelper = {
     new: ({
         objectives,
         cutsceneCollection,
-        cutsceneTriggers,
+        battleEvents,
         missionCompletionStatus,
         battleCompletionStatus,
     }: {
         objectives: MissionObjective[]
         cutsceneCollection: MissionCutsceneCollection
-        cutsceneTriggers: CutsceneTrigger[]
+        battleEvents: BattleEvent[]
         missionCompletionStatus: MissionCompletionStatus
         battleCompletionStatus: BattleCompletionStatus
     }): MissionObjectivesAndCutscenes => {
         return sanitize({
             missionCompletionStatus: missionCompletionStatus,
-            cutsceneTriggers: cutsceneTriggers || [],
+            battleEvents: battleEvents || [],
             battleCompletionStatus: battleCompletionStatus,
             cutsceneCollection:
                 cutsceneCollection ||
@@ -71,8 +68,8 @@ export const MissionObjectivesAndCutscenesHelper = {
 const sanitize = (
     missionObjectivesAndCutscenes: MissionObjectivesAndCutscenes
 ) => {
-    missionObjectivesAndCutscenes.cutsceneTriggers.forEach((trigger) => {
-        CutsceneTriggerService.sanitize(trigger)
+    missionObjectivesAndCutscenes.battleEvents.forEach((battleEvent) => {
+        BattleEventService.sanitize(battleEvent)
     })
     return missionObjectivesAndCutscenes
 }

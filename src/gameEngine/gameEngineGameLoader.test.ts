@@ -51,7 +51,10 @@ import { BattlePhase } from "../battle/orchestratorComponents/battlePhaseTracker
 import { TitleScreenStateHelper } from "../titleScreen/titleScreenState"
 import { BattleHUDStateService } from "../battle/hud/battleHUD/battleHUDState"
 import { TriggeringEventType } from "../battle/eventTrigger/triggeringEventType"
-import { CutsceneTriggerService } from "../cutscene/cutsceneTrigger"
+import { EventTriggerBaseService } from "../battle/eventTrigger/eventTriggerBase"
+import { EventBattleProgressService } from "../battle/eventTrigger/eventBattleProgress"
+import { CutsceneEffectService } from "../cutscene/cutsceneEffect"
+import { EventTriggerTurnRangeService } from "../battle/eventTrigger/eventTriggerTurnRange"
 
 describe("GameEngineGameLoader", () => {
     let loader: GameEngineGameLoader
@@ -307,7 +310,7 @@ describe("GameEngineGameLoader", () => {
                         it("cutscenes", () => {
                             expect(
                                 gameEngineState.battleOrchestratorState
-                                    .battleState.cutsceneTriggers.length
+                                    .battleState.battleEvents.length
                             ).toBeGreaterThan(0)
                             expect(
                                 CutsceneService.hasLoaded(
@@ -450,19 +453,33 @@ describe("GameEngineGameLoader", () => {
                         iconResourceKey: "",
                     },
                 ],
-                cutsceneTriggerCompletion: [
-                    CutsceneTriggerService.new({
-                        triggeringEventType:
-                            TriggeringEventType.MISSION_VICTORY,
-                        cutsceneId: "default_victory",
-                    }),
+                battleEvents: [
                     {
-                        ...CutsceneTriggerService.new({
-                            triggeringEventType:
-                                TriggeringEventType.START_OF_TURN,
-                            cutsceneId: "introduction",
-                        }),
-                        exactTurn: 0,
+                        triggers: [
+                            {
+                                ...EventTriggerBaseService.new(
+                                    TriggeringEventType.MISSION_VICTORY
+                                ),
+                                ...EventBattleProgressService.new({
+                                    battleCompletionStatus:
+                                        BattleCompletionStatus.VICTORY,
+                                }),
+                            },
+                        ],
+                        effect: CutsceneEffectService.new("victory"),
+                    },
+                    {
+                        triggers: [
+                            {
+                                ...EventTriggerBaseService.new(
+                                    TriggeringEventType.START_OF_TURN
+                                ),
+                                ...EventTriggerTurnRangeService.new({
+                                    exactTurn: 0,
+                                }),
+                            },
+                        ],
+                        effect: CutsceneEffectService.new("starting"),
                     },
                 ],
             }
@@ -501,14 +518,33 @@ describe("GameEngineGameLoader", () => {
                                 ],
                             }),
                         ],
-                        cutsceneTriggers: [
+                        battleEvents: [
                             {
-                                ...CutsceneTriggerService.new({
-                                    cutsceneId: "introductory",
-                                    triggeringEventType:
-                                        TriggeringEventType.START_OF_TURN,
-                                }),
-                                exactTurn: 0,
+                                triggers: [
+                                    {
+                                        ...EventTriggerBaseService.new(
+                                            TriggeringEventType.MISSION_VICTORY
+                                        ),
+                                        ...EventBattleProgressService.new({
+                                            battleCompletionStatus:
+                                                BattleCompletionStatus.VICTORY,
+                                        }),
+                                    },
+                                ],
+                                effect: CutsceneEffectService.new("victory"),
+                            },
+                            {
+                                triggers: [
+                                    {
+                                        ...EventTriggerBaseService.new(
+                                            TriggeringEventType.START_OF_TURN
+                                        ),
+                                        ...EventTriggerTurnRangeService.new({
+                                            exactTurn: 0,
+                                        }),
+                                    },
+                                ],
+                                effect: CutsceneEffectService.new("starting"),
                             },
                         ],
                         missionCompletionStatus: {},
@@ -572,8 +608,8 @@ describe("GameEngineGameLoader", () => {
 
             expect(loader.loadBlocker.resourceKeysToLoad).toHaveLength(0)
             expect(
-                currentState.battleOrchestratorState.battleState
-                    .cutsceneTriggers.length
+                currentState.battleOrchestratorState.battleState.battleEvents
+                    .length
             ).toBeGreaterThan(0)
             expect(
                 CutsceneService.hasLoaded(
@@ -833,19 +869,33 @@ describe("GameEngineGameLoader", () => {
                         iconResourceKey: "",
                     },
                 ],
-                cutsceneTriggerCompletion: [
-                    CutsceneTriggerService.new({
-                        triggeringEventType:
-                            TriggeringEventType.MISSION_VICTORY,
-                        cutsceneId: "default_victory",
-                    }),
+                battleEvents: [
                     {
-                        ...CutsceneTriggerService.new({
-                            triggeringEventType:
-                                TriggeringEventType.START_OF_TURN,
-                            cutsceneId: "introduction",
-                        }),
-                        exactTurn: 0,
+                        triggers: [
+                            {
+                                ...EventTriggerBaseService.new(
+                                    TriggeringEventType.MISSION_VICTORY
+                                ),
+                                ...EventBattleProgressService.new({
+                                    battleCompletionStatus:
+                                        BattleCompletionStatus.VICTORY,
+                                }),
+                            },
+                        ],
+                        effect: CutsceneEffectService.new("victory"),
+                    },
+                    {
+                        triggers: [
+                            {
+                                ...EventTriggerBaseService.new(
+                                    TriggeringEventType.START_OF_TURN
+                                ),
+                                ...EventTriggerTurnRangeService.new({
+                                    exactTurn: 0,
+                                }),
+                            },
+                        ],
+                        effect: CutsceneEffectService.new("starting"),
                     },
                 ],
             }
@@ -924,19 +974,33 @@ describe("GameEngineGameLoader", () => {
                             iconResourceKey: "",
                         },
                     ],
-                    cutsceneTriggerCompletion: [
-                        CutsceneTriggerService.new({
-                            triggeringEventType:
-                                TriggeringEventType.MISSION_VICTORY,
-                            cutsceneId: "default_victory",
-                        }),
+                    battleEvents: [
                         {
-                            ...CutsceneTriggerService.new({
-                                triggeringEventType:
-                                    TriggeringEventType.START_OF_TURN,
-                                cutsceneId: "introduction",
-                            }),
-                            exactTurn: 0,
+                            triggers: [
+                                {
+                                    ...EventTriggerBaseService.new(
+                                        TriggeringEventType.MISSION_VICTORY
+                                    ),
+                                    ...EventBattleProgressService.new({
+                                        battleCompletionStatus:
+                                            BattleCompletionStatus.VICTORY,
+                                    }),
+                                },
+                            ],
+                            effect: CutsceneEffectService.new("victory"),
+                        },
+                        {
+                            triggers: [
+                                {
+                                    ...EventTriggerBaseService.new(
+                                        TriggeringEventType.START_OF_TURN
+                                    ),
+                                    ...EventTriggerTurnRangeService.new({
+                                        exactTurn: 0,
+                                    }),
+                                },
+                            ],
+                            effect: CutsceneEffectService.new("starting"),
                         },
                     ],
                 }

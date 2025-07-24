@@ -71,10 +71,11 @@ import { BattleSquaddieService } from "../battleSquaddie"
 import { GraphicsBuffer } from "../../utils/graphics/graphicsRenderer"
 import { PlayerActionTargetSelect } from "../orchestratorComponents/playerActionTargetSelect/playerActionTargetSelect"
 import { TriggeringEventType } from "../eventTrigger/triggeringEventType"
-import {
-    CutsceneTrigger,
-    CutsceneTriggerService,
-} from "../../cutscene/cutsceneTrigger"
+import { BattleEvent, BattleEventService } from "../event/battleEvent"
+import { EventTriggerBaseService } from "../eventTrigger/eventTriggerBase"
+import { EventTriggerTurnRangeService } from "../eventTrigger/eventTriggerTurnRange"
+import { CutsceneEffectService } from "../../cutscene/cutsceneEffect"
+import { EventBattleProgressService } from "../eventTrigger/eventBattleProgress"
 
 describe("Battle Orchestrator", () => {
     type OrchestratorTestOptions = {
@@ -314,13 +315,19 @@ describe("Battle Orchestrator", () => {
             },
         })
 
-        const turn1CutsceneTrigger: CutsceneTrigger = {
-            ...CutsceneTriggerService.new({
-                cutsceneId: "starting",
-                triggeringEventType: TriggeringEventType.START_OF_TURN,
-            }),
-            exactTurn: 1,
-        }
+        const turn1BattleEvent: BattleEvent = BattleEventService.new({
+            triggers: [
+                {
+                    ...EventTriggerBaseService.new(
+                        TriggeringEventType.START_OF_TURN
+                    ),
+                    ...EventTriggerTurnRangeService.new({
+                        exactTurn: 1,
+                    }),
+                },
+            ],
+            effect: CutsceneEffectService.new("starting"),
+        })
 
         const turn1State: GameEngineState = GameEngineStateService.new({
             resourceHandler: undefined,
@@ -335,7 +342,7 @@ describe("Battle Orchestrator", () => {
                     }),
                     cutsceneCollection,
                     objectives: [],
-                    cutsceneTriggers: [turn1CutsceneTrigger],
+                    battleEvents: [turn1BattleEvent],
                     battlePhaseState: {
                         turnCount: 1,
                         currentAffiliation: BattlePhase.UNKNOWN,
@@ -375,14 +382,19 @@ describe("Battle Orchestrator", () => {
                     missionId: "test mission",
                     campaignId: "test campaign",
                     cutsceneCollection,
-                    cutsceneTriggers: [
+                    battleEvents: [
                         {
-                            ...CutsceneTriggerService.new({
-                                cutsceneId: "starting",
-                                triggeringEventType:
-                                    TriggeringEventType.START_OF_TURN,
-                            }),
-                            exactTurn: 0,
+                            triggers: [
+                                {
+                                    ...EventTriggerBaseService.new(
+                                        TriggeringEventType.START_OF_TURN
+                                    ),
+                                    ...EventTriggerTurnRangeService.new({
+                                        exactTurn: 0,
+                                    }),
+                                },
+                            ],
+                            effect: CutsceneEffectService.new("starting"),
                         },
                     ],
                     battlePhaseState: {
@@ -485,28 +497,47 @@ describe("Battle Orchestrator", () => {
                     missionId: "test mission",
                     campaignId: "test campaign",
                     cutsceneCollection,
-                    cutsceneTriggers: [
+                    battleEvents: [
                         {
-                            ...CutsceneTriggerService.new({
-                                cutsceneId: "starting",
-                                triggeringEventType:
-                                    TriggeringEventType.START_OF_TURN,
-                            }),
-                            exactTurn: 0,
+                            triggers: [
+                                {
+                                    ...EventTriggerBaseService.new(
+                                        TriggeringEventType.MISSION_VICTORY
+                                    ),
+                                    ...EventBattleProgressService.new({
+                                        battleCompletionStatus:
+                                            BattleCompletionStatus.VICTORY,
+                                    }),
+                                },
+                            ],
+                            effect: CutsceneEffectService.new("victory"),
                         },
                         {
-                            ...CutsceneTriggerService.new({
-                                cutsceneId: "next scene",
-                                triggeringEventType:
-                                    TriggeringEventType.START_OF_TURN,
-                            }),
-                            exactTurn: 1,
+                            triggers: [
+                                {
+                                    ...EventTriggerBaseService.new(
+                                        TriggeringEventType.START_OF_TURN
+                                    ),
+                                    ...EventTriggerTurnRangeService.new({
+                                        exactTurn: 0,
+                                    }),
+                                },
+                            ],
+                            effect: CutsceneEffectService.new("starting"),
                         },
-                        CutsceneTriggerService.new({
-                            cutsceneId: "victory",
-                            triggeringEventType:
-                                TriggeringEventType.MISSION_VICTORY,
-                        }),
+                        {
+                            triggers: [
+                                {
+                                    ...EventTriggerBaseService.new(
+                                        TriggeringEventType.START_OF_TURN
+                                    ),
+                                    ...EventTriggerTurnRangeService.new({
+                                        exactTurn: 1,
+                                    }),
+                                },
+                            ],
+                            effect: CutsceneEffectService.new("next scene"),
+                        },
                     ],
                     battlePhaseState: {
                         turnCount: 0,
@@ -780,12 +811,23 @@ describe("Battle Orchestrator", () => {
                             }),
                         ],
                         cutsceneCollection,
-                        cutsceneTriggers: [
-                            CutsceneTriggerService.new({
-                                cutsceneId: DEFAULT_VICTORY_CUTSCENE_ID,
-                                triggeringEventType:
-                                    TriggeringEventType.MISSION_VICTORY,
-                            }),
+                        battleEvents: [
+                            {
+                                triggers: [
+                                    {
+                                        ...EventTriggerBaseService.new(
+                                            TriggeringEventType.MISSION_VICTORY
+                                        ),
+                                        ...EventBattleProgressService.new({
+                                            battleCompletionStatus:
+                                                BattleCompletionStatus.VICTORY,
+                                        }),
+                                    },
+                                ],
+                                effect: CutsceneEffectService.new(
+                                    DEFAULT_VICTORY_CUTSCENE_ID
+                                ),
+                            },
                         ],
                         battleCompletionStatus:
                             BattleCompletionStatus.IN_PROGRESS,
@@ -827,12 +869,23 @@ describe("Battle Orchestrator", () => {
                             }),
                         ],
                         cutsceneCollection,
-                        cutsceneTriggers: [
-                            CutsceneTriggerService.new({
-                                cutsceneId: DEFAULT_DEFEAT_CUTSCENE_ID,
-                                triggeringEventType:
-                                    TriggeringEventType.MISSION_DEFEAT,
-                            }),
+                        battleEvents: [
+                            {
+                                triggers: [
+                                    {
+                                        ...EventTriggerBaseService.new(
+                                            TriggeringEventType.MISSION_DEFEAT
+                                        ),
+                                        ...EventBattleProgressService.new({
+                                            battleCompletionStatus:
+                                                BattleCompletionStatus.DEFEAT,
+                                        }),
+                                    },
+                                ],
+                                effect: CutsceneEffectService.new(
+                                    DEFAULT_DEFEAT_CUTSCENE_ID
+                                ),
+                            },
                         ],
                         battleCompletionStatus:
                             BattleCompletionStatus.IN_PROGRESS,
@@ -888,17 +941,39 @@ describe("Battle Orchestrator", () => {
                             }),
                         ],
                         cutsceneCollection,
-                        cutsceneTriggers: [
-                            CutsceneTriggerService.new({
-                                cutsceneId: DEFAULT_VICTORY_CUTSCENE_ID,
-                                triggeringEventType:
-                                    TriggeringEventType.MISSION_VICTORY,
-                            }),
-                            CutsceneTriggerService.new({
-                                cutsceneId: DEFAULT_VICTORY_CUTSCENE_ID,
-                                triggeringEventType:
-                                    TriggeringEventType.MISSION_DEFEAT,
-                            }),
+                        battleEvents: [
+                            {
+                                triggers: [
+                                    {
+                                        ...EventTriggerBaseService.new(
+                                            TriggeringEventType.MISSION_VICTORY
+                                        ),
+                                        ...EventBattleProgressService.new({
+                                            battleCompletionStatus:
+                                                BattleCompletionStatus.VICTORY,
+                                        }),
+                                    },
+                                ],
+                                effect: CutsceneEffectService.new(
+                                    DEFAULT_VICTORY_CUTSCENE_ID
+                                ),
+                            },
+                            {
+                                triggers: [
+                                    {
+                                        ...EventTriggerBaseService.new(
+                                            TriggeringEventType.MISSION_DEFEAT
+                                        ),
+                                        ...EventBattleProgressService.new({
+                                            battleCompletionStatus:
+                                                BattleCompletionStatus.DEFEAT,
+                                        }),
+                                    },
+                                ],
+                                effect: CutsceneEffectService.new(
+                                    DEFAULT_DEFEAT_CUTSCENE_ID
+                                ),
+                            },
                         ],
                         battleCompletionStatus:
                             BattleCompletionStatus.IN_PROGRESS,
@@ -934,8 +1009,8 @@ describe("Battle Orchestrator", () => {
 
             expect(cutscenePlayer.currentCutscene).toBe(mockCutscene)
             expect(
-                victoryState.battleOrchestratorState.battleState
-                    .cutsceneTriggers[0].systemReactedToTrigger
+                victoryState.battleOrchestratorState.battleState.battleEvents[0]
+                    .effect.alreadyAppliedEffect
             ).toBeTruthy()
             expect(orchestrator.getCurrentMode()).toBe(
                 BattleOrchestratorMode.CUTSCENE_PLAYER
@@ -984,8 +1059,8 @@ describe("Battle Orchestrator", () => {
 
             expect(cutscenePlayer.currentCutscene).toBe(mockCutscene)
             expect(
-                defeatState.battleOrchestratorState.battleState
-                    .cutsceneTriggers[0].systemReactedToTrigger
+                defeatState.battleOrchestratorState.battleState.battleEvents[0]
+                    .effect.alreadyAppliedEffect
             ).toBeTruthy()
             expect(orchestrator.getCurrentMode()).toBe(
                 BattleOrchestratorMode.CUTSCENE_PLAYER
@@ -1037,7 +1112,7 @@ describe("Battle Orchestrator", () => {
             expect(cutscenePlayer.currentCutscene).toBe(mockCutscene)
             expect(
                 victoryAndDefeatState.battleOrchestratorState.battleState
-                    .cutsceneTriggers[1].systemReactedToTrigger
+                    .battleEvents[1].effect.alreadyAppliedEffect
             ).toBeTruthy()
             expect(orchestrator.getCurrentMode()).toBe(
                 BattleOrchestratorMode.CUTSCENE_PLAYER

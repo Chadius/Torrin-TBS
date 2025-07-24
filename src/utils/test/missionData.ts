@@ -25,7 +25,11 @@ import {
 import { ArmyAttributesService } from "../../squaddie/armyAttributes"
 import { CoordinateGeneratorShape } from "../../battle/targeting/coordinateGenerator"
 import { TriggeringEventType } from "../../battle/eventTrigger/triggeringEventType"
-import { CutsceneTriggerService } from "../../cutscene/cutsceneTrigger"
+import { EventTriggerBaseService } from "../../battle/eventTrigger/eventTriggerBase"
+import { CutsceneEffectService } from "../../cutscene/cutsceneEffect"
+import { EventTriggerTurnRangeService } from "../../battle/eventTrigger/eventTriggerTurnRange"
+import { EventBattleProgressService } from "../../battle/eventTrigger/eventBattleProgress"
+import { BattleCompletionStatus } from "../../battle/orchestrator/missionObjectivesAndCutscenes"
 
 export const TestMissionData = () => {
     const missionData: MissionFileFormat = {
@@ -268,59 +272,141 @@ export const TestMissionData = () => {
             PLAYER: "phase banner player",
             ENEMY: "phase banner enemy",
         },
+        battleEvents: [
+            {
+                triggers: [
+                    {
+                        ...EventTriggerBaseService.new(
+                            TriggeringEventType.MISSION_VICTORY
+                        ),
+                        ...EventBattleProgressService.new({
+                            battleCompletionStatus:
+                                BattleCompletionStatus.VICTORY,
+                        }),
+                    },
+                ],
+                effect: CutsceneEffectService.new("default_victory"),
+            },
+            {
+                triggers: [
+                    {
+                        ...EventTriggerBaseService.new(
+                            TriggeringEventType.MISSION_DEFEAT
+                        ),
+                        ...EventBattleProgressService.new({
+                            battleCompletionStatus:
+                                BattleCompletionStatus.DEFEAT,
+                        }),
+                    },
+                ],
+                effect: CutsceneEffectService.new("default_defeat"),
+            },
+            {
+                triggers: [
+                    {
+                        ...EventTriggerBaseService.new(
+                            TriggeringEventType.START_OF_TURN
+                        ),
+                        ...EventTriggerTurnRangeService.new({
+                            exactTurn: 0,
+                        }),
+                    },
+                ],
+                effect: CutsceneEffectService.new("introduction"),
+            },
+            {
+                triggers: [
+                    {
+                        ...EventTriggerBaseService.new(
+                            TriggeringEventType.START_OF_TURN
+                        ),
+                        ...EventTriggerTurnRangeService.new({
+                            exactTurn: 1,
+                        }),
+                    },
+                ],
+                effect: CutsceneEffectService.new("turn1"),
+            },
+            {
+                triggers: [
+                    {
+                        ...EventTriggerBaseService.new(
+                            TriggeringEventType.START_OF_TURN
+                        ),
+                        ...EventTriggerTurnRangeService.new({
+                            exactTurn: 2,
+                        }),
+                    },
+                ],
+                effect: CutsceneEffectService.new("turn2"),
+            },
+            {
+                triggers: [
+                    {
+                        ...EventTriggerBaseService.new(
+                            TriggeringEventType.START_OF_TURN
+                        ),
+                        ...EventTriggerTurnRangeService.new({
+                            exactTurn: 4,
+                        }),
+                    },
+                ],
+                effect: CutsceneEffectService.new("turn4"),
+            },
+            {
+                triggers: [
+                    {
+                        ...EventTriggerBaseService.new(
+                            TriggeringEventType.START_OF_TURN
+                        ),
+                        ...EventTriggerTurnRangeService.new({
+                            exactTurn: 5,
+                        }),
+                    },
+                ],
+                effect: CutsceneEffectService.new("turn5"),
+            },
+            {
+                triggers: [
+                    {
+                        ...EventTriggerBaseService.new(
+                            TriggeringEventType.START_OF_TURN
+                        ),
+                        ...EventTriggerTurnRangeService.new({
+                            exactTurn: 7,
+                        }),
+                    },
+                ],
+                effect: CutsceneEffectService.new("turn7"),
+            },
+            {
+                triggers: [
+                    {
+                        ...EventTriggerBaseService.new(
+                            TriggeringEventType.START_OF_TURN
+                        ),
+                        ...EventTriggerTurnRangeService.new({
+                            exactTurn: 0,
+                        }),
+                    },
+                ],
+                effect: CutsceneEffectService.new("introduction"),
+            },
+            {
+                triggers: [
+                    {
+                        ...EventTriggerBaseService.new(
+                            TriggeringEventType.START_OF_TURN
+                        ),
+                        ...EventTriggerTurnRangeService.new({
+                            exactTurn: 0,
+                        }),
+                    },
+                ],
+                effect: CutsceneEffectService.new("introduction"),
+            },
+        ],
         cutscene: {
-            cutsceneTriggers: [
-                CutsceneTriggerService.new({
-                    triggeringEventType: TriggeringEventType.MISSION_VICTORY,
-                    cutsceneId: "default_victory",
-                }),
-                CutsceneTriggerService.new({
-                    triggeringEventType: TriggeringEventType.MISSION_DEFEAT,
-                    cutsceneId: "default_defeat",
-                }),
-                {
-                    ...CutsceneTriggerService.new({
-                        triggeringEventType: TriggeringEventType.START_OF_TURN,
-                        cutsceneId: "introduction",
-                    }),
-                    exactTurn: 0,
-                },
-                {
-                    ...CutsceneTriggerService.new({
-                        triggeringEventType: TriggeringEventType.START_OF_TURN,
-                        cutsceneId: "turn1",
-                    }),
-                    exactTurn: 1,
-                },
-                {
-                    ...CutsceneTriggerService.new({
-                        triggeringEventType: TriggeringEventType.START_OF_TURN,
-                        cutsceneId: "turn2",
-                    }),
-                    exactTurn: 2,
-                },
-                {
-                    ...CutsceneTriggerService.new({
-                        triggeringEventType: TriggeringEventType.START_OF_TURN,
-                        cutsceneId: "turn4",
-                    }),
-                    exactTurn: 4,
-                },
-                {
-                    ...CutsceneTriggerService.new({
-                        triggeringEventType: TriggeringEventType.START_OF_TURN,
-                        cutsceneId: "turn5",
-                    }),
-                    exactTurn: 5,
-                },
-                {
-                    ...CutsceneTriggerService.new({
-                        triggeringEventType: TriggeringEventType.START_OF_TURN,
-                        cutsceneId: "turn7",
-                    }),
-                    exactTurn: 7,
-                },
-            ],
             cutsceneById: {
                 [DEFAULT_VICTORY_CUTSCENE_ID]: {
                     directions: [

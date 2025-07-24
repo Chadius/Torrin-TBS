@@ -18,7 +18,7 @@ import {
     MissionStatisticsService,
 } from "../missionStatistics/missionStatistics"
 import { MissionCutsceneCollection } from "../orchestrator/missionCutsceneCollection"
-import { CutsceneTrigger } from "../../cutscene/cutsceneTrigger"
+import { BattleEvent } from "../event/battleEvent"
 import { MissionObjective } from "../missionResult/missionObjective"
 import { NullMissionMap } from "../../utils/test/battleOrchestratorState"
 import {
@@ -199,7 +199,7 @@ interface BattleStateConstructorParameters {
     campaignId: string
     missionId: string
     cutsceneCollection?: MissionCutsceneCollection
-    cutsceneTriggers?: CutsceneTrigger[]
+    battleEvents?: BattleEvent[]
     objectives?: MissionObjective[]
     missionMap?: MissionMap
     camera?: BattleCamera
@@ -218,7 +218,7 @@ const newBattleState = ({
     missionId,
     objectives,
     cutsceneCollection,
-    cutsceneTriggers,
+    battleEvents,
     missionMap,
     camera,
     battlePhaseState,
@@ -235,7 +235,7 @@ const newBattleState = ({
         MissionObjectivesAndCutscenesHelper.new({
             objectives,
             cutsceneCollection,
-            cutsceneTriggers,
+            battleEvents,
             missionCompletionStatus,
             battleCompletionStatus,
         })

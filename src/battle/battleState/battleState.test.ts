@@ -256,7 +256,7 @@ describe("Battle State", () => {
             ],
             missionCompletionStatus: {},
             missionStatistics: MissionStatisticsService.new({}),
-            cutsceneTriggers: [],
+            battleEvents: [],
             battlePhaseState: {
                 turnCount: 20,
                 currentAffiliation: BattlePhase.ENEMY,

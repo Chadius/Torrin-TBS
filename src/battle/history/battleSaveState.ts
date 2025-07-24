@@ -15,7 +15,7 @@ import {
 import { TeamStrategy } from "../teamStrategy/teamStrategy"
 import { BattleSquaddieTeam } from "../battleSquaddieTeam"
 import { MissionCompletionStatus } from "../missionResult/missionCompletionStatus"
-import { CutsceneTrigger } from "../../cutscene/cutsceneTrigger"
+import { BattleEvent } from "../event/battleEvent"
 import { ObjectRepository, ObjectRepositoryService } from "../objectRepository"
 import { getResultOrThrowError } from "../../utils/ResultOrError"
 import { BattlePhase } from "../orchestratorComponents/battlePhaseTracker"
@@ -53,7 +53,7 @@ export interface BattleSaveState {
     teams: BattleSquaddieTeam[]
     teamStrategiesById: { [key: string]: TeamStrategy[] }
     missionCompletionStatus: MissionCompletionStatus
-    cutsceneTriggerCompletion: CutsceneTrigger[]
+    battleEvents: BattleEvent[]
 }
 
 export const BattleSaveStateService = {
@@ -148,8 +148,8 @@ export const BattleSaveStateService = {
             ...battleSaveState.teamStrategiesById,
         }
 
-        battleOrchestratorState.battleState.cutsceneTriggers = [
-            ...battleSaveState.cutsceneTriggerCompletion,
+        battleOrchestratorState.battleState.battleEvents = [
+            ...battleSaveState.battleEvents,
         ]
         battleOrchestratorState.battleState.missionCompletionStatus = {
             ...battleSaveState.missionCompletionStatus,
@@ -222,8 +222,7 @@ export const BattleSaveStateService = {
                 battleOrchestratorState.battleState.teamStrategiesById,
             missionCompletionStatus:
                 battleOrchestratorState.battleState.missionCompletionStatus,
-            cutsceneTriggerCompletion:
-                battleOrchestratorState.battleState.cutsceneTriggers,
+            battleEvents: battleOrchestratorState.battleState.battleEvents,
         }
     },
     SaveToFile: (data: BattleSaveState) => {
@@ -266,6 +265,6 @@ export const DefaultBattleSaveState = (): BattleSaveState => {
         teams: [],
         teamStrategiesById: {},
         missionCompletionStatus: {},
-        cutsceneTriggerCompletion: [],
+        battleEvents: [],
     }
 }

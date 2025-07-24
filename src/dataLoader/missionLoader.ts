@@ -15,12 +15,12 @@ import {
     isValidValue,
 } from "../utils/objectValidityCheck"
 import { SquaddieAffiliation } from "../squaddie/squaddieAffiliation"
-import { CutsceneTrigger } from "../cutscene/cutsceneTrigger"
 import { Cutscene } from "../cutscene/cutscene"
 import {
     SquaddieTemplate,
     SquaddieTemplateService,
 } from "../campaign/squaddieTemplate"
+import { BattleEvent } from "../battle/event/battleEvent"
 
 export interface MapPlacement {
     battleSquaddieId: string
@@ -69,9 +69,9 @@ export interface MissionFileFormat {
     }
     phaseBannersByAffiliation: { [affiliation in SquaddieAffiliation]?: string }
     cutscene: {
-        cutsceneTriggers: CutsceneTrigger[]
         cutsceneById: { [id: string]: Cutscene }
     }
+    battleEvents: BattleEvent[]
 }
 
 export const MissionFileFormatService = {
@@ -82,6 +82,7 @@ export const MissionFileFormatService = {
         player,
         npcDeployments,
         phaseBannersByAffiliation,
+        battleEvents,
     }: {
         id: string
         terrain?: string[]
@@ -100,6 +101,7 @@ export const MissionFileFormatService = {
         phaseBannersByAffiliation?: {
             [affiliation in SquaddieAffiliation]?: string
         }
+        battleEvents?: BattleEvent[]
     }): MissionFileFormat => {
         const data: MissionFileFormat = {
             id,
@@ -109,9 +111,9 @@ export const MissionFileFormatService = {
             npcDeployments,
             phaseBannersByAffiliation,
             cutscene: {
-                cutsceneTriggers: [],
                 cutsceneById: {},
             },
+            battleEvents,
         }
         sanitize(data)
         return data
@@ -179,7 +181,6 @@ const sanitizeCutscenes = (data: MissionFileFormat) => {
     if (!isValidValue(data.cutscene)) {
         data.cutscene = {
             cutsceneById: {},
-            cutsceneTriggers: [],
         }
     }
 
@@ -187,8 +188,8 @@ const sanitizeCutscenes = (data: MissionFileFormat) => {
         data.cutscene.cutsceneById = {}
     }
 
-    if (!isValidValue(data.cutscene.cutsceneTriggers)) {
-        data.cutscene.cutsceneTriggers = []
+    if (!isValidValue(data.battleEvents)) {
+        data.battleEvents = []
     }
 }
 

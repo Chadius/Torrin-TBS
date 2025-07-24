@@ -1,11 +1,13 @@
 import {
-    EventTrigger,
-    EventTriggerService,
-} from "../battle/eventTrigger/eventTrigger"
+    EventTriggerBase,
+    EventTriggerBaseService,
+} from "../battle/eventTrigger/eventTriggerBase"
 import { TriggeringEventType } from "../battle/eventTrigger/triggeringEventType"
 import { EventTriggerTurnRange } from "../battle/eventTrigger/eventTriggerTurnRange"
 import { EventTriggerSquaddie } from "../battle/eventTrigger/eventTriggerSquaddie"
 import { EventTriggerSquaddieQueryService } from "../battle/eventTrigger/eventTriggerSquaddieQuery"
+
+import { BattleEventEffectState } from "../battle/event/battleEventEffectState"
 
 export interface CutsceneTriggerId {
     cutsceneId: string
@@ -20,7 +22,8 @@ export const CutsceneTriggerIdService = {
 }
 
 export interface CutsceneTrigger
-    extends EventTrigger,
+    extends EventTriggerBase,
+        BattleEventEffectState,
         CutsceneTriggerId,
         EventTriggerTurnRange,
         EventTriggerSquaddie {}
@@ -35,7 +38,7 @@ export const CutsceneTriggerService = {
     }) => {
         return sanitizeCutsceneTriggerService({
             triggeringEventType: triggeringEventType,
-            systemReactedToTrigger: false,
+            alreadyAppliedEffect: false,
             cutsceneId,
             targetingSquaddie: undefined,
         })
@@ -47,7 +50,7 @@ export const CutsceneTriggerService = {
 const sanitizeCutsceneTriggerService = (
     cutscene: CutsceneTrigger
 ): CutsceneTrigger => {
-    EventTriggerService.sanitize(cutscene)
+    EventTriggerBaseService.sanitize(cutscene)
     CutsceneTriggerIdService.sanitize(cutscene)
 
     switch (cutscene.triggeringEventType) {
@@ -68,7 +71,7 @@ export interface SquaddieIsInjuredTrigger
 
 const sanitizeSquaddieFields = (cutscene: EventTriggerSquaddie) => {
     if (!cutscene.targetingSquaddie) {
-        cutscene.targetingSquaddie = EventTriggerSquaddieQueryService.new()
+        cutscene.targetingSquaddie = EventTriggerSquaddieQueryService.new({})
     }
     EventTriggerSquaddieQueryService.sanitize(cutscene.targetingSquaddie)
     return cutscene

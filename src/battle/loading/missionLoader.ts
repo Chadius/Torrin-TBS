@@ -14,7 +14,6 @@ import {
     MissionCutsceneCollection,
     MissionCutsceneCollectionHelper,
 } from "../orchestrator/missionCutsceneCollection"
-import { CutsceneTrigger } from "../../cutscene/cutsceneTrigger"
 import { SquaddieAffiliation } from "../../squaddie/squaddieAffiliation"
 import { BattleSquaddieTeam } from "../battleSquaddieTeam"
 import { TeamStrategy } from "../teamStrategy/teamStrategy"
@@ -43,6 +42,7 @@ import {
 import { ImageUI, ImageUILoadingBehavior } from "../../ui/imageUI/imageUI"
 import { ScreenDimensions } from "../../utils/graphics/graphicsConfig"
 import { ResourceHandlerBlocker } from "../../dataLoader/loadBlocker/resourceHandlerBlocker"
+import { BattleEvent, BattleEventService } from "../event/battleEvent"
 
 export interface MissionLoaderCompletionProgress {
     started: boolean
@@ -61,8 +61,8 @@ export interface MissionLoaderContext {
     }
     cutsceneInfo: {
         cutsceneCollection: MissionCutsceneCollection
-        cutsceneTriggers: CutsceneTrigger[]
     }
+    battleEvents: BattleEvent[]
     mapSettings: {
         camera: BattleCamera
     }
@@ -86,8 +86,8 @@ export const MissionLoader = {
             },
             cutsceneInfo: {
                 cutsceneCollection: undefined,
-                cutsceneTriggers: [],
             },
+            battleEvents: [],
             mapSettings: {
                 camera: undefined,
             },
@@ -415,11 +415,10 @@ const loadCutscenes = ({
         .flat()
     loadBlocker.queueResourceToLoad(cutsceneResourceKeys)
 
-    const cutsceneTriggers: CutsceneTrigger[] =
-        missionData.cutscene.cutsceneTriggers
-
     missionLoaderContext.cutsceneInfo.cutsceneCollection = cutsceneCollection
-    missionLoaderContext.cutsceneInfo.cutsceneTriggers = cutsceneTriggers
+    missionLoaderContext.battleEvents = missionData.battleEvents.map(
+        (battleEvent) => BattleEventService.sanitize(battleEvent)
+    )
 }
 
 const loadNPCTemplatesFromFile = async (

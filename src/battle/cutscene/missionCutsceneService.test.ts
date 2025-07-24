@@ -9,12 +9,6 @@ import { BattleOrchestratorStateService } from "../orchestrator/battleOrchestrat
 import { TerrainTileMapService } from "../../hexMap/terrainTileMap"
 import { MissionObjectiveHelper } from "../missionResult/missionObjective"
 import { MissionRewardType } from "../missionResult/missionReward"
-import {
-    CutsceneTrigger,
-    CutsceneTriggerService,
-    SquaddieIsDefeatedTrigger,
-    SquaddieIsInjuredTrigger,
-} from "../../cutscene/cutsceneTrigger"
 import { BattleCompletionStatus } from "../orchestrator/missionObjectivesAndCutscenes"
 import {
     CutsceneMessageListener,
@@ -53,6 +47,13 @@ import { DamageType } from "../../squaddie/squaddieService"
 import { InBattleAttributesService } from "../stats/inBattleAttributes"
 import { getResultOrThrowError } from "../../utils/ResultOrError"
 import { TriggeringEventType } from "../eventTrigger/triggeringEventType"
+import { BattleEvent, BattleEventService } from "../event/battleEvent"
+import { EventTriggerBaseService } from "../eventTrigger/eventTriggerBase"
+import { EventBattleProgressService } from "../eventTrigger/eventBattleProgress"
+import { CutsceneEffectService } from "../../cutscene/cutsceneEffect"
+import { EventTriggerTurnRangeService } from "../eventTrigger/eventTriggerTurnRange"
+import { EventTriggerSquaddieService } from "../eventTrigger/eventTriggerSquaddie"
+import { EventTriggerSquaddieQueryService } from "../eventTrigger/eventTriggerSquaddieQuery"
 
 describe("Mission Cutscene Service", () => {
     let mockCutscene: Cutscene
@@ -61,11 +62,11 @@ describe("Mission Cutscene Service", () => {
         mockCutscene = CutsceneService.new({})
     })
 
-    describe("CutsceneTriggers based on Victory and Defeat", () => {
+    describe("BattleEvent with Cutscenes based on Victory and Defeat", () => {
         let victoryState: GameEngineState
         let defeatState: GameEngineState
-        let victoryCutsceneTrigger: CutsceneTrigger
-        let defeatCutsceneTrigger: CutsceneTrigger
+        let victoryCutsceneEvent: BattleEvent
+        let defeatCutsceneEvent: BattleEvent
         let cutsceneCollection: MissionCutsceneCollection
 
         beforeEach(() => {
@@ -76,9 +77,19 @@ describe("Mission Cutscene Service", () => {
                 },
             })
 
-            victoryCutsceneTrigger = CutsceneTriggerService.new({
-                triggeringEventType: TriggeringEventType.MISSION_VICTORY,
-                cutsceneId: DEFAULT_VICTORY_CUTSCENE_ID,
+            victoryCutsceneEvent = BattleEventService.new({
+                triggers: [
+                    {
+                        ...EventTriggerBaseService.new(
+                            TriggeringEventType.MISSION_VICTORY
+                        ),
+                        ...EventBattleProgressService.new({
+                            battleCompletionStatus:
+                                BattleCompletionStatus.VICTORY,
+                        }),
+                    },
+                ],
+                effect: CutsceneEffectService.new(DEFAULT_VICTORY_CUTSCENE_ID),
             })
             victoryState = GameEngineStateService.new({
                 repository: undefined,
@@ -109,16 +120,26 @@ describe("Mission Cutscene Service", () => {
                             }),
                         ],
                         cutsceneCollection,
-                        cutsceneTriggers: [victoryCutsceneTrigger],
+                        battleEvents: [victoryCutsceneEvent],
                     }),
                 }),
             })
             victoryState.battleOrchestratorState.battleState.battleCompletionStatus =
                 BattleCompletionStatus.IN_PROGRESS
 
-            defeatCutsceneTrigger = CutsceneTriggerService.new({
-                cutsceneId: DEFAULT_DEFEAT_CUTSCENE_ID,
-                triggeringEventType: TriggeringEventType.MISSION_DEFEAT,
+            defeatCutsceneEvent = BattleEventService.new({
+                triggers: [
+                    {
+                        ...EventTriggerBaseService.new(
+                            TriggeringEventType.MISSION_DEFEAT
+                        ),
+                        ...EventBattleProgressService.new({
+                            battleCompletionStatus:
+                                BattleCompletionStatus.DEFEAT,
+                        }),
+                    },
+                ],
+                effect: CutsceneEffectService.new(DEFAULT_DEFEAT_CUTSCENE_ID),
             })
 
             defeatState = GameEngineStateService.new({
@@ -150,7 +171,7 @@ describe("Mission Cutscene Service", () => {
                             }),
                         ],
                         cutsceneCollection,
-                        cutsceneTriggers: [defeatCutsceneTrigger],
+                        battleEvents: [defeatCutsceneEvent],
                     }),
                 }),
             })
@@ -179,14 +200,14 @@ describe("Mission Cutscene Service", () => {
                     ).toBe(BattleCompletionStatus.IN_PROGRESS)
 
                     const info =
-                        MissionCutsceneService.findCutsceneTriggersToActivateBasedOnVictoryAndDefeat(
+                        MissionCutsceneService.findBattleEventsToActivateBasedOnVictoryAndDefeat(
                             victoryState,
                             mode
                         )
 
                     expect(missionObjectiveCompleteCheck).toBeCalled()
 
-                    expect(info).toStrictEqual([victoryCutsceneTrigger])
+                    expect(info).toStrictEqual([victoryCutsceneEvent])
                 }
             )
         })
@@ -197,7 +218,7 @@ describe("Mission Cutscene Service", () => {
                     .battleCompletionStatus
             ).toBe(BattleCompletionStatus.IN_PROGRESS)
             const info =
-                MissionCutsceneService.findCutsceneTriggersToActivateBasedOnVictoryAndDefeat(
+                MissionCutsceneService.findBattleEventsToActivateBasedOnVictoryAndDefeat(
                     victoryState,
                     BattleOrchestratorMode.CUTSCENE_PLAYER
                 )
@@ -210,9 +231,10 @@ describe("Mission Cutscene Service", () => {
                 victoryState.battleOrchestratorState.battleState
                     .battleCompletionStatus
             ).toBe(BattleCompletionStatus.IN_PROGRESS)
-            victoryCutsceneTrigger.systemReactedToTrigger = true
+            victoryState.battleOrchestratorState.battleState.battleEvents[0].effect.alreadyAppliedEffect =
+                true
             const info =
-                MissionCutsceneService.findCutsceneTriggersToActivateBasedOnVictoryAndDefeat(
+                MissionCutsceneService.findBattleEventsToActivateBasedOnVictoryAndDefeat(
                     victoryState,
                     BattleOrchestratorMode.SQUADDIE_USES_ACTION_ON_SQUADDIE
                 )
@@ -230,14 +252,14 @@ describe("Mission Cutscene Service", () => {
             ).toBe(BattleCompletionStatus.IN_PROGRESS)
 
             const info =
-                MissionCutsceneService.findCutsceneTriggersToActivateBasedOnVictoryAndDefeat(
+                MissionCutsceneService.findBattleEventsToActivateBasedOnVictoryAndDefeat(
                     defeatState,
                     BattleOrchestratorMode.SQUADDIE_USES_ACTION_ON_SQUADDIE
                 )
 
             expect(missionObjectiveCompleteCheck).toBeCalled()
 
-            expect(info).toStrictEqual([defeatCutsceneTrigger])
+            expect(info).toStrictEqual([defeatCutsceneEvent])
         })
 
         it("if you trigger victory and defeat, defeat takes precedence", () => {
@@ -284,9 +306,9 @@ describe("Mission Cutscene Service", () => {
                             }),
                         ],
                         cutsceneCollection,
-                        cutsceneTriggers: [
-                            victoryCutsceneTrigger,
-                            defeatCutsceneTrigger,
+                        battleEvents: [
+                            victoryCutsceneEvent,
+                            defeatCutsceneEvent,
                         ],
                     }),
                 }),
@@ -303,21 +325,21 @@ describe("Mission Cutscene Service", () => {
             ).toBe(BattleCompletionStatus.IN_PROGRESS)
 
             const info =
-                MissionCutsceneService.findCutsceneTriggersToActivateBasedOnVictoryAndDefeat(
+                MissionCutsceneService.findBattleEventsToActivateBasedOnVictoryAndDefeat(
                     defeatState,
                     BattleOrchestratorMode.SQUADDIE_USES_ACTION_ON_SQUADDIE
                 )
 
             expect(missionObjectiveCompleteCheck).toBeCalled()
 
-            expect(info).toStrictEqual([defeatCutsceneTrigger])
+            expect(info).toStrictEqual([defeatCutsceneEvent])
         })
     })
 
-    describe("CutsceneTriggers based on Phase", () => {
+    describe("Can trigger based on Phase and Turn Count", () => {
         let turn0State: GameEngineState
         let turn0StateCutsceneId = "introductory cutscene"
-        let turn0CutsceneTrigger: CutsceneTrigger
+        let turn0BattleEvent: BattleEvent
         let cutsceneCollection: MissionCutsceneCollection
 
         beforeEach(() => {
@@ -327,12 +349,18 @@ describe("Mission Cutscene Service", () => {
                 },
             })
 
-            turn0CutsceneTrigger = {
-                ...CutsceneTriggerService.new({
-                    triggeringEventType: TriggeringEventType.START_OF_TURN,
-                    cutsceneId: "introductory cutscene",
-                }),
-                exactTurn: 0,
+            turn0BattleEvent = {
+                triggers: [
+                    {
+                        ...EventTriggerBaseService.new(
+                            TriggeringEventType.START_OF_TURN
+                        ),
+                        ...EventTriggerTurnRangeService.new({
+                            exactTurn: 0,
+                        }),
+                    },
+                ],
+                effect: CutsceneEffectService.new("introductory cutscene"),
             }
             turn0State = GameEngineStateService.new({
                 repository: undefined,
@@ -348,7 +376,7 @@ describe("Mission Cutscene Service", () => {
                         }),
                         cutsceneCollection,
                         objectives: [],
-                        cutsceneTriggers: [turn0CutsceneTrigger],
+                        battleEvents: [turn0BattleEvent],
                         battlePhaseState: {
                             turnCount: 0,
                             currentAffiliation: BattlePhase.UNKNOWN,
@@ -361,29 +389,29 @@ describe("Mission Cutscene Service", () => {
 
         it("will check for any introductory cutscenes during phase 0", () => {
             let info =
-                MissionCutsceneService.findCutsceneTriggersToActivateOnStartOfPhase(
+                MissionCutsceneService.findBattleEventsToActivateOnStartOfPhase(
                     {
                         gameEngineState: turn0State,
                         battleOrchestratorModeThatJustCompleted:
                             BattleOrchestratorMode.INITIALIZED,
                     }
                 )
-            expect(info).toStrictEqual([turn0CutsceneTrigger])
+            expect(info).toStrictEqual([turn0BattleEvent])
 
             let info2 =
-                MissionCutsceneService.findCutsceneTriggersToActivateOnStartOfPhase(
+                MissionCutsceneService.findBattleEventsToActivateOnStartOfPhase(
                     {
                         gameEngineState: turn0State,
                         battleOrchestratorModeThatJustCompleted:
                             BattleOrchestratorMode.PHASE_CONTROLLER,
                     }
                 )
-            expect(info2).toStrictEqual([turn0CutsceneTrigger])
+            expect(info2).toStrictEqual([turn0BattleEvent])
         })
 
         it("will remove phase 0 cutscene triggers", () => {
             let info =
-                MissionCutsceneService.findCutsceneTriggersToActivateOnStartOfPhase(
+                MissionCutsceneService.findBattleEventsToActivateOnStartOfPhase(
                     {
                         gameEngineState: turn0State,
                         battleOrchestratorModeThatJustCompleted:
@@ -396,7 +424,7 @@ describe("Mission Cutscene Service", () => {
 
         it("will not check for any turn starting cutscenes mid turn", () => {
             const info =
-                MissionCutsceneService.findCutsceneTriggersToActivateOnStartOfPhase(
+                MissionCutsceneService.findBattleEventsToActivateOnStartOfPhase(
                     {
                         gameEngineState: turn0State,
                         battleOrchestratorModeThatJustCompleted:
@@ -408,7 +436,7 @@ describe("Mission Cutscene Service", () => {
         })
     })
 
-    describe("CutsceneTriggers based on SquaddieSquaddieResult", () => {
+    describe("BattleEvents based on SquaddieSquaddieResult", () => {
         let listener: CutsceneMessageListener
         let cutsceneCollection: MissionCutsceneCollection
 
@@ -419,7 +447,7 @@ describe("Mission Cutscene Service", () => {
         describe("Squaddie Is Injured Cutscene Trigger (via BattleAction)", () => {
             let targetWasInjuredContext: BattleActionActorContext
             let gameEngineStateWithInjuryCutscene: GameEngineState
-            let injuredCutsceneTrigger: SquaddieIsInjuredTrigger
+            let injuredBattleEvent: BattleEvent
             const injuredCutsceneId = "injured"
             const injuredBattleSquaddieId = "injured_battle_squaddie"
             const injuredSquaddieTemplateId = "injuredSquaddieTemplate"
@@ -430,8 +458,6 @@ describe("Mission Cutscene Service", () => {
             const attackingBattleSquaddieId = "attacker"
             const attackerSquaddieTemplateId = "attackerSquaddieTemplate"
 
-            const differentSquaddieBattleId = "differentSquaddieBattleId"
-
             beforeEach(() => {
                 mockCutscene = CutsceneService.new({})
                 cutsceneCollection = MissionCutsceneCollectionHelper.new({
@@ -440,15 +466,23 @@ describe("Mission Cutscene Service", () => {
                     },
                 })
 
-                injuredCutsceneTrigger = {
-                    triggeringEventType:
-                        TriggeringEventType.SQUADDIE_IS_INJURED,
-                    cutsceneId: injuredCutsceneId,
-                    systemReactedToTrigger: false,
-                    targetingSquaddie: {
-                        battleSquaddieIds: [injuredBattleSquaddieId],
-                        squaddieTemplateIds: [],
-                    },
+                injuredBattleEvent = {
+                    triggers: [
+                        {
+                            ...EventTriggerBaseService.new(
+                                TriggeringEventType.SQUADDIE_IS_INJURED
+                            ),
+                            ...EventTriggerSquaddieService.new({
+                                targetingSquaddie:
+                                    EventTriggerSquaddieQueryService.new({
+                                        battleSquaddieIds: [
+                                            injuredBattleSquaddieId,
+                                        ],
+                                    }),
+                            }),
+                        },
+                    ],
+                    effect: CutsceneEffectService.new("introductory cutscene"),
                 }
 
                 targetWasInjuredContext = BattleActionActorContextService.new({
@@ -470,7 +504,7 @@ describe("Mission Cutscene Service", () => {
                                     }),
                                 }),
                                 cutsceneCollection,
-                                cutsceneTriggers: [],
+                                battleEvents: [],
                             }),
                         }
                     ),
@@ -518,7 +552,7 @@ describe("Mission Cutscene Service", () => {
 
                 finderSpy = vi.spyOn(
                     MissionCutsceneService,
-                    "findCutsceneTriggersToActivateBasedOnSquaddieSquaddieAction"
+                    "findBattleEventsToActivateBasedOnSquaddieSquaddieAction"
                 )
 
                 addDamagingEffect({
@@ -546,8 +580,8 @@ describe("Mission Cutscene Service", () => {
             })
 
             it("will fire the cutscene if it gets a squaddie is injured", () => {
-                gameEngineStateWithInjuryCutscene.battleOrchestratorState.battleState.cutsceneTriggers.push(
-                    injuredCutsceneTrigger
+                gameEngineStateWithInjuryCutscene.battleOrchestratorState.battleState.battleEvents.push(
+                    injuredBattleEvent
                 )
 
                 const battleActionSquaddieChange = addDamagingEffect({
@@ -564,7 +598,7 @@ describe("Mission Cutscene Service", () => {
                 })
 
                 expect(
-                    MissionCutsceneService.findCutsceneTriggersToActivateBasedOnSquaddieSquaddieAction(
+                    MissionCutsceneService.findBattleEventsToActivateBasedOnSquaddieSquaddieAction(
                         {
                             gameEngineState: gameEngineStateWithInjuryCutscene,
                             squaddieChanges: [battleActionSquaddieChange],
@@ -572,12 +606,12 @@ describe("Mission Cutscene Service", () => {
                                 gameEngineStateWithInjuryCutscene.repository,
                         }
                     )
-                ).toEqual([injuredCutsceneTrigger])
+                ).toEqual([injuredBattleEvent])
             })
 
             it("will not fire the cutscene if the squaddie is not injured", () => {
-                gameEngineStateWithInjuryCutscene.battleOrchestratorState.battleState.cutsceneTriggers.push(
-                    injuredCutsceneTrigger
+                gameEngineStateWithInjuryCutscene.battleOrchestratorState.battleState.battleEvents.push(
+                    injuredBattleEvent
                 )
 
                 const battleActionSquaddieChange = addDamagingEffect({
@@ -594,7 +628,7 @@ describe("Mission Cutscene Service", () => {
                 })
 
                 expect(
-                    MissionCutsceneService.findCutsceneTriggersToActivateBasedOnSquaddieSquaddieAction(
+                    MissionCutsceneService.findBattleEventsToActivateBasedOnSquaddieSquaddieAction(
                         {
                             gameEngineState: gameEngineStateWithInjuryCutscene,
                             squaddieChanges: [battleActionSquaddieChange],
@@ -606,8 +640,8 @@ describe("Mission Cutscene Service", () => {
             })
 
             it("will not fire the cutscene if a different squaddie is injured", () => {
-                gameEngineStateWithInjuryCutscene.battleOrchestratorState.battleState.cutsceneTriggers.push(
-                    injuredCutsceneTrigger
+                gameEngineStateWithInjuryCutscene.battleOrchestratorState.battleState.battleEvents.push(
+                    injuredBattleEvent
                 )
 
                 const battleActionSquaddieChange = addDamagingEffect({
@@ -619,12 +653,12 @@ describe("Mission Cutscene Service", () => {
                         actorBattleSquaddieId: attackingBattleSquaddieId,
                         actorContext: targetWasInjuredContext,
                     },
-                    targetBattleSquaddieId: differentSquaddieBattleId,
+                    targetBattleSquaddieId: differentBattleSquaddieId,
                     netDamage: 0,
                 })
 
                 expect(
-                    MissionCutsceneService.findCutsceneTriggersToActivateBasedOnSquaddieSquaddieAction(
+                    MissionCutsceneService.findBattleEventsToActivateBasedOnSquaddieSquaddieAction(
                         {
                             gameEngineState: gameEngineStateWithInjuryCutscene,
                             squaddieChanges: [battleActionSquaddieChange],
@@ -657,11 +691,6 @@ describe("Mission Cutscene Service", () => {
                         expectsTriggers: true,
                     },
                     {
-                        name: "will fire if no turns are specified",
-                        turnCount: 4,
-                        expectsTriggers: true,
-                    },
-                    {
                         name: "not fire before minimumTurns",
                         minimumTurns: 2,
                         turnCount: 1,
@@ -688,7 +717,7 @@ describe("Mission Cutscene Service", () => {
                             maximumTurns,
                             turnCount,
                             gameEngineState: gameEngineStateWithInjuryCutscene,
-                            cutsceneTriggerWithTurns: injuredCutsceneTrigger,
+                            battleEventWithTurns: injuredBattleEvent,
                         })
 
                         BattleActionRecorderService.addReadyToAnimateBattleAction(
@@ -730,11 +759,11 @@ describe("Mission Cutscene Service", () => {
                             })
 
                         const expectedTriggers = expectsTriggers
-                            ? [injuredCutsceneTrigger]
+                            ? [injuredBattleEvent]
                             : []
 
                         expect(
-                            MissionCutsceneService.findCutsceneTriggersToActivateBasedOnSquaddieSquaddieAction(
+                            MissionCutsceneService.findBattleEventsToActivateBasedOnSquaddieSquaddieAction(
                                 {
                                     gameEngineState:
                                         gameEngineStateWithInjuryCutscene,
@@ -754,10 +783,10 @@ describe("Mission Cutscene Service", () => {
         describe("Squaddie Is Dead Cutscene Trigger (via BattleAction)", () => {
             let targetWasDefeatedContext: BattleActionActorContext
             let gameEngineStateWithDefeatCutscene: GameEngineState
-            let deadBattleSquaddieCutsceneTrigger: SquaddieIsDefeatedTrigger
+            let deadBattleSquaddieBattleEvent: BattleEvent
             const deadBattleSquaddieCutsceneId =
                 "squaddie dead by battle squaddie"
-            let deadSquaddieTemplateCutsceneTrigger: SquaddieIsDefeatedTrigger
+            let deadSquaddieTemplateBattleEvent: BattleEvent
             const deadSquaddieTemplateCutsceneId =
                 "squaddie dead by squaddie template"
 
@@ -775,28 +804,47 @@ describe("Mission Cutscene Service", () => {
                     },
                 })
 
-                deadBattleSquaddieCutsceneTrigger = {
-                    triggeringEventType:
-                        TriggeringEventType.SQUADDIE_IS_DEFEATED,
-                    cutsceneId: deadBattleSquaddieCutsceneId,
-                    systemReactedToTrigger: false,
-                    targetingSquaddie: {
-                        battleSquaddieIds: [deadBattleSquaddieId],
-                        squaddieTemplateIds: [],
-                    },
+                deadBattleSquaddieBattleEvent = {
+                    triggers: [
+                        {
+                            ...EventTriggerBaseService.new(
+                                TriggeringEventType.SQUADDIE_IS_DEFEATED
+                            ),
+                            ...EventTriggerSquaddieService.new({
+                                targetingSquaddie:
+                                    EventTriggerSquaddieQueryService.new({
+                                        battleSquaddieIds: [
+                                            deadBattleSquaddieId,
+                                        ],
+                                    }),
+                            }),
+                        },
+                    ],
+                    effect: CutsceneEffectService.new(
+                        deadBattleSquaddieCutsceneId
+                    ),
                 }
 
-                deadSquaddieTemplateCutsceneTrigger = {
-                    triggeringEventType:
-                        TriggeringEventType.SQUADDIE_IS_DEFEATED,
-                    cutsceneId: deadSquaddieTemplateCutsceneId,
-                    systemReactedToTrigger: false,
-                    targetingSquaddie: {
-                        squaddieTemplateIds: [deadSquaddieTemplateId],
-                        battleSquaddieIds: [],
-                    },
+                deadSquaddieTemplateBattleEvent = {
+                    triggers: [
+                        {
+                            ...EventTriggerBaseService.new(
+                                TriggeringEventType.SQUADDIE_IS_DEFEATED
+                            ),
+                            ...EventTriggerSquaddieService.new({
+                                targetingSquaddie:
+                                    EventTriggerSquaddieQueryService.new({
+                                        squaddieTemplateIds: [
+                                            deadSquaddieTemplateId,
+                                        ],
+                                    }),
+                            }),
+                        },
+                    ],
+                    effect: CutsceneEffectService.new(
+                        deadSquaddieTemplateCutsceneId
+                    ),
                 }
-
                 targetWasDefeatedContext = BattleActionActorContextService.new({
                     actingSquaddieModifiers: undefined,
                     actingSquaddieRoll: undefined,
@@ -816,7 +864,7 @@ describe("Mission Cutscene Service", () => {
                                     }),
                                 }),
                                 cutsceneCollection,
-                                cutsceneTriggers: [],
+                                battleEvents: [],
                             }),
                         }
                     ),
@@ -858,7 +906,7 @@ describe("Mission Cutscene Service", () => {
 
                 finderSpy = vi.spyOn(
                     MissionCutsceneService,
-                    "findCutsceneTriggersToActivateBasedOnSquaddieSquaddieAction"
+                    "findBattleEventsToActivateBasedOnSquaddieSquaddieAction"
                 )
 
                 addDamagingEffect({
@@ -886,8 +934,8 @@ describe("Mission Cutscene Service", () => {
             })
 
             it("will fire the cutscene if a squaddie with a matching battle squaddie id is dead", () => {
-                gameEngineStateWithDefeatCutscene.battleOrchestratorState.battleState.cutsceneTriggers.push(
-                    deadBattleSquaddieCutsceneTrigger
+                gameEngineStateWithDefeatCutscene.battleOrchestratorState.battleState.battleEvents.push(
+                    deadBattleSquaddieBattleEvent
                 )
                 instantKillSquaddie({
                     battleSquaddieId: deadBattleSquaddieId,
@@ -909,7 +957,7 @@ describe("Mission Cutscene Service", () => {
                 })
 
                 expect(
-                    MissionCutsceneService.findCutsceneTriggersToActivateBasedOnSquaddieSquaddieAction(
+                    MissionCutsceneService.findBattleEventsToActivateBasedOnSquaddieSquaddieAction(
                         {
                             gameEngineState: gameEngineStateWithDefeatCutscene,
                             squaddieChanges: [battleActionSquaddieChange],
@@ -917,12 +965,12 @@ describe("Mission Cutscene Service", () => {
                                 gameEngineStateWithDefeatCutscene.repository,
                         }
                     )
-                ).toEqual([deadBattleSquaddieCutsceneTrigger])
+                ).toEqual([deadBattleSquaddieBattleEvent])
             })
 
             it("will not fire the cutscene if the squaddie does not die", () => {
-                gameEngineStateWithDefeatCutscene.battleOrchestratorState.battleState.cutsceneTriggers.push(
-                    deadBattleSquaddieCutsceneTrigger
+                gameEngineStateWithDefeatCutscene.battleOrchestratorState.battleState.battleEvents.push(
+                    deadBattleSquaddieBattleEvent
                 )
 
                 const battleActionSquaddieChange = addDamagingEffect({
@@ -939,7 +987,7 @@ describe("Mission Cutscene Service", () => {
                 })
 
                 expect(
-                    MissionCutsceneService.findCutsceneTriggersToActivateBasedOnSquaddieSquaddieAction(
+                    MissionCutsceneService.findBattleEventsToActivateBasedOnSquaddieSquaddieAction(
                         {
                             gameEngineState: gameEngineStateWithDefeatCutscene,
                             squaddieChanges: [battleActionSquaddieChange],
@@ -951,8 +999,8 @@ describe("Mission Cutscene Service", () => {
             })
 
             it("will fire the cutscene if a squaddie with a matching squaddie template id is dead", () => {
-                gameEngineStateWithDefeatCutscene.battleOrchestratorState.battleState.cutsceneTriggers.push(
-                    deadSquaddieTemplateCutsceneTrigger
+                gameEngineStateWithDefeatCutscene.battleOrchestratorState.battleState.battleEvents.push(
+                    deadSquaddieTemplateBattleEvent
                 )
                 instantKillSquaddie({
                     battleSquaddieId: deadBattleSquaddieId,
@@ -974,7 +1022,7 @@ describe("Mission Cutscene Service", () => {
                 })
 
                 expect(
-                    MissionCutsceneService.findCutsceneTriggersToActivateBasedOnSquaddieSquaddieAction(
+                    MissionCutsceneService.findBattleEventsToActivateBasedOnSquaddieSquaddieAction(
                         {
                             gameEngineState: gameEngineStateWithDefeatCutscene,
                             squaddieChanges: [battleActionSquaddieChange],
@@ -982,7 +1030,7 @@ describe("Mission Cutscene Service", () => {
                                 gameEngineStateWithDefeatCutscene.repository,
                         }
                     )
-                ).toEqual([deadSquaddieTemplateCutsceneTrigger])
+                ).toEqual([deadSquaddieTemplateBattleEvent])
             })
 
             describe("cutscene triggers in between minimum and maximum turns if provided", () => {
@@ -1003,11 +1051,6 @@ describe("Mission Cutscene Service", () => {
                     {
                         name: "will fire before maximumTurns",
                         maximumTurns: 5,
-                        turnCount: 4,
-                        expectsTriggers: true,
-                    },
-                    {
-                        name: "will fire if no turns are specified",
                         turnCount: 4,
                         expectsTriggers: true,
                     },
@@ -1038,8 +1081,7 @@ describe("Mission Cutscene Service", () => {
                             maximumTurns,
                             turnCount,
                             gameEngineState: gameEngineStateWithDefeatCutscene,
-                            cutsceneTriggerWithTurns:
-                                deadBattleSquaddieCutsceneTrigger,
+                            battleEventWithTurns: deadBattleSquaddieBattleEvent,
                         })
 
                         instantKillSquaddie({
@@ -1063,11 +1105,11 @@ describe("Mission Cutscene Service", () => {
                         })
 
                         const expectedTriggers = expectsTriggers
-                            ? [deadBattleSquaddieCutsceneTrigger]
+                            ? [deadBattleSquaddieBattleEvent]
                             : []
 
                         expect(
-                            MissionCutsceneService.findCutsceneTriggersToActivateBasedOnSquaddieSquaddieAction(
+                            MissionCutsceneService.findBattleEventsToActivateBasedOnSquaddieSquaddieAction(
                                 {
                                     gameEngineState:
                                         gameEngineStateWithDefeatCutscene,
@@ -1146,25 +1188,27 @@ const setTurnsForTriggerAndGame = ({
     maximumTurns,
     turnCount,
     gameEngineState,
-    cutsceneTriggerWithTurns,
+    battleEventWithTurns,
 }: {
     minimumTurns: number
     maximumTurns: number
     turnCount: number
     gameEngineState: GameEngineState
-    cutsceneTriggerWithTurns: CutsceneTrigger & {
-        minimumTurns?: number
-        maximumTurns?: number
-    }
+    battleEventWithTurns: BattleEvent
 }) => {
-    cutsceneTriggerWithTurns.minimumTurns = minimumTurns
-    cutsceneTriggerWithTurns.maximumTurns = maximumTurns
+    battleEventWithTurns.triggers.push({
+        ...EventTriggerBaseService.new(TriggeringEventType.START_OF_TURN),
+        ...EventTriggerTurnRangeService.new({
+            minimumTurns,
+            maximumTurns,
+        }),
+    })
     gameEngineState.battleOrchestratorState.battleState.battlePhaseState = {
         turnCount,
         currentAffiliation: BattlePhase.PLAYER,
     }
 
-    gameEngineState.battleOrchestratorState.battleState.cutsceneTriggers.push(
-        cutsceneTriggerWithTurns
+    gameEngineState.battleOrchestratorState.battleState.battleEvents.push(
+        battleEventWithTurns
     )
 }

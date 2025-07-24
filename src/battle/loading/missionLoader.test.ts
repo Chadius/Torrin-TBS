@@ -165,8 +165,8 @@ describe("Mission Loader", () => {
                 loadBlocker.resourceKeysToLoad.every((key) => isValidValue(key))
             ).toBeTruthy()
 
-            expect(missionLoaderContext.cutsceneInfo.cutsceneTriggers).toEqual(
-                missionData.cutscene.cutsceneTriggers
+            expect(missionLoaderContext.battleEvents).toEqual(
+                missionData.battleEvents
             )
 
             const introductionCutsceneDirections =

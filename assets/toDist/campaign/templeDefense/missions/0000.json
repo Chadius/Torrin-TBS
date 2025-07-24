@@ -318,75 +318,154 @@
     "PLAYER": "phase banner player",
     "ENEMY": "phase banner enemy"
   },
-  "cutscene": {
-    "cutsceneTriggers": [
-      {
-        "triggeringEventType": "MISSION_VICTORY",
+  "battleEvents": [
+    {
+      "triggers": [
+        {
+          "triggeringEventType": "MISSION_VICTORY",
+          "battleCompletionStatus": "VICTORY"
+        }
+      ],
+      "effect": {
+        "type": "CUTSCENE",
         "cutsceneId": "default_victory"
-      },
-      {
-        "triggeringEventType": "MISSION_DEFEAT",
-        "cutsceneId": "default_defeat"
-      },
-      {
-        "triggeringEventType": "START_OF_TURN",
-        "cutsceneId": "introduction",
-        "exactTurn": 0
-      },
-      {
-        "triggeringEventType": "START_OF_TURN",
-        "cutsceneId": "turn1",
-        "exactTurn": 1
-      },
-      {
-        "triggeringEventType": "START_OF_TURN",
-        "cutsceneId": "turn2",
-        "exactTurn": 2
-      },
-      {
-        "triggeringEventType": "START_OF_TURN",
-        "cutsceneId": "turn3",
-        "exactTurn": 3
-      },
-      {
-        "triggeringEventType": "START_OF_TURN",
-        "cutsceneId": "turn4",
-        "exactTurn": 4
-      },
-      {
-        "triggeringEventType": "START_OF_TURN",
-        "cutsceneId": "turn5",
-        "exactTurn": 5
-      },
-      {
-        "triggeringEventType": "SQUADDIE_IS_INJURED",
-        "cutsceneId": "nahla_is_injured",
-        "targetingSquaddie": {
-          "battleSquaddieIds": [
-            "young_nahla"
-          ]
-        }
-      },
-      {
-        "triggeringEventType": "SQUADDIE_IS_INJURED",
-        "cutsceneId": "sir_camil_is_injured",
-        "targetingSquaddie": {
-          "battleSquaddieIds": [
-            "sir_camil"
-          ]
-        }
-      },
-      {
-        "triggeringEventType": "SQUADDIE_IS_DEFEATED",
-        "cutsceneId": "killed_first_enemy",
-        "targetingSquaddie": {
-          "squaddieTemplateIds": [
-            "enemy_demon_slither",
-            "enemy_demon_locust"
-          ]
-        }
       }
-    ],
+    },
+    {
+      "triggers": [
+        {
+          "triggeringEventType": "MISSION_DEFEAT",
+          "battleCompletionStatus": "DEFEAT"
+        }
+      ],
+      "effect": {
+        "type": "CUTSCENE",
+        "cutsceneId": "default_defeat"
+      }
+    },
+    {
+      "triggers": [
+        {
+          "triggeringEventType": "START_OF_TURN",
+          "exactTurn": 0
+        }
+      ],
+      "effect": {
+        "type": "CUTSCENE",
+        "cutsceneId": "introduction"
+      }
+    },
+    {
+      "triggers": [
+        {
+          "triggeringEventType": "START_OF_TURN",
+          "exactTurn": 1
+        }
+      ],
+      "effect": {
+        "type": "CUTSCENE",
+        "cutsceneId": "turn1"
+      }
+    },
+    {
+      "triggers": [
+        {
+          "triggeringEventType": "START_OF_TURN",
+          "exactTurn": 2
+        }
+      ],
+      "effect": {
+        "type": "CUTSCENE",
+        "cutsceneId": "turn2"
+      }
+    },
+    {
+      "triggers": [
+        {
+          "triggeringEventType": "START_OF_TURN",
+          "exactTurn": 3
+        }
+      ],
+      "effect": {
+        "type": "CUTSCENE",
+        "cutsceneId": "turn3"
+      }
+    },
+    {
+      "triggers": [
+        {
+          "triggeringEventType": "START_OF_TURN",
+          "exactTurn": 4
+        }
+      ],
+      "effect": {
+        "type": "CUTSCENE",
+        "cutsceneId": "turn4"
+      }
+    },
+    {
+      "triggers": [
+        {
+          "triggeringEventType": "START_OF_TURN",
+          "exactTurn": 5
+        }
+      ],
+      "effect": {
+        "type": "CUTSCENE",
+        "cutsceneId": "turn5"
+      }
+    },
+    {
+      "triggers": [
+        {
+          "triggeringEventType": "SQUADDIE_IS_INJURED",
+          "targetingSquaddie": {
+            "battleSquaddieIds": [
+              "young_nahla"
+            ]
+          }
+        }
+      ],
+      "effect": {
+        "type": "CUTSCENE",
+        "cutsceneId": "nahla_is_injured"
+      }
+    },
+    {
+      "triggers": [
+        {
+          "triggeringEventType": "SQUADDIE_IS_INJURED",
+          "targetingSquaddie": {
+            "battleSquaddieIds": [
+              "sir_camil"
+            ]
+          }
+        }
+      ],
+      "effect": {
+        "type": "CUTSCENE",
+        "cutsceneId": "sir_camil_is_injured"
+      }
+    },
+    {
+      "triggers": [
+        {
+          "triggeringEventType": "SQUADDIE_IS_DEFEATED",
+          "targetingSquaddie": {
+            "squaddieTemplateIds": [
+              "enemy_demon_slither",
+              "enemy_demon_locust"
+            ]
+          }
+        }
+      ],
+      "effect": {
+        "type": "CUTSCENE",
+        "cutsceneId": "killed_first_enemy"
+      }
+    }
+  ],
+  "cutscene": {
     "cutsceneById": {
       "default_victory": {
         "directions": [

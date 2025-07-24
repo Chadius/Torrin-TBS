@@ -137,31 +137,61 @@
     "PLAYER": "phase banner player",
     "ENEMY": "phase banner enemy"
   },
-  "cutscene": {
-    "cutsceneTriggers": [
-      {
-        "triggeringEventType": "MISSION_VICTORY",
-        "cutsceneId": "default_victory"
-      },
-      {
-        "triggeringEventType": "MISSION_DEFEAT",
-        "cutsceneId": "default_defeat"
-      },
-      {
-        "triggeringEventType": "START_OF_TURN",
-        "cutsceneId": "introduction",
-        "exactTurn": 0
-      },
-      {
-        "triggeringEventType": "SQUADDIE_IS_DEFEATED",
-        "cutsceneId": "killed_enemy",
-        "targetingSquaddie": {
-          "squaddieTemplateIds": [
-            "enemy_demon_slither"
-          ]
+  "battleEvents": [
+    {
+      "triggers": [
+        {
+          "triggeringEventType": "MISSION_VICTORY",
+          "battleCompletionStatus": "VICTORY"
         }
+      ],
+      "effect": {
+        "type": "CUTSCENE",
+        "cutsceneId": "default_victory"
       }
-    ],
+    },
+    {
+      "triggers": [
+        {
+          "triggeringEventType": "MISSION_DEFEAT",
+          "battleCompletionStatus": "DEFEAT"
+        }
+      ],
+      "effect": {
+        "type": "CUTSCENE",
+        "cutsceneId": "default_defeat"
+      }
+    },
+    {
+      "triggers": [
+        {
+          "triggeringEventType": "START_OF_TURN",
+          "exactTurn": 0
+        }
+      ],
+      "effect": {
+        "type": "CUTSCENE",
+        "cutsceneId": "introduction"
+      }
+    },
+    {
+      "triggers": [
+        {
+          "triggeringEventType": "SQUADDIE_IS_DEFEATED",
+          "targetingSquaddie": {
+            "squaddieTemplateIds": [
+              "enemy_demon_slither"
+            ]
+          }
+        }
+      ],
+      "effect": {
+        "type": "CUTSCENE",
+        "cutsceneId": "killed_enemy"
+      }
+    }
+  ],
+  "cutscene": {
     "cutsceneById": {
       "default_victory": {
         "directions": [

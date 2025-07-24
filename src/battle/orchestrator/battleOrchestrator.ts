@@ -41,7 +41,7 @@ import { BattleCompletionStatus } from "./missionObjectivesAndCutscenes"
 import { GameModeEnum } from "../../utils/startupConfig"
 import { DefaultBattleOrchestrator } from "./defaultBattleOrchestrator"
 import { MissionStatisticsService } from "../missionStatistics/missionStatistics"
-import { CutsceneTrigger } from "../../cutscene/cutsceneTrigger"
+import { BattleEvent } from "../event/battleEvent"
 import { InitializeBattle } from "./initializeBattle"
 import { PlayerHudController } from "../orchestratorComponents/playerHudController"
 import { GraphicsBuffer } from "../../utils/graphics/graphicsRenderer"
@@ -56,6 +56,7 @@ import { ActionSelectedTileService } from "../hud/playerActionPanel/tile/actionS
 import { SquaddieNameAndPortraitTileService } from "../hud/playerActionPanel/tile/squaddieNameAndPortraitTile"
 import { DebugModeMenuService } from "../hud/debugModeMenu/debugModeMenu"
 import { isValidValue } from "../../utils/objectValidityCheck"
+import { BattleEventEffectType } from "../event/battleEventEffect"
 
 export enum BattleOrchestratorMode {
     UNKNOWN = "UNKNOWN",
@@ -582,17 +583,29 @@ export class BattleOrchestrator implements GameEngineComponent {
                 cutsceneId: CutsceneQueueService.peek(
                     gameEngineState.battleOrchestratorState.cutsceneQueue
                 ),
-                cutsceneTrigger:
-                    gameEngineState.battleOrchestratorState.battleState.cutsceneTriggers.find(
-                        (trigger) =>
-                            trigger.cutsceneId ===
+                gameEngineState,
+            })
+
+            const battleEvent =
+                gameEngineState.battleOrchestratorState.battleState.battleEvents
+                    .filter(
+                        (battleEvent) =>
+                            battleEvent.effect.type ===
+                            BattleEventEffectType.CUTSCENE
+                    )
+                    .find((battleEvent) => {
+                        return (
+                            battleEvent.effect.cutsceneId ===
                             CutsceneQueueService.peek(
                                 gameEngineState.battleOrchestratorState
                                     .cutsceneQueue
                             )
-                    ),
-                gameEngineState,
-            })
+                        )
+                    })
+
+            if (battleEvent) {
+                battleEvent.effect.alreadyAppliedEffect = true
+            }
 
             CutsceneQueueService.dequeue(
                 gameEngineState.battleOrchestratorState.cutsceneQueue
@@ -604,15 +617,19 @@ export class BattleOrchestrator implements GameEngineComponent {
             currentComponent.recommendStateChanges(gameEngineState)
         this.checkOnMissionCompletion(orchestrationChanges, gameEngineState)
 
-        const cutsceneTriggersToActivate =
-            this.getCutsceneTriggersToCalculate(gameEngineState)
+        const cutsceneEffectsToActivate = this.getBattleEventsToActivate(
+            gameEngineState
+        ).filter(
+            (battleEvent) =>
+                battleEvent.effect.type === BattleEventEffectType.CUTSCENE
+        )
 
-        if (cutsceneTriggersToActivate.length > 0) {
+        if (cutsceneEffectsToActivate.length > 0) {
             this.prepareToPlayNextTriggeredCutscene({
-                cutsceneTrigger: cutsceneTriggersToActivate[0],
-                cutsceneId: cutsceneTriggersToActivate[0].cutsceneId,
+                cutsceneId: cutsceneEffectsToActivate[0].effect.cutsceneId,
                 gameEngineState,
             })
+            cutsceneEffectsToActivate[0].effect.alreadyAppliedEffect = true
             return
         }
 
@@ -633,20 +650,20 @@ export class BattleOrchestrator implements GameEngineComponent {
         }
     }
 
-    private getCutsceneTriggersToCalculate(gameEngineState: GameEngineState) {
+    private getBattleEventsToActivate(
+        gameEngineState: GameEngineState
+    ): BattleEvent[] {
         return [
-            ...MissionCutsceneService.findCutsceneTriggersToActivateOnStartOfPhase(
-                {
-                    gameEngineState,
-                    battleOrchestratorModeThatJustCompleted: this.mode,
-                    ignoreTurn0Triggers:
-                        gameEngineState.fileState.loadSaveState
-                            .applicationStartedLoad === true &&
-                        gameEngineState.battleOrchestratorState.battleState
-                            .battlePhaseState.turnCount === 0,
-                }
-            ),
-            ...MissionCutsceneService.findCutsceneTriggersToActivateBasedOnVictoryAndDefeat(
+            ...MissionCutsceneService.findBattleEventsToActivateOnStartOfPhase({
+                gameEngineState,
+                battleOrchestratorModeThatJustCompleted: this.mode,
+                ignoreTurn0Triggers:
+                    gameEngineState.fileState.loadSaveState
+                        .applicationStartedLoad === true &&
+                    gameEngineState.battleOrchestratorState.battleState
+                        .battlePhaseState.turnCount === 0,
+            }),
+            ...MissionCutsceneService.findBattleEventsToActivateBasedOnVictoryAndDefeat(
                 gameEngineState,
                 this.mode
             ),
@@ -655,19 +672,12 @@ export class BattleOrchestrator implements GameEngineComponent {
 
     private prepareToPlayNextTriggeredCutscene({
         cutsceneId,
-        cutsceneTrigger,
         gameEngineState,
     }: {
         cutsceneId: string
-        cutsceneTrigger: CutsceneTrigger
         gameEngineState: GameEngineState
     }) {
         this.cutscenePlayer.startCutscene(cutsceneId, gameEngineState)
-
-        if (cutsceneTrigger !== undefined) {
-            cutsceneTrigger.systemReactedToTrigger = true
-        }
-
         this.mode = BattleOrchestratorMode.CUTSCENE_PLAYER
     }
 

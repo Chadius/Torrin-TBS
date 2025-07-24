@@ -8,39 +8,50 @@ export interface EventTriggerSquaddie {
 }
 
 export const EventTriggerSquaddieService = {
+    new: ({
+        targetingSquaddie,
+    }: {
+        targetingSquaddie: EventTriggerSquaddieQuery
+    }): EventTriggerSquaddie => {
+        return sanitizeEventTriggerSquaddie({
+            targetingSquaddie: targetingSquaddie,
+        })
+    },
     sanitize: (eventTrigger: EventTriggerSquaddie) => {
-        eventTrigger.targetingSquaddie = EventTriggerSquaddieQueryService.new()
-        sanitizeEventTriggerSquaddie(eventTrigger)
+        eventTrigger.targetingSquaddie ||= EventTriggerSquaddieQueryService.new(
+            {}
+        )
+        return sanitizeEventTriggerSquaddie(eventTrigger)
     },
     isValidTrigger: (eventTrigger: EventTriggerSquaddie): boolean =>
         isValidTrigger(eventTrigger),
-    targetingHasAtLeastOneBattleSquaddieId: ({
+    shouldTrigger: ({
         eventTrigger,
-        battleSquaddieIds,
+        targetingSquaddie,
     }: {
         eventTrigger: EventTriggerSquaddie
-        battleSquaddieIds: string[]
-    }): boolean =>
-        !isValidTrigger(eventTrigger) ||
-        EventTriggerSquaddieQueryService.hasAtLeastOneBattleSquaddieId({
-            eventTrigger: eventTrigger.targetingSquaddie,
-            battleSquaddieIds,
-        }),
-    targetingHasAtLeastOneSquaddieTemplateId: ({
-        eventTrigger,
-        squaddieTemplateIds,
-    }: {
-        eventTrigger: EventTriggerSquaddie
-        squaddieTemplateIds: string[]
-    }): boolean =>
-        !isValidTrigger(eventTrigger) ||
-        EventTriggerSquaddieQueryService.hasAtLeastOneSquaddieTemplateId({
-            eventTrigger: eventTrigger.targetingSquaddie,
-            squaddieTemplateIds,
-        }),
+        targetingSquaddie: {
+            battleSquaddieIds: string[]
+            squaddieTemplateIds: string[]
+        }
+    }): boolean => {
+        return (
+            EventTriggerSquaddieQueryService.hasAtLeastOneBattleSquaddieId({
+                eventTrigger: eventTrigger.targetingSquaddie,
+                battleSquaddieIds: targetingSquaddie.battleSquaddieIds,
+            }) ||
+            EventTriggerSquaddieQueryService.hasAtLeastOneSquaddieTemplateId({
+                eventTrigger: eventTrigger.targetingSquaddie,
+                squaddieTemplateIds: targetingSquaddie.squaddieTemplateIds,
+            })
+        )
+    },
 }
-const sanitizeEventTriggerSquaddie = (eventTrigger: EventTriggerSquaddie) => {
+const sanitizeEventTriggerSquaddie = (
+    eventTrigger: EventTriggerSquaddie
+): EventTriggerSquaddie => {
     EventTriggerSquaddieQueryService.sanitize(eventTrigger.targetingSquaddie)
+    return eventTrigger
 }
 const isValidTrigger = (eventTrigger: EventTriggerSquaddie): boolean =>
     eventTrigger &&

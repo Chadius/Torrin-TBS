@@ -35,10 +35,6 @@ import {
 } from "../battleSquaddieTeam"
 import { TeamStrategy, TeamStrategyType } from "../teamStrategy/teamStrategy"
 import { MissionCompletionStatus } from "../missionResult/missionCompletionStatus"
-import {
-    CutsceneTrigger,
-    CutsceneTriggerService,
-} from "../../cutscene/cutsceneTrigger"
 import { BattleStateService } from "../battleState/battleState"
 import { DegreeOfSuccess } from "../calculator/actionCalculator/degreeOfSuccess"
 import {
@@ -59,6 +55,12 @@ import { BattleActionActorContextService } from "./battleAction/battleActionActo
 import { RollResultService } from "../calculator/actionCalculator/rollResult"
 import { beforeEach, describe, expect, it } from "vitest"
 import { TriggeringEventType } from "../eventTrigger/triggeringEventType"
+import { BattleEvent } from "../event/battleEvent"
+import { EventTriggerBaseService } from "../eventTrigger/eventTriggerBase"
+import { CutsceneEffectService } from "../../cutscene/cutsceneEffect"
+import { EventTriggerTurnRangeService } from "../eventTrigger/eventTriggerTurnRange"
+import { EventBattleProgressService } from "../eventTrigger/eventBattleProgress"
+import { BattleCompletionStatus } from "../orchestrator/missionObjectivesAndCutscenes"
 
 describe("BattleSaveState", () => {
     let battleActionRecorder: BattleActionRecorder
@@ -839,18 +841,37 @@ describe("BattleSaveState", () => {
         ).toEqual(originalOrchestratorState.battleState.missionCompletionStatus)
     })
 
-    it("updates the completion status on the cutscene triggers", () => {
-        const triggers: CutsceneTrigger[] = [
-            CutsceneTriggerService.new({
-                cutsceneId: "victory",
-                triggeringEventType: TriggeringEventType.MISSION_VICTORY,
-            }),
+    it("updates the completion status on the battle events", () => {
+        const battleEvents: BattleEvent[] = [
             {
-                ...CutsceneTriggerService.new({
-                    cutsceneId: "introduction",
-                    triggeringEventType: TriggeringEventType.START_OF_TURN,
-                }),
-                systemReactedToTrigger: true,
+                triggers: [
+                    {
+                        ...EventTriggerBaseService.new(
+                            TriggeringEventType.MISSION_VICTORY
+                        ),
+                        ...EventBattleProgressService.new({
+                            battleCompletionStatus:
+                                BattleCompletionStatus.VICTORY,
+                        }),
+                    },
+                ],
+                effect: CutsceneEffectService.new("victory"),
+            },
+            {
+                triggers: [
+                    {
+                        ...EventTriggerBaseService.new(
+                            TriggeringEventType.START_OF_TURN
+                        ),
+                        ...EventTriggerTurnRangeService.new({
+                            exactTurn: 0,
+                        }),
+                    },
+                ],
+                effect: {
+                    ...CutsceneEffectService.new("introduction"),
+                    alreadyAppliedEffect: true,
+                },
             },
         ]
 
@@ -859,7 +880,7 @@ describe("BattleSaveState", () => {
                 missionId: "test mission",
                 campaignId: "test campaign",
                 missionMap: NullMissionMap(),
-                cutsceneTriggers: triggers,
+                battleEvents,
                 battlePhaseState: {
                     turnCount: 0,
                     currentAffiliation: BattlePhase.UNKNOWN,
@@ -875,7 +896,7 @@ describe("BattleSaveState", () => {
                 battleOrchestratorState: battleState,
                 repository: ObjectRepositoryService.new(),
             })
-        expect(saveState.cutsceneTriggerCompletion).toEqual(triggers)
+        expect(saveState.battleEvents).toEqual(battleEvents)
 
         const newBattleState: BattleOrchestratorState =
             BattleOrchestratorStateService.new({
@@ -894,15 +915,17 @@ describe("BattleSaveState", () => {
             battleOrchestratorState: newBattleState,
             squaddieRepository: newSquaddieRepository,
         })
+
         expect(
-            newBattleState.battleState.cutsceneTriggers.find(
-                (c) => c.cutsceneId === "victory"
-            ).systemReactedToTrigger
+            battleEvents.find(
+                (battleEvent) => battleEvent.effect.cutsceneId === "victory"
+            ).effect.alreadyAppliedEffect
         ).toBeFalsy()
         expect(
-            newBattleState.battleState.cutsceneTriggers.find(
-                (c) => c.cutsceneId === "introduction"
-            ).systemReactedToTrigger
+            battleEvents.find(
+                (battleEvent) =>
+                    battleEvent.effect.cutsceneId === "introduction"
+            ).effect.alreadyAppliedEffect
         ).toBeTruthy()
     })
 
@@ -925,6 +948,36 @@ describe("BattleSaveState", () => {
                     turn: enemy0BattleSquaddieWithWoundsAndTurnEnded.squaddieTurn,
                 },
             }
+
+            const battleEvents: BattleEvent[] = [
+                {
+                    triggers: [
+                        {
+                            ...EventTriggerBaseService.new(
+                                TriggeringEventType.MISSION_VICTORY
+                            ),
+                            ...EventBattleProgressService.new({
+                                battleCompletionStatus:
+                                    BattleCompletionStatus.VICTORY,
+                            }),
+                        },
+                    ],
+                    effect: CutsceneEffectService.new("default_victory"),
+                },
+                {
+                    triggers: [
+                        {
+                            ...EventTriggerBaseService.new(
+                                TriggeringEventType.START_OF_TURN
+                            ),
+                            ...EventTriggerTurnRangeService.new({
+                                exactTurn: 0,
+                            }),
+                        },
+                    ],
+                    effect: CutsceneEffectService.new("introduction"),
+                },
+            ]
 
             saveData = {
                 campaignId: "test campaign",
@@ -999,21 +1052,7 @@ describe("BattleSaveState", () => {
                         },
                     },
                 },
-                cutsceneTriggerCompletion: [
-                    CutsceneTriggerService.new({
-                        triggeringEventType:
-                            TriggeringEventType.MISSION_VICTORY,
-                        cutsceneId: "default_victory",
-                    }),
-                    {
-                        ...CutsceneTriggerService.new({
-                            triggeringEventType:
-                                TriggeringEventType.START_OF_TURN,
-                            cutsceneId: "introduction",
-                        }),
-                        exactTurn: 0,
-                    },
-                ],
+                battleEvents,
             }
 
             newBattleState = BattleOrchestratorStateService.new({
@@ -1025,21 +1064,7 @@ describe("BattleSaveState", () => {
                             movementCost: ["1 2 - x "],
                         }),
                     }),
-                    cutsceneTriggers: [
-                        CutsceneTriggerService.new({
-                            triggeringEventType:
-                                TriggeringEventType.MISSION_VICTORY,
-                            cutsceneId: "default_victory",
-                        }),
-                        {
-                            ...CutsceneTriggerService.new({
-                                triggeringEventType:
-                                    TriggeringEventType.START_OF_TURN,
-                                cutsceneId: "introduction",
-                            }),
-                            exactTurn: 0,
-                        },
-                    ],
+                    battleEvents,
                     battlePhaseState: {
                         turnCount: 0,
                         currentAffiliation: BattlePhase.UNKNOWN,
@@ -1121,16 +1146,38 @@ describe("BattleSaveState", () => {
                     },
                 },
             }
-            const triggers: CutsceneTrigger[] = [
-                CutsceneTriggerService.new({
-                    cutsceneId: "victory",
-                    triggeringEventType: TriggeringEventType.MISSION_VICTORY,
-                }),
-                CutsceneTriggerService.new({
-                    triggeringEventType: TriggeringEventType.START_OF_TURN,
-                    cutsceneId: "introduction",
-                }),
+
+            const battleEvents: BattleEvent[] = [
+                {
+                    triggers: [
+                        {
+                            ...EventTriggerBaseService.new(
+                                TriggeringEventType.MISSION_VICTORY
+                            ),
+                            ...EventBattleProgressService.new({
+                                battleCompletionStatus:
+                                    BattleCompletionStatus.VICTORY,
+                            }),
+                        },
+                    ],
+                    effect: CutsceneEffectService.new("victory"),
+                },
+                {
+                    triggers: [
+                        {
+                            ...EventTriggerBaseService.new(
+                                TriggeringEventType.START_OF_TURN
+                            ),
+                            ...EventTriggerTurnRangeService.new({
+                                exactTurn: 0,
+                            }),
+                            alreadyAppliedEffect: true,
+                        },
+                    ],
+                    effect: CutsceneEffectService.new("introduction"),
+                },
             ]
+
             const battleOrchestratorState = BattleOrchestratorStateService.new({
                 battleState: BattleStateService.newBattleState({
                     missionId: "test mission",
@@ -1146,7 +1193,7 @@ describe("BattleSaveState", () => {
                     teams: [playerTeam, enemyTeam],
                     teamStrategiesById,
                     missionCompletionStatus,
-                    cutsceneTriggers: triggers,
+                    battleEvents,
                 }),
             })
 
@@ -1202,7 +1249,7 @@ describe("BattleSaveState", () => {
                 missionCompletionStatus
             )
 
-            expect(newSaveData.cutsceneTriggerCompletion).toEqual(triggers)
+            expect(newSaveData.battleEvents).toEqual(battleEvents)
 
             expect(newSaveData.battlePhaseState.turnCount).toBe(
                 battleOrchestratorState.battleState.battlePhaseState.turnCount
