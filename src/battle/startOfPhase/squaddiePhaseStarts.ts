@@ -1,7 +1,5 @@
 import { GameEngineState } from "../../gameEngine/gameEngine"
 import { MessageBoardMessageSquaddiePhaseStarts } from "../../message/messageBoardMessage"
-import { ObjectRepositoryService } from "../objectRepository"
-import { getResultOrThrowError } from "../../utils/ResultOrError"
 import {
     BattlePhase,
     BattlePhaseService,
@@ -20,7 +18,7 @@ export const SquaddiePhaseStartsService = {
         gameEngineState: GameEngineState
         phase: BattlePhase
     }) => {
-        doForEachSquaddieOfBattlePhase(
+        BattlePhaseService.doForEachSquaddieOfBattlePhase(
             gameEngineState,
             phase,
             (battleSquaddie: BattleSquaddie) => {
@@ -31,7 +29,7 @@ export const SquaddiePhaseStartsService = {
     reduceDurationForAttributeModifiers: (
         message: MessageBoardMessageSquaddiePhaseStarts
     ) => {
-        doForEachSquaddieOfBattlePhase(
+        BattlePhaseService.doForEachSquaddieOfBattlePhase(
             message.gameEngineState,
             message.phase,
             (battleSquaddie: BattleSquaddie) => {
@@ -71,7 +69,7 @@ export const SquaddiePhaseStartsService = {
     unTintSquaddieMapIconForEachSquaddieWhoCanAct: (
         message: MessageBoardMessageSquaddiePhaseStarts
     ) => {
-        doForEachSquaddieOfBattlePhase(
+        BattlePhaseService.doForEachSquaddieOfBattlePhase(
             message.gameEngineState,
             message.phase,
             (battleSquaddie: BattleSquaddie) => {
@@ -89,7 +87,7 @@ export const SquaddiePhaseStartsService = {
         gameEngineState: GameEngineState
         phase: BattlePhase
     }) => {
-        doForEachSquaddieOfBattlePhase(
+        BattlePhaseService.doForEachSquaddieOfBattlePhase(
             gameEngineState,
             phase,
             (battleSquaddie: BattleSquaddie) => {
@@ -97,30 +95,4 @@ export const SquaddiePhaseStartsService = {
             }
         )
     },
-}
-
-const doForEachSquaddieOfBattlePhase = (
-    gameEngineState: GameEngineState,
-    phase: BattlePhase,
-    callback: (battleSquaddie: BattleSquaddie) => void
-) => {
-    const squaddieAffiliation =
-        BattlePhaseService.ConvertBattlePhaseToSquaddieAffiliation(phase)
-
-    const squaddieTeams =
-        gameEngineState.battleOrchestratorState.battleState.teams.filter(
-            (team) => team.affiliation === squaddieAffiliation
-        )
-    squaddieTeams.forEach((team) => {
-        team.battleSquaddieIds.forEach((battleSquaddieId) => {
-            const { battleSquaddie } = getResultOrThrowError(
-                ObjectRepositoryService.getSquaddieByBattleId(
-                    gameEngineState.repository,
-                    battleSquaddieId
-                )
-            )
-
-            callback(battleSquaddie)
-        })
-    })
 }

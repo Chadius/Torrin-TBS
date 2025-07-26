@@ -112,23 +112,11 @@ export class BattlePhaseController implements BattleOrchestratorComponent {
         graphicsContext: GraphicsBuffer
         resourceHandler: ResourceHandler
     }): void {
-        if (
-            !this.newBannerShown &&
-            gameEngineState.battleOrchestratorState.battleState.battlePhaseState
-                .currentAffiliation !== BattlePhase.UNKNOWN &&
-            BattleStateService.getCurrentTeam(
-                gameEngineState.battleOrchestratorState.battleState,
-                gameEngineState.repository
-            )
-        ) {
+        if (this.isTeamStillActingAndNoBannerToShow(gameEngineState)) {
             return
         }
 
-        if (
-            this.bannerDisplayAnimationStartTime !== undefined &&
-            Date.now() - this.bannerDisplayAnimationStartTime <
-                BANNER_ANIMATION_TIME
-        ) {
+        if (this.shouldDrawPhaseBanner()) {
             this.draw(
                 gameEngineState.battleOrchestratorState,
                 graphicsContext,
@@ -137,7 +125,80 @@ export class BattlePhaseController implements BattleOrchestratorComponent {
             return
         }
 
-        const phaseIsComplete: boolean =
+        if (!this.shouldPhaseEnd(gameEngineState)) {
+            return
+        }
+
+        this.advanceToNextPhaseAndShowTeamBanner(gameEngineState)
+
+        if (
+            gameEngineState.battleOrchestratorState.battleState.battlePhaseState
+                .currentAffiliation === BattlePhase.PLAYER
+        ) {
+            this.selectFirstControllablePlayerSquaddie(gameEngineState)
+        }
+    }
+
+    private selectFirstControllablePlayerSquaddie(
+        gameEngineState: GameEngineState
+    ) {
+        gameEngineState.messageBoard.sendMessage({
+            type: MessageBoardMessageType.STARTED_PLAYER_PHASE,
+            gameEngineState,
+        })
+
+        const playerTeam = BattleStateService.getCurrentTeam(
+            gameEngineState.battleOrchestratorState.battleState,
+            gameEngineState.repository
+        )
+
+        gameEngineState.messageBoard.sendMessage({
+            type: MessageBoardMessageType.PLAYER_SELECTS_AND_LOCKS_SQUADDIE,
+            gameEngineState,
+            battleSquaddieSelectedId:
+                BattleSquaddieTeamService.getBattleSquaddiesThatCanAct(
+                    playerTeam,
+                    gameEngineState.repository
+                )[0],
+        })
+    }
+
+    private advanceToNextPhaseAndShowTeamBanner(
+        gameEngineState: GameEngineState
+    ) {
+        gameEngineState.messageBoard.sendMessage({
+            type: MessageBoardMessageType.SQUADDIE_PHASE_ENDS,
+            gameEngineState: gameEngineState,
+            phase: gameEngineState.battleOrchestratorState.battleState
+                .battlePhaseState.currentAffiliation,
+        })
+
+        BattlePhaseService.AdvanceToNextPhase(
+            gameEngineState.battleOrchestratorState.battleState
+                .battlePhaseState,
+            gameEngineState.battleOrchestratorState.battleState.teams
+        )
+
+        this.newBannerShown = true
+        this.bannerDisplayAnimationStartTime = Date.now()
+        this.setBannerImage(gameEngineState)
+
+        gameEngineState.messageBoard.sendMessage({
+            type: MessageBoardMessageType.SQUADDIE_PHASE_STARTS,
+            gameEngineState: gameEngineState,
+            phase: gameEngineState.battleOrchestratorState.battleState
+                .battlePhaseState.currentAffiliation,
+        })
+    }
+
+    private shouldPhaseEnd(gameEngineState: GameEngineState): boolean {
+        if (
+            gameEngineState.battleOrchestratorState.battleState.battlePhaseState
+                .currentAffiliation === BattlePhase.UNKNOWN
+        )
+            return true
+
+        return (
             findFirstTeamOfAffiliationThatCanAct(
                 gameEngineState.battleOrchestratorState.battleState.teams,
                 BattlePhaseService.ConvertBattlePhaseToSquaddieAffiliation(
@@ -146,55 +207,29 @@ export class BattlePhaseController implements BattleOrchestratorComponent {
                 ),
                 gameEngineState.repository
             ) === undefined
+        )
+    }
 
-        if (
+    private shouldDrawPhaseBanner() {
+        return (
+            this.bannerDisplayAnimationStartTime !== undefined &&
+            Date.now() - this.bannerDisplayAnimationStartTime <
+                BANNER_ANIMATION_TIME
+        )
+    }
+
+    private isTeamStillActingAndNoBannerToShow(
+        gameEngineState: GameEngineState
+    ) {
+        return (
+            !this.newBannerShown &&
             gameEngineState.battleOrchestratorState.battleState.battlePhaseState
-                .currentAffiliation === BattlePhase.UNKNOWN ||
-            phaseIsComplete
-        ) {
-            gameEngineState.messageBoard.sendMessage({
-                type: MessageBoardMessageType.SQUADDIE_PHASE_ENDS,
-                gameEngineState: gameEngineState,
-                phase: gameEngineState.battleOrchestratorState.battleState
-                    .battlePhaseState.currentAffiliation,
-            })
-
-            this.newBannerShown = true
-            BattlePhaseService.AdvanceToNextPhase(
-                gameEngineState.battleOrchestratorState.battleState
-                    .battlePhaseState,
-                gameEngineState.battleOrchestratorState.battleState.teams
+                .currentAffiliation !== BattlePhase.UNKNOWN &&
+            BattleStateService.getCurrentTeam(
+                gameEngineState.battleOrchestratorState.battleState,
+                gameEngineState.repository
             )
-            this.bannerDisplayAnimationStartTime = Date.now()
-            this.setBannerImage(gameEngineState)
-
-            gameEngineState.messageBoard.sendMessage({
-                type: MessageBoardMessageType.SQUADDIE_PHASE_STARTS,
-                gameEngineState: gameEngineState,
-                phase: gameEngineState.battleOrchestratorState.battleState
-                    .battlePhaseState.currentAffiliation,
-            })
-
-            if (
-                gameEngineState.battleOrchestratorState.battleState
-                    .battlePhaseState.currentAffiliation === BattlePhase.PLAYER
-            ) {
-                gameEngineState.messageBoard.sendMessage({
-                    type: MessageBoardMessageType.STARTED_PLAYER_PHASE,
-                    gameEngineState,
-                })
-
-                const playerTeam = BattleStateService.getCurrentTeam(
-                    gameEngineState.battleOrchestratorState.battleState,
-                    gameEngineState.repository
-                )
-                gameEngineState.messageBoard.sendMessage({
-                    type: MessageBoardMessageType.PLAYER_SELECTS_AND_LOCKS_SQUADDIE,
-                    gameEngineState,
-                    battleSquaddieSelectedId: playerTeam.battleSquaddieIds[0],
-                })
-            }
-        }
+        )
     }
 
     setBannerImage(state: GameEngineState) {

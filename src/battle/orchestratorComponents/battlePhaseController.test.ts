@@ -1,6 +1,9 @@
 import { BattleOrchestratorStateService } from "../orchestrator/battleOrchestratorState"
 import { BattlePhase, BattlePhaseService } from "./battlePhaseTracker"
-import { BattleSquaddieTeam } from "../battleSquaddieTeam"
+import {
+    BattleSquaddieTeam,
+    BattleSquaddieTeamService,
+} from "../battleSquaddieTeam"
 import { ObjectRepository, ObjectRepositoryService } from "../objectRepository"
 import { BattleSquaddie, BattleSquaddieService } from "../battleSquaddie"
 import { SquaddieAffiliation } from "../../squaddie/squaddieAffiliation"
@@ -30,10 +33,10 @@ import { MessageBoardMessageType } from "../../message/messageBoardMessage"
 import { ImageUI, ImageUILoadingBehavior } from "../../ui/imageUI/imageUI"
 import { RectAreaService } from "../../ui/rectArea"
 import { ScreenDimensions } from "../../utils/graphics/graphicsConfig"
-import { beforeEach, describe, expect, it, vi } from "vitest"
+import { beforeEach, describe, expect, it, vi, MockInstance } from "vitest"
 
 describe("BattlePhaseController", () => {
-    let squaddieRepo: ObjectRepository
+    let objectRepository: ObjectRepository
     let battlePhaseController: BattlePhaseController
     let playerSquaddieTeam: BattleSquaddieTeam
     let enemySquaddieTeam: BattleSquaddieTeam
@@ -47,7 +50,7 @@ describe("BattlePhaseController", () => {
 
     beforeEach(() => {
         mockedP5GraphicsContext = new MockedP5GraphicsBuffer()
-        squaddieRepo = ObjectRepositoryService.new()
+        objectRepository = ObjectRepositoryService.new()
 
         playerSquaddieTemplate = SquaddieTemplateService.new({
             squaddieId: {
@@ -69,16 +72,16 @@ describe("BattlePhaseController", () => {
         })
 
         ObjectRepositoryService.addSquaddieTemplate(
-            squaddieRepo,
+            objectRepository,
             playerSquaddieTemplate
         )
         ObjectRepositoryService.addBattleSquaddie(
-            squaddieRepo,
+            objectRepository,
             playerBattleSquaddie
         )
 
         ObjectRepositoryService.addSquaddieTemplate(
-            squaddieRepo,
+            objectRepository,
             SquaddieTemplateService.new({
                 squaddieId: {
                     templateId: "enemy_squaddie",
@@ -94,7 +97,7 @@ describe("BattlePhaseController", () => {
             })
         )
         ObjectRepositoryService.addBattleSquaddie(
-            squaddieRepo,
+            objectRepository,
             BattleSquaddieService.newBattleSquaddie({
                 battleSquaddieId: "enemy_squaddie_0",
                 squaddieTemplateId: "enemy_squaddie",
@@ -129,7 +132,7 @@ describe("BattlePhaseController", () => {
             .mockReturnValue({ width: 32, height: 32 })
 
         gameEngineState = GameEngineStateService.new({
-            repository: squaddieRepo,
+            repository: objectRepository,
             resourceHandler,
             battleOrchestratorState: BattleOrchestratorStateService.new({
                 battleState: BattleStateService.newBattleState({
@@ -183,7 +186,7 @@ describe("BattlePhaseController", () => {
 
     it("starts showing the player phase banner by default", () => {
         const gameEngineState: GameEngineState = GameEngineStateService.new({
-            repository: squaddieRepo,
+            repository: objectRepository,
             resourceHandler,
             battleOrchestratorState: BattleOrchestratorStateService.new({
                 battleState: BattleStateService.newBattleState({
@@ -242,7 +245,7 @@ describe("BattlePhaseController", () => {
 
     it("stops the camera when it displays the banner if it is not the player phase", () => {
         const state: GameEngineState = GameEngineStateService.new({
-            repository: squaddieRepo,
+            repository: objectRepository,
             resourceHandler,
             battleOrchestratorState: BattleOrchestratorStateService.new({
                 battleState: BattleStateService.newBattleState({
@@ -277,6 +280,84 @@ describe("BattlePhaseController", () => {
         ).toEqual({ xVelocity: 0, yVelocity: 0 })
     })
 
+    describe("phase ends and the player phase begins", () => {
+        let messageSpy: MockInstance
+        let playerBattleSquaddie2: BattleSquaddie
+
+        beforeEach(() => {
+            playerBattleSquaddie2 = BattleSquaddieService.new({
+                battleSquaddieId: "playerBattleSquaddie2",
+                squaddieTemplate: playerSquaddieTemplate,
+            })
+            ObjectRepositoryService.addBattleSquaddie(
+                objectRepository,
+                playerBattleSquaddie2
+            )
+            BattleSquaddieTeamService.addBattleSquaddieIds(playerSquaddieTeam, [
+                playerBattleSquaddie2.battleSquaddieId,
+            ])
+
+            messageSpy = vi.spyOn(gameEngineState.messageBoard, "sendMessage")
+
+            gameEngineState.battleOrchestratorState.battleState.battlePhaseState =
+                {
+                    currentAffiliation: BattlePhase.ENEMY,
+                    turnCount: 1,
+                }
+            ;[enemySquaddieTeam].forEach((team) =>
+                team.battleSquaddieIds.forEach((battleSquaddieId) => {
+                    const { battleSquaddie } = getResultOrThrowError(
+                        ObjectRepositoryService.getSquaddieByBattleId(
+                            objectRepository,
+                            battleSquaddieId
+                        )
+                    )
+                    SquaddieTurnService.endTurn(battleSquaddie.squaddieTurn)
+                })
+            )
+        })
+
+        it("should select the first player squaddie", () => {
+            battlePhaseController.update({
+                gameEngineState,
+                graphicsContext: mockedP5GraphicsContext,
+                resourceHandler,
+            })
+
+            expect(messageSpy).toHaveBeenCalledWith(
+                expect.objectContaining({
+                    type: MessageBoardMessageType.PLAYER_SELECTS_AND_LOCKS_SQUADDIE,
+                    battleSquaddieSelectedId:
+                        playerSquaddieTeam.battleSquaddieIds[0],
+                })
+            )
+        })
+
+        it("should not select a player squaddie who cannot act", () => {
+            const { battleSquaddie } = getResultOrThrowError(
+                ObjectRepositoryService.getSquaddieByBattleId(
+                    objectRepository,
+                    playerSquaddieTeam.battleSquaddieIds[0]
+                )
+            )
+            battleSquaddie.inBattleAttributes.currentHitPoints = 0
+
+            battlePhaseController.update({
+                gameEngineState,
+                graphicsContext: mockedP5GraphicsContext,
+                resourceHandler,
+            })
+
+            expect(messageSpy).toHaveBeenCalledWith(
+                expect.objectContaining({
+                    type: MessageBoardMessageType.PLAYER_SELECTS_AND_LOCKS_SQUADDIE,
+                    battleSquaddieSelectedId:
+                        playerSquaddieTeam.battleSquaddieIds[1],
+                })
+            )
+        })
+    })
+
     it("sends a message when the phase changes", () => {
         const messageSpy = vi.spyOn(gameEngineState.messageBoard, "sendMessage")
 
@@ -288,7 +369,7 @@ describe("BattlePhaseController", () => {
             team.battleSquaddieIds.forEach((battleSquaddieId) => {
                 const { battleSquaddie } = getResultOrThrowError(
                     ObjectRepositoryService.getSquaddieByBattleId(
-                        squaddieRepo,
+                        objectRepository,
                         battleSquaddieId
                     )
                 )
@@ -336,7 +417,7 @@ describe("BattlePhaseController", () => {
 
             const { battleSquaddie: battleSquaddie0 } = getResultOrThrowError(
                 ObjectRepositoryService.getSquaddieByBattleId(
-                    squaddieRepo,
+                    objectRepository,
                     "player_squaddie_0"
                 )
             )
@@ -378,7 +459,7 @@ describe("BattlePhaseController", () => {
 
     it("only draws the banner while the timer is going", () => {
         const gameEngineState: GameEngineState = GameEngineStateService.new({
-            repository: squaddieRepo,
+            repository: objectRepository,
             resourceHandler,
             battleOrchestratorState: BattleOrchestratorStateService.new({
                 battleState: BattleStateService.newBattleState({
@@ -473,6 +554,7 @@ describe("BattlePhaseController", () => {
     describe("multiple teams of the same affiliation", () => {
         let playerTeam2: BattleSquaddieTeam
         let playerBattleSquaddie2: BattleSquaddie
+        let gameEngineState: GameEngineState
 
         beforeEach(() => {
             playerBattleSquaddie2 = BattleSquaddieService.newBattleSquaddie({
@@ -482,7 +564,7 @@ describe("BattlePhaseController", () => {
             })
 
             ObjectRepositoryService.addBattleSquaddie(
-                squaddieRepo,
+                objectRepository,
                 playerBattleSquaddie2
             )
 
@@ -495,43 +577,40 @@ describe("BattlePhaseController", () => {
             }
 
             teams.push(playerTeam2)
+
+            gameEngineState = GameEngineStateService.new({
+                repository: objectRepository,
+                resourceHandler,
+                battleOrchestratorState: BattleOrchestratorStateService.new({
+                    battleState: BattleStateService.newBattleState({
+                        missionId: "test mission",
+                        campaignId: "test campaign",
+                        teams,
+                        missionMap: MissionMapService.new({
+                            terrainTileMap: TerrainTileMapService.new({
+                                movementCost: ["1 1 1 "],
+                            }),
+                        }),
+                        battlePhaseState: {
+                            currentAffiliation: BattlePhase.PLAYER,
+                            turnCount: 0,
+                        },
+                    }),
+                }),
+            })
         })
 
         it("will stay with the current affiliation if the current team is done", () => {
             playerSquaddieTeam.battleSquaddieIds.forEach((battleSquaddieId) => {
                 const { battleSquaddie } = getResultOrThrowError(
                     ObjectRepositoryService.getSquaddieByBattleId(
-                        squaddieRepo,
+                        objectRepository,
                         battleSquaddieId
                     )
                 )
                 SquaddieTurnService.endTurn(battleSquaddie.squaddieTurn)
             })
 
-            const gameEngineState: GameEngineState = GameEngineStateService.new(
-                {
-                    repository: squaddieRepo,
-                    resourceHandler,
-                    battleOrchestratorState: BattleOrchestratorStateService.new(
-                        {
-                            battleState: BattleStateService.newBattleState({
-                                missionId: "test mission",
-                                campaignId: "test campaign",
-                                teams,
-                                missionMap: MissionMapService.new({
-                                    terrainTileMap: TerrainTileMapService.new({
-                                        movementCost: ["1 1 1 "],
-                                    }),
-                                }),
-                                battlePhaseState: {
-                                    currentAffiliation: BattlePhase.PLAYER,
-                                    turnCount: 0,
-                                },
-                            }),
-                        }
-                    ),
-                }
-            )
             battlePhaseController = new BattlePhaseController()
             battlePhaseController.update({
                 gameEngineState,
@@ -555,7 +634,7 @@ describe("BattlePhaseController", () => {
                 team.battleSquaddieIds.forEach((battleSquaddieId) => {
                     const { battleSquaddie } = getResultOrThrowError(
                         ObjectRepositoryService.getSquaddieByBattleId(
-                            squaddieRepo,
+                            objectRepository,
                             battleSquaddieId
                         )
                     )
@@ -563,30 +642,6 @@ describe("BattlePhaseController", () => {
                 })
             )
 
-            const gameEngineState: GameEngineState = GameEngineStateService.new(
-                {
-                    repository: squaddieRepo,
-                    resourceHandler,
-                    battleOrchestratorState: BattleOrchestratorStateService.new(
-                        {
-                            battleState: BattleStateService.newBattleState({
-                                missionId: "test mission",
-                                campaignId: "test campaign",
-                                teams,
-                                missionMap: MissionMapService.new({
-                                    terrainTileMap: TerrainTileMapService.new({
-                                        movementCost: ["1 1 1 "],
-                                    }),
-                                }),
-                                battlePhaseState: {
-                                    currentAffiliation: BattlePhase.PLAYER,
-                                    turnCount: 0,
-                                },
-                            }),
-                        }
-                    ),
-                }
-            )
             battlePhaseController = new BattlePhaseController()
             battlePhaseController.update({
                 gameEngineState,

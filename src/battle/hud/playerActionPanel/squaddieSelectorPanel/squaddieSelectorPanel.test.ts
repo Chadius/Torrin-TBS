@@ -445,5 +445,23 @@ describe("Squaddie Selector Panel", () => {
                 })
             )
         })
+
+        it("will not send a message to select the squaddie if the squaddie is dead", () => {
+            const { battleSquaddie } = getResultOrThrowError(
+                ObjectRepositoryService.getSquaddieByBattleId(
+                    objectRepository,
+                    playerTeam.battleSquaddieIds[1]
+                )
+            )
+            battleSquaddie.inBattleAttributes.currentHitPoints = 0
+
+            clickOnButton(1)
+            expect(messageSpy).not.toBeCalledWith(
+                expect.objectContaining({
+                    type: MessageBoardMessageType.PLAYER_SELECTS_AND_LOCKS_SQUADDIE,
+                    battleSquaddieSelectedId: playerTeam.battleSquaddieIds[1],
+                })
+            )
+        })
     })
 })

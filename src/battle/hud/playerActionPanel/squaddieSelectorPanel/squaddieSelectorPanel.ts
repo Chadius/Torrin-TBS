@@ -134,21 +134,24 @@ export const SquaddieSelectorPanelService = {
         )
 
         if (clickedButton == undefined) return
-
-        selectSquaddie(
-            squaddieSelectorPanel,
+        const clickedBattleSquaddieId =
             SquaddieSelectorPanelButtonService.getBattleSquaddieId(
                 clickedButton
             )
+        if (
+            !isSquaddieSelectable({
+                battleSquaddieId: clickedBattleSquaddieId,
+                objectRepository: gameEngineState.repository,
+            })
         )
+            return
+
+        selectSquaddie(squaddieSelectorPanel, clickedBattleSquaddieId)
 
         gameEngineState.messageBoard.sendMessage({
             type: MessageBoardMessageType.PLAYER_SELECTS_AND_LOCKS_SQUADDIE,
             gameEngineState,
-            battleSquaddieSelectedId:
-                SquaddieSelectorPanelButtonService.getBattleSquaddieId(
-                    clickedButton
-                ),
+            battleSquaddieSelectedId: clickedBattleSquaddieId,
         })
     },
     getSelectedBattleSquaddieId: (
@@ -165,6 +168,25 @@ export const SquaddieSelectorPanelService = {
             selectedButton
         )
     },
+}
+
+const isSquaddieSelectable = ({
+    battleSquaddieId,
+    objectRepository,
+}: {
+    battleSquaddieId: string
+    objectRepository: ObjectRepository
+}): boolean => {
+    const { battleSquaddie, squaddieTemplate } = getResultOrThrowError(
+        ObjectRepositoryService.getSquaddieByBattleId(
+            objectRepository,
+            battleSquaddieId
+        )
+    )
+    return !SquaddieService.canSquaddieActRightNow({
+        squaddieTemplate,
+        battleSquaddie,
+    }).isDead
 }
 
 const selectSquaddie = (

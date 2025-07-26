@@ -214,24 +214,25 @@ export const BattleHUDService = {
         const gameEngineState = message.gameEngineState
         const battleSquaddieId = message.battleSquaddieSelectedId
 
-        gameEngineState.battleOrchestratorState.battleHUDState.summaryHUDState =
-            SummaryHUDStateService.new()
-        gameEngineState.battleOrchestratorState.battleState.playerConsideredActions =
-            PlayerConsideredActionsService.new()
-
         const { squaddieTemplate, battleSquaddie } = getResultOrThrowError(
             ObjectRepositoryService.getSquaddieByBattleId(
                 gameEngineState.repository,
                 battleSquaddieId
             )
         )
-        const {
-            squaddieIsNormallyControllableByPlayer,
-            playerCanControlThisSquaddieRightNow,
-        } = SquaddieService.canPlayerControlSquaddieRightNow({
-            squaddieTemplate,
-            battleSquaddie,
-        })
+
+        if (
+            SquaddieService.canSquaddieActRightNow({
+                battleSquaddie,
+                squaddieTemplate,
+            }).isDead
+        )
+            return
+
+        gameEngineState.battleOrchestratorState.battleHUDState.summaryHUDState =
+            SummaryHUDStateService.new()
+        gameEngineState.battleOrchestratorState.battleState.playerConsideredActions =
+            PlayerConsideredActionsService.new()
 
         OrchestratorUtilities.highlightSquaddieRange({
             battleSquaddieToHighlightId: battleSquaddieId,
@@ -241,6 +242,14 @@ export const BattleHUDService = {
             squaddieAllMovementCache:
                 gameEngineState.battleOrchestratorState.cache
                     .searchResultsCache,
+        })
+
+        const {
+            squaddieIsNormallyControllableByPlayer,
+            playerCanControlThisSquaddieRightNow,
+        } = SquaddieService.canPlayerControlSquaddieRightNow({
+            squaddieTemplate,
+            battleSquaddie,
         })
 
         if (playerCanControlThisSquaddieRightNow) {
