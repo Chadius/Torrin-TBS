@@ -47,6 +47,10 @@ import { AttributeTypeAndAmount } from "../../../squaddie/attribute/attributeTyp
 import { HexCoordinate } from "../../../hexMap/hexCoordinate/hexCoordinate"
 import { BattleActionRecorder } from "../../history/battleAction/battleActionRecorder"
 import { NumberGeneratorStrategy } from "../../numberGenerator/strategy"
+import {
+    ChallengeModifierSetting,
+    ChallengeModifierSettingService,
+} from "../../challengeModifier/challengeModifierSetting"
 
 export interface CalculatedEffect {
     damage: DamageExplanation
@@ -71,6 +75,7 @@ export const ActionCalculator = {
         battleActionRecorder,
         numberGenerator,
         missionStatistics,
+        challengeModifierSetting,
     }: {
         battleActionRecorder: BattleActionRecorder
         numberGenerator: NumberGeneratorStrategy
@@ -78,6 +83,7 @@ export const ActionCalculator = {
         missionMap: MissionMap
         objectRepository: ObjectRepository
         missionStatistics: MissionStatistics
+        challengeModifierSetting: ChallengeModifierSetting
     }): CalculatedResult =>
         calculateResults({
             battleActionRecorder,
@@ -85,25 +91,37 @@ export const ActionCalculator = {
             battleActionDecisionStep,
             missionMap,
             objectRepository,
+            challengeModifierSetting,
             actionEffectChangeGenerator: ({
                 actionEffectTemplate,
                 actorBattleSquaddie,
                 targetedBattleSquaddieIds,
-                actorSquaddieTemplate,
+                challengeModifierSetting,
             }: {
                 actionEffectTemplate: ActionEffectTemplate
                 actorBattleSquaddie: BattleSquaddie
-                actorSquaddieTemplate: SquaddieTemplate
                 targetedBattleSquaddieIds: string[]
+                challengeModifierSetting: ChallengeModifierSetting
             }): ActionEffectChange => {
                 const change: ActionEffectChange =
                     applySquaddieChangesForThisEffectSquaddieTemplate({
-                        targetedBattleSquaddieIds,
-                        actionEffectTemplate,
-                        actorBattleSquaddie,
-                        actorSquaddieTemplate,
+                        actorInfo: {
+                            actorBattleSquaddieId:
+                                actorBattleSquaddie.battleSquaddieId,
+                        },
+                        targetInfo: {
+                            targetedBattleSquaddieIds,
+                        },
+                        actionInfo: {
+                            actionTemplateId:
+                                BattleActionDecisionStepService.getAction(
+                                    battleActionDecisionStep
+                                ).actionTemplateId,
+                            actionEffectTemplate,
+                        },
                         battleActionRecorder,
                         numberGenerator,
+                        challengeModifierSetting,
                         objectRepository,
                     })
 
@@ -139,6 +157,7 @@ export const ActionCalculator = {
             objectRepository,
             battleActionRecorder,
             numberGenerator,
+            challengeModifierSetting: ChallengeModifierSettingService.new(),
             actionEffectChangeGenerator: ({
                 actionEffectTemplate,
                 actorBattleSquaddie,
@@ -214,19 +233,53 @@ const getTargetContext = ({
 }
 
 const getDegreeOfSuccessExplanation = ({
-    actionEffectTemplate,
-    targetBattleSquaddie,
-    actorContext,
-    actorBattleSquaddie,
-    targetSquaddieTemplate,
+    actorInfo: { actorContext, actorBattleSquaddieId },
+    targetInfo: { targetBattleSquaddieId },
+    actionInfo: { actionEffectTemplate, actionTemplateId },
+    challengeModifierSetting,
+    objectRepository,
 }: {
-    actionEffectTemplate: ActionEffectTemplate
-    targetBattleSquaddie: BattleSquaddie
-    actorBattleSquaddie: BattleSquaddie
-    actorContext: BattleActionActorContext
-    targetSquaddieTemplate: SquaddieTemplate
+    actorInfo: {
+        actorContext: BattleActionActorContext
+        actorBattleSquaddieId: string
+    }
+    targetInfo: {
+        targetBattleSquaddieId: string
+    }
+    actionInfo: {
+        actionTemplateId: string
+        actionEffectTemplate: ActionEffectTemplate
+    }
+    challengeModifierSetting: ChallengeModifierSetting
+    objectRepository: ObjectRepository
 }): DegreeOfSuccess => {
+    const { battleSquaddie: actorBattleSquaddie } = getResultOrThrowError(
+        ObjectRepositoryService.getSquaddieByBattleId(
+            objectRepository,
+            actorBattleSquaddieId
+        )
+    )
+    const {
+        battleSquaddie: targetBattleSquaddie,
+        squaddieTemplate: targetSquaddieTemplate,
+    } = getResultOrThrowError(
+        ObjectRepositoryService.getSquaddieByBattleId(
+            objectRepository,
+            targetBattleSquaddieId
+        )
+    )
+
     if (isAnAttack(actionEffectTemplate)) {
+        const { didPreempt, newDegreeOfSuccess } =
+            ChallengeModifierSettingService.preemptDegreeOfSuccessCalculation({
+                challengeModifierSetting,
+                objectRepository,
+                actorBattleSquaddieId,
+                targetBattleSquaddieId: targetBattleSquaddieId,
+                actionTemplateId: actionTemplateId,
+            })
+        if (didPreempt) return newDegreeOfSuccess
+
         return CalculatorAttack.getDegreeOfSuccess({
             actorBattleSquaddie,
             actionEffectTemplate,
@@ -531,12 +584,14 @@ const calculateResults = ({
     missionMap,
     battleActionRecorder,
     numberGenerator,
+    challengeModifierSetting,
 }: {
     battleActionDecisionStep: BattleActionDecisionStep
     objectRepository: ObjectRepository
     missionMap: MissionMap
     battleActionRecorder: BattleActionRecorder
     numberGenerator: NumberGeneratorStrategy
+    challengeModifierSetting: ChallengeModifierSetting
     actionEffectChangeGenerator: ({
         actionEffectTemplate,
         actorBattleSquaddie,
@@ -545,6 +600,7 @@ const calculateResults = ({
         battleActionRecorder,
         numberGenerator,
         objectRepository,
+        challengeModifierSetting,
     }: {
         actionEffectTemplate: ActionEffectTemplate
         actorBattleSquaddie: BattleSquaddie
@@ -553,6 +609,7 @@ const calculateResults = ({
         battleActionRecorder: BattleActionRecorder
         numberGenerator: NumberGeneratorStrategy
         objectRepository: ObjectRepository
+        challengeModifierSetting: ChallengeModifierSetting
     }) => ActionEffectChange
 }): CalculatedResult => {
     const actorBattleSquaddieId = BattleActionDecisionStepService.getActor(
@@ -609,6 +666,7 @@ const calculateResults = ({
                     battleActionRecorder,
                     numberGenerator,
                     objectRepository,
+                    challengeModifierSetting,
                 })
 
                 allChanges.push(change)
@@ -783,22 +841,36 @@ const getAllPossibleDegreesOfSuccess = ({
 }
 
 const applySquaddieChangesForThisEffectSquaddieTemplate = ({
-    actionEffectTemplate,
-    actorBattleSquaddie,
-    targetedBattleSquaddieIds,
-    actorSquaddieTemplate,
+    actorInfo: { actorBattleSquaddieId },
+    targetInfo: { targetedBattleSquaddieIds },
+    actionInfo: { actionTemplateId, actionEffectTemplate },
     battleActionRecorder,
     numberGenerator,
     objectRepository,
+    challengeModifierSetting,
 }: {
-    targetedBattleSquaddieIds: string[]
-    actionEffectTemplate: ActionEffectTemplate
-    actorBattleSquaddie: BattleSquaddie
-    actorSquaddieTemplate: SquaddieTemplate
+    actorInfo: {
+        actorBattleSquaddieId: string
+    }
+    targetInfo: {
+        targetedBattleSquaddieIds: string[]
+    }
+    actionInfo: {
+        actionTemplateId: string
+        actionEffectTemplate: ActionEffectTemplate
+    }
     battleActionRecorder: BattleActionRecorder
     numberGenerator: NumberGeneratorStrategy
+    challengeModifierSetting: ChallengeModifierSetting
     objectRepository: ObjectRepository
 }): ActionEffectChange => {
+    const { squaddieTemplate: actorSquaddieTemplate } = getResultOrThrowError(
+        ObjectRepositoryService.getSquaddieByBattleId(
+            objectRepository,
+            actorBattleSquaddieId
+        )
+    )
+
     const actorContext = getActorContext({
         battleActionRecorder,
         numberGenerator,
@@ -828,13 +900,22 @@ const applySquaddieChangesForThisEffectSquaddieTemplate = ({
                     actionEffectTemplate,
                     targetBattleSquaddie,
                 })
-                const degreeOfSuccess = getDegreeOfSuccessExplanation({
-                    actorBattleSquaddie,
-                    actionEffectTemplate,
-                    targetBattleSquaddie,
-                    targetSquaddieTemplate,
-                    actorContext,
-                })
+                const degreeOfSuccess: DegreeOfSuccess =
+                    getDegreeOfSuccessExplanation({
+                        actorInfo: {
+                            actorContext,
+                            actorBattleSquaddieId,
+                        },
+                        targetInfo: {
+                            targetBattleSquaddieId: targetedBattleSquaddieId,
+                        },
+                        actionInfo: {
+                            actionTemplateId,
+                            actionEffectTemplate,
+                        },
+                        challengeModifierSetting,
+                        objectRepository,
+                    })
 
                 const calculatedEffect: CalculatedEffect =
                     calculateEffectBasedOnDegreeOfSuccess({

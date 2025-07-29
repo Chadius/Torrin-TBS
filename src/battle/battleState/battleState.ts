@@ -57,6 +57,10 @@ import { SearchPathAdapter } from "../../search/searchPathAdapter/searchPathAdap
 import { BattleActionsDuringTurnService } from "../history/battleAction/battleActionsDuringTurn"
 import { HexCoordinateService } from "../../hexMap/hexCoordinate/hexCoordinate"
 import { SearchResultsCacheService } from "../../hexMap/pathfinder/searchResults/searchResultsCache"
+import {
+    ChallengeModifierSetting,
+    ChallengeModifierSettingService,
+} from "../challengeModifier/challengeModifierSetting"
 
 export enum BattleStateValidityMissingComponent {
     MISSION_MAP = "MISSION_MAP",
@@ -77,6 +81,7 @@ export interface BattleState extends MissionObjectivesAndCutscenes {
     missionCompletionStatus: MissionCompletionStatus
     missionStatistics: MissionStatistics
     battleActionDecisionStep: BattleActionDecisionStep
+    challengeModifierSetting: ChallengeModifierSetting
 }
 
 export const BattleStateService = {
@@ -212,6 +217,7 @@ interface BattleStateConstructorParameters {
     battleCompletionStatus?: BattleCompletionStatus
     battleActionRecorder?: BattleActionRecorder
     battleActionDecisionStep?: BattleActionDecisionStep
+    challengeModifierSetting?: ChallengeModifierSetting
 }
 
 const newBattleState = ({
@@ -230,6 +236,7 @@ const newBattleState = ({
     teamStrategiesById,
     battleActionRecorder,
     battleActionDecisionStep,
+    challengeModifierSetting,
 }: BattleStateConstructorParameters): BattleState => {
     const missionObjectivesAndCutscenes =
         MissionObjectivesAndCutscenesHelper.new({
@@ -260,6 +267,8 @@ const newBattleState = ({
         battleActionDecisionStep:
             battleActionDecisionStep ?? BattleActionDecisionStepService.new(),
         playerConsideredActions: PlayerConsideredActionsService.new(),
+        challengeModifierSetting:
+            challengeModifierSetting ?? ChallengeModifierSettingService.new(),
     }
 }
 

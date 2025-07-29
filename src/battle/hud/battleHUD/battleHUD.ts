@@ -452,6 +452,7 @@ export const BattleHUDService = {
                 battleActionRecorder: message.battleActionRecorder,
                 numberGenerator: message.numberGenerator,
                 missionStatistics: message.missionStatistics,
+                challengeModifierSetting: message.challengeModifierSetting,
             })
 
         BattleActionDecisionStepService.confirmAlreadyConsideredTarget({

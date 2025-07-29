@@ -21,19 +21,13 @@ export const BattleActionActorContextService = {
         actingSquaddieModifiers?: AttributeTypeAndAmount[]
         actingSquaddieRoll?: RollResult
         targetSquaddieModifiers?: {
-            [squaddieId: string]: AttributeTypeAndAmount[]
+            [_: string]: AttributeTypeAndAmount[]
         }
     }): BattleActionActorContext =>
         newBattleActionActionContext({
             actingSquaddieModifiers,
             actingSquaddieRoll,
             targetSquaddieModifiers,
-        }),
-    clone: (original: BattleActionActorContext): BattleActionActorContext =>
-        newBattleActionActionContext({
-            actingSquaddieModifiers: original.actorAttributeModifiers,
-            actingSquaddieRoll: original.actorRoll,
-            targetSquaddieModifiers: original.targetAttributeModifiers,
         }),
 }
 
@@ -45,7 +39,7 @@ const newBattleActionActionContext = ({
     actingSquaddieModifiers?: AttributeTypeAndAmount[]
     actingSquaddieRoll?: RollResult
     targetSquaddieModifiers?: {
-        [squaddieId: string]: AttributeTypeAndAmount[]
+        [_: string]: AttributeTypeAndAmount[]
     }
 }): BattleActionActorContext => ({
     actorAttributeModifiers: actingSquaddieModifiers ?? [],

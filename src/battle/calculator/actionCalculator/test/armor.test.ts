@@ -48,6 +48,7 @@ import { TargetConstraintsService } from "../../../../action/targetConstraints"
 import { beforeEach, describe, expect, it } from "vitest"
 import { AttributeType } from "../../../../squaddie/attribute/attributeType"
 import { MissionStatisticsService } from "../../../missionStatistics/missionStatistics"
+import { ChallengeModifierSettingService } from "../../../challengeModifier/challengeModifierSetting"
 
 describe("Armor Attribute affects Armor Attacks", () => {
     let actingSquaddie: BattleSquaddie
@@ -201,6 +202,7 @@ describe("Armor Attribute affects Armor Attacks", () => {
                     .battleActionRecorder,
             numberGenerator,
             missionStatistics: MissionStatisticsService.new({}),
+            challengeModifierSetting: ChallengeModifierSettingService.new(),
         })
 
         expect(
@@ -281,6 +283,7 @@ describe("Armor Attribute affects Armor Attacks", () => {
                     .battleActionRecorder,
             numberGenerator,
             missionStatistics: MissionStatisticsService.new({}),
+            challengeModifierSetting: ChallengeModifierSettingService.new(),
         })
 
         expect(

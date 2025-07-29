@@ -603,6 +603,9 @@ export class BattleComputerSquaddieSelector
                             missionStatistics:
                                 gameEngineState.battleOrchestratorState
                                     .battleState.missionStatistics,
+                            challengeModifierSetting:
+                                gameEngineState.battleOrchestratorState
+                                    .battleState.challengeModifierSetting,
                         }).changesPerEffect.forEach((result) => {
                             battleActions.push(
                                 BattleActionService.new({

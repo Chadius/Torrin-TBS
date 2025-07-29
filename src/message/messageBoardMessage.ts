@@ -25,6 +25,7 @@ import { PlayerCommandState } from "../battle/hud/playerCommand/playerCommandHUD
 import { BattleState } from "../battle/battleState/battleState"
 import { SearchResultsCache } from "../hexMap/pathfinder/searchResults/searchResultsCache"
 import { Glossary } from "../campaign/glossary/glossary"
+import { ChallengeModifierSetting } from "../battle/challengeModifier/challengeModifierSetting"
 
 export type MessageBoardMessage =
     | MessageBoardMessageBase
@@ -217,6 +218,7 @@ export interface MessageBoardMessagePlayerConfirmsAction {
     battleActionRecorder: BattleActionRecorder
     numberGenerator: NumberGeneratorStrategy
     missionStatistics: MissionStatistics
+    challengeModifierSetting: ChallengeModifierSetting
 }
 
 export interface MessageBoardMessageSquaddiePhaseStarts {

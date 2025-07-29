@@ -24,6 +24,7 @@ import {
 } from "../../hexMap/pathfinder/searchResults/searchResultsCache"
 import { Glossary } from "../../campaign/glossary/glossary"
 import { DebugModeMenuService } from "../hud/debugModeMenu/debugModeMenu"
+import { ChallengeModifierSetting } from "../challengeModifier/challengeModifierSetting"
 
 export type BattleCache = {
     searchResultsCache: SearchResultsCache
@@ -51,6 +52,7 @@ export class BattleOrchestratorState {
         battleHUDState?: BattleHUDState
         battleHUD?: BattleHUD
         cutsceneIdsToPlay?: string[]
+        challengeModifierSetting?: ChallengeModifierSetting
     }) {
         this.battleState = battleState
         this.battleHUD = getValidValueOrDefault(
