@@ -1,6 +1,6 @@
 import {
     MissionObjective,
-    MissionObjectiveHelper,
+    MissionObjectiveService,
 } from "../missionResult/missionObjective"
 import { MissionRewardType } from "../missionResult/missionReward"
 import {
@@ -51,7 +51,7 @@ export const MissionObjectivesAndCutscenesHelper = {
                 objectives && objectives.length > 0
                     ? objectives
                     : [
-                          MissionObjectiveHelper.validateMissionObjective({
+                          MissionObjectiveService.validateMissionObjective({
                               id: "default",
                               reward: { rewardType: MissionRewardType.VICTORY },
                               conditions: [],

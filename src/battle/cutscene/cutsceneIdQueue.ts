@@ -1,3 +1,6 @@
+import { BattleEvent } from "../event/battleEvent"
+import { CutsceneEffect } from "../../cutscene/cutsceneEffect"
+
 export interface CutsceneIdQueue {
     cutsceneIds: string[]
 }
@@ -28,6 +31,14 @@ export const CutsceneQueueService = {
     addList: (cutsceneQueue: CutsceneIdQueue, cutscenes: string[]) => {
         cutscenes.forEach((cutscene) =>
             cutsceneQueue.cutsceneIds.push(cutscene)
+        )
+    },
+    processBattleEvents: (
+        cutsceneQueue: CutsceneIdQueue,
+        battleEvents: (BattleEvent & { effect: CutsceneEffect })[]
+    ) => {
+        battleEvents.forEach((battleEvent) =>
+            cutsceneQueue.cutsceneIds.push(battleEvent.effect.cutsceneId)
         )
     },
 }

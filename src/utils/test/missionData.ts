@@ -24,11 +24,11 @@ import {
 } from "../../action/template/actionTemplate"
 import { ArmyAttributesService } from "../../squaddie/armyAttributes"
 import { CoordinateGeneratorShape } from "../../battle/targeting/coordinateGenerator"
-import { TriggeringEventType } from "../../battle/eventTrigger/triggeringEventType"
-import { EventTriggerBaseService } from "../../battle/eventTrigger/eventTriggerBase"
+import { TriggeringEventType } from "../../battle/event/eventTrigger/triggeringEventType"
+import { EventTriggerBaseService } from "../../battle/event/eventTrigger/eventTriggerBase"
 import { CutsceneEffectService } from "../../cutscene/cutsceneEffect"
-import { EventTriggerTurnRangeService } from "../../battle/eventTrigger/eventTriggerTurnRange"
-import { EventBattleProgressService } from "../../battle/eventTrigger/eventBattleProgress"
+import { EventTriggerTurnRangeService } from "../../battle/event/eventTrigger/eventTriggerTurnRange"
+import { EventTriggerBattleCompletionStatusService } from "../../battle/event/eventTrigger/eventTriggerBattleCompletionStatus"
 import { BattleCompletionStatus } from "../../battle/orchestrator/missionObjectivesAndCutscenes"
 
 export const TestMissionData = () => {
@@ -279,7 +279,7 @@ export const TestMissionData = () => {
                         ...EventTriggerBaseService.new(
                             TriggeringEventType.MISSION_VICTORY
                         ),
-                        ...EventBattleProgressService.new({
+                        ...EventTriggerBattleCompletionStatusService.new({
                             battleCompletionStatus:
                                 BattleCompletionStatus.VICTORY,
                         }),
@@ -293,7 +293,7 @@ export const TestMissionData = () => {
                         ...EventTriggerBaseService.new(
                             TriggeringEventType.MISSION_DEFEAT
                         ),
-                        ...EventBattleProgressService.new({
+                        ...EventTriggerBattleCompletionStatusService.new({
                             battleCompletionStatus:
                                 BattleCompletionStatus.DEFEAT,
                         }),

@@ -54,13 +54,14 @@ import {
 import { BattleActionActorContextService } from "./battleAction/battleActionActorContext"
 import { RollResultService } from "../calculator/actionCalculator/rollResult"
 import { beforeEach, describe, expect, it } from "vitest"
-import { TriggeringEventType } from "../eventTrigger/triggeringEventType"
+import { TriggeringEventType } from "../event/eventTrigger/triggeringEventType"
 import { BattleEvent } from "../event/battleEvent"
-import { EventTriggerBaseService } from "../eventTrigger/eventTriggerBase"
+import { EventTriggerBaseService } from "../event/eventTrigger/eventTriggerBase"
 import { CutsceneEffectService } from "../../cutscene/cutsceneEffect"
-import { EventTriggerTurnRangeService } from "../eventTrigger/eventTriggerTurnRange"
-import { EventBattleProgressService } from "../eventTrigger/eventBattleProgress"
+import { EventTriggerTurnRangeService } from "../event/eventTrigger/eventTriggerTurnRange"
+import { EventTriggerBattleCompletionStatusService } from "../event/eventTrigger/eventTriggerBattleCompletionStatus"
 import { BattleCompletionStatus } from "../orchestrator/missionObjectivesAndCutscenes"
+import { BattleEventEffectType } from "../event/battleEventEffect"
 
 describe("BattleSaveState", () => {
     let battleActionRecorder: BattleActionRecorder
@@ -849,7 +850,7 @@ describe("BattleSaveState", () => {
                         ...EventTriggerBaseService.new(
                             TriggeringEventType.MISSION_VICTORY
                         ),
-                        ...EventBattleProgressService.new({
+                        ...EventTriggerBattleCompletionStatusService.new({
                             battleCompletionStatus:
                                 BattleCompletionStatus.VICTORY,
                         }),
@@ -918,13 +919,18 @@ describe("BattleSaveState", () => {
 
         expect(
             battleEvents.find(
-                (battleEvent) => battleEvent.effect.cutsceneId === "victory"
+                (battleEvent) =>
+                    (battleEvent.effect.type ===
+                        BattleEventEffectType.CUTSCENE &&
+                        battleEvent.effect.cutsceneId) === "victory"
             ).effect.alreadyAppliedEffect
         ).toBeFalsy()
         expect(
             battleEvents.find(
                 (battleEvent) =>
-                    battleEvent.effect.cutsceneId === "introduction"
+                    (battleEvent.effect.type ===
+                        BattleEventEffectType.CUTSCENE &&
+                        battleEvent.effect.cutsceneId) === "introduction"
             ).effect.alreadyAppliedEffect
         ).toBeTruthy()
     })
@@ -956,7 +962,7 @@ describe("BattleSaveState", () => {
                             ...EventTriggerBaseService.new(
                                 TriggeringEventType.MISSION_VICTORY
                             ),
-                            ...EventBattleProgressService.new({
+                            ...EventTriggerBattleCompletionStatusService.new({
                                 battleCompletionStatus:
                                     BattleCompletionStatus.VICTORY,
                             }),
@@ -1154,7 +1160,7 @@ describe("BattleSaveState", () => {
                             ...EventTriggerBaseService.new(
                                 TriggeringEventType.MISSION_VICTORY
                             ),
-                            ...EventBattleProgressService.new({
+                            ...EventTriggerBattleCompletionStatusService.new({
                                 battleCompletionStatus:
                                     BattleCompletionStatus.VICTORY,
                             }),

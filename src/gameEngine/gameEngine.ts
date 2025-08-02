@@ -48,7 +48,6 @@ import { MessageBoard } from "../message/messageBoard"
 import { MessageBoardMessageType } from "../message/messageBoardMessage"
 import { PlayerHudController } from "../battle/orchestratorComponents/playerHudController"
 import { GraphicsBuffer } from "../utils/graphics/graphicsRenderer"
-import { CutsceneMessageListener } from "../battle/cutscene/missionCutsceneService"
 import { BattleStateListener } from "../battle/battleState/battleState"
 import { SquaddiePhaseListener } from "../battle/startOfPhase/squaddiePhaseListener"
 import { PlayerDecisionHUDListener } from "../battle/hud/playerActionPanel/playerDecisionHUD"
@@ -59,6 +58,7 @@ import {
 import { PlayerDataMessageListener } from "../dataLoader/playerData/playerDataMessageListener"
 import { BattleHUDListener } from "../battle/hud/battleHUD/battleHUDListener"
 import { PlayerActionTargetSelect } from "../battle/orchestratorComponents/playerActionTargetSelect/playerActionTargetSelect"
+import { BattleEventMessageListener } from "../battle/event/battleEventMessageListener"
 
 export interface GameEngineState {
     modeThatInitiatedLoading: GameModeEnum
@@ -194,6 +194,9 @@ export class GameEngine {
             squaddieUsesActionOnSquaddie:
                 new BattleSquaddieUsesActionOnSquaddie(),
             playerHudController: new PlayerHudController(),
+            battleEventMessageListener: new BattleEventMessageListener(
+                "battleEventMessageListener"
+            ),
         })
 
         await this.lazyLoadResourceHandler({
@@ -310,6 +313,9 @@ export class GameEngine {
             campaign: undefined,
         })
         this.addMessageListeners()
+        this.battleOrchestrator.battleEventMessageListener.setCutsceneQueue(
+            this.gameEngineState.battleOrchestratorState.cutsceneQueue
+        )
     }
 
     private addMessageListeners() {
@@ -362,17 +368,13 @@ export class GameEngine {
                 messageBoardMessageType
             )
         })
-
-        const cutsceneMessageListener = new CutsceneMessageListener(
-            "cutsceneMessageListener"
-        )
-
         ;[
             MessageBoardMessageType.SQUADDIE_IS_INJURED,
             MessageBoardMessageType.SQUADDIE_IS_DEFEATED,
+            MessageBoardMessageType.SQUADDIE_PHASE_STARTS,
         ].forEach((messageBoardMessageType) => {
             this.gameEngineState.messageBoard.addListener(
-                cutsceneMessageListener,
+                this._battleOrchestrator.battleEventMessageListener,
                 messageBoardMessageType
             )
         })

@@ -2,7 +2,7 @@ import * as mc from "./missionCondition"
 import { MissionCondition, MissionConditionType } from "./missionCondition"
 import { BattleOrchestratorStateService } from "../orchestrator/battleOrchestratorState"
 import { MissionRewardType } from "./missionReward"
-import { MissionObjectiveHelper } from "./missionObjective"
+import { MissionObjectiveService } from "./missionObjective"
 import { BattleStateService } from "../battleState/battleState"
 import {
     GameEngineState,
@@ -26,7 +26,7 @@ describe("Mission Objective", () => {
     }
 
     it("is complete when some of the conditions are complete", () => {
-        const objective = MissionObjectiveHelper.validateMissionObjective({
+        const objective = MissionObjectiveService.validateMissionObjective({
             id: "test objective",
             reward: { rewardType: MissionRewardType.VICTORY },
             hasGivenReward: false,
@@ -74,7 +74,7 @@ describe("Mission Objective", () => {
             test2: undefined,
         })
         expect(
-            MissionObjectiveHelper.shouldBeComplete(objective, state)
+            MissionObjectiveService.shouldBeComplete(objective, state)
         ).toBeFalsy()
 
         vi.clearAllMocks()
@@ -84,12 +84,12 @@ describe("Mission Objective", () => {
             test2: undefined,
         })
         expect(
-            MissionObjectiveHelper.shouldBeComplete(objective, state)
+            MissionObjectiveService.shouldBeComplete(objective, state)
         ).toBeTruthy()
     })
 
     it("is can use ALL to indicate all conditions need to be complete", () => {
-        const objective = MissionObjectiveHelper.validateMissionObjective({
+        const objective = MissionObjectiveService.validateMissionObjective({
             id: "test objective",
             reward: { rewardType: MissionRewardType.VICTORY },
             hasGivenReward: false,
@@ -117,7 +117,7 @@ describe("Mission Objective", () => {
         })
         expect(objective.numberOfRequiredConditionsToComplete).toBe(3)
         expect(
-            MissionObjectiveHelper.allConditionsAreRequiredToCompleteObjective(
+            MissionObjectiveService.allConditionsAreRequiredToCompleteObjective(
                 objective
             )
         ).toBeTruthy()
@@ -143,7 +143,7 @@ describe("Mission Objective", () => {
             }),
         })
         expect(
-            MissionObjectiveHelper.shouldBeComplete(objective, state)
+            MissionObjectiveService.shouldBeComplete(objective, state)
         ).toBeFalsy()
 
         vi.clearAllMocks()
@@ -153,7 +153,7 @@ describe("Mission Objective", () => {
             test2: undefined,
         })
         expect(
-            MissionObjectiveHelper.shouldBeComplete(objective, state)
+            MissionObjectiveService.shouldBeComplete(objective, state)
         ).toBeFalsy()
 
         vi.clearAllMocks()
@@ -163,12 +163,12 @@ describe("Mission Objective", () => {
             test2: true,
         })
         expect(
-            MissionObjectiveHelper.shouldBeComplete(objective, state)
+            MissionObjectiveService.shouldBeComplete(objective, state)
         ).toBeTruthy()
     })
 
     it("will default to all conditions required when an amount is not given", () => {
-        const objective = MissionObjectiveHelper.validateMissionObjective({
+        const objective = MissionObjectiveService.validateMissionObjective({
             id: "test objective",
             reward: { rewardType: MissionRewardType.VICTORY },
             numberOfRequiredConditionsToComplete: "ALL",
@@ -195,7 +195,7 @@ describe("Mission Objective", () => {
         })
         expect(objective.numberOfRequiredConditionsToComplete).toBe(3)
         expect(
-            MissionObjectiveHelper.allConditionsAreRequiredToCompleteObjective(
+            MissionObjectiveService.allConditionsAreRequiredToCompleteObjective(
                 objective
             )
         ).toBeTruthy()
@@ -221,7 +221,7 @@ describe("Mission Objective", () => {
             }),
         })
         expect(
-            MissionObjectiveHelper.shouldBeComplete(objective, state)
+            MissionObjectiveService.shouldBeComplete(objective, state)
         ).toBeFalsy()
 
         vi.clearAllMocks()
@@ -231,12 +231,12 @@ describe("Mission Objective", () => {
             test2: true,
         })
         expect(
-            MissionObjectiveHelper.shouldBeComplete(objective, state)
+            MissionObjectiveService.shouldBeComplete(objective, state)
         ).toBeTruthy()
     })
 
     it("is complete if it was already completed", () => {
-        const objective = MissionObjectiveHelper.validateMissionObjective({
+        const objective = MissionObjectiveService.validateMissionObjective({
             id: "test objective",
             reward: { rewardType: MissionRewardType.VICTORY },
             hasGivenReward: false,
@@ -283,12 +283,12 @@ describe("Mission Objective", () => {
             test2: false,
         })
         expect(
-            MissionObjectiveHelper.shouldBeComplete(objective, state)
+            MissionObjectiveService.shouldBeComplete(objective, state)
         ).toBeTruthy()
     })
 
     it("knows if it gave a reward", () => {
-        const objective = MissionObjectiveHelper.validateMissionObjective({
+        const objective = MissionObjectiveService.validateMissionObjective({
             id: "test objective",
             reward: { rewardType: MissionRewardType.VICTORY },
             numberOfRequiredConditionsToComplete: 0,
@@ -302,7 +302,7 @@ describe("Mission Objective", () => {
     })
 
     it("is complete if there are no conditions", () => {
-        const objective = MissionObjectiveHelper.validateMissionObjective({
+        const objective = MissionObjectiveService.validateMissionObjective({
             id: "test objective",
             reward: { rewardType: MissionRewardType.VICTORY },
             hasGivenReward: false,
@@ -328,7 +328,7 @@ describe("Mission Objective", () => {
             }),
         })
         expect(
-            MissionObjectiveHelper.shouldBeComplete(objective, state)
+            MissionObjectiveService.shouldBeComplete(objective, state)
         ).toBeTruthy()
     })
 })

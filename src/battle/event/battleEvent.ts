@@ -1,37 +1,48 @@
-import { EventTriggerBase } from "../eventTrigger/eventTriggerBase"
+import { EventTriggerBase } from "./eventTrigger/eventTriggerBase"
 import {
     EventTriggerSquaddie,
     EventTriggerSquaddieService,
-} from "../eventTrigger/eventTriggerSquaddie"
+} from "./eventTrigger/eventTriggerSquaddie"
 import {
     EventTriggerTurnRange,
     EventTriggerTurnRangeService,
-} from "../eventTrigger/eventTriggerTurnRange"
-import { TriggeringEventType } from "../eventTrigger/triggeringEventType"
+} from "./eventTrigger/eventTriggerTurnRange"
+import { TriggeringEventType } from "./eventTrigger/triggeringEventType"
 import { isValidValue } from "../../utils/objectValidityCheck"
 import { BattleCompletionStatus } from "../orchestrator/missionObjectivesAndCutscenes"
 import {
-    EventBattleProgress,
-    EventBattleProgressService,
-} from "../eventTrigger/eventBattleProgress"
+    EventTriggerBattleCompletionStatus,
+    EventTriggerBattleCompletionStatusService,
+} from "./eventTrigger/eventTriggerBattleCompletionStatus"
 import {
     BattleEventEffectState,
     BattleEventEffectStateService,
 } from "./battleEventEffectState"
 import { CutsceneEffect } from "../../cutscene/cutsceneEffect"
+import { ChallengeModifierEffect } from "./eventEffect/challengeModifierEffect/challengeModifierEffect"
 
-export type BattleEventEffect = CutsceneEffect
+export type BattleEventEffect = CutsceneEffect | ChallengeModifierEffect
 
 type BattleEventTrigger =
     | (EventTriggerBase & EventTriggerSquaddie)
     | (EventTriggerBase & EventTriggerTurnRange)
-    | (EventTriggerBase & EventBattleProgress)
+    | (EventTriggerBase & EventTriggerBattleCompletionStatus)
 
 export interface BattleEvent {
     triggers: BattleEventTrigger[]
     effect: BattleEventEffect & BattleEventEffectState
 }
 
+export type BattleEventTriggerSquaddiesContext = {
+    injured?: {
+        battleSquaddieIds: string[]
+        squaddieTemplateIds: string[]
+    }
+    defeated?: {
+        battleSquaddieIds: string[]
+        squaddieTemplateIds: string[]
+    }
+}
 export const BattleEventService = {
     new: ({
         triggers,
@@ -48,22 +59,16 @@ export const BattleEventService = {
     sanitize: (event: BattleEvent): BattleEvent => sanitize(event),
     areTriggersSatisfied: ({
         battleEvent,
-        context: { squaddies, turnCount, battleCompletionStatus },
+        context: { squaddies, turn, battleCompletionStatus },
     }: {
         battleEvent: BattleEvent
         context: {
-            turnCount?: number
-            battleCompletionStatus?: BattleCompletionStatus
-            squaddies?: {
-                injured?: {
-                    battleSquaddieIds: string[]
-                    squaddieTemplateIds: string[]
-                }
-                defeated?: {
-                    battleSquaddieIds: string[]
-                    squaddieTemplateIds: string[]
-                }
+            turn?: {
+                turnCount?: number
+                ignoreTurn0?: boolean
             }
+            battleCompletionStatus?: BattleCompletionStatus
+            squaddies?: BattleEventTriggerSquaddiesContext
         }
     }): boolean => {
         if (!isValidValue(battleEvent)) return false
@@ -73,7 +78,8 @@ export const BattleEventService = {
                 case TriggeringEventType.START_OF_TURN:
                     return EventTriggerTurnRangeService.shouldTrigger({
                         eventTrigger: eventTrigger as EventTriggerTurnRange,
-                        turnCount,
+                        turnCount: turn?.turnCount,
+                        ignoreTurn0: turn?.ignoreTurn0,
                     })
                 case TriggeringEventType.SQUADDIE_IS_DEFEATED:
                     return (
@@ -93,10 +99,13 @@ export const BattleEventService = {
                     )
                 case TriggeringEventType.MISSION_DEFEAT:
                 case TriggeringEventType.MISSION_VICTORY:
-                    return EventBattleProgressService.shouldTrigger({
-                        eventTrigger: eventTrigger as EventBattleProgress,
-                        battleCompletionStatus,
-                    })
+                    return EventTriggerBattleCompletionStatusService.shouldTrigger(
+                        {
+                            eventTrigger:
+                                eventTrigger as EventTriggerBattleCompletionStatus,
+                            battleCompletionStatus,
+                        }
+                    )
             }
         })
     },
@@ -159,8 +168,8 @@ const sanitize = (event: BattleEvent): BattleEvent => {
             case TriggeringEventType.MISSION_VICTORY:
                 return {
                     ...trigger,
-                    ...EventBattleProgressService.sanitize(
-                        trigger as EventBattleProgress
+                    ...EventTriggerBattleCompletionStatusService.sanitize(
+                        trigger as EventTriggerBattleCompletionStatus
                     ),
                 }
             default:

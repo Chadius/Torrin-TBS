@@ -1,26 +1,28 @@
-import { BattleCompletionStatus } from "../orchestrator/missionObjectivesAndCutscenes"
+import { BattleCompletionStatus } from "../../orchestrator/missionObjectivesAndCutscenes"
 
-export interface EventBattleProgress {
+export interface EventTriggerBattleCompletionStatus {
     battleCompletionStatus: BattleCompletionStatus
 }
 
-export const EventBattleProgressService = {
+export const EventTriggerBattleCompletionStatusService = {
     new: ({
         battleCompletionStatus,
     }: {
         battleCompletionStatus: BattleCompletionStatus
-    }): EventBattleProgress =>
+    }): EventTriggerBattleCompletionStatus =>
         sanitize({
             battleCompletionStatus,
         }),
-    sanitize: (event: EventBattleProgress): EventBattleProgress =>
-        sanitize(event),
-    isValid: (event: EventBattleProgress): boolean => isValid(event),
+    sanitize: (
+        event: EventTriggerBattleCompletionStatus
+    ): EventTriggerBattleCompletionStatus => sanitize(event),
+    isValid: (event: EventTriggerBattleCompletionStatus): boolean =>
+        isValid(event),
     shouldTrigger: ({
         eventTrigger,
         battleCompletionStatus,
     }: {
-        eventTrigger: EventBattleProgress
+        eventTrigger: EventTriggerBattleCompletionStatus
         battleCompletionStatus: BattleCompletionStatus
     }): boolean => {
         switch (eventTrigger.battleCompletionStatus) {
@@ -33,10 +35,12 @@ export const EventBattleProgressService = {
     },
 }
 
-const isValid = (event: EventBattleProgress): boolean =>
+const isValid = (event: EventTriggerBattleCompletionStatus): boolean =>
     !!event?.battleCompletionStatus
 
-const sanitize = (event: EventBattleProgress): EventBattleProgress => {
+const sanitize = (
+    event: EventTriggerBattleCompletionStatus
+): EventTriggerBattleCompletionStatus => {
     if (!event.battleCompletionStatus) {
         throw new Error("EventBattleProgress requires a BattleCompletionStatus")
     }

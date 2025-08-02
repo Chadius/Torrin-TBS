@@ -7,12 +7,12 @@ import {
     MockInstance,
     vi,
 } from "vitest"
-import { TriggeringEventType } from "../eventTrigger/triggeringEventType"
+import { TriggeringEventType } from "./eventTrigger/triggeringEventType"
 import { BattleEvent, BattleEventService } from "./battleEvent"
-import { EventTriggerBaseService } from "../eventTrigger/eventTriggerBase"
-import { EventTriggerTurnRangeService } from "../eventTrigger/eventTriggerTurnRange"
-import { EventTriggerSquaddieService } from "../eventTrigger/eventTriggerSquaddie"
-import { EventBattleProgressService } from "../eventTrigger/eventBattleProgress"
+import { EventTriggerBaseService } from "./eventTrigger/eventTriggerBase"
+import { EventTriggerTurnRangeService } from "./eventTrigger/eventTriggerTurnRange"
+import { EventTriggerSquaddieService } from "./eventTrigger/eventTriggerSquaddie"
+import { EventTriggerBattleCompletionStatusService } from "./eventTrigger/eventTriggerBattleCompletionStatus"
 import { BattleCompletionStatus } from "../orchestrator/missionObjectivesAndCutscenes"
 import { CutsceneEffectService } from "../../cutscene/cutsceneEffect"
 
@@ -79,7 +79,7 @@ describe("BattleEvent", () => {
             squaddieSpy = vi.spyOn(EventTriggerSquaddieService, "shouldTrigger")
             turnSpy = vi.spyOn(EventTriggerTurnRangeService, "shouldTrigger")
             battleProgressSpy = vi.spyOn(
-                EventBattleProgressService,
+                EventTriggerBattleCompletionStatusService,
                 "shouldTrigger"
             )
             battleEvent = BattleEventService.new({
@@ -103,7 +103,7 @@ describe("BattleEvent", () => {
                         ...EventTriggerBaseService.new(
                             TriggeringEventType.MISSION_VICTORY
                         ),
-                        ...EventBattleProgressService.new({
+                        ...EventTriggerBattleCompletionStatusService.new({
                             battleCompletionStatus:
                                 BattleCompletionStatus.VICTORY,
                         }),
@@ -127,7 +127,9 @@ describe("BattleEvent", () => {
                 BattleEventService.areTriggersSatisfied({
                     battleEvent,
                     context: {
-                        turnCount: 0,
+                        turn: {
+                            turnCount: 0,
+                        },
                         squaddies: {
                             injured: {
                                 battleSquaddieIds: ["battleSquaddieId"],
@@ -154,7 +156,9 @@ describe("BattleEvent", () => {
                 BattleEventService.areTriggersSatisfied({
                     battleEvent,
                     context: {
-                        turnCount: 0,
+                        turn: {
+                            turnCount: 0,
+                        },
                         squaddies: {
                             injured: {
                                 battleSquaddieIds: ["battleSquaddieId"],
@@ -174,7 +178,9 @@ describe("BattleEvent", () => {
                 BattleEventService.areTriggersSatisfied({
                     battleEvent,
                     context: {
-                        turnCount: 0,
+                        turn: {
+                            turnCount: 0,
+                        },
                         squaddies: {
                             injured: {
                                 battleSquaddieIds: ["battleSquaddieId"],

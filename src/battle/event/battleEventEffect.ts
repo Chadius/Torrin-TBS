@@ -1,5 +1,6 @@
 export enum BattleEventEffectType {
     CUTSCENE = "CUTSCENE",
+    CHALLENGE_MODIFIER = "CHALLENGE_MODIFIER",
 }
 
 export interface BattleEventEffectBase {

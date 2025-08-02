@@ -38,6 +38,7 @@ import {
 } from "../history/battleAction/battleAction"
 import { BattleActionRecorderService } from "../history/battleAction/battleActionRecorder"
 import { beforeEach, describe, expect, it } from "vitest"
+import { BattleEventMessageListener } from "../event/battleEventMessageListener"
 
 describe("PlayerHUDController", () => {
     let gameEngineState: GameEngineState
@@ -83,6 +84,9 @@ describe("PlayerHUDController", () => {
             squaddieUsesActionOnSquaddie: undefined,
             playerActionTargetSelect: undefined,
             playerHudController: controller,
+            battleEventMessageListener: new BattleEventMessageListener(
+                "battleEventMessageListener"
+            ),
         })
 
         orchestrator.mode = BattleOrchestratorMode.PLAYER_HUD_CONTROLLER

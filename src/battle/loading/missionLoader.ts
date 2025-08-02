@@ -8,7 +8,7 @@ import {
 import { TerrainTileMapService } from "../../hexMap/terrainTileMap"
 import {
     MissionObjective,
-    MissionObjectiveHelper,
+    MissionObjectiveService,
 } from "../missionResult/missionObjective"
 import {
     MissionCutsceneCollection,
@@ -120,7 +120,7 @@ export const MissionLoader = {
         })
 
         missionLoaderContext.objectives = missionData.objectives.map(
-            MissionObjectiveHelper.validateMissionObjective
+            MissionObjectiveService.validateMissionObjective
         )
 
         missionLoaderContext.completionProgress.loadedFileData = true

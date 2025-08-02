@@ -24,7 +24,7 @@ import {
 import { UIControlSettings } from "./uiControlSettings"
 import { BattleComputerSquaddieSelector } from "../orchestratorComponents/battleComputerSquaddieSelector"
 import { MouseButton } from "../../utils/mouseConfig"
-import { MissionObjectiveHelper } from "../missionResult/missionObjective"
+import { MissionObjectiveService } from "../missionResult/missionObjective"
 import { Cutscene, CutsceneService } from "../../cutscene/cutscene"
 import { BattleCompletionStatus } from "./missionObjectivesAndCutscenes"
 import {
@@ -70,12 +70,13 @@ import { SquaddieResourceService } from "../../squaddie/resource"
 import { BattleSquaddieService } from "../battleSquaddie"
 import { GraphicsBuffer } from "../../utils/graphics/graphicsRenderer"
 import { PlayerActionTargetSelect } from "../orchestratorComponents/playerActionTargetSelect/playerActionTargetSelect"
-import { TriggeringEventType } from "../eventTrigger/triggeringEventType"
+import { TriggeringEventType } from "../event/eventTrigger/triggeringEventType"
 import { BattleEvent, BattleEventService } from "../event/battleEvent"
-import { EventTriggerBaseService } from "../eventTrigger/eventTriggerBase"
-import { EventTriggerTurnRangeService } from "../eventTrigger/eventTriggerTurnRange"
+import { EventTriggerBaseService } from "../event/eventTrigger/eventTriggerBase"
+import { EventTriggerTurnRangeService } from "../event/eventTrigger/eventTriggerTurnRange"
 import { CutsceneEffectService } from "../../cutscene/cutsceneEffect"
-import { EventBattleProgressService } from "../eventTrigger/eventBattleProgress"
+import { EventTriggerBattleCompletionStatusService } from "../event/eventTrigger/eventTriggerBattleCompletionStatus"
+import { BattleEventMessageListener } from "../event/battleEventMessageListener"
 
 describe("Battle Orchestrator", () => {
     type OrchestratorTestOptions = {
@@ -281,6 +282,9 @@ describe("Battle Orchestrator", () => {
                 phaseController: mockPhaseController,
                 playerHudController: mockPlayerHudController,
                 playerActionTargetSelect: mockPlayerActionTargetSelect,
+                battleEventMessageListener: new BattleEventMessageListener(
+                    "battleEventMessageListener"
+                ),
             },
             ...overrides,
         })
@@ -443,6 +447,10 @@ describe("Battle Orchestrator", () => {
             repository: ObjectRepositoryService.new(),
         })
 
+        orchestrator.battleEventMessageListener.setCutsceneQueue(
+            stateWithCutscene.battleOrchestratorState.cutsceneQueue
+        )
+
         const cutsceneSpy: MockInstance = vi.spyOn(
             orchestrator.cutscenePlayer,
             "startCutscene"
@@ -504,10 +512,12 @@ describe("Battle Orchestrator", () => {
                                     ...EventTriggerBaseService.new(
                                         TriggeringEventType.MISSION_VICTORY
                                     ),
-                                    ...EventBattleProgressService.new({
-                                        battleCompletionStatus:
-                                            BattleCompletionStatus.VICTORY,
-                                    }),
+                                    ...EventTriggerBattleCompletionStatusService.new(
+                                        {
+                                            battleCompletionStatus:
+                                                BattleCompletionStatus.VICTORY,
+                                        }
+                                    ),
                                 },
                             ],
                             effect: CutsceneEffectService.new("victory"),
@@ -623,7 +633,7 @@ describe("Battle Orchestrator", () => {
     })
 
     it("will move from squaddie move mode to player hud mode", () => {
-        vi.spyOn(MissionObjectiveHelper, "shouldBeComplete").mockReturnValue(
+        vi.spyOn(MissionObjectiveService, "shouldBeComplete").mockReturnValue(
             false
         )
 
@@ -795,7 +805,7 @@ describe("Battle Orchestrator", () => {
                             }),
                         }),
                         objectives: [
-                            MissionObjectiveHelper.validateMissionObjective({
+                            MissionObjectiveService.validateMissionObjective({
                                 id: "test",
                                 reward: {
                                     rewardType: MissionRewardType.VICTORY,
@@ -818,10 +828,12 @@ describe("Battle Orchestrator", () => {
                                         ...EventTriggerBaseService.new(
                                             TriggeringEventType.MISSION_VICTORY
                                         ),
-                                        ...EventBattleProgressService.new({
-                                            battleCompletionStatus:
-                                                BattleCompletionStatus.VICTORY,
-                                        }),
+                                        ...EventTriggerBattleCompletionStatusService.new(
+                                            {
+                                                battleCompletionStatus:
+                                                    BattleCompletionStatus.VICTORY,
+                                            }
+                                        ),
                                     },
                                 ],
                                 effect: CutsceneEffectService.new(
@@ -853,7 +865,7 @@ describe("Battle Orchestrator", () => {
                             }),
                         }),
                         objectives: [
-                            MissionObjectiveHelper.validateMissionObjective({
+                            MissionObjectiveService.validateMissionObjective({
                                 id: "test",
                                 reward: {
                                     rewardType: MissionRewardType.DEFEAT,
@@ -876,10 +888,12 @@ describe("Battle Orchestrator", () => {
                                         ...EventTriggerBaseService.new(
                                             TriggeringEventType.MISSION_DEFEAT
                                         ),
-                                        ...EventBattleProgressService.new({
-                                            battleCompletionStatus:
-                                                BattleCompletionStatus.DEFEAT,
-                                        }),
+                                        ...EventTriggerBattleCompletionStatusService.new(
+                                            {
+                                                battleCompletionStatus:
+                                                    BattleCompletionStatus.DEFEAT,
+                                            }
+                                        ),
                                     },
                                 ],
                                 effect: CutsceneEffectService.new(
@@ -911,7 +925,7 @@ describe("Battle Orchestrator", () => {
                             }),
                         }),
                         objectives: [
-                            MissionObjectiveHelper.validateMissionObjective({
+                            MissionObjectiveService.validateMissionObjective({
                                 id: "test",
                                 reward: {
                                     rewardType: MissionRewardType.VICTORY,
@@ -925,7 +939,7 @@ describe("Battle Orchestrator", () => {
                                     },
                                 ],
                             }),
-                            MissionObjectiveHelper.validateMissionObjective({
+                            MissionObjectiveService.validateMissionObjective({
                                 id: "test1",
                                 reward: {
                                     rewardType: MissionRewardType.DEFEAT,
@@ -948,10 +962,12 @@ describe("Battle Orchestrator", () => {
                                         ...EventTriggerBaseService.new(
                                             TriggeringEventType.MISSION_VICTORY
                                         ),
-                                        ...EventBattleProgressService.new({
-                                            battleCompletionStatus:
-                                                BattleCompletionStatus.VICTORY,
-                                        }),
+                                        ...EventTriggerBattleCompletionStatusService.new(
+                                            {
+                                                battleCompletionStatus:
+                                                    BattleCompletionStatus.VICTORY,
+                                            }
+                                        ),
                                     },
                                 ],
                                 effect: CutsceneEffectService.new(
@@ -964,10 +980,12 @@ describe("Battle Orchestrator", () => {
                                         ...EventTriggerBaseService.new(
                                             TriggeringEventType.MISSION_DEFEAT
                                         ),
-                                        ...EventBattleProgressService.new({
-                                            battleCompletionStatus:
-                                                BattleCompletionStatus.DEFEAT,
-                                        }),
+                                        ...EventTriggerBattleCompletionStatusService.new(
+                                            {
+                                                battleCompletionStatus:
+                                                    BattleCompletionStatus.DEFEAT,
+                                            }
+                                        ),
                                     },
                                 ],
                                 effect: CutsceneEffectService.new(
@@ -992,7 +1010,7 @@ describe("Battle Orchestrator", () => {
             })
 
             missionObjectiveCompleteCheck = vi
-                .spyOn(MissionObjectiveHelper, "shouldBeComplete")
+                .spyOn(MissionObjectiveService, "shouldBeComplete")
                 .mockReturnValue(true)
         })
 
@@ -1275,7 +1293,7 @@ describe("Battle Orchestrator", () => {
     })
 
     it("will move from squaddie map action mode to player hud mode", () => {
-        vi.spyOn(MissionObjectiveHelper, "shouldBeComplete").mockReturnValue(
+        vi.spyOn(MissionObjectiveService, "shouldBeComplete").mockReturnValue(
             false
         )
 

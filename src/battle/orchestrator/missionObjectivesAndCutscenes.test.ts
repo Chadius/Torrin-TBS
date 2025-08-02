@@ -1,6 +1,6 @@
 import {
     MissionObjective,
-    MissionObjectiveHelper,
+    MissionObjectiveService,
 } from "../missionResult/missionObjective"
 import { MissionRewardType } from "../missionResult/missionReward"
 import {
@@ -40,7 +40,7 @@ describe("Mission Objectives and Cutscenes", () => {
                 battleCompletionStatus: BattleCompletionStatus.IN_PROGRESS,
             })
         gameBoard.objectives = [
-            MissionObjectiveHelper.validateMissionObjective({
+            MissionObjectiveService.validateMissionObjective({
                 id: "test",
                 hasGivenReward: false,
                 reward: {

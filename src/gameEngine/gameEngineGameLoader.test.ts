@@ -38,7 +38,7 @@ import { SaveFile } from "../utils/fileHandling/saveFile"
 import { BattleHUDService } from "../battle/hud/battleHUD/battleHUD"
 import { BattleCamera } from "../battle/battleCamera"
 import { NullMissionMap } from "../utils/test/battleOrchestratorState"
-import { MissionObjectiveHelper } from "../battle/missionResult/missionObjective"
+import { MissionObjectiveService } from "../battle/missionResult/missionObjective"
 import { MissionRewardType } from "../battle/missionResult/missionReward"
 import { MissionConditionType } from "../battle/missionResult/missionCondition"
 import { CampaignService } from "../campaign/campaign"
@@ -50,11 +50,11 @@ import { BattleCompletionStatus } from "../battle/orchestrator/missionObjectives
 import { BattlePhase } from "../battle/orchestratorComponents/battlePhaseTracker"
 import { TitleScreenStateHelper } from "../titleScreen/titleScreenState"
 import { BattleHUDStateService } from "../battle/hud/battleHUD/battleHUDState"
-import { TriggeringEventType } from "../battle/eventTrigger/triggeringEventType"
-import { EventTriggerBaseService } from "../battle/eventTrigger/eventTriggerBase"
-import { EventBattleProgressService } from "../battle/eventTrigger/eventBattleProgress"
+import { TriggeringEventType } from "../battle/event/eventTrigger/triggeringEventType"
+import { EventTriggerBaseService } from "../battle/event/eventTrigger/eventTriggerBase"
+import { EventTriggerBattleCompletionStatusService } from "../battle/event/eventTrigger/eventTriggerBattleCompletionStatus"
 import { CutsceneEffectService } from "../cutscene/cutsceneEffect"
-import { EventTriggerTurnRangeService } from "../battle/eventTrigger/eventTriggerTurnRange"
+import { EventTriggerTurnRangeService } from "../battle/event/eventTrigger/eventTriggerTurnRange"
 
 describe("GameEngineGameLoader", () => {
     let loader: GameEngineGameLoader
@@ -460,10 +460,12 @@ describe("GameEngineGameLoader", () => {
                                 ...EventTriggerBaseService.new(
                                     TriggeringEventType.MISSION_VICTORY
                                 ),
-                                ...EventBattleProgressService.new({
-                                    battleCompletionStatus:
-                                        BattleCompletionStatus.VICTORY,
-                                }),
+                                ...EventTriggerBattleCompletionStatusService.new(
+                                    {
+                                        battleCompletionStatus:
+                                            BattleCompletionStatus.VICTORY,
+                                    }
+                                ),
                             },
                         ],
                         effect: CutsceneEffectService.new("victory"),
@@ -503,7 +505,7 @@ describe("GameEngineGameLoader", () => {
                             timeElapsedInMilliseconds: 9001,
                         },
                         objectives: [
-                            MissionObjectiveHelper.validateMissionObjective({
+                            MissionObjectiveService.validateMissionObjective({
                                 id: "test",
                                 reward: {
                                     rewardType: MissionRewardType.VICTORY,
@@ -525,10 +527,12 @@ describe("GameEngineGameLoader", () => {
                                         ...EventTriggerBaseService.new(
                                             TriggeringEventType.MISSION_VICTORY
                                         ),
-                                        ...EventBattleProgressService.new({
-                                            battleCompletionStatus:
-                                                BattleCompletionStatus.VICTORY,
-                                        }),
+                                        ...EventTriggerBattleCompletionStatusService.new(
+                                            {
+                                                battleCompletionStatus:
+                                                    BattleCompletionStatus.VICTORY,
+                                            }
+                                        ),
                                     },
                                 ],
                                 effect: CutsceneEffectService.new("victory"),
@@ -876,10 +880,12 @@ describe("GameEngineGameLoader", () => {
                                 ...EventTriggerBaseService.new(
                                     TriggeringEventType.MISSION_VICTORY
                                 ),
-                                ...EventBattleProgressService.new({
-                                    battleCompletionStatus:
-                                        BattleCompletionStatus.VICTORY,
-                                }),
+                                ...EventTriggerBattleCompletionStatusService.new(
+                                    {
+                                        battleCompletionStatus:
+                                            BattleCompletionStatus.VICTORY,
+                                    }
+                                ),
                             },
                         ],
                         effect: CutsceneEffectService.new("victory"),
@@ -981,10 +987,12 @@ describe("GameEngineGameLoader", () => {
                                     ...EventTriggerBaseService.new(
                                         TriggeringEventType.MISSION_VICTORY
                                     ),
-                                    ...EventBattleProgressService.new({
-                                        battleCompletionStatus:
-                                            BattleCompletionStatus.VICTORY,
-                                    }),
+                                    ...EventTriggerBattleCompletionStatusService.new(
+                                        {
+                                            battleCompletionStatus:
+                                                BattleCompletionStatus.VICTORY,
+                                        }
+                                    ),
                                 },
                             ],
                             effect: CutsceneEffectService.new("victory"),

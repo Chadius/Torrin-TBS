@@ -6,7 +6,7 @@ import {
 } from "./battleState"
 import { TeamStrategyType } from "../teamStrategy/teamStrategy"
 import { SquaddieAffiliation } from "../../squaddie/squaddieAffiliation"
-import { MissionObjectiveHelper } from "../missionResult/missionObjective"
+import { MissionObjectiveService } from "../missionResult/missionObjective"
 import { MissionRewardType } from "../missionResult/missionReward"
 import { MissionConditionType } from "../missionResult/missionCondition"
 import { MissionStatisticsService } from "../missionStatistics/missionStatistics"
@@ -194,7 +194,7 @@ describe("Battle State", () => {
         args = {
             ...args,
             objectives: [
-                MissionObjectiveHelper.validateMissionObjective({
+                MissionObjectiveService.validateMissionObjective({
                     id: "mission objective id",
                     reward: { rewardType: MissionRewardType.VICTORY },
                     hasGivenReward: false,
@@ -241,7 +241,7 @@ describe("Battle State", () => {
                 ],
             },
             objectives: [
-                MissionObjectiveHelper.validateMissionObjective({
+                MissionObjectiveService.validateMissionObjective({
                     id: "mission objective id",
                     reward: { rewardType: MissionRewardType.VICTORY },
                     hasGivenReward: false,

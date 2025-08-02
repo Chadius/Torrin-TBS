@@ -1,16 +1,16 @@
 import { describe, expect, it } from "vitest"
-import { BattleCompletionStatus } from "../orchestrator/missionObjectivesAndCutscenes"
+import { BattleCompletionStatus } from "../../orchestrator/missionObjectivesAndCutscenes"
 import {
-    EventBattleProgress,
-    EventBattleProgressService,
-} from "./eventBattleProgress"
+    EventTriggerBattleCompletionStatus,
+    EventTriggerBattleCompletionStatusService,
+} from "./eventTriggerBattleCompletionStatus"
 
-describe("Event Battle Progress", () => {
+describe("EventTrigger Battle Completion Status", () => {
     describe("sanitize", () => {
         it("throws an error if no completion status is given", () => {
             const shouldThrowError = () => {
                 // @ts-ignore Test deliberately removes argument
-                EventBattleProgressService.new({})
+                EventTriggerBattleCompletionStatusService.new({})
             }
             expect(shouldThrowError).toThrowError("BattleCompletionStatus")
         })
@@ -58,12 +58,12 @@ describe("Event Battle Progress", () => {
                 eventBattleCompletionStatus,
                 missionBattleCompletionStatus,
             }) => {
-                const eventTrigger: EventBattleProgress =
-                    EventBattleProgressService.new({
+                const eventTrigger: EventTriggerBattleCompletionStatus =
+                    EventTriggerBattleCompletionStatusService.new({
                         battleCompletionStatus: eventBattleCompletionStatus,
                     })
                 expect(
-                    EventBattleProgressService.shouldTrigger({
+                    EventTriggerBattleCompletionStatusService.shouldTrigger({
                         eventTrigger,
                         battleCompletionStatus: missionBattleCompletionStatus,
                     })

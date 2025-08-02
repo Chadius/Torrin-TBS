@@ -5,7 +5,7 @@ import {
 } from "./battleOrchestratorState"
 import { SquaddieAffiliation } from "../../squaddie/squaddieAffiliation"
 import { NullMissionMap } from "../../utils/test/battleOrchestratorState"
-import { MissionObjectiveHelper } from "../missionResult/missionObjective"
+import { MissionObjectiveService } from "../missionResult/missionObjective"
 import { MissionRewardType } from "../missionResult/missionReward"
 import { MissionConditionType } from "../missionResult/missionCondition"
 import { BattleState, BattleStateService } from "../battleState/battleState"
@@ -39,7 +39,7 @@ describe("orchestratorState", () => {
                 },
             ],
             objectives: [
-                MissionObjectiveHelper.validateMissionObjective({
+                MissionObjectiveService.validateMissionObjective({
                     id: "mission objective id",
                     reward: { rewardType: MissionRewardType.VICTORY },
                     hasGivenReward: false,

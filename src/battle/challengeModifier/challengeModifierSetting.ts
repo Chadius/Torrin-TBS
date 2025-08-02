@@ -9,10 +9,14 @@ import {
     Trait,
     TraitStatusStorageService,
 } from "../../trait/traitStatusStorage"
+import { BattleEvent } from "../event/battleEvent"
+import { ChallengeModifierEffect } from "../event/eventEffect/challengeModifierEffect/challengeModifierEffect"
 
 export enum ChallengeModifierType {
     TRAINING_WHEELS = "TRAINING_WHEELS",
 }
+
+export type ChallengeModifierValue = boolean
 
 export interface ChallengeModifierSetting {
     [ChallengeModifierType.TRAINING_WHEELS]: boolean
@@ -25,7 +29,7 @@ export const ChallengeModifierSettingService = {
     getSetting: (
         challengeModifierSetting: ChallengeModifierSetting,
         type: ChallengeModifierType
-    ): boolean => {
+    ): ChallengeModifierValue => {
         if (!challengeModifierSetting) return undefined
         return challengeModifierSetting[type]
     },
@@ -36,7 +40,7 @@ export const ChallengeModifierSettingService = {
     }: {
         challengeModifierSetting: ChallengeModifierSetting
         type: ChallengeModifierType
-        value: boolean
+        value: ChallengeModifierValue
     }) => {
         if (!challengeModifierSetting) return
         challengeModifierSetting[type] = value
@@ -70,6 +74,10 @@ export const ChallengeModifierSettingService = {
             actionTemplateId,
         })
     },
+    processBattleEvents: (
+        challengeModifierSetting: ChallengeModifierSetting,
+        battleEvents: (BattleEvent & { effect: ChallengeModifierEffect })[]
+    ) => {},
 }
 
 const preemptDegreeOfSuccessWithTrainingWheels = ({

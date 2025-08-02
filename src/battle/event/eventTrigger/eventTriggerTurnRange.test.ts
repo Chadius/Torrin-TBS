@@ -135,5 +135,16 @@ describe("EventTriggerTurnRange", () => {
                 })
             ).toBe(true)
         })
+        it("is not if the current turn is 0 and we are ignoring turn 0 triggers", () => {
+            expect(
+                EventTriggerTurnRangeService.isOnExactTurn({
+                    trigger: {
+                        exactTurn: 0,
+                    },
+                    turnCount: 0,
+                    ignoreTurn0: true,
+                })
+            ).toBe(false)
+        })
     })
 })

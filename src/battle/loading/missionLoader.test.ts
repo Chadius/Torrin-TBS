@@ -9,7 +9,7 @@ import { MissionLoader, MissionLoaderContext } from "./missionLoader"
 import { ObjectRepository, ObjectRepositoryService } from "../objectRepository"
 import { getResultOrThrowError } from "../../utils/ResultOrError"
 import { DEFAULT_VICTORY_CUTSCENE_ID } from "../orchestrator/missionCutsceneCollection"
-import { MissionObjectiveHelper } from "../missionResult/missionObjective"
+import { MissionObjectiveService } from "../missionResult/missionObjective"
 import {
     SquaddieTemplate,
     SquaddieTemplateService,
@@ -131,7 +131,7 @@ describe("Mission Loader", () => {
                 missionLoaderContext.objectives[0]
             )
             const validatedMissionObjectives = clonedObjectives.map(
-                MissionObjectiveHelper.validateMissionObjective
+                MissionObjectiveService.validateMissionObjective
             )
             expect(missionLoaderContext.objectives).toEqual(
                 validatedMissionObjectives

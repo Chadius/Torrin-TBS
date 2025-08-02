@@ -1,6 +1,6 @@
 import {
     MissionObjective,
-    MissionObjectiveHelper,
+    MissionObjectiveService,
 } from "../battle/missionResult/missionObjective"
 import { LoadFileIntoFormat } from "./dataLoader"
 import { HexCoordinate } from "../hexMap/hexCoordinate/hexCoordinate"
@@ -134,7 +134,7 @@ const sanitize = (data: MissionFileFormat): MissionFileFormat => {
     data.terrain = getValidValueOrDefault(data.terrain, ["1 "])
     data.objectives = isValidValue(data.objectives)
         ? data.objectives.map((obj) =>
-              MissionObjectiveHelper.validateMissionObjective(obj)
+              MissionObjectiveService.validateMissionObjective(obj)
           )
         : []
 

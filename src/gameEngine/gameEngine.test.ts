@@ -10,7 +10,7 @@ import {
     BattleSaveState,
     BattleSaveStateService,
 } from "../battle/history/battleSaveState"
-import { MissionObjectiveHelper } from "../battle/missionResult/missionObjective"
+import { MissionObjectiveService } from "../battle/missionResult/missionObjective"
 import { MissionRewardType } from "../battle/missionResult/missionReward"
 import { MissionConditionType } from "../battle/missionResult/missionCondition"
 import { ObjectRepositoryService } from "../battle/objectRepository"
@@ -372,7 +372,7 @@ describe("Game Engine", () => {
             })
             newGameEngine.gameEngineState.battleOrchestratorState.battleState.objectives =
                 [
-                    MissionObjectiveHelper.validateMissionObjective({
+                    MissionObjectiveService.validateMissionObjective({
                         id: "test",
                         reward: { rewardType: MissionRewardType.VICTORY },
                         numberOfRequiredConditionsToComplete: 1,

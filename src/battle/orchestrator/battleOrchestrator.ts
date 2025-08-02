@@ -34,7 +34,7 @@ import {
 import { GameEngineState } from "../../gameEngine/gameEngine"
 import {
     MissionObjective,
-    MissionObjectiveHelper,
+    MissionObjectiveService,
 } from "../missionResult/missionObjective"
 import { MissionRewardType } from "../missionResult/missionReward"
 import { BattleCompletionStatus } from "./missionObjectivesAndCutscenes"
@@ -45,7 +45,6 @@ import { BattleEvent } from "../event/battleEvent"
 import { InitializeBattle } from "./initializeBattle"
 import { PlayerHudController } from "../orchestratorComponents/playerHudController"
 import { GraphicsBuffer } from "../../utils/graphics/graphicsRenderer"
-import { MissionCutsceneService } from "../cutscene/missionCutsceneService"
 import { CutsceneQueueService } from "../cutscene/cutsceneIdQueue"
 import { PlayerDecisionHUDService } from "../hud/playerActionPanel/playerDecisionHUD"
 import { SummaryHUDStateService } from "../hud/summary/summaryHUD"
@@ -57,6 +56,8 @@ import { SquaddieNameAndPortraitTileService } from "../hud/playerActionPanel/til
 import { DebugModeMenuService } from "../hud/debugModeMenu/debugModeMenu"
 import { isValidValue } from "../../utils/objectValidityCheck"
 import { BattleEventEffectType } from "../event/battleEventEffect"
+import { BattleEventMessageListener } from "../event/battleEventMessageListener"
+import { CutsceneEffect } from "../../cutscene/cutsceneEffect"
 
 export enum BattleOrchestratorMode {
     UNKNOWN = "UNKNOWN",
@@ -87,6 +88,7 @@ export class BattleOrchestrator implements GameEngineComponent {
     phaseController: BattlePhaseController
     initializeBattle: InitializeBattle
     playerHudController: PlayerHudController
+    battleEventMessageListener: BattleEventMessageListener
 
     battleOrchestratorModeComponentConstants: {
         [m in BattleOrchestratorMode]: {
@@ -170,6 +172,7 @@ export class BattleOrchestrator implements GameEngineComponent {
         computerSquaddieSelector,
         playerHudController,
         initializeBattle,
+        battleEventMessageListener,
     }: {
         cutscenePlayer: BattleCutscenePlayer
         playerSquaddieSelector: BattlePlayerSquaddieSelector
@@ -182,6 +185,7 @@ export class BattleOrchestrator implements GameEngineComponent {
         phaseController: BattlePhaseController
         playerHudController: PlayerHudController
         initializeBattle: InitializeBattle
+        battleEventMessageListener: BattleEventMessageListener
     }) {
         this.cutscenePlayer = cutscenePlayer
         this.playerSquaddieSelector = playerSquaddieSelector
@@ -195,6 +199,7 @@ export class BattleOrchestrator implements GameEngineComponent {
         this.initializeBattle = initializeBattle
 
         this.playerActionTargetSelect = playerActionTargetSelect
+        this.battleEventMessageListener = battleEventMessageListener
 
         this.resetInternalState()
     }
@@ -579,37 +584,14 @@ export class BattleOrchestrator implements GameEngineComponent {
                 gameEngineState.battleOrchestratorState.cutsceneQueue
             )
         ) {
-            this.prepareToPlayNextTriggeredCutscene({
-                cutsceneId: CutsceneQueueService.peek(
-                    gameEngineState.battleOrchestratorState.cutsceneQueue
-                ),
-                gameEngineState,
-            })
-
-            const battleEvent =
-                gameEngineState.battleOrchestratorState.battleState.battleEvents
-                    .filter(
-                        (battleEvent) =>
-                            battleEvent.effect.type ===
-                            BattleEventEffectType.CUTSCENE
-                    )
-                    .find((battleEvent) => {
-                        return (
-                            battleEvent.effect.cutsceneId ===
-                            CutsceneQueueService.peek(
-                                gameEngineState.battleOrchestratorState
-                                    .cutsceneQueue
-                            )
-                        )
-                    })
-
-            if (battleEvent) {
-                battleEvent.effect.alreadyAppliedEffect = true
-            }
-
-            CutsceneQueueService.dequeue(
+            const cutsceneId = CutsceneQueueService.dequeue(
                 gameEngineState.battleOrchestratorState.cutsceneQueue
             )
+
+            this.prepareToPlayNextTriggeredCutscene({
+                cutsceneId,
+                gameEngineState,
+            })
             return
         }
 
@@ -617,23 +599,41 @@ export class BattleOrchestrator implements GameEngineComponent {
             currentComponent.recommendStateChanges(gameEngineState)
         this.checkOnMissionCompletion(orchestrationChanges, gameEngineState)
 
-        const cutsceneEffectsToActivate = this.getBattleEventsToActivate(
-            gameEngineState
-        ).filter(
-            (battleEvent) =>
-                battleEvent.effect.type === BattleEventEffectType.CUTSCENE
-        )
-
-        if (cutsceneEffectsToActivate.length > 0) {
-            this.prepareToPlayNextTriggeredCutscene({
-                cutsceneId: cutsceneEffectsToActivate[0].effect.cutsceneId,
-                gameEngineState,
-            })
-            cutsceneEffectsToActivate[0].effect.alreadyAppliedEffect = true
-            return
-        }
+        const checkForBattleEvents = [
+            BattleOrchestratorMode.INITIALIZED,
+            BattleOrchestratorMode.PHASE_CONTROLLER,
+            BattleOrchestratorMode.SQUADDIE_MOVER,
+            BattleOrchestratorMode.SQUADDIE_USES_ACTION_ON_MAP,
+            BattleOrchestratorMode.SQUADDIE_USES_ACTION_ON_SQUADDIE,
+        ].includes(this.mode)
 
         this.mode = orchestrationChanges.nextMode || defaultNextMode
+
+        if (!checkForBattleEvents) return
+
+        const battleEventsToActivate =
+            this.getBattleEventsToActivate(gameEngineState)
+
+        this.battleEventMessageListener.applyBattleEventEffects(
+            battleEventsToActivate
+        )
+
+        const cutsceneBattleEvents = battleEventsToActivate
+            .filter(
+                (battleEvent) =>
+                    battleEvent.effect.type === BattleEventEffectType.CUTSCENE
+            )
+            .map(
+                (battleEvent) =>
+                    battleEvent as BattleEvent & { effect: CutsceneEffect }
+            )
+
+        if (cutsceneBattleEvents.length > 0) {
+            this.prepareToPlayNextTriggeredCutscene({
+                battleEvent: cutsceneBattleEvents[0],
+                gameEngineState,
+            })
+        }
     }
 
     private checkOnMissionCompletion(
@@ -653,31 +653,68 @@ export class BattleOrchestrator implements GameEngineComponent {
     private getBattleEventsToActivate(
         gameEngineState: GameEngineState
     ): BattleEvent[] {
-        return [
-            ...MissionCutsceneService.findBattleEventsToActivateOnStartOfPhase({
-                gameEngineState,
-                battleOrchestratorModeThatJustCompleted: this.mode,
-                ignoreTurn0Triggers:
+        return this.battleEventMessageListener.filterQualifyingBattleEvents({
+            allBattleEvents:
+                gameEngineState.battleOrchestratorState.battleState
+                    .battleEvents,
+            objectRepository: gameEngineState.repository,
+            battleCompletionStatus:
+                gameEngineState.battleOrchestratorState.battleState
+                    .battleCompletionStatus,
+            battleActionRecorder:
+                gameEngineState.battleOrchestratorState.battleState
+                    .battleActionRecorder,
+            turn: {
+                turnCount:
+                    gameEngineState.battleOrchestratorState.battleState
+                        .battlePhaseState.turnCount,
+                ignoreTurn0:
                     gameEngineState.fileState.loadSaveState
                         .applicationStartedLoad === true &&
                     gameEngineState.battleOrchestratorState.battleState
                         .battlePhaseState.turnCount === 0,
-            }),
-            ...MissionCutsceneService.findBattleEventsToActivateBasedOnVictoryAndDefeat(
-                gameEngineState,
-                this.mode
-            ),
-        ]
+            },
+        })
     }
 
     private prepareToPlayNextTriggeredCutscene({
         cutsceneId,
         gameEngineState,
+        battleEvent,
     }: {
-        cutsceneId: string
+        cutsceneId?: string
         gameEngineState: GameEngineState
+        battleEvent?: BattleEvent & { effect: CutsceneEffect }
     }) {
-        this.cutscenePlayer.startCutscene(cutsceneId, gameEngineState)
+        const cutsceneIdToPlay = battleEvent
+            ? battleEvent.effect.cutsceneId
+            : cutsceneId
+        if (!cutsceneIdToPlay) {
+            throw new Error("No cutsceneId was found.")
+        }
+
+        this.cutscenePlayer.startCutscene(cutsceneIdToPlay, gameEngineState)
+
+        if (!battleEvent) {
+            battleEvent =
+                gameEngineState.battleOrchestratorState.battleState.battleEvents
+                    .filter(
+                        (battleEvent) =>
+                            battleEvent.effect.type ===
+                            BattleEventEffectType.CUTSCENE
+                    )
+                    .find((battleEvent) => {
+                        return (
+                            (battleEvent as { effect: CutsceneEffect }).effect
+                                .cutsceneId === cutsceneId
+                        )
+                    }) as BattleEvent & { effect: CutsceneEffect }
+        }
+
+        if (battleEvent) {
+            battleEvent.effect.alreadyAppliedEffect = true
+        }
+
         this.mode = BattleOrchestratorMode.CUTSCENE_PLAYER
     }
 
@@ -688,7 +725,10 @@ export class BattleOrchestrator implements GameEngineComponent {
             state.battleOrchestratorState.battleState.objectives.find(
                 (objective: MissionObjective) =>
                     objective.reward.rewardType === MissionRewardType.DEFEAT &&
-                    MissionObjectiveHelper.shouldBeComplete(objective, state) &&
+                    MissionObjectiveService.shouldBeComplete(
+                        objective,
+                        state
+                    ) &&
                     !objective.hasGivenReward
             )
         if (defeatObjectives) {
@@ -699,7 +739,10 @@ export class BattleOrchestrator implements GameEngineComponent {
             state.battleOrchestratorState.battleState.objectives.find(
                 (objective: MissionObjective) =>
                     objective.reward.rewardType === MissionRewardType.VICTORY &&
-                    MissionObjectiveHelper.shouldBeComplete(objective, state) &&
+                    MissionObjectiveService.shouldBeComplete(
+                        objective,
+                        state
+                    ) &&
                     !objective.hasGivenReward
             )
         if (victoryObjectives) {

@@ -11,7 +11,7 @@ export interface MissionObjective {
     hasGivenReward: boolean
 }
 
-export const MissionObjectiveHelper = {
+export const MissionObjectiveService = {
     validateMissionObjective: (
         objective: MissionObjective
     ): MissionObjective => {

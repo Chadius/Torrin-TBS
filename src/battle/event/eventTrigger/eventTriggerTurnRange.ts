@@ -23,14 +23,16 @@ export const EventTriggerTurnRangeService = {
     shouldTrigger: ({
         eventTrigger,
         turnCount,
+        ignoreTurn0,
     }: {
         eventTrigger: EventTriggerTurnRange
         turnCount: number
+        ignoreTurn0?: boolean
     }): boolean =>
         isValidTrigger(eventTrigger) &&
         isAfterMinimumTurnsPassed({ trigger: eventTrigger, turnCount }) &&
         isBeforeMaximumTurnsPassed({ trigger: eventTrigger, turnCount }) &&
-        isOnExactTurn({ trigger: eventTrigger, turnCount }),
+        isOnExactTurn({ trigger: eventTrigger, turnCount, ignoreTurn0 }),
     isValidTrigger: (eventTrigger: EventTriggerTurnRange): boolean =>
         isValidTrigger(eventTrigger),
     isAfterMinimumTurnsPassed: ({
@@ -50,10 +52,12 @@ export const EventTriggerTurnRangeService = {
     isOnExactTurn: ({
         trigger,
         turnCount,
+        ignoreTurn0,
     }: {
         trigger: EventTriggerTurnRange
         turnCount: number
-    }): boolean => isOnExactTurn({ trigger, turnCount }),
+        ignoreTurn0?: boolean
+    }): boolean => isOnExactTurn({ trigger, turnCount, ignoreTurn0 }),
 }
 
 const isValidTrigger = (eventTrigger: EventTriggerTurnRange): boolean =>
@@ -80,7 +84,11 @@ const isBeforeMaximumTurnsPassed = ({
 const isOnExactTurn = ({
     trigger,
     turnCount,
+    ignoreTurn0,
 }: {
     trigger: EventTriggerTurnRange
     turnCount: number
-}): boolean => trigger.exactTurn == undefined || trigger.exactTurn == turnCount
+    ignoreTurn0?: boolean
+}): boolean =>
+    trigger.exactTurn == undefined ||
+    (trigger.exactTurn == turnCount && (!ignoreTurn0 || turnCount != 0))
