@@ -23,6 +23,7 @@ import { DataBlobService } from "../../../utils/dataBlob/dataBlob"
 import { PlayerCommandState } from "../../hud/playerCommand/playerCommandHUD"
 import { BattleCamera } from "../../battleCamera"
 import { SearchResultsCache } from "../../../hexMap/pathfinder/searchResults/searchResultsCache"
+import { ChallengeModifierSetting } from "../../challengeModifier/challengeModifierSetting"
 
 export interface PlayerActionTargetStateMachineContext {
     camera: BattleCamera
@@ -41,6 +42,7 @@ export interface PlayerActionTargetStateMachineContext {
         playerInputState: PlayerInputState
         campaignResources: CampaignResources
         squaddieAllMovementCache: SearchResultsCache
+        challengeModifierSetting: ChallengeModifierSetting
 
         playerCancelsPlayerActionConsiderationsParameters: {
             playerConsideredActions: PlayerConsideredActions
@@ -96,6 +98,7 @@ export const PlayerActionTargetContextService = {
         playerDecisionHUD,
         playerCommandState,
         squaddieAllMovementCache,
+        challengeModifierSetting,
     }: {
         missionStatistics: MissionStatistics
         battleActionDecisionStep: BattleActionDecisionStep
@@ -112,6 +115,7 @@ export const PlayerActionTargetContextService = {
         playerCommandState: PlayerCommandState
         camera: BattleCamera
         squaddieAllMovementCache: SearchResultsCache
+        challengeModifierSetting: ChallengeModifierSetting
     }): PlayerActionTargetStateMachineContext => {
         const playerCancelsPlayerActionConsiderationsParameters = {
             playerConsideredActions,
@@ -140,6 +144,7 @@ export const PlayerActionTargetContextService = {
                 playerCancelsPlayerActionConsiderationsParameters,
                 playerConfirmsActionMessageParameters,
                 squaddieAllMovementCache,
+                challengeModifierSetting,
             },
             targetResults: {
                 validCoordinates: [],

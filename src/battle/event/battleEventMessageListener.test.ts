@@ -51,6 +51,11 @@ import {
 import { MapSearchTestUtils } from "../../hexMap/pathfinder/pathGeneration/mapSearchTests/mapSearchTestUtils"
 import { BattleCompletionStatus } from "../orchestrator/missionObjectivesAndCutscenes"
 import { EventTriggerBattleCompletionStatusService } from "./eventTrigger/eventTriggerBattleCompletionStatus"
+import {
+    ChallengeModifierSettingService,
+    ChallengeModifierType,
+} from "../challengeModifier/challengeModifierSetting"
+import { ChallengeModifierEffectService } from "./eventEffect/challengeModifierEffect/challengeModifierEffect"
 
 describe("Event Message Listener", () => {
     let gameEngineState: GameEngineState
@@ -480,6 +485,36 @@ describe("Event Message Listener", () => {
                 turnBattleEvents
             )
             cutsceneProcessSpy.mockRestore()
+        })
+        it("call challenge modifier effect handler", () => {
+            let challengeModifierProcessSpy: MockInstance = vi.spyOn(
+                ChallengeModifierSettingService,
+                "processBattleEvents"
+            )
+            listener.setChallengeModifierSetting(
+                gameEngineState.battleOrchestratorState.battleState
+                    .challengeModifierSetting
+            )
+
+            const turnBattleEvents = generateBattleEvents([
+                ChallengeModifierEffectService.new(
+                    ChallengeModifierType.TRAINING_WHEELS,
+                    false
+                ),
+                ChallengeModifierEffectService.new(
+                    ChallengeModifierType.TRAINING_WHEELS,
+                    true
+                ),
+            ])
+
+            listener.applyBattleEventEffects(turnBattleEvents)
+
+            expect(challengeModifierProcessSpy).toHaveBeenCalledWith(
+                gameEngineState.battleOrchestratorState.battleState
+                    .challengeModifierSetting,
+                turnBattleEvents
+            )
+            challengeModifierProcessSpy.mockRestore()
         })
     })
 })

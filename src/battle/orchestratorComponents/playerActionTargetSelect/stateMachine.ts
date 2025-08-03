@@ -315,6 +315,8 @@ export class PlayerActionTargetStateMachine extends StateMachine<
                             context.messageParameters
                                 .playerConfirmsActionMessageParameters
                                 .missionStatistics,
+                        challengeModifierSetting:
+                            context.messageParameters.challengeModifierSetting,
                     })
                     context.externalFlags.actionConfirmed = true
                 },

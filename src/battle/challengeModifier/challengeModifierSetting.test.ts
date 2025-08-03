@@ -22,6 +22,14 @@ import {
     Trait,
     TraitStatusStorageService,
 } from "../../trait/traitStatusStorage"
+import { BattleEvent, BattleEventService } from "../event/battleEvent"
+import {
+    ChallengeModifierEffect,
+    ChallengeModifierEffectService,
+} from "../event/eventEffect/challengeModifierEffect/challengeModifierEffect"
+import { EventTriggerBaseService } from "../event/eventTrigger/eventTriggerBase"
+import { TriggeringEventType } from "../event/eventTrigger/triggeringEventType"
+import { EventTriggerTurnRangeService } from "../event/eventTrigger/eventTriggerTurnRange"
 
 describe("Challenge Modifier Setting", () => {
     describe("Training Wheels", () => {
@@ -41,7 +49,7 @@ describe("Challenge Modifier Setting", () => {
         it("Can turn Training Wheels on", () => {
             const challengeModifierSetting: ChallengeModifierSetting =
                 ChallengeModifierSettingService.new()
-            ChallengeModifierSettingService.changeSetting({
+            ChallengeModifierSettingService.setSetting({
                 challengeModifierSetting: challengeModifierSetting,
                 type: ChallengeModifierType.TRAINING_WHEELS,
                 value: true,
@@ -59,12 +67,12 @@ describe("Challenge Modifier Setting", () => {
         it("Can turn Training Wheels off", () => {
             const challengeModifierSetting: ChallengeModifierSetting =
                 ChallengeModifierSettingService.new()
-            ChallengeModifierSettingService.changeSetting({
+            ChallengeModifierSettingService.setSetting({
                 challengeModifierSetting: challengeModifierSetting,
                 type: ChallengeModifierType.TRAINING_WHEELS,
                 value: true,
             })
-            ChallengeModifierSettingService.changeSetting({
+            ChallengeModifierSettingService.setSetting({
                 challengeModifierSetting: challengeModifierSetting,
                 type: ChallengeModifierType.TRAINING_WHEELS,
                 value: false,
@@ -78,6 +86,38 @@ describe("Challenge Modifier Setting", () => {
                     ChallengeModifierType.TRAINING_WHEELS
                 )
             ).toBe(false)
+        })
+        it("can process battle events to change the status", () => {
+            const battleEvent = BattleEventService.new({
+                triggers: [
+                    {
+                        ...EventTriggerBaseService.new(
+                            TriggeringEventType.START_OF_TURN
+                        ),
+                        ...EventTriggerTurnRangeService.new({
+                            exactTurn: 1,
+                        }),
+                    },
+                ],
+                effect: ChallengeModifierEffectService.new(
+                    ChallengeModifierType.TRAINING_WHEELS,
+                    true
+                ),
+            }) as BattleEvent & {
+                effect: ChallengeModifierEffect
+            }
+            const challengeModifierSetting: ChallengeModifierSetting =
+                ChallengeModifierSettingService.new()
+            ChallengeModifierSettingService.processBattleEvents(
+                challengeModifierSetting,
+                [battleEvent]
+            )
+            expect(
+                ChallengeModifierSettingService.getSetting(
+                    challengeModifierSetting,
+                    ChallengeModifierType.TRAINING_WHEELS
+                )
+            ).toBe(true)
         })
         describe("modify degree of success", () => {
             let objectRepository: ObjectRepository
@@ -217,7 +257,7 @@ describe("Challenge Modifier Setting", () => {
             }) => {
                 const challengeModifierSetting: ChallengeModifierSetting =
                     ChallengeModifierSettingService.new()
-                ChallengeModifierSettingService.changeSetting({
+                ChallengeModifierSettingService.setSetting({
                     challengeModifierSetting,
                     type: ChallengeModifierType.TRAINING_WHEELS,
                     value: true,
@@ -380,7 +420,7 @@ describe("Challenge Modifier Setting", () => {
             it("player attacks that cannot crit succeed will preempt into successes", () => {
                 const challengeModifierSetting: ChallengeModifierSetting =
                     ChallengeModifierSettingService.new()
-                ChallengeModifierSettingService.changeSetting({
+                ChallengeModifierSettingService.setSetting({
                     challengeModifierSetting,
                     type: ChallengeModifierType.TRAINING_WHEELS,
                     value: true,
@@ -429,7 +469,7 @@ describe("Challenge Modifier Setting", () => {
             it("enemy attacks that cannot crit fail will preempt into failure", () => {
                 const challengeModifierSetting: ChallengeModifierSetting =
                     ChallengeModifierSettingService.new()
-                ChallengeModifierSettingService.changeSetting({
+                ChallengeModifierSettingService.setSetting({
                     challengeModifierSetting,
                     type: ChallengeModifierType.TRAINING_WHEELS,
                     value: true,

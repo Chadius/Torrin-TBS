@@ -177,6 +177,19 @@
     {
       "triggers": [
         {
+          "triggeringEventType": "START_OF_TURN",
+          "exactTurn": 1
+        }
+      ],
+      "effect": {
+        "type": "CHALLENGE_MODIFIER",
+        "challengeModifierType": "TRAINING_WHEELS",
+        "value": true
+      }
+    },
+    {
+      "triggers": [
+        {
           "triggeringEventType": "SQUADDIE_IS_DEFEATED",
           "targetingSquaddie": {
             "squaddieTemplateIds": [
@@ -188,6 +201,23 @@
       "effect": {
         "type": "CUTSCENE",
         "cutsceneId": "killed_enemy"
+      }
+    },
+    {
+      "triggers": [
+        {
+          "triggeringEventType": "SQUADDIE_IS_DEFEATED",
+          "targetingSquaddie": {
+            "squaddieTemplateIds": [
+              "enemy_demon_slither"
+            ]
+          }
+        }
+      ],
+      "effect": {
+        "type": "CHALLENGE_MODIFIER",
+        "challengeModifierType": "TRAINING_WHEELS",
+        "value": false
       }
     }
   ],

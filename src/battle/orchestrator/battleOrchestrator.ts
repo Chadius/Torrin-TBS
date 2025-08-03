@@ -45,7 +45,10 @@ import { BattleEvent } from "../event/battleEvent"
 import { InitializeBattle } from "./initializeBattle"
 import { PlayerHudController } from "../orchestratorComponents/playerHudController"
 import { GraphicsBuffer } from "../../utils/graphics/graphicsRenderer"
-import { CutsceneQueueService } from "../cutscene/cutsceneIdQueue"
+import {
+    CutsceneIdQueue,
+    CutsceneQueueService,
+} from "../cutscene/cutsceneIdQueue"
 import { PlayerDecisionHUDService } from "../hud/playerActionPanel/playerDecisionHUD"
 import { SummaryHUDStateService } from "../hud/summary/summaryHUD"
 import { SquaddieSelectorPanelService } from "../hud/playerActionPanel/squaddieSelectorPanel/squaddieSelectorPanel"
@@ -58,6 +61,7 @@ import { isValidValue } from "../../utils/objectValidityCheck"
 import { BattleEventEffectType } from "../event/battleEventEffect"
 import { BattleEventMessageListener } from "../event/battleEventMessageListener"
 import { CutsceneEffect } from "../../cutscene/cutsceneEffect"
+import { ChallengeModifierSetting } from "../challengeModifier/challengeModifierSetting"
 
 export enum BattleOrchestratorMode {
     UNKNOWN = "UNKNOWN",
@@ -259,6 +263,15 @@ export class BattleOrchestrator implements GameEngineComponent {
         this.initializeCache({
             cache: gameEngineState.battleOrchestratorState.cache,
         })
+
+        this.setUpBattleEventMessageListener({
+            challengeModifierSetting:
+                gameEngineState.battleOrchestratorState.battleState
+                    .challengeModifierSetting,
+            cutsceneQueue:
+                gameEngineState.battleOrchestratorState.cutsceneQueue,
+        })
+
         this.displayMapAndPlayerHUD(gameEngineState, graphicsContext)
 
         if (this.mode === BattleOrchestratorMode.PLAYER_HUD_CONTROLLER) {
@@ -782,5 +795,18 @@ export class BattleOrchestrator implements GameEngineComponent {
                 gameEngineState.battleOrchestratorState.battleHUD.debugMode,
             graphicsContext,
         })
+    }
+
+    private setUpBattleEventMessageListener({
+        challengeModifierSetting,
+        cutsceneQueue,
+    }: {
+        challengeModifierSetting: ChallengeModifierSetting
+        cutsceneQueue: CutsceneIdQueue
+    }) {
+        this.battleEventMessageListener.setChallengeModifierSetting(
+            challengeModifierSetting
+        )
+        this.battleEventMessageListener.setCutsceneQueue(cutsceneQueue)
     }
 }

@@ -1749,7 +1749,7 @@ describe("calculator", () => {
 
         beforeEach(() => {
             challengeModifierSetting = ChallengeModifierSettingService.new()
-            ChallengeModifierSettingService.changeSetting({
+            ChallengeModifierSettingService.setSetting({
                 challengeModifierSetting,
                 type: ChallengeModifierType.TRAINING_WHEELS,
                 value: true,
@@ -1767,7 +1767,7 @@ describe("calculator", () => {
                 originMapCoordinate: { q: 0, r: 1 },
             })
             challengeModifierSetting = ChallengeModifierSettingService.new()
-            ChallengeModifierSettingService.changeSetting({
+            ChallengeModifierSettingService.setSetting({
                 challengeModifierSetting,
                 type: ChallengeModifierType.TRAINING_WHEELS,
                 value: true,

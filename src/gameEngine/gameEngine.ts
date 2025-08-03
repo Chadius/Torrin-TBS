@@ -313,9 +313,6 @@ export class GameEngine {
             campaign: undefined,
         })
         this.addMessageListeners()
-        this.battleOrchestrator.battleEventMessageListener.setCutsceneQueue(
-            this.gameEngineState.battleOrchestratorState.cutsceneQueue
-        )
     }
 
     private addMessageListeners() {

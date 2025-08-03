@@ -188,6 +188,9 @@ export class PlayerActionTargetSelect implements BattleOrchestratorComponent {
             squaddieAllMovementCache:
                 gameEngineState.battleOrchestratorState.cache
                     .searchResultsCache,
+            challengeModifierSetting:
+                gameEngineState.battleOrchestratorState.battleState
+                    .challengeModifierSetting,
         })
     }
 

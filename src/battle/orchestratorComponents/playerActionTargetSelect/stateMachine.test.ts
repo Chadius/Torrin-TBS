@@ -97,6 +97,7 @@ import {
 } from "../../../hexMap/hexCoordinate/hexCoordinate"
 import { StateMachineUpdate } from "../../../utils/stateMachine/stateMachineUpdate"
 import { SearchResultsCacheService } from "../../../hexMap/pathfinder/searchResults/searchResultsCache"
+import { ChallengeModifierSettingService } from "../../challengeModifier/challengeModifierSetting"
 
 describe("PlayerActionTargetSelect State Machine", () => {
     let stateMachine: PlayerActionTargetStateMachine
@@ -176,6 +177,7 @@ describe("PlayerActionTargetSelect State Machine", () => {
             playerDecisionHUD: PlayerDecisionHUDService.new(),
             playerCommandState: PlayerCommandStateService.new(),
             squaddieAllMovementCache: SearchResultsCacheService.new(),
+            challengeModifierSetting: ChallengeModifierSettingService.new(),
         })
 
         stateMachine = new PlayerActionTargetStateMachine({
@@ -1461,6 +1463,8 @@ describe("PlayerActionTargetSelect State Machine", () => {
                             context.messageParameters
                                 .playerConfirmsActionMessageParameters
                                 .missionStatistics,
+                        challengeModifierSetting:
+                            context.messageParameters.challengeModifierSetting,
                     })
                 })
 

@@ -1421,6 +1421,9 @@ describe("Battle HUD", () => {
                 missionStatistics:
                     gameEngineState.battleOrchestratorState.battleState
                         .missionStatistics,
+                challengeModifierSetting:
+                    gameEngineState.battleOrchestratorState.battleState
+                        .challengeModifierSetting,
             })
 
             const mapInfo = MissionMapService.getByBattleSquaddieId(
@@ -1462,6 +1465,9 @@ describe("Battle HUD", () => {
                 missionStatistics:
                     gameEngineState.battleOrchestratorState.battleState
                         .missionStatistics,
+                challengeModifierSetting:
+                    gameEngineState.battleOrchestratorState.battleState
+                        .challengeModifierSetting,
             })
             expect(
                 BattleActionDecisionStepService.isTargetConfirmed(
@@ -1490,6 +1496,9 @@ describe("Battle HUD", () => {
                 missionStatistics:
                     gameEngineState.battleOrchestratorState.battleState
                         .missionStatistics,
+                challengeModifierSetting:
+                    gameEngineState.battleOrchestratorState.battleState
+                        .challengeModifierSetting,
             })
 
             expect(
@@ -1519,6 +1528,9 @@ describe("Battle HUD", () => {
                 missionStatistics:
                     gameEngineState.battleOrchestratorState.battleState
                         .missionStatistics,
+                challengeModifierSetting:
+                    gameEngineState.battleOrchestratorState.battleState
+                        .challengeModifierSetting,
             })
             expect(
                 BattleActionRecorderService.peekAtAnimationQueue(
@@ -1630,6 +1642,9 @@ describe("Battle HUD", () => {
                 missionStatistics:
                     gameEngineState.battleOrchestratorState.battleState
                         .missionStatistics,
+                challengeModifierSetting:
+                    gameEngineState.battleOrchestratorState.battleState
+                        .challengeModifierSetting,
             })
 
             expect(
@@ -1795,6 +1810,9 @@ describe("Battle HUD", () => {
                     missionStatistics:
                         gameEngineState.battleOrchestratorState.battleState
                             .missionStatistics,
+                    challengeModifierSetting:
+                        gameEngineState.battleOrchestratorState.battleState
+                            .challengeModifierSetting,
                 })
                 const mostRecentAction =
                     BattleActionRecorderService.peekAtAnimationQueue(
@@ -1830,6 +1848,9 @@ describe("Battle HUD", () => {
                     missionStatistics:
                         gameEngineState.battleOrchestratorState.battleState
                             .missionStatistics,
+                    challengeModifierSetting:
+                        gameEngineState.battleOrchestratorState.battleState
+                            .challengeModifierSetting,
                 })
                 const mostRecentAction =
                     BattleActionRecorderService.peekAtAnimationQueue(

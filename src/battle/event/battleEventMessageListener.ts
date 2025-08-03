@@ -111,23 +111,34 @@ export class BattleEventMessageListener implements MessageBoardListener {
     }
 
     applyBattleEventEffects(battleEvents: BattleEvent[]) {
-        if (this.cutsceneIdQueue)
+        if (this.cutsceneIdQueue) {
+            const cutsceneEffects = filterBattleEventsByBattleEventEffectType(
+                battleEvents,
+                BattleEventEffectType.CUTSCENE
+            ) as (BattleEvent & { effect: CutsceneEffect })[]
             CutsceneQueueService.processBattleEvents(
                 this.cutsceneIdQueue,
-                filterBattleEventsByBattleEventEffectType(
-                    battleEvents,
-                    BattleEventEffectType.CUTSCENE
-                ) as (BattleEvent & { effect: CutsceneEffect })[]
+                cutsceneEffects
             )
+            cutsceneEffects.forEach((battleEvent) => {
+                battleEvent.effect.alreadyAppliedEffect = true
+            })
+        }
 
-        if (this.challengeModifierSetting)
-            ChallengeModifierSettingService.processBattleEvents(
-                this.challengeModifierSetting,
+        if (this.challengeModifierSetting) {
+            const challengeModifierEvents =
                 filterBattleEventsByBattleEventEffectType(
                     battleEvents,
                     BattleEventEffectType.CHALLENGE_MODIFIER
                 ) as (BattleEvent & { effect: ChallengeModifierEffect })[]
+            ChallengeModifierSettingService.processBattleEvents(
+                this.challengeModifierSetting,
+                challengeModifierEvents
             )
+            challengeModifierEvents.forEach((battleEvent) => {
+                battleEvent.effect.alreadyAppliedEffect = true
+            })
+        }
     }
 
     setCutsceneQueue(cutsceneIdQueue: CutsceneIdQueue) {

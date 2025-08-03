@@ -33,7 +33,7 @@ export const ChallengeModifierSettingService = {
         if (!challengeModifierSetting) return undefined
         return challengeModifierSetting[type]
     },
-    changeSetting: ({
+    setSetting: ({
         challengeModifierSetting,
         type,
         value,
@@ -41,10 +41,7 @@ export const ChallengeModifierSettingService = {
         challengeModifierSetting: ChallengeModifierSetting
         type: ChallengeModifierType
         value: ChallengeModifierValue
-    }) => {
-        if (!challengeModifierSetting) return
-        challengeModifierSetting[type] = value
-    },
+    }) => setSetting({ challengeModifierSetting, type, value }),
     preemptDegreeOfSuccessCalculation: ({
         challengeModifierSetting,
         objectRepository,
@@ -77,7 +74,28 @@ export const ChallengeModifierSettingService = {
     processBattleEvents: (
         challengeModifierSetting: ChallengeModifierSetting,
         battleEvents: (BattleEvent & { effect: ChallengeModifierEffect })[]
-    ) => {},
+    ) => {
+        battleEvents.forEach((battleEvent) => {
+            setSetting({
+                challengeModifierSetting,
+                type: battleEvent.effect.challengeModifierType,
+                value: battleEvent.effect.value,
+            })
+        })
+    },
+}
+
+const setSetting = ({
+    challengeModifierSetting,
+    type,
+    value,
+}: {
+    challengeModifierSetting: ChallengeModifierSetting
+    type: ChallengeModifierType
+    value: ChallengeModifierValue
+}) => {
+    if (!challengeModifierSetting) return
+    challengeModifierSetting[type] = value
 }
 
 const preemptDegreeOfSuccessWithTrainingWheels = ({
