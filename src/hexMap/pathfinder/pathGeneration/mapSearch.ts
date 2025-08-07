@@ -200,14 +200,7 @@ const convertTerrainTileMapToSearchGraph = ({
                 )
             )
             .filter((neighborCoordinate: HexCoordinate) =>
-                continueIfThereIsAPitAndSearchCanCrossOverPits({
-                    searchLimit,
-                    terrainTileMap: tiles,
-                    coordinate: neighborCoordinate,
-                })
-            )
-            .filter((neighborCoordinate: HexCoordinate) =>
-                continueIfThereIsAWallAndSearchCanPassThroughWalls({
+                continueCheckForWallOrPit({
                     searchLimit,
                     terrainTileMap: tiles,
                     coordinate: neighborCoordinate,
@@ -286,7 +279,7 @@ const addStopCoordinatesAndNoMovementPaths = ({
     })
 }
 
-const continueIfThereIsAPitAndSearchCanCrossOverPits = ({
+const continueCheckForWallOrPit = ({
     searchLimit,
     terrainTileMap,
     coordinate,
@@ -295,7 +288,7 @@ const continueIfThereIsAPitAndSearchCanCrossOverPits = ({
     terrainTileMap: TerrainTileMap
     coordinate: HexCoordinate
 }) => {
-    if (searchLimit.crossOverPits) {
+    if (searchLimit.crossOverPits && searchLimit.passThroughWalls) {
         return true
     }
 
@@ -303,27 +296,13 @@ const continueIfThereIsAPitAndSearchCanCrossOverPits = ({
         terrainTileMap,
         coordinate
     )
-    return terrainType !== HexGridMovementCost.pit
-}
 
-const continueIfThereIsAWallAndSearchCanPassThroughWalls = ({
-    searchLimit,
-    terrainTileMap,
-    coordinate,
-}: {
-    searchLimit: SearchLimit
-    terrainTileMap: TerrainTileMap
-    coordinate: HexCoordinate
-}) => {
-    if (searchLimit.passThroughWalls) {
-        return true
-    }
+    if (terrainType == HexGridMovementCost.pit) return searchLimit.crossOverPits
 
-    const terrainType = TerrainTileMapService.getTileTerrainTypeAtCoordinate(
-        terrainTileMap,
-        coordinate
-    )
-    return terrainType !== HexGridMovementCost.wall
+    if (terrainType == HexGridMovementCost.wall)
+        return searchLimit.passThroughWalls
+
+    return true
 }
 
 const filterCoordinatesYouCannotStopOn = ({
@@ -340,13 +319,7 @@ const filterCoordinatesYouCannotStopOn = ({
     const pathsToKeep = Object.values(allPossiblePaths)
         .filter((possiblePath) => possiblePath.length > 0)
         .filter((possiblePath) =>
-            canStopBecauseThereIsNoPit({
-                terrainTileMap: missionMap.terrainTileMap,
-                coordinate: SearchPathAdapterService.getHead(possiblePath),
-            })
-        )
-        .filter((possiblePath) =>
-            canStopBecauseThereIsNoWall({
+            canStopBecauseThereIsNoWallOrPit({
                 terrainTileMap: missionMap.terrainTileMap,
                 coordinate: SearchPathAdapterService.getHead(possiblePath),
             })
@@ -391,7 +364,7 @@ const filterCoordinatesYouCannotStopOn = ({
     return pathsToKeepByKey
 }
 
-const canStopBecauseThereIsNoWall = ({
+const canStopBecauseThereIsNoWallOrPit = ({
     terrainTileMap,
     coordinate,
 }: {
@@ -402,21 +375,10 @@ const canStopBecauseThereIsNoWall = ({
         terrainTileMap,
         coordinate
     )
-    return terrainType !== HexGridMovementCost.wall
-}
-
-const canStopBecauseThereIsNoPit = ({
-    terrainTileMap,
-    coordinate,
-}: {
-    terrainTileMap: TerrainTileMap
-    coordinate: HexCoordinate
-}) => {
-    const terrainType = TerrainTileMapService.getTileTerrainTypeAtCoordinate(
-        terrainTileMap,
-        coordinate
+    return (
+        terrainType !== HexGridMovementCost.wall &&
+        terrainType !== HexGridMovementCost.pit
     )
-    return terrainType !== HexGridMovementCost.pit
 }
 
 const canStopBecauseItIsMoreThanOrEqualToMinimumDistance = ({
