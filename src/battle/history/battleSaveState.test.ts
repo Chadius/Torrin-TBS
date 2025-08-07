@@ -10,7 +10,7 @@ import {
     BattleOrchestratorStateService,
 } from "../orchestrator/battleOrchestratorState"
 import { BattlePhase } from "../orchestratorComponents/battlePhaseTracker"
-import { MissionMapService } from "../../missionMap/missionMap"
+import { MissionMap, MissionMapService } from "../../missionMap/missionMap"
 import { TerrainTileMapService } from "../../hexMap/terrainTileMap"
 import { NullMissionMap } from "../../utils/test/battleOrchestratorState"
 import {
@@ -62,6 +62,12 @@ import { EventTriggerTurnRangeService } from "../event/eventTrigger/eventTrigger
 import { EventTriggerBattleCompletionStatusService } from "../event/eventTrigger/eventTriggerBattleCompletionStatus"
 import { BattleCompletionStatus } from "../orchestrator/missionObjectivesAndCutscenes"
 import { BattleEventEffectType } from "../event/battleEventEffect"
+import {
+    ChallengeModifierSetting,
+    ChallengeModifierSettingService,
+    ChallengeModifierType,
+} from "../challengeModifier/challengeModifierSetting"
+import { MapSearchTestUtils } from "../../hexMap/pathfinder/pathGeneration/mapSearchTests/mapSearchTestUtils"
 
 describe("BattleSaveState", () => {
     let battleActionRecorder: BattleActionRecorder
@@ -939,6 +945,10 @@ describe("BattleSaveState", () => {
         let saveData: BattleSaveState
         let newBattleState: BattleOrchestratorState
 
+        let challengeModifierSetting: ChallengeModifierSetting
+        let missionMap: MissionMap
+        let battleEvents: BattleEvent[]
+
         beforeEach(() => {
             const inBattleAttributesBySquaddieBattleId: {
                 [squaddieBattleId: string]: InBattleAttributesAndTurn
@@ -955,7 +965,7 @@ describe("BattleSaveState", () => {
                 },
             }
 
-            const battleEvents: BattleEvent[] = [
+            battleEvents = [
                 {
                     triggers: [
                         {
@@ -984,6 +994,13 @@ describe("BattleSaveState", () => {
                     effect: CutsceneEffectService.new("introduction"),
                 },
             ]
+
+            challengeModifierSetting = ChallengeModifierSettingService.new()
+            ChallengeModifierSettingService.setSetting({
+                challengeModifierSetting,
+                type: ChallengeModifierType.TRAINING_WHEELS,
+                value: true,
+            })
 
             saveData = {
                 campaignId: "test campaign",
@@ -1059,17 +1076,15 @@ describe("BattleSaveState", () => {
                     },
                 },
                 battleEvents,
+                challengeModifierSetting,
             }
+            missionMap = MapSearchTestUtils.create1row5columnsWithPitAndWall()
 
             newBattleState = BattleOrchestratorStateService.new({
                 battleState: BattleStateService.newBattleState({
                     missionId: "test mission",
                     campaignId: "test campaign",
-                    missionMap: MissionMapService.new({
-                        terrainTileMap: TerrainTileMapService.new({
-                            movementCost: ["1 2 - x "],
-                        }),
-                    }),
+                    missionMap,
                     battleEvents,
                     battlePhaseState: {
                         turnCount: 0,
@@ -1094,176 +1109,178 @@ describe("BattleSaveState", () => {
             expect(newSaveData).toEqual(saveData)
         })
 
-        it("can export save data objects", () => {
-            const missionMap = MissionMapService.new({
-                terrainTileMap: TerrainTileMapService.new({
-                    movementCost: ["1 2 - x "],
-                }),
-            })
-            MissionMapService.addSquaddie({
-                missionMap: missionMap,
-                squaddieTemplateId: "template 0",
-                battleSquaddieId: "battle 0",
-                originMapCoordinate: { q: 0, r: 0 },
-            })
-            MissionMapService.addSquaddie({
-                missionMap: missionMap,
-                squaddieTemplateId: "template 1",
-                battleSquaddieId: "battle 1",
-                originMapCoordinate: { q: 0, r: 1 },
-            })
+        describe("Collect all components from state", () => {
+            let newSaveData: BattleSaveState
 
-            const teamStrategiesById: { [key: string]: TeamStrategy[] } = {
-                [enemyTeam.id]: [
-                    {
-                        type: TeamStrategyType.MOVE_CLOSER_TO_SQUADDIE,
-                        options: {
-                            desiredAffiliation: SquaddieAffiliation.PLAYER,
-                        },
-                    },
-                    {
-                        type: TeamStrategyType.TARGET_SQUADDIE_IN_RANGE,
-                        options: {
-                            desiredAffiliation: SquaddieAffiliation.PLAYER,
-                        },
-                    },
-                ],
-                "ally team": [
-                    {
-                        type: TeamStrategyType.MOVE_CLOSER_TO_SQUADDIE,
-                        options: {
-                            desiredBattleSquaddieId: "player leader",
-                        },
-                    },
-                ],
-                "unaffiliated do nothing": [],
-            }
-            const missionCompletionStatus: MissionCompletionStatus = {
-                victory: {
-                    isComplete: undefined,
-                    conditions: {
-                        "defeat all enemies": undefined,
-                    },
-                },
-                defeat: {
-                    isComplete: undefined,
-                    conditions: {
-                        "defeat all players": undefined,
-                    },
-                },
-            }
+            let teamStrategiesById: { [key: string]: TeamStrategy[] }
+            let missionCompletionStatus: MissionCompletionStatus
+            let battleOrchestratorState: BattleOrchestratorState
 
-            const battleEvents: BattleEvent[] = [
-                {
-                    triggers: [
-                        {
-                            ...EventTriggerBaseService.new(
-                                TriggeringEventType.MISSION_VICTORY
-                            ),
-                            ...EventTriggerBattleCompletionStatusService.new({
-                                battleCompletionStatus:
-                                    BattleCompletionStatus.VICTORY,
-                            }),
-                        },
-                    ],
-                    effect: CutsceneEffectService.new("victory"),
-                },
-                {
-                    triggers: [
-                        {
-                            ...EventTriggerBaseService.new(
-                                TriggeringEventType.START_OF_TURN
-                            ),
-                            ...EventTriggerTurnRangeService.new({
-                                exactTurn: 0,
-                            }),
-                            alreadyAppliedEffect: true,
-                        },
-                    ],
-                    effect: CutsceneEffectService.new("introduction"),
-                },
-            ]
-
-            const battleOrchestratorState = BattleOrchestratorStateService.new({
-                battleState: BattleStateService.newBattleState({
-                    missionId: "test mission",
-                    campaignId: "test campaign",
-                    camera: new BattleCamera(100, 200),
-                    battlePhaseState: {
-                        currentAffiliation: BattlePhase.PLAYER,
-                        turnCount: 3,
-                    },
-                    battleActionRecorder,
-                    missionMap,
-                    missionStatistics,
-                    teams: [playerTeam, enemyTeam],
-                    teamStrategiesById,
-                    missionCompletionStatus,
-                    battleEvents,
-                }),
-            })
-
-            const newSaveData: BattleSaveState =
-                BattleSaveStateService.newUsingBattleOrchestratorState({
-                    campaignId: "This campaign",
-                    saveVersion: "9001",
-                    missionId: "This mission",
-                    battleOrchestratorState,
-                    repository: originalSquaddieRepository,
+            beforeEach(() => {
+                MissionMapService.addSquaddie({
+                    missionMap: missionMap,
+                    squaddieTemplateId: "template 0",
+                    battleSquaddieId: "battle 0",
+                    originMapCoordinate: { q: 0, r: 0 },
+                })
+                MissionMapService.addSquaddie({
+                    missionMap: missionMap,
+                    squaddieTemplateId: "template 1",
+                    battleSquaddieId: "battle 1",
+                    originMapCoordinate: { q: 0, r: 1 },
                 })
 
-            expect(newSaveData.campaignId).toBe("This campaign")
-            expect(newSaveData.missionId).toBe("This mission")
-            expect(newSaveData.camera.xCoordinate).toBe(100)
-            expect(newSaveData.camera.yCoordinate).toBe(200)
-            expect(newSaveData.battlePhaseState.turnCount).toBe(3)
-            expect(newSaveData.battlePhaseState.currentPhase).toBe(
-                BattlePhase.PLAYER
-            )
+                teamStrategiesById = {
+                    [enemyTeam.id]: [
+                        {
+                            type: TeamStrategyType.MOVE_CLOSER_TO_SQUADDIE,
+                            options: {
+                                desiredAffiliation: SquaddieAffiliation.PLAYER,
+                            },
+                        },
+                        {
+                            type: TeamStrategyType.TARGET_SQUADDIE_IN_RANGE,
+                            options: {
+                                desiredAffiliation: SquaddieAffiliation.PLAYER,
+                            },
+                        },
+                    ],
+                    "ally team": [
+                        {
+                            type: TeamStrategyType.MOVE_CLOSER_TO_SQUADDIE,
+                            options: {
+                                desiredBattleSquaddieId: "player leader",
+                            },
+                        },
+                    ],
+                    "unaffiliated do nothing": [],
+                }
+                missionCompletionStatus = {
+                    victory: {
+                        isComplete: undefined,
+                        conditions: {
+                            "defeat all enemies": undefined,
+                        },
+                    },
+                    defeat: {
+                        isComplete: undefined,
+                        conditions: {
+                            "defeat all players": undefined,
+                        },
+                    },
+                }
 
-            expect(newSaveData.squaddieMapPlacements).toHaveLength(2)
-            expect(newSaveData.squaddieMapPlacements[0]).toStrictEqual({
-                squaddieTemplateId: "template 0",
-                battleSquaddieId: "battle 0",
-                originMapCoordinate: { q: 0, r: 0 },
-                currentMapCoordinate: { q: 0, r: 0 },
+                battleOrchestratorState = BattleOrchestratorStateService.new({
+                    battleState: BattleStateService.newBattleState({
+                        missionId: "test mission",
+                        campaignId: "test campaign",
+                        camera: new BattleCamera(100, 200),
+                        battlePhaseState: {
+                            currentAffiliation: BattlePhase.PLAYER,
+                            turnCount: 3,
+                        },
+                        battleActionRecorder,
+                        missionMap,
+                        missionStatistics,
+                        teams: [playerTeam, enemyTeam],
+                        teamStrategiesById,
+                        missionCompletionStatus,
+                        battleEvents,
+                        challengeModifierSetting,
+                    }),
+                })
+                newSaveData =
+                    BattleSaveStateService.newUsingBattleOrchestratorState({
+                        campaignId: "This campaign",
+                        saveVersion: "9001",
+                        missionId: "This mission",
+                        battleOrchestratorState,
+                        repository: originalSquaddieRepository,
+                    })
             })
-            expect(newSaveData.squaddieMapPlacements[1]).toStrictEqual({
-                squaddieTemplateId: "template 1",
-                battleSquaddieId: "battle 1",
-                originMapCoordinate: { q: 0, r: 1 },
-                currentMapCoordinate: { q: 0, r: 1 },
+
+            it("squaddieMapPlacements", () => {
+                expect(newSaveData.squaddieMapPlacements).toHaveLength(2)
+                expect(newSaveData.squaddieMapPlacements[0]).toStrictEqual({
+                    squaddieTemplateId: "template 0",
+                    battleSquaddieId: "battle 0",
+                    originMapCoordinate: { q: 0, r: 0 },
+                    currentMapCoordinate: { q: 0, r: 0 },
+                })
+                expect(newSaveData.squaddieMapPlacements[1]).toStrictEqual({
+                    squaddieTemplateId: "template 1",
+                    battleSquaddieId: "battle 1",
+                    originMapCoordinate: { q: 0, r: 1 },
+                    currentMapCoordinate: { q: 0, r: 1 },
+                })
             })
 
-            expect(newSaveData.missionStatistics).toStrictEqual(
-                missionStatistics
-            )
-            expect(
-                Object.keys(newSaveData.inBattleAttributesBySquaddieBattleId)
-            ).toEqual(["player battle 0", "enemy battle 0"])
+            it("campaign and mission Id", () => {
+                expect(newSaveData.campaignId).toBe("This campaign")
+                expect(newSaveData.missionId).toBe("This mission")
+            })
 
-            expect(newSaveData.teams).toEqual(
-                expect.arrayContaining([playerTeam, enemyTeam])
-            )
+            it("camera", () => {
+                expect(newSaveData.camera.xCoordinate).toBe(100)
+                expect(newSaveData.camera.yCoordinate).toBe(200)
+            })
 
-            expect(newSaveData.teams).toEqual(
-                expect.arrayContaining([playerTeam, enemyTeam])
-            )
-            expect(newSaveData.teamStrategiesById).toEqual(teamStrategiesById)
+            it("current turn and phase", () => {
+                expect(newSaveData.battlePhaseState.turnCount).toBe(
+                    battleOrchestratorState.battleState.battlePhaseState
+                        .turnCount
+                )
+                expect(newSaveData.battlePhaseState.currentPhase).toBe(
+                    battleOrchestratorState.battleState.battlePhaseState
+                        .currentAffiliation
+                )
+            })
 
-            expect(newSaveData.missionCompletionStatus).toEqual(
-                missionCompletionStatus
-            )
+            it("mission statistics", () => {
+                expect(newSaveData.missionStatistics).toStrictEqual(
+                    missionStatistics
+                )
+            })
 
-            expect(newSaveData.battleEvents).toEqual(battleEvents)
+            it("in battle squaddie statistics", () => {
+                expect(
+                    Object.keys(
+                        newSaveData.inBattleAttributesBySquaddieBattleId
+                    )
+                ).toEqual(["player battle 0", "enemy battle 0"])
+            })
 
-            expect(newSaveData.battlePhaseState.turnCount).toBe(
-                battleOrchestratorState.battleState.battlePhaseState.turnCount
-            )
-            expect(newSaveData.battlePhaseState.currentPhase).toBe(
-                battleOrchestratorState.battleState.battlePhaseState
-                    .currentAffiliation
-            )
+            it("teams and strategy", () => {
+                expect(newSaveData.teams).toEqual(
+                    expect.arrayContaining([playerTeam, enemyTeam])
+                )
+
+                expect(newSaveData.teams).toEqual(
+                    expect.arrayContaining([playerTeam, enemyTeam])
+                )
+                expect(newSaveData.teamStrategiesById).toEqual(
+                    teamStrategiesById
+                )
+            })
+
+            it("mission completion status", () => {
+                expect(newSaveData.missionCompletionStatus).toEqual(
+                    missionCompletionStatus
+                )
+            })
+
+            it("battle events", () => {
+                expect(newSaveData.battleEvents).toEqual(battleEvents)
+            })
+
+            it("challenge modifiers", () => {
+                expect(
+                    ChallengeModifierSettingService.getSetting(
+                        newSaveData.challengeModifierSetting,
+                        ChallengeModifierType.TRAINING_WHEELS
+                    )
+                ).toEqual(true)
+            })
         })
     })
 

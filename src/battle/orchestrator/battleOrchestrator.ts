@@ -475,7 +475,7 @@ export class BattleOrchestrator implements GameEngineComponent {
         if (this.uiControlSettings.displayPlayerHUD === true) {
             Object.values(
                 gameEngineState.battleOrchestratorState.battleHUDState
-                    .summaryHUDState.squaddieNameTiles
+                    .summaryHUDState?.squaddieNameTiles ?? []
             )
                 .filter((x) => x)
                 .forEach((squaddieNameTile) => {

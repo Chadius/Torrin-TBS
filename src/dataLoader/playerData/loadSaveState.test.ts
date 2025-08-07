@@ -10,11 +10,22 @@ import { NullMissionMap } from "../../utils/test/battleOrchestratorState"
 import { BattlePhase } from "../../battle/orchestratorComponents/battlePhaseTracker"
 import { LoadSaveState, LoadSaveStateService } from "./loadSaveState"
 import { beforeEach, describe, expect, it } from "vitest"
+import {
+    ChallengeModifierSettingService,
+    ChallengeModifierType,
+} from "../../battle/challengeModifier/challengeModifierSetting"
 
 describe("Load SaveState", () => {
     let saveState: BattleSaveState
 
     beforeEach(() => {
+        const challengeModifierSetting = ChallengeModifierSettingService.new()
+        ChallengeModifierSettingService.setSetting({
+            challengeModifierSetting,
+            type: ChallengeModifierType.TRAINING_WHEELS,
+            value: true,
+        })
+
         saveState = BattleSaveStateService.newUsingBattleOrchestratorState({
             missionId: "test",
             campaignId: "test campaign",
@@ -29,6 +40,7 @@ describe("Load SaveState", () => {
                         turnCount: 0,
                         currentAffiliation: BattlePhase.UNKNOWN,
                     },
+                    challengeModifierSetting,
                 }),
             }),
             repository: ObjectRepositoryService.new(),

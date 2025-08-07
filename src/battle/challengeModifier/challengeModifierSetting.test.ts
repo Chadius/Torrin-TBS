@@ -32,6 +32,19 @@ import { TriggeringEventType } from "../event/eventTrigger/triggeringEventType"
 import { EventTriggerTurnRangeService } from "../event/eventTrigger/eventTriggerTurnRange"
 
 describe("Challenge Modifier Setting", () => {
+    it("can clone", () => {
+        const challengeModifierSetting = ChallengeModifierSettingService.new()
+        ChallengeModifierSettingService.setSetting({
+            challengeModifierSetting,
+            type: ChallengeModifierType.TRAINING_WHEELS,
+            value: true,
+        })
+
+        const clone = ChallengeModifierSettingService.clone(
+            challengeModifierSetting
+        )
+        expect(clone).toEqual(challengeModifierSetting)
+    })
     describe("Training Wheels", () => {
         it("Starts off by default", () => {
             const challengeModifierSetting: ChallengeModifierSetting =

@@ -55,6 +55,10 @@ import { EventTriggerBaseService } from "../battle/event/eventTrigger/eventTrigg
 import { EventTriggerBattleCompletionStatusService } from "../battle/event/eventTrigger/eventTriggerBattleCompletionStatus"
 import { CutsceneEffectService } from "../cutscene/cutsceneEffect"
 import { EventTriggerTurnRangeService } from "../battle/event/eventTrigger/eventTriggerTurnRange"
+import {
+    ChallengeModifierSettingService,
+    ChallengeModifierType,
+} from "../battle/challengeModifier/challengeModifierSetting"
 
 describe("GameEngineGameLoader", () => {
     let loader: GameEngineGameLoader
@@ -436,6 +440,14 @@ describe("GameEngineGameLoader", () => {
         let currentState: GameEngineState
 
         beforeEach(async () => {
+            const challengeModifierSetting =
+                ChallengeModifierSettingService.new()
+            ChallengeModifierSettingService.setSetting({
+                challengeModifierSetting,
+                type: ChallengeModifierType.TRAINING_WHEELS,
+                value: true,
+            })
+
             loader = new GameEngineGameLoader(campaignId)
             loadedBattleSaveState = {
                 ...DefaultBattleSaveState(),
@@ -484,6 +496,7 @@ describe("GameEngineGameLoader", () => {
                         effect: CutsceneEffectService.new("starting"),
                     },
                 ],
+                challengeModifierSetting,
             }
             openDialogSpy = vi
                 .spyOn(SaveFile, "RetrieveFileContent")
@@ -552,6 +565,7 @@ describe("GameEngineGameLoader", () => {
                             },
                         ],
                         missionCompletionStatus: {},
+                        challengeModifierSetting,
                     }),
                 }),
                 campaign: CampaignService.default(),
@@ -644,6 +658,14 @@ describe("GameEngineGameLoader", () => {
                 currentState.battleOrchestratorState.missingComponents
             ).toHaveLength(0)
             expect(currentState.battleOrchestratorState.isValid).toBeTruthy()
+
+            expect(
+                ChallengeModifierSettingService.getSetting(
+                    currentState.battleOrchestratorState.battleState
+                        .challengeModifierSetting,
+                    ChallengeModifierType.TRAINING_WHEELS
+                )
+            ).toBe(true)
         })
 
         it("will tell the file state to clear loading flags", async () => {

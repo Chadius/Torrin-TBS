@@ -26,6 +26,10 @@ import {
     BattleActionRecorderService,
 } from "./battleAction/battleActionRecorder"
 import { MissionMapService } from "../../missionMap/missionMap"
+import {
+    ChallengeModifierSetting,
+    ChallengeModifierSettingService,
+} from "../challengeModifier/challengeModifierSetting"
 
 export type InBattleAttributesAndTurn = {
     inBattleAttributes: InBattleAttributes
@@ -54,6 +58,7 @@ export interface BattleSaveState {
     teamStrategiesById: { [key: string]: TeamStrategy[] }
     missionCompletionStatus: MissionCompletionStatus
     battleEvents: BattleEvent[]
+    challengeModifierSetting: ChallengeModifierSetting
 }
 
 export const BattleSaveStateService = {
@@ -77,83 +82,47 @@ export const BattleSaveStateService = {
                 "applySaveStateToOrchestratorState: no battle orchestrator state found"
             )
         }
-
-        battleOrchestratorState.battleState.camera = new BattleCamera(
-            battleSaveState.camera.xCoordinate,
-            battleSaveState.camera.yCoordinate
+        applySaveStateToOrchestratorStateCamera(
+            battleOrchestratorState,
+            battleSaveState
         )
-        battleOrchestratorState.battleState.camera.setMapDimensionBoundaries(
-            TerrainTileMapService.getDimensions(
-                battleOrchestratorState.battleState.missionMap.terrainTileMap
-            ).widthOfWidestRow,
-            TerrainTileMapService.getDimensions(
-                battleOrchestratorState.battleState.missionMap.terrainTileMap
-            ).numberOfRows
+        applySaveStateToOrchestratorStateTurnAndPhase(
+            battleOrchestratorState,
+            battleSaveState
         )
-
-        battleOrchestratorState.battleState.battlePhaseState = {
-            currentAffiliation: battleSaveState.battlePhaseState.currentPhase,
-            turnCount: battleSaveState.battlePhaseState.turnCount,
-        }
         battleOrchestratorState.battleState.battleActionRecorder =
             BattleActionRecorderService.clone(
                 battleSaveState.battleActionRecorder
             )
-        battleOrchestratorState.battleState.missionStatistics = {
-            ...battleSaveState.missionStatistics,
-        }
-
-        battleSaveState.squaddieMapPlacements.forEach(
-            (coordinateData: MissionMapSquaddieCoordinate) =>
-                MissionMapService.updateBattleSquaddieCoordinate({
-                    missionMap: battleOrchestratorState.battleState.missionMap,
-                    battleSquaddieId: coordinateData.battleSquaddieId,
-                    coordinate: undefined,
-                })
+        applySaveStateToOrchestratorStateMissionStatistics(
+            battleOrchestratorState,
+            battleSaveState
         )
-        battleSaveState.squaddieMapPlacements.forEach(
-            (coordinateData: MissionMapSquaddieCoordinate) => {
-                MissionMapService.updateBattleSquaddieCoordinate({
-                    missionMap: battleOrchestratorState.battleState.missionMap,
-                    battleSquaddieId: coordinateData.battleSquaddieId,
-                    coordinate: coordinateData.currentMapCoordinate,
-                })
-                MissionMapService.setOriginMapCoordinateToCurrentMapCoordinate(
-                    battleOrchestratorState.battleState.missionMap,
-                    coordinateData.battleSquaddieId
-                )
-            }
+        applySaveStateToOrchestratorStateSquaddieMapPlacements(
+            battleSaveState,
+            battleOrchestratorState
+        )
+        applySaveStateToOrchestratorStateInBattleAttributes(
+            battleSaveState,
+            squaddieRepository
+        )
+        applySaveStateToOrchestratorStateTeamsAndTeamStrategies(
+            battleOrchestratorState,
+            battleSaveState
+        )
+        applySaveStateToOrchestratorStateBattleEvents(
+            battleOrchestratorState,
+            battleSaveState
+        )
+        applySaveStateToOrchestratorStateMissionCompletion(
+            battleOrchestratorState,
+            battleSaveState
         )
 
-        for (let squaddieBattleId in battleSaveState.inBattleAttributesBySquaddieBattleId) {
-            const { battleSquaddie } = getResultOrThrowError(
-                ObjectRepositoryService.getSquaddieByBattleId(
-                    squaddieRepository,
-                    squaddieBattleId
-                )
+        battleOrchestratorState.battleState.challengeModifierSetting =
+            ChallengeModifierSettingService.clone(
+                battleSaveState.challengeModifierSetting
             )
-
-            battleSquaddie.inBattleAttributes =
-                battleSaveState.inBattleAttributesBySquaddieBattleId[
-                    squaddieBattleId
-                ].inBattleAttributes
-            battleSquaddie.squaddieTurn =
-                battleSaveState.inBattleAttributesBySquaddieBattleId[
-                    squaddieBattleId
-                ].turn
-        }
-
-        battleOrchestratorState.battleState.teams = [...battleSaveState.teams]
-        battleOrchestratorState.battleState.teamStrategiesById = {
-            ...battleSaveState.teamStrategiesById,
-        }
-
-        battleOrchestratorState.battleState.battleEvents = [
-            ...battleSaveState.battleEvents,
-        ]
-        battleOrchestratorState.battleState.missionCompletionStatus = {
-            ...battleSaveState.missionCompletionStatus,
-        }
     },
     stringifyBattleSaveStateData: (saveData: BattleSaveState): string => {
         return stringifyBattleSaveStateData(saveData)
@@ -223,6 +192,8 @@ export const BattleSaveStateService = {
             missionCompletionStatus:
                 battleOrchestratorState.battleState.missionCompletionStatus,
             battleEvents: battleOrchestratorState.battleState.battleEvents,
+            challengeModifierSetting:
+                battleOrchestratorState.battleState.challengeModifierSetting,
         }
     },
     SaveToFile: (data: BattleSaveState) => {
@@ -266,5 +237,114 @@ export const DefaultBattleSaveState = (): BattleSaveState => {
         teamStrategiesById: {},
         missionCompletionStatus: {},
         battleEvents: [],
+        challengeModifierSetting: ChallengeModifierSettingService.new(),
+    }
+}
+
+const applySaveStateToOrchestratorStateCamera = (
+    battleOrchestratorState: BattleOrchestratorState,
+    battleSaveState: BattleSaveState
+) => {
+    battleOrchestratorState.battleState.camera = new BattleCamera(
+        battleSaveState.camera.xCoordinate,
+        battleSaveState.camera.yCoordinate
+    )
+    battleOrchestratorState.battleState.camera.setMapDimensionBoundaries(
+        TerrainTileMapService.getDimensions(
+            battleOrchestratorState.battleState.missionMap.terrainTileMap
+        ).widthOfWidestRow,
+        TerrainTileMapService.getDimensions(
+            battleOrchestratorState.battleState.missionMap.terrainTileMap
+        ).numberOfRows
+    )
+}
+const applySaveStateToOrchestratorStateTurnAndPhase = (
+    battleOrchestratorState: BattleOrchestratorState,
+    battleSaveState: BattleSaveState
+) => {
+    battleOrchestratorState.battleState.battlePhaseState = {
+        currentAffiliation: battleSaveState.battlePhaseState.currentPhase,
+        turnCount: battleSaveState.battlePhaseState.turnCount,
+    }
+}
+const applySaveStateToOrchestratorStateMissionStatistics = (
+    battleOrchestratorState: BattleOrchestratorState,
+    battleSaveState: BattleSaveState
+) => {
+    battleOrchestratorState.battleState.missionStatistics = {
+        ...battleSaveState.missionStatistics,
+    }
+}
+const applySaveStateToOrchestratorStateSquaddieMapPlacements = (
+    battleSaveState: BattleSaveState,
+    battleOrchestratorState: BattleOrchestratorState
+) => {
+    battleSaveState.squaddieMapPlacements.forEach(
+        (coordinateData: MissionMapSquaddieCoordinate) =>
+            MissionMapService.updateBattleSquaddieCoordinate({
+                missionMap: battleOrchestratorState.battleState.missionMap,
+                battleSquaddieId: coordinateData.battleSquaddieId,
+                coordinate: undefined,
+            })
+    )
+    battleSaveState.squaddieMapPlacements.forEach(
+        (coordinateData: MissionMapSquaddieCoordinate) => {
+            MissionMapService.updateBattleSquaddieCoordinate({
+                missionMap: battleOrchestratorState.battleState.missionMap,
+                battleSquaddieId: coordinateData.battleSquaddieId,
+                coordinate: coordinateData.currentMapCoordinate,
+            })
+            MissionMapService.setOriginMapCoordinateToCurrentMapCoordinate(
+                battleOrchestratorState.battleState.missionMap,
+                coordinateData.battleSquaddieId
+            )
+        }
+    )
+}
+const applySaveStateToOrchestratorStateInBattleAttributes = (
+    battleSaveState: BattleSaveState,
+    squaddieRepository: ObjectRepository
+) => {
+    for (let squaddieBattleId in battleSaveState.inBattleAttributesBySquaddieBattleId) {
+        const { battleSquaddie } = getResultOrThrowError(
+            ObjectRepositoryService.getSquaddieByBattleId(
+                squaddieRepository,
+                squaddieBattleId
+            )
+        )
+
+        battleSquaddie.inBattleAttributes =
+            battleSaveState.inBattleAttributesBySquaddieBattleId[
+                squaddieBattleId
+            ].inBattleAttributes
+        battleSquaddie.squaddieTurn =
+            battleSaveState.inBattleAttributesBySquaddieBattleId[
+                squaddieBattleId
+            ].turn
+    }
+}
+const applySaveStateToOrchestratorStateTeamsAndTeamStrategies = (
+    battleOrchestratorState: BattleOrchestratorState,
+    battleSaveState: BattleSaveState
+) => {
+    battleOrchestratorState.battleState.teams = [...battleSaveState.teams]
+    battleOrchestratorState.battleState.teamStrategiesById = {
+        ...battleSaveState.teamStrategiesById,
+    }
+}
+const applySaveStateToOrchestratorStateBattleEvents = (
+    battleOrchestratorState: BattleOrchestratorState,
+    battleSaveState: BattleSaveState
+) => {
+    battleOrchestratorState.battleState.battleEvents = [
+        ...battleSaveState.battleEvents,
+    ]
+}
+const applySaveStateToOrchestratorStateMissionCompletion = (
+    battleOrchestratorState: BattleOrchestratorState,
+    battleSaveState: BattleSaveState
+) => {
+    battleOrchestratorState.battleState.missionCompletionStatus = {
+        ...battleSaveState.missionCompletionStatus,
     }
 }

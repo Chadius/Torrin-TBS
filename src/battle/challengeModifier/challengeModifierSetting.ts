@@ -23,9 +23,7 @@ export interface ChallengeModifierSetting {
 }
 
 export const ChallengeModifierSettingService = {
-    new: (): ChallengeModifierSetting => {
-        return { [ChallengeModifierType.TRAINING_WHEELS]: false }
-    },
+    new: () => newChallengeModifierSetting(),
     getSetting: (
         challengeModifierSetting: ChallengeModifierSetting,
         type: ChallengeModifierType
@@ -82,6 +80,24 @@ export const ChallengeModifierSettingService = {
                 value: battleEvent.effect.value,
             })
         })
+    },
+    clone: (
+        challengeModifierSetting: ChallengeModifierSetting
+    ): ChallengeModifierSetting => {
+        const clone = newChallengeModifierSetting()
+        Object.entries(challengeModifierSetting).forEach(
+            ([challengeModifierType, value]: [
+                ChallengeModifierType,
+                ChallengeModifierValue,
+            ]) => {
+                setSetting({
+                    challengeModifierSetting: clone,
+                    type: challengeModifierType,
+                    value,
+                })
+            }
+        )
+        return clone
     },
 }
 
@@ -170,4 +186,8 @@ const preemptDegreeOfSuccessWithTrainingWheels = ({
         }
 
     return { didPreempt: false, newDegreeOfSuccess: DegreeOfSuccess.NONE }
+}
+
+const newChallengeModifierSetting = (): ChallengeModifierSetting => {
+    return { [ChallengeModifierType.TRAINING_WHEELS]: false }
 }
