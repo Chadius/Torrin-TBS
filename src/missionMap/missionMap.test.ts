@@ -292,16 +292,21 @@ describe("Mission Map", () => {
             coordinate: undefined,
         })
 
-        const squaddiesWithoutCoordinate = missionMap.squaddieInfo.filter(
-            (datum) => datum.currentMapCoordinate === undefined
-        )
-        expect(squaddiesWithoutCoordinate).toHaveLength(1)
-        expect(squaddiesWithoutCoordinate[0]).toEqual({
+        const offMapSquaddieInfo =
+            missionMap.squaddieInfoByBattleSquaddieId.get("dynamic_squaddie_0")
+        expect(offMapSquaddieInfo).toEqual({
             battleSquaddieId: "dynamic_squaddie_0",
             squaddieTemplateId: nahlaSquaddie.templateId,
             originMapCoordinate: { q: 0, r: 1 },
             currentMapCoordinate: undefined,
         })
+        expect(
+            missionMap.squaddieInfoByCoordinate.has(
+                HexCoordinateService.toString(
+                    offMapSquaddieInfo.originMapCoordinate
+                )
+            )
+        ).toBeFalsy()
 
         expect(
             MissionMapSquaddieCoordinateService.isValid(
