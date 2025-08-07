@@ -3,7 +3,10 @@ import {
     HexGridMovementCostService,
     HexGridTile,
 } from "./hexGridMovementCost"
-import { HexCoordinate } from "./hexCoordinate/hexCoordinate"
+import {
+    HexCoordinate,
+    HexCoordinateService,
+} from "./hexCoordinate/hexCoordinate"
 import {
     MapGraphicsLayer,
     MapGraphicsLayerHighlight,
@@ -12,7 +15,7 @@ import {
 } from "./mapLayer/mapGraphicsLayer"
 
 export interface TerrainTileMap {
-    coordinates: HexGridTile[]
+    coordinates: Map<string, HexGridTile>
     outlineTileCoordinates: HexCoordinate | undefined
     highlightLayers: MapGraphicsLayer[]
 }
@@ -39,8 +42,8 @@ export const TerrainTileMapService = {
         mapCoordinate: HexCoordinate
     }) {
         if (
-            terrainTileMap.coordinates.some(
-                (tile) => tile.q == mapCoordinate.q && tile.r == mapCoordinate.r
+            terrainTileMap.coordinates.has(
+                HexCoordinateService.toString(mapCoordinate)
             )
         ) {
             terrainTileMap.outlineTileCoordinates = { ...mapCoordinate }
@@ -207,8 +210,8 @@ const getTileAtCoordinate = (
     terrainTileMap: TerrainTileMap,
     hexCoordinate: HexCoordinate
 ): HexGridTile | undefined =>
-    terrainTileMap?.coordinates.find(
-        (tile) => tile.q === hexCoordinate.q && tile.r === hexCoordinate.r
+    terrainTileMap?.coordinates.get(
+        HexCoordinateService.toString(hexCoordinate)
     )
 
 const newTerrainTileMap = ({
@@ -217,24 +220,12 @@ const newTerrainTileMap = ({
     movementCost?: string[]
 }): TerrainTileMap => {
     let tiles: HexGridTile[] = convertMovementCostToTiles(movementCost)
-    tiles = [...tiles].sort((a, b) => {
-        if (a.q < b.q) {
-            return -1
-        }
-        if (a.q > b.q) {
-            return 1
-        }
-
-        if (a.r < b.r) {
-            return -1
-        }
-        if (a.r > b.r) {
-            return 1
-        }
-        return 0
+    const tilesByCoordinate = new Map<string, HexGridTile>()
+    tiles.forEach((tile) => {
+        tilesByCoordinate.set(HexCoordinateService.toString(tile), tile)
     })
     return {
-        coordinates: tiles,
+        coordinates: tilesByCoordinate,
         outlineTileCoordinates: undefined,
         highlightLayers: [],
     }
@@ -246,18 +237,16 @@ const getDimensions = (
     widthOfWidestRow: number
     numberOfRows: number
 } => {
-    let rowIndecies: { [row in number]: boolean } = {}
-    terrainTileMap.coordinates.forEach((tile) => {
-        rowIndecies[tile.q] = true
+    let rowIndexes = new Set<number>()
+    let columnIndexes = new Set<number>()
+    terrainTileMap?.coordinates.forEach((coordinate) => {
+        rowIndexes.add(coordinate.q)
+        columnIndexes.add(coordinate.r)
     })
-    let numberOfRows: number = Object.keys(rowIndecies).length
+    let numberOfRows: number = rowIndexes.size
 
-    let widthOfWidestRow: number = 0
-    terrainTileMap.coordinates.forEach((tile) => {
-        if (tile.r + 1 > widthOfWidestRow) {
-            widthOfWidestRow = tile.r + 1
-        }
-    })
+    let widthOfWidestRow: number =
+        Math.max(...Array.from(columnIndexes.values())) + 1
 
     return {
         widthOfWidestRow,

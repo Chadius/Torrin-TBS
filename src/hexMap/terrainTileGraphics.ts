@@ -29,7 +29,7 @@ export const TerrainTileGraphicsService = {
         terrainTileMap: TerrainTileMap
         camera: BattleCamera
     }): HexGridTile[] =>
-        terrainTileMap.coordinates.filter((tile) =>
+        Array.from(terrainTileMap.coordinates.values()).filter((tile) =>
             isCoordinateOnScreen({
                 terrainTileMap,
                 coordinate: tile,
