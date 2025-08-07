@@ -90,7 +90,7 @@ describe("Action Selected Tile", () => {
                     attributeModifiers: [
                         AttributeModifierService.new({
                             type: AttributeType.MOVEMENT,
-                            source: AttributeSource.STATUS,
+                            source: AttributeSource.MARTIAL,
                             amount: 1,
                         }),
                     ],

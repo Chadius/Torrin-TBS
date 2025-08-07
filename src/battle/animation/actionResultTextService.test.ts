@@ -392,12 +392,12 @@ describe("Action Result Text Writer", () => {
                         attributeModifiers: [
                             AttributeModifierService.new({
                                 type: AttributeType.MOVEMENT,
-                                source: AttributeSource.ITEM,
+                                source: AttributeSource.MARTIAL,
                                 amount: 1,
                             }),
                             AttributeModifierService.new({
                                 type: AttributeType.HUSTLE,
-                                source: AttributeSource.ITEM,
+                                source: AttributeSource.SPIRITUAL,
                                 amount: 1,
                             }),
                         ],
@@ -419,12 +419,12 @@ describe("Action Result Text Writer", () => {
                         attributeModifiers: [
                             AttributeModifierService.new({
                                 type: AttributeType.MOVEMENT,
-                                source: AttributeSource.ITEM,
+                                source: AttributeSource.ELEMENTAL,
                                 amount: 1,
                             }),
                             AttributeModifierService.new({
                                 type: AttributeType.HUSTLE,
-                                source: AttributeSource.STATUS,
+                                source: AttributeSource.MARTIAL,
                                 amount: 1,
                             }),
                         ],
@@ -452,10 +452,10 @@ describe("Action Result Text Writer", () => {
             expect(outputStrings).toHaveLength(3)
             expect(outputStrings[0]).toBe("Knight uses dash")
             expect(outputStrings[1]).toBe(
-                "Knight Movement +1 (Item): Travel further per action point"
+                "Knight Movement +1 (Elemental): Travel further per action point"
             )
             expect(outputStrings[2]).toBe(
-                "Knight Hustle (Status): Ignore rough terrain movement cost"
+                "Knight Hustle (Martial): Ignore rough terrain movement cost"
             )
         })
     })

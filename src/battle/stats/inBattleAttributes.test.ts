@@ -219,7 +219,7 @@ describe("inBattleAttributes", () => {
                 })
                 armorItem = AttributeModifierService.new({
                     type: AttributeType.ARMOR,
-                    source: AttributeSource.ITEM,
+                    source: AttributeSource.MARTIAL,
                     amount: 2,
                     description: "Magic Armor Plating",
                 })
@@ -396,7 +396,7 @@ describe("inBattleAttributes", () => {
                 const expiredArmorItem: AttributeModifier =
                     AttributeModifierService.new({
                         type: AttributeType.ARMOR,
-                        source: AttributeSource.ITEM,
+                        source: AttributeSource.MARTIAL,
                         amount: 9001,
                         duration: 0,
                     })
@@ -436,7 +436,7 @@ describe("inBattleAttributes", () => {
 
             const armorModifierFor1Round = AttributeModifierService.new({
                 type: AttributeType.ARMOR,
-                source: AttributeSource.ITEM,
+                source: AttributeSource.MARTIAL,
                 amount: 2,
                 duration: 1,
                 description: "Raise A Shield",
@@ -448,7 +448,7 @@ describe("inBattleAttributes", () => {
 
             const unlimitedArmorModifier = AttributeModifierService.new({
                 type: AttributeType.ARMOR,
-                source: AttributeSource.STATUS,
+                source: AttributeSource.MARTIAL,
                 amount: 3,
                 description: "Objective Complete",
             })
@@ -536,7 +536,7 @@ describe("inBattleAttributes", () => {
 
             const armorModifierFor1Use = AttributeModifierService.new({
                 type: AttributeType.ARMOR,
-                source: AttributeSource.ITEM,
+                source: AttributeSource.MARTIAL,
                 amount: 2,
                 numberOfUses: 1,
                 description: "Shield Block",
@@ -548,7 +548,7 @@ describe("inBattleAttributes", () => {
 
             const unlimitedArmorModifier = AttributeModifierService.new({
                 type: AttributeType.ARMOR,
-                source: AttributeSource.STATUS,
+                source: AttributeSource.MARTIAL,
                 amount: 3,
                 description: "Objective Complete",
             })
@@ -644,7 +644,7 @@ describe("inBattleAttributes", () => {
 
             const armorModifierFor1Use = AttributeModifierService.new({
                 type: AttributeType.ARMOR,
-                source: AttributeSource.ITEM,
+                source: AttributeSource.ELEMENTAL,
                 amount: 1,
                 description: "Scrap Armor",
             })
@@ -812,7 +812,7 @@ describe("inBattleAttributes", () => {
                     before,
                     AttributeModifierService.new({
                         type: AttributeType.ARMOR,
-                        source: AttributeSource.STATUS,
+                        source: AttributeSource.SPIRITUAL,
                         amount: 1,
                     })
                 )

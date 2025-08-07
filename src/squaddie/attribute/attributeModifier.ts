@@ -7,10 +7,11 @@ import {
 import { TextHandlingService } from "../../utils/graphics/textHandlingService"
 
 export enum AttributeSource {
-    CIRCUMSTANCE = "CIRCUMSTANCE",
-    ITEM = "ITEM",
-    STATUS = "STATUS",
     PROFICIENCY = "PROFICIENCY",
+    MARTIAL = "MARTIAL",
+    ELEMENTAL = "ELEMENTAL",
+    SPIRITUAL = "SPIRITUAL",
+    CIRCUMSTANCE = "CIRCUMSTANCE",
 }
 
 export interface AttributeModifier {
@@ -295,9 +296,10 @@ const getReadableAttributeSource = (
         [t in AttributeSource]?: string
     } = {
         [AttributeSource.CIRCUMSTANCE]: "Circumstance",
-        [AttributeSource.ITEM]: "Item",
         [AttributeSource.PROFICIENCY]: "Proficiency",
-        [AttributeSource.STATUS]: "Status",
+        [AttributeSource.MARTIAL]: "Martial",
+        [AttributeSource.ELEMENTAL]: "Elemental",
+        [AttributeSource.SPIRITUAL]: "Spiritual",
     }
     return attributeSourceToStringMapping[attributeSource] ?? ""
 }

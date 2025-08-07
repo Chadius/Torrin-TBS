@@ -719,7 +719,7 @@ describe("Action Preview Tile", () => {
                             attributeModifiers: [
                                 AttributeModifierService.new({
                                     type: AttributeType.ARMOR,
-                                    source: AttributeSource.STATUS,
+                                    source: AttributeSource.ELEMENTAL,
                                     amount: 1,
                                 }),
                             ],
@@ -750,7 +750,7 @@ describe("Action Preview Tile", () => {
                             attributeModifiers: [
                                 AttributeModifierService.new({
                                     type: AttributeType.ARMOR,
-                                    source: AttributeSource.STATUS,
+                                    source: AttributeSource.MARTIAL,
                                     amount: 1,
                                 }),
                             ],
@@ -759,7 +759,7 @@ describe("Action Preview Tile", () => {
                             attributeModifiers: [
                                 AttributeModifierService.new({
                                     type: AttributeType.ARMOR,
-                                    source: AttributeSource.STATUS,
+                                    source: AttributeSource.MARTIAL,
                                     amount: 1,
                                 }),
                             ],
@@ -836,7 +836,7 @@ describe("Action Preview Tile", () => {
                                     type: AttributeType.ELUSIVE,
                                     amount: 2,
                                     duration: 1,
-                                    source: AttributeSource.STATUS,
+                                    source: AttributeSource.SPIRITUAL,
                                 }),
                             ],
                         }),
@@ -876,7 +876,7 @@ describe("Action Preview Tile", () => {
                                                             type: AttributeType.ELUSIVE,
                                                             amount: 1,
                                                             duration: 1,
-                                                            source: AttributeSource.STATUS,
+                                                            source: AttributeSource.SPIRITUAL,
                                                         }
                                                     ),
                                                 ],
@@ -916,7 +916,7 @@ describe("Action Preview Tile", () => {
                                     type: AttributeType.ABSORB,
                                     amount: 2,
                                     duration: 1,
-                                    source: AttributeSource.STATUS,
+                                    source: AttributeSource.ELEMENTAL,
                                 }),
                             ],
                         }),
@@ -956,7 +956,7 @@ describe("Action Preview Tile", () => {
                                                             type: AttributeType.ABSORB,
                                                             amount: 2,
                                                             duration: 1,
-                                                            source: AttributeSource.STATUS,
+                                                            source: AttributeSource.ELEMENTAL,
                                                         }
                                                     ),
                                                 ],

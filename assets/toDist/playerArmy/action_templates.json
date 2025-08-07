@@ -102,14 +102,14 @@
         "attributeModifiers": [
           {
             "type": "HUSTLE",
-            "source": "CIRCUMSTANCE",
+            "source": "ELEMENTAL",
             "amount": 1,
             "duration": 1,
             "description": "Ignore terrain penalties"
           },
           {
             "type": "ELUSIVE",
-            "source": "CIRCUMSTANCE",
+            "source": "ELEMENTAL",
             "amount": 1,
             "duration": 1,
             "description": "Pass through enemies"
@@ -197,14 +197,14 @@
         "attributeModifiers": [
           {
             "type": "ARMOR",
-            "source": "CIRCUMSTANCE",
+            "source": "MARTIAL",
             "amount": 1,
             "duration": 1,
             "description": "Raise your shield to improve defense"
           },
           {
             "type": "ABSORB",
-            "source": "CIRCUMSTANCE",
+            "source": "MARTIAL",
             "amount": 1,
             "duration": 1,
             "description": "Your shield will shrug off a small amount of damage"

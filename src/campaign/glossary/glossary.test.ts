@@ -110,7 +110,7 @@ describe("glossary", () => {
                             }),
                             AttributeModifierService.new({
                                 type: AttributeType.ELUSIVE,
-                                source: AttributeSource.STATUS,
+                                source: AttributeSource.SPIRITUAL,
                                 amount: 1,
                                 duration: 1,
                             }),
@@ -141,7 +141,7 @@ describe("glossary", () => {
                 glossary.getGlossaryTermFromAttributeModifier(
                     AttributeModifierService.new({
                         type: AttributeType.ELUSIVE,
-                        source: AttributeSource.STATUS,
+                        source: AttributeSource.SPIRITUAL,
                         amount: 1,
                         duration: 1,
                     })
@@ -250,7 +250,7 @@ describe("glossary", () => {
 
             const movementModifier = AttributeModifierService.new({
                 type: AttributeType.MOVEMENT,
-                source: AttributeSource.ITEM,
+                source: AttributeSource.MARTIAL,
                 amount: 1,
                 numberOfUses: 2,
             })
@@ -281,7 +281,7 @@ describe("glossary", () => {
         it("returns glossary terms for binary attribute modifiers", () => {
             const hustleModifier = AttributeModifierService.new({
                 type: AttributeType.HUSTLE,
-                source: AttributeSource.STATUS,
+                source: AttributeSource.SPIRITUAL,
                 amount: 1,
                 duration: 2,
             })
@@ -326,14 +326,14 @@ describe("glossary", () => {
 
             const expiredModifier = AttributeModifierService.new({
                 type: AttributeType.MOVEMENT,
-                source: AttributeSource.ITEM,
+                source: AttributeSource.SPIRITUAL,
                 amount: 1,
                 duration: 0,
             })
 
             const usedUpModifier = AttributeModifierService.new({
                 type: AttributeType.ABSORB,
-                source: AttributeSource.STATUS,
+                source: AttributeSource.MARTIAL,
                 amount: 5,
                 numberOfUses: 0,
             })

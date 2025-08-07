@@ -397,7 +397,7 @@ describe("Squaddie Name and Portrait Tile", () => {
                     }),
                     AttributeModifierService.new({
                         type: AttributeType.HUSTLE,
-                        source: AttributeSource.STATUS,
+                        source: AttributeSource.SPIRITUAL,
                         amount: 1,
                         duration: 2,
                     }),
@@ -457,7 +457,7 @@ describe("Squaddie Name and Portrait Tile", () => {
         it("filters out inactive attribute modifiers", () => {
             const inactiveModifier = AttributeModifierService.new({
                 type: AttributeType.MOVEMENT,
-                source: AttributeSource.ITEM,
+                source: AttributeSource.SPIRITUAL,
                 amount: 1,
                 duration: 0,
             })
@@ -490,7 +490,7 @@ describe("Squaddie Name and Portrait Tile", () => {
                 attributeModifiers: [
                     AttributeModifierService.new({
                         type: AttributeType.HUSTLE,
-                        source: AttributeSource.STATUS,
+                        source: AttributeSource.SPIRITUAL,
                         amount: 1,
                         duration: 2,
                     }),
@@ -536,7 +536,7 @@ describe("Squaddie Name and Portrait Tile", () => {
                     }),
                     AttributeModifierService.new({
                         type: AttributeType.MOVEMENT,
-                        source: AttributeSource.STATUS,
+                        source: AttributeSource.MARTIAL,
                         amount: -1,
                         numberOfUses: 2,
                     }),
@@ -579,7 +579,7 @@ describe("Squaddie Name and Portrait Tile", () => {
             )
 
             expect(armorLabel.description.text).toContain("Circumstance")
-            expect(hustleLabel.description.text).toContain("Status")
+            expect(hustleLabel.description.text).toContain("Spiritual")
         })
     })
 

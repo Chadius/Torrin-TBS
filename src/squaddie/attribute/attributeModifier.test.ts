@@ -182,7 +182,7 @@ describe("AttributeModifier", () => {
                 })
                 armorItem = AttributeModifierService.new({
                     type: AttributeType.ARMOR,
-                    source: AttributeSource.ITEM,
+                    source: AttributeSource.MARTIAL,
                     amount: 2,
                     description: "Magic Armor Plating",
                 })
@@ -320,7 +320,7 @@ describe("AttributeModifier", () => {
                 const expiredArmorItem: AttributeModifier =
                     AttributeModifierService.new({
                         type: AttributeType.ARMOR,
-                        source: AttributeSource.ITEM,
+                        source: AttributeSource.ELEMENTAL,
                         amount: 9001,
                         duration: 0,
                     })
@@ -348,12 +348,12 @@ describe("AttributeModifier", () => {
         const readableDescription: { [t: string]: string } = {
             [`${AttributeType.ARMOR} ${AttributeSource.CIRCUMSTANCE}`]:
                 "Armor -1 (Circumstance): Harder to hit",
-            [AttributeType.ABSORB]: "Absorb +2 (Item): Temporary HP",
+            [AttributeType.ABSORB]: "Absorb +2 (Martial): Temporary HP",
             [AttributeType.MOVEMENT]: "Movement NO CHANGE",
             [AttributeType.HUSTLE]:
-                "Hustle (Circumstance): Ignore rough terrain movement cost",
+                "Hustle (Martial): Ignore rough terrain movement cost",
             [AttributeType.ELUSIVE]:
-                "Elusive (Status): Can pass through enemies",
+                "Elusive (Spiritual): Can pass through enemies",
             [`${AttributeType.ARMOR} ${AttributeSource.PROFICIENCY}`]:
                 "Armor +4 (Proficiency): Harder to hit",
         }
@@ -361,8 +361,8 @@ describe("AttributeModifier", () => {
         test.each`
             attributeType             | amount | source                          | readableDescription
             ${AttributeType.ARMOR}    | ${-1}  | ${AttributeSource.CIRCUMSTANCE} | ${readableDescription[`${AttributeType.ARMOR} ${AttributeSource.CIRCUMSTANCE}`]}
-            ${AttributeType.ABSORB}   | ${2}   | ${AttributeSource.ITEM}         | ${readableDescription[AttributeType.ABSORB]}
-            ${AttributeType.MOVEMENT} | ${0}   | ${AttributeSource.STATUS}       | ${readableDescription[AttributeType.MOVEMENT]}
+            ${AttributeType.ABSORB}   | ${2}   | ${AttributeSource.MARTIAL}      | ${readableDescription[AttributeType.ABSORB]}
+            ${AttributeType.MOVEMENT} | ${0}   | ${AttributeSource.ELEMENTAL}    | ${readableDescription[AttributeType.MOVEMENT]}
             ${AttributeType.ARMOR}    | ${4}   | ${AttributeSource.PROFICIENCY}  | ${readableDescription[`${AttributeType.ARMOR} ${AttributeSource.PROFICIENCY}`]}
         `(
             "$attributeType $amount $source description is: $readableDescription",
@@ -380,9 +380,9 @@ describe("AttributeModifier", () => {
         )
 
         test.each`
-            attributeType            | source                          | readableDescription
-            ${AttributeType.HUSTLE}  | ${AttributeSource.CIRCUMSTANCE} | ${readableDescription[AttributeType.HUSTLE]}
-            ${AttributeType.ELUSIVE} | ${AttributeSource.STATUS}       | ${readableDescription[AttributeType.ELUSIVE]}
+            attributeType            | source                       | readableDescription
+            ${AttributeType.HUSTLE}  | ${AttributeSource.MARTIAL}   | ${readableDescription[AttributeType.HUSTLE]}
+            ${AttributeType.ELUSIVE} | ${AttributeSource.SPIRITUAL} | ${readableDescription[AttributeType.ELUSIVE]}
         `(
             "$attributeType $source description is: $readableDescription",
             ({ attributeType, source, readableDescription }) => {
@@ -473,16 +473,20 @@ describe("AttributeModifier", () => {
                 expectedString: "Circumstance",
             },
             {
-                source: AttributeSource.ITEM,
-                expectedString: "Item",
-            },
-            {
-                source: AttributeSource.STATUS,
-                expectedString: "Status",
-            },
-            {
                 source: AttributeSource.PROFICIENCY,
                 expectedString: "Proficiency",
+            },
+            {
+                source: AttributeSource.MARTIAL,
+                expectedString: "Martial",
+            },
+            {
+                source: AttributeSource.ELEMENTAL,
+                expectedString: "Elemental",
+            },
+            {
+                source: AttributeSource.SPIRITUAL,
+                expectedString: "Spiritual",
             },
         ]
 
