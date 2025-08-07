@@ -17,6 +17,7 @@ import {
     ButtonStatusChangeEventByButtonId,
 } from "./base"
 import { ButtonLogicChangeOnRelease } from "./buttonLogicChangeOnRelease"
+import { CommonButtonLogicTests } from "./commonButtonLogicTests"
 
 describe("Button Logic Change on Release", () => {
     let dataBlob: ButtonStatusChangeEventByButtonId
@@ -403,16 +404,13 @@ describe("Button Logic Change on Release", () => {
         })
 
         it("will ignore invalid states", () => {
-            Object.keys(ButtonStatus)
-                .map((keyStr) => keyStr as ButtonStatus)
-                .filter((key) => !validStatuses.includes(key))
-                .forEach((invalidStatus) => {
-                    buttonLogic.changeStatus({
-                        buttonId: "new buttonLogic",
-                        newStatus: invalidStatus,
-                    })
-                    expect(buttonLogic.status).toEqual(ButtonStatus.READY)
+            expect(
+                CommonButtonLogicTests.willIgnoreInvalidStatuses({
+                    validStatuses,
+                    buttonLogic,
+                    buttonId: "new buttonLogic",
                 })
+            ).toBeTruthy()
         })
     })
 })

@@ -36,9 +36,10 @@ export const CommonButtonLogicTests = {
         buttonId: string
     }) => {
         const initialStatus = buttonLogic.status
+        const validStatusSet = new Set(validStatuses)
         Object.keys(ButtonStatus)
             .map((keyStr) => keyStr as ButtonStatus)
-            .filter((key) => !validStatuses.includes(key))
+            .filter((key) => !validStatusSet.has(key))
             .forEach((invalidStatus) => {
                 buttonLogic.changeStatus({
                     buttonId,
