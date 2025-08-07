@@ -292,16 +292,17 @@ describe("Mission Map", () => {
             coordinate: undefined,
         })
 
-        expect(
-            MissionMapService.getSquaddiesThatHaveNoCoordinate(missionMap)
-        ).toStrictEqual([
-            {
-                battleSquaddieId: "dynamic_squaddie_0",
-                squaddieTemplateId: nahlaSquaddie.templateId,
-                originMapCoordinate: { q: 0, r: 1 },
-                currentMapCoordinate: undefined,
-            },
-        ])
+        const squaddiesWithoutCoordinate = missionMap.squaddieInfo.filter(
+            (datum) => datum.currentMapCoordinate === undefined
+        )
+        expect(squaddiesWithoutCoordinate).toHaveLength(1)
+        expect(squaddiesWithoutCoordinate[0]).toEqual({
+            battleSquaddieId: "dynamic_squaddie_0",
+            squaddieTemplateId: nahlaSquaddie.templateId,
+            originMapCoordinate: { q: 0, r: 1 },
+            currentMapCoordinate: undefined,
+        })
+
         expect(
             MissionMapSquaddieCoordinateService.isValid(
                 MissionMapService.getBattleSquaddieAtCoordinate(missionMap, {

@@ -19,7 +19,7 @@ export interface MissionMap {
     playerDeployment: SquaddieDeployment
     terrainTileMap: TerrainTileMap
     squaddieInfo: MissionMapSquaddieCoordinate[]
-    squaddiesHidden: string[]
+    squaddiesHidden: Set<string>
 }
 
 export const MissionMapService = {
@@ -30,7 +30,7 @@ export const MissionMapService = {
     }): MissionMap => ({
         terrainTileMap: terrainTileMap,
         squaddieInfo: [],
-        squaddiesHidden: [],
+        squaddiesHidden: new Set<string>(),
         playerDeployment: SquaddieDeploymentService.new({
             affiliation: SquaddieAffiliation.PLAYER,
         }),
@@ -171,10 +171,6 @@ export const MissionMapService = {
     ): MissionMapSquaddieCoordinate => {
         return getSquaddieAtCoordinate(missionMap, coordinate)
     },
-    getSquaddiesThatHaveNoCoordinate: (missionMap: MissionMap) =>
-        missionMap.squaddieInfo
-            .filter((datum) => datum.currentMapCoordinate === undefined)
-            .map((datum) => MissionMapSquaddieCoordinateService.clone(datum)),
     getAllSquaddieData: (missionMap: MissionMap) =>
         missionMap.squaddieInfo.map((datum) =>
             MissionMapSquaddieCoordinateService.clone(datum)
@@ -188,7 +184,7 @@ export const MissionMapService = {
         battleSquaddieId: string
     ): void => {
         if (!isSquaddieHiddenFromDrawing(missionMap, battleSquaddieId)) {
-            missionMap.squaddiesHidden.push(battleSquaddieId)
+            missionMap.squaddiesHidden.add(battleSquaddieId)
         }
     },
     revealSquaddieForDrawing: (
@@ -196,9 +192,7 @@ export const MissionMapService = {
         battleSquaddieId: string
     ): void => {
         if (isSquaddieHiddenFromDrawing(missionMap, battleSquaddieId)) {
-            missionMap.squaddiesHidden = missionMap.squaddiesHidden.filter(
-                (id) => id !== battleSquaddieId
-            )
+            missionMap.squaddiesHidden.delete(battleSquaddieId)
         }
     },
     setOriginMapCoordinateToCurrentMapCoordinate: (
@@ -247,5 +241,5 @@ const isSquaddieHiddenFromDrawing = (
     missionMap: MissionMap,
     battleSquaddieId: string
 ): boolean => {
-    return missionMap.squaddiesHidden.includes(battleSquaddieId)
+    return missionMap.squaddiesHidden.has(battleSquaddieId)
 }
