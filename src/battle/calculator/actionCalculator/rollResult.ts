@@ -8,6 +8,7 @@ export enum RollModifierType {
 }
 
 export const RollModifierTypeService = {
+    DIE_SIZE,
     readableName: ({
         type,
         abbreviate,

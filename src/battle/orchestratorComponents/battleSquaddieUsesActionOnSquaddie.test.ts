@@ -69,6 +69,8 @@ import {
     vi,
 } from "vitest"
 import { BattleHUDListener } from "../hud/battleHUD/battleHUDListener"
+import { BattleActionActorContextService } from "../history/battleAction/battleActionActorContext"
+import { RollResultService } from "../calculator/actionCalculator/rollResult"
 
 describe("BattleSquaddieUsesActionOnSquaddie", () => {
     let objectRepository: ObjectRepository
@@ -332,6 +334,12 @@ describe("BattleSquaddieUsesActionOnSquaddie", () => {
             BattleActionService.new({
                 actor: {
                     actorBattleSquaddieId: battleSquaddieBase.battleSquaddieId,
+                    actorContext: BattleActionActorContextService.new({
+                        actingSquaddieRoll: RollResultService.new({
+                            rolls: [1, 6],
+                            occurred: true,
+                        }),
+                    }),
                 },
                 action: {
                     actionTemplateId: powerAttackLongswordAction.id,

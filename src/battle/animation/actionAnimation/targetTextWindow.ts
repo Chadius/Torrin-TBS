@@ -15,6 +15,11 @@ import { ActionEffectTemplate } from "../../../action/template/actionEffectTempl
 import { GraphicsBuffer } from "../../../utils/graphics/graphicsRenderer"
 import { BattleActionSquaddieChange } from "../../history/battleAction/battleActionSquaddieChange"
 
+const TargetTextWindowLayout = {
+    top: ScreenDimensions.SCREEN_HEIGHT * 0.33,
+    height: ScreenDimensions.SCREEN_HEIGHT * 0.25,
+}
+
 export class TargetTextWindow {
     private _result: BattleActionSquaddieChange
 
@@ -68,7 +73,6 @@ export class TargetTextWindow {
         this.createBeforeActionText({
             targetTemplate,
             targetBattle,
-            result,
             actionEffectSquaddieTemplate,
         })
         this._backgroundHue =
@@ -96,12 +100,10 @@ export class TargetTextWindow {
     private createBeforeActionText({
         targetTemplate,
         targetBattle,
-        result,
         actionEffectSquaddieTemplate,
     }: {
         targetTemplate: SquaddieTemplate
         targetBattle: BattleSquaddie
-        result: BattleActionSquaddieChange
         actionEffectSquaddieTemplate: ActionEffectTemplate
     }) {
         this._targetBeforeActionText =
@@ -120,8 +122,8 @@ export class TargetTextWindow {
             area: RectAreaService.new({
                 startColumn: 6,
                 endColumn: 7,
-                top: ScreenDimensions.SCREEN_HEIGHT * 0.33,
-                height: ScreenDimensions.SCREEN_HEIGHT * 0.33,
+                top: TargetTextWindowLayout.top,
+                height: TargetTextWindowLayout.height,
                 screenWidth: ScreenDimensions.SCREEN_WIDTH,
                 margin: [
                     WINDOW_SPACING.SPACING1,

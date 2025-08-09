@@ -14,7 +14,7 @@ import { TargetSprite } from "./actionAnimation/targetSprite"
 import { TargetTextWindow } from "./actionAnimation/targetTextWindow"
 import { HitPointMeter } from "./actionAnimation/hitPointMeter"
 import { SquaddieService } from "../../squaddie/squaddieService"
-import { WINDOW_SPACING } from "../../ui/constants"
+import { GOLDEN_RATIO, WINDOW_SPACING } from "../../ui/constants"
 import { HUE_BY_SQUADDIE_AFFILIATION } from "../../graphicsConstants"
 import { SquaddieActionAnimator } from "./squaddieActionAnimator"
 import { ScreenDimensions } from "../../utils/graphics/graphicsConfig"
@@ -31,6 +31,20 @@ import {
 import { BattleActionRecorderService } from "../history/battleAction/battleActionRecorder"
 import { ResourceHandler } from "../../resource/resourceHandler"
 import { ActionEffectChange } from "../history/calculatedResult"
+import {
+    DiceRollAnimation,
+    DiceRollAnimationService,
+} from "./attackRollAnimation/diceRollAnimation"
+import { DegreeOfSuccess } from "../calculator/actionCalculator/degreeOfSuccess"
+
+const DiceRollAnimationLayout = {
+    drawArea: {
+        startColumn: 4,
+        endColumn: 8,
+        top: ScreenDimensions.SCREEN_HEIGHT / GOLDEN_RATIO,
+        height: 40,
+    },
+}
 
 export class SquaddieTargetsOtherSquaddiesAnimator
     implements SquaddieActionAnimator
@@ -38,6 +52,7 @@ export class SquaddieTargetsOtherSquaddiesAnimator
     sawResultAftermath: boolean
     private startedShowingResults: boolean
     private _userRequestedAnimationSkip: boolean
+    diceRollAnimation: DiceRollAnimation
 
     constructor() {
         this.resetInternalState()
@@ -89,7 +104,7 @@ export class SquaddieTargetsOtherSquaddiesAnimator
         return this._targetHitPointMeters
     }
 
-    hasCompleted(state: GameEngineState): boolean {
+    hasCompleted(_: GameEngineState): boolean {
         return this.sawResultAftermath === true
     }
 
@@ -121,7 +136,7 @@ export class SquaddieTargetsOtherSquaddiesAnimator
         }
     }
 
-    start(state: GameEngineState) {
+    start(_: GameEngineState) {
         // Required by inheritance
     }
 
@@ -187,6 +202,11 @@ export class SquaddieTargetsOtherSquaddiesAnimator
                 this.sawResultAftermath = true
                 break
         }
+
+        DiceRollAnimationService.draw({
+            graphicsBuffer: graphicsContext,
+            diceRollAnimation: this.diceRollAnimation,
+        })
     }
 
     reset(gameEngineState: GameEngineState) {
@@ -261,6 +281,7 @@ export class SquaddieTargetsOtherSquaddiesAnimator
             resultPerTarget
         )
         this.setupAnimationForTargetHitPointMeters(gameEngineState)
+        this.setupDiceRollAnimation(results)
     }
 
     private setupAnimationForTargetSprites(
@@ -473,6 +494,24 @@ export class SquaddieTargetsOtherSquaddiesAnimator
             const hitPointChange: number =
                 change.healingReceived - change.damage.net
             hitPointMeter.changeHitPoints(hitPointChange)
+        })
+    }
+
+    private setupDiceRollAnimation(results: ActionEffectChange) {
+        const degreeOfSuccess =
+            results?.squaddieChanges[0]?.actorDegreeOfSuccess ??
+            DegreeOfSuccess.NONE
+
+        this.diceRollAnimation = DiceRollAnimationService.new({
+            degreeOfSuccess,
+            rollResult: results.actorContext.actorRoll,
+            drawArea: RectAreaService.new({
+                screenWidth: ScreenDimensions.SCREEN_WIDTH,
+                startColumn: DiceRollAnimationLayout.drawArea.startColumn,
+                endColumn: DiceRollAnimationLayout.drawArea.endColumn,
+                top: DiceRollAnimationLayout.drawArea.top,
+                height: DiceRollAnimationLayout.drawArea.height,
+            }),
         })
     }
 }

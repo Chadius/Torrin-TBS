@@ -19,8 +19,6 @@ export const TileAttributeTestUtils = {
         let resourceHandler = createMockResourceHandler(graphicsBuffer)
         return { graphicsBuffer, graphicsBufferSpies, resourceHandler }
     },
-    createMockResourceHandler: (graphicsBuffer: GraphicsBuffer) =>
-        createMockResourceHandler(graphicsBuffer),
     moveMouseOnLabel: (label: TileAttributeLabel) => {
         let labelBackgroundArea = TileAttributeLabelService.getArea(label)
         TileAttributeLabelService.mouseMoved({

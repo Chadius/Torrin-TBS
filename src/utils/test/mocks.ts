@@ -246,7 +246,9 @@ export const mockConsoleWarn = () => {
 }
 
 export const MockedGraphicsBufferService = {
-    addSpies: (mockP5GraphicsContext: GraphicsBuffer) => {
+    addSpies: (
+        mockP5GraphicsContext: GraphicsBuffer
+    ): { [key: string]: MockInstance } => {
         let graphicsBufferSpies: { [key: string]: MockInstance } = {}
         graphicsBufferSpies["text"] = vi
             .spyOn(mockP5GraphicsContext, "text")

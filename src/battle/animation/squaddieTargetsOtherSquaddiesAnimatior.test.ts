@@ -48,6 +48,8 @@ import { BattleActionRecorderService } from "../history/battleAction/battleActio
 import { TargetConstraintsService } from "../../action/targetConstraints"
 import { beforeEach, describe, expect, it, vi } from "vitest"
 import { PlayerInputTestService } from "../../utils/test/playerInput"
+import { BattleActionActorContextService } from "../history/battleAction/battleActionActorContext"
+import { RollResultService } from "../calculator/actionCalculator/rollResult"
 
 describe("SquaddieTargetsOtherSquaddiesAnimation", () => {
     let objectRepository: ObjectRepository
@@ -116,6 +118,12 @@ describe("SquaddieTargetsOtherSquaddiesAnimation", () => {
                 actor: {
                     actorBattleSquaddieId:
                         knightBattleSquaddie.battleSquaddieId,
+                    actorContext: BattleActionActorContextService.new({
+                        actingSquaddieRoll: RollResultService.new({
+                            rolls: [6, 1],
+                            occurred: true,
+                        }),
+                    }),
                 },
                 action: { actionTemplateId: longswordActionTemplate.id },
                 effect: {
@@ -144,30 +152,14 @@ describe("SquaddieTargetsOtherSquaddiesAnimation", () => {
 
     it("will create an actor sprite and a target sprite", () => {
         vi.spyOn(Date, "now").mockImplementation(() => 0)
-        const gameEngineState: GameEngineState = GameEngineStateService.new({
-            repository: objectRepository,
-            resourceHandler: mockResourceHandler,
-            battleOrchestratorState: BattleOrchestratorStateService.new({
-                battleState: BattleStateService.newBattleState({
-                    missionId: "test mission",
-                    campaignId: "test campaign",
-                }),
-            }),
+        animateKnightHittingWithLongsword({
+            objectRepository: objectRepository,
+            mockResourceHandler: mockResourceHandler,
+            knightHitsThiefWithLongswordInstructionBattleAction:
+                knightHitsThiefWithLongswordInstructionBattleAction,
+            animator: animator,
+            mockedP5GraphicsContext: mockedP5GraphicsContext,
         })
-
-        BattleActionRecorderService.addReadyToAnimateBattleAction(
-            gameEngineState.battleOrchestratorState.battleState
-                .battleActionRecorder,
-            knightHitsThiefWithLongswordInstructionBattleAction
-        )
-
-        animator.reset(gameEngineState)
-        animator.update({
-            gameEngineState,
-            graphicsContext: mockedP5GraphicsContext,
-            resourceHandler: gameEngineState.resourceHandler,
-        })
-
         expect(animator.actorSprite).not.toBeUndefined()
         expect(animator.actorSprite.battleSquaddieId).toBe(
             knightBattleSquaddieId
@@ -176,6 +168,22 @@ describe("SquaddieTargetsOtherSquaddiesAnimation", () => {
         expect(animator.targetSprites).not.toBeUndefined()
         expect(animator.targetSprites).toHaveLength(1)
         expect(animator.targetSprites[0].battleSquaddieId).toBe(thiefDynamicId)
+    })
+
+    it("creates dice roll animation", () => {
+        animateKnightHittingWithLongsword({
+            objectRepository: objectRepository,
+            mockResourceHandler: mockResourceHandler,
+            knightHitsThiefWithLongswordInstructionBattleAction:
+                knightHitsThiefWithLongswordInstructionBattleAction,
+            animator: animator,
+            mockedP5GraphicsContext: mockedP5GraphicsContext,
+        })
+        expect(animator.diceRollAnimation.degreeOfSuccess).toEqual(
+            knightHitsThiefWithLongswordInstructionBattleAction.effect
+                .squaddie[0].actorDegreeOfSuccess
+        )
+        expect(animator.diceRollAnimation.dice).toHaveLength(2)
     })
 
     describe("will skip displaying the results", () => {
@@ -225,31 +233,13 @@ describe("SquaddieTargetsOtherSquaddiesAnimation", () => {
                 animator.actionAnimationTimer,
                 ActionAnimationPhase.INITIALIZED
             )
-            const gameEngineState: GameEngineState = GameEngineStateService.new(
-                {
-                    repository: objectRepository,
-                    resourceHandler: mockResourceHandler,
-                    battleOrchestratorState: BattleOrchestratorStateService.new(
-                        {
-                            battleState: BattleStateService.newBattleState({
-                                missionId: "test mission",
-                                campaignId: "test campaign",
-                            }),
-                        }
-                    ),
-                }
-            )
-            BattleActionRecorderService.addReadyToAnimateBattleAction(
-                gameEngineState.battleOrchestratorState.battleState
-                    .battleActionRecorder,
-                knightHitsThiefWithLongswordInstructionBattleAction
-            )
-
-            animator.reset(gameEngineState)
-            animator.update({
-                gameEngineState,
-                graphicsContext: mockedP5GraphicsContext,
-                resourceHandler: gameEngineState.resourceHandler,
+            const gameEngineState = animateKnightHittingWithLongsword({
+                objectRepository: objectRepository,
+                mockResourceHandler: mockResourceHandler,
+                knightHitsThiefWithLongswordInstructionBattleAction:
+                    knightHitsThiefWithLongswordInstructionBattleAction,
+                animator: animator,
+                mockedP5GraphicsContext: mockedP5GraphicsContext,
             })
             mockActionTimerPhase(
                 animator.actionAnimationTimer,
@@ -278,28 +268,13 @@ describe("SquaddieTargetsOtherSquaddiesAnimation", () => {
             animator.actionAnimationTimer,
             ActionAnimationPhase.INITIALIZED
         )
-        const gameEngineState: GameEngineState = GameEngineStateService.new({
-            repository: objectRepository,
-            resourceHandler: mockResourceHandler,
-            battleOrchestratorState: BattleOrchestratorStateService.new({
-                battleState: BattleStateService.newBattleState({
-                    missionId: "test mission",
-                    campaignId: "test campaign",
-                }),
-            }),
-        })
-
-        BattleActionRecorderService.addReadyToAnimateBattleAction(
-            gameEngineState.battleOrchestratorState.battleState
-                .battleActionRecorder,
-            knightHitsThiefWithLongswordInstructionBattleAction
-        )
-
-        animator.reset(gameEngineState)
-        animator.update({
-            gameEngineState,
-            graphicsContext: mockedP5GraphicsContext,
-            resourceHandler: gameEngineState.resourceHandler,
+        const gameEngineState = animateKnightHittingWithLongsword({
+            objectRepository: objectRepository,
+            mockResourceHandler: mockResourceHandler,
+            knightHitsThiefWithLongswordInstructionBattleAction:
+                knightHitsThiefWithLongswordInstructionBattleAction,
+            animator: animator,
+            mockedP5GraphicsContext: mockedP5GraphicsContext,
         })
         expect(animator.hasCompleted(gameEngineState)).toBeFalsy()
 
@@ -345,3 +320,41 @@ describe("SquaddieTargetsOtherSquaddiesAnimation", () => {
         ).toBeTruthy()
     })
 })
+
+const animateKnightHittingWithLongsword = ({
+    objectRepository,
+    mockResourceHandler,
+    knightHitsThiefWithLongswordInstructionBattleAction,
+    animator,
+    mockedP5GraphicsContext,
+}: {
+    objectRepository: ObjectRepository
+    mockResourceHandler: ResourceHandler
+    knightHitsThiefWithLongswordInstructionBattleAction: BattleAction
+    animator: SquaddieTargetsOtherSquaddiesAnimator
+    mockedP5GraphicsContext: MockedP5GraphicsBuffer
+}) => {
+    const gameEngineState: GameEngineState = GameEngineStateService.new({
+        repository: objectRepository,
+        resourceHandler: mockResourceHandler,
+        battleOrchestratorState: BattleOrchestratorStateService.new({
+            battleState: BattleStateService.newBattleState({
+                missionId: "test mission",
+                campaignId: "test campaign",
+            }),
+        }),
+    })
+    BattleActionRecorderService.addReadyToAnimateBattleAction(
+        gameEngineState.battleOrchestratorState.battleState
+            .battleActionRecorder,
+        knightHitsThiefWithLongswordInstructionBattleAction
+    )
+
+    animator.reset(gameEngineState)
+    animator.update({
+        gameEngineState,
+        graphicsContext: mockedP5GraphicsContext,
+        resourceHandler: gameEngineState.resourceHandler,
+    })
+    return gameEngineState
+}

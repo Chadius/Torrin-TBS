@@ -16,7 +16,7 @@ import { ActionEffectChange } from "../../history/calculatedResult"
 
 export const ACTOR_TEXT_WINDOW = {
     top: ScreenDimensions.SCREEN_HEIGHT * 0.33,
-    height: ScreenDimensions.SCREEN_HEIGHT * 0.33,
+    height: ScreenDimensions.SCREEN_HEIGHT * 0.25,
 }
 
 export class ActorTextWindow {
