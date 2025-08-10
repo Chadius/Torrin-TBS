@@ -1,5 +1,5 @@
 import { RectArea } from "../rectArea"
-import * as p5 from "p5"
+import { HORIZ_ALIGN, VERT_ALIGN } from "p5"
 import { HORIZONTAL_ALIGN, VERTICAL_ALIGN } from "../constants"
 import { isValidValue } from "../../utils/objectValidityCheck"
 import { GraphicsBuffer } from "../../utils/graphics/graphicsRenderer"
@@ -9,8 +9,8 @@ export type TextBoxArguments = {
     fontSize: number
     fontColor: number[]
     area: RectArea
-    horizAlign?: p5.HORIZ_ALIGN
-    vertAlign?: p5.VERT_ALIGN
+    horizAlign?: HORIZ_ALIGN
+    vertAlign?: VERT_ALIGN
     duration?: number
     lastTimeDrawn?: number
 }
@@ -19,8 +19,8 @@ export interface TextBox {
     fontSize: number
     fontColor: number[]
     area: RectArea
-    horizAlign: p5.HORIZ_ALIGN
-    vertAlign: p5.VERT_ALIGN
+    horizAlign: HORIZ_ALIGN
+    vertAlign: VERT_ALIGN
     duration: number
     lastTimeDrawn: number
     text: string
@@ -49,6 +49,7 @@ export const TextBoxService = {
         }
     },
     draw: (textBox: TextBox, graphics: GraphicsBuffer): void => {
+        if (!textBox) return
         if (isDone(textBox)) {
             return
         }

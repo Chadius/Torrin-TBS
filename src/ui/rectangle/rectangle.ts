@@ -58,6 +58,7 @@ export const RectangleService = {
         }
     },
     draw: (rectangle: Rectangle, graphics: GraphicsBuffer): void => {
+        if (!rectangle) return
         graphics.push()
         if (isValidValue(rectangle.fillColor)) {
             graphics.fill(

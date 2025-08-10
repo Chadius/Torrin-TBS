@@ -69,5 +69,6 @@ const draw = ({
     individualDie: IndividualDieAnimation
     graphicsBuffer: GraphicsBuffer
 }) => {
+    if (!individualDie?.label) return
     LabelService.draw(individualDie.label, graphicsBuffer)
 }

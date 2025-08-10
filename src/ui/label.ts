@@ -45,6 +45,7 @@ export const LabelService = {
         }
     },
     draw: (label: Label, graphics: GraphicsBuffer): void => {
+        if (!label) return
         RectangleService.draw(label.rectangle, graphics)
         TextBoxService.draw(label.textBox, graphics)
     },

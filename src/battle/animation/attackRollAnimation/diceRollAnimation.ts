@@ -153,7 +153,6 @@ const drawExtremeRollNotification = ({
     diceRollAnimation: DiceRollAnimation
     graphicsBuffer: GraphicsBuffer
 }) => {
-    if (!diceRollAnimation.notifications.extremeRoll) return
     LabelService.draw(
         diceRollAnimation.notifications.extremeRoll,
         graphicsBuffer
