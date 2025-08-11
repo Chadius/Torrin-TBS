@@ -9,10 +9,7 @@ import { ActionResultText } from "./actionAnimation/actionResultText"
 import { DegreeOfSuccess } from "../calculator/actionCalculator/degreeOfSuccess"
 import { ActionTimer } from "./actionAnimation/actionTimer"
 import { ActionAnimationPhase } from "./actionAnimation/actionAnimationConstants"
-import {
-    RollModifierType,
-    RollResultService,
-} from "../calculator/actionCalculator/rollResult"
+import { RollModifierType } from "../calculator/actionCalculator/rollResult"
 import { BattleSquaddie } from "../battleSquaddie"
 import {
     ActionEffectTemplate,
@@ -176,9 +173,6 @@ export const ActionResultTextService = {
             ].includes(timer.currentPhase) &&
             results.actorContext?.actorRoll.occurred
         ) {
-            actorUsesActionDescriptionText += `\n\n`
-            actorUsesActionDescriptionText += `   rolls(${results.actorContext.actorRoll.rolls[0]}, ${results.actorContext.actorRoll.rolls[1]})`
-
             const attackPenaltyDescriptions =
                 ActionResultText.getAttackPenaltyDescriptions(
                     results.actorContext.actorAttributeModifiers
@@ -197,17 +191,6 @@ export const ActionResultTextService = {
             }
 
             actorUsesActionDescriptionText += `\n${ActionResultText.getActingSquaddieRollTotalIfNeeded(results.actorContext)}`
-
-            if (
-                RollResultService.isMaximumRoll(results.actorContext.actorRoll)
-            ) {
-                actorUsesActionDescriptionText += `\n\nMax!`
-            }
-            if (
-                RollResultService.isMinimumRoll(results.actorContext.actorRoll)
-            ) {
-                actorUsesActionDescriptionText += `\n\nbotch...`
-            }
         }
         return actorUsesActionDescriptionText
     },

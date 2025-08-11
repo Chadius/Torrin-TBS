@@ -108,7 +108,7 @@ describe("ActorTextWindow", () => {
         expect(timerSpy).toBeCalled()
 
         expect(window.actorUsesActionDescriptionText).toBe(
-            "Actor uses\nAction\n\n   rolls(1, 5)\n Total 6"
+            "Actor uses\nAction\n Total 6"
         )
     })
 
@@ -139,68 +139,6 @@ describe("ActorTextWindow", () => {
         expect(timerSpy).toBeCalled()
 
         expect(window.actorUsesActionDescriptionText).toBe("Actor uses\nAction")
-    })
-
-    it("will indicate a maximum roll if the actor rolled critically high", () => {
-        const window = new ActorTextWindow()
-
-        window.start({
-            actorTemplate: actorTemplate,
-            actorBattle: undefined,
-            actionTemplateName: attackThatUsesAttackRoll.name,
-            results: ActionEffectChangesService.new({
-                actorContext: BattleActionActorContextService.new({
-                    actingSquaddieRoll: RollResultService.new({
-                        occurred: true,
-                        rolls: [6, 6],
-                    }),
-                    actingSquaddieModifiers: [],
-                }),
-                squaddieChanges: [],
-            }),
-        })
-
-        const timerSpy = vi
-            .spyOn(mockedActionTimer, "currentPhase", "get")
-            .mockReturnValue(ActionAnimationPhase.DURING_ACTION)
-
-        window.draw(mockedP5GraphicsContext, mockedActionTimer)
-        expect(timerSpy).toBeCalled()
-
-        expect(window.actorUsesActionDescriptionText).toBe(
-            "Actor uses\nAction\n\n   rolls(6, 6)\n Total 12\n\nMax!"
-        )
-    })
-
-    it("will indicate a minimum roll if the actor rolled critically low", () => {
-        const window = new ActorTextWindow()
-
-        window.start({
-            actorTemplate: actorTemplate,
-            actorBattle: undefined,
-            actionTemplateName: attackThatUsesAttackRoll.name,
-            results: ActionEffectChangesService.new({
-                actorContext: BattleActionActorContextService.new({
-                    actingSquaddieRoll: RollResultService.new({
-                        occurred: true,
-                        rolls: [1, 1],
-                    }),
-                    actingSquaddieModifiers: [],
-                }),
-                squaddieChanges: [],
-            }),
-        })
-
-        const timerSpy = vi
-            .spyOn(mockedActionTimer, "currentPhase", "get")
-            .mockReturnValue(ActionAnimationPhase.DURING_ACTION)
-
-        window.draw(mockedP5GraphicsContext, mockedActionTimer)
-        expect(timerSpy).toBeCalled()
-
-        expect(window.actorUsesActionDescriptionText).toBe(
-            "Actor uses\nAction\n\n   rolls(1, 1)\n Total 2\n\nbotch..."
-        )
     })
 
     describe("attack modifiers", () => {
@@ -268,7 +206,7 @@ describe("ActorTextWindow", () => {
             expect(timerSpy).toBeCalled()
 
             expect(window.actorUsesActionDescriptionText).toBe(
-                "Actor uses\nAction\n\n   rolls(1, 5)\n   -2: Multiple attack penalty\n Total 4"
+                "Actor uses\nAction\n   -2: Multiple attack penalty\n Total 4"
             )
         })
     })
