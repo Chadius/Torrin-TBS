@@ -36,6 +36,20 @@ import {
     DiceRollAnimationService,
 } from "./attackRollAnimation/diceRollAnimation"
 import { DegreeOfSuccess } from "../calculator/actionCalculator/degreeOfSuccess"
+import {
+    ModifierDisplayColumn,
+    ModifierDisplayColumnData,
+    ModifierDisplayColumnPosition,
+    ModifierDisplayColumnService,
+} from "./modifierDisplay/modifierDisplayColumn"
+import {
+    AttributeTypeAndAmount,
+    AttributeTypeService,
+} from "../../squaddie/attribute/attributeType"
+import {
+    RollModifierType,
+    RollModifierTypeService,
+} from "../calculator/actionCalculator/rollResult"
 
 const DiceRollAnimationLayout = {
     drawArea: {
@@ -53,6 +67,9 @@ export class SquaddieTargetsOtherSquaddiesAnimator
     private startedShowingResults: boolean
     private _userRequestedAnimationSkip: boolean
     diceRollAnimation: DiceRollAnimation
+    modifierDisplayColumns: {
+        [p in ModifierDisplayColumnPosition]: ModifierDisplayColumn
+    }
 
     constructor() {
         this.resetInternalState()
@@ -207,6 +224,24 @@ export class SquaddieTargetsOtherSquaddiesAnimator
             graphicsBuffer: graphicsContext,
             diceRollAnimation: this.diceRollAnimation,
         })
+        if (this.modifierDisplayColumns[ModifierDisplayColumnPosition.LEFT]) {
+            ModifierDisplayColumnService.draw({
+                modifierDisplay:
+                    this.modifierDisplayColumns[
+                        ModifierDisplayColumnPosition.LEFT
+                    ],
+                graphicsBuffer: graphicsContext,
+            })
+        }
+        if (this.modifierDisplayColumns[ModifierDisplayColumnPosition.RIGHT]) {
+            ModifierDisplayColumnService.draw({
+                modifierDisplay:
+                    this.modifierDisplayColumns[
+                        ModifierDisplayColumnPosition.RIGHT
+                    ],
+                graphicsBuffer: graphicsContext,
+            })
+        }
     }
 
     reset(gameEngineState: GameEngineState) {
@@ -282,6 +317,7 @@ export class SquaddieTargetsOtherSquaddiesAnimator
         )
         this.setupAnimationForTargetHitPointMeters(gameEngineState)
         this.setupDiceRollAnimation(results)
+        this.setupModifierDisplays(results)
     }
 
     private setupAnimationForTargetSprites(
@@ -513,5 +549,92 @@ export class SquaddieTargetsOtherSquaddiesAnimator
                 height: DiceRollAnimationLayout.drawArea.height,
             }),
         })
+    }
+
+    private setupModifierDisplays(results: ActionEffectChange) {
+        const convertAttributeTypesAndAmountsToModifierDisplayColumnData = (
+            attributeModifiers: AttributeTypeAndAmount[]
+        ): ModifierDisplayColumnData[] =>
+            attributeModifiers
+                ? attributeModifiers.map((attributeModifier) => ({
+                      amount: attributeModifier.amount,
+                      description: AttributeTypeService.readableName(
+                          attributeModifier.type
+                      ),
+                  }))
+                : []
+
+        const convertRollModifiersToModifierDisplayColumnData =
+            (rollModifiers: {
+                [t in RollModifierType]?: number
+            }): ModifierDisplayColumnData[] =>
+                Object.entries(rollModifiers).map(
+                    ([rollModifierType, amount]) => {
+                        return {
+                            amount,
+                            description: RollModifierTypeService.readableName({
+                                type: rollModifierType as RollModifierType,
+                                abbreviate: false,
+                            }),
+                        }
+                    }
+                )
+
+        this.modifierDisplayColumns = {
+            [ModifierDisplayColumnPosition.LEFT]: undefined,
+            [ModifierDisplayColumnPosition.RIGHT]: undefined,
+        }
+
+        const leftColumnRollModifierDisplayColumnData =
+            Object.keys(results.actorContext.actorRoll?.rollModifiers || {})
+                .length > 0
+                ? convertRollModifiersToModifierDisplayColumnData(
+                      results.actorContext.actorRoll?.rollModifiers
+                  )
+                : []
+
+        const leftColumnAttributeModifierDisplayColumnData =
+            results.actorContext.actorAttributeModifiers.length > 0
+                ? convertAttributeTypesAndAmountsToModifierDisplayColumnData(
+                      results.actorContext.actorAttributeModifiers
+                  )
+                : []
+
+        if (
+            leftColumnRollModifierDisplayColumnData.length > 0 ||
+            leftColumnAttributeModifierDisplayColumnData.length > 0
+        ) {
+            this.modifierDisplayColumns[ModifierDisplayColumnPosition.LEFT] =
+                ModifierDisplayColumnService.new({
+                    modifiers: [
+                        ...leftColumnRollModifierDisplayColumnData,
+                        ...leftColumnAttributeModifierDisplayColumnData,
+                    ],
+                    position: ModifierDisplayColumnPosition.LEFT,
+                    sortOrderLeastToGreatest: false,
+                })
+        }
+
+        const rightColumnAttributeModifierDisplayColumnData =
+            Object.values(results.actorContext.targetAttributeModifiers)
+                .length > 0 &&
+            Object.values(results.actorContext.targetAttributeModifiers)[0]
+                .length > 0
+                ? convertAttributeTypesAndAmountsToModifierDisplayColumnData(
+                      results.actorContext.targetAttributeModifiers
+                          ? Object.values(
+                                results.actorContext.targetAttributeModifiers
+                            )[0]
+                          : []
+                  )
+                : []
+        if (rightColumnAttributeModifierDisplayColumnData.length > 0) {
+            this.modifierDisplayColumns[ModifierDisplayColumnPosition.RIGHT] =
+                ModifierDisplayColumnService.new({
+                    modifiers: rightColumnAttributeModifierDisplayColumnData,
+                    position: ModifierDisplayColumnPosition.RIGHT,
+                    sortOrderLeastToGreatest: false,
+                })
+        }
     }
 }

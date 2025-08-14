@@ -25,25 +25,25 @@ export const BattleActionActorContextService = {
         }
     }): BattleActionActorContext =>
         newBattleActionActionContext({
-            actingSquaddieModifiers,
+            actingAttributeModifiers: actingSquaddieModifiers,
             actingSquaddieRoll,
-            targetSquaddieModifiers,
+            targetAttributeModifiers: targetSquaddieModifiers,
         }),
 }
 
 const newBattleActionActionContext = ({
-    actingSquaddieModifiers,
+    actingAttributeModifiers,
     actingSquaddieRoll,
-    targetSquaddieModifiers,
+    targetAttributeModifiers,
 }: {
-    actingSquaddieModifiers?: AttributeTypeAndAmount[]
+    actingAttributeModifiers?: AttributeTypeAndAmount[]
     actingSquaddieRoll?: RollResult
-    targetSquaddieModifiers?: {
+    targetAttributeModifiers?: {
         [_: string]: AttributeTypeAndAmount[]
     }
 }): BattleActionActorContext => ({
-    actorAttributeModifiers: actingSquaddieModifiers ?? [],
-    targetAttributeModifiers: targetSquaddieModifiers ?? {},
+    actorAttributeModifiers: actingAttributeModifiers ?? [],
+    targetAttributeModifiers: targetAttributeModifiers ?? {},
     actorRoll:
         actingSquaddieRoll ??
         RollResultService.new({

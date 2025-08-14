@@ -49,7 +49,16 @@ import { TargetConstraintsService } from "../../action/targetConstraints"
 import { beforeEach, describe, expect, it, vi } from "vitest"
 import { PlayerInputTestService } from "../../utils/test/playerInput"
 import { BattleActionActorContextService } from "../history/battleAction/battleActionActorContext"
-import { RollResultService } from "../calculator/actionCalculator/rollResult"
+import {
+    RollModifierType,
+    RollModifierTypeService,
+    RollResultService,
+} from "../calculator/actionCalculator/rollResult"
+import {
+    AttributeType,
+    AttributeTypeService,
+} from "../../squaddie/attribute/attributeType"
+import { ModifierDisplayColumnPosition } from "./modifierDisplay/modifierDisplayColumn"
 
 describe("SquaddieTargetsOtherSquaddiesAnimation", () => {
     let objectRepository: ObjectRepository
@@ -155,8 +164,7 @@ describe("SquaddieTargetsOtherSquaddiesAnimation", () => {
         animateKnightHittingWithLongsword({
             objectRepository: objectRepository,
             mockResourceHandler: mockResourceHandler,
-            knightHitsThiefWithLongswordInstructionBattleAction:
-                knightHitsThiefWithLongswordInstructionBattleAction,
+            battleAction: knightHitsThiefWithLongswordInstructionBattleAction,
             animator: animator,
             mockedP5GraphicsContext: mockedP5GraphicsContext,
         })
@@ -174,8 +182,7 @@ describe("SquaddieTargetsOtherSquaddiesAnimation", () => {
         animateKnightHittingWithLongsword({
             objectRepository: objectRepository,
             mockResourceHandler: mockResourceHandler,
-            knightHitsThiefWithLongswordInstructionBattleAction:
-                knightHitsThiefWithLongswordInstructionBattleAction,
+            battleAction: knightHitsThiefWithLongswordInstructionBattleAction,
             animator: animator,
             mockedP5GraphicsContext: mockedP5GraphicsContext,
         })
@@ -184,6 +191,85 @@ describe("SquaddieTargetsOtherSquaddiesAnimation", () => {
                 .squaddie[0].actorDegreeOfSuccess
         )
         expect(animator.diceRollAnimation.dice).toHaveLength(2)
+    })
+
+    it("creates modifier display animation", () => {
+        const attackWithModifiers = BattleActionService.new({
+            actor: {
+                actorBattleSquaddieId: knightBattleSquaddie.battleSquaddieId,
+                actorContext: BattleActionActorContextService.new({
+                    actingSquaddieRoll: RollResultService.new({
+                        rolls: [6, 1],
+                        occurred: true,
+                        rollModifiers: {
+                            [RollModifierType.MULTIPLE_ATTACK_PENALTY]: -3,
+                        },
+                    }),
+                    actingSquaddieModifiers: [
+                        {
+                            type: AttributeType.MOVEMENT,
+                            amount: 2,
+                        },
+                    ],
+                    targetSquaddieModifiers: {
+                        thiefDynamicId: [
+                            {
+                                type: AttributeType.ARMOR,
+                                amount: 1,
+                            },
+                        ],
+                    },
+                }),
+            },
+            action: { actionTemplateId: longswordActionTemplate.id },
+            effect: {
+                squaddie: [
+                    BattleActionSquaddieChangeService.new({
+                        battleSquaddieId: thiefDynamicId,
+                        damageExplanation: DamageExplanationService.new({
+                            net: 1,
+                        }),
+                        healingReceived: 0,
+                        actorDegreeOfSuccess: DegreeOfSuccess.SUCCESS,
+                    }),
+                ],
+            },
+        })
+
+        animateKnightHittingWithLongsword({
+            objectRepository: objectRepository,
+            mockResourceHandler: mockResourceHandler,
+            battleAction: attackWithModifiers,
+            animator: animator,
+            mockedP5GraphicsContext: mockedP5GraphicsContext,
+        })
+
+        expect(
+            animator.modifierDisplayColumns[ModifierDisplayColumnPosition.LEFT]
+                .labels
+        ).toHaveLength(2)
+        expect(
+            animator.modifierDisplayColumns[ModifierDisplayColumnPosition.LEFT]
+                .labels[0].textBox.text
+        ).includes(AttributeTypeService.readableName(AttributeType.MOVEMENT))
+        expect(
+            animator.modifierDisplayColumns[ModifierDisplayColumnPosition.LEFT]
+                .labels[1].textBox.text
+        ).includes(
+            RollModifierTypeService.readableName({
+                type: RollModifierType.MULTIPLE_ATTACK_PENALTY,
+                abbreviate: false,
+            })
+        )
+
+        expect(
+            animator.modifierDisplayColumns[ModifierDisplayColumnPosition.RIGHT]
+                .labels
+        ).toHaveLength(1)
+        expect(
+            animator.modifierDisplayColumns[ModifierDisplayColumnPosition.RIGHT]
+                .labels[0].textBox.text
+        ).includes(AttributeTypeService.readableName(AttributeType.ARMOR))
     })
 
     describe("will skip displaying the results", () => {
@@ -236,7 +322,7 @@ describe("SquaddieTargetsOtherSquaddiesAnimation", () => {
             const gameEngineState = animateKnightHittingWithLongsword({
                 objectRepository: objectRepository,
                 mockResourceHandler: mockResourceHandler,
-                knightHitsThiefWithLongswordInstructionBattleAction:
+                battleAction:
                     knightHitsThiefWithLongswordInstructionBattleAction,
                 animator: animator,
                 mockedP5GraphicsContext: mockedP5GraphicsContext,
@@ -271,8 +357,7 @@ describe("SquaddieTargetsOtherSquaddiesAnimation", () => {
         const gameEngineState = animateKnightHittingWithLongsword({
             objectRepository: objectRepository,
             mockResourceHandler: mockResourceHandler,
-            knightHitsThiefWithLongswordInstructionBattleAction:
-                knightHitsThiefWithLongswordInstructionBattleAction,
+            battleAction: knightHitsThiefWithLongswordInstructionBattleAction,
             animator: animator,
             mockedP5GraphicsContext: mockedP5GraphicsContext,
         })
@@ -324,13 +409,13 @@ describe("SquaddieTargetsOtherSquaddiesAnimation", () => {
 const animateKnightHittingWithLongsword = ({
     objectRepository,
     mockResourceHandler,
-    knightHitsThiefWithLongswordInstructionBattleAction,
+    battleAction,
     animator,
     mockedP5GraphicsContext,
 }: {
     objectRepository: ObjectRepository
     mockResourceHandler: ResourceHandler
-    knightHitsThiefWithLongswordInstructionBattleAction: BattleAction
+    battleAction: BattleAction
     animator: SquaddieTargetsOtherSquaddiesAnimator
     mockedP5GraphicsContext: MockedP5GraphicsBuffer
 }) => {
@@ -347,7 +432,7 @@ const animateKnightHittingWithLongsword = ({
     BattleActionRecorderService.addReadyToAnimateBattleAction(
         gameEngineState.battleOrchestratorState.battleState
             .battleActionRecorder,
-        knightHitsThiefWithLongswordInstructionBattleAction
+        battleAction
     )
 
     animator.reset(gameEngineState)
