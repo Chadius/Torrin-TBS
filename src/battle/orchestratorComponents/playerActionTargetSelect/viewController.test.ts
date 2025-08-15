@@ -69,6 +69,7 @@ import { PLAYER_ACTION_CONFIRM_CREATE_OK_BUTTON_ID } from "./playerActionConfirm
 import { PLAYER_ACTION_CONFIRM_CREATE_CANCEL_BUTTON_ID } from "./playerActionConfirm/cancelButton"
 import { CampaignResourcesService } from "../../../campaign/campaignResources"
 import { SearchResultsCacheService } from "../../../hexMap/pathfinder/searchResults/searchResultsCache"
+import { ChallengeModifierSettingService } from "../../challengeModifier/challengeModifierSetting"
 
 describe("Player Action Target Select View Controller", () => {
     let playerActionTargetSelectViewController: PlayerActionTargetSelectViewController
@@ -98,6 +99,7 @@ describe("Player Action Target Select View Controller", () => {
         })
         objectRepository = ObjectRepositoryService.new()
         const context = PlayerActionTargetContextService.new({
+            challengeModifierSetting: ChallengeModifierSettingService.new(),
             objectRepository,
             missionMap,
             camera: new BattleCamera(),
