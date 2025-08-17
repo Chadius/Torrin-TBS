@@ -19,11 +19,11 @@ export enum ModifierDisplayColumnPosition {
 const ModifierDisplayDataLayout = {
     fontSize: 16,
     fontColorBasedOnValue: {
-        negative: [10, 5, 70],
-        neutral: [10, 5, 80],
+        negative: [10, 5, 80],
+        neutral: [10, 5, 85],
         positive: [10, 5, 90],
     },
-    fillColor: [0, 0, 100, 32],
+    fillColor: [0, 0, 100, 96],
     textBoxMargin: [8],
     area: {
         startColumnByPosition: {
@@ -45,7 +45,7 @@ export interface ModifierDisplayColumn {
 
 const MODIFIER_DISPLAY_TOP =
     ScreenDimensions.SCREEN_HEIGHT / GOLDEN_RATIO +
-    ScreenDimensions.SCREEN_HEIGHT * 0.06
+    ScreenDimensions.SCREEN_HEIGHT * 0.1
 const MODIFIER_DISPLAY_DELAY = 500
 const MODIFIER_DISPLAY_SHOW_ALL_DELAY = 500
 

@@ -353,6 +353,7 @@ describe("BattleSquaddieUsesActionOnSquaddie", () => {
                             healingReceived: 0,
                             actorDegreeOfSuccess: DegreeOfSuccess.SUCCESS,
                             battleSquaddieId: "target_dynamic_squaddie",
+                            successBonus: -7,
                         }),
                     ],
                 },

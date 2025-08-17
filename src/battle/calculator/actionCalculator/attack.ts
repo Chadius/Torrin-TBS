@@ -18,7 +18,11 @@ import {
 import { CalculateAgainstArmor } from "./calculateAgainstArmor"
 import { CalculatedEffect, DegreeOfSuccessExplanation } from "./calculator"
 import { isValidValue } from "../../../utils/objectValidityCheck"
-import { DegreeOfSuccess, DegreeOfSuccessService } from "./degreeOfSuccess"
+import {
+    DegreeOfSuccess,
+    DegreeOfSuccessAndSuccessBonus,
+    DegreeOfSuccessService,
+} from "./degreeOfSuccess"
 import { SquaddieTemplate } from "../../../campaign/squaddieTemplate"
 import { DamageType, SquaddieService } from "../../../squaddie/squaddieService"
 import {
@@ -49,7 +53,7 @@ export const CalculatorAttack = {
         targetSquaddieTemplate: SquaddieTemplate
         actorContext: BattleActionActorContext
         actorBattleSquaddie: BattleSquaddie
-    }): DegreeOfSuccess =>
+    }): DegreeOfSuccessAndSuccessBonus =>
         getDegreeOfSuccess({
             actionEffectTemplate,
             actorContext,
@@ -284,31 +288,34 @@ const calculateDegreeOfSuccessBasedOnRollTotalVersusTarget = (
     }
     return degreeOfSuccess
 }
-const compareAttackRollToGetDegreeOfSuccess = ({
+const compareAttackRollToGetDegreeOfSuccessAndSuccess = ({
     actingSquaddieRoll,
     actionEffectTemplate,
     targetBattleSquaddie,
     targetSquaddieTemplate,
-    actingSquaddieModifierTotal,
+    modifierDifference,
 }: {
     actingSquaddieRoll: RollResult
     actionEffectTemplate: ActionEffectTemplate
     targetBattleSquaddie: BattleSquaddie
     targetSquaddieTemplate: SquaddieTemplate
-    actingSquaddieModifierTotal: number
-}): DegreeOfSuccess => {
+    modifierDifference: number
+}): DegreeOfSuccessAndSuccessBonus => {
     if (
         TraitStatusStorageService.getStatus(
             actionEffectTemplate.traits,
             Trait.ALWAYS_SUCCEEDS
         )
     ) {
-        return DegreeOfSuccess.SUCCESS
+        return {
+            degreeOfSuccess: DegreeOfSuccess.SUCCESS,
+            successBonus: undefined,
+        }
     }
 
     let totalAttackRoll =
         RollResultService.totalAttackRoll(actingSquaddieRoll) +
-        actingSquaddieModifierTotal
+        modifierDifference
     let targetArmorClass = SquaddieService.getArmorClass({
         battleSquaddie: targetBattleSquaddie,
         squaddieTemplate: targetSquaddieTemplate,
@@ -330,7 +337,13 @@ const compareAttackRollToGetDegreeOfSuccess = ({
         degreeOfSuccess
     )
 
-    return degreeOfSuccess
+    return {
+        degreeOfSuccess,
+        successBonus:
+            modifierDifference -
+            targetArmorClass +
+            RollResultService.getSumOfRollModifiers(actingSquaddieRoll),
+    }
 }
 
 const capCriticalSuccessIfResultCannotCriticallySucceed = (
@@ -378,7 +391,7 @@ const getDegreeOfSuccess = ({
     targetSquaddieTemplate: SquaddieTemplate
     actorBattleSquaddie: BattleSquaddie
     actorContext: BattleActionActorContext
-}): DegreeOfSuccess => {
+}): DegreeOfSuccessAndSuccessBonus => {
     let actingSquaddieModifierTotal: number =
         actorContext.actorAttributeModifiers.reduce(
             (previousValue: number, currentValue: AttributeTypeAndAmount) => {
@@ -397,13 +410,14 @@ const getDegreeOfSuccess = ({
             0
         )
 
-    return compareAttackRollToGetDegreeOfSuccess({
+    const modifierDifference =
+        actingSquaddieModifierTotal - targetSquaddieModifierTotal
+    return compareAttackRollToGetDegreeOfSuccessAndSuccess({
         actionEffectTemplate,
         targetBattleSquaddie: targetBattleSquaddie,
         targetSquaddieTemplate: targetSquaddieTemplate,
         actingSquaddieRoll: actorContext.actorRoll,
-        actingSquaddieModifierTotal:
-            actingSquaddieModifierTotal - targetSquaddieModifierTotal,
+        modifierDifference: modifierDifference,
     })
 }
 
@@ -456,7 +470,7 @@ const getAllPossibleDegreesOfSuccess = ({
         squaddieTemplate: targetSquaddieTemplate,
     }).net
 
-    return calculateChanceOfDegreeOfSuccessBasedOnActingSquaddieModifierTotal(
+    return RollResultService.calculateChanceOfDegreeOfSuccessBasedOnSuccessBonus(
         actorSquaddieModifierTotal +
             rollModifierTotal -
             (targetSquaddieModifierTotal + targetArmorClass)
@@ -524,186 +538,4 @@ const calculateAttributeModifiers = ({
     }
 
     return [...actionEffectTemplate.attributeModifiers]
-}
-
-const calculateChanceOfDegreeOfSuccessBasedOnActingSquaddieModifierTotal = (
-    actingSquaddieModifierTotal: number
-): DegreeOfSuccessExplanation => {
-    const chanceOutOf36: {
-        [actorBonusOverDefender: number]: {
-            [DegreeOfSuccess.CRITICAL_SUCCESS]: number
-            [DegreeOfSuccess.SUCCESS]: number
-            [DegreeOfSuccess.FAILURE]: number
-            [DegreeOfSuccess.CRITICAL_FAILURE]: number
-        }
-    } = {
-        [4]: {
-            [DegreeOfSuccess.CRITICAL_SUCCESS]: 35,
-            [DegreeOfSuccess.SUCCESS]: 1,
-            [DegreeOfSuccess.FAILURE]: 0,
-            [DegreeOfSuccess.CRITICAL_FAILURE]: 0,
-        },
-        [3]: {
-            [DegreeOfSuccess.CRITICAL_SUCCESS]: 35,
-            [DegreeOfSuccess.SUCCESS]: 0,
-            [DegreeOfSuccess.FAILURE]: 1,
-            [DegreeOfSuccess.CRITICAL_FAILURE]: 0,
-        },
-        [2]: {
-            [DegreeOfSuccess.CRITICAL_SUCCESS]: 33,
-            [DegreeOfSuccess.SUCCESS]: 2,
-            [DegreeOfSuccess.FAILURE]: 1,
-            [DegreeOfSuccess.CRITICAL_FAILURE]: 0,
-        },
-        [1]: {
-            [DegreeOfSuccess.CRITICAL_SUCCESS]: 30,
-            [DegreeOfSuccess.SUCCESS]: 5,
-            [DegreeOfSuccess.FAILURE]: 1,
-            [DegreeOfSuccess.CRITICAL_FAILURE]: 0,
-        },
-        [0]: {
-            [DegreeOfSuccess.CRITICAL_SUCCESS]: 26,
-            [DegreeOfSuccess.SUCCESS]: 9,
-            [DegreeOfSuccess.FAILURE]: 1,
-            [DegreeOfSuccess.CRITICAL_FAILURE]: 0,
-        },
-        [-1]: {
-            [DegreeOfSuccess.CRITICAL_SUCCESS]: 21,
-            [DegreeOfSuccess.SUCCESS]: 14,
-            [DegreeOfSuccess.FAILURE]: 1,
-            [DegreeOfSuccess.CRITICAL_FAILURE]: 0,
-        },
-        [-2]: {
-            [DegreeOfSuccess.CRITICAL_SUCCESS]: 15,
-            [DegreeOfSuccess.SUCCESS]: 20,
-            [DegreeOfSuccess.FAILURE]: 1,
-            [DegreeOfSuccess.CRITICAL_FAILURE]: 0,
-        },
-        [-3]: {
-            [DegreeOfSuccess.CRITICAL_SUCCESS]: 10,
-            [DegreeOfSuccess.SUCCESS]: 25,
-            [DegreeOfSuccess.FAILURE]: 0,
-            [DegreeOfSuccess.CRITICAL_FAILURE]: 1,
-        },
-        [-4]: {
-            [DegreeOfSuccess.CRITICAL_SUCCESS]: 6,
-            [DegreeOfSuccess.SUCCESS]: 27,
-            [DegreeOfSuccess.FAILURE]: 2,
-            [DegreeOfSuccess.CRITICAL_FAILURE]: 1,
-        },
-        [-5]: {
-            [DegreeOfSuccess.CRITICAL_SUCCESS]: 3,
-            [DegreeOfSuccess.SUCCESS]: 27,
-            [DegreeOfSuccess.FAILURE]: 5,
-            [DegreeOfSuccess.CRITICAL_FAILURE]: 1,
-        },
-        [-6]: {
-            [DegreeOfSuccess.CRITICAL_SUCCESS]: 1,
-            [DegreeOfSuccess.SUCCESS]: 25,
-            [DegreeOfSuccess.FAILURE]: 9,
-            [DegreeOfSuccess.CRITICAL_FAILURE]: 1,
-        },
-        [-7]: {
-            [DegreeOfSuccess.CRITICAL_SUCCESS]: 1,
-            [DegreeOfSuccess.SUCCESS]: 20,
-            [DegreeOfSuccess.FAILURE]: 14,
-            [DegreeOfSuccess.CRITICAL_FAILURE]: 1,
-        },
-        [-8]: {
-            [DegreeOfSuccess.CRITICAL_SUCCESS]: 1,
-            [DegreeOfSuccess.SUCCESS]: 14,
-            [DegreeOfSuccess.FAILURE]: 20,
-            [DegreeOfSuccess.CRITICAL_FAILURE]: 1,
-        },
-        [-9]: {
-            [DegreeOfSuccess.CRITICAL_SUCCESS]: 1,
-            [DegreeOfSuccess.SUCCESS]: 9,
-            [DegreeOfSuccess.FAILURE]: 25,
-            [DegreeOfSuccess.CRITICAL_FAILURE]: 1,
-        },
-        [-10]: {
-            [DegreeOfSuccess.CRITICAL_SUCCESS]: 1,
-            [DegreeOfSuccess.SUCCESS]: 5,
-            [DegreeOfSuccess.FAILURE]: 27,
-            [DegreeOfSuccess.CRITICAL_FAILURE]: 3,
-        },
-        [-11]: {
-            [DegreeOfSuccess.CRITICAL_SUCCESS]: 1,
-            [DegreeOfSuccess.SUCCESS]: 2,
-            [DegreeOfSuccess.FAILURE]: 27,
-            [DegreeOfSuccess.CRITICAL_FAILURE]: 6,
-        },
-        [-12]: {
-            [DegreeOfSuccess.CRITICAL_SUCCESS]: 1,
-            [DegreeOfSuccess.SUCCESS]: 0,
-            [DegreeOfSuccess.FAILURE]: 25,
-            [DegreeOfSuccess.CRITICAL_FAILURE]: 10,
-        },
-        [-13]: {
-            [DegreeOfSuccess.CRITICAL_SUCCESS]: 0,
-            [DegreeOfSuccess.SUCCESS]: 1,
-            [DegreeOfSuccess.FAILURE]: 20,
-            [DegreeOfSuccess.CRITICAL_FAILURE]: 15,
-        },
-        [-14]: {
-            [DegreeOfSuccess.CRITICAL_SUCCESS]: 0,
-            [DegreeOfSuccess.SUCCESS]: 1,
-            [DegreeOfSuccess.FAILURE]: 14,
-            [DegreeOfSuccess.CRITICAL_FAILURE]: 21,
-        },
-        [-15]: {
-            [DegreeOfSuccess.CRITICAL_SUCCESS]: 0,
-            [DegreeOfSuccess.SUCCESS]: 1,
-            [DegreeOfSuccess.FAILURE]: 9,
-            [DegreeOfSuccess.CRITICAL_FAILURE]: 26,
-        },
-        [-16]: {
-            [DegreeOfSuccess.CRITICAL_SUCCESS]: 0,
-            [DegreeOfSuccess.SUCCESS]: 1,
-            [DegreeOfSuccess.FAILURE]: 5,
-            [DegreeOfSuccess.CRITICAL_FAILURE]: 30,
-        },
-        [-17]: {
-            [DegreeOfSuccess.CRITICAL_SUCCESS]: 0,
-            [DegreeOfSuccess.SUCCESS]: 1,
-            [DegreeOfSuccess.FAILURE]: 2,
-            [DegreeOfSuccess.CRITICAL_FAILURE]: 33,
-        },
-        [-18]: {
-            [DegreeOfSuccess.CRITICAL_SUCCESS]: 0,
-            [DegreeOfSuccess.SUCCESS]: 1,
-            [DegreeOfSuccess.FAILURE]: 0,
-            [DegreeOfSuccess.CRITICAL_FAILURE]: 35,
-        },
-        [-19]: {
-            [DegreeOfSuccess.CRITICAL_SUCCESS]: 0,
-            [DegreeOfSuccess.SUCCESS]: 0,
-            [DegreeOfSuccess.FAILURE]: 1,
-            [DegreeOfSuccess.CRITICAL_FAILURE]: 35,
-        },
-    }
-
-    switch (true) {
-        case actingSquaddieModifierTotal > 4:
-            return {
-                [DegreeOfSuccess.CRITICAL_SUCCESS]: 35,
-                [DegreeOfSuccess.SUCCESS]: 1,
-                [DegreeOfSuccess.FAILURE]: 0,
-                [DegreeOfSuccess.CRITICAL_FAILURE]: 0,
-                [DegreeOfSuccess.NONE]: undefined,
-            }
-        case actingSquaddieModifierTotal < -19:
-            return {
-                [DegreeOfSuccess.CRITICAL_SUCCESS]: 0,
-                [DegreeOfSuccess.SUCCESS]: 0,
-                [DegreeOfSuccess.FAILURE]: 1,
-                [DegreeOfSuccess.CRITICAL_FAILURE]: 35,
-                [DegreeOfSuccess.NONE]: undefined,
-            }
-        default:
-            return {
-                ...chanceOutOf36[actingSquaddieModifierTotal],
-                [DegreeOfSuccess.NONE]: undefined,
-            }
-    }
 }

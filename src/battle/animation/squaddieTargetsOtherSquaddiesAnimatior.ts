@@ -19,7 +19,7 @@ import { HUE_BY_SQUADDIE_AFFILIATION } from "../../graphicsConstants"
 import { SquaddieActionAnimator } from "./squaddieActionAnimator"
 import { ScreenDimensions } from "../../utils/graphics/graphicsConfig"
 import { RectAreaService } from "../../ui/rectArea"
-import { ObjectRepositoryService } from "../objectRepository"
+import { ObjectRepository, ObjectRepositoryService } from "../objectRepository"
 import { GameEngineState } from "../../gameEngine/gameEngine"
 import { ActionEffectTemplate } from "../../action/template/actionEffectTemplate"
 import { GraphicsBuffer } from "../../utils/graphics/graphicsRenderer"
@@ -50,13 +50,32 @@ import {
     RollModifierType,
     RollModifierTypeService,
 } from "../calculator/actionCalculator/rollResult"
+import {
+    AttackRollThermometer,
+    AttackRollThermometerService,
+} from "./attackRollThermometer/attackRollThermometer"
+import { isValidValue } from "../../utils/objectValidityCheck"
+import {
+    Trait,
+    TraitStatusStorageService,
+} from "../../trait/traitStatusStorage"
 
-const DiceRollAnimationLayout = {
-    drawArea: {
-        startColumn: 4,
-        endColumn: 8,
-        top: ScreenDimensions.SCREEN_HEIGHT / GOLDEN_RATIO,
-        height: 40,
+const Layout = {
+    diceRollAnimationLayout: {
+        drawArea: {
+            startColumn: 4,
+            endColumn: 8,
+            top: ScreenDimensions.SCREEN_HEIGHT / GOLDEN_RATIO + 40,
+            height: 40,
+        },
+    },
+    attackRollThermometerLayout: {
+        drawArea: {
+            startColumn: 4,
+            endColumn: 8,
+            top: ScreenDimensions.SCREEN_HEIGHT / GOLDEN_RATIO,
+            height: 32,
+        },
     },
 }
 
@@ -70,6 +89,7 @@ export class SquaddieTargetsOtherSquaddiesAnimator
     modifierDisplayColumns: {
         [p in ModifierDisplayColumnPosition]: ModifierDisplayColumn
     }
+    attackRollThermometer: AttackRollThermometer
 
     constructor() {
         this.resetInternalState()
@@ -224,6 +244,10 @@ export class SquaddieTargetsOtherSquaddiesAnimator
             graphicsBuffer: graphicsContext,
             diceRollAnimation: this.diceRollAnimation,
         })
+        AttackRollThermometerService.draw({
+            graphicsBuffer: graphicsContext,
+            thermometer: this.attackRollThermometer,
+        })
         if (this.modifierDisplayColumns[ModifierDisplayColumnPosition.LEFT]) {
             ModifierDisplayColumnService.draw({
                 modifierDisplay:
@@ -318,6 +342,11 @@ export class SquaddieTargetsOtherSquaddiesAnimator
         this.setupAnimationForTargetHitPointMeters(gameEngineState)
         this.setupDiceRollAnimation(results)
         this.setupModifierDisplays(results)
+        this.setupAttackRollThermometerAnimation({
+            actionTemplateId: actionToShow.action.actionTemplateId,
+            objectRepository: gameEngineState.repository,
+            results: results,
+        })
     }
 
     private setupAnimationForTargetSprites(
@@ -543,11 +572,75 @@ export class SquaddieTargetsOtherSquaddiesAnimator
             rollResult: results.actorContext.actorRoll,
             drawArea: RectAreaService.new({
                 screenWidth: ScreenDimensions.SCREEN_WIDTH,
-                startColumn: DiceRollAnimationLayout.drawArea.startColumn,
-                endColumn: DiceRollAnimationLayout.drawArea.endColumn,
-                top: DiceRollAnimationLayout.drawArea.top,
-                height: DiceRollAnimationLayout.drawArea.height,
+                startColumn:
+                    Layout.diceRollAnimationLayout.drawArea.startColumn,
+                endColumn: Layout.diceRollAnimationLayout.drawArea.endColumn,
+                top: Layout.diceRollAnimationLayout.drawArea.top,
+                height: Layout.diceRollAnimationLayout.drawArea.height,
             }),
+        })
+    }
+
+    private setupAttackRollThermometerAnimation({
+        actionTemplateId,
+        objectRepository,
+        results,
+    }: {
+        actionTemplateId: string
+        objectRepository: ObjectRepository
+        results: ActionEffectChange
+    }) {
+        if (!isValidValue(results?.squaddieChanges[0])) {
+            return
+        }
+
+        const degreeOfSuccess =
+            results?.squaddieChanges[0]?.actorDegreeOfSuccess ??
+            DegreeOfSuccess.NONE
+
+        if (degreeOfSuccess === DegreeOfSuccess.NONE) {
+            this.attackRollThermometer = undefined
+            return
+        }
+
+        const actionTemplate = ObjectRepositoryService.getActionTemplateById(
+            objectRepository,
+            actionTemplateId
+        )
+        if (!actionTemplate) return
+        const actionEffectTemplate = actionTemplate.actionEffectTemplates[0]
+        if (!actionEffectTemplate) return
+
+        this.attackRollThermometer = AttackRollThermometerService.new({
+            successBonus: results.squaddieChanges[0].successBonus,
+            tryToShowCriticalSuccess:
+                !TraitStatusStorageService.getStatus(
+                    actionEffectTemplate.traits,
+                    Trait.CANNOT_CRITICALLY_SUCCEED
+                ) === true,
+            tryToShowCriticalFailure:
+                !TraitStatusStorageService.getStatus(
+                    actionEffectTemplate.traits,
+                    Trait.CANNOT_CRITICALLY_FAIL
+                ) === true,
+            drawArea: RectAreaService.new({
+                screenWidth: ScreenDimensions.SCREEN_WIDTH,
+                startColumn:
+                    Layout.attackRollThermometerLayout.drawArea.startColumn,
+                endColumn:
+                    Layout.attackRollThermometerLayout.drawArea.endColumn,
+                top: Layout.attackRollThermometerLayout.drawArea.top,
+                height: Layout.attackRollThermometerLayout.drawArea.height,
+            }),
+        })
+
+        AttackRollThermometerService.beginRollingAnimation({
+            thermometer: this.attackRollThermometer,
+            rolls: [
+                results.actorContext.actorRoll.rolls[0],
+                results.actorContext.actorRoll.rolls[1],
+            ],
+            degreeOfSuccess: results.squaddieChanges[0].actorDegreeOfSuccess,
         })
     }
 

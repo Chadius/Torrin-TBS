@@ -6,6 +6,11 @@ export enum DegreeOfSuccess {
     CRITICAL_FAILURE = "CRITICAL_FAILURE",
 }
 
+export type DegreeOfSuccessAndSuccessBonus = {
+    degreeOfSuccess: DegreeOfSuccess
+    successBonus: number
+}
+
 export const DegreeOfSuccessService = {
     atLeastSuccessful: (degree: DegreeOfSuccess): boolean => {
         return [

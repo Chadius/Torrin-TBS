@@ -618,4 +618,25 @@ describe("RectArea", () => {
         expect(RectAreaService.height(rect)).toBe(30)
         expect(RectAreaService.width(rect)).toBe(20)
     })
+    it("can change the width of the RectArea", () => {
+        const originalRect = RectAreaService.new({
+            top: 0,
+            left: 0,
+            height: 30,
+            width: 20,
+        })
+
+        const newRect = RectAreaService.withWidth(originalRect, 100)
+
+        expect(RectAreaService.left(newRect)).toBe(
+            RectAreaService.left(originalRect)
+        )
+        expect(RectAreaService.top(newRect)).toBe(
+            RectAreaService.top(originalRect)
+        )
+        expect(RectAreaService.bottom(newRect)).toBe(
+            RectAreaService.bottom(originalRect)
+        )
+        expect(RectAreaService.width(newRect)).toBe(100)
+    })
 })

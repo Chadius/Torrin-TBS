@@ -1,7 +1,10 @@
 import { BattleSquaddie } from "../../battleSquaddie"
 import { SquaddieTemplate } from "../../../campaign/squaddieTemplate"
 import { RollResult, RollResultService } from "./rollResult"
-import { DegreeOfSuccess } from "./degreeOfSuccess"
+import {
+    DegreeOfSuccess,
+    DegreeOfSuccessAndSuccessBonus,
+} from "./degreeOfSuccess"
 import { CalculatedEffect, DegreeOfSuccessExplanation } from "./calculator"
 import { HealingType, SquaddieService } from "../../../squaddie/squaddieService"
 import { isValidValue } from "../../../utils/objectValidityCheck"
@@ -51,7 +54,7 @@ export const CalculatorMiscellaneous = {
         actorContext: BattleActionActorContext
         actorBattleSquaddie: BattleSquaddie
         targetSquaddieTemplate: SquaddieTemplate
-    }): DegreeOfSuccess =>
+    }): DegreeOfSuccessAndSuccessBonus =>
         getDegreeOfSuccess({
             actionEffectTemplate,
             actorContext,
@@ -125,7 +128,10 @@ const getDegreeOfSuccess = ({
     actorBattleSquaddie: BattleSquaddie
     actorContext: BattleActionActorContext
     targetSquaddieTemplate: SquaddieTemplate
-}): DegreeOfSuccess => DegreeOfSuccess.SUCCESS
+}): DegreeOfSuccessAndSuccessBonus => ({
+    successBonus: undefined,
+    degreeOfSuccess: DegreeOfSuccess.SUCCESS,
+})
 
 const calculateEffectBasedOnDegreeOfSuccess = ({
     actionEffectTemplate,

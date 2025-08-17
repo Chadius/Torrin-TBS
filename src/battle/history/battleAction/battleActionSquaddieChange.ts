@@ -39,6 +39,7 @@ export interface BattleActionSquaddieChange {
     healingReceived: number
     actorDegreeOfSuccess: DegreeOfSuccess
     chanceOfDegreeOfSuccess?: number
+    successBonus?: number
 }
 
 export const BattleActionSquaddieChangeService = {
@@ -50,6 +51,7 @@ export const BattleActionSquaddieChangeService = {
         healingReceived,
         actorDegreeOfSuccess,
         chanceOfDegreeOfSuccess,
+        successBonus,
     }: {
         battleSquaddieId: string
         attributesBefore?: InBattleAttributes
@@ -58,6 +60,7 @@ export const BattleActionSquaddieChangeService = {
         healingReceived?: number
         actorDegreeOfSuccess?: DegreeOfSuccess
         chanceOfDegreeOfSuccess?: number
+        successBonus?: number
     }): BattleActionSquaddieChange =>
         newBattleActionSquaddieChange({
             battleSquaddieId,
@@ -67,6 +70,7 @@ export const BattleActionSquaddieChangeService = {
             healingReceived,
             actorDegreeOfSuccess,
             chanceOfDegreeOfSuccess,
+            successBonus,
         }),
     isSquaddieHindered: (result: BattleActionSquaddieChange): boolean => {
         return result.damage.net > 0
@@ -87,6 +91,7 @@ export const BattleActionSquaddieChangeService = {
             healingReceived: original.healingReceived,
             actorDegreeOfSuccess: original.actorDegreeOfSuccess,
             chanceOfDegreeOfSuccess: original.chanceOfDegreeOfSuccess,
+            successBonus: original.successBonus,
         }),
 }
 
@@ -98,6 +103,7 @@ const newBattleActionSquaddieChange = ({
     healingReceived,
     actorDegreeOfSuccess,
     chanceOfDegreeOfSuccess,
+    successBonus,
 }: {
     battleSquaddieId: string
     attributesBefore?: InBattleAttributes
@@ -106,6 +112,7 @@ const newBattleActionSquaddieChange = ({
     healingReceived?: number
     actorDegreeOfSuccess?: DegreeOfSuccess
     chanceOfDegreeOfSuccess?: number
+    successBonus?: number
 }): BattleActionSquaddieChange => ({
     battleSquaddieId,
     attributesBefore: isValidValue(attributesBefore)
@@ -118,4 +125,5 @@ const newBattleActionSquaddieChange = ({
     healingReceived: healingReceived ?? 0,
     actorDegreeOfSuccess: actorDegreeOfSuccess ?? DegreeOfSuccess.NONE,
     chanceOfDegreeOfSuccess,
+    successBonus: successBonus,
 })

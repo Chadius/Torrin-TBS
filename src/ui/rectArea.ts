@@ -170,24 +170,7 @@ export interface RectArea {
 }
 
 export const RectAreaService = {
-    new: (params: RectArguments): RectArea => {
-        const rectArea = {
-            top: 0,
-            left: 0,
-            width: 0,
-            height: 0,
-        }
-
-        setRectTop(rectArea, params)
-        setRectLeft(rectArea, params)
-        setRectHeight(rectArea, params)
-        setRectWidth(rectArea, params)
-
-        alignVertically(rectArea, params as Alignment)
-        alignHorizontally(rectArea, params as Alignment)
-
-        return rectArea
-    },
+    new: (params: RectArguments): RectArea => newRectArea(params),
     bottom: (rectArea: RectArea): number => {
         return rectArea.top + rectArea.height
     },
@@ -300,6 +283,14 @@ export const RectAreaService = {
             right,
             top,
             bottom,
+        })
+    },
+    withWidth: (area: RectArea, newWidth: number): RectArea => {
+        return newRectArea({
+            left: area.left,
+            top: area.top,
+            height: area.height,
+            width: newWidth,
         })
     },
 }
@@ -797,4 +788,23 @@ const calculateRectLeftBasedOnCenterXWidthOffset = (
     }
 
     return centerX - width / 2
+}
+
+const newRectArea = (params: RectArguments): RectArea => {
+    const rectArea = {
+        top: 0,
+        left: 0,
+        width: 0,
+        height: 0,
+    }
+
+    setRectTop(rectArea, params)
+    setRectLeft(rectArea, params)
+    setRectHeight(rectArea, params)
+    setRectWidth(rectArea, params)
+
+    alignVertically(rectArea, params as Alignment)
+    alignHorizontally(rectArea, params as Alignment)
+
+    return rectArea
 }

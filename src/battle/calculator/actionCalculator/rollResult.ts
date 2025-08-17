@@ -61,16 +61,15 @@ export const RollResultService = {
         return sanitize(rollResult)
     },
     isMaximumRoll: (rollResult: RollResult) =>
-        sumOfDiceRolls(rollResult) >= DIE_SIZE * 2,
+        sumOfDiceRolls(rollResult) >= DIE_SIZE + DIE_SIZE,
     isMinimumRoll: (rollResult: RollResult) => sumOfDiceRolls(rollResult) <= 2,
     totalAttackRoll: (rollResult: RollResult) => totalAttackRoll(rollResult),
+    getMaximumRoll: () => DIE_SIZE + DIE_SIZE,
     getPossibleDegreesOfSuccessBasedOnBonus: (
         successBonus: number
     ): DegreeOfSuccess[] => {
         return Object.entries(
-            calculateChanceOfDegreeOfSuccessBasedOnActingSquaddieModifierTotal(
-                successBonus
-            )
+            calculateChanceOfDegreeOfSuccessBasedOnSuccessBonus(successBonus)
         )
             .filter(([_, chance]) => chance > 0)
             .map(
@@ -78,6 +77,11 @@ export const RollResultService = {
                     degreeOfSuccessStr as DegreeOfSuccess
             )
     },
+    calculateChanceOfDegreeOfSuccessBasedOnSuccessBonus: (
+        successBonus: number
+    ) => calculateChanceOfDegreeOfSuccessBasedOnSuccessBonus(successBonus),
+    getSumOfRollModifiers: (rollResult: RollResult): number =>
+        getSumOfRollModifiers(rollResult),
 }
 
 const sanitize = (rollResult: RollResult): RollResult => {
@@ -87,12 +91,15 @@ const sanitize = (rollResult: RollResult): RollResult => {
     return rollResult
 }
 
-const totalAttackRoll = (rollResult: RollResult) =>
-    sumOfDiceRolls(rollResult) +
-    Object.values(rollResult.rollModifiers ?? []).reduce(
+const getSumOfRollModifiers = (rollResult: RollResult) => {
+    return Object.values(rollResult.rollModifiers ?? []).reduce(
         (currentSum, currentValue) => currentSum + currentValue,
         0
     )
+}
+
+const totalAttackRoll = (rollResult: RollResult) =>
+    sumOfDiceRolls(rollResult) + getSumOfRollModifiers(rollResult)
 
 const sumOfDiceRolls = (rollResult: RollResult) =>
     rollResult.rolls.reduce(
@@ -100,7 +107,7 @@ const sumOfDiceRolls = (rollResult: RollResult) =>
         0
     )
 
-const calculateChanceOfDegreeOfSuccessBasedOnActingSquaddieModifierTotal = (
+const calculateChanceOfDegreeOfSuccessBasedOnSuccessBonus = (
     actingSquaddieModifierTotal: number
 ): DegreeOfSuccessExplanation => {
     const chanceOutOf36: {

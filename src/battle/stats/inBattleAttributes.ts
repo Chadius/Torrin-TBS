@@ -34,7 +34,7 @@ export const InBattleAttributesService = {
         currentHitPoints?: number
         attributeModifiers?: AttributeModifier[]
     }): InBattleAttributes => {
-        return newAttributeModifier({
+        return newInBattleAttributes({
             armyAttributes,
             currentHitPoints,
             attributeModifiers,
@@ -76,7 +76,7 @@ export const InBattleAttributesService = {
     },
     clone: (inBattleAttributes: InBattleAttributes): InBattleAttributes =>
         isValidValue(inBattleAttributes)
-            ? newAttributeModifier({
+            ? newInBattleAttributes({
                   armyAttributes: inBattleAttributes.armyAttributes,
                   currentHitPoints: inBattleAttributes.currentHitPoints,
                   attributeModifiers: inBattleAttributes.attributeModifiers.map(
@@ -226,7 +226,7 @@ const getAllActiveAttributeModifiers = (
     )
 }
 
-const newAttributeModifier = ({
+const newInBattleAttributes = ({
     armyAttributes,
     currentHitPoints,
     attributeModifiers,

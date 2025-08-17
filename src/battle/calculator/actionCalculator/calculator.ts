@@ -14,7 +14,10 @@ import {
     ObjectRepository,
     ObjectRepositoryService,
 } from "../../objectRepository"
-import { DegreeOfSuccess } from "./degreeOfSuccess"
+import {
+    DegreeOfSuccess,
+    DegreeOfSuccessAndSuccessBonus,
+} from "./degreeOfSuccess"
 import { MissionMap, MissionMapService } from "../../../missionMap/missionMap"
 import { MissionMapSquaddieCoordinateService } from "../../../missionMap/squaddieCoordinate"
 import {
@@ -232,7 +235,7 @@ const getTargetContext = ({
     })
 }
 
-const getDegreeOfSuccessExplanation = ({
+const getDegreeOfSuccessAndSuccessBonus = ({
     actorInfo: { actorContext, actorBattleSquaddieId },
     targetInfo: { targetBattleSquaddieId },
     actionInfo: { actionEffectTemplate, actionTemplateId },
@@ -252,7 +255,7 @@ const getDegreeOfSuccessExplanation = ({
     }
     challengeModifierSetting: ChallengeModifierSetting
     objectRepository: ObjectRepository
-}): DegreeOfSuccess => {
+}): DegreeOfSuccessAndSuccessBonus => {
     const { battleSquaddie: actorBattleSquaddie } = getResultOrThrowError(
         ObjectRepositoryService.getSquaddieByBattleId(
             objectRepository,
@@ -278,7 +281,8 @@ const getDegreeOfSuccessExplanation = ({
                 targetBattleSquaddieId: targetBattleSquaddieId,
                 actionTemplateId: actionTemplateId,
             })
-        if (didPreempt) return newDegreeOfSuccess
+        if (didPreempt)
+            return { degreeOfSuccess: newDegreeOfSuccess, successBonus: -7 }
 
         return CalculatorAttack.getDegreeOfSuccess({
             actorBattleSquaddie,
@@ -334,10 +338,12 @@ const applyCalculatedEffectAndReturnChange = ({
     calculatedEffect,
     objectRepository,
     targetedBattleSquaddieId,
+    successBonus,
 }: {
     calculatedEffect: CalculatedEffect
     objectRepository: ObjectRepository
     targetedBattleSquaddieId: string
+    successBonus: number
 }) => {
     const { battleSquaddie: targetedBattleSquaddie } = getResultOrThrowError(
         ObjectRepositoryService.getSquaddieByBattleId(
@@ -385,6 +391,7 @@ const applyCalculatedEffectAndReturnChange = ({
             net: calculatedEffect.damage.net,
         }),
         actorDegreeOfSuccess: calculatedEffect.degreeOfSuccess,
+        successBonus,
         attributesBefore: changes.attributesBefore,
         attributesAfter: changes.attributesAfter,
     })
@@ -900,8 +907,9 @@ const applySquaddieChangesForThisEffectSquaddieTemplate = ({
                     actionEffectTemplate,
                     targetBattleSquaddie,
                 })
-                const degreeOfSuccess: DegreeOfSuccess =
-                    getDegreeOfSuccessExplanation({
+
+                const { degreeOfSuccess, successBonus } =
+                    getDegreeOfSuccessAndSuccessBonus({
                         actorInfo: {
                             actorContext,
                             actorBattleSquaddieId,
@@ -930,6 +938,7 @@ const applySquaddieChangesForThisEffectSquaddieTemplate = ({
                     calculatedEffect,
                     objectRepository,
                     targetedBattleSquaddieId,
+                    successBonus,
                 })
 
                 changes.push(squaddieChange)
