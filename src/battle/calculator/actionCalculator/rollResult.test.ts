@@ -4,6 +4,7 @@ import {
     RollResultService,
 } from "./rollResult"
 import { describe, expect, it } from "vitest"
+import { DegreeOfSuccess } from "./degreeOfSuccess"
 
 describe("Roll Result", () => {
     it("knows when the dice roll is the maximum", () => {
@@ -127,6 +128,69 @@ describe("Roll Result", () => {
             expect(
                 RollModifierTypeService.readableName({ type, abbreviate })
             ).toEqual(expected)
+        })
+    })
+
+    describe("calculate chance of degrees of success", () => {
+        it("returns possible degrees of success", () => {
+            expect(
+                RollResultService.getPossibleDegreesOfSuccessBasedOnBonus(-7)
+            ).toEqual(
+                expect.arrayContaining([
+                    DegreeOfSuccess.CRITICAL_FAILURE,
+                    DegreeOfSuccess.FAILURE,
+                    DegreeOfSuccess.SUCCESS,
+                    DegreeOfSuccess.CRITICAL_SUCCESS,
+                ])
+            )
+
+            expect(
+                RollResultService.getPossibleDegreesOfSuccessBasedOnBonus(-3)
+            ).toEqual(
+                expect.arrayContaining([
+                    DegreeOfSuccess.CRITICAL_FAILURE,
+                    DegreeOfSuccess.SUCCESS,
+                    DegreeOfSuccess.CRITICAL_SUCCESS,
+                ])
+            )
+
+            expect(
+                RollResultService.getPossibleDegreesOfSuccessBasedOnBonus(-2)
+            ).toEqual(
+                expect.arrayContaining([
+                    DegreeOfSuccess.FAILURE,
+                    DegreeOfSuccess.SUCCESS,
+                    DegreeOfSuccess.CRITICAL_SUCCESS,
+                ])
+            )
+
+            expect(
+                RollResultService.getPossibleDegreesOfSuccessBasedOnBonus(4)
+            ).toEqual(
+                expect.arrayContaining([
+                    DegreeOfSuccess.SUCCESS,
+                    DegreeOfSuccess.CRITICAL_SUCCESS,
+                ])
+            )
+
+            expect(
+                RollResultService.getPossibleDegreesOfSuccessBasedOnBonus(-13)
+            ).toEqual(
+                expect.arrayContaining([
+                    DegreeOfSuccess.CRITICAL_FAILURE,
+                    DegreeOfSuccess.FAILURE,
+                    DegreeOfSuccess.SUCCESS,
+                ])
+            )
+
+            expect(
+                RollResultService.getPossibleDegreesOfSuccessBasedOnBonus(-19)
+            ).toEqual(
+                expect.arrayContaining([
+                    DegreeOfSuccess.CRITICAL_FAILURE,
+                    DegreeOfSuccess.FAILURE,
+                ])
+            )
         })
     })
 })

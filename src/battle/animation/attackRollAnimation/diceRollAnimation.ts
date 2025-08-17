@@ -1,7 +1,7 @@
 import { RectArea, RectAreaService } from "../../../ui/rectArea"
 import {
-    RollModifierTypeService,
     RollResult,
+    RollResultService,
 } from "../../calculator/actionCalculator/rollResult"
 import { GraphicsBuffer } from "../../../utils/graphics/graphicsRenderer"
 import { Label, LabelService } from "../../../ui/label"
@@ -181,7 +181,7 @@ const createExtremeRollNotification = ({
 }) => {
     if (!rollResult.occurred || rollResult.rolls.length == 0) return
     const isMaxRoll = rollResult.rolls.every(
-        (dieAnimation) => dieAnimation == RollModifierTypeService.DIE_SIZE
+        (dieAnimation) => dieAnimation == RollResultService.DIE_SIZE
     )
     const isMinRoll = rollResult.rolls.every(
         (dieAnimation) => dieAnimation == 1
