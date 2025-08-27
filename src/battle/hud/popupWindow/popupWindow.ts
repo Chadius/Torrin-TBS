@@ -11,8 +11,8 @@ import {
     WARNING_POPUP_TEXT_CONSTANTS,
 } from "../../../cutscene/dialogue/constants"
 import { HEX_TILE_WIDTH } from "../../../graphicsConstants"
-import { TextHandlingService } from "../../../utils/graphics/textHandlingService"
 import { ScreenLocation } from "../../../utils/mouseConfig"
+import { TextFormatService } from "../../../utils/graphics/textFormatService"
 
 export interface PopupWindow {
     status: PopupWindowStatus
@@ -65,7 +65,7 @@ export const PopupWindowService = {
                 ? screenLocation
                 : { x: worldCoordinates.x, y: worldCoordinates.y }
 
-        const popupWidth = TextHandlingService.approximateLengthOfLineOfText({
+        const popupWidth = TextFormatService.approximateLengthOfLineOfText({
             text,
             strokeWeight:
                 DIALOGUE_FONT_STYLE_CONSTANTS.WARNING_POPUP.strokeWeight,

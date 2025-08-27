@@ -1,10 +1,10 @@
 import { Label, LabelService } from "../../../ui/label"
 import { isValidValue } from "../../../utils/objectValidityCheck"
 import { RectAreaService } from "../../../ui/rectArea"
-import { TextHandlingService } from "../../../utils/graphics/textHandlingService"
 import { GraphicsBuffer } from "../../../utils/graphics/graphicsRenderer"
 import { ScreenDimensions } from "../../../utils/graphics/graphicsConfig"
 import { GOLDEN_RATIO, VERTICAL_ALIGN } from "../../../ui/constants"
+import { TextFormatService } from "../../../utils/graphics/textFormatService"
 
 export type ModifierDisplayColumnData = {
     amount?: number
@@ -160,7 +160,7 @@ const formatModifierDisplayData = (
 ): string => {
     const amountText =
         modifier.amount != undefined
-            ? TextHandlingService.padPlusOnPositiveNumber(modifier.amount) + " "
+            ? TextFormatService.padPlusOnPositiveNumber(modifier.amount) + " "
             : ""
     return `${amountText}${modifier.description}`
 }

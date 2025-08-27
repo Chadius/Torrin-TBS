@@ -33,7 +33,7 @@ import { ValidityCheckService } from "../../actionValidity/validityChecker"
 import { MessageBoardMessageType } from "../../../message/messageBoardMessage"
 import { CoordinateSystem } from "../../../hexMap/hexCoordinate/hexCoordinate"
 import { PopupWindow } from "../popupWindow/popupWindow"
-import { TextHandlingService } from "../../../utils/graphics/textHandlingService"
+import { TextGraphicalHandlingService } from "../../../utils/graphics/textGraphicalHandlingService"
 import { TargetConstraintsService } from "../../../action/targetConstraints"
 import { BattleActionDecisionStepService } from "../../actionDecision/battleActionDecisionStep"
 import {
@@ -545,7 +545,10 @@ describe("playerCommandHUD", () => {
                 expect(playerCommandState.newInvalidPopup).not.toBeUndefined()
 
                 let textHandlingSpy = vi
-                    .spyOn(TextHandlingService, "calculateLengthOfLineOfText")
+                    .spyOn(
+                        TextGraphicalHandlingService,
+                        "calculateLengthOfLineOfText"
+                    )
                     .mockReturnValue(5)
                 PlayerCommandStateService.createQueuedPopupIfNeeded({
                     playerCommandState,

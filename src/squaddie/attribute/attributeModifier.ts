@@ -4,7 +4,7 @@ import {
     AttributeTypeAndAmount,
     AttributeTypeService,
 } from "./attributeType"
-import { TextHandlingService } from "../../utils/graphics/textHandlingService"
+import { TextFormatService } from "../../utils/graphics/textFormatService"
 
 export enum AttributeSource {
     PROFICIENCY = "PROFICIENCY",
@@ -224,7 +224,7 @@ export const AttributeModifierService = {
                 attributeAmountAsString = " NO CHANGE"
                 break
             default:
-                attributeAmountAsString = ` ${TextHandlingService.padPlusOnPositiveNumber(attributeModifier.amount)}`
+                attributeAmountAsString = ` ${TextFormatService.padPlusOnPositiveNumber(attributeModifier.amount)}`
                 break
         }
 
@@ -255,7 +255,7 @@ export const AttributeModifierService = {
                 attributeAmountAsString = " (0)"
                 break
             default:
-                attributeAmountAsString = ` ${TextHandlingService.padPlusOnPositiveNumber(attributeModifier.amount)}`
+                attributeAmountAsString = ` ${TextFormatService.padPlusOnPositiveNumber(attributeModifier.amount)}`
                 break
         }
 

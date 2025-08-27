@@ -19,8 +19,8 @@ import { GraphicsBuffer } from "../../../../../utils/graphics/graphicsRenderer"
 import {
     FontDescription,
     LinesOfTextRange,
-    TextHandlingService,
-} from "../../../../../utils/graphics/textHandlingService"
+    TextGraphicalHandlingService,
+} from "../../../../../utils/graphics/textGraphicalHandlingService"
 import { ResourceHandler } from "../../../../../resource/resourceHandler"
 import { ScreenLocation } from "../../../../../utils/mouseConfig"
 import { SquaddieAffiliation } from "../../../../../squaddie/squaddieAffiliation"
@@ -361,7 +361,7 @@ const createTitleTextBox = ({
         layout.titleAndIconMargin.iconLeftMargin -
         layout.titleAndIconMargin.titleLeftOffset -
         layout.icon.width
-    const textFit = TextHandlingService.fitTextWithinSpace({
+    const textFit = TextGraphicalHandlingService.fitTextWithinSpace({
         maximumWidth: widthAvailableForText,
         text: title,
         linesOfTextRange: layout.title.linesOfTextRange,
@@ -404,7 +404,7 @@ const createDescriptionTextBox = ({
         layout.description.leftMargin -
         layout.description.rightMargin
 
-    const textFit = TextHandlingService.fitTextWithinSpace({
+    const textFit = TextGraphicalHandlingService.fitTextWithinSpace({
         maximumWidth: widthAvailableForText,
         text: label.description.text,
         linesOfTextRange: layout.description.linesOfTextRange,
@@ -413,7 +413,7 @@ const createDescriptionTextBox = ({
     })
 
     const heightNeededForText =
-        TextHandlingService.calculateMaximumHeightOfFont({
+        TextGraphicalHandlingService.calculateMaximumHeightOfFont({
             fontSize: textFit.fontSize,
             graphicsContext: graphicsBuffer,
         }) * textFit.text.split("\n").length

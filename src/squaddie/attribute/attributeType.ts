@@ -1,4 +1,4 @@
-import { TextHandlingService } from "../../utils/graphics/textHandlingService"
+import { TextFormatService } from "../../utils/graphics/textFormatService"
 
 export enum AttributeType {
     ARMOR = "ARMOR",
@@ -25,7 +25,7 @@ export const AttributeTypeService = {
     isBinary: (type: AttributeType): boolean =>
         [AttributeType.HUSTLE, AttributeType.ELUSIVE].includes(type),
     readableName: (type: AttributeType): string =>
-        `${TextHandlingService.titleCase(type).replaceAll("_", " ")}`,
+        `${TextFormatService.titleCase(type).replaceAll("_", " ")}`,
     getAttributeIconResourceKeyForAttributeType: (a: AttributeType): string =>
         `attribute-icon-${a.toLowerCase().replaceAll("_", "-")}`,
     getAttributeTypeDescription: (type: AttributeType): string =>

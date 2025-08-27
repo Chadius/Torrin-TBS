@@ -17,8 +17,8 @@ import { HUE_BY_SQUADDIE_AFFILIATION } from "../../../../../graphicsConstants"
 import {
     FontSizeRange,
     LinesOfTextRange,
-    TextHandlingService,
-} from "../../../../../utils/graphics/textHandlingService"
+    TextGraphicalHandlingService,
+} from "../../../../../utils/graphics/textGraphicalHandlingService"
 import {
     ActionTemplate,
     ActionTemplateService,
@@ -35,6 +35,7 @@ import {
 import { Glossary } from "../../../../../campaign/glossary/glossary"
 import { ResourceHandler } from "../../../../../resource/resourceHandler"
 import { ScreenLocation } from "../../../../../utils/mouseConfig"
+import { TextFormatService } from "../../../../../utils/graphics/textFormatService"
 
 type ActionSelectedTileLayout = {
     actionNameText: {
@@ -417,7 +418,7 @@ const createInformationTextBox = ({
         (RectAreaService.width(overallBoundingBox) - WINDOW_SPACING.SPACING2) *
         widthRatio
 
-    const textInfo = TextHandlingService.fitTextWithinSpace({
+    const textInfo = TextGraphicalHandlingService.fitTextWithinSpace({
         text,
         maximumWidth: availableTextWidth,
         graphicsContext,
@@ -566,7 +567,7 @@ const createActionTemplateEffectTextBox = ({
                     currentDescription.type
                 )
                     ? undefined
-                    : `${TextHandlingService.padPlusOnPositiveNumber(currentDescription.amount)}`,
+                    : `${TextFormatService.padPlusOnPositiveNumber(currentDescription.amount)}`,
             })
 
             allTextBoxRectAreas.push(...textBoxAreas)
@@ -636,7 +637,7 @@ const createActionTemplateDescriptionTextBox = ({
         HUE_BY_SQUADDIE_AFFILIATION[tile.squaddieAffiliation]
     const textColor = [squaddieAffiliationHue, 7, 192]
 
-    const textInfo = TextHandlingService.fitTextWithinSpace({
+    const textInfo = TextGraphicalHandlingService.fitTextWithinSpace({
         text: actionTemplate.userInformation.userReadableDescription,
         maximumWidth:
             RectAreaService.width(overallBoundingBox) - WINDOW_SPACING.SPACING2,
@@ -663,7 +664,7 @@ const createActionTemplateDescriptionTextBox = ({
                 RectAreaService.bottom(overallBoundingBox) -
                 layoutConstants.description.bottomMargin,
             height:
-                TextHandlingService.calculateMaximumHeightOfFont({
+                TextGraphicalHandlingService.calculateMaximumHeightOfFont({
                     fontSize: textInfo.fontSize,
                     graphicsContext,
                 }) * textInfo.text.split("\n").length,

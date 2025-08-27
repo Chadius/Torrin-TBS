@@ -1,6 +1,6 @@
-import { TextHandlingService } from "../../../utils/graphics/textHandlingService"
 import { DegreeOfSuccessExplanation } from "./calculator"
 import { DegreeOfSuccess } from "./degreeOfSuccess"
+import { TextFormatService } from "../../../utils/graphics/textFormatService"
 
 export const DIE_SIZE = 6
 
@@ -21,7 +21,7 @@ export const RollModifierTypeService = {
             if (type === RollModifierType.MULTIPLE_ATTACK_PENALTY) return "MAP"
             if (type === RollModifierType.PROFICIENCY) return "Prof"
         }
-        return `${TextHandlingService.titleCase(type).replaceAll("_", " ")}`
+        return `${TextFormatService.titleCase(type).replaceAll("_", " ")}`
     },
 }
 
@@ -64,7 +64,6 @@ export const RollResultService = {
         sumOfDiceRolls(rollResult) >= DIE_SIZE + DIE_SIZE,
     isMinimumRoll: (rollResult: RollResult) => sumOfDiceRolls(rollResult) <= 2,
     totalAttackRoll: (rollResult: RollResult) => totalAttackRoll(rollResult),
-    getMaximumRoll: () => DIE_SIZE + DIE_SIZE,
     getPossibleDegreesOfSuccessBasedOnBonus: (
         successBonus: number
     ): DegreeOfSuccess[] => {

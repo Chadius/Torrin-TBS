@@ -16,7 +16,7 @@ import { WINDOW_SPACING } from "../../../../ui/constants"
 import { GraphicsBuffer } from "../../../../utils/graphics/graphicsRenderer"
 import { HUE_BY_SQUADDIE_AFFILIATION } from "../../../../graphicsConstants"
 import { SquaddieAffiliation } from "../../../../squaddie/squaddieAffiliation"
-import { TextHandlingService } from "../../../../utils/graphics/textHandlingService"
+import { TextGraphicalHandlingService } from "../../../../utils/graphics/textGraphicalHandlingService"
 import {
     ActionTilePosition,
     ActionTilePositionService,
@@ -156,7 +156,7 @@ const setPortraitNameTextBox = (
         HUE_BY_SQUADDIE_AFFILIATION[tile.squaddieAffiliation]
     const textColor = [squaddieAffiliationHue, 7, 192]
 
-    const textInfo = TextHandlingService.fitTextWithinSpace({
+    const textInfo = TextGraphicalHandlingService.fitTextWithinSpace({
         text: tile.squaddieName,
         maximumWidth:
             RectAreaService.width(overallBoundingBox) - WINDOW_SPACING.SPACING2,

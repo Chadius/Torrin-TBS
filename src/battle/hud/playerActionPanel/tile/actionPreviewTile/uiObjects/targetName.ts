@@ -3,7 +3,7 @@ import {
     ActionTilePosition,
     ActionTilePositionService,
 } from "../../actionTilePosition"
-import { TextHandlingService } from "../../../../../../utils/graphics/textHandlingService"
+import { TextGraphicalHandlingService } from "../../../../../../utils/graphics/textGraphicalHandlingService"
 import { TextBoxService } from "../../../../../../ui/textBox/textBox"
 import { RectAreaService } from "../../../../../../ui/rectArea"
 import {
@@ -46,7 +46,7 @@ export class CreateTargetNameTextBoxesAction implements BehaviorTreeTask {
             )
         const layoutConstants = this.dataBlob.getLayout().targetName
 
-        const textInfo = TextHandlingService.fitTextWithinSpace({
+        const textInfo = TextGraphicalHandlingService.fitTextWithinSpace({
             text: targetName,
             maximumWidth: layoutConstants.width,
             graphicsContext: uiObjects.graphicsContext,

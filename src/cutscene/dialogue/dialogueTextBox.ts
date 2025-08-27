@@ -13,8 +13,8 @@ import {
 import { ScreenDimensions } from "../../utils/graphics/graphicsConfig"
 import {
     LinesOfTextRange,
-    TextHandlingService,
-} from "../../utils/graphics/textHandlingService"
+    TextGraphicalHandlingService,
+} from "../../utils/graphics/textGraphicalHandlingService"
 import { HORIZONTAL_ALIGN, WINDOW_SPACING } from "../../ui/constants"
 
 export interface DialogTextBoxLayout extends ThirdOfScreenAlignment {
@@ -109,7 +109,7 @@ export class DialogueTextBox {
         }
 
         const fontStyle = DIALOGUE_FONT_STYLE_CONSTANTS[this.fontStyle]
-        const textFit = TextHandlingService.fitTextWithinSpace({
+        const textFit = TextGraphicalHandlingService.fitTextWithinSpace({
             text: this.dialogueText,
             graphicsContext,
             maximumWidth: rectStyle.maxPixelWidth,
@@ -142,7 +142,7 @@ export class DialogueTextBox {
                     rectStyle.textBoxMargin[3],
                 left: dialogueTextLabelLeft,
                 height:
-                    TextHandlingService.calculateMaximumHeightOfFont({
+                    TextGraphicalHandlingService.calculateMaximumHeightOfFont({
                         fontSize: textFit.fontSize,
                         graphicsContext,
                     }) * textFit.text.split("\n").length,

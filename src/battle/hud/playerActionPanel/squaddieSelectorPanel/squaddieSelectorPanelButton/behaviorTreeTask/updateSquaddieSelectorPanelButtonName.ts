@@ -15,7 +15,7 @@ import { DataBlobService } from "../../../../../../utils/dataBlob/dataBlob"
 import { getResultOrThrowError } from "../../../../../../utils/ResultOrError"
 import { RectAreaService } from "../../../../../../ui/rectArea"
 import { WINDOW_SPACING } from "../../../../../../ui/constants"
-import { TextHandlingService } from "../../../../../../utils/graphics/textHandlingService"
+import { TextGraphicalHandlingService } from "../../../../../../utils/graphics/textGraphicalHandlingService"
 import { TextBoxService } from "../../../../../../ui/textBox/textBox"
 
 export class UpdateSquaddieSelectorPanelButtonName implements BehaviorTreeTask {
@@ -116,7 +116,7 @@ export class UpdateSquaddieSelectorPanelButtonName implements BehaviorTreeTask {
             bottom: RectAreaService.bottom(uiObjects.drawingArea),
         })
 
-        const textInfo = TextHandlingService.fitTextWithinSpace({
+        const textInfo = TextGraphicalHandlingService.fitTextWithinSpace({
             text: name,
             maximumWidth: RectAreaService.width(areaToRender),
             graphicsContext: this.graphicsContext,

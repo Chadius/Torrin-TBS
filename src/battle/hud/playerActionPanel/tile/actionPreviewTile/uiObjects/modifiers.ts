@@ -7,7 +7,7 @@ import {
     ActionTilePosition,
     ActionTilePositionService,
 } from "../../actionTilePosition"
-import { TextHandlingService } from "../../../../../../utils/graphics/textHandlingService"
+import { TextGraphicalHandlingService } from "../../../../../../utils/graphics/textGraphicalHandlingService"
 import { TextBox, TextBoxService } from "../../../../../../ui/textBox/textBox"
 import { RectArea, RectAreaService } from "../../../../../../ui/rectArea"
 import { WINDOW_SPACING } from "../../../../../../ui/constants"
@@ -21,6 +21,7 @@ import {
     AttributeTypeService,
 } from "../../../../../../squaddie/attribute/attributeType"
 import { ComponentDataBlob } from "../../../../../../utils/dataBlob/componentDataBlob"
+import { TextFormatService } from "../../../../../../utils/graphics/textFormatService"
 
 export class CreateLeftModifiersTextBoxAction implements BehaviorTreeTask {
     dataBlob: ComponentDataBlob<
@@ -96,7 +97,7 @@ export class CreateLeftModifiersTextBoxAction implements BehaviorTreeTask {
             boundingBox
         )
 
-        const textInfo = TextHandlingService.fitTextWithinSpace({
+        const textInfo = TextGraphicalHandlingService.fitTextWithinSpace({
             text: messageToShow,
             maximumWidth: modifiersLayoutConstants.leftColumn.width,
             graphicsContext: uiObjects.graphicsContext,
@@ -189,7 +190,7 @@ export class CreateRightModifiersTextBoxAction implements BehaviorTreeTask {
             boundingBox
         )
 
-        const textInfo = TextHandlingService.fitTextWithinSpace({
+        const textInfo = TextGraphicalHandlingService.fitTextWithinSpace({
             text: messageToShow,
             maximumWidth: modifiersLayoutConstants.rightColumn.width,
             graphicsContext: uiObjects.graphicsContext,
@@ -247,7 +248,7 @@ const formatAttributeTypeAndAmount = ({
 
 const formatAmount = (amount: number | undefined) => {
     if (amount == undefined) return ""
-    return TextHandlingService.padPlusOnPositiveNumber(amount) + " "
+    return TextFormatService.padPlusOnPositiveNumber(amount) + " "
 }
 
 const calculateBottomOfModifierList = (

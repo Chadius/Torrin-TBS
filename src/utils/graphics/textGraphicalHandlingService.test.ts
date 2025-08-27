@@ -1,8 +1,8 @@
 import {
     TEXT_WIDTH_MULTIPLIER,
     TextFit,
-    TextHandlingService,
-} from "./textHandlingService"
+    TextGraphicalHandlingService,
+} from "./textGraphicalHandlingService"
 import { MockedP5GraphicsBuffer } from "../test/mocks"
 import {
     afterEach,
@@ -11,11 +11,10 @@ import {
     expect,
     it,
     MockInstance,
-    test,
     vi,
 } from "vitest"
 
-describe("Text Handling Service", () => {
+describe("Text Graphical Handling Service", () => {
     let mockGraphicsContext: MockedP5GraphicsBuffer
 
     beforeEach(() => {
@@ -32,7 +31,7 @@ describe("Text Handling Service", () => {
             .mockReturnValue(9001)
 
         expect(
-            TextHandlingService.calculateLengthOfLineOfText({
+            TextGraphicalHandlingService.calculateLengthOfLineOfText({
                 text: "Wow! 3 Apples!",
                 fontSize: 10,
                 strokeWeight: 3,
@@ -65,7 +64,7 @@ describe("Text Handling Service", () => {
             .mockReturnValue(3)
 
         expect(
-            TextHandlingService.calculateMaximumHeightOfFont({
+            TextGraphicalHandlingService.calculateMaximumHeightOfFont({
                 fontSize: 10,
                 graphicsContext: mockGraphicsContext,
             })
@@ -84,23 +83,6 @@ describe("Text Handling Service", () => {
         textAscentSpy.mockRestore()
         textDescentSpy.mockRestore()
     })
-    test.each`
-        inputString     | approximateLength
-        ${"ABCDEFG"}    | ${0.8 * 10 * 7 + 1}
-        ${"01234"}      | ${0.8 * 10 * 5 + 1}
-        ${"a sly fox."} | ${0.62 * 10 * 10 + 1}
-    `(
-        "$inputString estimated length is close to: $approximateLength",
-        ({ inputString, approximateLength }) => {
-            expect(
-                TextHandlingService.approximateLengthOfLineOfText({
-                    text: inputString,
-                    fontSize: 10,
-                    strokeWeight: 1,
-                })
-            ).toBeCloseTo(approximateLength)
-        }
-    )
     describe("change font to ensure it fits size", () => {
         let textWidthSpy: MockInstance
         let textSizeSpy: MockInstance
@@ -116,7 +98,7 @@ describe("Text Handling Service", () => {
                 .mockReturnValue(24)
             expect(
                 expectTextFitToBeCloseTo(
-                    TextHandlingService.fitTextWithinSpace({
+                    TextGraphicalHandlingService.fitTextWithinSpace({
                         text: "Hi",
                         maximumWidth: 9001,
                         fontDescription: {
@@ -147,7 +129,7 @@ describe("Text Handling Service", () => {
                 })
             expect(
                 expectTextFitToBeCloseTo(
-                    TextHandlingService.fitTextWithinSpace({
+                    TextGraphicalHandlingService.fitTextWithinSpace({
                         text: "111 222 33",
                         maximumWidth: 9001,
                         fontDescription: {
@@ -184,7 +166,7 @@ describe("Text Handling Service", () => {
                 })
             expect(
                 expectTextFitToBeCloseTo(
-                    TextHandlingService.fitTextWithinSpace({
+                    TextGraphicalHandlingService.fitTextWithinSpace({
                         text: "12345",
                         maximumWidth: 50,
                         fontDescription: {
@@ -207,16 +189,6 @@ describe("Text Handling Service", () => {
                 )
             ).toBeTruthy()
         })
-    })
-    it("can pad a + in front of positive numbers", () => {
-        expect(TextHandlingService.padPlusOnPositiveNumber(3)).toEqual("+3")
-        expect(TextHandlingService.padPlusOnPositiveNumber(0)).toEqual("0")
-        expect(TextHandlingService.padPlusOnPositiveNumber(-5)).toEqual("-5")
-    })
-    it("can title case, only capitalizing the first letter of a word", () => {
-        expect(TextHandlingService.titleCase("cat")).toEqual("Cat")
-        expect(TextHandlingService.titleCase("CAT")).toEqual("Cat")
-        expect(TextHandlingService.titleCase("0cat")).toEqual("0cat")
     })
     describe("split text on multiple lines", () => {
         let textWidthSpy: MockInstance
@@ -244,7 +216,7 @@ describe("Text Handling Service", () => {
         it("will add line breaks to split text on multiple lines", () => {
             expect(
                 expectTextFitToBeCloseTo(
-                    TextHandlingService.fitTextWithinSpace({
+                    TextGraphicalHandlingService.fitTextWithinSpace({
                         text: "1 3 5",
                         maximumWidth: 20,
                         fontDescription: {
@@ -271,7 +243,7 @@ describe("Text Handling Service", () => {
         it("will not add line breaks if already at the maximum lines of text", () => {
             expect(
                 expectTextFitToBeCloseTo(
-                    TextHandlingService.fitTextWithinSpace({
+                    TextGraphicalHandlingService.fitTextWithinSpace({
                         text: "1 3 5",
                         maximumWidth: 20,
                         fontDescription: {
@@ -298,7 +270,7 @@ describe("Text Handling Service", () => {
         it("will not modify the text if the only word is too long", () => {
             expect(
                 expectTextFitToBeCloseTo(
-                    TextHandlingService.fitTextWithinSpace({
+                    TextGraphicalHandlingService.fitTextWithinSpace({
                         text: "12345",
                         maximumWidth: 20,
                         fontDescription: {
@@ -325,7 +297,7 @@ describe("Text Handling Service", () => {
         it("will move the second word to a new line if the first word is too long", () => {
             expect(
                 expectTextFitToBeCloseTo(
-                    TextHandlingService.fitTextWithinSpace({
+                    TextGraphicalHandlingService.fitTextWithinSpace({
                         text: "123 5",
                         maximumWidth: 20,
                         fontDescription: {
@@ -352,7 +324,7 @@ describe("Text Handling Service", () => {
         it("will not modify text if the line is short enough", () => {
             expect(
                 expectTextFitToBeCloseTo(
-                    TextHandlingService.fitTextWithinSpace({
+                    TextGraphicalHandlingService.fitTextWithinSpace({
                         text: "12\n3\n5",
                         maximumWidth: 20,
                         fontDescription: {

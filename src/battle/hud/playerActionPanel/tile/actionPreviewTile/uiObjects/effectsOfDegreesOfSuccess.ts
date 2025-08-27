@@ -4,7 +4,7 @@ import {
     ActionTilePositionService,
 } from "../../actionTilePosition"
 import { ActionEffectTemplateService } from "../../../../../../action/template/actionEffectTemplate"
-import { TextHandlingService } from "../../../../../../utils/graphics/textHandlingService"
+import { TextGraphicalHandlingService } from "../../../../../../utils/graphics/textGraphicalHandlingService"
 import { TextBoxService } from "../../../../../../ui/textBox/textBox"
 import { RectAreaService } from "../../../../../../ui/rectArea"
 import {
@@ -25,6 +25,7 @@ import {
 } from "../../../../../../squaddie/attribute/attributeType"
 import { DegreeOfSuccess } from "../../../../../calculator/actionCalculator/degreeOfSuccess"
 import { ComponentDataBlob } from "../../../../../../utils/dataBlob/componentDataBlob"
+import { TextFormatService } from "../../../../../../utils/graphics/textFormatService"
 
 export class CreateNextEffectsOfDegreesOfSuccessTextBoxAction
     implements BehaviorTreeTask
@@ -101,7 +102,7 @@ export class CreateNextEffectsOfDegreesOfSuccessTextBoxAction
                 }
             )
 
-        const textInfo = TextHandlingService.fitTextWithinSpace({
+        const textInfo = TextGraphicalHandlingService.fitTextWithinSpace({
             text: messageToShow,
             maximumWidth: effectsOfDegreesOfSuccessLayoutConstants.width,
             graphicsContext: uiObjects.graphicsContext,
@@ -236,7 +237,7 @@ const generateMessageForAttributeModifiers = (
                 if (AttributeTypeService.isBinary(typeAndAmount.type)) {
                     return `${AttributeTypeService.readableName(typeAndAmount.type)}`
                 }
-                return `${TextHandlingService.padPlusOnPositiveNumber(typeAndAmount.amount)} ${AttributeTypeService.readableName(typeAndAmount.type)}`
+                return `${TextFormatService.padPlusOnPositiveNumber(typeAndAmount.amount)} ${AttributeTypeService.readableName(typeAndAmount.type)}`
             }
         )
         messageToShow += attributeMessages.join(", ")

@@ -26,7 +26,7 @@ import {
 } from "../../actionValidity/validityChecker"
 import { MessageBoardMessageType } from "../../../message/messageBoardMessage"
 import { CoordinateSystem } from "../../../hexMap/hexCoordinate/hexCoordinate"
-import { TextHandlingService } from "../../../utils/graphics/textHandlingService"
+import { TextGraphicalHandlingService } from "../../../utils/graphics/textGraphicalHandlingService"
 import {
     DIALOGUE_FONT_STYLE_CONSTANTS,
     WARNING_POPUP_TEXT_CONSTANTS,
@@ -388,8 +388,8 @@ const createQueuedPopupIfNeeded = (
     if (!playerCommandState.newInvalidPopup) {
         return
     }
-    const windowWidth: number = TextHandlingService.calculateLengthOfLineOfText(
-        {
+    const windowWidth: number =
+        TextGraphicalHandlingService.calculateLengthOfLineOfText({
             text: playerCommandState.newInvalidPopup.message,
             fontSize:
                 DIALOGUE_FONT_STYLE_CONSTANTS.WARNING_POPUP.fontSizeRange
@@ -397,8 +397,7 @@ const createQueuedPopupIfNeeded = (
             strokeWeight:
                 DIALOGUE_FONT_STYLE_CONSTANTS.WARNING_POPUP.strokeWeight,
             graphicsContext: graphicsBuffer,
-        }
-    )
+        })
     gameEngineState.messageBoard.sendMessage({
         type: MessageBoardMessageType.PLAYER_SELECTION_IS_INVALID,
         gameEngineState,
