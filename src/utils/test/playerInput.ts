@@ -20,6 +20,10 @@ export const PlayerInputTestService = {
         OrchestratorComponentKeyEventService.createPressedKeyEvent(
             JSON.parse(process.env.PLAYER_INPUT_NEXT)[0]["press"]
         ),
+    pressEndTurn: (): OrchestratorComponentKeyEvent =>
+        OrchestratorComponentKeyEventService.createPressedKeyEvent(
+            JSON.parse(process.env.PLAYER_INPUT_END_TURN)[0]["press"]
+        ),
     holdScrollRightKey: (playerInputState: PlayerInputState) => {
         holdModifierKeys({
             playerInputState,

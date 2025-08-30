@@ -227,6 +227,16 @@ export class BattlePlayerSquaddieSelector
                 gameEngineState,
                 context,
             })
+            return
+        }
+
+        if (actions.includes(PlayerInputAction.END_TURN)) {
+            processPlayerCommandSelection({
+                gameEngineState,
+                playerCommandSelection:
+                    PlayerCommandSelection.PLAYER_COMMAND_SELECTION_END_TURN,
+            })
+            return
         }
     }
 
@@ -371,7 +381,7 @@ const processPlayerCommandSelection = ({
 }: {
     gameEngineState: GameEngineState
     playerCommandSelection: PlayerCommandSelection
-    mouseClick: MousePress
+    mouseClick?: MousePress
 }): {
     didUserClickOnSummaryHUD: boolean
     changes: PlayerSelectionChanges

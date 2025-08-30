@@ -6,6 +6,7 @@ export enum PlayerInputAction {
     SCROLL_RIGHT = "SCROLL_RIGHT",
     SCROLL_UP = "SCROLL_UP",
     SCROLL_DOWN = "SCROLL_DOWN",
+    END_TURN = "END_TURN",
 }
 
 export interface PlayerInputButtonCombination {
@@ -119,6 +120,9 @@ export const PlayerInputStateService = {
                 [PlayerInputAction.SCROLL_DOWN]: JSON.parse(
                     process.env.PLAYER_INPUT_SCROLL_DOWN
                 ),
+                [PlayerInputAction.END_TURN]: JSON.parse(
+                    process.env.PLAYER_INPUT_END_TURN
+                ),
             },
             modifierKeyCodes: JSON.parse(
                 process.env.PLAYER_INPUT_MODIFIER_KEY_CODES
@@ -209,7 +213,6 @@ const searchInputActions = ({
                 const metaModifier = combination.modifiers?.meta
                     ? combination.modifiers.meta
                     : false
-
                 return (
                     playerInput.modifierKeyCodes.shift.active ===
                         shiftModifier &&

@@ -1051,7 +1051,7 @@ describe("BattleSquaddieSelector", () => {
         })
     })
 
-    describe("Next Squaddie button", () => {
+    describe("Keyboard buttons", () => {
         let gameEngineState: GameEngineState
 
         beforeEach(() => {
@@ -1079,46 +1079,67 @@ describe("BattleSquaddieSelector", () => {
             )
 
             messageSpy = vi.spyOn(gameEngineState.messageBoard, "sendMessage")
-
-            selector.keyEventHappened(
-                gameEngineState,
-                PlayerInputTestService.pressNextKey()
-            )
         })
 
         afterEach(() => {
             messageSpy.mockRestore()
         })
 
-        it("knows the player wants to switch to the next squaddie", () => {
-            expect(
-                expectContextSpiesWereCalled({
-                    expectedPlayerSelectionContextCalculationArgs:
-                        PlayerSelectionContextCalculationArgsService.new({
-                            gameEngineState,
-                            playerInputActions: [PlayerInputAction.NEXT],
-                        }),
-                    expectedPlayerSelectionContext:
-                        PlayerSelectionContextService.new({
-                            playerIntent:
-                                PlayerIntent.START_OF_TURN_SELECT_NEXT_CONTROLLABLE_SQUADDIE,
-                            playerInputActions: [PlayerInputAction.NEXT],
-                        }),
-                    expectedPlayerSelectionChanges:
-                        PlayerSelectionChangesService.new({
-                            messageSent: {
-                                type: MessageBoardMessageType.SELECT_AND_LOCK_NEXT_SQUADDIE,
+        describe("Next Squaddie button", () => {
+            beforeEach(() => {
+                selector.keyEventHappened(
+                    gameEngineState,
+                    PlayerInputTestService.pressNextKey()
+                )
+            })
+
+            it("knows the player wants to switch to the next squaddie", () => {
+                expect(
+                    expectContextSpiesWereCalled({
+                        expectedPlayerSelectionContextCalculationArgs:
+                            PlayerSelectionContextCalculationArgsService.new({
                                 gameEngineState,
-                            },
-                        }),
+                                playerInputActions: [PlayerInputAction.NEXT],
+                            }),
+                        expectedPlayerSelectionContext:
+                            PlayerSelectionContextService.new({
+                                playerIntent:
+                                    PlayerIntent.START_OF_TURN_SELECT_NEXT_CONTROLLABLE_SQUADDIE,
+                                playerInputActions: [PlayerInputAction.NEXT],
+                            }),
+                        expectedPlayerSelectionChanges:
+                            PlayerSelectionChangesService.new({
+                                messageSent: {
+                                    type: MessageBoardMessageType.SELECT_AND_LOCK_NEXT_SQUADDIE,
+                                    gameEngineState,
+                                },
+                            }),
+                    })
+                ).toBeTruthy()
+            })
+
+            it("sends a message to change playable squaddie", () => {
+                expect(messageSpy).toHaveBeenCalledWith({
+                    type: MessageBoardMessageType.SELECT_AND_LOCK_NEXT_SQUADDIE,
+                    gameEngineState,
                 })
-            ).toBeTruthy()
+            })
         })
 
-        it("sends a message to target", () => {
-            expect(messageSpy).toHaveBeenCalledWith({
-                type: MessageBoardMessageType.SELECT_AND_LOCK_NEXT_SQUADDIE,
-                gameEngineState,
+        describe("Player presses End Turn button", () => {
+            beforeEach(() => {
+                selector.keyEventHappened(
+                    gameEngineState,
+                    PlayerInputTestService.pressEndTurn()
+                )
+            })
+
+            it("sends a message", () => {
+                expect(messageSpy).toHaveBeenCalledWith(
+                    expect.objectContaining({
+                        type: MessageBoardMessageType.PLAYER_ENDS_TURN,
+                    })
+                )
             })
         })
     })

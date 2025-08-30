@@ -141,6 +141,10 @@ describe("Player Input State", () => {
                 action: PlayerInputAction.SCROLL_DOWN,
                 combinations: JSON.parse(process.env.PLAYER_INPUT_SCROLL_DOWN),
             },
+            {
+                action: PlayerInputAction.END_TURN,
+                combinations: JSON.parse(process.env.PLAYER_INPUT_END_TURN),
+            },
         ]
 
         it.each(expectedActionCombinations)(

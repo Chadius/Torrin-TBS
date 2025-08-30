@@ -28,6 +28,10 @@ export default defineConfig({
                 { press: 27 },
             ]),
             PLAYER_INPUT_NEXT: JSON.stringify([{ press: 88 }, { press: 17 }]),
+            PLAYER_INPUT_END_TURN: JSON.stringify([
+                { press: 35 },
+                { press: 48 },
+            ]),
             PLAYER_INPUT_SCROLL_LEFT: JSON.stringify([
                 {
                     hold: {

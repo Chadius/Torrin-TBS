@@ -39,6 +39,9 @@ export default defineConfig(({ mode }) => {
         "process.env.PLAYER_INPUT_NEXT":
             JSON.stringify(process.env.PLAYER_INPUT_NEXT) ||
             JSON.stringify('[{"press":88},{"press":17}]'),
+        "process.env.PLAYER_INPUT_END_TURN":
+            JSON.stringify(process.env.PLAYER_INPUT_END_TURN) ||
+            JSON.stringify('[{"press":35},{"press":48}]'),
         "process.env.PLAYER_INPUT_SCROLL_LEFT":
             JSON.stringify(process.env.PLAYER_SCROLL_LEFT) ||
             JSON.stringify(
