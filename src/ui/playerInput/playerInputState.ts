@@ -7,6 +7,15 @@ export enum PlayerInputAction {
     SCROLL_UP = "SCROLL_UP",
     SCROLL_DOWN = "SCROLL_DOWN",
     END_TURN = "END_TURN",
+    LIST_INDEX_0 = "LIST_INDEX_0",
+    LIST_INDEX_1 = "LIST_INDEX_1",
+    LIST_INDEX_2 = "LIST_INDEX_2",
+    LIST_INDEX_3 = "LIST_INDEX_3",
+    LIST_INDEX_4 = "LIST_INDEX_4",
+    LIST_INDEX_5 = "LIST_INDEX_5",
+    LIST_INDEX_6 = "LIST_INDEX_6",
+    LIST_INDEX_7 = "LIST_INDEX_7",
+    LIST_INDEX_8 = "LIST_INDEX_8",
 }
 
 export interface PlayerInputButtonCombination {
@@ -123,6 +132,33 @@ export const PlayerInputStateService = {
                 [PlayerInputAction.END_TURN]: JSON.parse(
                     process.env.PLAYER_INPUT_END_TURN
                 ),
+                [PlayerInputAction.LIST_INDEX_0]: JSON.parse(
+                    process.env.PLAYER_INPUT_LIST_INDEX_0
+                ),
+                [PlayerInputAction.LIST_INDEX_1]: JSON.parse(
+                    process.env.PLAYER_INPUT_LIST_INDEX_1
+                ),
+                [PlayerInputAction.LIST_INDEX_2]: JSON.parse(
+                    process.env.PLAYER_INPUT_LIST_INDEX_2
+                ),
+                [PlayerInputAction.LIST_INDEX_3]: JSON.parse(
+                    process.env.PLAYER_INPUT_LIST_INDEX_3
+                ),
+                [PlayerInputAction.LIST_INDEX_4]: JSON.parse(
+                    process.env.PLAYER_INPUT_LIST_INDEX_4
+                ),
+                [PlayerInputAction.LIST_INDEX_5]: JSON.parse(
+                    process.env.PLAYER_INPUT_LIST_INDEX_5
+                ),
+                [PlayerInputAction.LIST_INDEX_6]: JSON.parse(
+                    process.env.PLAYER_INPUT_LIST_INDEX_6
+                ),
+                [PlayerInputAction.LIST_INDEX_7]: JSON.parse(
+                    process.env.PLAYER_INPUT_LIST_INDEX_7
+                ),
+                [PlayerInputAction.LIST_INDEX_8]: JSON.parse(
+                    process.env.PLAYER_INPUT_LIST_INDEX_8
+                ),
             },
             modifierKeyCodes: JSON.parse(
                 process.env.PLAYER_INPUT_MODIFIER_KEY_CODES
@@ -148,6 +184,52 @@ export const PlayerInputStateService = {
                         return timeHeld >= combination.hold.delay
                     })
             ),
+    numberToListIndex: (index: number): PlayerInputAction => {
+        const numberToListIndex = [
+            PlayerInputAction.LIST_INDEX_0,
+            PlayerInputAction.LIST_INDEX_1,
+            PlayerInputAction.LIST_INDEX_2,
+            PlayerInputAction.LIST_INDEX_3,
+            PlayerInputAction.LIST_INDEX_4,
+            PlayerInputAction.LIST_INDEX_5,
+            PlayerInputAction.LIST_INDEX_6,
+            PlayerInputAction.LIST_INDEX_7,
+            PlayerInputAction.LIST_INDEX_8,
+        ]
+        return numberToListIndex[index]
+    },
+    listIndexToNumber: (playerInputAction: PlayerInputAction): number => {
+        const listIndexToNumber: { [p in PlayerInputAction]?: number } = {
+            [PlayerInputAction.LIST_INDEX_0]: 0,
+            [PlayerInputAction.LIST_INDEX_1]: 1,
+            [PlayerInputAction.LIST_INDEX_2]: 2,
+            [PlayerInputAction.LIST_INDEX_3]: 3,
+            [PlayerInputAction.LIST_INDEX_4]: 4,
+            [PlayerInputAction.LIST_INDEX_5]: 5,
+            [PlayerInputAction.LIST_INDEX_6]: 6,
+            [PlayerInputAction.LIST_INDEX_7]: 7,
+            [PlayerInputAction.LIST_INDEX_8]: 8,
+        }
+        return listIndexToNumber[playerInputAction]
+    },
+    filterListIndexActions: (
+        playerInputActions: PlayerInputAction[]
+    ): PlayerInputAction[] => {
+        const listIndexActions: Set<PlayerInputAction> = new Set([
+            PlayerInputAction.LIST_INDEX_0,
+            PlayerInputAction.LIST_INDEX_1,
+            PlayerInputAction.LIST_INDEX_2,
+            PlayerInputAction.LIST_INDEX_3,
+            PlayerInputAction.LIST_INDEX_4,
+            PlayerInputAction.LIST_INDEX_5,
+            PlayerInputAction.LIST_INDEX_6,
+            PlayerInputAction.LIST_INDEX_7,
+            PlayerInputAction.LIST_INDEX_8,
+        ])
+        return playerInputActions.filter((playerInputAction) =>
+            listIndexActions.has(playerInputAction)
+        )
+    },
 }
 
 const newPlayerInputState = ({

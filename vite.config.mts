@@ -42,6 +42,33 @@ export default defineConfig(({ mode }) => {
         "process.env.PLAYER_INPUT_END_TURN":
             JSON.stringify(process.env.PLAYER_INPUT_END_TURN) ||
             JSON.stringify('[{"press":35},{"press":48}]'),
+        "process.env.PLAYER_INPUT_LIST_INDEX_0":
+            JSON.stringify(process.env.PLAYER_INPUT_LIST_INDEX_0) ||
+            JSON.stringify('[{"press":49}]'),
+        "process.env.PLAYER_INPUT_LIST_INDEX_1":
+            JSON.stringify(process.env.PLAYER_INPUT_LIST_INDEX_1) ||
+            JSON.stringify('[{"press":50}]'),
+        "process.env.PLAYER_INPUT_LIST_INDEX_2":
+            JSON.stringify(process.env.PLAYER_INPUT_LIST_INDEX_2) ||
+            JSON.stringify('[{"press":51}]'),
+        "process.env.PLAYER_INPUT_LIST_INDEX_3":
+            JSON.stringify(process.env.PLAYER_INPUT_LIST_INDEX_3) ||
+            JSON.stringify('[{"press":52}]'),
+        "process.env.PLAYER_INPUT_LIST_INDEX_4":
+            JSON.stringify(process.env.PLAYER_INPUT_LIST_INDEX_4) ||
+            JSON.stringify('[{"press":53}]'),
+        "process.env.PLAYER_INPUT_LIST_INDEX_5":
+            JSON.stringify(process.env.PLAYER_INPUT_LIST_INDEX_5) ||
+            JSON.stringify('[{"press":54}]'),
+        "process.env.PLAYER_INPUT_LIST_INDEX_6":
+            JSON.stringify(process.env.PLAYER_INPUT_LIST_INDEX_6) ||
+            JSON.stringify('[{"press":55}]'),
+        "process.env.PLAYER_INPUT_LIST_INDEX_7":
+            JSON.stringify(process.env.PLAYER_INPUT_LIST_INDEX_7) ||
+            JSON.stringify('[{"press":56}]'),
+        "process.env.PLAYER_INPUT_LIST_INDEX_8":
+            JSON.stringify(process.env.PLAYER_INPUT_LIST_INDEX_8) ||
+            JSON.stringify('[{"press":57}]'),
         "process.env.PLAYER_INPUT_SCROLL_LEFT":
             JSON.stringify(process.env.PLAYER_SCROLL_LEFT) ||
             JSON.stringify(

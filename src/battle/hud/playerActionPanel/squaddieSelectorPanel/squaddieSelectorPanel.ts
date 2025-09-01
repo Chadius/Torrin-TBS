@@ -17,8 +17,6 @@ import { DataBlobService } from "../../../../utils/dataBlob/dataBlob"
 import { GraphicsBuffer } from "../../../../utils/graphics/graphicsRenderer"
 import { ResourceHandler } from "../../../../resource/resourceHandler"
 import { MousePress } from "../../../../utils/mouseConfig"
-import { GameEngineState } from "../../../../gameEngine/gameEngine"
-import { MessageBoardMessageType } from "../../../../message/messageBoardMessage"
 
 export interface SquaddieSelectorPanel {
     buttons: SquaddieSelectorPanelButton[]
@@ -119,41 +117,6 @@ export const SquaddieSelectorPanelService = {
         mouseClick: MousePress
     ): SquaddieSelectorPanelButton =>
         getClickedButton(squaddieSelectorPanel, mouseClick),
-    mouseClicked: ({
-        squaddieSelectorPanel,
-        mouseClick,
-        gameEngineState,
-    }: {
-        squaddieSelectorPanel: SquaddieSelectorPanel
-        mouseClick: MousePress
-        gameEngineState: GameEngineState
-    }) => {
-        const clickedButton = getClickedButton(
-            squaddieSelectorPanel,
-            mouseClick
-        )
-
-        if (clickedButton == undefined) return
-        const clickedBattleSquaddieId =
-            SquaddieSelectorPanelButtonService.getBattleSquaddieId(
-                clickedButton
-            )
-        if (
-            !isSquaddieSelectable({
-                battleSquaddieId: clickedBattleSquaddieId,
-                objectRepository: gameEngineState.repository,
-            })
-        )
-            return
-
-        selectSquaddie(squaddieSelectorPanel, clickedBattleSquaddieId)
-
-        gameEngineState.messageBoard.sendMessage({
-            type: MessageBoardMessageType.PLAYER_SELECTS_AND_LOCKS_SQUADDIE,
-            gameEngineState,
-            battleSquaddieSelectedId: clickedBattleSquaddieId,
-        })
-    },
     getSelectedBattleSquaddieId: (
         squaddieSelectorPanel: SquaddieSelectorPanel
     ): string => {
@@ -168,25 +131,6 @@ export const SquaddieSelectorPanelService = {
             selectedButton
         )
     },
-}
-
-const isSquaddieSelectable = ({
-    battleSquaddieId,
-    objectRepository,
-}: {
-    battleSquaddieId: string
-    objectRepository: ObjectRepository
-}): boolean => {
-    const { battleSquaddie, squaddieTemplate } = getResultOrThrowError(
-        ObjectRepositoryService.getSquaddieByBattleId(
-            objectRepository,
-            battleSquaddieId
-        )
-    )
-    return !SquaddieService.canSquaddieActRightNow({
-        squaddieTemplate,
-        battleSquaddie,
-    }).isDead
 }
 
 const selectSquaddie = (

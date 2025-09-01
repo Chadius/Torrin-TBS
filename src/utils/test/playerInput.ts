@@ -24,6 +24,36 @@ export const PlayerInputTestService = {
         OrchestratorComponentKeyEventService.createPressedKeyEvent(
             JSON.parse(process.env.PLAYER_INPUT_END_TURN)[0]["press"]
         ),
+    pressActionTemplateButton: (
+        actionTemplateIndex: number
+    ): OrchestratorComponentKeyEvent => {
+        const processEnvToParseByIndex = [
+            process.env.PLAYER_INPUT_LIST_INDEX_0,
+            process.env.PLAYER_INPUT_LIST_INDEX_1,
+            process.env.PLAYER_INPUT_LIST_INDEX_2,
+            process.env.PLAYER_INPUT_LIST_INDEX_3,
+            process.env.PLAYER_INPUT_LIST_INDEX_4,
+            process.env.PLAYER_INPUT_LIST_INDEX_5,
+            process.env.PLAYER_INPUT_LIST_INDEX_6,
+            process.env.PLAYER_INPUT_LIST_INDEX_7,
+            process.env.PLAYER_INPUT_LIST_INDEX_8,
+        ]
+
+        if (
+            actionTemplateIndex < 0 ||
+            actionTemplateIndex >= processEnvToParseByIndex.length
+        ) {
+            throw new Error(
+                "[PlayerInputTestService.pressActionTemplateButton]: Invalid action template index"
+            )
+        }
+
+        return OrchestratorComponentKeyEventService.createPressedKeyEvent(
+            JSON.parse(processEnvToParseByIndex[actionTemplateIndex])[0][
+                "press"
+            ]
+        )
+    },
     holdScrollRightKey: (playerInputState: PlayerInputState) => {
         holdModifierKeys({
             playerInputState,

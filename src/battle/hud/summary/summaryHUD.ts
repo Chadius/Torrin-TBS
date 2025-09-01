@@ -45,6 +45,7 @@ import { BattleActionRecorder } from "../../history/battleAction/battleActionRec
 import { CampaignResources } from "../../../campaign/campaignResources"
 import { PlayerConsideredActions } from "../../battleState/playerConsideredActions"
 import { Glossary } from "../../../campaign/glossary/glossary"
+import { PlayerInputAction } from "../../../ui/playerInput/playerInputState"
 
 export const SUMMARY_HUD_PEEK_EXPIRATION_MS = 2000
 
@@ -433,6 +434,33 @@ export const SummaryHUDStateService = {
             battleSquaddie,
             squaddieTemplate,
         }).squaddieIsNormallyControllableByPlayer
+    },
+    keyPressed: ({
+        summaryHUDState,
+        gameEngineState,
+        playerInputAction,
+    }: {
+        summaryHUDState: SummaryHUDState
+        playerInputAction: PlayerInputAction
+        gameEngineState: GameEngineState
+    }): PlayerCommandSelection => {
+        if (
+            !SummaryHUDStateService.shouldShowAllPlayerActions({
+                summaryHUDState,
+                objectRepository: gameEngineState.repository,
+                battleActionDecisionStep:
+                    gameEngineState.battleOrchestratorState.battleState
+                        .battleActionDecisionStep,
+            })
+        ) {
+            return PlayerCommandSelection.PLAYER_COMMAND_SELECTION_NONE
+        }
+
+        return PlayerCommandStateService.keyPressed({
+            playerInputAction,
+            gameEngineState,
+            playerCommandState: summaryHUDState.playerCommandState,
+        })
     },
 }
 

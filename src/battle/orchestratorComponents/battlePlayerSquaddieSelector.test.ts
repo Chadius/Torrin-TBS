@@ -20,7 +20,10 @@ import {
     GameEngineStateService,
 } from "../../gameEngine/gameEngine"
 import { CampaignService } from "../../campaign/campaign"
-import { ActionTemplateService } from "../../action/template/actionTemplate"
+import {
+    ActionTemplate,
+    ActionTemplateService,
+} from "../../action/template/actionTemplate"
 import { BattlePhaseState } from "./battlePhaseController"
 import { BattleHUDService } from "../hud/battleHUD/battleHUD"
 import { MouseButton, MouseConfigService } from "../../utils/mouseConfig"
@@ -101,6 +104,10 @@ describe("BattleSquaddieSelector", () => {
     let calculateContextSpy: MockInstance
     let applyContextSpy: MockInstance
     let validitySpy: MockInstance
+    let meleeActionTemplate: ActionTemplate
+    let rangedActionTemplate: ActionTemplate
+    let selfActionTemplate: ActionTemplate
+    let playerBattleSquaddieId = "battleSquaddieId"
 
     beforeEach(() => {
         mockedP5GraphicsContext = new MockedP5GraphicsBuffer()
@@ -120,6 +127,81 @@ describe("BattleSquaddieSelector", () => {
             PlayerSelectionService,
             "applyContextToGetChanges"
         )
+
+        meleeActionTemplate = ActionTemplateService.new({
+            id: "melee",
+            name: "melee",
+            targetConstraints: TargetConstraintsService.new({
+                minimumRange: 0,
+                maximumRange: 1,
+            }),
+            actionEffectTemplates: [
+                ActionEffectTemplateService.new({
+                    traits: TraitStatusStorageService.newUsingTraitValues({
+                        [Trait.ATTACK]: true,
+                    }),
+                    versusSquaddieResistance: VersusSquaddieResistance.ARMOR,
+                    squaddieAffiliationRelation: {
+                        [TargetBySquaddieAffiliationRelation.TARGET_FOE]: true,
+                    },
+                    damageDescriptions: {
+                        [DamageType.BODY]: 1,
+                    },
+                }),
+            ],
+        })
+        selfActionTemplate = ActionTemplateService.new({
+            id: "self",
+            name: "self",
+            targetConstraints: TargetConstraintsService.new({
+                minimumRange: 0,
+                maximumRange: 0,
+                coordinateGeneratorShape: CoordinateGeneratorShape.BLOOM,
+            }),
+            actionEffectTemplates: [
+                ActionEffectTemplateService.new({
+                    squaddieAffiliationRelation: {
+                        [TargetBySquaddieAffiliationRelation.TARGET_SELF]: true,
+                    },
+                    traits: TraitStatusStorageService.newUsingTraitValues({
+                        HEALING: true,
+                    }),
+                    attributeModifiers: [
+                        AttributeModifierService.new({
+                            type: AttributeType.ARMOR,
+                            amount: 1,
+                            source: AttributeSource.CIRCUMSTANCE,
+                        }),
+                    ],
+                    healingDescriptions: {
+                        [HealingType.LOST_HIT_POINTS]: 1,
+                    },
+                }),
+            ],
+        })
+        rangedActionTemplate = ActionTemplateService.new({
+            name: "ranged",
+            id: "ranged",
+            targetConstraints: TargetConstraintsService.new({
+                minimumRange: 0,
+                maximumRange: 2,
+                coordinateGeneratorShape: CoordinateGeneratorShape.BLOOM,
+            }),
+            actionEffectTemplates: [
+                ActionEffectTemplateService.new({
+                    squaddieAffiliationRelation: {
+                        [TargetBySquaddieAffiliationRelation.TARGET_FOE]: true,
+                    },
+                    traits: TraitStatusStorageService.newUsingTraitValues({
+                        [Trait.ALWAYS_SUCCEEDS]: true,
+                        [Trait.ATTACK]: true,
+                    }),
+                    damageDescriptions: {
+                        [DamageType.BODY]: 2,
+                    },
+                }),
+            ],
+        })
     })
     afterEach(() => {
         if (messageSpy) {
@@ -181,32 +263,7 @@ describe("BattleSquaddieSelector", () => {
         ) {
             ObjectRepositoryService.addActionTemplate(
                 objectRepository,
-                ActionTemplateService.new({
-                    id: "melee",
-                    name: "melee",
-                    targetConstraints: TargetConstraintsService.new({
-                        minimumRange: 0,
-                        maximumRange: 1,
-                    }),
-                    actionEffectTemplates: [
-                        ActionEffectTemplateService.new({
-                            traits: TraitStatusStorageService.newUsingTraitValues(
-                                {
-                                    [Trait.ATTACK]: true,
-                                }
-                            ),
-                            versusSquaddieResistance:
-                                VersusSquaddieResistance.ARMOR,
-                            squaddieAffiliationRelation: {
-                                [TargetBySquaddieAffiliationRelation.TARGET_FOE]:
-                                    true,
-                            },
-                            damageDescriptions: {
-                                [DamageType.BODY]: 1,
-                            },
-                        }),
-                    ],
-                })
+                meleeActionTemplate
             )
         }
 
@@ -218,39 +275,7 @@ describe("BattleSquaddieSelector", () => {
         ) {
             ObjectRepositoryService.addActionTemplate(
                 objectRepository,
-                ActionTemplateService.new({
-                    id: "self",
-                    name: "self",
-                    targetConstraints: TargetConstraintsService.new({
-                        minimumRange: 0,
-                        maximumRange: 0,
-                        coordinateGeneratorShape:
-                            CoordinateGeneratorShape.BLOOM,
-                    }),
-                    actionEffectTemplates: [
-                        ActionEffectTemplateService.new({
-                            squaddieAffiliationRelation: {
-                                [TargetBySquaddieAffiliationRelation.TARGET_SELF]:
-                                    true,
-                            },
-                            traits: TraitStatusStorageService.newUsingTraitValues(
-                                {
-                                    HEALING: true,
-                                }
-                            ),
-                            attributeModifiers: [
-                                AttributeModifierService.new({
-                                    type: AttributeType.ARMOR,
-                                    amount: 1,
-                                    source: AttributeSource.CIRCUMSTANCE,
-                                }),
-                            ],
-                            healingDescriptions: {
-                                [HealingType.LOST_HIT_POINTS]: 1,
-                            },
-                        }),
-                    ],
-                })
+                selfActionTemplate
             )
         }
 
@@ -262,33 +287,7 @@ describe("BattleSquaddieSelector", () => {
         ) {
             ObjectRepositoryService.addActionTemplate(
                 objectRepository,
-                ActionTemplateService.new({
-                    name: "ranged",
-                    id: "ranged",
-                    targetConstraints: TargetConstraintsService.new({
-                        minimumRange: 0,
-                        maximumRange: 2,
-                        coordinateGeneratorShape:
-                            CoordinateGeneratorShape.BLOOM,
-                    }),
-                    actionEffectTemplates: [
-                        ActionEffectTemplateService.new({
-                            squaddieAffiliationRelation: {
-                                [TargetBySquaddieAffiliationRelation.TARGET_FOE]:
-                                    true,
-                            },
-                            traits: TraitStatusStorageService.newUsingTraitValues(
-                                {
-                                    [Trait.ALWAYS_SUCCEEDS]: true,
-                                    [Trait.ATTACK]: true,
-                                }
-                            ),
-                            damageDescriptions: {
-                                [DamageType.BODY]: 2,
-                            },
-                        }),
-                    ],
-                })
+                rangedActionTemplate
             )
         }
         const playerTeam: BattleSquaddieTeam = {
@@ -302,19 +301,19 @@ describe("BattleSquaddieSelector", () => {
         SquaddieRepositoryService.createNewSquaddieAndAddToRepository({
             name: "Player Soldier",
             templateId: "player_soldier",
-            battleId: "battleSquaddieId",
+            battleId: playerBattleSquaddieId,
             affiliation: SquaddieAffiliation.PLAYER,
             objectRepository: objectRepository,
             actionTemplateIds: ["melee", "ranged", "self"],
         })
         BattleSquaddieTeamService.addBattleSquaddieIds(playerTeam, [
-            "battleSquaddieId",
+            playerBattleSquaddieId,
         ])
 
         MissionMapService.addSquaddie({
             missionMap,
             squaddieTemplateId: "player_soldier",
-            battleSquaddieId: "battleSquaddieId",
+            battleSquaddieId: playerBattleSquaddieId,
             originMapCoordinate: { q: 0, r: 0 },
         })
 
@@ -1138,6 +1137,33 @@ describe("BattleSquaddieSelector", () => {
                 expect(messageSpy).toHaveBeenCalledWith(
                     expect.objectContaining({
                         type: MessageBoardMessageType.PLAYER_ENDS_TURN,
+                    })
+                )
+            })
+        })
+
+        describe("Press buttons for action templates", () => {
+            let playerActionTemplateIds: string[]
+            beforeEach(() => {
+                const { squaddieTemplate } = getResultOrThrowError(
+                    ObjectRepositoryService.getSquaddieByBattleId(
+                        objectRepository,
+                        playerBattleSquaddieId
+                    )
+                )
+                playerActionTemplateIds = squaddieTemplate.actionTemplateIds
+            })
+
+            it("will select an action if it is available", () => {
+                selector.keyEventHappened(
+                    gameEngineState,
+                    PlayerInputTestService.pressActionTemplateButton(0)
+                )
+
+                expect(messageSpy).toHaveBeenCalledWith(
+                    expect.objectContaining({
+                        type: MessageBoardMessageType.PLAYER_SELECTS_ACTION_TEMPLATE,
+                        actionTemplateId: playerActionTemplateIds[0],
                     })
                 )
             })

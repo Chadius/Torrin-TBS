@@ -40,7 +40,6 @@ import {
 } from "../../../actionDecision/battleActionDecisionStep"
 import { MouseButton } from "../../../../utils/mouseConfig"
 import { RectArea, RectAreaService } from "../../../../ui/rectArea"
-import { MessageBoardMessageType } from "../../../../message/messageBoardMessage"
 import {
     GameEngineState,
     GameEngineStateService,
@@ -355,24 +354,6 @@ describe("Squaddie Selector Panel", () => {
             return button?.data.uiObjects.drawingArea
         }
 
-        const getStatusForButton = (
-            panel: SquaddieSelectorPanel,
-            squaddieIndex: number
-        ): {
-            squaddieIsSelected: boolean
-            squaddieIsControllable: boolean
-        } => {
-            const button = panel.buttons.find(
-                (button) => button.data.context.squaddieIndex === squaddieIndex
-            )
-
-            if (button == undefined) {
-                return undefined
-            }
-
-            return SquaddieSelectorPanelButtonService.getStatus(button)
-        }
-
         beforeEach(() => {
             playerTeam = createPlayerTeamWithSomeSquaddies(3)
             panel = SquaddieSelectorPanelService.new({
@@ -397,19 +378,6 @@ describe("Squaddie Selector Panel", () => {
             messageSpy.mockRestore()
         })
 
-        const clickOnButton = (buttonIndex: number) => {
-            const buttonArea = getRectangleAreaForButton(panel, buttonIndex)
-            SquaddieSelectorPanelService.mouseClicked({
-                squaddieSelectorPanel: panel,
-                mouseClick: {
-                    button: MouseButton.ACCEPT,
-                    x: RectAreaService.centerX(buttonArea),
-                    y: RectAreaService.centerY(buttonArea),
-                },
-                gameEngineState,
-            })
-        }
-
         it("knows what button it would click on", () => {
             const buttonArea = getRectangleAreaForButton(panel, 0)
             expect(
@@ -419,49 +387,6 @@ describe("Squaddie Selector Panel", () => {
                     y: RectAreaService.centerY(buttonArea),
                 })
             ).toEqual(panel.buttons[0])
-        })
-
-        it("selects a button when you click on it", () => {
-            clickOnButton(0)
-            expect(getStatusForButton(panel, 0).squaddieIsSelected).toBe(true)
-            expect(getStatusForButton(panel, 1).squaddieIsSelected).toBe(false)
-            expect(getStatusForButton(panel, 2).squaddieIsSelected).toBe(false)
-        })
-
-        it("you can only click one button at a time", () => {
-            clickOnButton(0)
-            clickOnButton(2)
-            expect(getStatusForButton(panel, 0).squaddieIsSelected).toBe(false)
-            expect(getStatusForButton(panel, 1).squaddieIsSelected).toBe(false)
-            expect(getStatusForButton(panel, 2).squaddieIsSelected).toBe(true)
-        })
-
-        it("will send a message to select the squaddie", () => {
-            clickOnButton(1)
-            expect(messageSpy).toBeCalledWith(
-                expect.objectContaining({
-                    type: MessageBoardMessageType.PLAYER_SELECTS_AND_LOCKS_SQUADDIE,
-                    battleSquaddieSelectedId: playerTeam.battleSquaddieIds[1],
-                })
-            )
-        })
-
-        it("will not send a message to select the squaddie if the squaddie is dead", () => {
-            const { battleSquaddie } = getResultOrThrowError(
-                ObjectRepositoryService.getSquaddieByBattleId(
-                    objectRepository,
-                    playerTeam.battleSquaddieIds[1]
-                )
-            )
-            battleSquaddie.inBattleAttributes.currentHitPoints = 0
-
-            clickOnButton(1)
-            expect(messageSpy).not.toBeCalledWith(
-                expect.objectContaining({
-                    type: MessageBoardMessageType.PLAYER_SELECTS_AND_LOCKS_SQUADDIE,
-                    battleSquaddieSelectedId: playerTeam.battleSquaddieIds[1],
-                })
-            )
         })
     })
 })

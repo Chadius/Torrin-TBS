@@ -10,7 +10,10 @@ import {
     PlayerSelectionContextCalculationArgs,
 } from "../playerSelectionService"
 import { SquaddieSelectorPanelService } from "../../hud/playerActionPanel/squaddieSelectorPanel/squaddieSelectorPanel"
-import { SquaddieSelectorPanelButtonService } from "../../hud/playerActionPanel/squaddieSelectorPanel/squaddieSelectorPanelButton/squaddieSelectorPanelButton"
+import {
+    SquaddieSelectorPanelButton,
+    SquaddieSelectorPanelButtonService,
+} from "../../hud/playerActionPanel/squaddieSelectorPanel/squaddieSelectorPanelButton/squaddieSelectorPanelButton"
 import { OrchestratorUtilities } from "../../orchestratorComponents/orchestratorUtils"
 
 export class PlayerClicksOnSquaddieSelectorPanel implements BehaviorTreeTask {
@@ -26,10 +29,9 @@ export class PlayerClicksOnSquaddieSelectorPanel implements BehaviorTreeTask {
                 this.dataBlob,
                 "playerSelectionContextCalculationArgs"
             )
-        const { mouseClick, gameEngineState } =
+        const { mouseClick, gameEngineState, playerInputActions } =
             playerSelectionContextCalculationArgs
 
-        if (!mouseClick) return false
         if (
             gameEngineState.battleOrchestratorState.battleHUDState
                 .squaddieSelectorPanel == undefined
@@ -48,11 +50,16 @@ export class PlayerClicksOnSquaddieSelectorPanel implements BehaviorTreeTask {
         )
             return false
 
-        const clickedButton = SquaddieSelectorPanelService.getClickedButton(
-            gameEngineState.battleOrchestratorState.battleHUDState
-                .squaddieSelectorPanel,
-            mouseClick
-        )
+        let clickedButton: SquaddieSelectorPanelButton = undefined
+
+        if (mouseClick) {
+            clickedButton = SquaddieSelectorPanelService.getClickedButton(
+                gameEngineState.battleOrchestratorState.battleHUDState
+                    .squaddieSelectorPanel,
+                mouseClick
+            )
+        } else {
+        }
 
         if (!clickedButton) return false
 
@@ -71,9 +78,5 @@ export class PlayerClicksOnSquaddieSelectorPanel implements BehaviorTreeTask {
         )
 
         return true
-    }
-
-    clone(): PlayerClicksOnSquaddieSelectorPanel {
-        return new PlayerClicksOnSquaddieSelectorPanel(this.dataBlob)
     }
 }

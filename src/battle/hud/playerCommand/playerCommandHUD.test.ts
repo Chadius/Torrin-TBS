@@ -50,6 +50,7 @@ import {
     ActionButton,
     ActionButtonService,
 } from "../playerActionPanel/actionButton/actionButton"
+import { PlayerInputStateService } from "../../../ui/playerInput/playerInputState"
 
 describe("playerCommandHUD", () => {
     let graphicsBuffer: MockedP5GraphicsBuffer
@@ -254,6 +255,18 @@ describe("playerCommandHUD", () => {
                 y: RectAreaService.centerY(buttonArea),
                 button: MouseButton.ACCEPT,
             },
+            gameEngineState,
+            playerCommandState,
+        })
+    }
+
+    const pressKeyBoardToSelectActionButton = ({
+        index,
+    }: {
+        index: number
+    }) => {
+        return PlayerCommandStateService.keyPressed({
+            playerInputAction: PlayerInputStateService.numberToListIndex(index),
             gameEngineState,
             playerCommandState,
         })
@@ -531,20 +544,85 @@ describe("playerCommandHUD", () => {
                     playerCommandState.selectedActionTemplateId
                 ).toBeUndefined()
             })
-            it("will send a message to generate a pop up message during the next draw phase", () => {
-                const messageSpy: MockInstance = vi
+        })
+        describe("selecting an action by keyboard", () => {
+            it("will select an action by pressing the keyboard command that corresponds to it", () => {
+                selectPlayer()
+                const selectedActionButtonIndex =
+                    getIndexForActionButtonByActionTemplateId(
+                        actionNeedsTarget.id
+                    )
+                pressKeyBoardToSelectActionButton({
+                    index: selectedActionButtonIndex,
+                })
+                expect(
+                    playerCommandState.playerSelectedSquaddieAction
+                ).toBeTruthy()
+                expect(playerCommandState.selectedActionTemplateId).toEqual(
+                    actionNeedsTarget.id
+                )
+            })
+            it("will not select a disabled button", () => {
+                selectPlayer()
+                const disabledActionButtonIndex =
+                    getIndexForActionButtonByActionTemplateId(
+                        actionWillAlwaysBeDisabled.id
+                    )
+                pressKeyBoardToSelectActionButton({
+                    index: disabledActionButtonIndex,
+                })
+                expect(
+                    playerCommandState.playerSelectedSquaddieAction
+                ).toBeFalsy()
+                expect(
+                    playerCommandState.selectedActionTemplateId
+                ).toBeUndefined()
+            })
+        })
+        describe("will pop up a message on a disabled button", () => {
+            let messageSpy: MockInstance
+            let textHandlingSpy: MockInstance
+            beforeEach(() => {
+                messageSpy = vi
                     .spyOn(gameEngineState.messageBoard, "sendMessage")
                     .mockReturnValue()
+            })
+            afterEach(() => {
+                messageSpy.mockRestore()
+                textHandlingSpy.mockRestore()
+            })
 
+            const tests = [
+                {
+                    name: "hover over the button with the mouse",
+                    action: () => {
+                        hoverOverActionButton({
+                            buttonArea: findActionButtonByActionTemplateId(
+                                actionWillAlwaysBeDisabled.id
+                            ).uiObjects.buttonIcon.drawArea,
+                        })
+                    },
+                },
+                {
+                    name: "select action using the keyboard",
+                    action: () => {
+                        const disabledActionButtonIndex =
+                            getIndexForActionButtonByActionTemplateId(
+                                actionWillAlwaysBeDisabled.id
+                            )
+                        pressKeyBoardToSelectActionButton({
+                            index: disabledActionButtonIndex,
+                        })
+                    },
+                },
+            ]
+
+            it.each(tests)(`$name`, ({ action }) => {
                 selectPlayer()
-                hoverOverActionButton({
-                    buttonArea: findActionButtonByActionTemplateId(
-                        "WillAlwaysBeDisabled"
-                    ).uiObjects.buttonIcon.drawArea,
-                })
+                action()
                 expect(playerCommandState.newInvalidPopup).not.toBeUndefined()
 
-                let textHandlingSpy = vi
+                textHandlingSpy = vi
                     .spyOn(
                         TextGraphicalHandlingService,
                         "calculateLengthOfLineOfText"
@@ -562,7 +640,6 @@ describe("playerCommandHUD", () => {
                         gameEngineState,
                     })
                 )
-
                 expect(textHandlingSpy).toBeCalled()
                 expect(playerCommandState.newInvalidPopup).toBeUndefined()
 
@@ -574,9 +651,6 @@ describe("playerCommandHUD", () => {
                 expect(popupWindow.label.textBox.text).toBe(
                     `blocked by test\nalso blocked by test`
                 )
-
-                messageSpy.mockRestore()
-                textHandlingSpy.mockRestore()
             })
         })
 
@@ -619,6 +693,17 @@ describe("playerCommandHUD", () => {
                 actionButton.actionTemplate?.id === actionTemplateId ||
                 actionButton.actionTemplateOverride?.name === actionTemplateId
         )
+    }
+    const getIndexForActionButtonByActionTemplateId = (
+        actionTemplateId: string
+    ): number => {
+        const index = playerCommandState.actionButtons.findIndex(
+            (actionButton) =>
+                actionButton.actionTemplate?.id === actionTemplateId ||
+                actionButton.actionTemplateOverride?.name === actionTemplateId
+        )
+
+        return index > -1 ? index : null
     }
     const getAllDrawCallsForActionButton = (
         actionButtonDrawSpy: MockInstance,

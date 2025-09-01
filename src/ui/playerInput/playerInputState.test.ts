@@ -145,6 +145,42 @@ describe("Player Input State", () => {
                 action: PlayerInputAction.END_TURN,
                 combinations: JSON.parse(process.env.PLAYER_INPUT_END_TURN),
             },
+            {
+                action: PlayerInputAction.LIST_INDEX_0,
+                combinations: JSON.parse(process.env.PLAYER_INPUT_LIST_INDEX_0),
+            },
+            {
+                action: PlayerInputAction.LIST_INDEX_1,
+                combinations: JSON.parse(process.env.PLAYER_INPUT_LIST_INDEX_1),
+            },
+            {
+                action: PlayerInputAction.LIST_INDEX_2,
+                combinations: JSON.parse(process.env.PLAYER_INPUT_LIST_INDEX_2),
+            },
+            {
+                action: PlayerInputAction.LIST_INDEX_3,
+                combinations: JSON.parse(process.env.PLAYER_INPUT_LIST_INDEX_3),
+            },
+            {
+                action: PlayerInputAction.LIST_INDEX_4,
+                combinations: JSON.parse(process.env.PLAYER_INPUT_LIST_INDEX_4),
+            },
+            {
+                action: PlayerInputAction.LIST_INDEX_5,
+                combinations: JSON.parse(process.env.PLAYER_INPUT_LIST_INDEX_5),
+            },
+            {
+                action: PlayerInputAction.LIST_INDEX_6,
+                combinations: JSON.parse(process.env.PLAYER_INPUT_LIST_INDEX_6),
+            },
+            {
+                action: PlayerInputAction.LIST_INDEX_7,
+                combinations: JSON.parse(process.env.PLAYER_INPUT_LIST_INDEX_7),
+            },
+            {
+                action: PlayerInputAction.LIST_INDEX_8,
+                combinations: JSON.parse(process.env.PLAYER_INPUT_LIST_INDEX_8),
+            },
         ]
 
         it.each(expectedActionCombinations)(

@@ -40,6 +40,10 @@ import {
 import { SquaddieNameAndPortraitTileService } from "../playerActionPanel/tile/squaddieNameAndPortraitTile"
 import { ActionTilePosition } from "../playerActionPanel/tile/actionTilePosition"
 import { CampaignResources } from "../../../campaign/campaignResources"
+import {
+    PlayerInputAction,
+    PlayerInputStateService,
+} from "../../../ui/playerInput/playerInputState"
 
 export const END_TURN_NAME = "END TURN"
 
@@ -121,35 +125,18 @@ export const PlayerCommandStateService = {
             return PlayerCommandSelection.PLAYER_COMMAND_SELECTION_NONE
         }
 
-        if (mouseRelease.button !== MouseButton.ACCEPT) {
-            return PlayerCommandSelection.PLAYER_COMMAND_SELECTION_NONE
-        }
-
-        let actionButtonClicked = playerCommandState.actionButtons.find(
-            (actionButton) =>
-                ActionButtonService.shouldSelectActionBecauseOfMouseButton(
-                    actionButton,
-                    mouseRelease
-                )
-        )
+        let actionButtonClicked = getSelectedActionButton({
+            playerCommandState,
+            mouseRelease,
+        })
 
         if (isActionButtonEndTurn(actionButtonClicked)) {
-            return mouseClickedOnEndTurnButton({
+            return playerSelectedEndTurnButton({
                 playerCommandState,
             })
         }
 
-        if (playerCommandState.actionValidity == undefined) {
-            playerCommandState.actionValidity =
-                ValidityCheckService.calculateActionValidity({
-                    objectRepository: gameEngineState.repository,
-                    battleSquaddieId: BattleActionDecisionStepService.getActor(
-                        gameEngineState.battleOrchestratorState.battleState
-                            .battleActionDecisionStep
-                    ).battleSquaddieId,
-                    gameEngineState,
-                })
-        }
+        regenerateActionValidity(playerCommandState, gameEngineState)
 
         if (
             actionButtonClicked &&
@@ -157,7 +144,7 @@ export const PlayerCommandStateService = {
                 actionButtonClicked.actionTemplate.id
             ]?.isValid
         ) {
-            return mouseClickedOnActionButton({
+            return playerSelectedActionButton({
                 playerCommandState,
                 actionTemplateId: actionButtonClicked.actionTemplate.id,
             })
@@ -237,20 +224,10 @@ export const PlayerCommandStateService = {
         playerCommandState.consideredActionTemplateId =
             ActionButtonService.getActionTemplateId(consideredActionButton)
 
-        if (
-            playerCommandState.actionValidity[
-                playerCommandState.consideredActionTemplateId
-            ]?.messages.length > 0
-        ) {
-            playerCommandState.newInvalidPopup = {
-                buttonArea:
-                    consideredActionButton.uiObjects.buttonIcon.drawArea,
-                message:
-                    playerCommandState.actionValidity[
-                        playerCommandState.consideredActionTemplateId
-                    ].messages.join("\n"),
-            }
-        }
+        createNewInvalidPopupMessageIfNeeded({
+            playerCommandState,
+            actionButton: consideredActionButton,
+        })
 
         if (
             !playerCommandState.actionValidity[
@@ -350,12 +327,78 @@ export const PlayerCommandStateService = {
             graphicsBuffer,
             gameEngineState
         ),
+    keyPressed: ({
+        gameEngineState,
+        playerCommandState,
+        playerInputAction,
+    }: {
+        playerInputAction: PlayerInputAction
+        gameEngineState: GameEngineState
+        playerCommandState: PlayerCommandState
+    }): PlayerCommandSelection => {
+        if (!isValidValue(playerCommandState)) {
+            return PlayerCommandSelection.PLAYER_COMMAND_SELECTION_NONE
+        }
+
+        let actionButtonClicked = getSelectedActionButton({
+            playerCommandState,
+            playerInputAction,
+        })
+
+        if (isActionButtonEndTurn(actionButtonClicked)) {
+            return playerSelectedEndTurnButton({
+                playerCommandState,
+            })
+        }
+        regenerateActionValidity(playerCommandState, gameEngineState)
+
+        if (
+            playerCommandState.actionValidity[
+                actionButtonClicked.actionTemplate.id
+            ]?.isValid
+        ) {
+            return playerSelectedActionButton({
+                playerCommandState,
+                actionTemplateId: actionButtonClicked.actionTemplate.id,
+            })
+        }
+
+        createNewInvalidPopupMessageIfNeeded({
+            playerCommandState,
+            actionButton: actionButtonClicked,
+        })
+        return PlayerCommandSelection.PLAYER_COMMAND_SELECTION_NONE
+    },
+}
+
+const createNewInvalidPopupMessageIfNeeded = ({
+    playerCommandState,
+    actionButton,
+}: {
+    playerCommandState: PlayerCommandState
+    actionButton: ActionButton
+}) => {
+    const actionTemplateId = actionButton.actionTemplate?.id
+    if (
+        actionTemplateId == undefined ||
+        playerCommandState.actionValidity[actionTemplateId]?.messages.length ==
+            0
+    )
+        return
+
+    playerCommandState.newInvalidPopup = {
+        buttonArea: actionButton.uiObjects.buttonIcon.drawArea,
+        message:
+            playerCommandState.actionValidity[actionTemplateId].messages.join(
+                "\n"
+            ),
+    }
 }
 
 const isActionButtonEndTurn = (actionButtonClicked: ActionButton) =>
     actionButtonClicked?.actionTemplateOverride?.name === END_TURN_NAME
 
-const mouseClickedOnEndTurnButton = ({
+const playerSelectedEndTurnButton = ({
     playerCommandState,
 }: {
     playerCommandState: PlayerCommandState
@@ -366,7 +409,7 @@ const mouseClickedOnEndTurnButton = ({
     return PlayerCommandSelection.PLAYER_COMMAND_SELECTION_END_TURN
 }
 
-const mouseClickedOnActionButton = ({
+const playerSelectedActionButton = ({
     playerCommandState,
     actionTemplateId,
 }: {
@@ -574,4 +617,61 @@ const drawActionButtons = ({
             warning: actionHasAWarning,
         })
     })
+}
+
+const regenerateActionValidity = (
+    playerCommandState: PlayerCommandState,
+    gameEngineState: GameEngineState
+) => {
+    if (playerCommandState.actionValidity != undefined) return
+    playerCommandState.actionValidity =
+        ValidityCheckService.calculateActionValidity({
+            objectRepository: gameEngineState.repository,
+            battleSquaddieId: BattleActionDecisionStepService.getActor(
+                gameEngineState.battleOrchestratorState.battleState
+                    .battleActionDecisionStep
+            ).battleSquaddieId,
+            gameEngineState,
+        })
+}
+
+const getSelectedActionButton = ({
+    playerCommandState,
+    playerInputAction,
+    mouseRelease,
+}: {
+    playerCommandState: PlayerCommandState
+    playerInputAction?: PlayerInputAction
+    mouseRelease?: MouseRelease
+}) => {
+    if (!isValidValue(playerCommandState)) {
+        return undefined
+    }
+
+    switch (true) {
+        case playerInputAction != undefined:
+            let actionButtonIndexSelected =
+                PlayerInputStateService.listIndexToNumber(playerInputAction)
+            if (
+                actionButtonIndexSelected == undefined ||
+                actionButtonIndexSelected >=
+                    playerCommandState.actionButtons.length
+            ) {
+                return undefined
+            }
+            return playerCommandState.actionButtons[actionButtonIndexSelected]
+        case mouseRelease != undefined:
+            if (mouseRelease.button !== MouseButton.ACCEPT) {
+                return undefined
+            }
+
+            return playerCommandState.actionButtons.find((actionButton) =>
+                ActionButtonService.shouldSelectActionBecauseOfMouseButton(
+                    actionButton,
+                    mouseRelease
+                )
+            )
+        default:
+            return undefined
+    }
 }

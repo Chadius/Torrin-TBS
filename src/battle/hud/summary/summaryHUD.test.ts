@@ -54,6 +54,7 @@ import {
     TargetingResultsService,
 } from "../../targeting/targetingService"
 import { Glossary } from "../../../campaign/glossary/glossary"
+import { PlayerInputAction } from "../../../ui/playerInput/playerInputState"
 
 describe("summaryHUD", () => {
     let graphicsBuffer: MockedP5GraphicsBuffer
@@ -1052,45 +1053,109 @@ describe("summaryHUD", () => {
             showPlayerActionsSpy.mockRestore()
         })
 
-        it("will return which button was clicked on the PlayerCommandHUD", () => {
-            SummaryHUDStateService.draw({
-                summaryHUDState,
-                gameEngineState,
-                graphicsBuffer,
-                resourceHandler,
+        describe("delegate user input to select an action button", () => {
+            let playerCommandSpy: MockInstance
+            let showPlayerActionsSpy: MockInstance
+
+            type TestType = {
+                name: string
+                setupPlayerCommandSpy: () => void
+                selectActionButtonAndGetSelection: () => PlayerCommandSelection
+            }
+
+            beforeEach(() => {
+                SummaryHUDStateService.draw({
+                    summaryHUDState,
+                    gameEngineState,
+                    graphicsBuffer,
+                    resourceHandler,
+                })
+                showPlayerActionsSpy = vi
+                    .spyOn(SummaryHUDStateService, "shouldShowAllPlayerActions")
+                    .mockReturnValue(true)
             })
-            const showPlayerActionsSpy = vi
-                .spyOn(SummaryHUDStateService, "shouldShowAllPlayerActions")
-                .mockReturnValue(true)
 
-            const playerCommandSpy: MockInstance = vi.spyOn(
-                PlayerCommandStateService,
-                "mouseReleased"
-            )
+            afterEach(() => {
+                playerCommandSpy.mockRestore()
+                showPlayerActionsSpy.mockRestore()
+            })
 
-            const selection = SummaryHUDStateService.mouseReleased({
-                summaryHUDState,
-                mouseRelease: {
-                    button: MouseButton.ACCEPT,
-                    x: RectAreaService.centerX(
-                        summaryHUDState.playerCommandState.actionButtons[0]
-                            .uiObjects.buttonIcon.drawArea
-                    ),
-                    y: RectAreaService.centerY(
-                        summaryHUDState.playerCommandState.actionButtons[0]
-                            .uiObjects.buttonIcon.drawArea
-                    ),
+            const tests: TestType[] = [
+                {
+                    name: "mouse click",
+                    setupPlayerCommandSpy: (): void => {
+                        playerCommandSpy = vi.spyOn(
+                            PlayerCommandStateService,
+                            "mouseReleased"
+                        )
+                    },
+                    selectActionButtonAndGetSelection:
+                        (): PlayerCommandSelection => {
+                            return SummaryHUDStateService.mouseReleased({
+                                summaryHUDState,
+                                mouseRelease: {
+                                    button: MouseButton.ACCEPT,
+                                    x: RectAreaService.centerX(
+                                        summaryHUDState.playerCommandState
+                                            .actionButtons[0].uiObjects
+                                            .buttonIcon.drawArea
+                                    ),
+                                    y: RectAreaService.centerY(
+                                        summaryHUDState.playerCommandState
+                                            .actionButtons[0].uiObjects
+                                            .buttonIcon.drawArea
+                                    ),
+                                },
+                                gameEngineState,
+                            })
+                        },
                 },
-                gameEngineState,
-            })
-            expect(playerCommandSpy).toBeCalled()
-            expect(selection).toEqual(
-                PlayerCommandSelection.PLAYER_COMMAND_SELECTION_ACTION
-            )
-            playerCommandSpy.mockRestore()
+                {
+                    name: "keyboard press",
+                    setupPlayerCommandSpy: (): void => {
+                        playerCommandSpy = vi.spyOn(
+                            PlayerCommandStateService,
+                            "keyPressed"
+                        )
+                    },
+                    selectActionButtonAndGetSelection:
+                        (): PlayerCommandSelection => {
+                            return SummaryHUDStateService.keyPressed({
+                                summaryHUDState,
+                                playerInputAction:
+                                    PlayerInputAction.LIST_INDEX_0,
+                                gameEngineState,
+                            })
+                        },
+                },
+            ]
 
-            expect(showPlayerActionsSpy).toBeCalled()
-            showPlayerActionsSpy.mockRestore()
+            it.each(tests)(
+                "$name",
+                ({
+                    setupPlayerCommandSpy,
+                    selectActionButtonAndGetSelection,
+                }) => {
+                    setupPlayerCommandSpy()
+                    const selection = selectActionButtonAndGetSelection()
+                    expect(selection).toEqual(
+                        PlayerCommandSelection.PLAYER_COMMAND_SELECTION_ACTION
+                    )
+                    expect(
+                        summaryHUDState.playerCommandState
+                            .playerSelectedSquaddieAction
+                    ).toBeTruthy()
+                    expect(
+                        summaryHUDState.playerCommandState
+                            .selectedActionTemplateId
+                    ).toEqual(
+                        summaryHUDState.playerCommandState.actionButtons[0]
+                            .actionTemplate.id
+                    )
+                    expect(playerCommandSpy).toBeCalled()
+                    expect(showPlayerActionsSpy).toBeCalled()
+                }
+            )
         })
 
         it("will create an action tile when an action is selected", () => {

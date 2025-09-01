@@ -22,7 +22,10 @@ import {
 } from "../../message/messageBoardMessage"
 import { GraphicsBuffer } from "../../utils/graphics/graphicsRenderer"
 import { SummaryHUDStateService } from "../hud/summary/summaryHUD"
-import { PlayerCommandSelection } from "../hud/playerCommand/playerCommandHUD"
+import {
+    PlayerCommandSelection,
+    PlayerCommandStateService,
+} from "../hud/playerCommand/playerCommandHUD"
 import {
     PlayerSelectionContextCalculationArgsService,
     PlayerSelectionService,
@@ -144,6 +147,7 @@ export class BattlePlayerSquaddieSelector
                 mouseClick: MouseConfigService.newMouseClick({
                     ...mouseRelease,
                 }),
+                playerInputActions: [],
             })
 
             if (didUserClickOnSummaryHUD) {
@@ -235,9 +239,29 @@ export class BattlePlayerSquaddieSelector
                 gameEngineState,
                 playerCommandSelection:
                     PlayerCommandSelection.PLAYER_COMMAND_SELECTION_END_TURN,
+                playerInputActions: [PlayerInputAction.END_TURN],
             })
             return
         }
+
+        const listIndexActions =
+            PlayerInputStateService.filterListIndexActions(actions)
+        listIndexActions.forEach((playerInputAction) => {
+            const playerCommandSelection = PlayerCommandStateService.keyPressed(
+                {
+                    gameEngineState,
+                    playerCommandState:
+                        gameEngineState.battleOrchestratorState.battleHUDState
+                            .summaryHUDState.playerCommandState,
+                    playerInputAction: playerInputAction,
+                }
+            )
+            processPlayerCommandSelection({
+                gameEngineState,
+                playerCommandSelection,
+                playerInputActions: [playerInputAction],
+            })
+        })
     }
 
     uiControlSettings(_gameEngineState: GameEngineState): UIControlSettings {
@@ -378,10 +402,12 @@ const processPlayerCommandSelection = ({
     gameEngineState,
     playerCommandSelection,
     mouseClick,
+    playerInputActions,
 }: {
     gameEngineState: GameEngineState
     playerCommandSelection: PlayerCommandSelection
     mouseClick?: MousePress
+    playerInputActions: PlayerInputAction[]
 }): {
     didUserClickOnSummaryHUD: boolean
     changes: PlayerSelectionChanges
@@ -395,7 +421,7 @@ const processPlayerCommandSelection = ({
                     gameEngineState,
                     mouseClick,
                     endTurnSelected: true,
-                    playerInputActions: [],
+                    playerInputActions,
                 })
             )
             changes = PlayerSelectionService.applyContextToGetChanges({
@@ -412,7 +438,7 @@ const processPlayerCommandSelection = ({
                         gameEngineState.battleOrchestratorState.battleHUDState
                             .summaryHUDState.playerCommandState
                             .selectedActionTemplateId,
-                    playerInputActions: [],
+                    playerInputActions,
                 })
             )
             changes = PlayerSelectionService.applyContextToGetChanges({
