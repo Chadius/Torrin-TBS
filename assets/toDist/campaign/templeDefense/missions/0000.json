@@ -431,6 +431,18 @@
     {
       "triggers": [
         {
+          "triggeringEventType": "START_OF_TURN",
+          "exactTurn": 6
+        }
+      ],
+      "effect": {
+        "type": "CUTSCENE",
+        "cutsceneId": "turn6"
+      }
+    },
+    {
+      "triggers": [
+        {
           "triggeringEventType": "SQUADDIE_IS_INJURED",
           "targetingSquaddie": {
             "battleSquaddieIds": [
@@ -846,6 +858,34 @@
             "id": "turn5_3",
             "speakerName": "Nahla",
             "dialogueText": "Or you could retreat so the demons waste their time moving instead of attacking.",
+            "speakerPortraitResourceKey": "young nahla cutscene portrait",
+            "animationDuration": 0
+          }
+        ]
+      },
+      "turn6": {
+        "directions": [
+          {
+            "type": "DIALOGUE",
+            "id": "turn6_0",
+            "speakerName": "Sir Camil",
+            "dialogueText": "When you select someone, you can press 1 to select the first action. That would be my longsword.",
+            "speakerPortraitResourceKey": "sir camil cutscene portrait",
+            "animationDuration": 0
+          },
+          {
+            "type": "DIALOGUE",
+            "id": "turn6_1",
+            "speakerName": "Sir Camil",
+            "dialogueText": "And 2 selects my shield. 3 will end my turn.",
+            "speakerPortraitResourceKey": "sir camil cutscene portrait",
+            "animationDuration": 0
+          },
+          {
+            "type": "DIALOGUE",
+            "id": "turn6_2",
+            "speakerName": "Nahla",
+            "dialogueText": "3 would trigger my Torrent Surge, since I have 3 abilities. You can always press 0 to end anyone's turn.",
             "speakerPortraitResourceKey": "young nahla cutscene portrait",
             "animationDuration": 0
           }
