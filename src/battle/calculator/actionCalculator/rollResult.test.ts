@@ -1,5 +1,5 @@
 import {
-    RollModifierType,
+    RollModifierEnum,
     RollModifierTypeService,
     RollResultService,
 } from "./rollResult"
@@ -30,7 +30,7 @@ describe("Roll Result", () => {
                     rolls: [6, 6],
                     occurred: true,
                     rollModifiers: {
-                        [RollModifierType.MULTIPLE_ATTACK_PENALTY]: -3,
+                        [RollModifierEnum.MULTIPLE_ATTACK_PENALTY]: -3,
                     },
                 })
             )
@@ -60,7 +60,7 @@ describe("Roll Result", () => {
                     rolls: [1, 1],
                     occurred: true,
                     rollModifiers: {
-                        [RollModifierType.PROFICIENCY]: 3,
+                        [RollModifierEnum.PROFICIENCY]: 3,
                     },
                 })
             )
@@ -74,8 +74,8 @@ describe("Roll Result", () => {
                     rolls: [1, 3],
                     occurred: true,
                     rollModifiers: {
-                        [RollModifierType.PROFICIENCY]: 4,
-                        [RollModifierType.MULTIPLE_ATTACK_PENALTY]: -2,
+                        [RollModifierEnum.PROFICIENCY]: 4,
+                        [RollModifierEnum.MULTIPLE_ATTACK_PENALTY]: -2,
                     },
                 })
             )
@@ -103,22 +103,22 @@ describe("Roll Result", () => {
     describe("creates readable names for modifiers", () => {
         const tests = [
             {
-                type: RollModifierType.MULTIPLE_ATTACK_PENALTY,
+                type: RollModifierEnum.MULTIPLE_ATTACK_PENALTY,
                 abbreviate: false,
                 expected: "Multiple attack penalty",
             },
             {
-                type: RollModifierType.MULTIPLE_ATTACK_PENALTY,
+                type: RollModifierEnum.MULTIPLE_ATTACK_PENALTY,
                 abbreviate: true,
                 expected: "MAP",
             },
             {
-                type: RollModifierType.PROFICIENCY,
+                type: RollModifierEnum.PROFICIENCY,
                 abbreviate: false,
                 expected: "Proficiency",
             },
             {
-                type: RollModifierType.PROFICIENCY,
+                type: RollModifierEnum.PROFICIENCY,
                 abbreviate: true,
                 expected: "Prof",
             },

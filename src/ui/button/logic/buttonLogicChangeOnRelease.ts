@@ -1,4 +1,4 @@
-import { ButtonStatus } from "../buttonStatus"
+import { ButtonStatus, TButtonStatus } from "../buttonStatus"
 import { RectArea, RectAreaService } from "../../rectArea"
 import {
     MouseButton,
@@ -13,7 +13,7 @@ import {
     ButtonStatusChangeEventByButtonId,
 } from "./base"
 
-const VALID_STATUSES: ButtonStatus[] = [
+const VALID_STATUSES: TButtonStatus[] = [
     ButtonStatus.READY,
     ButtonStatus.ACTIVE,
     ButtonStatus.DISABLED,
@@ -25,7 +25,7 @@ export class ButtonLogicChangeOnRelease
     implements ButtonLogic, ButtonLogicClassFunctions
 {
     buttonStatusChangeEventData: ButtonStatusChangeEventByButtonId
-    status: ButtonStatus
+    status: TButtonStatus
     lastStatusChangeTimeStamp: number
 
     constructor({ dataBlob }: { dataBlob: ButtonStatusChangeEventByButtonId }) {
@@ -42,7 +42,7 @@ export class ButtonLogicChangeOnRelease
         mouseRelease,
     }: {
         buttonId: string
-        newStatus: ButtonStatus
+        newStatus: TButtonStatus
         mouseLocation?: ScreenLocation
         mousePress?: MousePress
         mouseRelease?: MouseRelease

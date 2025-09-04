@@ -37,7 +37,10 @@ import {
     MissionObjectiveService,
 } from "../missionResult/missionObjective"
 import { MissionRewardType } from "../missionResult/missionReward"
-import { BattleCompletionStatus } from "./missionObjectivesAndCutscenes"
+import {
+    BattleCompletionStatus,
+    TBattleCompletionStatus,
+} from "./missionObjectivesAndCutscenes"
 import { GameModeEnum } from "../../utils/startupConfig"
 import { DefaultBattleOrchestrator } from "./defaultBattleOrchestrator"
 import { MissionStatisticsService } from "../missionStatistics/missionStatistics"
@@ -58,27 +61,28 @@ import { ActionSelectedTileService } from "../hud/playerActionPanel/tile/actionS
 import { SquaddieNameAndPortraitTileService } from "../hud/playerActionPanel/tile/squaddieNameAndPortraitTile"
 import { DebugModeMenuService } from "../hud/debugModeMenu/debugModeMenu"
 import { isValidValue } from "../../utils/objectValidityCheck"
-import { BattleEventEffectType } from "../event/battleEventEffect"
+import { BattleEventEffect } from "../event/battleEventEffect"
 import { BattleEventMessageListener } from "../event/battleEventMessageListener"
 import { CutsceneEffect } from "../../cutscene/cutsceneEffect"
 import { ChallengeModifierSetting } from "../challengeModifier/challengeModifierSetting"
 
-export enum BattleOrchestratorMode {
-    UNKNOWN = "UNKNOWN",
-    INITIALIZED = "INITIALIZED",
-    CUTSCENE_PLAYER = "CUTSCENE_PLAYER",
-    PHASE_CONTROLLER = "PHASE_CONTROLLER",
-    PLAYER_HUD_CONTROLLER = "PLAYER_HUD_CONTROLLER",
-    PLAYER_SQUADDIE_SELECTOR = "PLAYER_SQUADDIE_SELECTOR",
-    PLAYER_ACTION_TARGET_SELECT = "PLAYER_ACTION_TARGET_SELECT",
-    COMPUTER_SQUADDIE_SELECTOR = "COMPUTER_SQUADDIE_SELECTOR",
-    SQUADDIE_MOVER = "SQUADDIE_MOVER",
-    SQUADDIE_USES_ACTION_ON_MAP = "SQUADDIE_USES_ACTION_ON_MAP",
-    SQUADDIE_USES_ACTION_ON_SQUADDIE = "SQUADDIE_USES_ACTION_ON_SQUADDIE",
-}
+export const BattleOrchestratorMode = {
+    UNKNOWN: "UNKNOWN",
+    INITIALIZED: "INITIALIZED",
+    CUTSCENE_PLAYER: "CUTSCENE_PLAYER",
+    PHASE_CONTROLLER: "PHASE_CONTROLLER",
+    PLAYER_HUD_CONTROLLER: "PLAYER_HUD_CONTROLLER",
+    PLAYER_SQUADDIE_SELECTOR: "PLAYER_SQUADDIE_SELECTOR",
+    PLAYER_ACTION_TARGET_SELECT: "PLAYER_ACTION_TARGET_SELECT",
+    COMPUTER_SQUADDIE_SELECTOR: "COMPUTER_SQUADDIE_SELECTOR",
+    SQUADDIE_MOVER: "SQUADDIE_MOVER",
+    SQUADDIE_USES_ACTION_ON_MAP: "SQUADDIE_USES_ACTION_ON_MAP",
+    SQUADDIE_USES_ACTION_ON_SQUADDIE: "SQUADDIE_USES_ACTION_ON_SQUADDIE",
+} as const satisfies Record<string, string>
+export type TBattleOrchestratorMode = EnumLike<typeof BattleOrchestratorMode>
 
 export class BattleOrchestrator implements GameEngineComponent {
-    mode: BattleOrchestratorMode
+    mode: TBattleOrchestratorMode
 
     cutscenePlayer: BattleCutscenePlayer
     playerSquaddieSelector: BattlePlayerSquaddieSelector
@@ -95,9 +99,9 @@ export class BattleOrchestrator implements GameEngineComponent {
     battleEventMessageListener: BattleEventMessageListener
 
     battleOrchestratorModeComponentConstants: {
-        [m in BattleOrchestratorMode]: {
+        [m in TBattleOrchestratorMode]: {
             getCurrentComponent: () => BattleOrchestratorComponent
-            defaultNextMode: BattleOrchestratorMode
+            defaultNextMode: TBattleOrchestratorMode
         }
     } = {
         [BattleOrchestratorMode.INITIALIZED]: {
@@ -249,7 +253,7 @@ export class BattleOrchestrator implements GameEngineComponent {
         )
     }
 
-    public getCurrentMode(): BattleOrchestratorMode {
+    public getCurrentMode(): TBattleOrchestratorMode {
         return this.mode
     }
 
@@ -370,7 +374,7 @@ export class BattleOrchestrator implements GameEngineComponent {
         gameEngineState: GameEngineState,
         currentComponent: BattleOrchestratorComponent,
         graphicsContext: GraphicsBuffer,
-        defaultNextMode: BattleOrchestratorMode
+        defaultNextMode: TBattleOrchestratorMode
     ) {
         currentComponent.update({
             gameEngineState,
@@ -590,7 +594,7 @@ export class BattleOrchestrator implements GameEngineComponent {
     private setNextComponentMode(
         gameEngineState: GameEngineState,
         currentComponent: BattleOrchestratorComponent,
-        defaultNextMode: BattleOrchestratorMode
+        defaultNextMode: TBattleOrchestratorMode
     ) {
         if (
             !CutsceneQueueService.isEmpty(
@@ -612,13 +616,13 @@ export class BattleOrchestrator implements GameEngineComponent {
             currentComponent.recommendStateChanges(gameEngineState)
         this.checkOnMissionCompletion(orchestrationChanges, gameEngineState)
 
-        const checkForBattleEvents = [
+        const checkForBattleEvents = new Set<TBattleOrchestratorMode>([
             BattleOrchestratorMode.INITIALIZED,
             BattleOrchestratorMode.PHASE_CONTROLLER,
             BattleOrchestratorMode.SQUADDIE_MOVER,
             BattleOrchestratorMode.SQUADDIE_USES_ACTION_ON_MAP,
             BattleOrchestratorMode.SQUADDIE_USES_ACTION_ON_SQUADDIE,
-        ].includes(this.mode)
+        ]).has(this.mode)
 
         this.mode = orchestrationChanges.nextMode || defaultNextMode
 
@@ -634,7 +638,7 @@ export class BattleOrchestrator implements GameEngineComponent {
         const cutsceneBattleEvents = battleEventsToActivate
             .filter(
                 (battleEvent) =>
-                    battleEvent.effect.type === BattleEventEffectType.CUTSCENE
+                    battleEvent.effect.type === BattleEventEffect.CUTSCENE
             )
             .map(
                 (battleEvent) =>
@@ -654,7 +658,7 @@ export class BattleOrchestrator implements GameEngineComponent {
         gameEngineState: GameEngineState
     ) {
         if (orchestrationChanges.checkMissionObjectives === true) {
-            let completionStatus: BattleCompletionStatus =
+            let completionStatus: TBattleCompletionStatus =
                 this.checkMissionCompleteStatus(gameEngineState)
             if (completionStatus) {
                 gameEngineState.battleOrchestratorState.battleState.battleCompletionStatus =
@@ -714,7 +718,7 @@ export class BattleOrchestrator implements GameEngineComponent {
                     .filter(
                         (battleEvent) =>
                             battleEvent.effect.type ===
-                            BattleEventEffectType.CUTSCENE
+                            BattleEventEffect.CUTSCENE
                     )
                     .find((battleEvent) => {
                         return (
@@ -733,7 +737,7 @@ export class BattleOrchestrator implements GameEngineComponent {
 
     private checkMissionCompleteStatus(
         state: GameEngineState
-    ): BattleCompletionStatus {
+    ): TBattleCompletionStatus {
         const defeatObjectives =
             state.battleOrchestratorState.battleState.objectives.find(
                 (objective: MissionObjective) =>

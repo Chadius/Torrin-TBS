@@ -1,37 +1,41 @@
 import { isValidValue } from "../utils/objectValidityCheck"
 
-export enum Trait {
-    UNKNOWN = "UNKNOWN",
-    ATTACK = "ATTACK",
-    HEALING = "HEALING",
-    MOVEMENT = "MOVEMENT",
-    HUMANOID = "HUMANOID",
-    MONSU = "MONSU",
-    TERRAN = "TERRAN",
-    DEMON = "DEMON",
-    CROSS_OVER_PITS = "CROSS_OVER_PITS",
-    PASS_THROUGH_WALLS = "PASS_THROUGH_WALLS",
-    SKIP_ANIMATION = "SKIP_ANIMATION",
-    ALWAYS_SUCCEEDS = "ALWAYS_SUCCEEDS",
-    CANNOT_CRITICALLY_SUCCEED = "CANNOT_CRITICALLY_SUCCEED",
-    CANNOT_CRITICALLY_FAIL = "CANNOT_CRITICALLY_FAIL",
-    NO_MULTIPLE_ATTACK_PENALTY = "NO_MULTIPLE_ATTACK_PENALTY",
-    HUSTLE = "HUSTLE",
-    ELUSIVE = "ELUSIVE",
-}
+export const Trait = {
+    UNKNOWN: "UNKNOWN",
+    ATTACK: "ATTACK",
+    HEALING: "HEALING",
+    MOVEMENT: "MOVEMENT",
+    HUMANOID: "HUMANOID",
+    MONSU: "MONSU",
+    TERRAN: "TERRAN",
+    DEMON: "DEMON",
+    CROSS_OVER_PITS: "CROSS_OVER_PITS",
+    PASS_THROUGH_WALLS: "PASS_THROUGH_WALLS",
+    SKIP_ANIMATION: "SKIP_ANIMATION",
+    ALWAYS_SUCCEEDS: "ALWAYS_SUCCEEDS",
+    CANNOT_CRITICALLY_SUCCEED: "CANNOT_CRITICALLY_SUCCEED",
+    CANNOT_CRITICALLY_FAIL: "CANNOT_CRITICALLY_FAIL",
+    NO_MULTIPLE_ATTACK_PENALTY: "NO_MULTIPLE_ATTACK_PENALTY",
+    HUSTLE: "HUSTLE",
+    ELUSIVE: "ELUSIVE",
+} as const satisfies Record<string, string>
 
-export enum TraitCategory {
-    UNKNOWN = "UNKNOWN",
-    ACTION = "ACTION",
-    CREATURE = "CREATURE",
-    MOVEMENT = "MOVEMENT",
-    ANIMATION = "ANIMATION",
-}
+export type TTrait = EnumLike<typeof Trait>
+
+export const TraitCategory = {
+    UNKNOWN: "UNKNOWN",
+    ACTION: "ACTION",
+    CREATURE: "CREATURE",
+    MOVEMENT: "MOVEMENT",
+    ANIMATION: "ANIMATION",
+} as const satisfies Record<string, string>
+
+export type TTraitCategory = EnumLike<typeof TraitCategory>
 
 const traitInformation: {
-    [key in Trait]: {
+    [key in TTrait]: {
         description: string
-        categories: TraitCategory[]
+        categories: TTraitCategory[]
     }
 } = {
     [Trait.UNKNOWN]: {
@@ -111,12 +115,12 @@ const traitInformation: {
 }
 
 export interface TraitStatusStorage {
-    booleanTraits: { [key in Trait]?: boolean }
+    booleanTraits: { [key in TTrait]?: boolean }
 }
 
 export const TraitStatusStorageService = {
     newUsingTraitValues: (initialTraitValues?: {
-        [key in Trait]?: boolean
+        [key in TTrait]?: boolean
     }): TraitStatusStorage => {
         const newStorage: TraitStatusStorage = {
             booleanTraits: {},
@@ -126,7 +130,7 @@ export const TraitStatusStorageService = {
         }
 
         Object.entries(initialTraitValues).forEach(([traitName, value]) => {
-            const trait: Trait = Trait[traitName as keyof typeof Trait]
+            const trait: TTrait = Trait[traitName as keyof typeof Trait]
             if (trait && trait !== Trait.UNKNOWN) {
                 setStatus(newStorage, trait, value)
                 return
@@ -140,30 +144,30 @@ export const TraitStatusStorageService = {
     clone: (original: TraitStatusStorage): TraitStatusStorage => {
         return clone(original)
     },
-    getStatus: (data: TraitStatusStorage, trait: Trait): boolean => {
+    getStatus: (data: TraitStatusStorage, trait: TTrait): boolean => {
         return data.booleanTraits[trait]
     },
     setStatus: (
         data: TraitStatusStorage,
-        trait: Trait,
+        trait: TTrait,
         value: boolean
     ): void => {
         setStatus(data, trait, value)
     },
     filterCategory(
         data: TraitStatusStorage,
-        category: TraitCategory
+        category: TTraitCategory
     ): TraitStatusStorage {
         return clone({
             ...data,
             booleanTraits: Object.fromEntries(
                 Object.keys(data.booleanTraits)
-                    .filter((traitName: Trait) =>
+                    .filter((traitName: TTrait) =>
                         traitInformation[traitName].categories.includes(
                             category
                         )
                     )
-                    .map((traitName: Trait) => [
+                    .map((traitName: TTrait) => [
                         traitName,
                         data.booleanTraits[traitName],
                     ])
@@ -177,7 +181,7 @@ export const TraitStatusStorageService = {
 
 const setStatus = (
     data: TraitStatusStorage,
-    trait: Trait,
+    trait: TTrait,
     value: boolean
 ): void => {
     data.booleanTraits[trait] = value
@@ -196,8 +200,8 @@ const sanitize = (traits: TraitStatusStorage): TraitStatusStorage => {
 
     const traitIsInvalid = (traitName: string) =>
         traitName === undefined ||
-        (traitName as Trait) == Trait.UNKNOWN ||
-        !Object.values(Trait).includes(traitName as Trait)
+        (traitName as TTrait) == Trait.UNKNOWN ||
+        !Object.values(Trait).includes(traitName as TTrait)
 
     if (!isValidValue(traits.booleanTraits)) {
         traits.booleanTraits = {}
@@ -215,7 +219,7 @@ const sanitize = (traits: TraitStatusStorage): TraitStatusStorage => {
         .filter(isValidValue)
         .filter(traitIsInvalid)
     invalidKeys.forEach((traitName) => {
-        delete traits.booleanTraits[traitName as Trait]
+        delete traits.booleanTraits[traitName as TTrait]
     })
 
     return traits

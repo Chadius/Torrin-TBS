@@ -1,21 +1,29 @@
-import { CutsceneActionPlayerType } from "../cutsceneAction"
+import {
+    CutsceneActionPlayerType,
+    TCutsceneActionPlayerType,
+} from "../cutsceneAction"
 import { isValidValue } from "../../utils/objectValidityCheck"
-import { ResourceLocator, ResourceType } from "../../resource/resourceHandler"
-import { DialogueFontStyle, DialoguePosition } from "./constants"
+import { ResourceLocator, Resource } from "../../resource/resourceHandler"
+import {
+    DialogueFontStyle,
+    TDialogueFontStyle,
+    DialoguePosition,
+    TDialoguePosition,
+} from "./constants"
 
 export interface Dialogue {
-    type: CutsceneActionPlayerType.DIALOGUE
+    type: TCutsceneActionPlayerType
     id: string
     animationDuration: number
     answers?: string[]
     speakerPortraitResourceKey?: string
-    speakerPortraitPosition?: DialoguePosition
+    speakerPortraitPosition?: TDialoguePosition
     speakerName: string
-    speakerNamePosition?: DialoguePosition
-    speakerNameFontStyle?: DialogueFontStyle
+    speakerNamePosition?: TDialoguePosition
+    speakerNameFontStyle?: TDialogueFontStyle
     dialogueText: string
-    dialogueTextPosition?: DialoguePosition
-    dialogueTextFontStyle?: DialogueFontStyle
+    dialogueTextPosition?: TDialoguePosition
+    dialogueTextFontStyle?: TDialogueFontStyle
     backgroundColor?: [number, number, number]
 }
 
@@ -39,13 +47,13 @@ export const DialogueService = {
         answers?: string[]
         backgroundColor?: [number, number, number]
         speakerPortraitResourceKey?: string
-        speakerPortraitPosition?: DialoguePosition
+        speakerPortraitPosition?: TDialoguePosition
         speakerName?: string
-        speakerNamePosition?: DialoguePosition
-        speakerNameFontStyle?: DialogueFontStyle
+        speakerNamePosition?: TDialoguePosition
+        speakerNameFontStyle?: TDialogueFontStyle
         dialogueText: string
-        dialogueTextPosition?: DialoguePosition
-        dialogueTextFontStyle?: DialogueFontStyle
+        dialogueTextPosition?: TDialoguePosition
+        dialogueTextFontStyle?: TDialogueFontStyle
     }): Dialogue => ({
         type: CutsceneActionPlayerType.DIALOGUE,
         id,
@@ -72,7 +80,7 @@ export const DialogueService = {
 
         return [
             {
-                type: ResourceType.IMAGE,
+                type: Resource.IMAGE,
                 key: state.speakerPortraitResourceKey,
             },
         ]

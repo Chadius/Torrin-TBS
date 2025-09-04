@@ -1,4 +1,4 @@
-import { ActionTilePosition } from "../actionTilePosition"
+import { TActionTilePosition } from "../actionTilePosition"
 import {
     TileAttributeLabel,
     TileAttributeLabelNewParameters,
@@ -12,7 +12,7 @@ import { ResourceHandler } from "../../../../../resource/resourceHandler"
 export interface TileAttributeLabelStack {
     labels: TileAttributeLabel[]
     bottom: number
-    tilePosition: ActionTilePosition
+    tilePosition: TActionTilePosition
 }
 
 export const TileAttributeLabelStackService = {
@@ -21,7 +21,7 @@ export const TileAttributeLabelStackService = {
         tilePosition,
     }: {
         bottom: number
-        tilePosition: ActionTilePosition
+        tilePosition: TActionTilePosition
     }): TileAttributeLabelStack => {
         return {
             labels: [],

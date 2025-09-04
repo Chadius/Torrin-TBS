@@ -1,5 +1,8 @@
 import { ObjectRepository, ObjectRepositoryService } from "../objectRepository"
-import { DegreeOfSuccess } from "../calculator/actionCalculator/degreeOfSuccess"
+import {
+    DegreeOfSuccess,
+    TDegreeOfSuccess,
+} from "../calculator/actionCalculator/degreeOfSuccess"
 import { getResultOrThrowError } from "../../utils/ResultOrError"
 import {
     SquaddieAffiliation,
@@ -12,21 +15,23 @@ import {
 import { BattleEvent } from "../event/battleEvent"
 import { ChallengeModifierEffect } from "../event/eventEffect/challengeModifierEffect/challengeModifierEffect"
 
-export enum ChallengeModifierType {
-    TRAINING_WHEELS = "TRAINING_WHEELS",
-}
+export const ChallengeModifierEnum = {
+    TRAINING_WHEELS: "TRAINING_WHEELS",
+} as const satisfies Record<string, string>
+
+export type TChallengeModifier = EnumLike<typeof ChallengeModifierEnum>
 
 export type ChallengeModifierValue = boolean
 
 export interface ChallengeModifierSetting {
-    [ChallengeModifierType.TRAINING_WHEELS]: boolean
+    [ChallengeModifierEnum.TRAINING_WHEELS]: boolean
 }
 
 export const ChallengeModifierSettingService = {
     new: () => newChallengeModifierSetting(),
     getSetting: (
         challengeModifierSetting: ChallengeModifierSetting,
-        type: ChallengeModifierType
+        type: TChallengeModifier
     ): ChallengeModifierValue => {
         if (!challengeModifierSetting) return undefined
         return challengeModifierSetting[type]
@@ -37,7 +42,7 @@ export const ChallengeModifierSettingService = {
         value,
     }: {
         challengeModifierSetting: ChallengeModifierSetting
-        type: ChallengeModifierType
+        type: TChallengeModifier
         value: ChallengeModifierValue
     }) => setSetting({ challengeModifierSetting, type, value }),
     preemptDegreeOfSuccessCalculation: ({
@@ -52,10 +57,10 @@ export const ChallengeModifierSettingService = {
         actorBattleSquaddieId: string
         targetBattleSquaddieId: string
         actionTemplateId: string
-    }): { didPreempt: boolean; newDegreeOfSuccess: DegreeOfSuccess } => {
+    }): { didPreempt: boolean; newDegreeOfSuccess: TDegreeOfSuccess } => {
         if (
             !challengeModifierSetting ||
-            !challengeModifierSetting[ChallengeModifierType.TRAINING_WHEELS]
+            !challengeModifierSetting[ChallengeModifierEnum.TRAINING_WHEELS]
         )
             return {
                 didPreempt: false,
@@ -87,7 +92,7 @@ export const ChallengeModifierSettingService = {
         const clone = newChallengeModifierSetting()
         Object.entries(challengeModifierSetting).forEach(
             ([challengeModifierType, value]: [
-                ChallengeModifierType,
+                TChallengeModifier,
                 ChallengeModifierValue,
             ]) => {
                 setSetting({
@@ -107,7 +112,7 @@ const setSetting = ({
     value,
 }: {
     challengeModifierSetting: ChallengeModifierSetting
-    type: ChallengeModifierType
+    type: TChallengeModifier
     value: ChallengeModifierValue
 }) => {
     if (!challengeModifierSetting) return
@@ -124,7 +129,7 @@ const preemptDegreeOfSuccessWithTrainingWheels = ({
     actorBattleSquaddieId: string
     targetBattleSquaddieId: string
     actionTemplateId: string
-}): { didPreempt: boolean; newDegreeOfSuccess: DegreeOfSuccess } => {
+}): { didPreempt: boolean; newDegreeOfSuccess: TDegreeOfSuccess } => {
     const { squaddieTemplate: actorSquaddieTemplate } = getResultOrThrowError(
         ObjectRepositoryService.getSquaddieByBattleId(
             objectRepository,
@@ -171,9 +176,8 @@ const preemptDegreeOfSuccessWithTrainingWheels = ({
     }
 
     if (
-        [SquaddieAffiliation.PLAYER].includes(
-            targetSquaddieTemplate.squaddieId.affiliation
-        )
+        targetSquaddieTemplate.squaddieId.affiliation ==
+        SquaddieAffiliation.PLAYER
     )
         return {
             didPreempt: true,
@@ -189,5 +193,5 @@ const preemptDegreeOfSuccessWithTrainingWheels = ({
 }
 
 const newChallengeModifierSetting = (): ChallengeModifierSetting => {
-    return { [ChallengeModifierType.TRAINING_WHEELS]: false }
+    return { [ChallengeModifierEnum.TRAINING_WHEELS]: false }
 }

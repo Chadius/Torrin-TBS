@@ -1,9 +1,9 @@
 import {
-    RollModifierType,
+    TRollModifier,
     RollResultService,
 } from "../../calculator/actionCalculator/rollResult"
 import { BattleActionActorContext } from "../../history/battleAction/battleActionActorContext"
-import { AttributeTypeAndAmount } from "../../../squaddie/attribute/attributeType"
+import { AttributeTypeAndAmount } from "../../../squaddie/attribute/attribute"
 import { TextFormatService } from "../../../utils/graphics/textFormatService"
 
 export const ActionResultText = {
@@ -13,7 +13,7 @@ export const ActionResultText = {
         return getAttackPenaltyDescriptions(actingSquaddieModifiers)
     },
     getRollModifierDescriptions: (rollModifiers: {
-        [r in RollModifierType]?: number
+        [r in TRollModifier]?: number
     }): string[] => {
         return getRollModifierDescriptions(rollModifiers)
     },
@@ -38,7 +38,7 @@ const getAttackPenaltyDescriptions = (
         })
 
 const getRollModifierDescriptions = (rollModifiers: {
-    [r in RollModifierType]?: number
+    [r in TRollModifier]?: number
 }): string[] =>
     Object.entries(rollModifiers ?? {})
         .filter(([_, amount]) => amount != 0)

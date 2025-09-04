@@ -6,7 +6,10 @@ import {
     OrchestratorComponentMouseEvent,
     OrchestratorComponentMouseEventType,
 } from "../orchestrator/battleOrchestratorComponent"
-import { BattleOrchestratorMode } from "../orchestrator/battleOrchestrator"
+import {
+    BattleOrchestratorMode,
+    TBattleOrchestratorMode,
+} from "../orchestrator/battleOrchestrator"
 import { UIControlSettings } from "../orchestrator/uiControlSettings"
 import { GameEngineState } from "../../gameEngine/gameEngine"
 import { FileAccessHUDService } from "../hud/fileAccess/fileAccessHUD"
@@ -18,12 +21,14 @@ import {
 } from "../../utils/mouseConfig"
 import {
     MessageBoardMessage,
+    MessageBoardMessagePlayerConfirmsDecisionStepActor,
     MessageBoardMessageType,
 } from "../../message/messageBoardMessage"
 import { GraphicsBuffer } from "../../utils/graphics/graphicsRenderer"
 import { SummaryHUDStateService } from "../hud/summary/summaryHUD"
 import {
     PlayerCommandSelection,
+    TPlayerCommandSelection,
     PlayerCommandStateService,
 } from "../hud/playerCommand/playerCommandHUD"
 import {
@@ -36,6 +41,7 @@ import { MessageBoardListener } from "../../message/messageBoardListener"
 import { ResourceHandler } from "../../resource/resourceHandler"
 import {
     PlayerInputAction,
+    TPlayerInputAction,
     PlayerInputStateService,
 } from "../../ui/playerInput/playerInputState"
 import { BattleStateService } from "../battleState/battleState"
@@ -51,7 +57,7 @@ export class BattlePlayerSquaddieSelector
 {
     messageBoardListenerId: string
     componentCompleted: boolean
-    recommendedNextMode: BattleOrchestratorMode
+    recommendedNextMode: TBattleOrchestratorMode
 
     highlightedSquaddie: {
         battleSquaddieId: string
@@ -133,7 +139,7 @@ export class BattlePlayerSquaddieSelector
             gameEngineState.battleOrchestratorState.battleHUDState
                 .summaryHUDState
 
-        const playerCommandSelection: PlayerCommandSelection =
+        const playerCommandSelection: TPlayerCommandSelection =
             SummaryHUDStateService.mouseReleased({
                 mouseRelease,
                 gameEngineState,
@@ -215,7 +221,7 @@ export class BattlePlayerSquaddieSelector
         if (event.eventType !== OrchestratorComponentKeyEventType.PRESSED) {
             return
         }
-        const actions: PlayerInputAction[] =
+        const actions: TPlayerInputAction[] =
             PlayerInputStateService.getActionsForPressedKey(
                 gameEngineState.playerInputState,
                 event.keyCode
@@ -373,7 +379,7 @@ export class BattlePlayerSquaddieSelector
     recommendStateChanges(
         _gameEngineState: GameEngineState
     ): BattleOrchestratorChanges | undefined {
-        let nextMode: BattleOrchestratorMode = this.recommendedNextMode
+        let nextMode: TBattleOrchestratorMode = this.recommendedNextMode
 
         return {
             nextMode,
@@ -394,7 +400,9 @@ export class BattlePlayerSquaddieSelector
             return
         }
         this.componentCompleted = true
-        this.recommendedNextMode = message.recommendedMode
+        this.recommendedNextMode = (
+            message as MessageBoardMessagePlayerConfirmsDecisionStepActor
+        ).recommendedMode
     }
 }
 
@@ -405,9 +413,9 @@ const processPlayerCommandSelection = ({
     playerInputActions,
 }: {
     gameEngineState: GameEngineState
-    playerCommandSelection: PlayerCommandSelection
+    playerCommandSelection: TPlayerCommandSelection
     mouseClick?: MousePress
-    playerInputActions: PlayerInputAction[]
+    playerInputActions: TPlayerInputAction[]
 }): {
     didUserClickOnSummaryHUD: boolean
     changes: PlayerSelectionChanges
@@ -448,11 +456,11 @@ const processPlayerCommandSelection = ({
             break
     }
 
-    const didUserClickOnSummaryHUD = [
+    const didUserClickOnSummaryHUD = new Set<TPlayerCommandSelection>([
         PlayerCommandSelection.PLAYER_COMMAND_SELECTION_MOVE,
         PlayerCommandSelection.PLAYER_COMMAND_SELECTION_END_TURN,
         PlayerCommandSelection.PLAYER_COMMAND_SELECTION_ACTION,
-    ].includes(playerCommandSelection)
+    ]).has(playerCommandSelection)
 
     return {
         didUserClickOnSummaryHUD,

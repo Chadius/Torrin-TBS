@@ -11,7 +11,10 @@ import {
     BattleSquaddieTeam,
     BattleSquaddieTeamService,
 } from "../battleSquaddieTeam"
-import { BattleOrchestratorMode } from "../orchestrator/battleOrchestrator"
+import {
+    BattleOrchestratorMode,
+    TBattleOrchestratorMode,
+} from "../orchestrator/battleOrchestrator"
 import { GraphicsConfig } from "../../utils/graphics/graphicsConfig"
 import { UIControlSettings } from "../orchestrator/uiControlSettings"
 import { HexCoordinate } from "../../hexMap/hexCoordinate/hexCoordinate"
@@ -156,7 +159,7 @@ export class BattleComputerSquaddieSelector
     recommendStateChanges(
         gameEngineState: GameEngineState
     ): BattleOrchestratorChanges | undefined {
-        let nextMode: BattleOrchestratorMode
+        let nextMode: TBattleOrchestratorMode
         if (this.mostRecentDecisionSteps !== undefined) {
             nextMode =
                 ActionComponentCalculator.getNextModeBasedOnBattleActionRecorder(

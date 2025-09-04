@@ -1,17 +1,18 @@
-import { SquaddieAffiliation } from "../../squaddie/squaddieAffiliation"
+import { TSquaddieAffiliation } from "../../squaddie/squaddieAffiliation"
 
-export enum TeamStrategyType {
-    END_TURN = "END_TURN",
-    MOVE_CLOSER_TO_SQUADDIE = "MOVE_CLOSER_TO_SQUADDIE",
-    TARGET_SQUADDIE_IN_RANGE = "TARGET_SQUADDIE_IN_RANGE",
-}
+export const TeamStrategyType = {
+    END_TURN: "END_TURN",
+    MOVE_CLOSER_TO_SQUADDIE: "MOVE_CLOSER_TO_SQUADDIE",
+    TARGET_SQUADDIE_IN_RANGE: "TARGET_SQUADDIE_IN_RANGE",
+} as const satisfies Record<string, string>
+export type TTeamStrategyType = EnumLike<typeof TeamStrategyType>
 
 export interface TeamStrategyOptions {
     desiredBattleSquaddieId?: string
-    desiredAffiliation?: SquaddieAffiliation
+    desiredAffiliation?: TSquaddieAffiliation
 }
 
 export interface TeamStrategy {
-    type: TeamStrategyType
+    type: TTeamStrategyType
     options: TeamStrategyOptions
 }

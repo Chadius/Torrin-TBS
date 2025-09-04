@@ -5,11 +5,15 @@ import {
     OrchestratorComponentMouseEvent,
 } from "../orchestrator/battleOrchestratorComponent"
 import { BattleOrchestratorState } from "../orchestrator/battleOrchestratorState"
-import { BattlePhase, BattlePhaseService } from "./battlePhaseTracker"
+import {
+    BattlePhase,
+    BattlePhaseService,
+    TBattlePhase,
+} from "./battlePhaseTracker"
 import { RectAreaService } from "../../ui/rectArea"
 import { ScreenDimensions } from "../../utils/graphics/graphicsConfig"
 import { UIControlSettings } from "../orchestrator/uiControlSettings"
-import { SquaddieAffiliation } from "../../squaddie/squaddieAffiliation"
+import { TSquaddieAffiliation } from "../../squaddie/squaddieAffiliation"
 import {
     BattleSquaddieTeam,
     BattleSquaddieTeamService,
@@ -28,7 +32,7 @@ import { ImageUI, ImageUILoadingBehavior } from "../../ui/imageUI/imageUI"
 export const BANNER_ANIMATION_TIME = 2000
 
 export interface BattlePhaseState {
-    currentAffiliation: BattlePhase
+    currentAffiliation: TBattlePhase
     turnCount: number
 }
 
@@ -37,7 +41,7 @@ export const BattlePhaseStateService = {
         currentAffiliation,
         turnCount,
     }: {
-        currentAffiliation: BattlePhase
+        currentAffiliation: TBattlePhase
         turnCount?: number
     }): BattlePhaseState => {
         return {
@@ -344,7 +348,7 @@ export class BattlePhaseController implements BattleOrchestratorComponent {
 
 const findFirstTeamOfAffiliationThatCanAct = (
     teams: BattleSquaddieTeam[],
-    affiliation: SquaddieAffiliation,
+    affiliation: TSquaddieAffiliation,
     squaddieRepository: ObjectRepository
 ): BattleSquaddieTeam => {
     const teamsOfAffiliation: BattleSquaddieTeam[] = teams.filter(

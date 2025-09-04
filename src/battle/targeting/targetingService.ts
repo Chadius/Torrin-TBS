@@ -3,8 +3,8 @@ import { BattleSquaddie } from "../battleSquaddie"
 import { ObjectRepository, ObjectRepositoryService } from "../objectRepository"
 import { getResultOrThrowError } from "../../utils/ResultOrError"
 import {
-    SquaddieAffiliation,
     SquaddieAffiliationService,
+    TSquaddieAffiliation,
 } from "../../squaddie/squaddieAffiliation"
 import { HexCoordinate } from "../../hexMap/hexCoordinate/hexCoordinate"
 import { SquaddieTemplate } from "../../campaign/squaddieTemplate"
@@ -125,10 +125,10 @@ export const TargetingResultsService = {
         squaddieAffiliationRelation,
         targetAffiliation,
     }: {
-        actorAffiliation: SquaddieAffiliation
+        actorAffiliation: TSquaddieAffiliation
         actorBattleSquaddieId: string
         targetBattleSquaddieId: string
-        targetAffiliation: SquaddieAffiliation
+        targetAffiliation: TSquaddieAffiliation
         squaddieAffiliationRelation: {
             [TargetBySquaddieAffiliationRelation.TARGET_SELF]: boolean
             [TargetBySquaddieAffiliationRelation.TARGET_ALLY]: boolean
@@ -288,10 +288,10 @@ const shouldAddDueToAffiliationRelation = ({
     targetAffiliation,
     squaddieAffiliationRelation,
 }: {
-    actorAffiliation: SquaddieAffiliation
+    actorAffiliation: TSquaddieAffiliation
     actorBattleSquaddieId: string
     targetBattleSquaddieId: string
-    targetAffiliation: SquaddieAffiliation
+    targetAffiliation: TSquaddieAffiliation
     squaddieAffiliationRelation: {
         [TargetBySquaddieAffiliationRelation.TARGET_SELF]: boolean
         [TargetBySquaddieAffiliationRelation.TARGET_ALLY]: boolean

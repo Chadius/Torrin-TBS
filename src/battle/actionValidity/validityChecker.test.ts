@@ -34,7 +34,7 @@ import {
     AttributeModifierService,
     AttributeSource,
 } from "../../squaddie/attribute/attributeModifier"
-import { AttributeType } from "../../squaddie/attribute/attributeType"
+import { Attribute } from "../../squaddie/attribute/attribute"
 import { CanAddModifiersCheck } from "./canAddModifiersCheck"
 
 describe("validity checker", () => {
@@ -195,7 +195,7 @@ describe("validity checker", () => {
                             healingDescriptions: { LOST_HIT_POINTS: 2 },
                             attributeModifiers: [
                                 AttributeModifierService.new({
-                                    type: AttributeType.ARMOR,
+                                    type: Attribute.ARMOR,
                                     source: AttributeSource.CIRCUMSTANCE,
                                     amount: 1,
                                 }),
@@ -283,7 +283,7 @@ describe("validity checker", () => {
                                 healingDescriptions: { LOST_HIT_POINTS: 2 },
                                 attributeModifiers: [
                                     AttributeModifierService.new({
-                                        type: AttributeType.ARMOR,
+                                        type: Attribute.ARMOR,
                                         source: AttributeSource.CIRCUMSTANCE,
                                         amount: 1,
                                     }),

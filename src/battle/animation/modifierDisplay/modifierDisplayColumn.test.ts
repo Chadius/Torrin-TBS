@@ -16,6 +16,7 @@ import {
     ModifierDisplayColumnData,
     ModifierDisplayColumnPosition,
     ModifierDisplayColumnService,
+    TModifierDisplayColumnPosition,
 } from "./modifierDisplayColumn"
 
 describe("Modifier Display", () => {
@@ -239,7 +240,7 @@ const createModifierDisplay = ({
 }: {
     modifiers: ModifierDisplayColumnData[]
     sortOrderLeastToGreatest: boolean
-    position: ModifierDisplayColumnPosition
+    position: TModifierDisplayColumnPosition
 }): ModifierDisplayColumn => {
     return ModifierDisplayColumnService.new({
         modifiers,

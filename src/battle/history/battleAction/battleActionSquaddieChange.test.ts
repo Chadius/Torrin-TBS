@@ -10,7 +10,7 @@ import {
     AttributeSource,
 } from "../../../squaddie/attribute/attributeModifier"
 import { describe, expect, it } from "vitest"
-import { AttributeType } from "../../../squaddie/attribute/attributeType"
+import { Attribute } from "../../../squaddie/attribute/attribute"
 
 describe("BattleActionSquaddieChange", () => {
     describe("knows when the result hinders the squaddie", () => {
@@ -88,7 +88,7 @@ describe("BattleActionSquaddieChange", () => {
             currentHitPoints: 3,
             attributeModifiers: [
                 AttributeModifierService.new({
-                    type: AttributeType.ARMOR,
+                    type: Attribute.ARMOR,
                     amount: 5,
                     source: AttributeSource.CIRCUMSTANCE,
                 }),

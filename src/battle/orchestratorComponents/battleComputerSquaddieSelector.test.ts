@@ -35,7 +35,7 @@ import {
     SHOW_SELECTED_ACTION_TIME,
     SQUADDIE_SELECTOR_PANNING_TIME,
 } from "./battleComputerSquaddieSelector"
-import { DamageType, SquaddieService } from "../../squaddie/squaddieService"
+import { Damage, SquaddieService } from "../../squaddie/squaddieService"
 import { BattlePhaseState } from "./battlePhaseController"
 import { SquaddieTemplate } from "../../campaign/squaddieTemplate"
 import { SquaddieMovementService } from "../../squaddie/movement"
@@ -132,7 +132,7 @@ describe("BattleComputerSquaddieSelector", () => {
                     }),
                     versusSquaddieResistance: VersusSquaddieResistance.ARMOR,
                     damageDescriptions: {
-                        [DamageType.BODY]: demonBiteActionDamage,
+                        [Damage.BODY]: demonBiteActionDamage,
                     },
                 }),
             ],

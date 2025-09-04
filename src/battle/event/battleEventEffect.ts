@@ -1,14 +1,15 @@
-export enum BattleEventEffectType {
-    CUTSCENE = "CUTSCENE",
-    CHALLENGE_MODIFIER = "CHALLENGE_MODIFIER",
-}
+export const BattleEventEffect = {
+    CUTSCENE: "CUTSCENE",
+    CHALLENGE_MODIFIER: "CHALLENGE_MODIFIER",
+} as const satisfies Record<string, string>
+export type TBattleEventEffect = EnumLike<typeof BattleEventEffect>
 
 export interface BattleEventEffectBase {
-    type: BattleEventEffectType
+    type: TBattleEventEffect
 }
 
 export const BattleEventEffectBaseService = {
-    new: (type: BattleEventEffectType): BattleEventEffectBase =>
+    new: (type: TBattleEventEffect): BattleEventEffectBase =>
         sanitize({
             type,
         }),

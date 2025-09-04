@@ -1,7 +1,7 @@
 import { DataBlob, DataBlobService } from "../../../../utils/dataBlob/dataBlob"
 import { Label, LabelService } from "../../../label"
 import { GraphicsBuffer } from "../../../../utils/graphics/graphicsRenderer"
-import { ButtonStatus } from "../../buttonStatus"
+import { ButtonStatus, TButtonStatus } from "../../buttonStatus"
 import { ButtonStyle } from "../buttonStyle"
 import { RectArea } from "../../../rectArea"
 import { ButtonLogic } from "../../logic/base"
@@ -20,13 +20,13 @@ export interface AllLabelButtonDataBlob extends DataBlob {
 
 export interface AllLabelButtonLayout {
     labelByButtonStatus: {
-        [status in ButtonStatus]?: Label
+        [status in TButtonStatus]?: Label
     }
 }
 
 export interface AllLabelButtonUIObjects {
     buttonLabelsByStatus: {
-        [status in ButtonStatus]?: Label
+        [status in TButtonStatus]?: Label
     }
 }
 
@@ -103,7 +103,7 @@ export class AllLabelButtonDrawTask implements ButtonStyle {
                 {
                     buttonLabelsByStatus: Object.fromEntries(
                         Object.keys(ButtonStatus)
-                            .map((keyStr) => keyStr as ButtonStatus)
+                            .map((keyStr) => keyStr as TButtonStatus)
                             .map((key) => {
                                 return [key, undefined]
                             })
@@ -117,7 +117,7 @@ export class AllLabelButtonDrawTask implements ButtonStyle {
         )
 
         Object.keys(ButtonStatus)
-            .map((keyStr) => keyStr as ButtonStatus)
+            .map((keyStr) => keyStr as TButtonStatus)
             .forEach((status) => {
                 if (!uiObjects.buttonLabelsByStatus[status]) {
                     uiObjects.buttonLabelsByStatus[status] =

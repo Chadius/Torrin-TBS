@@ -1,4 +1,4 @@
-import { ButtonStatus } from "../buttonStatus"
+import { TButtonStatus } from "../buttonStatus"
 import {
     MousePress,
     MouseRelease,
@@ -8,15 +8,15 @@ import { DataBlob, DataBlobService } from "../../../utils/dataBlob/dataBlob"
 import { RectArea } from "../../rectArea"
 
 export interface ButtonStatusChangeEvent {
-    previousStatus: ButtonStatus
-    newStatus: ButtonStatus
+    previousStatus: TButtonStatus
+    newStatus: TButtonStatus
     mouseLocation?: ScreenLocation
     mousePress?: MousePress
     mouseRelease?: MouseRelease
 }
 
 export interface ButtonLogic {
-    status: ButtonStatus
+    status: TButtonStatus
     lastStatusChangeTimeStamp: number
     buttonStatusChangeEventData: ButtonStatusChangeEventByButtonId
 }
@@ -36,7 +36,7 @@ export interface ButtonLogicClassFunctions {
         mouseRelease,
     }: {
         buttonId: string
-        newStatus: ButtonStatus
+        newStatus: TButtonStatus
         mouseLocation?: ScreenLocation
         mousePress?: MousePress
         mouseRelease?: MouseRelease
@@ -82,7 +82,7 @@ export const ButtonLogicCommonFunctions = {
     }: {
         buttonId: string
         buttonLogic: ButtonLogic
-        newStatus: ButtonStatus
+        newStatus: TButtonStatus
         mouseLocation?: ScreenLocation
         mousePress?: MousePress
         mouseRelease?: MouseRelease
@@ -112,7 +112,7 @@ export const ButtonLogicCommonFunctions = {
     }: {
         buttonId: string
         buttonLogic: ButtonLogic
-        previousStatus: ButtonStatus
+        previousStatus: TButtonStatus
         mouseLocation?: ScreenLocation
         mousePress?: MousePress
         mouseRelease?: MouseRelease
@@ -148,7 +148,7 @@ const addButtonStatusChangeEvent = ({
 }: {
     buttonId: string
     buttonLogic: ButtonLogic
-    previousStatus: ButtonStatus
+    previousStatus: TButtonStatus
     mouseLocation?: ScreenLocation
     mousePress?: MousePress
     mouseRelease?: MouseRelease

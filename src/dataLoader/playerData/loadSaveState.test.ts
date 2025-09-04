@@ -11,8 +11,8 @@ import { BattlePhase } from "../../battle/orchestratorComponents/battlePhaseTrac
 import { LoadSaveState, LoadSaveStateService } from "./loadSaveState"
 import { beforeEach, describe, expect, it } from "vitest"
 import {
+    ChallengeModifierEnum,
     ChallengeModifierSettingService,
-    ChallengeModifierType,
 } from "../../battle/challengeModifier/challengeModifierSetting"
 
 describe("Load SaveState", () => {
@@ -22,7 +22,7 @@ describe("Load SaveState", () => {
         const challengeModifierSetting = ChallengeModifierSettingService.new()
         ChallengeModifierSettingService.setSetting({
             challengeModifierSetting,
-            type: ChallengeModifierType.TRAINING_WHEELS,
+            type: ChallengeModifierEnum.TRAINING_WHEELS,
             value: true,
         })
 

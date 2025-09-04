@@ -1,4 +1,7 @@
-import { DegreeOfSuccess } from "../../../../../calculator/actionCalculator/degreeOfSuccess"
+import {
+    DegreeOfSuccess,
+    TDegreeOfSuccess,
+} from "../../../../../calculator/actionCalculator/degreeOfSuccess"
 import { TextBox } from "../../../../../../ui/textBox/textBox"
 import { ActionEffectChange } from "../../../../../history/calculatedResult"
 import { ActionTemplate } from "../../../../../../action/template/actionTemplate"
@@ -21,7 +24,7 @@ export const ActionPreviewTileDegreesOfSuccessService = {
     findNextDegreeOfSuccessToDraw: (
         potentialDegreesOfSuccessToDraw: ActionPreviewTileLayout["degreesOfSuccess"]["rowOrder"],
         alreadyDrawnTextBoxes: {
-            degreeOfSuccess: DegreeOfSuccess
+            degreeOfSuccess: TDegreeOfSuccess
             textBox: TextBox
         }[],
         targetForecast: ActionEffectChange,
@@ -44,7 +47,7 @@ export const ActionPreviewTileDegreesOfSuccessService = {
             ActionPreviewTileUIObjects
         >
         degreeOfSuccessUIObjects: {
-            degreeOfSuccess: DegreeOfSuccess
+            degreeOfSuccess: TDegreeOfSuccess
             textBox: TextBox
         }[]
         boundingBox: RectArea
@@ -59,7 +62,7 @@ export const ActionPreviewTileDegreesOfSuccessService = {
 const findNextDegreeOfSuccessToDraw = (
     potentialDegreesOfSuccessToDraw: ActionPreviewTileLayout["degreesOfSuccess"]["rowOrder"],
     alreadyDrawnTextBoxes: {
-        degreeOfSuccess: DegreeOfSuccess
+        degreeOfSuccess: TDegreeOfSuccess
         textBox: TextBox
     }[],
     targetForecast: ActionEffectChange,
@@ -144,7 +147,7 @@ const calculateTopOfNextDegreesOfSuccessRow = ({
         ActionPreviewTileUIObjects
     >
     degreeOfSuccessUIObjects: {
-        degreeOfSuccess: DegreeOfSuccess
+        degreeOfSuccess: TDegreeOfSuccess
         textBox: TextBox
     }[]
     boundingBox: RectArea

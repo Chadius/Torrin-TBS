@@ -29,7 +29,7 @@ export class PlayerClicksOnSquaddieSelectorPanel implements BehaviorTreeTask {
                 this.dataBlob,
                 "playerSelectionContextCalculationArgs"
             )
-        const { mouseClick, gameEngineState, playerInputActions } =
+        const { mouseClick, gameEngineState } =
             playerSelectionContextCalculationArgs
 
         if (

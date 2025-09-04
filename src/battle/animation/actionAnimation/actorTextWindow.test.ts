@@ -20,7 +20,7 @@ import {
 import { BattleActionActorContextService } from "../../history/battleAction/battleActionActorContext"
 import { TargetConstraintsService } from "../../../action/targetConstraints"
 import {
-    RollModifierType,
+    RollModifierEnum,
     RollResultService,
 } from "../../calculator/actionCalculator/rollResult"
 import { beforeEach, describe, expect, it, vi } from "vitest"
@@ -155,7 +155,7 @@ describe("ActorTextWindow", () => {
                             occurred: false,
                             rolls: [],
                             rollModifiers: {
-                                [RollModifierType.MULTIPLE_ATTACK_PENALTY]: -2,
+                                [RollModifierEnum.MULTIPLE_ATTACK_PENALTY]: -2,
                             },
                         }),
                         actingSquaddieModifiers: [],
@@ -189,7 +189,7 @@ describe("ActorTextWindow", () => {
                             occurred: true,
                             rolls: [1, 5],
                             rollModifiers: {
-                                [RollModifierType.MULTIPLE_ATTACK_PENALTY]: -2,
+                                [RollModifierEnum.MULTIPLE_ATTACK_PENALTY]: -2,
                             },
                         }),
                         actingSquaddieModifiers: [],

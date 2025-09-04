@@ -21,11 +21,13 @@ import {
 } from "../actionResourceCost"
 import { GlossaryTerm } from "../../campaign/glossary/glossary"
 
-export enum ActionDecisionType {
-    TARGET_SQUADDIE = "TARGET_SQUADDIE",
-    ACTOR_SELECTION = "ACTOR_SELECTION",
-    ACTION_SELECTION = "ACTION_SELECTION",
-}
+export const ActionDecision = {
+    TARGET_SQUADDIE: "TARGET_SQUADDIE",
+    ACTOR_SELECTION: "ACTOR_SELECTION",
+    ACTION_SELECTION: "ACTION_SELECTION",
+} as const satisfies Record<string, string>
+
+export type TActionDecision = EnumLike<typeof ActionDecision>
 
 interface ActionTemplateUserInformation {
     userReadableDescription: string
@@ -165,7 +167,7 @@ export const ActionTemplateService = {
     },
     getActionTemplateDecisionTypes: (
         actionTemplate: ActionTemplate
-    ): ActionDecisionType[] => {
+    ): TActionDecision[] => {
         return actionTemplate.actionEffectTemplates
             .map((template) => template.actionDecisions)
             .flat()

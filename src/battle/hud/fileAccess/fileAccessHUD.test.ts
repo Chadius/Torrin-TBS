@@ -10,7 +10,10 @@ import { MouseButton } from "../../../utils/mouseConfig"
 import { BattleOrchestratorStateService } from "../../orchestrator/battleOrchestratorState"
 import { ObjectRepositoryService } from "../../objectRepository"
 import { BattleStateService } from "../../battleState/battleState"
-import { BattlePhase } from "../../orchestratorComponents/battlePhaseTracker"
+import {
+    BattlePhase,
+    TBattlePhase,
+} from "../../orchestratorComponents/battlePhaseTracker"
 import { MissionMapService } from "../../../missionMap/missionMap"
 import { TerrainTileMapService } from "../../../hexMap/terrainTileMap"
 import {
@@ -47,7 +50,7 @@ describe("File Access HUD", () => {
     let graphicsContext: GraphicsBuffer
 
     const createGameEngineStateWithBattlePhase = (
-        battlePhaseAffiliation: BattlePhase
+        battlePhaseAffiliation: TBattlePhase
     ): GameEngineState => {
         const missionMap = MissionMapService.new({
             terrainTileMap: TerrainTileMapService.new({

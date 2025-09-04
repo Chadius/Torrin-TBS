@@ -31,7 +31,7 @@ import {
     Trait,
     TraitStatusStorageService,
 } from "../../../trait/traitStatusStorage"
-import { DamageType } from "../../../squaddie/squaddieService"
+import { Damage } from "../../../squaddie/squaddieService"
 import { SquaddieRepositoryService } from "../../../utils/test/squaddie"
 import { SquaddieAffiliation } from "../../../squaddie/squaddieAffiliation"
 import { ArmyAttributesService } from "../../../squaddie/armyAttributes"
@@ -138,7 +138,7 @@ describe("Player Action Target Select View Controller", () => {
                     }),
                     versusSquaddieResistance: VersusSquaddieResistance.ARMOR,
                     damageDescriptions: {
-                        [DamageType.BODY]: 2,
+                        [Damage.BODY]: 2,
                     },
                 }),
             ],

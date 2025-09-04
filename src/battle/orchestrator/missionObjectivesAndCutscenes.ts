@@ -10,15 +10,16 @@ import {
 import { BattleEvent, BattleEventService } from "../event/battleEvent"
 import { MissionCompletionStatus } from "../missionResult/missionCompletionStatus"
 
-export enum BattleCompletionStatus {
-    IN_PROGRESS = "IN_PROGRESS",
-    VICTORY = "VICTORY",
-    DEFEAT = "DEFEAT",
-}
+export const BattleCompletionStatus = {
+    IN_PROGRESS: "IN_PROGRESS",
+    VICTORY: "VICTORY",
+    DEFEAT: "DEFEAT",
+} as const satisfies Record<string, string>
+export type TBattleCompletionStatus = EnumLike<typeof BattleCompletionStatus>
 
 export interface MissionObjectivesAndCutscenes {
     missionCompletionStatus: MissionCompletionStatus
-    battleCompletionStatus: BattleCompletionStatus
+    battleCompletionStatus: TBattleCompletionStatus
     battleEvents: BattleEvent[]
     objectives: MissionObjective[]
     cutsceneCollection: MissionCutsceneCollection
@@ -36,7 +37,7 @@ export const MissionObjectivesAndCutscenesHelper = {
         cutsceneCollection: MissionCutsceneCollection
         battleEvents: BattleEvent[]
         missionCompletionStatus: MissionCompletionStatus
-        battleCompletionStatus: BattleCompletionStatus
+        battleCompletionStatus: TBattleCompletionStatus
     }): MissionObjectivesAndCutscenes => {
         return sanitize({
             missionCompletionStatus: missionCompletionStatus,

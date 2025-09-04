@@ -7,7 +7,7 @@ import {
 import { SquaddieAffiliation } from "../../squaddie/squaddieAffiliation"
 import { SquaddieMovementService } from "../../squaddie/movement"
 import {
-    ActionDecisionType,
+    ActionDecision,
     ActionTemplate,
     ActionTemplateService,
 } from "../../action/template/actionTemplate"
@@ -57,7 +57,7 @@ export const TestPlayerArmyData = () => {
                     damageDescriptions: {
                         BODY: 2,
                     },
-                    actionDecisions: [ActionDecisionType.TARGET_SQUADDIE],
+                    actionDecisions: [ActionDecision.TARGET_SQUADDIE],
                     buttonIconResourceKey: "decision-button-bow",
                 }),
             ],
@@ -92,7 +92,7 @@ export const TestPlayerArmyData = () => {
                     healingDescriptions: {
                         LOST_HIT_POINTS: 2,
                     },
-                    actionDecisions: [ActionDecisionType.TARGET_SQUADDIE],
+                    actionDecisions: [ActionDecision.TARGET_SQUADDIE],
                 }),
             ],
             buttonIconResourceKey: "decision-button-heart",
@@ -118,7 +118,7 @@ export const TestPlayerArmyData = () => {
                     damageDescriptions: {
                         BODY: 2,
                     },
-                    actionDecisions: [ActionDecisionType.TARGET_SQUADDIE],
+                    actionDecisions: [ActionDecision.TARGET_SQUADDIE],
                 }),
             ],
             buttonIconResourceKey: "decision-button-sword",

@@ -1,9 +1,9 @@
 import { GameEngineState } from "../gameEngine/gameEngine"
 import { BattleAction } from "../battle/history/battleAction/battleAction"
 import { HexCoordinate } from "../hexMap/hexCoordinate/hexCoordinate"
-import { BattlePhase } from "../battle/orchestratorComponents/battlePhaseTracker"
+import { TBattlePhase } from "../battle/orchestratorComponents/battlePhaseTracker"
 import { MousePress, ScreenLocation } from "../utils/mouseConfig"
-import { BattleOrchestratorMode } from "../battle/orchestrator/battleOrchestrator"
+import { TBattleOrchestratorMode } from "../battle/orchestrator/battleOrchestrator"
 import { PopupWindow } from "../battle/hud/popupWindow/popupWindow"
 import { GraphicsBuffer } from "../utils/graphics/graphicsRenderer"
 import { ResourceHandler } from "../resource/resourceHandler"
@@ -62,79 +62,166 @@ export type MessageBoardMessage =
     | MessageBoardMessageTypeLoadBlockerBeginsLoadingResources
     | MessageBoardMessageTypeLoadBlockerFinishesLoadingResources
 
-export enum MessageBoardMessageType {
-    BASE = "BASE",
-    STARTED_PLAYER_PHASE = "STARTED_PLAYER_PHASE",
-    PLAYER_CAN_CONTROL_DIFFERENT_SQUADDIE = "PLAYER_CAN_CONTROL_DIFFERENT_SQUADDIE",
-    SQUADDIE_IS_INJURED = "SQUADDIE_IS_INJURED",
-    SQUADDIE_IS_DEFEATED = "SQUADDIE_IS_DEFEATED",
-    PLAYER_SELECTION_IS_INVALID = "PLAYER_SELECTION_IS_INVALID",
-    PLAYER_CANCELS_TARGET_SELECTION = "PLAYER_CANCELS_TARGET_SELECTION",
-    PLAYER_CANCELS_TARGET_CONFIRMATION = "PLAYER_CANCELS_TARGET_CONFIRMATION",
-    PLAYER_ENDS_TURN = "PLAYER_ENDS_TURN",
-    PLAYER_SELECTS_AND_LOCKS_SQUADDIE = "PLAYER_SELECTS_AND_LOCKS_SQUADDIE",
-    PLAYER_PEEKS_AT_SQUADDIE = "PLAYER_PEEKS_AT_SQUADDIE",
-    BATTLE_ACTION_FINISHES_ANIMATION = "BATTLE_ACTION_FINISHES_ANIMATION",
-    PLAYER_CONSIDERS_ACTION = "PLAYER_CONSIDERS_ACTION",
-    PLAYER_CONSIDERS_MOVEMENT = "PLAYER_CONSIDERS_MOVEMENT",
-    PLAYER_SELECTS_ACTION_TEMPLATE = "PLAYER_SELECTS_ACTION_TEMPLATE",
-    PLAYER_SELECTS_TARGET_COORDINATE = "PLAYER_SELECTS_TARGET_COORDINATE",
-    PLAYER_CONFIRMS_ACTION = "PLAYER_CONFIRMS_ACTION",
-    SQUADDIE_PHASE_STARTS = "SQUADDIE_PHASE_STARTS",
-    SQUADDIE_PHASE_ENDS = "SQUADDIE_PHASE_ENDS",
-    SELECT_AND_LOCK_NEXT_SQUADDIE = "SELECT_AND_LOCK_NEXT_SQUADDIE",
-    MOVE_SQUADDIE_TO_COORDINATE = "MOVE_SQUADDIE_TO_COORDINATE",
-    PLAYER_CANCELS_PLAYER_ACTION_CONSIDERATIONS = "PLAYER_CANCELS_PLAYER_ACTION_CONSIDERATIONS",
-    PLAYER_CONFIRMS_DECISION_STEP_ACTOR = "PLAYER_CONFIRMS_DECISION_STEP_ACTOR",
-    PLAYER_CONTROLLED_SQUADDIE_NEEDS_NEXT_ACTION = "PLAYER_CONTROLLED_SQUADDIE_NEEDS_NEXT_ACTION",
-    SQUADDIE_TURN_ENDS = "SQUADDIE_TURN_ENDS",
-    PLAYER_DATA_LOAD_USER_REQUEST = "PLAYER_DATA_LOAD_USER_REQUEST",
-    PLAYER_DATA_LOAD_COMPLETE = "PLAYER_DATA_LOAD_COMPLETE",
-    PLAYER_DATA_LOAD_BEGIN = "PLAYER_DATA_LOAD_BEGIN",
-    PLAYER_DATA_LOAD_ERROR_DURING = "PLAYER_DATA_LOAD_ERROR_DURING",
-    PLAYER_DATA_LOAD_USER_CANCEL = "PLAYER_DATA_LOAD_USER_CANCEL",
-    PLAYER_DATA_LOAD_FINISH_REQUEST_LOAD = "PLAYER_DATA_LOAD_FINISH_REQUEST_LOAD",
-    LOAD_BLOCKER_BEGINS_LOADING_RESOURCES = "LOAD_BLOCKER_BEGINS_LOADING_RESOURCES",
-    LOAD_BLOCKER_FINISHES_LOADING_RESOURCES = "LOAD_BLOCKER_FINISHES_LOADING_RESOURCES",
-}
+export const MessageBoardMessageType = {
+    BASE: Symbol.for("MessageBoardMessageType.BASE"),
+    STARTED_PLAYER_PHASE: Symbol.for(
+        "MessageBoardMessageType.STARTED_PLAYER_PHASE"
+    ),
+    PLAYER_CAN_CONTROL_DIFFERENT_SQUADDIE: Symbol.for(
+        "MessageBoardMessageType.PLAYER_CAN_CONTROL_DIFFERENT_SQUADDIE"
+    ),
+    SQUADDIE_IS_INJURED: Symbol.for(
+        "MessageBoardMessageType.SQUADDIE_IS_INJURED"
+    ),
+    SQUADDIE_IS_DEFEATED: Symbol.for(
+        "MessageBoardMessageType.SQUADDIE_IS_DEFEATED"
+    ),
+    PLAYER_SELECTION_IS_INVALID: Symbol.for(
+        "MessageBoardMessageType.PLAYER_SELECTION_IS_INVALID"
+    ),
+    PLAYER_CANCELS_TARGET_SELECTION: Symbol.for(
+        "MessageBoardMessageType.PLAYER_CANCELS_TARGET_SELECTION"
+    ),
+    PLAYER_CANCELS_TARGET_CONFIRMATION: Symbol.for(
+        "MessageBoardMessageType.PLAYER_CANCELS_TARGET_CONFIRMATION"
+    ),
+    PLAYER_ENDS_TURN: Symbol.for("MessageBoardMessageType.PLAYER_ENDS_TURN"),
+    PLAYER_SELECTS_AND_LOCKS_SQUADDIE: Symbol.for(
+        "MessageBoardMessageType.PLAYER_SELECTS_AND_LOCKS_SQUADDIE"
+    ),
+    PLAYER_PEEKS_AT_SQUADDIE: Symbol.for(
+        "MessageBoardMessageType.PLAYER_PEEKS_AT_SQUADDIE"
+    ),
+    BATTLE_ACTION_FINISHES_ANIMATION: Symbol.for(
+        "MessageBoardMessageType.BATTLE_ACTION_FINISHES_ANIMATION"
+    ),
+    PLAYER_CONSIDERS_ACTION: Symbol.for(
+        "MessageBoardMessageType.PLAYER_CONSIDERS_ACTION"
+    ),
+    PLAYER_CONSIDERS_MOVEMENT: Symbol.for(
+        "MessageBoardMessageType.PLAYER_CONSIDERS_MOVEMENT"
+    ),
+    PLAYER_SELECTS_ACTION_TEMPLATE: Symbol.for(
+        "MessageBoardMessageType.PLAYER_SELECTS_ACTION_TEMPLATE"
+    ),
+    PLAYER_SELECTS_TARGET_COORDINATE: Symbol.for(
+        "MessageBoardMessageType.PLAYER_SELECTS_TARGET_COORDINATE"
+    ),
+    PLAYER_CONFIRMS_ACTION: Symbol.for(
+        "MessageBoardMessageType.PLAYER_CONFIRMS_ACTION"
+    ),
+    SQUADDIE_PHASE_STARTS: Symbol.for(
+        "MessageBoardMessageType.SQUADDIE_PHASE_STARTS"
+    ),
+    SQUADDIE_PHASE_ENDS: Symbol.for(
+        "MessageBoardMessageType.SQUADDIE_PHASE_ENDS"
+    ),
+    SELECT_AND_LOCK_NEXT_SQUADDIE: Symbol.for(
+        "MessageBoardMessageType.SELECT_AND_LOCK_NEXT_SQUADDIE"
+    ),
+    MOVE_SQUADDIE_TO_COORDINATE: Symbol.for(
+        "MessageBoardMessageType.MOVE_SQUADDIE_TO_COORDINATE"
+    ),
+    PLAYER_CANCELS_PLAYER_ACTION_CONSIDERATIONS: Symbol.for(
+        "MessageBoardMessageType.PLAYER_CANCELS_PLAYER_ACTION_CONSIDERATIONS"
+    ),
+    PLAYER_CONFIRMS_DECISION_STEP_ACTOR: Symbol.for(
+        "MessageBoardMessageType.PLAYER_CONFIRMS_DECISION_STEP_ACTOR"
+    ),
+    PLAYER_CONTROLLED_SQUADDIE_NEEDS_NEXT_ACTION: Symbol.for(
+        "MessageBoardMessageType.PLAYER_CONTROLLED_SQUADDIE_NEEDS_NEXT_ACTION"
+    ),
+    SQUADDIE_TURN_ENDS: Symbol.for(
+        "MessageBoardMessageType.SQUADDIE_TURN_ENDS"
+    ),
+    PLAYER_DATA_LOAD_USER_REQUEST: Symbol.for(
+        "MessageBoardMessageType.PLAYER_DATA_LOAD_USER_REQUEST"
+    ),
+    PLAYER_DATA_LOAD_COMPLETE: Symbol.for(
+        "MessageBoardMessageType.PLAYER_DATA_LOAD_COMPLETE"
+    ),
+    PLAYER_DATA_LOAD_BEGIN: Symbol.for(
+        "MessageBoardMessageType.PLAYER_DATA_LOAD_BEGIN"
+    ),
+    PLAYER_DATA_LOAD_ERROR_DURING: Symbol.for(
+        "MessageBoardMessageType.PLAYER_DATA_LOAD_ERROR_DURING"
+    ),
+    PLAYER_DATA_LOAD_USER_CANCEL: Symbol.for(
+        "MessageBoardMessageType.PLAYER_DATA_LOAD_USER_CANCEL"
+    ),
+    PLAYER_DATA_LOAD_FINISH_REQUEST_LOAD: Symbol.for(
+        "MessageBoardMessageType.PLAYER_DATA_LOAD_FINISH_REQUEST_LOAD"
+    ),
+    LOAD_BLOCKER_BEGINS_LOADING_RESOURCES: Symbol.for(
+        "MessageBoardMessageType.LOAD_BLOCKER_BEGINS_LOADING_RESOURCES"
+    ),
+    LOAD_BLOCKER_FINISHES_LOADING_RESOURCES: Symbol.for(
+        "MessageBoardMessageType.LOAD_BLOCKER_FINISHES_LOADING_RESOURCES"
+    ),
+} as const
+export type TMessageBoardMessageType = EnumLike<typeof MessageBoardMessageType>
 
 export interface MessageBoardMessageBase {
-    type: MessageBoardMessageType.BASE
+    type: typeof MessageBoardMessageType.BASE
     message: string
 }
 
 export interface MessageBoardMessageStartedPlayerPhase {
-    type: MessageBoardMessageType.STARTED_PLAYER_PHASE
+    type: typeof MessageBoardMessageType.STARTED_PLAYER_PHASE
     gameEngineState: GameEngineState
+}
+const isMessageBoardMessageStartedPlayerPhase = (
+    messageBoardMessage: MessageBoardMessage
+): messageBoardMessage is MessageBoardMessageStartedPlayerPhase => {
+    return (
+        messageBoardMessage.type ===
+        MessageBoardMessageType.STARTED_PLAYER_PHASE
+    )
 }
 
 export interface MessageBoardMessagePlayerCanControlDifferentSquaddie {
-    type: MessageBoardMessageType.PLAYER_CAN_CONTROL_DIFFERENT_SQUADDIE
+    type: typeof MessageBoardMessageType.PLAYER_CAN_CONTROL_DIFFERENT_SQUADDIE
     gameEngineState: GameEngineState
+}
+const isMessageBoardMessagePlayerCanControlDifferentSquaddie = (
+    messageBoardMessage: MessageBoardMessage
+): messageBoardMessage is MessageBoardMessagePlayerCanControlDifferentSquaddie => {
+    return (
+        messageBoardMessage.type ===
+        MessageBoardMessageType.PLAYER_CAN_CONTROL_DIFFERENT_SQUADDIE
+    )
 }
 
 export interface MessageBoardMessageSquaddieIsInjured {
-    type: MessageBoardMessageType.SQUADDIE_IS_INJURED
+    type: typeof MessageBoardMessageType.SQUADDIE_IS_INJURED
     gameEngineState: GameEngineState
     objectRepository: ObjectRepository
     battleSquaddieIds: string[]
 }
 
 export interface MessageBoardMessageSquaddieIsDefeated {
-    type: MessageBoardMessageType.SQUADDIE_IS_DEFEATED
+    type: typeof MessageBoardMessageType.SQUADDIE_IS_DEFEATED
     gameEngineState: GameEngineState
     objectRepository: ObjectRepository
     battleSquaddieIds: string[]
 }
 
 export interface MessageBoardMessagePlayerSelectionIsInvalid {
-    type: MessageBoardMessageType.PLAYER_SELECTION_IS_INVALID
+    type: typeof MessageBoardMessageType.PLAYER_SELECTION_IS_INVALID
     gameEngineState: GameEngineState
     popupWindow: PopupWindow
 }
+const isMessageBoardMessagePlayerSelectionIsInvalid = (
+    messageBoardMessage: MessageBoardMessage
+): messageBoardMessage is MessageBoardMessagePlayerSelectionIsInvalid => {
+    return (
+        messageBoardMessage.type ===
+        MessageBoardMessageType.PLAYER_SELECTION_IS_INVALID
+    )
+}
 
 export interface MessageBoardMessagePlayerCancelsTargetSelection {
-    type: MessageBoardMessageType.PLAYER_CANCELS_TARGET_SELECTION
+    type: typeof MessageBoardMessageType.PLAYER_CANCELS_TARGET_SELECTION
     summaryHUDState: SummaryHUDState
     battleActionDecisionStep: BattleActionDecisionStep
     missionMap: MissionMap
@@ -142,19 +229,40 @@ export interface MessageBoardMessagePlayerCancelsTargetSelection {
     campaignResources: CampaignResources
     squaddieAllMovementCache: SearchResultsCache
 }
+const isMessageBoardMessagePlayerCancelsTargetSelection = (
+    messageBoardMessage: MessageBoardMessage
+): messageBoardMessage is MessageBoardMessagePlayerCancelsTargetSelection => {
+    return (
+        messageBoardMessage.type ===
+        MessageBoardMessageType.PLAYER_CANCELS_TARGET_SELECTION
+    )
+}
 
 export interface MessageBoardMessagePlayerCancelsTargetConfirmation {
-    type: MessageBoardMessageType.PLAYER_CANCELS_TARGET_CONFIRMATION
+    type: typeof MessageBoardMessageType.PLAYER_CANCELS_TARGET_CONFIRMATION
     missionMap: MissionMap
     objectRepository: ObjectRepository
     battleActionDecisionStep: BattleActionDecisionStep
     battleActionRecorder: BattleActionRecorder
 }
+const isMessageBoardMessagePlayerCancelsTargetConfirmation = (
+    messageBoardMessage: MessageBoardMessage
+): messageBoardMessage is MessageBoardMessagePlayerCancelsTargetConfirmation => {
+    return (
+        messageBoardMessage.type ===
+        MessageBoardMessageType.PLAYER_CANCELS_TARGET_CONFIRMATION
+    )
+}
 
 export interface MessageBoardMessagePlayerEndsTurn {
-    type: MessageBoardMessageType.PLAYER_ENDS_TURN
+    type: typeof MessageBoardMessageType.PLAYER_ENDS_TURN
     gameEngineState: GameEngineState
     battleAction: BattleAction
+}
+const isMessageBoardMessagePlayerEndsTurn = (
+    messageBoardMessage: MessageBoardMessage
+): messageBoardMessage is MessageBoardMessagePlayerEndsTurn => {
+    return messageBoardMessage.type === MessageBoardMessageType.PLAYER_ENDS_TURN
 }
 
 export type SquaddieSelectionMethod = {
@@ -163,13 +271,21 @@ export type SquaddieSelectionMethod = {
 }
 
 export interface MessageBoardMessagePlayerSelectsAndLocksSquaddie {
-    type: MessageBoardMessageType.PLAYER_SELECTS_AND_LOCKS_SQUADDIE
+    type: typeof MessageBoardMessageType.PLAYER_SELECTS_AND_LOCKS_SQUADDIE
     gameEngineState: GameEngineState
     battleSquaddieSelectedId: string
 }
+const isMessageBoardMessagePlayerSelectsAndLocksSquaddie = (
+    messageBoardMessage: MessageBoardMessage
+): messageBoardMessage is MessageBoardMessagePlayerSelectsAndLocksSquaddie => {
+    return (
+        messageBoardMessage.type ===
+        MessageBoardMessageType.PLAYER_SELECTS_AND_LOCKS_SQUADDIE
+    )
+}
 
 export interface MessageBoardMessagePlayerPeeksAtSquaddie {
-    type: MessageBoardMessageType.PLAYER_PEEKS_AT_SQUADDIE
+    type: typeof MessageBoardMessageType.PLAYER_PEEKS_AT_SQUADDIE
     battleSquaddieSelectedId: string
     selectionMethod: SquaddieSelectionMethod
     summaryHUDState: SummaryHUDState
@@ -178,16 +294,24 @@ export interface MessageBoardMessagePlayerPeeksAtSquaddie {
     campaignResources: CampaignResources
     squaddieAllMovementCache: SearchResultsCache
 }
+const isMessageBoardMessagePlayerPeeksAtSquaddie = (
+    messageBoardMessage: MessageBoardMessage
+): messageBoardMessage is MessageBoardMessagePlayerPeeksAtSquaddie => {
+    return (
+        messageBoardMessage.type ===
+        MessageBoardMessageType.PLAYER_PEEKS_AT_SQUADDIE
+    )
+}
 
 export interface MessageBoardBattleActionFinishesAnimation {
-    type: MessageBoardMessageType.BATTLE_ACTION_FINISHES_ANIMATION
+    type: typeof MessageBoardMessageType.BATTLE_ACTION_FINISHES_ANIMATION
     gameEngineState: GameEngineState
     graphicsContext: GraphicsBuffer
     resourceHandler: ResourceHandler
 }
 
 export interface MessageBoardMessagePlayerSelectsActionTemplate {
-    type: MessageBoardMessageType.PLAYER_SELECTS_ACTION_TEMPLATE
+    type: typeof MessageBoardMessageType.PLAYER_SELECTS_ACTION_TEMPLATE
     objectRepository: ObjectRepository
     missionMap: MissionMap
     summaryHUDState: SummaryHUDState
@@ -198,9 +322,17 @@ export interface MessageBoardMessagePlayerSelectsActionTemplate {
     mapStartingCoordinate: HexCoordinate
     glossary: Glossary
 }
+const isMessageBoardMessagePlayerSelectsActionTemplate = (
+    messageBoardMessage: MessageBoardMessage
+): messageBoardMessage is MessageBoardMessagePlayerSelectsActionTemplate => {
+    return (
+        messageBoardMessage.type ===
+        MessageBoardMessageType.PLAYER_SELECTS_ACTION_TEMPLATE
+    )
+}
 
 export interface MessageBoardMessagePlayerSelectsTargetCoordinate {
-    type: MessageBoardMessageType.PLAYER_SELECTS_TARGET_COORDINATE
+    type: typeof MessageBoardMessageType.PLAYER_SELECTS_TARGET_COORDINATE
     numberGenerator: NumberGeneratorStrategy
     missionMap: MissionMap
     battleActionDecisionStep: BattleActionDecisionStep
@@ -209,9 +341,17 @@ export interface MessageBoardMessagePlayerSelectsTargetCoordinate {
     objectRepository: ObjectRepository
     targetCoordinate: HexCoordinate
 }
+const isMessageBoardMessagePlayerSelectsTargetCoordinate = (
+    messageBoardMessage: MessageBoardMessage
+): messageBoardMessage is MessageBoardMessagePlayerSelectsTargetCoordinate => {
+    return (
+        messageBoardMessage.type ===
+        MessageBoardMessageType.PLAYER_SELECTS_TARGET_COORDINATE
+    )
+}
 
 export interface MessageBoardMessagePlayerConfirmsAction {
-    type: MessageBoardMessageType.PLAYER_CONFIRMS_ACTION
+    type: typeof MessageBoardMessageType.PLAYER_CONFIRMS_ACTION
     objectRepository: ObjectRepository
     missionMap: MissionMap
     battleActionDecisionStep: BattleActionDecisionStep
@@ -220,26 +360,57 @@ export interface MessageBoardMessagePlayerConfirmsAction {
     missionStatistics: MissionStatistics
     challengeModifierSetting: ChallengeModifierSetting
 }
+const isMessageBoardMessagePlayerConfirmsAction = (
+    messageBoardMessage: MessageBoardMessage
+): messageBoardMessage is MessageBoardMessagePlayerConfirmsAction => {
+    return (
+        messageBoardMessage.type ===
+        MessageBoardMessageType.PLAYER_CONFIRMS_ACTION
+    )
+}
 
 export interface MessageBoardMessageSquaddiePhaseStarts {
-    type: MessageBoardMessageType.SQUADDIE_PHASE_STARTS
-    phase: BattlePhase
+    type: typeof MessageBoardMessageType.SQUADDIE_PHASE_STARTS
+    phase: TBattlePhase
     gameEngineState: GameEngineState
+}
+const isMessageBoardMessageSquaddiePhaseStarts = (
+    messageBoardMessage: MessageBoardMessage
+): messageBoardMessage is MessageBoardMessageSquaddiePhaseStarts => {
+    return (
+        messageBoardMessage.type ===
+        MessageBoardMessageType.SQUADDIE_PHASE_STARTS
+    )
 }
 
 export interface MessageBoardMessageSquaddiePhaseEnds {
-    type: MessageBoardMessageType.SQUADDIE_PHASE_ENDS
-    phase: BattlePhase
+    type: typeof MessageBoardMessageType.SQUADDIE_PHASE_ENDS
+    phase: TBattlePhase
     gameEngineState: GameEngineState
+}
+const isMessageBoardMessageSquaddiePhaseEnds = (
+    messageBoardMessage: MessageBoardMessage
+): messageBoardMessage is MessageBoardMessageSquaddiePhaseEnds => {
+    return (
+        messageBoardMessage.type === MessageBoardMessageType.SQUADDIE_PHASE_ENDS
+    )
 }
 
 export interface MessageBoardMessageSelectAndLockNextSquaddie {
-    type: MessageBoardMessageType.SELECT_AND_LOCK_NEXT_SQUADDIE
+    type: typeof MessageBoardMessageType.SELECT_AND_LOCK_NEXT_SQUADDIE
     gameEngineState: GameEngineState
+}
+const isMessageBoardMessageSelectAndLockNextSquaddie = (
+    messageBoardMessage: MessageBoardMessage
+): messageBoardMessage is MessageBoardMessageSelectAndLockNextSquaddie => {
+    return (
+        messageBoardMessage.type ===
+        MessageBoardMessageType.SELECT_AND_LOCK_NEXT_SQUADDIE
+    )
 }
 
 export interface MessageBoardMessageMoveSquaddieToCoordinate {
-    type: MessageBoardMessageType.MOVE_SQUADDIE_TO_COORDINATE
+    type: typeof MessageBoardMessageType.MOVE_SQUADDIE_TO_COORDINATE
     battleSquaddieId: string
     targetCoordinate: HexCoordinate
     missionMap: MissionMap
@@ -251,9 +422,17 @@ export interface MessageBoardMessageMoveSquaddieToCoordinate {
     battleActionRecorder: BattleActionRecorder
     squaddieAllMovementCache: SearchResultsCache
 }
+const isMessageBoardMessageMoveSquaddieToCoordinate = (
+    messageBoardMessage: MessageBoardMessage
+): messageBoardMessage is MessageBoardMessageMoveSquaddieToCoordinate => {
+    return (
+        messageBoardMessage.type ===
+        MessageBoardMessageType.MOVE_SQUADDIE_TO_COORDINATE
+    )
+}
 
 export interface MessageBoardMessagePlayerCancelsPlayerActionConsiderations {
-    type: MessageBoardMessageType.PLAYER_CANCELS_PLAYER_ACTION_CONSIDERATIONS
+    type: typeof MessageBoardMessageType.PLAYER_CANCELS_PLAYER_ACTION_CONSIDERATIONS
     missionMap: MissionMap
     summaryHUDState: SummaryHUDState
     playerCommandState: PlayerCommandState
@@ -263,14 +442,22 @@ export interface MessageBoardMessagePlayerCancelsPlayerActionConsiderations {
     playerDecisionHUD: PlayerDecisionHUD
     objectRepository: ObjectRepository
 }
+const isMessageBoardMessagePlayerCancelsPlayerActionConsiderations = (
+    messageBoardMessage: MessageBoardMessage
+): messageBoardMessage is MessageBoardMessagePlayerCancelsPlayerActionConsiderations => {
+    return (
+        messageBoardMessage.type ===
+        MessageBoardMessageType.PLAYER_CANCELS_PLAYER_ACTION_CONSIDERATIONS
+    )
+}
 
 export interface MessageBoardMessagePlayerConfirmsDecisionStepActor {
-    type: MessageBoardMessageType.PLAYER_CONFIRMS_DECISION_STEP_ACTOR
-    recommendedMode: BattleOrchestratorMode
+    type: typeof MessageBoardMessageType.PLAYER_CONFIRMS_DECISION_STEP_ACTOR
+    recommendedMode: TBattleOrchestratorMode
 }
 
 export interface MessageBoardMessagePlayerControlledSquaddieNeedsNextAction {
-    type: MessageBoardMessageType.PLAYER_CONTROLLED_SQUADDIE_NEEDS_NEXT_ACTION
+    type: typeof MessageBoardMessageType.PLAYER_CONTROLLED_SQUADDIE_NEEDS_NEXT_ACTION
     objectRepository: ObjectRepository
     battleSquaddieId: string
     missionMap: MissionMap
@@ -278,45 +465,101 @@ export interface MessageBoardMessagePlayerControlledSquaddieNeedsNextAction {
     campaignResources: CampaignResources
     squaddieAllMovementCache: SearchResultsCache
 }
+const isMessageBoardMessagePlayerControlledSquaddieNeedsNextAction = (
+    messageBoardMessage: MessageBoardMessage
+): messageBoardMessage is MessageBoardMessagePlayerControlledSquaddieNeedsNextAction => {
+    return (
+        messageBoardMessage.type ===
+        MessageBoardMessageType.PLAYER_CONTROLLED_SQUADDIE_NEEDS_NEXT_ACTION
+    )
+}
 
 export interface MessageBoardMessageSquaddieTurnEnds {
-    type: MessageBoardMessageType.SQUADDIE_TURN_ENDS
+    type: typeof MessageBoardMessageType.SQUADDIE_TURN_ENDS
     gameEngineState: GameEngineState
 }
 
 export interface MessageBoardMessagePlayerDataLoadUserRequest {
-    type: MessageBoardMessageType.PLAYER_DATA_LOAD_USER_REQUEST
+    type: typeof MessageBoardMessageType.PLAYER_DATA_LOAD_USER_REQUEST
     loadSaveState: LoadSaveState
+}
+const isMessageBoardMessagePlayerDataLoadUserRequest = (
+    messageBoardMessage: MessageBoardMessage
+): messageBoardMessage is MessageBoardMessagePlayerDataLoadUserRequest => {
+    return (
+        messageBoardMessage.type ===
+        MessageBoardMessageType.PLAYER_DATA_LOAD_USER_REQUEST
+    )
 }
 
 export interface MessageBoardMessagePlayerDataLoadBegin {
-    type: MessageBoardMessageType.PLAYER_DATA_LOAD_BEGIN
+    type: typeof MessageBoardMessageType.PLAYER_DATA_LOAD_BEGIN
     loadSaveState: LoadSaveState
+}
+const isMessageBoardMessagePlayerDataLoadBegin = (
+    messageBoardMessage: MessageBoardMessage
+): messageBoardMessage is MessageBoardMessagePlayerDataLoadBegin => {
+    return (
+        messageBoardMessage.type ===
+        MessageBoardMessageType.PLAYER_DATA_LOAD_BEGIN
+    )
 }
 
 export interface MessageBoardMessagePlayerDataLoadComplete {
-    type: MessageBoardMessageType.PLAYER_DATA_LOAD_COMPLETE
+    type: typeof MessageBoardMessageType.PLAYER_DATA_LOAD_COMPLETE
     loadSaveState: LoadSaveState
     saveState: BattleSaveState
 }
+const isMessageBoardMessagePlayerDataLoadComplete = (
+    messageBoardMessage: MessageBoardMessage
+): messageBoardMessage is MessageBoardMessagePlayerDataLoadComplete => {
+    return (
+        messageBoardMessage.type ===
+        MessageBoardMessageType.PLAYER_DATA_LOAD_COMPLETE
+    )
+}
 
 export interface MessageBoardMessagePlayerDataLoadErrorDuring {
-    type: MessageBoardMessageType.PLAYER_DATA_LOAD_ERROR_DURING
+    type: typeof MessageBoardMessageType.PLAYER_DATA_LOAD_ERROR_DURING
     loadSaveState: LoadSaveState
+}
+const isMessageBoardMessagePlayerDataLoadErrorDuring = (
+    messageBoardMessage: MessageBoardMessage
+): messageBoardMessage is MessageBoardMessagePlayerDataLoadErrorDuring => {
+    return (
+        messageBoardMessage.type ===
+        MessageBoardMessageType.PLAYER_DATA_LOAD_ERROR_DURING
+    )
 }
 
 export interface MessageBoardMessagePlayerDataLoadUserCancel {
-    type: MessageBoardMessageType.PLAYER_DATA_LOAD_USER_CANCEL
+    type: typeof MessageBoardMessageType.PLAYER_DATA_LOAD_USER_CANCEL
     loadSaveState: LoadSaveState
+}
+const isMessageBoardMessagePlayerDataLoadUserCancel = (
+    messageBoardMessage: MessageBoardMessage
+): messageBoardMessage is MessageBoardMessagePlayerDataLoadUserCancel => {
+    return (
+        messageBoardMessage.type ===
+        MessageBoardMessageType.PLAYER_DATA_LOAD_USER_CANCEL
+    )
 }
 
 export interface MessageBoardMessagePlayerDataLoadFinishRequest {
-    type: MessageBoardMessageType.PLAYER_DATA_LOAD_FINISH_REQUEST_LOAD
+    type: typeof MessageBoardMessageType.PLAYER_DATA_LOAD_FINISH_REQUEST_LOAD
     loadSaveState: LoadSaveState
+}
+const isMessageBoardMessagePlayerDataLoadFinishRequest = (
+    messageBoardMessage: MessageBoardMessage
+): messageBoardMessage is MessageBoardMessagePlayerDataLoadFinishRequest => {
+    return (
+        messageBoardMessage.type ===
+        MessageBoardMessageType.PLAYER_DATA_LOAD_FINISH_REQUEST_LOAD
+    )
 }
 
 export interface MessageBoardMessagePlayerConsidersAction {
-    type: MessageBoardMessageType.PLAYER_CONSIDERS_ACTION
+    type: typeof MessageBoardMessageType.PLAYER_CONSIDERS_ACTION
     playerConsideredActions: PlayerConsideredActions
     summaryHUDState: SummaryHUDState
     playerDecisionHUD: PlayerDecisionHUD
@@ -329,9 +572,17 @@ export interface MessageBoardMessagePlayerConsidersAction {
         isEndTurn: boolean
     }
 }
+const isMessageBoardMessagePlayerConsidersAction = (
+    messageBoardMessage: MessageBoardMessage
+): messageBoardMessage is MessageBoardMessagePlayerConsidersAction => {
+    return (
+        messageBoardMessage.type ===
+        MessageBoardMessageType.PLAYER_CONSIDERS_ACTION
+    )
+}
 
 export interface MessageBoardMessagePlayerConsidersMovement {
-    type: MessageBoardMessageType.PLAYER_CONSIDERS_MOVEMENT
+    type: typeof MessageBoardMessageType.PLAYER_CONSIDERS_MOVEMENT
     playerConsideredActions: PlayerConsideredActions
     summaryHUDState: SummaryHUDState
     playerDecisionHUD: PlayerDecisionHUD
@@ -340,11 +591,177 @@ export interface MessageBoardMessagePlayerConsidersMovement {
     objectRepository: ObjectRepository
     movementDecision: MovementDecision
 }
+const isMessageBoardMessagePlayerConsidersMovement = (
+    messageBoardMessage: MessageBoardMessage
+): messageBoardMessage is MessageBoardMessagePlayerConsidersMovement => {
+    return (
+        messageBoardMessage.type ===
+        MessageBoardMessageType.PLAYER_CONSIDERS_MOVEMENT
+    )
+}
 
 export interface MessageBoardMessageTypeLoadBlockerBeginsLoadingResources {
-    type: MessageBoardMessageType.LOAD_BLOCKER_BEGINS_LOADING_RESOURCES
+    type: typeof MessageBoardMessageType.LOAD_BLOCKER_BEGINS_LOADING_RESOURCES
 }
 
 export interface MessageBoardMessageTypeLoadBlockerFinishesLoadingResources {
-    type: MessageBoardMessageType.LOAD_BLOCKER_FINISHES_LOADING_RESOURCES
+    type: typeof MessageBoardMessageType.LOAD_BLOCKER_FINISHES_LOADING_RESOURCES
+}
+
+export const MessageBoardMessageService = {
+    isMessageBoardMessageStartedPlayerPhase: (
+        messageBoardMessage: MessageBoardMessage
+    ): messageBoardMessage is MessageBoardMessageStartedPlayerPhase => {
+        return isMessageBoardMessageStartedPlayerPhase(messageBoardMessage)
+    },
+    isMessageBoardMessagePlayerCanControlDifferentSquaddie: (
+        messageBoardMessage: MessageBoardMessage
+    ): messageBoardMessage is MessageBoardMessagePlayerCanControlDifferentSquaddie => {
+        return isMessageBoardMessagePlayerCanControlDifferentSquaddie(
+            messageBoardMessage
+        )
+    },
+    isMessageBoardMessagePlayerSelectionIsInvalid: (
+        messageBoardMessage: MessageBoardMessage
+    ): messageBoardMessage is MessageBoardMessagePlayerSelectionIsInvalid => {
+        return isMessageBoardMessagePlayerSelectionIsInvalid(
+            messageBoardMessage
+        )
+    },
+    isMessageBoardMessagePlayerCancelsTargetSelection: (
+        messageBoardMessage: MessageBoardMessage
+    ): messageBoardMessage is MessageBoardMessagePlayerCancelsTargetSelection => {
+        return isMessageBoardMessagePlayerCancelsTargetSelection(
+            messageBoardMessage
+        )
+    },
+    isMessageBoardMessagePlayerCancelsTargetConfirmation: (
+        messageBoardMessage: MessageBoardMessage
+    ): messageBoardMessage is MessageBoardMessagePlayerCancelsTargetConfirmation => {
+        return isMessageBoardMessagePlayerCancelsTargetConfirmation(
+            messageBoardMessage
+        )
+    },
+    isMessageBoardMessagePlayerEndsTurn: (
+        messageBoardMessage: MessageBoardMessage
+    ): messageBoardMessage is MessageBoardMessagePlayerEndsTurn => {
+        return isMessageBoardMessagePlayerEndsTurn(messageBoardMessage)
+    },
+    isMessageBoardMessagePlayerSelectsAndLocksSquaddie: (
+        messageBoardMessage: MessageBoardMessage
+    ): messageBoardMessage is MessageBoardMessagePlayerSelectsAndLocksSquaddie => {
+        return isMessageBoardMessagePlayerSelectsAndLocksSquaddie(
+            messageBoardMessage
+        )
+    },
+    isMessageBoardMessagePlayerPeeksAtSquaddie: (
+        messageBoardMessage: MessageBoardMessage
+    ): messageBoardMessage is MessageBoardMessagePlayerPeeksAtSquaddie => {
+        return isMessageBoardMessagePlayerPeeksAtSquaddie(messageBoardMessage)
+    },
+    isMessageBoardMessagePlayerConsidersAction: (
+        messageBoardMessage: MessageBoardMessage
+    ): messageBoardMessage is MessageBoardMessagePlayerConsidersAction => {
+        return isMessageBoardMessagePlayerConsidersAction(messageBoardMessage)
+    },
+    isMessageBoardMessagePlayerConsidersMovement: (
+        messageBoardMessage: MessageBoardMessage
+    ): messageBoardMessage is MessageBoardMessagePlayerConsidersMovement => {
+        return isMessageBoardMessagePlayerConsidersMovement(messageBoardMessage)
+    },
+    isMessageBoardMessagePlayerSelectsActionTemplate: (
+        messageBoardMessage: MessageBoardMessage
+    ): messageBoardMessage is MessageBoardMessagePlayerSelectsActionTemplate => {
+        return isMessageBoardMessagePlayerSelectsActionTemplate(
+            messageBoardMessage
+        )
+    },
+    isMessageBoardMessagePlayerSelectsTargetCoordinate: (
+        messageBoardMessage: MessageBoardMessage
+    ): messageBoardMessage is MessageBoardMessagePlayerSelectsTargetCoordinate => {
+        return isMessageBoardMessagePlayerSelectsTargetCoordinate(
+            messageBoardMessage
+        )
+    },
+    isMessageBoardMessagePlayerConfirmsAction: (
+        messageBoardMessage: MessageBoardMessage
+    ): messageBoardMessage is MessageBoardMessagePlayerConfirmsAction => {
+        return isMessageBoardMessagePlayerConfirmsAction(messageBoardMessage)
+    },
+    isMessageBoardMessageSquaddiePhaseStarts: (
+        messageBoardMessage: MessageBoardMessage
+    ): messageBoardMessage is MessageBoardMessageSquaddiePhaseStarts => {
+        return isMessageBoardMessageSquaddiePhaseStarts(messageBoardMessage)
+    },
+    isMessageBoardMessageSquaddiePhaseEnds: (
+        messageBoardMessage: MessageBoardMessage
+    ): messageBoardMessage is MessageBoardMessageSquaddiePhaseEnds => {
+        return isMessageBoardMessageSquaddiePhaseEnds(messageBoardMessage)
+    },
+    isMessageBoardMessageSelectAndLockNextSquaddie: (
+        messageBoardMessage: MessageBoardMessage
+    ): messageBoardMessage is MessageBoardMessageSelectAndLockNextSquaddie => {
+        return isMessageBoardMessageSelectAndLockNextSquaddie(
+            messageBoardMessage
+        )
+    },
+    isMessageBoardMessageMoveSquaddieToCoordinate: (
+        messageBoardMessage: MessageBoardMessage
+    ): messageBoardMessage is MessageBoardMessageMoveSquaddieToCoordinate => {
+        return isMessageBoardMessageMoveSquaddieToCoordinate(
+            messageBoardMessage
+        )
+    },
+    isMessageBoardMessagePlayerCancelsPlayerActionConsiderations: (
+        messageBoardMessage: MessageBoardMessage
+    ): messageBoardMessage is MessageBoardMessagePlayerCancelsPlayerActionConsiderations => {
+        return isMessageBoardMessagePlayerCancelsPlayerActionConsiderations(
+            messageBoardMessage
+        )
+    },
+    isMessageBoardMessagePlayerControlledSquaddieNeedsNextAction: (
+        messageBoardMessage: MessageBoardMessage
+    ): messageBoardMessage is MessageBoardMessagePlayerControlledSquaddieNeedsNextAction => {
+        return isMessageBoardMessagePlayerControlledSquaddieNeedsNextAction(
+            messageBoardMessage
+        )
+    },
+    isMessageBoardMessagePlayerDataLoadUserRequest: (
+        messageBoardMessage: MessageBoardMessage
+    ): messageBoardMessage is MessageBoardMessagePlayerDataLoadUserRequest => {
+        return isMessageBoardMessagePlayerDataLoadUserRequest(
+            messageBoardMessage
+        )
+    },
+    isMessageBoardMessagePlayerDataLoadBegin: (
+        messageBoardMessage: MessageBoardMessage
+    ): messageBoardMessage is MessageBoardMessagePlayerDataLoadBegin => {
+        return isMessageBoardMessagePlayerDataLoadBegin(messageBoardMessage)
+    },
+    isMessageBoardMessagePlayerDataLoadComplete: (
+        messageBoardMessage: MessageBoardMessage
+    ): messageBoardMessage is MessageBoardMessagePlayerDataLoadComplete => {
+        return isMessageBoardMessagePlayerDataLoadComplete(messageBoardMessage)
+    },
+    isMessageBoardMessagePlayerDataLoadErrorDuring: (
+        messageBoardMessage: MessageBoardMessage
+    ): messageBoardMessage is MessageBoardMessagePlayerDataLoadErrorDuring => {
+        return isMessageBoardMessagePlayerDataLoadErrorDuring(
+            messageBoardMessage
+        )
+    },
+    isMessageBoardMessagePlayerDataLoadUserCancel: (
+        messageBoardMessage: MessageBoardMessage
+    ): messageBoardMessage is MessageBoardMessagePlayerDataLoadUserCancel => {
+        return isMessageBoardMessagePlayerDataLoadUserCancel(
+            messageBoardMessage
+        )
+    },
+    isMessageBoardMessagePlayerDataLoadFinishRequest: (
+        messageBoardMessage: MessageBoardMessage
+    ): messageBoardMessage is MessageBoardMessagePlayerDataLoadFinishRequest => {
+        return isMessageBoardMessagePlayerDataLoadFinishRequest(
+            messageBoardMessage
+        )
+    },
 }

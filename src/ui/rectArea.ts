@@ -5,19 +5,23 @@ import {
     isValidValue,
 } from "../utils/objectValidityCheck"
 
-export enum HorizontalAnchor {
-    NONE,
-    LEFT,
-    MIDDLE,
-    RIGHT,
-}
+export const HorizontalAnchor = {
+    NONE: 0,
+    LEFT: 1,
+    MIDDLE: 2,
+    RIGHT: 3,
+} as const satisfies Record<string, number>
 
-export enum VerticalAnchor {
-    NONE,
-    TOP,
-    CENTER,
-    BOTTOM,
-}
+export type THorizontalAnchor = EnumLike<typeof HorizontalAnchor>
+
+export const VerticalAnchor = {
+    NONE: 0,
+    TOP: 1,
+    CENTER: 2,
+    BOTTOM: 3,
+} as const satisfies Record<string, number>
+
+export type TVerticalAnchor = EnumLike<typeof VerticalAnchor>
 
 type PositionTop = {
     top: number
@@ -92,11 +96,11 @@ type TwelvePointColumnEnd = {
 }
 
 type AnchorLeft = {
-    anchorLeft: HorizontalAnchor
+    anchorLeft: THorizontalAnchor
 }
 
 type AnchorTop = {
-    anchorTop: VerticalAnchor
+    anchorTop: TVerticalAnchor
 }
 
 type Margins = {

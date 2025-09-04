@@ -1,4 +1,7 @@
-import { SquaddieAffiliation } from "../squaddie/squaddieAffiliation"
+import {
+    SquaddieAffiliation,
+    TSquaddieAffiliation,
+} from "../squaddie/squaddieAffiliation"
 import { ObjectRepository, ObjectRepositoryService } from "./objectRepository"
 import { getResultOrThrowError } from "../utils/ResultOrError"
 import { DrawSquaddieIconOnMapUtilities } from "./animation/drawSquaddieIconOnMap/drawSquaddieIconOnMap"
@@ -9,7 +12,7 @@ import { isValidValue } from "../utils/objectValidityCheck"
 export interface BattleSquaddieTeam {
     id: string
     name: string
-    affiliation: SquaddieAffiliation
+    affiliation: TSquaddieAffiliation
     battleSquaddieIds: string[]
     iconResourceKey: string
 }
@@ -24,7 +27,7 @@ export const BattleSquaddieTeamService = {
     }: {
         id: string
         name: string
-        affiliation: SquaddieAffiliation
+        affiliation: TSquaddieAffiliation
         battleSquaddieIds: string[]
         iconResourceKey?: string
     }): BattleSquaddieTeam => {

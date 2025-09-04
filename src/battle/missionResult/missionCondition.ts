@@ -1,16 +1,17 @@
 import { MissionConditionDefeatAffiliation } from "./missionConditionDefeatAffiliation"
 import { GameEngineState } from "../../gameEngine/gameEngine"
 
-export enum MissionConditionType {
-    DEFEAT_ALL_ENEMIES = "DEFEAT_ALL_ENEMIES",
-    DEFEAT_ALL_PLAYERS = "DEFEAT_ALL_PLAYERS",
-    DEFEAT_ALL_ALLIES = "DEFEAT_ALL_ALLIES",
-    DEFEAT_ALL_NO_AFFILIATIONS = "DEFEAT_ALL_NO_AFFILIATIONS",
-}
+export const MissionConditionType = {
+    DEFEAT_ALL_ENEMIES: "DEFEAT_ALL_ENEMIES",
+    DEFEAT_ALL_PLAYERS: "DEFEAT_ALL_PLAYERS",
+    DEFEAT_ALL_ALLIES: "DEFEAT_ALL_ALLIES",
+    DEFEAT_ALL_NO_AFFILIATIONS: "DEFEAT_ALL_NO_AFFILIATIONS",
+} as const satisfies Record<string, string>
+export type TMissionConditionType = EnumLike<typeof MissionConditionType>
 
 export interface MissionCondition {
     id: string
-    type: MissionConditionType
+    type: TMissionConditionType
 }
 
 export interface MissionConditionCalculator {

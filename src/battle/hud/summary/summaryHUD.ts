@@ -5,6 +5,7 @@ import {
 } from "../../objectRepository"
 import {
     PlayerCommandSelection,
+    TPlayerCommandSelection,
     PlayerCommandState,
     PlayerCommandStateService,
 } from "../playerCommand/playerCommandHUD"
@@ -27,6 +28,7 @@ import { MissionMap, MissionMapService } from "../../../missionMap/missionMap"
 import {
     ActionTilePosition,
     ActionTilePositionService,
+    TActionTilePosition,
 } from "../playerActionPanel/tile/actionTilePosition"
 import {
     SquaddieStatusTile,
@@ -45,39 +47,39 @@ import { BattleActionRecorder } from "../../history/battleAction/battleActionRec
 import { CampaignResources } from "../../../campaign/campaignResources"
 import { PlayerConsideredActions } from "../../battleState/playerConsideredActions"
 import { Glossary } from "../../../campaign/glossary/glossary"
-import { PlayerInputAction } from "../../../ui/playerInput/playerInputState"
+import { TPlayerInputAction } from "../../../ui/playerInput/playerInputState"
 
 export const SUMMARY_HUD_PEEK_EXPIRATION_MS = 2000
 
-const ActionPanelPositionForNames = [
+const ActionPanelPositionForNames = new Set<TActionTilePosition>([
     ActionTilePosition.ACTOR_NAME,
     ActionTilePosition.PEEK_PLAYABLE_NAME,
     ActionTilePosition.PEEK_RIGHT_NAME,
     ActionTilePosition.TARGET_NAME,
-]
+])
 
-const ActionPanelPositionForStatus = [
+const ActionPanelPositionForStatus = new Set<TActionTilePosition>([
     ActionTilePosition.PEEK_PLAYABLE_STATUS,
     ActionTilePosition.PEEK_RIGHT_STATUS,
     ActionTilePosition.ACTOR_STATUS,
     ActionTilePosition.TARGET_STATUS,
-]
+])
 
 export interface SummaryHUDState {
     playerCommandState: PlayerCommandState
     squaddieNameTiles: {
-        [q in ActionTilePosition]?: SquaddieNameAndPortraitTile
+        [q in TActionTilePosition]?: SquaddieNameAndPortraitTile
     }
     squaddieStatusTiles: {
-        [q in ActionTilePosition]?: SquaddieStatusTile
+        [q in TActionTilePosition]?: SquaddieStatusTile
     }
     actionSelectedTile: ActionSelectedTile
     actionPreviewTile: ActionPreviewTile
     squaddieToPeekAt?: {
         battleSquaddieId: string
         actionPanelPositions: {
-            nameAndPortrait: ActionTilePosition
-            status: ActionTilePosition
+            nameAndPortrait: TActionTilePosition
+            status: TActionTilePosition
         }
         expirationTime: number
     }
@@ -117,7 +119,7 @@ export const SummaryHUDStateService = {
         if (
             Object.entries(summaryHUDState.squaddieNameTiles)
                 .filter(([_, tile]) => isValidValue(tile))
-                .map(([position, _]) => position as ActionTilePosition)
+                .map(([position, _]) => position as TActionTilePosition)
                 .some((position) =>
                     RectAreaService.isInside(
                         ActionTilePositionService.getBoundingBoxBasedOnActionTilePosition(
@@ -133,7 +135,7 @@ export const SummaryHUDStateService = {
 
         return Object.entries(summaryHUDState.squaddieStatusTiles)
             .filter(([_, tile]) => isValidValue(tile))
-            .map(([position, _]) => position as ActionTilePosition)
+            .map(([position, _]) => position as TActionTilePosition)
             .some((position) =>
                 RectAreaService.isInside(
                     ActionTilePositionService.getBoundingBoxBasedOnActionTilePosition(
@@ -152,7 +154,7 @@ export const SummaryHUDStateService = {
         mouseRelease: MouseRelease
         summaryHUDState: SummaryHUDState
         gameEngineState: GameEngineState
-    }): PlayerCommandSelection => {
+    }): TPlayerCommandSelection => {
         if (
             !summaryHUDState ||
             !SummaryHUDStateService.shouldShowAllPlayerActions({
@@ -372,9 +374,9 @@ export const SummaryHUDStateService = {
                 battleSquaddie,
             })
 
-        let nameAndPortraitPosition: ActionTilePosition =
+        let nameAndPortraitPosition: TActionTilePosition =
             ActionTilePosition.PEEK_RIGHT_NAME
-        let statusPosition: ActionTilePosition =
+        let statusPosition: TActionTilePosition =
             ActionTilePosition.PEEK_RIGHT_STATUS
         switch (true) {
             case !!summaryHUDState.squaddieNameTiles[
@@ -441,9 +443,9 @@ export const SummaryHUDStateService = {
         playerInputAction,
     }: {
         summaryHUDState: SummaryHUDState
-        playerInputAction: PlayerInputAction
+        playerInputAction: TPlayerInputAction
         gameEngineState: GameEngineState
-    }): PlayerCommandSelection => {
+    }): TPlayerCommandSelection => {
         if (
             !SummaryHUDStateService.shouldShowAllPlayerActions({
                 summaryHUDState,
@@ -732,15 +734,15 @@ const drawPeekPlayablePanel = ({
 
 const areWePeekingAtTheExpectedActionPanelPosition = (
     summaryHUDState: SummaryHUDState,
-    actionTilePosition: ActionTilePosition
+    actionTilePosition: TActionTilePosition
 ): boolean =>
     summaryHUDState.squaddieToPeekAt?.actionPanelPositions.nameAndPortrait ===
     actionTilePosition
 
 const clearNameAndStatusPanel = (
     summaryHUDState: SummaryHUDState,
-    namePosition: ActionTilePosition,
-    statusPosition: ActionTilePosition
+    namePosition: TActionTilePosition,
+    statusPosition: TActionTilePosition
 ) => {
     summaryHUDState.squaddieNameTiles[namePosition] = undefined
     summaryHUDState.squaddieStatusTiles[statusPosition] = undefined
@@ -748,7 +750,7 @@ const clearNameAndStatusPanel = (
 
 const didPeekableTileExpire = (
     summaryHUDState: SummaryHUDState,
-    nameTilePosition: ActionTilePosition
+    nameTilePosition: TActionTilePosition
 ): boolean =>
     isValidValue(summaryHUDState.squaddieToPeekAt?.expirationTime) &&
     Date.now() > summaryHUDState.squaddieToPeekAt?.expirationTime &&
@@ -756,7 +758,7 @@ const didPeekableTileExpire = (
 
 const shouldCreateNewPeekableTiles = (
     summaryHUDState: SummaryHUDState,
-    nameTilePosition: ActionTilePosition
+    nameTilePosition: TActionTilePosition
 ): boolean =>
     summaryHUDState.squaddieNameTiles[nameTilePosition] === undefined ||
     summaryHUDState.squaddieNameTiles[nameTilePosition].battleSquaddieId !==
@@ -770,8 +772,8 @@ const createNewPeekableTiles = ({
 }: {
     gameEngineState: GameEngineState
     summaryHUDState: SummaryHUDState
-    nameTilePosition: ActionTilePosition
-    statusTilePosition: ActionTilePosition
+    nameTilePosition: TActionTilePosition
+    statusTilePosition: TActionTilePosition
 }) => {
     createSquaddieNameAndPortraitTile({
         gameEngineState,
@@ -864,9 +866,9 @@ const drawPeekablePanel = ({
     graphicsBuffer: GraphicsBuffer
     gameEngineState: GameEngineState
     summaryHUDState: SummaryHUDState
-    actionPanelPosition: ActionTilePosition
+    actionPanelPosition: TActionTilePosition
 }) => {
-    if (ActionPanelPositionForNames.includes(actionPanelPosition)) {
+    if (ActionPanelPositionForNames.has(actionPanelPosition)) {
         SquaddieNameAndPortraitTileService.draw({
             tile: summaryHUDState.squaddieNameTiles[actionPanelPosition],
             graphicsContext: graphicsBuffer,
@@ -874,7 +876,7 @@ const drawPeekablePanel = ({
         })
     }
 
-    if (ActionPanelPositionForStatus.includes(actionPanelPosition)) {
+    if (ActionPanelPositionForStatus.has(actionPanelPosition)) {
         SquaddieStatusTileService.draw({
             tile: summaryHUDState.squaddieStatusTiles[actionPanelPosition],
             graphicsContext: graphicsBuffer,
@@ -893,7 +895,7 @@ const createSquaddieNameAndPortraitTile = ({
     gameEngineState: GameEngineState
     battleSquaddieId: string
     summaryHUDState: SummaryHUDState
-    actionPanelPosition: ActionTilePosition
+    actionPanelPosition: TActionTilePosition
     glossary: Glossary
 }) => {
     const team = gameEngineState.battleOrchestratorState.battleState.teams.find(
@@ -918,7 +920,7 @@ const createSquaddieStatusTile = ({
     gameEngineState: GameEngineState
     battleSquaddieId: string
     summaryHUDState: SummaryHUDState
-    actionPanelPosition: ActionTilePosition
+    actionPanelPosition: TActionTilePosition
 }) => {
     summaryHUDState.squaddieStatusTiles[actionPanelPosition] =
         SquaddieStatusTileService.new({

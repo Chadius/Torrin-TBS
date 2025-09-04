@@ -1,8 +1,8 @@
 import { beforeEach, describe, expect, it } from "vitest"
 import {
+    ChallengeModifierEnum,
     ChallengeModifierSetting,
     ChallengeModifierSettingService,
-    ChallengeModifierType,
 } from "./challengeModifierSetting"
 import { ObjectRepository, ObjectRepositoryService } from "../objectRepository"
 import { SquaddieRepositoryService } from "../../utils/test/squaddie"
@@ -16,7 +16,7 @@ import {
     TargetBySquaddieAffiliationRelation,
     VersusSquaddieResistance,
 } from "../../action/template/actionEffectTemplate"
-import { DamageType } from "../../squaddie/squaddieService"
+import { Damage } from "../../squaddie/squaddieService"
 import { DegreeOfSuccess } from "../calculator/actionCalculator/degreeOfSuccess"
 import {
     Trait,
@@ -28,7 +28,7 @@ import {
     ChallengeModifierEffectService,
 } from "../event/eventEffect/challengeModifierEffect/challengeModifierEffect"
 import { EventTriggerBaseService } from "../event/eventTrigger/eventTriggerBase"
-import { TriggeringEventType } from "../event/eventTrigger/triggeringEventType"
+import { TriggeringEvent } from "../event/eventTrigger/triggeringEvent"
 import { EventTriggerTurnRangeService } from "../event/eventTrigger/eventTriggerTurnRange"
 
 describe("Challenge Modifier Setting", () => {
@@ -36,7 +36,7 @@ describe("Challenge Modifier Setting", () => {
         const challengeModifierSetting = ChallengeModifierSettingService.new()
         ChallengeModifierSettingService.setSetting({
             challengeModifierSetting,
-            type: ChallengeModifierType.TRAINING_WHEELS,
+            type: ChallengeModifierEnum.TRAINING_WHEELS,
             value: true,
         })
 
@@ -50,12 +50,12 @@ describe("Challenge Modifier Setting", () => {
             const challengeModifierSetting: ChallengeModifierSetting =
                 ChallengeModifierSettingService.new()
             expect(
-                challengeModifierSetting[ChallengeModifierType.TRAINING_WHEELS]
+                challengeModifierSetting[ChallengeModifierEnum.TRAINING_WHEELS]
             ).toBe(false)
             expect(
                 ChallengeModifierSettingService.getSetting(
                     challengeModifierSetting,
-                    ChallengeModifierType.TRAINING_WHEELS
+                    ChallengeModifierEnum.TRAINING_WHEELS
                 )
             ).toBe(false)
         })
@@ -64,16 +64,16 @@ describe("Challenge Modifier Setting", () => {
                 ChallengeModifierSettingService.new()
             ChallengeModifierSettingService.setSetting({
                 challengeModifierSetting: challengeModifierSetting,
-                type: ChallengeModifierType.TRAINING_WHEELS,
+                type: ChallengeModifierEnum.TRAINING_WHEELS,
                 value: true,
             })
             expect(
-                challengeModifierSetting[ChallengeModifierType.TRAINING_WHEELS]
+                challengeModifierSetting[ChallengeModifierEnum.TRAINING_WHEELS]
             ).toBe(true)
             expect(
                 ChallengeModifierSettingService.getSetting(
                     challengeModifierSetting,
-                    ChallengeModifierType.TRAINING_WHEELS
+                    ChallengeModifierEnum.TRAINING_WHEELS
                 )
             ).toBe(true)
         })
@@ -82,21 +82,21 @@ describe("Challenge Modifier Setting", () => {
                 ChallengeModifierSettingService.new()
             ChallengeModifierSettingService.setSetting({
                 challengeModifierSetting: challengeModifierSetting,
-                type: ChallengeModifierType.TRAINING_WHEELS,
+                type: ChallengeModifierEnum.TRAINING_WHEELS,
                 value: true,
             })
             ChallengeModifierSettingService.setSetting({
                 challengeModifierSetting: challengeModifierSetting,
-                type: ChallengeModifierType.TRAINING_WHEELS,
+                type: ChallengeModifierEnum.TRAINING_WHEELS,
                 value: false,
             })
             expect(
-                challengeModifierSetting[ChallengeModifierType.TRAINING_WHEELS]
+                challengeModifierSetting[ChallengeModifierEnum.TRAINING_WHEELS]
             ).toBe(false)
             expect(
                 ChallengeModifierSettingService.getSetting(
                     challengeModifierSetting,
-                    ChallengeModifierType.TRAINING_WHEELS
+                    ChallengeModifierEnum.TRAINING_WHEELS
                 )
             ).toBe(false)
         })
@@ -105,7 +105,7 @@ describe("Challenge Modifier Setting", () => {
                 triggers: [
                     {
                         ...EventTriggerBaseService.new(
-                            TriggeringEventType.START_OF_TURN
+                            TriggeringEvent.START_OF_TURN
                         ),
                         ...EventTriggerTurnRangeService.new({
                             exactTurn: 1,
@@ -113,7 +113,7 @@ describe("Challenge Modifier Setting", () => {
                     },
                 ],
                 effect: ChallengeModifierEffectService.new(
-                    ChallengeModifierType.TRAINING_WHEELS,
+                    ChallengeModifierEnum.TRAINING_WHEELS,
                     true
                 ),
             }) as BattleEvent & {
@@ -128,7 +128,7 @@ describe("Challenge Modifier Setting", () => {
             expect(
                 ChallengeModifierSettingService.getSetting(
                     challengeModifierSetting,
-                    ChallengeModifierType.TRAINING_WHEELS
+                    ChallengeModifierEnum.TRAINING_WHEELS
                 )
             ).toBe(true)
         })
@@ -142,7 +142,7 @@ describe("Challenge Modifier Setting", () => {
                     name: "melee attack",
                     actionEffectTemplates: [
                         ActionEffectTemplateService.new({
-                            damageDescriptions: { [DamageType.UNKNOWN]: 1 },
+                            damageDescriptions: { [Damage.UNKNOWN]: 1 },
                             traits: TraitStatusStorageService.newUsingTraitValues(
                                 {
                                     [Trait.ATTACK]: true,
@@ -272,7 +272,7 @@ describe("Challenge Modifier Setting", () => {
                     ChallengeModifierSettingService.new()
                 ChallengeModifierSettingService.setSetting({
                     challengeModifierSetting,
-                    type: ChallengeModifierType.TRAINING_WHEELS,
+                    type: ChallengeModifierEnum.TRAINING_WHEELS,
                     value: true,
                 })
 
@@ -435,7 +435,7 @@ describe("Challenge Modifier Setting", () => {
                     ChallengeModifierSettingService.new()
                 ChallengeModifierSettingService.setSetting({
                     challengeModifierSetting,
-                    type: ChallengeModifierType.TRAINING_WHEELS,
+                    type: ChallengeModifierEnum.TRAINING_WHEELS,
                     value: true,
                 })
                 const meleeAttackCannotCrit = ActionTemplateService.new({
@@ -443,7 +443,7 @@ describe("Challenge Modifier Setting", () => {
                     name: "melee attack cannot crit",
                     actionEffectTemplates: [
                         ActionEffectTemplateService.new({
-                            damageDescriptions: { [DamageType.UNKNOWN]: 1 },
+                            damageDescriptions: { [Damage.UNKNOWN]: 1 },
                             traits: TraitStatusStorageService.newUsingTraitValues(
                                 {
                                     [Trait.ATTACK]: true,
@@ -484,7 +484,7 @@ describe("Challenge Modifier Setting", () => {
                     ChallengeModifierSettingService.new()
                 ChallengeModifierSettingService.setSetting({
                     challengeModifierSetting,
-                    type: ChallengeModifierType.TRAINING_WHEELS,
+                    type: ChallengeModifierEnum.TRAINING_WHEELS,
                     value: true,
                 })
                 const meleeAttackCannotCrit = ActionTemplateService.new({
@@ -492,7 +492,7 @@ describe("Challenge Modifier Setting", () => {
                     name: "melee attack cannot crit",
                     actionEffectTemplates: [
                         ActionEffectTemplateService.new({
-                            damageDescriptions: { [DamageType.UNKNOWN]: 1 },
+                            damageDescriptions: { [Damage.UNKNOWN]: 1 },
                             traits: TraitStatusStorageService.newUsingTraitValues(
                                 {
                                     [Trait.ATTACK]: true,

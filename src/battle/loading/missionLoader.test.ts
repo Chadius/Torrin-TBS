@@ -14,7 +14,10 @@ import {
     SquaddieTemplate,
     SquaddieTemplateService,
 } from "../../campaign/squaddieTemplate"
-import { SquaddieAffiliation } from "../../squaddie/squaddieAffiliation"
+import {
+    SquaddieAffiliation,
+    TSquaddieAffiliation,
+} from "../../squaddie/squaddieAffiliation"
 import { PlayerArmy } from "../../campaign/playerArmy"
 import { isValidValue } from "../../utils/objectValidityCheck"
 import { CutsceneActionPlayerType } from "../../cutscene/cutsceneAction"
@@ -340,7 +343,7 @@ describe("Mission Loader", () => {
             describe("creates other NPC teams", () => {
                 const affiliations: {
                     name: string
-                    affiliation: SquaddieAffiliation
+                    affiliation: TSquaddieAffiliation
                 }[] = [
                     {
                         name: "ally",
@@ -353,7 +356,7 @@ describe("Mission Loader", () => {
                 ]
 
                 const getNpcTeamByAffiliation = (
-                    affiliation: SquaddieAffiliation
+                    affiliation: TSquaddieAffiliation
                 ): NpcTeam => {
                     switch (affiliation) {
                         case SquaddieAffiliation.ALLY:

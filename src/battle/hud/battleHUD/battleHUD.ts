@@ -40,6 +40,7 @@ import {
     MapGraphicsLayerService,
     MapGraphicsLayerSquaddieTypes,
     MapGraphicsLayerType,
+    TMapGraphicsLayerType,
 } from "../../../hexMap/mapLayer/mapGraphicsLayer"
 import { MapHighlightService } from "../../animation/mapHighlight"
 import { SquaddieAffiliation } from "../../../squaddie/squaddieAffiliation"
@@ -318,7 +319,7 @@ export const BattleHUDService = {
                 battleSquaddie,
             })
         if (squaddieIsNormallyControllableByPlayer) return
-        const layerType: MapGraphicsLayerType =
+        const layerType: TMapGraphicsLayerType =
             MapGraphicsLayerType.HOVERED_OVER_NORMALLY_UNCONTROLLABLE_SQUADDIE
 
         const actionRangeLayer = MapGraphicsLayerService.new({
@@ -630,7 +631,7 @@ const clearAllHoverAndClickedLayersExceptForThisSquaddie = ({
             battleSquaddie: actingBattleSquaddie,
         })
 
-    const layerType: MapGraphicsLayerType =
+    const layerType: TMapGraphicsLayerType =
         squaddieIsNormallyControllableByPlayer
             ? MapGraphicsLayerType.CLICKED_ON_CONTROLLABLE_SQUADDIE
             : MapGraphicsLayerType.CLICKED_ON_NORMALLY_UNCONTROLLABLE_SQUADDIE

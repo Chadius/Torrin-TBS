@@ -19,6 +19,7 @@ import { TerrainTileMapService } from "../../hexMap/terrainTileMap"
 import {
     MapGraphicsLayerService,
     MapGraphicsLayerType,
+    TMapGraphicsLayerType,
 } from "../../hexMap/mapLayer/mapGraphicsLayer"
 import {
     BattleActionRecorder,
@@ -405,7 +406,7 @@ const highlightSquaddieRange = ({
             battleSquaddie,
         })
 
-    const layerType: MapGraphicsLayerType =
+    const layerType: TMapGraphicsLayerType =
         squaddieIsNormallyControllableByPlayer
             ? MapGraphicsLayerType.CLICKED_ON_CONTROLLABLE_SQUADDIE
             : MapGraphicsLayerType.CLICKED_ON_NORMALLY_UNCONTROLLABLE_SQUADDIE

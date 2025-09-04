@@ -7,12 +7,13 @@ import { ActorSprite } from "./actorSprite"
 import { ActionTimer } from "./actionTimer"
 import {
     ActionAnimationPhase,
+    TActionAnimationPhase,
     SquaddieEmotion,
 } from "./actionAnimationConstants"
 import * as mocks from "../../../utils/test/mocks"
 import { MockedP5GraphicsBuffer } from "../../../utils/test/mocks"
 import { SquaddieMovementService } from "../../../squaddie/movement"
-import { DamageType, HealingType } from "../../../squaddie/squaddieService"
+import { Damage, Healing } from "../../../squaddie/squaddieService"
 import {
     Trait,
     TraitStatusStorageService,
@@ -74,7 +75,7 @@ describe("Actor Sprite", () => {
             actionEffectTemplates: [
                 ActionEffectTemplateService.new({
                     damageDescriptions: {
-                        [DamageType.BODY]: 1,
+                        [Damage.BODY]: 1,
                     },
                     traits: TraitStatusStorageService.newUsingTraitValues({
                         [Trait.ATTACK]: true,
@@ -92,7 +93,7 @@ describe("Actor Sprite", () => {
             actionEffectTemplates: [
                 ActionEffectTemplateService.new({
                     healingDescriptions: {
-                        [HealingType.LOST_HIT_POINTS]: 1,
+                        [Healing.LOST_HIT_POINTS]: 1,
                     },
                     traits: TraitStatusStorageService.newUsingTraitValues({
                         [Trait.HEALING]: true,
@@ -137,7 +138,7 @@ describe("Actor Sprite", () => {
         expect(getterSpy).toBeCalled()
     })
 
-    function mockActionTimerPhase(actionAnimationPhase: ActionAnimationPhase) {
+    function mockActionTimerPhase(actionAnimationPhase: TActionAnimationPhase) {
         return vi
             .spyOn(timer, "currentPhase", "get")
             .mockReturnValue(actionAnimationPhase)

@@ -1,12 +1,12 @@
-import { TriggeringEventType } from "./triggeringEventType"
+import { TTriggeringEvent } from "./triggeringEvent"
 
 export interface EventTriggerBase {
-    triggeringEventType: TriggeringEventType
+    triggeringEventType: TTriggeringEvent
     alreadyAppliedEffect: boolean
 }
 
 export const EventTriggerBaseService = {
-    new: (type: TriggeringEventType): EventTriggerBase =>
+    new: (type: TTriggeringEvent): EventTriggerBase =>
         sanitize({
             triggeringEventType: type,
             alreadyAppliedEffect: false,

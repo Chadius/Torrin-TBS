@@ -28,7 +28,7 @@ import { SquaddieTurnService } from "../../squaddie/turn"
 import { getResultOrThrowError } from "../../utils/ResultOrError"
 import { InBattleAttributesService } from "../stats/inBattleAttributes"
 import { DefaultArmyAttributes } from "../../squaddie/armyAttributes"
-import { DamageType } from "../../squaddie/squaddieService"
+import { Damage } from "../../squaddie/squaddieService"
 import {
     BattleSquaddieTeam,
     BattleSquaddieTeamService,
@@ -54,18 +54,17 @@ import {
 import { BattleActionActorContextService } from "./battleAction/battleActionActorContext"
 import { RollResultService } from "../calculator/actionCalculator/rollResult"
 import { beforeEach, describe, expect, it } from "vitest"
-import { TriggeringEventType } from "../event/eventTrigger/triggeringEventType"
-import { BattleEvent } from "../event/battleEvent"
+import { TriggeringEvent } from "../event/eventTrigger/triggeringEvent"
+import { BattleEvent, BattleEventService } from "../event/battleEvent"
 import { EventTriggerBaseService } from "../event/eventTrigger/eventTriggerBase"
 import { CutsceneEffectService } from "../../cutscene/cutsceneEffect"
 import { EventTriggerTurnRangeService } from "../event/eventTrigger/eventTriggerTurnRange"
 import { EventTriggerBattleCompletionStatusService } from "../event/eventTrigger/eventTriggerBattleCompletionStatus"
 import { BattleCompletionStatus } from "../orchestrator/missionObjectivesAndCutscenes"
-import { BattleEventEffectType } from "../event/battleEventEffect"
 import {
+    ChallengeModifierEnum,
     ChallengeModifierSetting,
     ChallengeModifierSettingService,
-    ChallengeModifierType,
 } from "../challengeModifier/challengeModifierSetting"
 import { MapSearchTestUtils } from "../../hexMap/pathfinder/pathGeneration/mapSearchTests/mapSearchTestUtils"
 
@@ -221,7 +220,7 @@ describe("BattleSaveState", () => {
             inBattleAttributes:
                 enemy0BattleSquaddieWithWoundsAndTurnEnded.inBattleAttributes,
             damageToTake: 1,
-            damageType: DamageType.UNKNOWN,
+            damageType: Damage.UNKNOWN,
         })
 
         newSquaddieRepository = ObjectRepositoryService.new()
@@ -854,7 +853,7 @@ describe("BattleSaveState", () => {
                 triggers: [
                     {
                         ...EventTriggerBaseService.new(
-                            TriggeringEventType.MISSION_VICTORY
+                            TriggeringEvent.MISSION_VICTORY
                         ),
                         ...EventTriggerBattleCompletionStatusService.new({
                             battleCompletionStatus:
@@ -868,7 +867,7 @@ describe("BattleSaveState", () => {
                 triggers: [
                     {
                         ...EventTriggerBaseService.new(
-                            TriggeringEventType.START_OF_TURN
+                            TriggeringEvent.START_OF_TURN
                         ),
                         ...EventTriggerTurnRangeService.new({
                             exactTurn: 0,
@@ -926,17 +925,14 @@ describe("BattleSaveState", () => {
         expect(
             battleEvents.find(
                 (battleEvent) =>
-                    (battleEvent.effect.type ===
-                        BattleEventEffectType.CUTSCENE &&
-                        battleEvent.effect.cutsceneId) === "victory"
+                    BattleEventService.getCutsceneId(battleEvent) === "victory"
             ).effect.alreadyAppliedEffect
         ).toBeFalsy()
         expect(
             battleEvents.find(
                 (battleEvent) =>
-                    (battleEvent.effect.type ===
-                        BattleEventEffectType.CUTSCENE &&
-                        battleEvent.effect.cutsceneId) === "introduction"
+                    BattleEventService.getCutsceneId(battleEvent) ===
+                    "introduction"
             ).effect.alreadyAppliedEffect
         ).toBeTruthy()
     })
@@ -970,7 +966,7 @@ describe("BattleSaveState", () => {
                     triggers: [
                         {
                             ...EventTriggerBaseService.new(
-                                TriggeringEventType.MISSION_VICTORY
+                                TriggeringEvent.MISSION_VICTORY
                             ),
                             ...EventTriggerBattleCompletionStatusService.new({
                                 battleCompletionStatus:
@@ -984,7 +980,7 @@ describe("BattleSaveState", () => {
                     triggers: [
                         {
                             ...EventTriggerBaseService.new(
-                                TriggeringEventType.START_OF_TURN
+                                TriggeringEvent.START_OF_TURN
                             ),
                             ...EventTriggerTurnRangeService.new({
                                 exactTurn: 0,
@@ -998,7 +994,7 @@ describe("BattleSaveState", () => {
             challengeModifierSetting = ChallengeModifierSettingService.new()
             ChallengeModifierSettingService.setSetting({
                 challengeModifierSetting,
-                type: ChallengeModifierType.TRAINING_WHEELS,
+                type: ChallengeModifierEnum.TRAINING_WHEELS,
                 value: true,
             })
 
@@ -1277,7 +1273,7 @@ describe("BattleSaveState", () => {
                 expect(
                     ChallengeModifierSettingService.getSetting(
                         newSaveData.challengeModifierSetting,
-                        ChallengeModifierType.TRAINING_WHEELS
+                        ChallengeModifierEnum.TRAINING_WHEELS
                     )
                 ).toEqual(true)
             })

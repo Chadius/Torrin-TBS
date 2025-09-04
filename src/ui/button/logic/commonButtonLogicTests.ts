@@ -1,5 +1,5 @@
 import { expect } from "vitest"
-import { ButtonStatus } from "../buttonStatus"
+import { ButtonStatus, TButtonStatus } from "../buttonStatus"
 import { DataBlob, DataBlobService } from "../../../utils/dataBlob/dataBlob"
 import {
     ButtonLogic,
@@ -13,7 +13,7 @@ export const CommonButtonLogicTests = {
         buttonLogic,
         buttonId,
     }: {
-        validStatuses: ButtonStatus[]
+        validStatuses: TButtonStatus[]
         buttonLogic: ButtonLogicClassFunctions & ButtonLogic
         buttonId: string
     }) => {
@@ -31,14 +31,14 @@ export const CommonButtonLogicTests = {
         buttonLogic,
         buttonId,
     }: {
-        validStatuses: ButtonStatus[]
+        validStatuses: TButtonStatus[]
         buttonLogic: ButtonLogicClassFunctions & ButtonLogic
         buttonId: string
     }) => {
         const initialStatus = buttonLogic.status
         const validStatusSet = new Set(validStatuses)
         Object.keys(ButtonStatus)
-            .map((keyStr) => keyStr as ButtonStatus)
+            .map((keyStr) => keyStr as TButtonStatus)
             .filter((key) => !validStatusSet.has(key))
             .forEach((invalidStatus) => {
                 buttonLogic.changeStatus({

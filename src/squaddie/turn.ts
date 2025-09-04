@@ -5,16 +5,21 @@ import { SquaddieActionPointsExplanation } from "./squaddieService"
 
 export const DEFAULT_ACTION_POINTS_PER_TURN = 3
 
-export enum ActionPerformFailureReason {
-    UNKNOWN = "UNKNOWN",
-    TOO_FEW_ACTIONS_REMAINING = "TOO_FEW_ACTIONS_REMAINING",
-    CAN_PERFORM_BUT_TOO_MANY_CONSIDERED_ACTION_POINTS = "CAN_PERFORM_BUT_TOO_MANY_CONSIDERED_ACTION_POINTS",
-    NO_ATTRIBUTES_WILL_BE_ADDED = "NO_ATTRIBUTES_WILL_BE_ADDED",
-    TOO_MANY_USES_THIS_ROUND = "TOO_MANY_USES_THIS_ROUND",
-    STILL_ON_COOLDOWN = "STILL_ON_COOLDOWN",
-    NO_TARGETS_IN_RANGE = "NO_TARGETS_IN_RANGE",
-    HEAL_HAS_NO_EFFECT = "HEAL_HAS_NO_EFFECT",
-}
+export const ActionPerformFailureReason = {
+    UNKNOWN: "UNKNOWN",
+    TOO_FEW_ACTIONS_REMAINING: "TOO_FEW_ACTIONS_REMAINING",
+    CAN_PERFORM_BUT_TOO_MANY_CONSIDERED_ACTION_POINTS:
+        "CAN_PERFORM_BUT_TOO_MANY_CONSIDERED_ACTION_POINTS",
+    NO_ATTRIBUTES_WILL_BE_ADDED: "NO_ATTRIBUTES_WILL_BE_ADDED",
+    TOO_MANY_USES_THIS_ROUND: "TOO_MANY_USES_THIS_ROUND",
+    STILL_ON_COOLDOWN: "STILL_ON_COOLDOWN",
+    NO_TARGETS_IN_RANGE: "NO_TARGETS_IN_RANGE",
+    HEAL_HAS_NO_EFFECT: "HEAL_HAS_NO_EFFECT",
+} as const satisfies Record<string, string>
+
+export type TActionPerformFailureReason = EnumLike<
+    typeof ActionPerformFailureReason
+>
 
 export interface SquaddieTurn {
     movementActionPoints: {
@@ -76,7 +81,7 @@ export const SquaddieTurnService = {
         actionTemplate: ActionTemplate
     }): {
         canPerform: boolean
-        reason: ActionPerformFailureReason
+        reason: TActionPerformFailureReason
     } => {
         if (
             InBattleAttributesService.isActionInCooldown({

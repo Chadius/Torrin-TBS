@@ -1,6 +1,7 @@
 import { MessageBoardListener } from "./messageBoardListener"
 import {
     MessageBoardMessage,
+    MessageBoardMessageBase,
     MessageBoardMessageType,
 } from "./messageBoardMessage"
 import { MessageBoard } from "./messageBoard"
@@ -18,7 +19,7 @@ class TestMessageListener implements MessageBoardListener {
         if (message.type !== MessageBoardMessageType.BASE) {
             return
         }
-        this.message = message.message
+        this.message = (message as MessageBoardMessageBase).message
     }
 }
 
@@ -85,7 +86,8 @@ describe("MessageBoard", () => {
 
         expect(messageBoardLoggerSpy).toBeCalledWith(
             expect.objectContaining({
-                message: "sendMessage: BASE to testMessageListener",
+                message:
+                    "sendMessage: Symbol(MessageBoardMessageType.BASE) to testMessageListener",
             })
         )
     })
@@ -118,7 +120,7 @@ describe("MessageBoard", () => {
                 message: "sending a message",
             })
             expect(consoleSpy).toBeCalledWith(
-                "sendMessage: BASE to testMessageListener"
+                "sendMessage: Symbol(MessageBoardMessageType.BASE) to testMessageListener"
             )
         })
 

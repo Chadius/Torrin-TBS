@@ -17,10 +17,11 @@
         "build": "npm run copy-assets && npx vite build",
         "preview": "npm run copy-assets && BROWSER='firefox' CAMPAIGN_ID='sandbox' npx vite preview",
         "copy-assets": "rm -rf public/assets && mkdir -p public/assets && rsync --recursive assets/toDist/* public/assets",
+        "tsc": "npx tsc --noEmit 2>&1 | head -10",
         "test": "vitest run",
         "test-watch": "vitest"
     },
-    "author": "",
+    "author": "Chadius",
     "license": "ISC",
     "dependencies": {
         "p5": "^1.9.4"

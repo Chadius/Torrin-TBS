@@ -5,10 +5,10 @@ import {
 import { getResultOrThrowError } from "../../../../../utils/ResultOrError"
 import { ResourceHandler } from "../../../../../resource/resourceHandler"
 import { GraphicsBuffer } from "../../../../../utils/graphics/graphicsRenderer"
-import { SquaddieAffiliation } from "../../../../../squaddie/squaddieAffiliation"
+import { TSquaddieAffiliation } from "../../../../../squaddie/squaddieAffiliation"
 import {
-    ActionTilePosition,
     ActionTilePositionService,
+    TActionTilePosition,
 } from "../actionTilePosition"
 import { InBattleAttributesService } from "../../../../stats/inBattleAttributes"
 import { TextBox, TextBoxService } from "../../../../../ui/textBox/textBox"
@@ -31,10 +31,11 @@ import {
     ImageUILoadingBehavior,
 } from "../../../../../ui/imageUI/imageUI"
 import {
-    AttributeType,
+    Attribute,
+    TAttribute,
     AttributeTypeAndAmount,
     AttributeTypeService,
-} from "../../../../../squaddie/attribute/attributeType"
+} from "../../../../../squaddie/attribute/attribute"
 import {
     DataBlob,
     DataBlobService,
@@ -159,22 +160,22 @@ export interface SquaddieStatusTileUILayout {
         iconSize: number
         positionByType: [
             {
-                type: AttributeType.ARMOR
+                type: typeof Attribute.ARMOR
                 row: number
                 percentLeft: number
             },
             {
-                type: AttributeType.MOVEMENT
+                type: typeof Attribute.MOVEMENT
                 row: number
                 percentLeft: number
             },
             {
-                type: AttributeType.HUSTLE
+                type: typeof Attribute.HUSTLE
                 row: number
                 percentLeft: number
             },
             {
-                type: AttributeType.ELUSIVE
+                type: typeof Attribute.ELUSIVE
                 row: number
                 percentLeft: number
             },
@@ -203,7 +204,7 @@ export interface SquaddieStatusTileUIObjects {
     }
     attributeModifiers: {
         graphicsByAttributeType: {
-            [t in AttributeType]?: {
+            [t in TAttribute]?: {
                 icon: ImageUI
                 arrowIcon?: ImageUI
                 textBox: TextBox
@@ -221,8 +222,8 @@ export type SquaddieStatusTileActionPointsContext = {
 }
 
 export interface SquaddieStatusTileContext {
-    squaddieAffiliation: SquaddieAffiliation
-    horizontalPosition: ActionTilePosition
+    squaddieAffiliation: TSquaddieAffiliation
+    horizontalPosition: TActionTilePosition
     battleSquaddieId: string
     objectRepository: ObjectRepository
     playerConsideredActions?: PlayerConsideredActions
@@ -251,7 +252,7 @@ export const SquaddieStatusTileService = {
         gameEngineState,
     }: {
         battleSquaddieId: string
-        horizontalPosition: ActionTilePosition
+        horizontalPosition: TActionTilePosition
         gameEngineState: GameEngineState
     }): SquaddieStatusTile => {
         const dataBlob: DataBlob = DataBlobService.new()
@@ -365,22 +366,22 @@ export const SquaddieStatusTileService = {
                 iconSize: 20,
                 positionByType: [
                     {
-                        type: AttributeType.ARMOR,
+                        type: Attribute.ARMOR,
                         row: 0,
                         percentLeft: 40,
                     },
                     {
-                        type: AttributeType.MOVEMENT,
+                        type: Attribute.MOVEMENT,
                         row: 3,
                         percentLeft: 40,
                     },
                     {
-                        type: AttributeType.HUSTLE,
+                        type: Attribute.HUSTLE,
                         row: 3,
                         percentLeft: 45,
                     },
                     {
-                        type: AttributeType.ELUSIVE,
+                        type: Attribute.ELUSIVE,
                         row: 3,
                         percentLeft: 55,
                     },
@@ -485,7 +486,7 @@ export const SquaddieStatusTileService = {
 
         const absorbAttribute = currentAttributes.find(
             (attributeTypeAndAmount) =>
-                attributeTypeAndAmount.type === AttributeType.ABSORB
+                attributeTypeAndAmount.type === Attribute.ABSORB
         )
         let currentAbsorb = 0
         if (absorbAttribute) {
@@ -506,7 +507,7 @@ export const SquaddieStatusTileService = {
         topOffset,
         graphicsContext,
     }: {
-        actionTilePosition: ActionTilePosition
+        actionTilePosition: TActionTilePosition
         fontColor: number[]
         text: string
         fontSize: number
@@ -619,7 +620,7 @@ const calculateAttributeTopLeftCorner = ({
     attributeTypeAndAmount,
     layout,
 }: {
-    actionTilePosition: ActionTilePosition
+    actionTilePosition: TActionTilePosition
     attributeTypeAndAmount: AttributeTypeAndAmount
     layout: SquaddieStatusTileUILayout
 }) => {
@@ -653,7 +654,7 @@ const createContext = ({
     gameEngineState,
 }: {
     battleSquaddieId: string
-    horizontalPosition: ActionTilePosition
+    horizontalPosition: TActionTilePosition
     gameEngineState: GameEngineState
 }): SquaddieStatusTileContext => {
     const { squaddieTemplate, battleSquaddie } = getResultOrThrowError(
@@ -735,7 +736,7 @@ const calculateAttributeModifiers = (
         battleSquaddie.inBattleAttributes
     ).filter(
         (attributeTypeAndAmount) =>
-            ![AttributeType.ABSORB].includes(attributeTypeAndAmount.type)
+            attributeTypeAndAmount.type != Attribute.ABSORB
     )
 
 const calculateArmorClass = (
@@ -1736,7 +1737,7 @@ class UpdateAttributeModifiersUIObjectsAction implements BehaviorTreeTask {
         const graphicalKeysToDelete = Object.keys(
             uiObjects.attributeModifiers.graphicsByAttributeType
         )
-            .map((typeStr) => typeStr as AttributeType)
+            .map((typeStr) => typeStr as TAttribute)
             .filter(
                 (type) =>
                     !attributeModifiers.some(

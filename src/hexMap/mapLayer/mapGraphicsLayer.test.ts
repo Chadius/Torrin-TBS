@@ -10,7 +10,7 @@ import {
     ActionEffectTemplateService,
     TargetBySquaddieAffiliationRelation,
 } from "../../action/template/actionEffectTemplate"
-import { DamageType, HealingType } from "../../squaddie/squaddieService"
+import { Damage, Healing } from "../../squaddie/squaddieService"
 import { ActionTemplateService } from "../../action/template/actionTemplate"
 import {
     ObjectRepository,
@@ -130,7 +130,7 @@ describe("Map Graphics Layer", () => {
         beforeEach(() => {
             healSelf = ActionEffectTemplateService.new({
                 healingDescriptions: {
-                    [HealingType.LOST_HIT_POINTS]: 1,
+                    [Healing.LOST_HIT_POINTS]: 1,
                 },
                 squaddieAffiliationRelation: {
                     [TargetBySquaddieAffiliationRelation.TARGET_SELF]: true,
@@ -138,7 +138,7 @@ describe("Map Graphics Layer", () => {
             })
             hurtOthers = ActionEffectTemplateService.new({
                 damageDescriptions: {
-                    [DamageType.BODY]: 2,
+                    [Damage.BODY]: 2,
                 },
                 squaddieAffiliationRelation: {
                     [TargetBySquaddieAffiliationRelation.TARGET_FOE]: true,

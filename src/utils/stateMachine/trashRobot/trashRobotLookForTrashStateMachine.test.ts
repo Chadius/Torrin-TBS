@@ -1,10 +1,19 @@
 import { beforeEach, describe, expect, it } from "vitest"
 import { TrashRobotLookForTrashStateMachine } from "./trashRobotLookForTrashStateMachine"
 import { TrashRobotWorld, TrashRobotWorldService } from "./trashRobotWorld"
-import { TrashRobotLookForTrashStateEnum } from "./trashRobotLookForTrashStateEnum"
+import {
+    TrashRobotLookForTrashStateEnum,
+    TTrashRobotLookForTrashState,
+} from "./trashRobotLookForTrashStateEnum"
 import { StateMachineUpdate } from "../stateMachineUpdate"
-import { TrashRobotLookForTrashTransitionEnum } from "./trashRobotLookForTrashTransitionEnum"
-import { TrashRobotLookForTrashActionEnum } from "./trashRobotLookForTrashActionEnum"
+import {
+    TrashRobotLookForTrashTransitionEnum,
+    TTrashRobotLookForTrashTransition,
+} from "./trashRobotLookForTrashTransitionEnum"
+import {
+    TrashRobotLookForTrashActionEnum,
+    TTrashRobotLookForTrashAction,
+} from "./trashRobotLookForTrashActionEnum"
 import { StateMachineStateData } from "../stateMachineData/stateMachineStateData"
 import { StateMachineTransitionData } from "../stateMachineData/stateMachineTransitionData"
 import {
@@ -13,9 +22,9 @@ import {
 } from "../stateMachineData/stateMachineData"
 
 const infoByState: {
-    [s in TrashRobotLookForTrashStateEnum]?: StateMachineStateData<
-        TrashRobotLookForTrashTransitionEnum,
-        TrashRobotLookForTrashActionEnum
+    [s in TTrashRobotLookForTrashState]?: StateMachineStateData<
+        TTrashRobotLookForTrashTransition,
+        TTrashRobotLookForTrashAction
     >
 } = {
     [TrashRobotLookForTrashStateEnum.INITIALIZED]: {
@@ -47,9 +56,9 @@ const infoByState: {
 }
 
 const infoByTransition: {
-    [s in TrashRobotLookForTrashTransitionEnum]?: StateMachineTransitionData<
-        TrashRobotLookForTrashStateEnum,
-        TrashRobotLookForTrashActionEnum
+    [s in TTrashRobotLookForTrashTransition]?: StateMachineTransitionData<
+        TTrashRobotLookForTrashState,
+        TTrashRobotLookForTrashAction
     >
 } = {
     [TrashRobotLookForTrashTransitionEnum.INITIALIZED]: {
@@ -74,9 +83,9 @@ describe("Trash Robot State Look for Trash Machine", () => {
     let trashRobotStateMachine: TrashRobotLookForTrashStateMachine
     let trashRobotWorld: TrashRobotWorld
     let trashStateMachineData: StateMachineData<
-        TrashRobotLookForTrashStateEnum,
-        TrashRobotLookForTrashTransitionEnum,
-        TrashRobotLookForTrashActionEnum,
+        TTrashRobotLookForTrashState,
+        TTrashRobotLookForTrashTransition,
+        TTrashRobotLookForTrashAction,
         TrashRobotWorld
     >
 
@@ -100,9 +109,9 @@ describe("Trash Robot State Look for Trash Machine", () => {
         )
 
         let stateMachineUpdate: StateMachineUpdate<
-            TrashRobotLookForTrashStateEnum,
-            TrashRobotLookForTrashTransitionEnum,
-            TrashRobotLookForTrashActionEnum
+            TTrashRobotLookForTrashState,
+            TTrashRobotLookForTrashTransition,
+            TTrashRobotLookForTrashAction
         >
 
         stateMachineUpdate = trashRobotStateMachine.update()
@@ -113,9 +122,9 @@ describe("Trash Robot State Look for Trash Machine", () => {
 
     describe("will pick up trash while searching for trash", () => {
         let stateMachineUpdate: StateMachineUpdate<
-            TrashRobotLookForTrashStateEnum,
-            TrashRobotLookForTrashTransitionEnum,
-            TrashRobotLookForTrashActionEnum
+            TTrashRobotLookForTrashState,
+            TTrashRobotLookForTrashTransition,
+            TTrashRobotLookForTrashAction
         >
 
         beforeEach(() => {

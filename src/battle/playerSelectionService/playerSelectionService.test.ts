@@ -11,8 +11,11 @@ import {
     Trait,
     TraitStatusStorageService,
 } from "../../trait/traitStatusStorage"
-import { DamageType, HealingType } from "../../squaddie/squaddieService"
-import { SquaddieAffiliation } from "../../squaddie/squaddieAffiliation"
+import { Damage, Healing } from "../../squaddie/squaddieService"
+import {
+    SquaddieAffiliation,
+    TSquaddieAffiliation,
+} from "../../squaddie/squaddieAffiliation"
 import { SquaddieRepositoryService } from "../../utils/test/squaddie"
 import { BattleSquaddie } from "../battleSquaddie"
 import { SquaddieTemplate } from "../../campaign/squaddieTemplate"
@@ -25,7 +28,11 @@ import { BattleOrchestratorStateService } from "../orchestrator/battleOrchestrat
 import { BattleStateService } from "../battleState/battleState"
 import { MouseButton, MouseConfigService } from "../../utils/mouseConfig"
 import { ConvertCoordinateService } from "../../hexMap/convertCoordinates"
-import { PlayerIntent, PlayerSelectionService } from "./playerSelectionService"
+import {
+    PlayerIntent,
+    TPlayerIntent,
+    PlayerSelectionService,
+} from "./playerSelectionService"
 import { SquaddieTurnService } from "../../squaddie/turn"
 import { BattleSquaddieTeamService } from "../battleSquaddieTeam"
 import { BattlePhaseStateService } from "../orchestratorComponents/battlePhaseController"
@@ -1307,7 +1314,7 @@ const createSquaddie = ({
     actionTemplateIds,
 }: {
     objectRepository: ObjectRepository
-    squaddieAffiliation: SquaddieAffiliation
+    squaddieAffiliation: TSquaddieAffiliation
     actionTemplateIds?: string[]
 }): {
     battleSquaddie: BattleSquaddie
@@ -1337,7 +1344,7 @@ const createSquaddie = ({
                                 true,
                         },
                         damageDescriptions: {
-                            [DamageType.BODY]: 1,
+                            [Damage.BODY]: 1,
                         },
                     }),
                 ],
@@ -1368,7 +1375,7 @@ const createSquaddie = ({
                                 true,
                         },
                         damageDescriptions: {
-                            [DamageType.BODY]: 1,
+                            [Damage.BODY]: 1,
                         },
                     }),
                 ],
@@ -1399,7 +1406,7 @@ const createSquaddie = ({
                                 true,
                         },
                         healingDescriptions: {
-                            [HealingType.LOST_HIT_POINTS]: 1,
+                            [Healing.LOST_HIT_POINTS]: 1,
                         },
                     }),
                 ],
@@ -1428,7 +1435,7 @@ const createSquaddie = ({
                                 true,
                         },
                         healingDescriptions: {
-                            [HealingType.LOST_HIT_POINTS]: 1,
+                            [Healing.LOST_HIT_POINTS]: 1,
                         },
                     }),
                 ],
@@ -1571,7 +1578,7 @@ const createGameEngineStateWith1PlayerAnd1Enemy = ({
         },
     })
 
-    const gameEngineState = GameEngineStateService.new({
+    return GameEngineStateService.new({
         battleOrchestratorState: BattleOrchestratorStateService.new({
             battleState: BattleStateService.new({
                 missionMap,
@@ -1590,8 +1597,6 @@ const createGameEngineStateWith1PlayerAnd1Enemy = ({
             new MockedP5GraphicsBuffer()
         ),
     })
-
-    return gameEngineState
 }
 
 const clickOnScreenAndCalculateChangesAndMessage = ({
@@ -1605,7 +1610,7 @@ const clickOnScreenAndCalculateChangesAndMessage = ({
     y: number
     gameEngineState: GameEngineState
     targetCoordinate: HexCoordinate
-    playerIntent: PlayerIntent
+    playerIntent: TPlayerIntent
 }) => {
     const actualContext = PlayerSelectionContextService.new({
         playerIntent,

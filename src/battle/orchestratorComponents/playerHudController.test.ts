@@ -26,7 +26,7 @@ import {
     ActionEffectTemplateService,
     TargetBySquaddieAffiliationRelation,
 } from "../../action/template/actionEffectTemplate"
-import { DamageType } from "../../squaddie/squaddieService"
+import { Damage } from "../../squaddie/squaddieService"
 import { BattleSquaddieTeamService } from "../battleSquaddieTeam"
 import { SquaddieTurnService } from "../../squaddie/turn"
 import { BattleActionDecisionStepService } from "../actionDecision/battleActionDecisionStep"
@@ -111,7 +111,7 @@ describe("PlayerHUDController", () => {
                 name: "single target",
                 actionEffectTemplates: [
                     ActionEffectTemplateService.new({
-                        damageDescriptions: { [DamageType.BODY]: 2 },
+                        damageDescriptions: { [Damage.BODY]: 2 },
                         squaddieAffiliationRelation: {
                             [TargetBySquaddieAffiliationRelation.TARGET_FOE]:
                                 true,

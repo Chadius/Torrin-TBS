@@ -1,14 +1,16 @@
-export enum SquaddieAffiliation {
-    UNKNOWN = "UNKNOWN",
-    PLAYER = "PLAYER",
-    ENEMY = "ENEMY",
-    ALLY = "ALLY",
-    NONE = "NONE",
-}
+export const SquaddieAffiliation = {
+    UNKNOWN: "UNKNOWN",
+    PLAYER: "PLAYER",
+    ENEMY: "ENEMY",
+    ALLY: "ALLY",
+    NONE: "NONE",
+} as const satisfies Record<string, string>
+
+export type TSquaddieAffiliation = EnumLike<typeof SquaddieAffiliation>
 
 const friendlyAffiliationsByAffiliation: {
-    [first in SquaddieAffiliation]: {
-        [second in SquaddieAffiliation]?: boolean
+    [first in TSquaddieAffiliation]: {
+        [second in TSquaddieAffiliation]?: boolean
     }
 } = {
     UNKNOWN: {},
@@ -31,8 +33,8 @@ export const SquaddieAffiliationService = {
         targetAffiliation,
         actingAffiliation,
     }: {
-        targetAffiliation: SquaddieAffiliation
-        actingAffiliation: SquaddieAffiliation
+        targetAffiliation: TSquaddieAffiliation
+        actingAffiliation: TSquaddieAffiliation
     }): boolean => {
         return !!friendlyAffiliationsByAffiliation[actingAffiliation][
             targetAffiliation

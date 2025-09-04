@@ -17,7 +17,10 @@ import { ResourceHandler } from "../../../resource/resourceHandler"
 import * as mocks from "../../../utils/test/mocks"
 import { MockedP5GraphicsBuffer } from "../../../utils/test/mocks"
 import { BattleOrchestratorMode } from "../../orchestrator/battleOrchestrator"
-import { PlayerActionTargetTransitionEnum } from "./stateMachine"
+import {
+    PlayerActionTargetTransitionEnum,
+    PlayerActionTargetTransitionType,
+} from "./stateMachine"
 import { CampaignService } from "../../../campaign/campaign"
 import { BattleOrchestratorStateService } from "../../orchestrator/battleOrchestratorState"
 import { BattleStateService } from "../../battleState/battleState"
@@ -392,7 +395,7 @@ describe("Player Action Target Select", () => {
         })
 
         const setup = (
-            triggeredTransition: PlayerActionTargetTransitionEnum,
+            triggeredTransition: PlayerActionTargetTransitionType,
             mockPostTransition: () => void
         ) => {
             gameEngineState.battleOrchestratorState.battleState.battleActionDecisionStep =

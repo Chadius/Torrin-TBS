@@ -1,14 +1,17 @@
-import { BattleCompletionStatus } from "../../orchestrator/missionObjectivesAndCutscenes"
+import {
+    BattleCompletionStatus,
+    TBattleCompletionStatus,
+} from "../../orchestrator/missionObjectivesAndCutscenes"
 
 export interface EventTriggerBattleCompletionStatus {
-    battleCompletionStatus: BattleCompletionStatus
+    battleCompletionStatus: TBattleCompletionStatus
 }
 
 export const EventTriggerBattleCompletionStatusService = {
     new: ({
         battleCompletionStatus,
     }: {
-        battleCompletionStatus: BattleCompletionStatus
+        battleCompletionStatus: TBattleCompletionStatus
     }): EventTriggerBattleCompletionStatus =>
         sanitize({
             battleCompletionStatus,
@@ -23,7 +26,7 @@ export const EventTriggerBattleCompletionStatusService = {
         battleCompletionStatus,
     }: {
         eventTrigger: EventTriggerBattleCompletionStatus
-        battleCompletionStatus: BattleCompletionStatus
+        battleCompletionStatus: TBattleCompletionStatus
     }): boolean => {
         switch (eventTrigger.battleCompletionStatus) {
             case BattleCompletionStatus.VICTORY:

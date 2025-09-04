@@ -1,5 +1,5 @@
 import { MissionMap, MissionMapService } from "../../missionMap/missionMap"
-import { SquaddieAffiliation } from "../../squaddie/squaddieAffiliation"
+import { TSquaddieAffiliation } from "../../squaddie/squaddieAffiliation"
 import { HexCoordinate } from "../../hexMap/hexCoordinate/hexCoordinate"
 import { ObjectRepository, ObjectRepositoryService } from "../objectRepository"
 import { SquaddieRepositoryService } from "../../utils/test/squaddie"
@@ -15,12 +15,12 @@ export const ActionValidityTestUtils = {
         missionMap: MissionMap
         actorSquaddie: {
             name: string
-            affiliation: SquaddieAffiliation
+            affiliation: TSquaddieAffiliation
             mapCoordinate: HexCoordinate
         }
         otherSquaddies: {
             name: string
-            affiliation: SquaddieAffiliation
+            affiliation: TSquaddieAffiliation
             mapCoordinate: HexCoordinate
         }[]
     }): ObjectRepository => {

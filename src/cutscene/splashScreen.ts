@@ -1,9 +1,12 @@
 import { isValidValue } from "../utils/objectValidityCheck"
-import { CutsceneActionPlayerType } from "./cutsceneAction"
-import { ResourceLocator, ResourceType } from "../resource/resourceHandler"
+import {
+    CutsceneActionPlayerType,
+    TCutsceneActionPlayerType,
+} from "./cutsceneAction"
+import { ResourceLocator, Resource } from "../resource/resourceHandler"
 
 export interface SplashScreen {
-    type: CutsceneActionPlayerType.SPLASH_SCREEN
+    type: TCutsceneActionPlayerType
     id: string
     screenImageResourceKey: string
     animationDuration?: number
@@ -36,7 +39,7 @@ export const SplashScreenService = {
     getResourceLocators: (state: SplashScreen): ResourceLocator[] => {
         return [
             {
-                type: ResourceType.IMAGE,
+                type: Resource.IMAGE,
                 key: state.screenImageResourceKey,
             },
         ]

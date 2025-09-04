@@ -1,6 +1,7 @@
 import { beforeEach, describe, expect, it, vi } from "vitest"
 import {
     PlayerInputAction,
+    TPlayerInputAction,
     PlayerInputButtonCombination,
     PlayerInputState,
     PlayerInputStateService,
@@ -52,7 +53,7 @@ describe("Player Input State", () => {
         })
 
         it("knows when a keyboard button is pressed", () => {
-            let actions: PlayerInputAction[] =
+            let actions: TPlayerInputAction[] =
                 PlayerInputStateService.getActionsForPressedKey(
                     playerInput,
                     nextSquaddieInputs[0].press
@@ -61,7 +62,7 @@ describe("Player Input State", () => {
         })
 
         it("knows when an action requires a modifier key", () => {
-            let actions: PlayerInputAction[] =
+            let actions: TPlayerInputAction[] =
                 PlayerInputStateService.getActionsForPressedKey(
                     playerInput,
                     ACCEPT_KEY_WITH_SHIFT_MODIFIER
@@ -84,7 +85,7 @@ describe("Player Input State", () => {
         })
 
         it("knows when a key can be held down", () => {
-            let actions: PlayerInputAction[]
+            let actions: TPlayerInputAction[]
             const dateSpy = vi.spyOn(Date, "now").mockReturnValue(0)
             PlayerInputStateService.keyIsDown(
                 playerInput,

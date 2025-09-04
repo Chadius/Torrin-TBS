@@ -3,17 +3,21 @@ import {
     getValidValueOrDefault,
     isValidValue,
 } from "../utils/objectValidityCheck"
-import { VersusSquaddieResistance } from "../action/template/actionEffectTemplate"
+import {
+    VersusSquaddieResistance,
+    TVersusSquaddieResistance,
+} from "../action/template/actionEffectTemplate"
 
-export enum ProficiencyLevel {
-    UNTRAINED = "UNTRAINED",
-    NOVICE = "NOVICE",
-    EXPERT = "EXPERT",
-    MASTER = "MASTER",
-    LEGENDARY = "LEGENDARY",
-}
+export const ProficiencyLevel = {
+    UNTRAINED: "UNTRAINED",
+    NOVICE: "NOVICE",
+    EXPERT: "EXPERT",
+    MASTER: "MASTER",
+    LEGENDARY: "LEGENDARY",
+} as const satisfies Record<string, string>
+export type TProficiencyLevel = EnumLike<typeof ProficiencyLevel>
 
-export const BonusByProficiencyLevel: { [l in ProficiencyLevel]: number } = {
+export const BonusByProficiencyLevel: { [l in TProficiencyLevel]: number } = {
     [ProficiencyLevel.UNTRAINED]: 0,
     [ProficiencyLevel.NOVICE]: 1,
     [ProficiencyLevel.EXPERT]: 2,
@@ -24,11 +28,11 @@ export const BonusByProficiencyLevel: { [l in ProficiencyLevel]: number } = {
 export interface ArmyAttributes {
     maxHitPoints: number
     armor: {
-        proficiencyLevel: ProficiencyLevel
+        proficiencyLevel: TProficiencyLevel
         base: number
     }
     versusProficiencyLevels: {
-        [k in VersusSquaddieResistance]: ProficiencyLevel
+        [k in TVersusSquaddieResistance]: TProficiencyLevel
     }
     movement: SquaddieMovement
     tier: number
@@ -46,11 +50,11 @@ export const ArmyAttributesService = {
         movement?: SquaddieMovement
         tier?: number
         armor?: {
-            proficiencyLevel: ProficiencyLevel
+            proficiencyLevel: TProficiencyLevel
             base: number
         }
         versusProficiencyLevels?: {
-            [k in VersusSquaddieResistance]?: ProficiencyLevel
+            [k in TVersusSquaddieResistance]?: TProficiencyLevel
         }
     }): ArmyAttributes => {
         const attributes = {

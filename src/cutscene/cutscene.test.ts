@@ -7,7 +7,7 @@ import { CutsceneDecisionTriggerService } from "./decisionTrigger"
 import {
     ResourceHandler,
     ResourceHandlerService,
-    ResourceType,
+    Resource,
 } from "../resource/resourceHandler"
 import { StubImmediateLoader } from "../resource/resourceHandlerTestUtils"
 import {
@@ -623,7 +623,7 @@ describe("Cutscene", () => {
             imageLoader: new StubImmediateLoader(graphicsContext),
             resourceLocators: [
                 {
-                    type: ResourceType.IMAGE,
+                    type: Resource.IMAGE,
                     path: "path/to/image",
                     key: "restaurant_entrance",
                 },

@@ -1,8 +1,8 @@
 import p5 from "p5"
 import { ScreenDimensions } from "./utils/graphics/graphicsConfig"
 import { GameEngine } from "./gameEngine/gameEngine"
-import { MouseButton, MouseConfigService } from "./utils/mouseConfig"
-import { GameModeEnum } from "./utils/startupConfig"
+import { TMouseButton, MouseConfigService } from "./utils/mouseConfig"
+import { GameModeEnum, TGameMode } from "./utils/startupConfig"
 
 let gameEngine: GameEngine
 const mousePressedTracker: { [buttonName in string]: boolean } = {}
@@ -31,7 +31,7 @@ export const sketch = (p: p5) => {
         gameEngine = new GameEngine({
             graphicsBuffer: frameBuffer,
             startupMode:
-                (process.env.STARTUP_MODE as GameModeEnum) ||
+                (process.env.STARTUP_MODE as TGameMode) ||
                 GameModeEnum.TITLE_SCREEN,
         })
         gameEngine
@@ -61,7 +61,7 @@ export const sketch = (p: p5) => {
 
     p.mousePressed = () => {
         mousePressedTracker[p.mouseButton] = true
-        let configuredMouseButton: MouseButton =
+        let configuredMouseButton: TMouseButton =
             MouseConfigService.getMouseButton(p.mouseButton)
         gameEngine?.mousePressed({
             button: configuredMouseButton,
@@ -76,7 +76,7 @@ export const sketch = (p: p5) => {
         }
 
         mousePressedTracker[p.mouseButton] = false
-        let configuredMouseButton: MouseButton =
+        let configuredMouseButton: TMouseButton =
             MouseConfigService.getMouseButton(p.mouseButton)
         gameEngine?.mouseReleased({
             button: configuredMouseButton,

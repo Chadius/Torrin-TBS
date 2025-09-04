@@ -4,7 +4,10 @@ import {
     TeamStrategyService,
 } from "./teamStrategyCalculator"
 import { getResultOrThrowError } from "../../utils/ResultOrError"
-import { SquaddieAffiliation } from "../../squaddie/squaddieAffiliation"
+import {
+    SquaddieAffiliation,
+    TSquaddieAffiliation,
+} from "../../squaddie/squaddieAffiliation"
 import { ObjectRepository, ObjectRepositoryService } from "../objectRepository"
 import { BattleSquaddieTeam } from "../battleSquaddieTeam"
 import { TeamStrategyOptions } from "./teamStrategy"
@@ -35,7 +38,7 @@ import { SearchLimitService } from "../../hexMap/pathfinder/pathGeneration/searc
 
 export class MoveCloserToSquaddie implements TeamStrategyCalculator {
     desiredBattleSquaddieId: string
-    desiredAffiliation: SquaddieAffiliation
+    desiredAffiliation: TSquaddieAffiliation
 
     constructor(options: TeamStrategyOptions) {
         this.desiredBattleSquaddieId = options.desiredBattleSquaddieId
@@ -155,7 +158,7 @@ const getClosestSquaddieAndLocationToFollow = ({
     missionMap: MissionMap
     objectRepository: ObjectRepository
     desiredBattleSquaddieId?: string
-    desiredAffiliation?: SquaddieAffiliation
+    desiredAffiliation?: TSquaddieAffiliation
 }): {
     distanceFromActor: number
     shortestRoute: SearchPathAdapter
@@ -211,7 +214,7 @@ const selectDesiredBattleSquaddies = (
     repository: ObjectRepository,
     actingSquaddieBattleId: string,
     desiredBattleSquaddieId: string,
-    desiredAffiliation: SquaddieAffiliation
+    desiredAffiliation: TSquaddieAffiliation
 ) =>
     ObjectRepositoryService.getBattleSquaddieIterator(repository).filter(
         (battleSquaddieIter) => {

@@ -1,6 +1,7 @@
 import {
     BattleOrchestrator,
     BattleOrchestratorMode,
+    TBattleOrchestratorMode,
 } from "./battleOrchestrator"
 import { BattleOrchestratorStateService } from "./battleOrchestratorState"
 import { BattleCutscenePlayer } from "../orchestratorComponents/battleCutscenePlayer"
@@ -70,7 +71,7 @@ import { SquaddieResourceService } from "../../squaddie/resource"
 import { BattleSquaddieService } from "../battleSquaddie"
 import { GraphicsBuffer } from "../../utils/graphics/graphicsRenderer"
 import { PlayerActionTargetSelect } from "../orchestratorComponents/playerActionTargetSelect/playerActionTargetSelect"
-import { TriggeringEventType } from "../event/eventTrigger/triggeringEventType"
+import { TriggeringEvent } from "../event/eventTrigger/triggeringEvent"
 import { BattleEvent, BattleEventService } from "../event/battleEvent"
 import { EventTriggerBaseService } from "../event/eventTrigger/eventTriggerBase"
 import { EventTriggerTurnRangeService } from "../event/eventTrigger/eventTriggerTurnRange"
@@ -90,7 +91,7 @@ describe("Battle Orchestrator", () => {
         playerHudController: PlayerHudController
         initializeBattle: InitializeBattle
 
-        initialMode: BattleOrchestratorMode
+        initialMode: TBattleOrchestratorMode
     }
 
     let orchestrator: BattleOrchestrator
@@ -323,7 +324,7 @@ describe("Battle Orchestrator", () => {
             triggers: [
                 {
                     ...EventTriggerBaseService.new(
-                        TriggeringEventType.START_OF_TURN
+                        TriggeringEvent.START_OF_TURN
                     ),
                     ...EventTriggerTurnRangeService.new({
                         exactTurn: 1,
@@ -391,7 +392,7 @@ describe("Battle Orchestrator", () => {
                             triggers: [
                                 {
                                     ...EventTriggerBaseService.new(
-                                        TriggeringEventType.START_OF_TURN
+                                        TriggeringEvent.START_OF_TURN
                                     ),
                                     ...EventTriggerTurnRangeService.new({
                                         exactTurn: 0,
@@ -510,7 +511,7 @@ describe("Battle Orchestrator", () => {
                             triggers: [
                                 {
                                     ...EventTriggerBaseService.new(
-                                        TriggeringEventType.MISSION_VICTORY
+                                        TriggeringEvent.MISSION_VICTORY
                                     ),
                                     ...EventTriggerBattleCompletionStatusService.new(
                                         {
@@ -526,7 +527,7 @@ describe("Battle Orchestrator", () => {
                             triggers: [
                                 {
                                     ...EventTriggerBaseService.new(
-                                        TriggeringEventType.START_OF_TURN
+                                        TriggeringEvent.START_OF_TURN
                                     ),
                                     ...EventTriggerTurnRangeService.new({
                                         exactTurn: 0,
@@ -539,7 +540,7 @@ describe("Battle Orchestrator", () => {
                             triggers: [
                                 {
                                     ...EventTriggerBaseService.new(
-                                        TriggeringEventType.START_OF_TURN
+                                        TriggeringEvent.START_OF_TURN
                                     ),
                                     ...EventTriggerTurnRangeService.new({
                                         exactTurn: 1,
@@ -671,7 +672,7 @@ describe("Battle Orchestrator", () => {
 
     describe("mode switching", () => {
         const loadAndExpect = (options: {
-            mode: BattleOrchestratorMode
+            mode: TBattleOrchestratorMode
             orchestratorComponent: BattleOrchestratorComponent
         }) => {
             orchestrator = createOrchestrator({
@@ -695,7 +696,7 @@ describe("Battle Orchestrator", () => {
             type ExcludedModesType = (typeof excludedModes)[number]
 
             type BattleOrchestratorModesWithComponents = Exclude<
-                BattleOrchestratorMode,
+                TBattleOrchestratorMode,
                 ExcludedModesType
             >
 
@@ -704,7 +705,7 @@ describe("Battle Orchestrator", () => {
                     continue
                 }
 
-                const mode: BattleOrchestratorMode =
+                const mode: TBattleOrchestratorMode =
                     modeStr as BattleOrchestratorModesWithComponents
                 it(`using the ${mode} mode will use the expected battle orchestrator component`, () => {
                     const tests: {
@@ -826,7 +827,7 @@ describe("Battle Orchestrator", () => {
                                 triggers: [
                                     {
                                         ...EventTriggerBaseService.new(
-                                            TriggeringEventType.MISSION_VICTORY
+                                            TriggeringEvent.MISSION_VICTORY
                                         ),
                                         ...EventTriggerBattleCompletionStatusService.new(
                                             {
@@ -886,7 +887,7 @@ describe("Battle Orchestrator", () => {
                                 triggers: [
                                     {
                                         ...EventTriggerBaseService.new(
-                                            TriggeringEventType.MISSION_DEFEAT
+                                            TriggeringEvent.MISSION_DEFEAT
                                         ),
                                         ...EventTriggerBattleCompletionStatusService.new(
                                             {
@@ -960,7 +961,7 @@ describe("Battle Orchestrator", () => {
                                 triggers: [
                                     {
                                         ...EventTriggerBaseService.new(
-                                            TriggeringEventType.MISSION_VICTORY
+                                            TriggeringEvent.MISSION_VICTORY
                                         ),
                                         ...EventTriggerBattleCompletionStatusService.new(
                                             {
@@ -978,7 +979,7 @@ describe("Battle Orchestrator", () => {
                                 triggers: [
                                     {
                                         ...EventTriggerBaseService.new(
-                                            TriggeringEventType.MISSION_DEFEAT
+                                            TriggeringEvent.MISSION_DEFEAT
                                         ),
                                         ...EventTriggerBattleCompletionStatusService.new(
                                             {

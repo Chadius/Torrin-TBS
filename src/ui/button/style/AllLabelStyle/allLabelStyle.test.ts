@@ -11,7 +11,7 @@ import {
     MockInstance,
     vi,
 } from "vitest"
-import { ButtonStatus } from "../../buttonStatus"
+import { ButtonStatus, TButtonStatus } from "../../buttonStatus"
 import {
     AllLabelButtonDataBlob,
     AllLabelButtonDrawTask,
@@ -30,7 +30,7 @@ describe("All Label Button Style", () => {
     let labelServiceSpy: MockInstance
     let buttonWithAllLabelDrawTask: AllLabelButtonDrawTask
     let labelByButtonStatus: {
-        [s in ButtonStatus]: Label
+        [s in TButtonStatus]: Label
     }
 
     beforeEach(() => {
@@ -190,7 +190,7 @@ describe("All Label Button Style", () => {
 })
 
 class TestButtonLogic implements ButtonLogic {
-    status: ButtonStatus
+    status: TButtonStatus
     lastStatusChangeTimeStamp: number
     buttonStatusChangeEventData: ButtonStatusChangeEventByButtonId
 

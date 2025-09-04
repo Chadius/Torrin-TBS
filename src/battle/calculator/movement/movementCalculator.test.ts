@@ -32,7 +32,7 @@ import {
     MockInstance,
     vi,
 } from "vitest"
-import { AttributeType } from "../../../squaddie/attribute/attributeType"
+import { Attribute } from "../../../squaddie/attribute/attribute"
 import { SearchPathAdapterService } from "../../../search/searchPathAdapter/searchPathAdapter"
 import { SearchLimit } from "../../../hexMap/pathfinder/pathGeneration/searchLimit"
 import { SquaddieTurnService } from "../../../squaddie/turn"
@@ -140,7 +140,7 @@ describe("movement calculator", () => {
             InBattleAttributesService.addActiveAttributeModifier(
                 battleSquaddie.inBattleAttributes,
                 AttributeModifierService.new({
-                    type: AttributeType.MOVEMENT,
+                    type: Attribute.MOVEMENT,
                     duration: 1,
                     amount: 2,
                     source: AttributeSource.CIRCUMSTANCE,
@@ -150,7 +150,7 @@ describe("movement calculator", () => {
             InBattleAttributesService.addActiveAttributeModifier(
                 battleSquaddie.inBattleAttributes,
                 AttributeModifierService.new({
-                    type: AttributeType.HUSTLE,
+                    type: Attribute.HUSTLE,
                     duration: 1,
                     amount: 1,
                     source: AttributeSource.CIRCUMSTANCE,

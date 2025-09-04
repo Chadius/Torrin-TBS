@@ -49,22 +49,24 @@ import { PlayerArmy } from "../campaign/playerArmy"
 import { ResourceHandlerBlocker } from "../dataLoader/loadBlocker/resourceHandlerBlocker"
 import { BattleStateService } from "../battle/battleState/battleState"
 
-export enum TransitionAction {
-    REVERT_BACKUPS = "REVERT_BACKUPS",
-    CLEAR_BACKUPS = "CLEAR_BACKUPS",
-    CLEAR_LOADED_DATA = "CLEAR_LOADED_DATA",
-    LOAD_BATTLE_SAVE_STATE = "LOAD_BATTLE_SAVE_STATE",
-    UPDATE_CAMPAIGN_IS_ALREADY_LOADED = "UPDATE_CAMPAIGN_IS_ALREADY_LOADED",
-    LOAD_CAMPAIGN = "LOAD_CAMPAIGN",
-    LOAD_PLAYER_ARMY = "LOAD_PLAYER_ARMY",
-    LOAD_MISSION = "LOAD_MISSION",
-    BEGIN_LOADING_RESOURCES = "BEGIN_LOADING_RESOURCES",
-    SET_COMPLETED_LOADING_RESOURCES_FLAG_IF_COMPLETE = "SET_COMPLETED_LOADING_RESOURCES_FLAG_IF_COMPLETE",
-    APPLY_LOADED_CONTEXT = "APPLY_LOADED_CONTEXT",
-    SET_APPLIED_CONTEXT_FLAG = "SET_APPLIED_CONTEXT_FLAG",
-    APPLY_BATTLE_SAVE_STATE = "APPLY_BATTLE_SAVE_STATE",
-    SET_SUCCESS_STATUS = "SET_SUCCESS_STATUS",
-}
+export const TransitionAction = {
+    REVERT_BACKUPS: "REVERT_BACKUPS",
+    CLEAR_BACKUPS: "CLEAR_BACKUPS",
+    CLEAR_LOADED_DATA: "CLEAR_LOADED_DATA",
+    LOAD_BATTLE_SAVE_STATE: "LOAD_BATTLE_SAVE_STATE",
+    UPDATE_CAMPAIGN_IS_ALREADY_LOADED: "UPDATE_CAMPAIGN_IS_ALREADY_LOADED",
+    LOAD_CAMPAIGN: "LOAD_CAMPAIGN",
+    LOAD_PLAYER_ARMY: "LOAD_PLAYER_ARMY",
+    LOAD_MISSION: "LOAD_MISSION",
+    BEGIN_LOADING_RESOURCES: "BEGIN_LOADING_RESOURCES",
+    SET_COMPLETED_LOADING_RESOURCES_FLAG_IF_COMPLETE:
+        "SET_COMPLETED_LOADING_RESOURCES_FLAG_IF_COMPLETE",
+    APPLY_LOADED_CONTEXT: "APPLY_LOADED_CONTEXT",
+    SET_APPLIED_CONTEXT_FLAG: "SET_APPLIED_CONTEXT_FLAG",
+    APPLY_BATTLE_SAVE_STATE: "APPLY_BATTLE_SAVE_STATE",
+    SET_SUCCESS_STATUS: "SET_SUCCESS_STATUS",
+} as const satisfies Record<string, string>
+export type TTransitionAction = EnumLike<typeof TransitionAction>
 
 export class GameEngineGameLoader implements GameEngineComponent {
     missionLoaderContext: MissionLoaderContext
@@ -73,7 +75,7 @@ export class GameEngineGameLoader implements GameEngineComponent {
         campaign: Campaign
         mission: BattleOrchestratorState
     }
-    transitionActions: TransitionAction[]
+    transitionActions: TTransitionAction[]
 
     loadedData: {
         mission: MissionFileFormat
@@ -383,10 +385,10 @@ export class GameEngineGameLoader implements GameEngineComponent {
 
     private async performActionsStopOnError(
         gameEngineState: GameEngineState,
-        actions: TransitionAction[]
+        actions: TTransitionAction[]
     ): Promise<boolean> {
         const runActionAndCheckForSuccess = async (
-            action: TransitionAction
+            action: TTransitionAction
         ): Promise<boolean> => {
             switch (action) {
                 case TransitionAction.REVERT_BACKUPS:

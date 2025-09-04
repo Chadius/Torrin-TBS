@@ -1,7 +1,8 @@
 import {
-    AttributeType,
+    Attribute,
+    TAttribute,
     AttributeTypeService,
-} from "../../squaddie/attribute/attributeType"
+} from "../../squaddie/attribute/attribute"
 import {
     ActionTemplate,
     ActionTemplateService,
@@ -22,56 +23,56 @@ export interface GlossaryTerm {
 }
 
 export class Glossary {
-    attributeType: { [a in AttributeType]: GlossaryTerm }
+    attributeType: { [a in TAttribute]: GlossaryTerm }
     customTerms: { [term: string]: GlossaryTerm }
 
     constructor() {
         this.attributeType = {
-            [AttributeType.HUSTLE]: {
+            [Attribute.HUSTLE]: {
                 name: "Hustle",
                 definition: "Ignore terrain penalties",
                 iconResourceKey:
                     AttributeTypeService.getAttributeIconResourceKeyForAttributeType(
-                        AttributeType.HUSTLE
+                        Attribute.HUSTLE
                     ),
             },
-            [AttributeType.ELUSIVE]: {
+            [Attribute.ELUSIVE]: {
                 name: "Elusive",
                 definition: "Pass through enemy and unaffiliated squaddies",
                 iconResourceKey:
                     AttributeTypeService.getAttributeIconResourceKeyForAttributeType(
-                        AttributeType.ELUSIVE
+                        Attribute.ELUSIVE
                     ),
             },
-            [AttributeType.ARMOR]: {
+            [Attribute.ARMOR]: {
                 name: "Armor",
                 definition: "Reduce the chance to get hit (and crit)",
                 iconResourceKey:
                     AttributeTypeService.getAttributeIconResourceKeyForAttributeType(
-                        AttributeType.ARMOR
+                        Attribute.ARMOR
                     ),
             },
-            [AttributeType.ABSORB]: {
+            [Attribute.ABSORB]: {
                 name: "Absorb",
                 definition: "Temporary HP is lost first",
                 iconResourceKey:
                     AttributeTypeService.getAttributeIconResourceKeyForAttributeType(
-                        AttributeType.ABSORB
+                        Attribute.ABSORB
                     ),
             },
-            [AttributeType.MOVEMENT]: {
+            [Attribute.MOVEMENT]: {
                 name: "Movement",
                 definition: "More movement per Action Point",
                 iconResourceKey:
                     AttributeTypeService.getAttributeIconResourceKeyForAttributeType(
-                        AttributeType.MOVEMENT
+                        Attribute.MOVEMENT
                     ),
             },
         }
         this.customTerms = {}
     }
 
-    hasAttributeTypeTerm(attributeType: AttributeType): boolean {
+    hasAttributeTypeTerm(attributeType: TAttribute): boolean {
         return !!this.attributeType[attributeType]
     }
 

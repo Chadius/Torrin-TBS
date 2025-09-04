@@ -3,6 +3,7 @@ import {
     BattleStateListener,
     BattleStateService,
     BattleStateValidityMissingComponent,
+    TBattleStateValidityMissingComponent,
 } from "./battleState"
 import { TeamStrategyType } from "../teamStrategy/teamStrategy"
 import { SquaddieAffiliation } from "../../squaddie/squaddieAffiliation"
@@ -142,7 +143,7 @@ describe("Battle State", () => {
             args: any,
             isValid: boolean,
             isReadyToContinueMission: boolean,
-            reasons: BattleStateValidityMissingComponent[]
+            reasons: TBattleStateValidityMissingComponent[]
         ) => {
             const state: BattleState = BattleStateService.newBattleState(args)
             expect(BattleStateService.isValid(state)).toBe(isValid)

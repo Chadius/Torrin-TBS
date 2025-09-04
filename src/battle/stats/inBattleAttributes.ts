@@ -2,7 +2,7 @@ import {
     ArmyAttributes,
     DefaultArmyAttributes,
 } from "../../squaddie/armyAttributes"
-import { DamageType } from "../../squaddie/squaddieService"
+import { TDamage } from "../../squaddie/squaddieService"
 import {
     AttributeModifier,
     AttributeModifierService,
@@ -13,9 +13,10 @@ import {
 } from "../history/battleAction/battleActionSquaddieChange"
 import { isValidValue } from "../../utils/objectValidityCheck"
 import {
-    AttributeType,
+    Attribute,
+    TAttribute,
     AttributeTypeAndAmount,
-} from "../../squaddie/attribute/attributeType"
+} from "../../squaddie/attribute/attribute"
 
 export interface InBattleAttributes {
     armyAttributes: ArmyAttributes
@@ -46,7 +47,7 @@ export const InBattleAttributesService = {
     }: {
         inBattleAttributes: InBattleAttributes
         damageToTake: number
-        damageType: DamageType
+        damageType: TDamage
     }): DamageExplanation {
         const startingHitPoints = inBattleAttributes.currentHitPoints
         const absorbedDamageExplanation: DamageExplanation =
@@ -158,7 +159,7 @@ export const InBattleAttributesService = {
     }: {
         attributes: InBattleAttributes
         amount: number
-        type: AttributeType
+        type: TAttribute
     }) {
         const attributesOfType: AttributeModifier[] =
             getAllActiveAttributeModifiers(attributes).filter(
@@ -255,12 +256,12 @@ const useAbsorbToReduceDamageTaken = (
     const absorbAttributeTypeAndAmount =
         InBattleAttributesService.calculateCurrentAttributeModifiers(
             inBattleAttributes
-        ).find((a) => a.type === AttributeType.ABSORB)
+        ).find((a) => a.type === Attribute.ABSORB)
 
     if (absorbAttributeTypeAndAmount) {
         InBattleAttributesService.reduceAttributeByAmount({
             attributes: inBattleAttributes,
-            type: AttributeType.ABSORB,
+            type: Attribute.ABSORB,
             amount: damageToTake,
         })
 

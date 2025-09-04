@@ -1,4 +1,7 @@
-import { DegreeOfSuccess } from "../../calculator/actionCalculator/degreeOfSuccess"
+import {
+    DegreeOfSuccess,
+    TDegreeOfSuccess,
+} from "../../calculator/actionCalculator/degreeOfSuccess"
 import { isValidValue } from "../../../utils/objectValidityCheck"
 import { RollResultService } from "../../calculator/actionCalculator/rollResult"
 import {
@@ -20,7 +23,7 @@ export interface AttackRollThermometer {
 
     successBonus: number
     rolls: [number, number]
-    degreeOfSuccess: DegreeOfSuccess
+    degreeOfSuccess: TDegreeOfSuccess
     drawnObjects: {
         startAnimationTime: number
         progressBar: Rectangle
@@ -138,7 +141,7 @@ export const AttackRollThermometerService = {
     }: {
         thermometer: AttackRollThermometer
         rolls: [number, number]
-        degreeOfSuccess: DegreeOfSuccess
+        degreeOfSuccess: TDegreeOfSuccess
     }) {
         if (!isValidValue(thermometer)) {
             throw new Error(
@@ -188,7 +191,7 @@ const calculateDegreesOfSuccessToMakeSegments = (
     const degreesOfSuccessBasedOnSuccessBonus = new Set(
         RollResultService.getPossibleDegreesOfSuccessBasedOnBonus(successBonus)
     )
-    let degreesOfSuccessToMakeSegmentsOutOf: DegreeOfSuccess[] = []
+    let degreesOfSuccessToMakeSegmentsOutOf: TDegreeOfSuccess[] = []
     if (degreesOfSuccessBasedOnSuccessBonus.has(DegreeOfSuccess.SUCCESS))
         degreesOfSuccessToMakeSegmentsOutOf.push(DegreeOfSuccess.SUCCESS)
     if (degreesOfSuccessBasedOnSuccessBonus.has(DegreeOfSuccess.FAILURE))
@@ -417,10 +420,10 @@ const calculateProgressBarWidthRightNow = (
     if (!isInitialFillComplete) return initialFillWidth
 
     if (
-        ![
+        !new Set<TDegreeOfSuccess>([
             DegreeOfSuccess.CRITICAL_FAILURE,
             DegreeOfSuccess.CRITICAL_SUCCESS,
-        ].includes(thermometer.degreeOfSuccess)
+        ]).has(thermometer.degreeOfSuccess)
     )
         return initialFillWidth
 

@@ -14,7 +14,7 @@ import { MapSearchTestUtils } from "../../hexMap/pathfinder/pathGeneration/mapSe
 import { getResultOrThrowError } from "../../utils/ResultOrError"
 import { ActionPerformFailureReason } from "../../squaddie/turn"
 import { CoordinateGeneratorShape } from "../targeting/coordinateGenerator"
-import { DamageType, HealingType } from "../../squaddie/squaddieService"
+import { Damage, Healing } from "../../squaddie/squaddieService"
 import { InBattleAttributesService } from "../stats/inBattleAttributes"
 import { CanHealTargetCheck } from "./canHealTargetCheck"
 import { ActionValidityTestUtils } from "./commonTest"
@@ -68,7 +68,7 @@ describe("can heal targets", () => {
                         [TargetBySquaddieAffiliationRelation.TARGET_FOE]: true,
                     },
                     damageDescriptions: {
-                        [DamageType.BODY]: 2,
+                        [Damage.BODY]: 2,
                     },
                 }),
             ],
@@ -88,7 +88,7 @@ describe("can heal targets", () => {
         InBattleAttributesService.takeDamage({
             inBattleAttributes: battleSquaddie.inBattleAttributes,
             damageToTake: 1,
-            damageType: DamageType.BODY,
+            damageType: Damage.BODY,
         })
 
         expect(
@@ -124,7 +124,7 @@ describe("can heal targets", () => {
                                 false,
                         },
                         healingDescriptions: {
-                            [HealingType.LOST_HIT_POINTS]: 2,
+                            [Healing.LOST_HIT_POINTS]: 2,
                         },
                     }),
                 ],
@@ -185,7 +185,7 @@ describe("can heal targets", () => {
                 InBattleAttributesService.takeDamage({
                     inBattleAttributes: battleSquaddie.inBattleAttributes,
                     damageToTake: 1,
-                    damageType: DamageType.BODY,
+                    damageType: Damage.BODY,
                 })
             })
             it("will calculate healing amount", () => {

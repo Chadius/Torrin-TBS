@@ -2,7 +2,10 @@ import {
     ObjectRepository,
     ObjectRepositoryService,
 } from "../../../objectRepository"
-import { SquaddieAffiliation } from "../../../../squaddie/squaddieAffiliation"
+import {
+    SquaddieAffiliation,
+    TSquaddieAffiliation,
+} from "../../../../squaddie/squaddieAffiliation"
 import { SquaddieTemplateService } from "../../../../campaign/squaddieTemplate"
 import { SquaddieIdService } from "../../../../squaddie/id"
 import { BattleSquaddieService } from "../../../battleSquaddie"
@@ -50,7 +53,7 @@ import {
     AttributeModifierService,
     AttributeSource,
 } from "../../../../squaddie/attribute/attributeModifier"
-import { AttributeType } from "../../../../squaddie/attribute/attributeType"
+import { Attribute } from "../../../../squaddie/attribute/attribute"
 import { GraphicsBuffer } from "../../../../utils/graphics/graphicsRenderer"
 import { getResultOrThrowError } from "../../../../utils/ResultOrError"
 
@@ -390,13 +393,13 @@ describe("Squaddie Name and Portrait Tile", () => {
                 currentHitPoints: 5,
                 attributeModifiers: [
                     AttributeModifierService.new({
-                        type: AttributeType.ARMOR,
+                        type: Attribute.ARMOR,
                         source: AttributeSource.CIRCUMSTANCE,
                         amount: 2,
                         duration: 3,
                     }),
                     AttributeModifierService.new({
-                        type: AttributeType.HUSTLE,
+                        type: Attribute.HUSTLE,
                         source: AttributeSource.SPIRITUAL,
                         amount: 1,
                         duration: 2,
@@ -456,7 +459,7 @@ describe("Squaddie Name and Portrait Tile", () => {
 
         it("filters out inactive attribute modifiers", () => {
             const inactiveModifier = AttributeModifierService.new({
-                type: AttributeType.MOVEMENT,
+                type: Attribute.MOVEMENT,
                 source: AttributeSource.SPIRITUAL,
                 amount: 1,
                 duration: 0,
@@ -489,13 +492,13 @@ describe("Squaddie Name and Portrait Tile", () => {
                 currentHitPoints: 5,
                 attributeModifiers: [
                     AttributeModifierService.new({
-                        type: AttributeType.HUSTLE,
+                        type: Attribute.HUSTLE,
                         source: AttributeSource.SPIRITUAL,
                         amount: 1,
                         duration: 2,
                     }),
                     AttributeModifierService.new({
-                        type: AttributeType.ELUSIVE,
+                        type: Attribute.ELUSIVE,
                         source: AttributeSource.CIRCUMSTANCE,
                         amount: 1,
                     }),
@@ -529,13 +532,13 @@ describe("Squaddie Name and Portrait Tile", () => {
                 currentHitPoints: 5,
                 attributeModifiers: [
                     AttributeModifierService.new({
-                        type: AttributeType.ARMOR,
+                        type: Attribute.ARMOR,
                         source: AttributeSource.CIRCUMSTANCE,
                         amount: -2,
                         duration: 3,
                     }),
                     AttributeModifierService.new({
-                        type: AttributeType.MOVEMENT,
+                        type: Attribute.MOVEMENT,
                         source: AttributeSource.MARTIAL,
                         amount: -1,
                         numberOfUses: 2,
@@ -605,7 +608,7 @@ describe("Squaddie Name and Portrait Tile", () => {
                 currentHitPoints: 5,
                 attributeModifiers: [
                     AttributeModifierService.new({
-                        type: AttributeType.ARMOR,
+                        type: Attribute.ARMOR,
                         source: AttributeSource.CIRCUMSTANCE,
                         amount: 2,
                         duration: 3,
@@ -673,7 +676,7 @@ const createSquaddieOfGivenAffiliation = ({
 }: {
     objectRepository: ObjectRepository
     tile: SquaddieNameAndPortraitTile
-    affiliation?: SquaddieAffiliation
+    affiliation?: TSquaddieAffiliation
 }) => {
     objectRepository = ObjectRepositoryService.new()
     const squaddieTemplate = SquaddieTemplateService.new({

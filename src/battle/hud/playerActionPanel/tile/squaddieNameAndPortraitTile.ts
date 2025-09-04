@@ -15,11 +15,11 @@ import { TextBox, TextBoxService } from "../../../../ui/textBox/textBox"
 import { WINDOW_SPACING } from "../../../../ui/constants"
 import { GraphicsBuffer } from "../../../../utils/graphics/graphicsRenderer"
 import { HUE_BY_SQUADDIE_AFFILIATION } from "../../../../graphicsConstants"
-import { SquaddieAffiliation } from "../../../../squaddie/squaddieAffiliation"
+import { TSquaddieAffiliation } from "../../../../squaddie/squaddieAffiliation"
 import { TextGraphicalHandlingService } from "../../../../utils/graphics/textGraphicalHandlingService"
 import {
-    ActionTilePosition,
     ActionTilePositionService,
+    TActionTilePosition,
 } from "./actionTilePosition"
 import {
     ImageUI,
@@ -48,9 +48,9 @@ export interface SquaddieNameAndPortraitTile {
     squaddieNameTextBox?: TextBox
     portraitImage?: ImageUI
     squaddieName: string
-    squaddieAffiliation: SquaddieAffiliation
+    squaddieAffiliation: TSquaddieAffiliation
     squaddiePortraitResourceKey: string
-    horizontalPosition: ActionTilePosition
+    horizontalPosition: TActionTilePosition
     battleSquaddieId: string
     glossaryLabelStack: TileAttributeLabelStack
 }
@@ -66,7 +66,7 @@ export const SquaddieNameAndPortraitTileService = {
         objectRepository: ObjectRepository
         battleSquaddieId: string
         team: BattleSquaddieTeam
-        horizontalPosition: ActionTilePosition
+        horizontalPosition: TActionTilePosition
         glossary: Glossary
     }): SquaddieNameAndPortraitTile => {
         const { squaddieTemplate } = getResultOrThrowError(
@@ -125,7 +125,7 @@ export const SquaddieNameAndPortraitTileService = {
         })
     },
     getBoundingBoxBasedOnActionPanelPosition: (
-        horizontalPosition: ActionTilePosition
+        horizontalPosition: TActionTilePosition
     ): RectArea =>
         ActionTilePositionService.getBoundingBoxBasedOnActionTilePosition(
             horizontalPosition
@@ -261,7 +261,7 @@ const createGlossaryLabelStack = ({
     objectRepository,
     battleSquaddieId,
 }: {
-    horizontalPosition: ActionTilePosition
+    horizontalPosition: TActionTilePosition
     glossary: Glossary
     objectRepository: ObjectRepository
     battleSquaddieId: string

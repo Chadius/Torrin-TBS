@@ -5,7 +5,10 @@ import {
 } from "../../calculator/actionCalculator/rollResult"
 import { GraphicsBuffer } from "../../../utils/graphics/graphicsRenderer"
 import { Label, LabelService } from "../../../ui/label"
-import { DegreeOfSuccess } from "../../calculator/actionCalculator/degreeOfSuccess"
+import {
+    DegreeOfSuccess,
+    TDegreeOfSuccess,
+} from "../../calculator/actionCalculator/degreeOfSuccess"
 import {
     IndividualDieAnimation,
     IndividualDieAnimationService,
@@ -46,7 +49,7 @@ export interface DiceRollAnimation {
         extremeRoll: Label
         degreeOfSuccess: Label
     }
-    degreeOfSuccess: DegreeOfSuccess
+    degreeOfSuccess: TDegreeOfSuccess
 
     animationStartTime: number
 }
@@ -61,7 +64,7 @@ export const DiceRollAnimationService = {
         drawArea,
     }: {
         rollResult: RollResult
-        degreeOfSuccess: DegreeOfSuccess
+        degreeOfSuccess: TDegreeOfSuccess
         drawArea: RectArea
     }): DiceRollAnimation => {
         const diceAnimations = rollResult.occurred
@@ -214,7 +217,7 @@ const createDegreeOfSuccessNotification = ({
     drawArea,
     extremeRollNotificationLabel,
 }: {
-    degreeOfSuccess: DegreeOfSuccess
+    degreeOfSuccess: TDegreeOfSuccess
     drawArea: RectArea
     extremeRollNotificationLabel: Label
 }) => {
@@ -230,7 +233,9 @@ const createDegreeOfSuccessNotification = ({
 
     return LabelService.new({
         textBoxMargin: notificationLayout.textBoxMargin,
-        text: readableDegreeOfSuccess[degreeOfSuccess],
+        text: readableDegreeOfSuccess[
+            degreeOfSuccess as keyof typeof readableDegreeOfSuccess
+        ],
         fontSize: degreeOfSuccessLayout.fontSize,
         fontColor: notificationLayout.fontColor,
         fillColor: notificationLayout.fillColor,

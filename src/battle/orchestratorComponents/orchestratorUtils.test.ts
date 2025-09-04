@@ -22,13 +22,13 @@ import {
     GameEngineStateService,
 } from "../../gameEngine/gameEngine"
 import { BattlePhaseStateService } from "./battlePhaseController"
-import { BattlePhase } from "./battlePhaseTracker"
+import { BattlePhase, TBattlePhase } from "./battlePhaseTracker"
 import {
     DEFAULT_ACTION_POINTS_PER_TURN,
     SquaddieTurnService,
 } from "../../squaddie/turn"
 import { InBattleAttributesService } from "../stats/inBattleAttributes"
-import { DamageType, SquaddieService } from "../../squaddie/squaddieService"
+import { Damage, SquaddieService } from "../../squaddie/squaddieService"
 import { BattleHUDService } from "../hud/battleHUD/battleHUD"
 import { MessageBoardMessageType } from "../../message/messageBoardMessage"
 import { getResultOrThrowError } from "../../utils/ResultOrError"
@@ -437,7 +437,7 @@ describe("Orchestration Utils", () => {
                     inBattleAttributes: battleSquaddie.inBattleAttributes,
                     damageToTake:
                         battleSquaddie.inBattleAttributes.currentHitPoints,
-                    damageType: DamageType.UNKNOWN,
+                    damageType: Damage.UNKNOWN,
                 })
                 const { isDead } = SquaddieService.canSquaddieActRightNow({
                     squaddieTemplate: squaddieTemplate,
@@ -467,7 +467,7 @@ describe("Orchestration Utils", () => {
         })
 
         const makeGameEngineState = (
-            currentAffiliation: BattlePhase,
+            currentAffiliation: TBattlePhase,
             playerCount: number,
             enemyCount: number
         ): {

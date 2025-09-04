@@ -1,5 +1,8 @@
 import { HexCoordinate } from "../hexMap/hexCoordinate/hexCoordinate"
-import { SquaddieAffiliation } from "../squaddie/squaddieAffiliation"
+import {
+    SquaddieAffiliation,
+    TSquaddieAffiliation,
+} from "../squaddie/squaddieAffiliation"
 
 export interface SquaddieDeployment {
     required: {
@@ -8,7 +11,7 @@ export interface SquaddieDeployment {
         coordinate: HexCoordinate
     }[]
     optional: HexCoordinate[]
-    affiliation: SquaddieAffiliation
+    affiliation: TSquaddieAffiliation
 }
 
 export const SquaddieDeploymentService = {
@@ -18,7 +21,7 @@ export const SquaddieDeploymentService = {
     new: ({
         affiliation,
     }: {
-        affiliation: SquaddieAffiliation
+        affiliation: TSquaddieAffiliation
     }): SquaddieDeployment => {
         return {
             ...defaultSquaddieDeployment(),

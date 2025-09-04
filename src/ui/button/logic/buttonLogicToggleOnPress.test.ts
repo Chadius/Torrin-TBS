@@ -7,7 +7,7 @@ import {
     MockInstance,
     vi,
 } from "vitest"
-import { ButtonStatus } from "../buttonStatus"
+import { ButtonStatus, TButtonStatus } from "../buttonStatus"
 import { RectArea, RectAreaService } from "../../rectArea"
 import { MouseButton } from "../../../utils/mouseConfig"
 import { DataBlobService } from "../../../utils/dataBlob/dataBlob"
@@ -243,7 +243,7 @@ describe("Button Logic Toggle On Press", () => {
 
     describe("valid button states", () => {
         let buttonLogic: ButtonLogicToggleOnPress
-        const validStatuses: ButtonStatus[] = [
+        const validStatuses: TButtonStatus[] = [
             ButtonStatus.TOGGLE_OFF,
             ButtonStatus.TOGGLE_ON,
             ButtonStatus.TOGGLE_OFF_HOVER,

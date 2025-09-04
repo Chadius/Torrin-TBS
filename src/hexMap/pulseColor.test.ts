@@ -1,5 +1,5 @@
 import {
-    PULSE_COLOR_FORMULA_TYPE,
+    PULSE_COLOR_FORMULA,
     PulseColor,
     PulseColorService,
 } from "./pulseColor"
@@ -32,7 +32,7 @@ describe("Pulse Color", () => {
                 alpha: 40,
                 pulse: {
                     period: 50,
-                    formula: PULSE_COLOR_FORMULA_TYPE.SINE,
+                    formula: PULSE_COLOR_FORMULA.SINE,
                 },
             })
         ).toEqual({
@@ -42,7 +42,7 @@ describe("Pulse Color", () => {
             alpha: 40,
             pulse: {
                 period: 50,
-                formula: PULSE_COLOR_FORMULA_TYPE.SINE,
+                formula: PULSE_COLOR_FORMULA.SINE,
             },
         })
     })
@@ -58,7 +58,7 @@ describe("Pulse Color", () => {
             alpha: 100,
             pulse: {
                 period: 1000,
-                formula: PULSE_COLOR_FORMULA_TYPE.SINE,
+                formula: PULSE_COLOR_FORMULA.SINE,
             },
         }
 
@@ -118,7 +118,7 @@ describe("Pulse Color", () => {
                 PulseColorService.calculatePulseAmount({
                     range: 9001,
                     periodInMilliseconds: 0,
-                    formula: PULSE_COLOR_FORMULA_TYPE.SINE,
+                    formula: PULSE_COLOR_FORMULA.SINE,
                 })
             ).toEqual(9001)
             expect(dateSpy).not.toHaveBeenCalled()
@@ -133,7 +133,7 @@ describe("Pulse Color", () => {
                 PulseColorService.calculatePulseAmount({
                     range: { low: 20, high: 100 },
                     periodInMilliseconds: 1000,
-                    formula: PULSE_COLOR_FORMULA_TYPE.SINE,
+                    formula: PULSE_COLOR_FORMULA.SINE,
                 })
             ).toBeCloseTo(expectedValue)
             expect(dateSpy).toHaveBeenCalled()
@@ -147,7 +147,7 @@ describe("Pulse Color", () => {
                 PulseColorService.calculatePulseAmount({
                     range: { low: 20, high: 100 },
                     periodInMilliseconds: 1000,
-                    formula: PULSE_COLOR_FORMULA_TYPE.LINEAR,
+                    formula: PULSE_COLOR_FORMULA.LINEAR,
                 })
             ).toBeCloseTo(expectedValue)
             expect(dateSpy).toHaveBeenCalled()

@@ -7,8 +7,9 @@ import { GraphicsBuffer } from "../../../../../utils/graphics/graphicsRenderer"
 import {
     ActionTilePosition,
     ActionTilePositionService,
+    TActionTilePosition,
 } from "../actionTilePosition"
-import { SquaddieAffiliation } from "../../../../../squaddie/squaddieAffiliation"
+import { TSquaddieAffiliation } from "../../../../../squaddie/squaddieAffiliation"
 import { RectArea, RectAreaService } from "../../../../../ui/rectArea"
 import { WINDOW_SPACING } from "../../../../../ui/constants"
 import { isValidValue } from "../../../../../utils/objectValidityCheck"
@@ -25,9 +26,9 @@ import {
 } from "../../../../../action/template/actionTemplate"
 import { AttributeModifierService } from "../../../../../squaddie/attribute/attributeModifier"
 import {
-    AttributeType,
+    TAttribute,
     AttributeTypeService,
-} from "../../../../../squaddie/attribute/attributeType"
+} from "../../../../../squaddie/attribute/attribute"
 import {
     TileAttributeLabelStack,
     TileAttributeLabelStackService,
@@ -95,8 +96,8 @@ const layoutConstants: ActionSelectedTileLayout = {
 export interface ActionSelectedTile {
     glossaryLabelStack: TileAttributeLabelStack
     actionName: string
-    horizontalPosition: ActionTilePosition
-    squaddieAffiliation: SquaddieAffiliation
+    horizontalPosition: TActionTilePosition
+    squaddieAffiliation: TSquaddieAffiliation
     buttonIconResourceName: string
     actionDescriptionTextBox?: TextBox
     actionTemplateId: string
@@ -113,7 +114,7 @@ export const ActionSelectedTileService = {
     }: {
         objectRepository: ObjectRepository
         battleSquaddieId: string
-        horizontalPosition: ActionTilePosition
+        horizontalPosition: TActionTilePosition
         actionTemplateId: string
         glossary: Glossary
     }): ActionSelectedTile => {
@@ -547,7 +548,7 @@ const createActionTemplateEffectTextBox = ({
     top: number
 }) => {
     const attributeModifierSums: {
-        type: AttributeType
+        type: TAttribute
         amount: number
     }[] = AttributeModifierService.calculateCurrentAttributeModifiers(
         ActionTemplateService.getAttributeModifiers(actionTemplate)

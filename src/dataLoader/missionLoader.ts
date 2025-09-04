@@ -14,7 +14,7 @@ import {
     getValidValueOrDefault,
     isValidValue,
 } from "../utils/objectValidityCheck"
-import { SquaddieAffiliation } from "../squaddie/squaddieAffiliation"
+import { TSquaddieAffiliation } from "../squaddie/squaddieAffiliation"
 import { Cutscene } from "../cutscene/cutscene"
 import {
     SquaddieTemplate,
@@ -67,7 +67,9 @@ export interface MissionFileFormat {
         ally?: NpcTeamMissionDeployment
         noAffiliation?: NpcTeamMissionDeployment
     }
-    phaseBannersByAffiliation: { [affiliation in SquaddieAffiliation]?: string }
+    phaseBannersByAffiliation: {
+        [affiliation in TSquaddieAffiliation]?: string
+    }
     cutscene: {
         cutsceneById: { [id: string]: Cutscene }
     }
@@ -99,7 +101,7 @@ export const MissionFileFormatService = {
             noAffiliation: NpcTeamMissionDeployment
         }
         phaseBannersByAffiliation?: {
-            [affiliation in SquaddieAffiliation]?: string
+            [affiliation in TSquaddieAffiliation]?: string
         }
         battleEvents?: BattleEvent[]
     }): MissionFileFormat => {

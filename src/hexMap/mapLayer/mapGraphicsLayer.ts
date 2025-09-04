@@ -17,24 +17,27 @@ export interface MapGraphicsLayerHighlight {
     pulseColor: PulseColor
 }
 
-export enum MapGraphicsLayerType {
-    UNKNOWN = "UNKNOWN",
-    CLICKED_ON_CONTROLLABLE_SQUADDIE = "CLICKED_ON_CONTROLLABLE_SQUADDIE",
-    CLICKED_ON_NORMALLY_UNCONTROLLABLE_SQUADDIE = "CLICKED_ON_NORMALLY_UNCONTROLLABLE_SQUADDIE",
-    HOVERED_OVER_NORMALLY_UNCONTROLLABLE_SQUADDIE = "HOVERED_OVER_NORMALLY_UNCONTROLLABLE_SQUADDIE",
-}
+export const MapGraphicsLayerType = {
+    UNKNOWN: "UNKNOWN",
+    CLICKED_ON_CONTROLLABLE_SQUADDIE: "CLICKED_ON_CONTROLLABLE_SQUADDIE",
+    CLICKED_ON_NORMALLY_UNCONTROLLABLE_SQUADDIE:
+        "CLICKED_ON_NORMALLY_UNCONTROLLABLE_SQUADDIE",
+    HOVERED_OVER_NORMALLY_UNCONTROLLABLE_SQUADDIE:
+        "HOVERED_OVER_NORMALLY_UNCONTROLLABLE_SQUADDIE",
+} as const satisfies Record<string, string>
+export type TMapGraphicsLayerType = EnumLike<typeof MapGraphicsLayerType>
 
-export const MapGraphicsLayerSquaddieTypes = [
+export const MapGraphicsLayerSquaddieTypes = new Array<TMapGraphicsLayerType>(
     MapGraphicsLayerType.HOVERED_OVER_NORMALLY_UNCONTROLLABLE_SQUADDIE,
     MapGraphicsLayerType.CLICKED_ON_NORMALLY_UNCONTROLLABLE_SQUADDIE,
-    MapGraphicsLayerType.CLICKED_ON_CONTROLLABLE_SQUADDIE,
-]
+    MapGraphicsLayerType.CLICKED_ON_CONTROLLABLE_SQUADDIE
+)
 
 export interface MapGraphicsLayer {
     id: string
     overlayImageResourceNames: string[]
     highlights: MapGraphicsLayerHighlight[]
-    type: MapGraphicsLayerType
+    type: TMapGraphicsLayerType
 }
 
 export const MapGraphicsLayerService = {
@@ -44,7 +47,7 @@ export const MapGraphicsLayerService = {
         type,
     }: {
         id: string
-        type: MapGraphicsLayerType
+        type: TMapGraphicsLayerType
         highlightedTileDescriptions?: HighlightCoordinateDescription[]
     }): MapGraphicsLayer => {
         const mapGraphicsLayer: MapGraphicsLayer = {

@@ -1,6 +1,18 @@
 import { MessageBoardListener } from "../../../message/messageBoardListener"
 import {
     MessageBoardMessage,
+    MessageBoardMessageMoveSquaddieToCoordinate,
+    MessageBoardMessagePlayerCancelsTargetConfirmation,
+    MessageBoardMessagePlayerCancelsTargetSelection,
+    MessageBoardMessagePlayerConfirmsAction,
+    MessageBoardMessagePlayerControlledSquaddieNeedsNextAction,
+    MessageBoardMessagePlayerEndsTurn,
+    MessageBoardMessagePlayerPeeksAtSquaddie,
+    MessageBoardMessagePlayerSelectsActionTemplate,
+    MessageBoardMessagePlayerSelectsAndLocksSquaddie,
+    MessageBoardMessagePlayerSelectsTargetCoordinate,
+    MessageBoardMessageService,
+    MessageBoardMessageStartedPlayerPhase,
     MessageBoardMessageType,
 } from "../../../message/messageBoardMessage"
 import { FileAccessHUDService } from "../fileAccess/fileAccessHUD"
@@ -14,52 +26,115 @@ export class BattleHUDListener implements MessageBoardListener {
     }
 
     receiveMessage(message: MessageBoardMessage): void {
-        switch (message.type) {
-            case MessageBoardMessageType.STARTED_PLAYER_PHASE:
-            case MessageBoardMessageType.PLAYER_CAN_CONTROL_DIFFERENT_SQUADDIE:
-                FileAccessHUDService.enableButtons(
-                    message.gameEngineState.battleOrchestratorState.battleHUD
-                        .fileAccessHUD
-                )
-                break
-            case MessageBoardMessageType.PLAYER_CANCELS_TARGET_SELECTION:
-                BattleHUDService.cancelTargetSelection(message)
-                break
-            case MessageBoardMessageType.PLAYER_CANCELS_TARGET_CONFIRMATION:
-                BattleHUDService.cancelTargetConfirmation(message)
-                break
-            case MessageBoardMessageType.PLAYER_ENDS_TURN:
-                BattleHUDService.endPlayerSquaddieTurn(
-                    message.gameEngineState,
-                    message.battleAction
-                )
-                break
-            case MessageBoardMessageType.PLAYER_SELECTS_AND_LOCKS_SQUADDIE:
-                BattleHUDService.playerSelectsSquaddie(
-                    message.gameEngineState.battleOrchestratorState.battleHUD,
-                    message
-                )
-                break
-            case MessageBoardMessageType.PLAYER_PEEKS_AT_SQUADDIE:
-                BattleHUDService.playerPeeksAtSquaddie(message)
-                break
-            case MessageBoardMessageType.PLAYER_SELECTS_ACTION_TEMPLATE:
-                BattleHUDService.playerSelectsActionTemplate(message)
-                break
-            case MessageBoardMessageType.PLAYER_SELECTS_TARGET_COORDINATE:
-                BattleHUDService.playerSelectsTargetCoordinate(message)
-                break
-            case MessageBoardMessageType.PLAYER_CONFIRMS_ACTION:
-                BattleHUDService.playerConfirmsAction(message)
-                break
-            case MessageBoardMessageType.MOVE_SQUADDIE_TO_COORDINATE:
-                BattleHUDService.tryToMoveSquaddieToLocation(message)
-                break
-            case MessageBoardMessageType.PLAYER_CONTROLLED_SQUADDIE_NEEDS_NEXT_ACTION:
-                BattleHUDService.playerControlledSquaddieNeedsNextAction(
-                    message
-                )
-                break
+        if (
+            MessageBoardMessageService.isMessageBoardMessageStartedPlayerPhase(
+                message
+            ) ||
+            MessageBoardMessageService.isMessageBoardMessagePlayerCanControlDifferentSquaddie(
+                message
+            )
+        ) {
+            FileAccessHUDService.enableButtons(
+                message.gameEngineState.battleOrchestratorState.battleHUD
+                    .fileAccessHUD
+            )
+            return
+        }
+
+        if (
+            MessageBoardMessageService.isMessageBoardMessagePlayerCancelsTargetSelection(
+                message
+            )
+        ) {
+            BattleHUDService.cancelTargetSelection(message)
+            return
+        }
+
+        if (
+            MessageBoardMessageService.isMessageBoardMessagePlayerCancelsTargetConfirmation(
+                message
+            )
+        ) {
+            BattleHUDService.cancelTargetConfirmation(message)
+            return
+        }
+
+        if (
+            MessageBoardMessageService.isMessageBoardMessagePlayerEndsTurn(
+                message
+            )
+        ) {
+            BattleHUDService.endPlayerSquaddieTurn(
+                message.gameEngineState,
+                message.battleAction
+            )
+            return
+        }
+
+        if (
+            MessageBoardMessageService.isMessageBoardMessagePlayerSelectsAndLocksSquaddie(
+                message
+            )
+        ) {
+            BattleHUDService.playerSelectsSquaddie(
+                message.gameEngineState.battleOrchestratorState.battleHUD,
+                message
+            )
+            return
+        }
+
+        if (
+            MessageBoardMessageService.isMessageBoardMessagePlayerPeeksAtSquaddie(
+                message
+            )
+        ) {
+            BattleHUDService.playerPeeksAtSquaddie(message)
+            return
+        }
+
+        if (
+            MessageBoardMessageService.isMessageBoardMessagePlayerSelectsActionTemplate(
+                message
+            )
+        ) {
+            BattleHUDService.playerSelectsActionTemplate(message)
+            return
+        }
+
+        if (
+            MessageBoardMessageService.isMessageBoardMessagePlayerSelectsTargetCoordinate(
+                message
+            )
+        ) {
+            BattleHUDService.playerSelectsTargetCoordinate(message)
+            return
+        }
+
+        if (
+            MessageBoardMessageService.isMessageBoardMessagePlayerConfirmsAction(
+                message
+            )
+        ) {
+            BattleHUDService.playerConfirmsAction(message)
+            return
+        }
+
+        if (
+            MessageBoardMessageService.isMessageBoardMessageMoveSquaddieToCoordinate(
+                message
+            )
+        ) {
+            BattleHUDService.tryToMoveSquaddieToLocation(message)
+            return
+        }
+
+        if (
+            MessageBoardMessageService.isMessageBoardMessagePlayerControlledSquaddieNeedsNextAction(
+                message
+            )
+        ) {
+            BattleHUDService.playerControlledSquaddieNeedsNextAction(message)
+            return
         }
     }
 }

@@ -11,8 +11,8 @@ import {
     RectangleService,
 } from "../../../../../ui/rectangle/rectangle"
 import {
-    ActionTilePosition,
     ActionTilePositionService,
+    TActionTilePosition,
 } from "../actionTilePosition"
 import { WINDOW_SPACING } from "../../../../../ui/constants"
 import { GraphicsBuffer } from "../../../../../utils/graphics/graphicsRenderer"
@@ -35,7 +35,7 @@ export interface TileAttributeLabel {
     }
     iconResourceKey?: string
 
-    animationStatus: TileAttributeLabelStatus
+    animationStatus: TTileAttributeLabelStatus
     animationStartTime: number
     isRightAligned?: boolean
     uiElements: {
@@ -48,13 +48,16 @@ export interface TileAttributeLabel {
     }
 }
 
-export enum TileAttributeLabelStatus {
-    UNKNOWN = "UNKNOWN",
-    FULLY_CLOSED = "FULLY_CLOSED",
-    FULLY_OPEN = "FULLY_OPEN",
-    OPENING = "OPENING",
-    CLOSING = "CLOSING",
-}
+export const TileAttributeLabelStatus = {
+    UNKNOWN: "UNKNOWN",
+    FULLY_CLOSED: "FULLY_CLOSED",
+    FULLY_OPEN: "FULLY_OPEN",
+    OPENING: "OPENING",
+    CLOSING: "CLOSING",
+} as const satisfies Record<string, string>
+export type TTileAttributeLabelStatus = EnumLike<
+    typeof TileAttributeLabelStatus
+>
 
 type TileAttributeLabelLayout = {
     description: {
@@ -160,7 +163,7 @@ export const TileAttributeLabelService = {
     }: {
         label: TileAttributeLabel
         bottom: number
-        tilePosition: ActionTilePosition
+        tilePosition: TActionTilePosition
     }) => {
         label.uiElements.tileBoundingBox =
             ActionTilePositionService.getBoundingBoxBasedOnActionTilePosition(

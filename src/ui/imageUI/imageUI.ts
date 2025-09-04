@@ -4,13 +4,14 @@ import { GraphicsBuffer } from "../../utils/graphics/graphicsRenderer"
 import { ResourceHandler } from "../../resource/resourceHandler"
 import { PulseColor, PulseColorService } from "../../hexMap/pulseColor"
 
-export enum ImageUILoadingBehavior {
-    USE_IMAGE_SIZE = "USE_IMAGE_SIZE",
-    KEEP_AREA_WIDTH_USE_ASPECT_RATIO = "KEEP_AREA_WIDTH_USE_ASPECT_RATIO",
-    KEEP_AREA_HEIGHT_USE_ASPECT_RATIO = "KEEP_AREA_HEIGHT_USE_ASPECT_RATIO",
-    KEEP_AREA_RESIZE_IMAGE = "KEEP_AREA_RESIZE_IMAGE",
-    USE_CUSTOM_AREA_CALLBACK = "USE_CUSTOM_AREA_CALLBACK",
-}
+export const ImageUILoadingBehavior = {
+    USE_IMAGE_SIZE: "USE_IMAGE_SIZE",
+    KEEP_AREA_WIDTH_USE_ASPECT_RATIO: "KEEP_AREA_WIDTH_USE_ASPECT_RATIO",
+    KEEP_AREA_HEIGHT_USE_ASPECT_RATIO: "KEEP_AREA_HEIGHT_USE_ASPECT_RATIO",
+    KEEP_AREA_RESIZE_IMAGE: "KEEP_AREA_RESIZE_IMAGE",
+    USE_CUSTOM_AREA_CALLBACK: "USE_CUSTOM_AREA_CALLBACK",
+} as const satisfies Record<string, string>
+export type TImageUILoadingBehavior = EnumLike<typeof ImageUILoadingBehavior>
 
 export const ImageUIService = {
     scaleImageWidth: ({
@@ -71,7 +72,7 @@ export class ImageUI {
     tintColor: number[]
     pulseColor: PulseColor
     resourceKey: string
-    loadingBehavior: ImageUILoadingBehavior
+    loadingBehavior: TImageUILoadingBehavior
     customAreaCallback?: ({
         imageSize,
         originalArea,
@@ -89,7 +90,7 @@ export class ImageUI {
         area: RectArea
         imageLoadingBehavior: {
             resourceKey: string
-            loadingBehavior: ImageUILoadingBehavior
+            loadingBehavior: TImageUILoadingBehavior
             customAreaCallback?: ({
                 imageSize,
                 originalArea,

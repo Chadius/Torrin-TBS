@@ -1,5 +1,5 @@
 import { RectAreaService } from "../../../ui/rectArea"
-import { SquaddieEmotion } from "./actionAnimationConstants"
+import { SquaddieEmotion, TSquaddieEmotion } from "./actionAnimationConstants"
 import { ScreenDimensions } from "../../../utils/graphics/graphicsConfig"
 import p5 from "p5"
 import { GraphicsBuffer } from "../../../utils/graphics/graphicsRenderer"
@@ -9,10 +9,10 @@ let defaultImage: ImageUI
 
 export interface SquaddieSprite {
     actionSpritesByEmotion: {
-        [key in SquaddieEmotion]?: ImageUI
+        [key in TSquaddieEmotion]?: ImageUI
     }
     actionSpritesResourceKeysByEmotion: {
-        [key in SquaddieEmotion]?: string
+        [key in TSquaddieEmotion]?: string
     }
 }
 
@@ -21,7 +21,7 @@ export const SquaddieSpriteService = {
         actionSpritesResourceKeysByEmotion,
     }: {
         actionSpritesResourceKeysByEmotion: {
-            [key in SquaddieEmotion]?: string
+            [key in TSquaddieEmotion]?: string
         }
     }) => {
         const squaddieSprite = {
@@ -37,7 +37,7 @@ export const SquaddieSpriteService = {
         graphicsContext,
     }: {
         squaddieSprite: SquaddieSprite
-        emotion: SquaddieEmotion
+        emotion: TSquaddieEmotion
         graphicsContext: GraphicsBuffer
     }): ImageUI => {
         if (emotion in squaddieSprite.actionSpritesByEmotion) {
@@ -56,7 +56,7 @@ export const SquaddieSpriteService = {
 
 const createActorImagesWithLoadedData = (squaddieSprite: SquaddieSprite) => {
     Object.keys(squaddieSprite.actionSpritesResourceKeysByEmotion)
-        .map((emotionStr) => emotionStr as SquaddieEmotion)
+        .map((emotionStr) => emotionStr as TSquaddieEmotion)
         .forEach((emotion) => {
             squaddieSprite.actionSpritesByEmotion[emotion] = new ImageUI({
                 imageLoadingBehavior: {

@@ -2,7 +2,8 @@ import { GameEngineState } from "../../../gameEngine/gameEngine"
 import { BattleSquaddie } from "../../battleSquaddie"
 import {
     DIE_SIZE,
-    RollModifierType,
+    RollModifierEnum,
+    TRollModifier,
     RollResult,
     RollResultService,
 } from "./rollResult"
@@ -22,9 +23,10 @@ import {
     DegreeOfSuccess,
     DegreeOfSuccessAndSuccessBonus,
     DegreeOfSuccessService,
+    TDegreeOfSuccess,
 } from "./degreeOfSuccess"
 import { SquaddieTemplate } from "../../../campaign/squaddieTemplate"
-import { DamageType, SquaddieService } from "../../../squaddie/squaddieService"
+import { SquaddieService, TDamage } from "../../../squaddie/squaddieService"
 import {
     DamageExplanation,
     DamageExplanationService,
@@ -35,7 +37,7 @@ import {
 } from "../../history/battleAction/battleActionActorContext"
 import { BattleActionsDuringTurnService } from "../../history/battleAction/battleActionsDuringTurn"
 import { BattleActionService } from "../../history/battleAction/battleAction"
-import { AttributeTypeAndAmount } from "../../../squaddie/attribute/attributeType"
+import { AttributeTypeAndAmount } from "../../../squaddie/attribute/attribute"
 import { NumberGeneratorStrategy } from "../../numberGenerator/strategy"
 import { BattleActionRecorder } from "../../history/battleAction/battleActionRecorder"
 import { ObjectRepository } from "../../objectRepository"
@@ -92,7 +94,7 @@ export const CalculatorAttack = {
     }: {
         actionEffectTemplate: ActionEffectTemplate
         actorContext: BattleActionActorContext
-        degreeOfSuccess: DegreeOfSuccess
+        degreeOfSuccess: TDegreeOfSuccess
         targetSquaddieTemplate: SquaddieTemplate
         targetBattleSquaddie: BattleSquaddie
     }): CalculatedEffect =>
@@ -195,14 +197,14 @@ const maybeMakeAttackRoll = ({
 }): RollResult => {
     if (doesActionNeedAnAttackRoll(actionEffectTemplate)) {
         const rollModifiers: {
-            [t in RollModifierType]?: number
+            [t in TRollModifier]?: number
         } = {
-            [RollModifierType.MULTIPLE_ATTACK_PENALTY]:
+            [RollModifierEnum.MULTIPLE_ATTACK_PENALTY]:
                 calculateMultipleAttackPenaltyForActionsThisTurn(
                     battleActionRecorder,
                     objectRepository
                 ),
-            [RollModifierType.PROFICIENCY]:
+            [RollModifierEnum.PROFICIENCY]:
                 SquaddieService.getVersusSquaddieResistanceProficiencyBonus({
                     squaddieTemplate: actorSquaddieTemplate,
                     versusSquaddieResistance:
@@ -257,7 +259,7 @@ const getTargetSquaddieModifiers = ({
 
 const adjustDegreeOfSuccessBasedOnExtremeRoll = (
     actingSquaddieRoll: RollResult,
-    degreeOfSuccess: DegreeOfSuccess
+    degreeOfSuccess: TDegreeOfSuccess
 ) => {
     if (RollResultService.isMaximumRoll(actingSquaddieRoll)) {
         degreeOfSuccess =
@@ -273,8 +275,8 @@ const adjustDegreeOfSuccessBasedOnExtremeRoll = (
 const calculateDegreeOfSuccessBasedOnRollTotalVersusTarget = (
     totalAttackRoll: any,
     targetArmorClass: number
-): DegreeOfSuccess => {
-    let degreeOfSuccess: DegreeOfSuccess = DegreeOfSuccess.FAILURE
+): TDegreeOfSuccess => {
+    let degreeOfSuccess: TDegreeOfSuccess = DegreeOfSuccess.FAILURE
     switch (true) {
         case totalAttackRoll >= targetArmorClass + DIE_SIZE:
             degreeOfSuccess = DegreeOfSuccess.CRITICAL_SUCCESS
@@ -348,7 +350,7 @@ const compareAttackRollToGetDegreeOfSuccessAndSuccess = ({
 
 const capCriticalSuccessIfResultCannotCriticallySucceed = (
     actionEffectTemplate: ActionEffectTemplate,
-    degreeOfSuccess: DegreeOfSuccess
+    degreeOfSuccess: TDegreeOfSuccess
 ) => {
     const canCriticallySucceed: boolean = !TraitStatusStorageService.getStatus(
         actionEffectTemplate.traits,
@@ -365,7 +367,7 @@ const capCriticalSuccessIfResultCannotCriticallySucceed = (
 
 const capCriticalFailureIfResultCannotCriticallyFail = (
     actionEffectTemplate: ActionEffectTemplate,
-    degreeOfSuccess: DegreeOfSuccess
+    degreeOfSuccess: TDegreeOfSuccess
 ) => {
     const canCriticallyFail: boolean = !TraitStatusStorageService.getStatus(
         actionEffectTemplate.traits,
@@ -485,14 +487,14 @@ const calculateEffectBasedOnDegreeOfSuccess = ({
 }: {
     actionEffectTemplate: ActionEffectTemplate
     actorContext: BattleActionActorContext
-    degreeOfSuccess: DegreeOfSuccess
+    degreeOfSuccess: TDegreeOfSuccess
     targetSquaddieTemplate: SquaddieTemplate
     targetBattleSquaddie: BattleSquaddie
 }): CalculatedEffect => {
     let damageExplanation: DamageExplanation = DamageExplanationService.new({})
 
     Object.keys(actionEffectTemplate.damageDescriptions).forEach(
-        (damageType: DamageType) => {
+        (damageType: TDamage) => {
             let rawDamageFromAction =
                 actionEffectTemplate.damageDescriptions[damageType]
             if (degreeOfSuccess === DegreeOfSuccess.CRITICAL_SUCCESS) {

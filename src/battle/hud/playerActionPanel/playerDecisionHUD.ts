@@ -5,7 +5,9 @@ import {
     MessageBoardMessagePlayerConsidersAction,
     MessageBoardMessagePlayerConsidersMovement,
     MessageBoardMessagePlayerSelectionIsInvalid,
+    MessageBoardMessagePlayerSelectsAndLocksSquaddie,
     MessageBoardMessageSelectAndLockNextSquaddie,
+    MessageBoardMessageService,
     MessageBoardMessageType,
 } from "../../../message/messageBoardMessage"
 import { isValidValue } from "../../../utils/objectValidityCheck"
@@ -42,39 +44,75 @@ export class PlayerDecisionHUDListener implements MessageBoardListener {
     }
 
     receiveMessage(message: MessageBoardMessage): void {
-        switch (message.type) {
-            case MessageBoardMessageType.PLAYER_SELECTION_IS_INVALID:
-                PlayerDecisionHUDService.createPlayerInvalidSelectionPopup({
-                    message,
-                    popupWindow: message.popupWindow,
-                    playerDecisionHUD:
-                        message.gameEngineState.battleOrchestratorState
-                            .playerDecisionHUD,
-                })
-                break
-            case MessageBoardMessageType.PLAYER_CONSIDERS_ACTION:
-                playerConsidersAction(message)
-                break
-            case MessageBoardMessageType.PLAYER_CONSIDERS_MOVEMENT:
-                playerConsidersMovement(message)
-                break
-            case MessageBoardMessageType.PLAYER_CANCELS_PLAYER_ACTION_CONSIDERATIONS:
-                cancelPlayerActionConsiderations(message)
-                break
-            case MessageBoardMessageType.SELECT_AND_LOCK_NEXT_SQUADDIE:
-                selectAndLockNextSquaddie(message)
-                break
+        if (
+            MessageBoardMessageService.isMessageBoardMessagePlayerSelectionIsInvalid(
+                message
+            )
+        ) {
+            this.playerSelectionIsInvalid(message)
+            return
         }
+
+        if (
+            MessageBoardMessageService.isMessageBoardMessagePlayerConsidersAction(
+                message
+            )
+        ) {
+            playerConsidersAction(message)
+            return
+        }
+
+        if (
+            MessageBoardMessageService.isMessageBoardMessagePlayerConsidersMovement(
+                message
+            )
+        ) {
+            playerConsidersMovement(message)
+            return
+        }
+
+        if (
+            MessageBoardMessageService.isMessageBoardMessagePlayerCancelsPlayerActionConsiderations(
+                message
+            )
+        ) {
+            cancelPlayerActionConsiderations(message)
+            return
+        }
+
+        if (
+            MessageBoardMessageService.isMessageBoardMessageSelectAndLockNextSquaddie(
+                message
+            )
+        ) {
+            selectAndLockNextSquaddie(
+                message as MessageBoardMessagePlayerSelectsAndLocksSquaddie
+            )
+            return
+        }
+    }
+
+    private playerSelectionIsInvalid(
+        message: MessageBoardMessagePlayerSelectionIsInvalid
+    ) {
+        PlayerDecisionHUDService.createPlayerInvalidSelectionPopup({
+            message: message,
+            popupWindow: message.popupWindow,
+            playerDecisionHUD:
+                message.gameEngineState.battleOrchestratorState
+                    .playerDecisionHUD,
+        })
     }
 }
 
-export enum PopupWindowType {
-    PLAYER_INVALID_SELECTION = "PLAYER_INVALID_SELECTION",
-}
+export const PopupWindowType = {
+    PLAYER_INVALID_SELECTION: "PLAYER_INVALID_SELECTION",
+} as const satisfies Record<string, string>
+export type TPopupWindowType = EnumLike<typeof PopupWindowType>
 
 export interface PlayerDecisionHUD {
     popupWindows: {
-        [key in PopupWindowType]: PopupWindow
+        [key in TPopupWindowType]: PopupWindow
     }
 }
 
@@ -99,11 +137,11 @@ export const PlayerDecisionHUDService = {
     setPopupWindow: (
         playerDecisionHUD: PlayerDecisionHUD,
         popupWindow: PopupWindow,
-        popupWindowType: PopupWindowType
+        popupWindowType: TPopupWindowType
     ) => setPopupWindow(playerDecisionHUD, popupWindow, popupWindowType),
     clearPopupWindow: (
         playerDecisionHUD: PlayerDecisionHUD,
-        popupWindowType: PopupWindowType
+        popupWindowType: TPopupWindowType
     ) => {
         playerDecisionHUD.popupWindows[popupWindowType] = undefined
     },
@@ -133,7 +171,7 @@ export const PlayerDecisionHUDService = {
 const setPopupWindow = (
     playerDecisionHUD: PlayerDecisionHUD,
     popupWindow: PopupWindow,
-    popupWindowType: PopupWindowType
+    popupWindowType: TPopupWindowType
 ) => {
     playerDecisionHUD.popupWindows[popupWindowType] = popupWindow
 }

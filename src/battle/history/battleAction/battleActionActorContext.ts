@@ -2,7 +2,7 @@ import {
     RollResult,
     RollResultService,
 } from "../../calculator/actionCalculator/rollResult"
-import { AttributeTypeAndAmount } from "../../../squaddie/attribute/attributeType"
+import { AttributeTypeAndAmount } from "../../../squaddie/attribute/attribute"
 
 export interface BattleActionActorContext {
     actorAttributeModifiers: AttributeTypeAndAmount[]

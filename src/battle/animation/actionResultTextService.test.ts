@@ -33,13 +33,13 @@ import { SquaddieRepositoryService } from "../../utils/test/squaddie"
 import { BattleActionActorContextService } from "../history/battleAction/battleActionActorContext"
 import { TargetConstraintsService } from "../../action/targetConstraints"
 import {
-    RollModifierType,
+    RollModifierEnum,
     RollResultService,
 } from "../calculator/actionCalculator/rollResult"
 import { ActionResourceCostService } from "../../action/actionResourceCost"
 import { beforeEach, describe, expect, it } from "vitest"
 import { SquaddieService } from "../../squaddie/squaddieService"
-import { AttributeType } from "../../squaddie/attribute/attributeType"
+import { Attribute } from "../../squaddie/attribute/attribute"
 
 describe("Action Result Text Writer", () => {
     let squaddieRepository: ObjectRepository = ObjectRepositoryService.new()
@@ -269,7 +269,7 @@ describe("Action Result Text Writer", () => {
                         },
                         attributeModifiers: [
                             AttributeModifierService.new({
-                                type: AttributeType.ARMOR,
+                                type: Attribute.ARMOR,
                                 source: AttributeSource.CIRCUMSTANCE,
                                 amount: 1,
                             }),
@@ -291,7 +291,7 @@ describe("Action Result Text Writer", () => {
                     attributesAfter: InBattleAttributesService.new({
                         attributeModifiers: [
                             AttributeModifierService.new({
-                                type: AttributeType.ARMOR,
+                                type: Attribute.ARMOR,
                                 source: AttributeSource.CIRCUMSTANCE,
                                 amount: 1,
                             }),
@@ -335,7 +335,7 @@ describe("Action Result Text Writer", () => {
                     attributesBefore: InBattleAttributesService.new({
                         attributeModifiers: [
                             AttributeModifierService.new({
-                                type: AttributeType.ARMOR,
+                                type: Attribute.ARMOR,
                                 source: AttributeSource.CIRCUMSTANCE,
                                 amount: 1,
                             }),
@@ -344,7 +344,7 @@ describe("Action Result Text Writer", () => {
                     attributesAfter: InBattleAttributesService.new({
                         attributeModifiers: [
                             AttributeModifierService.new({
-                                type: AttributeType.ARMOR,
+                                type: Attribute.ARMOR,
                                 source: AttributeSource.CIRCUMSTANCE,
                                 amount: 1,
                             }),
@@ -391,12 +391,12 @@ describe("Action Result Text Writer", () => {
                         },
                         attributeModifiers: [
                             AttributeModifierService.new({
-                                type: AttributeType.MOVEMENT,
+                                type: Attribute.MOVEMENT,
                                 source: AttributeSource.MARTIAL,
                                 amount: 1,
                             }),
                             AttributeModifierService.new({
-                                type: AttributeType.HUSTLE,
+                                type: Attribute.HUSTLE,
                                 source: AttributeSource.SPIRITUAL,
                                 amount: 1,
                             }),
@@ -418,12 +418,12 @@ describe("Action Result Text Writer", () => {
                     attributesAfter: InBattleAttributesService.new({
                         attributeModifiers: [
                             AttributeModifierService.new({
-                                type: AttributeType.MOVEMENT,
+                                type: Attribute.MOVEMENT,
                                 source: AttributeSource.ELEMENTAL,
                                 amount: 1,
                             }),
                             AttributeModifierService.new({
-                                type: AttributeType.HUSTLE,
+                                type: Attribute.HUSTLE,
                                 source: AttributeSource.MARTIAL,
                                 amount: 1,
                             }),
@@ -485,7 +485,7 @@ describe("Action Result Text Writer", () => {
                 actingBattleSquaddieId: knightDynamic.battleSquaddieId,
                 squaddieRepository,
                 rollModifiers: {
-                    [RollModifierType.MULTIPLE_ATTACK_PENALTY]: -6,
+                    [RollModifierEnum.MULTIPLE_ATTACK_PENALTY]: -6,
                 },
                 actingSquaddieModifiers: [],
             })
@@ -503,7 +503,7 @@ describe("Action Result Text Writer", () => {
                 actingBattleSquaddieId: knightDynamic.battleSquaddieId,
                 squaddieRepository,
                 rollModifiers: {
-                    [RollModifierType.MULTIPLE_ATTACK_PENALTY]: -6,
+                    [RollModifierEnum.MULTIPLE_ATTACK_PENALTY]: -6,
                 },
                 actingSquaddieModifiers: [],
             })
@@ -707,7 +707,7 @@ describe("Action Result Text Writer", () => {
                         occurred: true,
                         rolls: [2, 6],
                         rollModifiers: {
-                            [RollModifierType.MULTIPLE_ATTACK_PENALTY]: -3,
+                            [RollModifierEnum.MULTIPLE_ATTACK_PENALTY]: -3,
                         },
                     }),
                     actingSquaddieModifiers: [],
@@ -756,7 +756,7 @@ describe("Action Result Text Writer", () => {
                         occurred: false,
                         rolls: [],
                         rollModifiers: {
-                            [RollModifierType.MULTIPLE_ATTACK_PENALTY]: -3,
+                            [RollModifierEnum.MULTIPLE_ATTACK_PENALTY]: -3,
                         },
                     }),
                     actingSquaddieModifiers: [],
@@ -773,7 +773,7 @@ describe("Action Result Text Writer", () => {
         beforeEach(() => {
             thiefDynamic.inBattleAttributes.attributeModifiers.push(
                 AttributeModifierService.new({
-                    type: AttributeType.ARMOR,
+                    type: Attribute.ARMOR,
                     source: AttributeSource.CIRCUMSTANCE,
                     amount: 9001,
                     duration: 1,

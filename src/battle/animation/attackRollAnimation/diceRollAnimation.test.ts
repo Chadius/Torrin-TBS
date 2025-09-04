@@ -17,7 +17,10 @@ import {
     MockedGraphicsBufferService,
     MockedP5GraphicsBuffer,
 } from "../../../utils/test/mocks"
-import { DegreeOfSuccess } from "../../calculator/actionCalculator/degreeOfSuccess"
+import {
+    DegreeOfSuccess,
+    TDegreeOfSuccess,
+} from "../../calculator/actionCalculator/degreeOfSuccess"
 
 describe("die roll animation", () => {
     let dateSpy: MockInstance
@@ -168,7 +171,7 @@ describe("die roll animation", () => {
             type TestType = {
                 expectedExtremeRollText: string
                 degreeOfSuccessText: string
-                degreeOfSuccess: DegreeOfSuccess
+                degreeOfSuccess: TDegreeOfSuccess
                 rolls: [number, number]
             }
 
@@ -336,7 +339,7 @@ const createAnimation = ({
     degreeOfSuccess,
 }: {
     occurred: boolean
-    degreeOfSuccess: DegreeOfSuccess
+    degreeOfSuccess: TDegreeOfSuccess
     rolls?: number[]
 }): DiceRollAnimation => {
     return DiceRollAnimationService.new({

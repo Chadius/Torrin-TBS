@@ -1,45 +1,52 @@
-import { DamageType, HealingType } from "../../squaddie/squaddieService"
+import { TDamage, THealing } from "../../squaddie/squaddieService"
 import {
     Trait,
     TraitStatusStorageService,
+    TTrait,
 } from "../../trait/traitStatusStorage"
 import {
     getValidValueOrDefault,
     isValidValue,
 } from "../../utils/objectValidityCheck"
 import { AttributeModifier } from "../../squaddie/attribute/attributeModifier"
-import { ActionDecisionType } from "./actionTemplate"
+import { ActionDecision, TActionDecision } from "./actionTemplate"
 
-export enum TargetBySquaddieAffiliationRelation {
-    TARGET_SELF = "TARGET_SELF",
-    TARGET_FOE = "TARGET_FOE",
-    TARGET_ALLY = "TARGET_ALLY",
-}
+export const TargetBySquaddieAffiliationRelation = {
+    TARGET_SELF: "TARGET_SELF",
+    TARGET_FOE: "TARGET_FOE",
+    TARGET_ALLY: "TARGET_ALLY",
+} as const satisfies Record<string, string>
+export type TTargetBySquaddieAffiliationRelation = EnumLike<
+    typeof TargetBySquaddieAffiliationRelation
+>
 
-export enum VersusSquaddieResistance {
-    OTHER = "OTHER",
-    ARMOR = "ARMOR",
-    BODY = "BODY",
-    MIND = "MIND",
-    SOUL = "SOUL",
-}
+export const VersusSquaddieResistance = {
+    OTHER: "OTHER",
+    ARMOR: "ARMOR",
+    BODY: "BODY",
+    MIND: "MIND",
+    SOUL: "SOUL",
+} as const satisfies Record<string, string>
+export type TVersusSquaddieResistance = EnumLike<
+    typeof VersusSquaddieResistance
+>
 
 export interface ActionEffectTemplate {
-    damageDescriptions: { [t in DamageType]?: number }
-    healingDescriptions: { [t in HealingType]?: number }
+    damageDescriptions: { [t in TDamage]?: number }
+    healingDescriptions: { [t in THealing]?: number }
     traits: {
-        booleanTraits: { [key in Trait]?: boolean }
+        booleanTraits: { [key in TTrait]?: boolean }
     }
     buttonIconResourceKey?: string
     attributeModifiers: AttributeModifier[]
-    actionDecisions: ActionDecisionType[]
+    actionDecisions: TActionDecision[]
     targetConstraints: {
         squaddieAffiliationRelation: {
             [TargetBySquaddieAffiliationRelation.TARGET_SELF]: boolean
             [TargetBySquaddieAffiliationRelation.TARGET_ALLY]: boolean
             [TargetBySquaddieAffiliationRelation.TARGET_FOE]: boolean
         }
-        versusSquaddieResistance: VersusSquaddieResistance
+        versusSquaddieResistance: TVersusSquaddieResistance
     }
 }
 
@@ -55,19 +62,19 @@ export const ActionEffectTemplateService = {
         versusSquaddieResistance,
     }: {
         traits?: {
-            booleanTraits: { [key in Trait]?: boolean }
+            booleanTraits: { [key in TTrait]?: boolean }
         }
-        damageDescriptions?: { [t in DamageType]?: number }
-        healingDescriptions?: { [t in HealingType]?: number }
+        damageDescriptions?: { [t in TDamage]?: number }
+        healingDescriptions?: { [t in THealing]?: number }
         attributeModifiers?: AttributeModifier[]
         buttonIconResourceKey?: string
-        actionDecisions?: ActionDecisionType[]
+        actionDecisions?: TActionDecision[]
         squaddieAffiliationRelation?: {
             [TargetBySquaddieAffiliationRelation.TARGET_SELF]?: boolean
             [TargetBySquaddieAffiliationRelation.TARGET_ALLY]?: boolean
             [TargetBySquaddieAffiliationRelation.TARGET_FOE]?: boolean
         }
-        versusSquaddieResistance?: VersusSquaddieResistance
+        versusSquaddieResistance?: TVersusSquaddieResistance
     }): ActionEffectTemplate => {
         const data: ActionEffectTemplate = {
             traits: traits,
@@ -76,7 +83,7 @@ export const ActionEffectTemplateService = {
             attributeModifiers: attributeModifiers || [],
             buttonIconResourceKey,
             actionDecisions: actionDecisions || [
-                ActionDecisionType.TARGET_SQUADDIE,
+                ActionDecision.TARGET_SQUADDIE,
             ],
             targetConstraints: {
                 versusSquaddieResistance:

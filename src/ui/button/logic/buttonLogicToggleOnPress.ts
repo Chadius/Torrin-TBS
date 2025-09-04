@@ -1,4 +1,4 @@
-import { ButtonStatus } from "../buttonStatus"
+import { ButtonStatus, TButtonStatus } from "../buttonStatus"
 import { RectArea, RectAreaService } from "../../rectArea"
 import {
     MouseButton,
@@ -13,7 +13,7 @@ import {
     ButtonStatusChangeEventByButtonId,
 } from "./base"
 
-const VALID_STATUSES: ButtonStatus[] = [
+const VALID_STATUSES: TButtonStatus[] = [
     ButtonStatus.TOGGLE_OFF,
     ButtonStatus.TOGGLE_ON,
     ButtonStatus.TOGGLE_OFF_HOVER,
@@ -25,7 +25,7 @@ export class ButtonLogicToggleOnPress
     implements ButtonLogic, ButtonLogicClassFunctions
 {
     buttonStatusChangeEventData: ButtonStatusChangeEventByButtonId
-    status: ButtonStatus
+    status: TButtonStatus
     lastStatusChangeTimeStamp: number
 
     constructor({ dataBlob }: { dataBlob: ButtonStatusChangeEventByButtonId }) {
@@ -42,7 +42,7 @@ export class ButtonLogicToggleOnPress
         mouseRelease,
     }: {
         buttonId: string
-        newStatus: ButtonStatus
+        newStatus: TButtonStatus
         mouseLocation?: ScreenLocation
         mousePress?: MousePress
         mouseRelease?: MouseRelease
@@ -78,7 +78,7 @@ export class ButtonLogicToggleOnPress
         )
 
         const toggleStatesWhenMouseIsOnButton: {
-            [b in ButtonStatus]?: ButtonStatus
+            [b in TButtonStatus]?: TButtonStatus
         } = {
             [ButtonStatus.TOGGLE_ON]: ButtonStatus.TOGGLE_ON_HOVER,
             [ButtonStatus.TOGGLE_OFF]: ButtonStatus.TOGGLE_OFF_HOVER,
@@ -93,7 +93,7 @@ export class ButtonLogicToggleOnPress
         }
 
         const toggleStatesWhenMouseIsOffButton: {
-            [b in ButtonStatus]?: ButtonStatus
+            [b in TButtonStatus]?: TButtonStatus
         } = {
             [ButtonStatus.TOGGLE_ON_HOVER]: ButtonStatus.TOGGLE_ON,
             [ButtonStatus.TOGGLE_OFF_HOVER]: ButtonStatus.TOGGLE_OFF,
@@ -126,7 +126,7 @@ export class ButtonLogicToggleOnPress
             mousePress.y
         )
 
-        const toggleStates: { [b in ButtonStatus]?: ButtonStatus } = {
+        const toggleStates: { [b in TButtonStatus]?: TButtonStatus } = {
             [ButtonStatus.TOGGLE_ON]: ButtonStatus.TOGGLE_OFF,
             [ButtonStatus.TOGGLE_OFF]: ButtonStatus.TOGGLE_ON,
             [ButtonStatus.TOGGLE_ON_HOVER]: ButtonStatus.TOGGLE_OFF_HOVER,

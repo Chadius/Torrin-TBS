@@ -1,13 +1,13 @@
 import { MessageBoardListener } from "./messageBoardListener"
 import {
     MessageBoardMessage,
-    MessageBoardMessageType,
+    TMessageBoardMessageType,
 } from "./messageBoardMessage"
 
 export class MessageBoard {
     listeners: {
         id: string
-        messageBoardMessageType: MessageBoardMessageType
+        messageBoardMessageType: TMessageBoardMessageType
         listener: MessageBoardListener
     }[]
 
@@ -22,7 +22,7 @@ export class MessageBoard {
 
     addListener = (
         messageBoardListener: MessageBoardListener,
-        messageBoardMessageType: MessageBoardMessageType
+        messageBoardMessageType: TMessageBoardMessageType
     ) => {
         this.listeners.push({
             id: messageBoardListener.messageBoardListenerId,
@@ -40,7 +40,7 @@ export class MessageBoard {
         return listenerInfo === undefined ? undefined : listenerInfo.listener
     }
     getListenersByMessageType = (
-        messageBoardMessageType: MessageBoardMessageType
+        messageBoardMessageType: TMessageBoardMessageType
     ): MessageBoardListener[] => {
         return this.listeners
             .filter(
@@ -53,7 +53,7 @@ export class MessageBoard {
         this.getListenersByMessageType(message.type).forEach((listener) => {
             listener.receiveMessage(message)
             this.logMessage({
-                message: `sendMessage: ${message.type} to ${listener.messageBoardListenerId}`,
+                message: `sendMessage: ${message.type.toString()} to ${listener.messageBoardListenerId}`,
             })
         })
     }

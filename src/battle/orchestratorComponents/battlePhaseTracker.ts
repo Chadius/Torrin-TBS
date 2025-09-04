@@ -2,25 +2,30 @@ import {
     BattleSquaddieTeam,
     BattleSquaddieTeamService,
 } from "../battleSquaddieTeam"
-import { SquaddieAffiliation } from "../../squaddie/squaddieAffiliation"
+import {
+    SquaddieAffiliation,
+    TSquaddieAffiliation,
+} from "../../squaddie/squaddieAffiliation"
 import { BattlePhaseState } from "./battlePhaseController"
 import { GameEngineState } from "../../gameEngine/gameEngine"
 import { BattleSquaddie } from "../battleSquaddie"
 import { getResultOrThrowError } from "../../utils/ResultOrError"
 import { ObjectRepositoryService } from "../objectRepository"
 
-export enum BattlePhase {
-    UNKNOWN = "UNKNOWN",
-    PLAYER = "PLAYER",
-    ENEMY = "ENEMY",
-    ALLY = "ALLY",
-    NONE = "NONE",
-}
+export const BattlePhase = {
+    UNKNOWN: "UNKNOWN",
+    PLAYER: "PLAYER",
+    ENEMY: "ENEMY",
+    ALLY: "ALLY",
+    NONE: "NONE",
+} as const satisfies Record<string, string>
+
+export type TBattlePhase = EnumLike<typeof BattlePhase>
 
 export const BattlePhaseService = {
     ConvertBattlePhaseToSquaddieAffiliation: (
-        phase: BattlePhase
-    ): SquaddieAffiliation => {
+        phase: TBattlePhase
+    ): TSquaddieAffiliation => {
         return convertBattlePhaseToSquaddieAffiliation(phase)
     },
     AdvanceToNextPhase: (
@@ -31,13 +36,13 @@ export const BattlePhaseService = {
     },
     findTeamsOfAffiliation: (
         teams: BattleSquaddieTeam[],
-        affiliation: SquaddieAffiliation
+        affiliation: TSquaddieAffiliation
     ): BattleSquaddieTeam[] => {
         return findTeamsOfAffiliation(teams, affiliation)
     },
     doForEachSquaddieOfBattlePhase: (
         gameEngineState: GameEngineState,
-        phase: BattlePhase,
+        phase: TBattlePhase,
         callback: (battleSquaddie: BattleSquaddie) => void
     ) => {
         const squaddieAffiliation =
@@ -63,8 +68,8 @@ export const BattlePhaseService = {
 }
 
 const convertBattlePhaseToSquaddieAffiliation: (
-    phase: BattlePhase
-) => SquaddieAffiliation = (phase: BattlePhase): SquaddieAffiliation => {
+    phase: TBattlePhase
+) => TSquaddieAffiliation = (phase: TBattlePhase): TSquaddieAffiliation => {
     switch (phase) {
         case BattlePhase.PLAYER:
             return SquaddieAffiliation.PLAYER
@@ -83,7 +88,7 @@ const advanceToNextPhase = (
     startingPhaseState: BattlePhaseState,
     teams: BattleSquaddieTeam[]
 ) => {
-    const getNextPhase = (phase: BattlePhase) => {
+    const getNextPhase = (phase: TBattlePhase) => {
         switch (phase) {
             case BattlePhase.PLAYER:
                 return { phase: BattlePhase.ENEMY, incrementTurn: false }
@@ -138,7 +143,7 @@ const advanceToNextPhase = (
 
 const findTeamsOfAffiliation = (
     teams: BattleSquaddieTeam[],
-    affiliation: SquaddieAffiliation
+    affiliation: TSquaddieAffiliation
 ): BattleSquaddieTeam[] => {
     return teams.filter((team) => team.affiliation === affiliation)
 }

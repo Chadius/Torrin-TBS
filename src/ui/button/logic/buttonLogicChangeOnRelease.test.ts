@@ -7,7 +7,7 @@ import {
     MockInstance,
     vi,
 } from "vitest"
-import { ButtonStatus } from "../buttonStatus"
+import { ButtonStatus, TButtonStatus } from "../buttonStatus"
 import { RectArea, RectAreaService } from "../../rectArea"
 import { MouseButton } from "../../../utils/mouseConfig"
 import { DataBlobService } from "../../../utils/dataBlob/dataBlob"
@@ -364,7 +364,7 @@ describe("Button Logic Change on Release", () => {
 
     describe("valid button states", () => {
         let buttonLogic: ButtonLogicChangeOnRelease
-        const validStatuses: ButtonStatus[] = [
+        const validStatuses: TButtonStatus[] = [
             ButtonStatus.READY,
             ButtonStatus.HOVER,
             ButtonStatus.ACTIVE,

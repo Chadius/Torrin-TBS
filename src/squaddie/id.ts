@@ -3,7 +3,10 @@ import {
     TraitStatusStorage,
     TraitStatusStorageService,
 } from "../trait/traitStatusStorage"
-import { SquaddieAffiliation } from "./squaddieAffiliation"
+import {
+    SquaddieAffiliation,
+    TSquaddieAffiliation,
+} from "./squaddieAffiliation"
 import { isValidValue } from "../utils/objectValidityCheck"
 
 export interface SquaddieId {
@@ -11,7 +14,7 @@ export interface SquaddieId {
     templateId: string
     resources: SquaddieResource
     traits: TraitStatusStorage
-    affiliation: SquaddieAffiliation
+    affiliation: TSquaddieAffiliation
 }
 
 export const SquaddieIdService = {
@@ -24,7 +27,7 @@ export const SquaddieIdService = {
     }: {
         squaddieTemplateId: string
         name: string
-        affiliation: SquaddieAffiliation
+        affiliation: TSquaddieAffiliation
         resources?: SquaddieResource
         traits?: TraitStatusStorage
     }) => {

@@ -8,6 +8,7 @@ import { DegreeOfSuccess } from "../calculator/actionCalculator/degreeOfSuccess"
 import {
     MessageBoardMessage,
     MessageBoardMessageType,
+    TMessageBoardMessageType,
 } from "../../message/messageBoardMessage"
 import {
     BattleActionSquaddieChangeService,
@@ -29,7 +30,7 @@ import { SquaddieAffiliation } from "../../squaddie/squaddieAffiliation"
 import { BattleEventMessageListener } from "./battleEventMessageListener"
 import { EventTriggerSquaddieService } from "./eventTrigger/eventTriggerSquaddie"
 import { EventTriggerBaseService } from "./eventTrigger/eventTriggerBase"
-import { TriggeringEventType } from "./eventTrigger/triggeringEventType"
+import { TriggeringEvent } from "./eventTrigger/triggeringEvent"
 import { EventTriggerSquaddieQueryService } from "./eventTrigger/eventTriggerSquaddieQuery"
 import {
     CutsceneEffect,
@@ -38,7 +39,7 @@ import {
 import { CutsceneQueueService } from "../cutscene/cutsceneIdQueue"
 import { getResultOrThrowError } from "../../utils/ResultOrError"
 import { InBattleAttributesService } from "../stats/inBattleAttributes"
-import { DamageType } from "../../squaddie/squaddieService"
+import { Damage } from "../../squaddie/squaddieService"
 import { BattleActionRecorderService } from "../history/battleAction/battleActionRecorder"
 import { BattlePhaseStateService } from "../orchestratorComponents/battlePhaseController"
 import { BattlePhase } from "../orchestratorComponents/battlePhaseTracker"
@@ -52,8 +53,8 @@ import { MapSearchTestUtils } from "../../hexMap/pathfinder/pathGeneration/mapSe
 import { BattleCompletionStatus } from "../orchestrator/missionObjectivesAndCutscenes"
 import { EventTriggerBattleCompletionStatusService } from "./eventTrigger/eventTriggerBattleCompletionStatus"
 import {
+    ChallengeModifierEnum,
     ChallengeModifierSettingService,
-    ChallengeModifierType,
 } from "../challengeModifier/challengeModifierSetting"
 import { ChallengeModifierEffectService } from "./eventEffect/challengeModifierEffect/challengeModifierEffect"
 
@@ -98,7 +99,7 @@ describe("Event Message Listener", () => {
 
         const addMessageTypesToMessageListener = (
             gameEngineState: GameEngineState,
-            messageTypes: MessageBoardMessageType[]
+            messageTypes: TMessageBoardMessageType[]
         ) => {
             messageTypes.forEach((messageBoardMessageType) => {
                 gameEngineState.messageBoard.addListener(
@@ -166,7 +167,7 @@ describe("Event Message Listener", () => {
                 triggers: [
                     {
                         ...EventTriggerBaseService.new(
-                            TriggeringEventType.START_OF_TURN
+                            TriggeringEvent.START_OF_TURN
                         ),
                         ...EventTriggerTurnRangeService.new({
                             exactTurn: 1,
@@ -212,7 +213,7 @@ describe("Event Message Listener", () => {
                     triggers: [
                         {
                             ...EventTriggerBaseService.new(
-                                TriggeringEventType.SQUADDIE_IS_INJURED
+                                TriggeringEvent.SQUADDIE_IS_INJURED
                             ),
                             ...EventTriggerSquaddieService.new({
                                 targetingSquaddie:
@@ -230,7 +231,7 @@ describe("Event Message Listener", () => {
                     triggers: [
                         {
                             ...EventTriggerBaseService.new(
-                                TriggeringEventType.SQUADDIE_IS_DEFEATED
+                                TriggeringEvent.SQUADDIE_IS_DEFEATED
                             ),
                             ...EventTriggerSquaddieService.new({
                                 targetingSquaddie:
@@ -315,7 +316,7 @@ describe("Event Message Listener", () => {
                 InBattleAttributesService.takeDamage({
                     inBattleAttributes: targetBattleSquaddie.inBattleAttributes,
                     damageToTake: damageTaken,
-                    damageType: DamageType.UNKNOWN,
+                    damageType: Damage.UNKNOWN,
                 })
             }
 
@@ -349,7 +350,7 @@ describe("Event Message Listener", () => {
                 triggers: [
                     {
                         ...EventTriggerBaseService.new(
-                            TriggeringEventType.START_OF_TURN
+                            TriggeringEvent.START_OF_TURN
                         ),
                         ...EventTriggerTurnRangeService.new({
                             exactTurn: 1,
@@ -382,7 +383,7 @@ describe("Event Message Listener", () => {
                     triggers: [
                         {
                             ...EventTriggerBaseService.new(
-                                TriggeringEventType.MISSION_VICTORY
+                                TriggeringEvent.MISSION_VICTORY
                             ),
                             ...EventTriggerBattleCompletionStatusService.new({
                                 battleCompletionStatus:
@@ -397,7 +398,7 @@ describe("Event Message Listener", () => {
                     triggers: [
                         {
                             ...EventTriggerBaseService.new(
-                                TriggeringEventType.MISSION_DEFEAT
+                                TriggeringEvent.MISSION_DEFEAT
                             ),
                             ...EventTriggerBattleCompletionStatusService.new({
                                 battleCompletionStatus:
@@ -452,7 +453,7 @@ describe("Event Message Listener", () => {
                     triggers: [
                         {
                             ...EventTriggerBaseService.new(
-                                TriggeringEventType.START_OF_TURN
+                                TriggeringEvent.START_OF_TURN
                             ),
                             ...EventTriggerTurnRangeService.new({
                                 exactTurn: 1,
@@ -498,11 +499,11 @@ describe("Event Message Listener", () => {
 
             const turnBattleEvents = generateBattleEvents([
                 ChallengeModifierEffectService.new(
-                    ChallengeModifierType.TRAINING_WHEELS,
+                    ChallengeModifierEnum.TRAINING_WHEELS,
                     false
                 ),
                 ChallengeModifierEffectService.new(
-                    ChallengeModifierType.TRAINING_WHEELS,
+                    ChallengeModifierEnum.TRAINING_WHEELS,
                     true
                 ),
             ])

@@ -2,9 +2,13 @@ import {
     BattleCompletionStatus,
     MissionObjectivesAndCutscenes,
     MissionObjectivesAndCutscenesHelper,
+    TBattleCompletionStatus,
 } from "../orchestrator/missionObjectivesAndCutscenes"
 import { MissionMap, MissionMapService } from "../../missionMap/missionMap"
-import { SquaddieAffiliation } from "../../squaddie/squaddieAffiliation"
+import {
+    SquaddieAffiliation,
+    TSquaddieAffiliation,
+} from "../../squaddie/squaddieAffiliation"
 import {
     BattleSquaddieTeam,
     BattleSquaddieTeamService,
@@ -62,11 +66,15 @@ import {
     ChallengeModifierSettingService,
 } from "../challengeModifier/challengeModifierSetting"
 
-export enum BattleStateValidityMissingComponent {
-    MISSION_MAP = "MISSION_MAP",
-    TEAMS = "TEAMS",
-    MISSION_OBJECTIVE = "MISSION_OBJECTIVE",
-}
+export const BattleStateValidityMissingComponent = {
+    MISSION_MAP: "MISSION_MAP",
+    TEAMS: "TEAMS",
+    MISSION_OBJECTIVE: "MISSION_OBJECTIVE",
+} as const satisfies Record<string, string>
+
+export type TBattleStateValidityMissingComponent = EnumLike<
+    typeof BattleStateValidityMissingComponent
+>
 
 export interface BattleState extends MissionObjectivesAndCutscenes {
     missionId: string
@@ -106,7 +114,7 @@ export const BattleStateService = {
     },
     missingComponents: (
         battleState: BattleState
-    ): BattleStateValidityMissingComponent[] => {
+    ): TBattleStateValidityMissingComponent[] => {
         return getMissingComponents(battleState)
     },
     isReadyToContinueMission: (battleState: BattleState): boolean => {
@@ -167,7 +175,7 @@ export const BattleStateService = {
         affiliation,
     }: {
         battleState: BattleState
-        affiliation: SquaddieAffiliation
+        affiliation: TSquaddieAffiliation
     }):
         | {
               teams: BattleSquaddieTeam[]
@@ -214,7 +222,7 @@ interface BattleStateConstructorParameters {
     missionCompletionStatus?: MissionCompletionStatus
     missionStatistics?: MissionStatistics
     searchPath?: SearchPathAdapter
-    battleCompletionStatus?: BattleCompletionStatus
+    battleCompletionStatus?: TBattleCompletionStatus
     battleActionRecorder?: BattleActionRecorder
     battleActionDecisionStep?: BattleActionDecisionStep
     challengeModifierSetting?: ChallengeModifierSetting
@@ -274,7 +282,7 @@ const newBattleState = ({
 
 const getMissingComponents = (
     battleState: BattleState
-): BattleStateValidityMissingComponent[] => {
+): TBattleStateValidityMissingComponent[] => {
     const expectedComponents = {
         [BattleStateValidityMissingComponent.MISSION_MAP]: isValidValue(
             battleState.missionMap
@@ -290,7 +298,7 @@ const getMissingComponents = (
     }
 
     return Object.keys(expectedComponents)
-        .map((str) => str as BattleStateValidityMissingComponent)
+        .map((str) => str as TBattleStateValidityMissingComponent)
         .filter(
             (battleStateValidityMissingComponent) =>
                 expectedComponents[battleStateValidityMissingComponent] ===
@@ -310,10 +318,12 @@ export class BattleStateListener implements MessageBoardListener {
             message.type ===
             MessageBoardMessageType.BATTLE_ACTION_FINISHES_ANIMATION
         ) {
-            battleActionFinishesAnimation(message)
+            battleActionFinishesAnimation(
+                message as MessageBoardBattleActionFinishesAnimation
+            )
         }
         if (message.type === MessageBoardMessageType.SQUADDIE_TURN_ENDS) {
-            squaddieTurnEnds(message)
+            squaddieTurnEnds(message as MessageBoardMessageSquaddieTurnEnds)
         }
     }
 }

@@ -3,7 +3,10 @@ import {
     TeamStrategyCalculator,
     TeamStrategyService,
 } from "./teamStrategyCalculator"
-import { SquaddieAffiliation } from "../../squaddie/squaddieAffiliation"
+import {
+    SquaddieAffiliation,
+    TSquaddieAffiliation,
+} from "../../squaddie/squaddieAffiliation"
 import { getResultOrThrowError } from "../../utils/ResultOrError"
 import {
     TargetingResults,
@@ -29,7 +32,7 @@ import { BattleActionRecorderService } from "../history/battleAction/battleActio
 
 export class TargetSquaddieInRange implements TeamStrategyCalculator {
     desiredBattleSquaddieId: string
-    desiredAffiliation: SquaddieAffiliation
+    desiredAffiliation: TSquaddieAffiliation
 
     constructor(options: TeamStrategyOptions) {
         this.desiredBattleSquaddieId = options.desiredBattleSquaddieId

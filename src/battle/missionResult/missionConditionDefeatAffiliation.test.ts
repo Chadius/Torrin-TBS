@@ -4,7 +4,7 @@ import { BattleOrchestratorStateService } from "../orchestrator/battleOrchestrat
 import { TerrainTileMapService } from "../../hexMap/terrainTileMap"
 import { ObjectRepositoryService } from "../objectRepository"
 import { SquaddieAffiliation } from "../../squaddie/squaddieAffiliation"
-import { DamageType, SquaddieService } from "../../squaddie/squaddieService"
+import { Damage, SquaddieService } from "../../squaddie/squaddieService"
 import {
     MissionCondition,
     MissionConditionType,
@@ -206,7 +206,7 @@ describe("Mission Condition: Defeat All Squaddies of a given Affiliation", () =>
         InBattleAttributesService.takeDamage({
             inBattleAttributes: enemy1Dynamic.inBattleAttributes,
             damageToTake: 9001,
-            damageType: DamageType.UNKNOWN,
+            damageType: Damage.UNKNOWN,
         })
         const { isDead } = SquaddieService.canSquaddieActRightNow({
             squaddieTemplate: enemy1Static,
@@ -280,7 +280,7 @@ describe("Mission Condition: Defeat All Squaddies of a given Affiliation", () =>
         InBattleAttributesService.takeDamage({
             inBattleAttributes: enemy1Dynamic.inBattleAttributes,
             damageToTake: 9001,
-            damageType: DamageType.UNKNOWN,
+            damageType: Damage.UNKNOWN,
         })
         const { isDead } = SquaddieService.canSquaddieActRightNow({
             squaddieTemplate: enemy1Static,

@@ -39,6 +39,7 @@ import {
     SearchPathAdapterService,
 } from "../../../search/searchPathAdapter/searchPathAdapter"
 import {
+    PULSE_COLOR_FORMULA,
     PULSE_COLOR_FORMULA_TYPE,
     PulseColor,
     PulseColorService,
@@ -158,7 +159,7 @@ export const DRAW_SQUADDIE_ICON_ON_MAP_LAYOUT: DrawSquaddieIconOnMapLayout = {
             alpha: 256,
             pulse: {
                 period: 5000,
-                formula: PULSE_COLOR_FORMULA_TYPE.SINE,
+                formula: PULSE_COLOR_FORMULA.SINE,
             },
         },
         circleHighlight: {
@@ -168,7 +169,7 @@ export const DRAW_SQUADDIE_ICON_ON_MAP_LAYOUT: DrawSquaddieIconOnMapLayout = {
                     high: HEX_TILE_RADIUS,
                 },
                 periodInMilliseconds: 2000,
-                formula: PULSE_COLOR_FORMULA_TYPE.LINEAR,
+                formula: PULSE_COLOR_FORMULA.LINEAR,
             },
             pulseColor: PulseColorService.new({
                 hue: 0,
@@ -180,7 +181,7 @@ export const DRAW_SQUADDIE_ICON_ON_MAP_LAYOUT: DrawSquaddieIconOnMapLayout = {
                 },
                 pulse: {
                     period: 2000,
-                    formula: PULSE_COLOR_FORMULA_TYPE.LINEAR,
+                    formula: PULSE_COLOR_FORMULA.LINEAR,
                 },
             }),
         },
@@ -196,7 +197,7 @@ export const DRAW_SQUADDIE_ICON_ON_MAP_LAYOUT: DrawSquaddieIconOnMapLayout = {
             alpha: 256,
             pulse: {
                 period: 5000,
-                formula: PULSE_COLOR_FORMULA_TYPE.SINE,
+                formula: PULSE_COLOR_FORMULA.SINE,
             },
         },
         circleHighlight: {
@@ -206,7 +207,7 @@ export const DRAW_SQUADDIE_ICON_ON_MAP_LAYOUT: DrawSquaddieIconOnMapLayout = {
                     high: HEX_TILE_RADIUS,
                 },
                 periodInMilliseconds: 2000,
-                formula: PULSE_COLOR_FORMULA_TYPE.LINEAR,
+                formula: PULSE_COLOR_FORMULA.LINEAR,
             },
             pulseColor: PulseColorService.new({
                 hue: HIGHLIGHT_PULSE_COLOR.RED.hue,
@@ -218,7 +219,7 @@ export const DRAW_SQUADDIE_ICON_ON_MAP_LAYOUT: DrawSquaddieIconOnMapLayout = {
                 },
                 pulse: {
                     period: 2000,
-                    formula: PULSE_COLOR_FORMULA_TYPE.LINEAR,
+                    formula: PULSE_COLOR_FORMULA.LINEAR,
                 },
             }),
         },
@@ -234,7 +235,7 @@ export const DRAW_SQUADDIE_ICON_ON_MAP_LAYOUT: DrawSquaddieIconOnMapLayout = {
             alpha: 256,
             pulse: {
                 period: 5000,
-                formula: PULSE_COLOR_FORMULA_TYPE.SINE,
+                formula: PULSE_COLOR_FORMULA.SINE,
             },
         },
         circleHighlight: {
@@ -244,7 +245,7 @@ export const DRAW_SQUADDIE_ICON_ON_MAP_LAYOUT: DrawSquaddieIconOnMapLayout = {
                     high: HEX_TILE_RADIUS,
                 },
                 periodInMilliseconds: 2000,
-                formula: PULSE_COLOR_FORMULA_TYPE.LINEAR,
+                formula: PULSE_COLOR_FORMULA.LINEAR,
             },
             pulseColor: PulseColorService.new({
                 hue: HIGHLIGHT_PULSE_COLOR.GREEN.hue,
@@ -256,7 +257,7 @@ export const DRAW_SQUADDIE_ICON_ON_MAP_LAYOUT: DrawSquaddieIconOnMapLayout = {
                 },
                 pulse: {
                     period: 2000,
-                    formula: PULSE_COLOR_FORMULA_TYPE.LINEAR,
+                    formula: PULSE_COLOR_FORMULA.LINEAR,
                 },
             }),
         },

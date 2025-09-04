@@ -1,8 +1,12 @@
-import { SquaddieAffiliation } from "../../squaddie/squaddieAffiliation"
+import {
+    SquaddieAffiliation,
+    TSquaddieAffiliation,
+} from "../../squaddie/squaddieAffiliation"
 import {
     MissionCondition,
     MissionConditionCalculator,
     MissionConditionType,
+    TMissionConditionType,
 } from "./missionCondition"
 import { getResultOrThrowError } from "../../utils/ResultOrError"
 import { SquaddieService } from "../../squaddie/squaddieService"
@@ -28,7 +32,7 @@ export class MissionConditionDefeatAffiliation
         }
 
         const affiliationByType: {
-            [key in MissionConditionType]?: SquaddieAffiliation
+            [key in TMissionConditionType]?: TSquaddieAffiliation
         } = {
             [MissionConditionType.DEFEAT_ALL_PLAYERS]:
                 SquaddieAffiliation.PLAYER,

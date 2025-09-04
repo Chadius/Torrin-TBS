@@ -1,4 +1,4 @@
-import { SquaddieAffiliation } from "../../../squaddie/squaddieAffiliation"
+import { TSquaddieAffiliation } from "../../../squaddie/squaddieAffiliation"
 
 export interface SearchLimit {
     ignoreTerrainCost: boolean
@@ -7,7 +7,7 @@ export interface SearchLimit {
     minimumDistance?: number
     maximumDistance?: number
     maximumMovementCost?: number
-    squaddieAffiliation?: SquaddieAffiliation
+    squaddieAffiliation?: TSquaddieAffiliation
     canStopOnSquaddies: boolean
 }
 
@@ -34,7 +34,7 @@ export const SearchLimitService = {
         minimumDistance?: number
         maximumDistance?: number
         maximumMovementCost?: number
-        squaddieAffiliation?: SquaddieAffiliation
+        squaddieAffiliation?: TSquaddieAffiliation
         canStopOnSquaddies?: boolean
     }): SearchLimit => {
         let baseValue = baseSearchLimit ?? {}

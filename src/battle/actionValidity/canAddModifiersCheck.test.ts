@@ -14,7 +14,7 @@ import { MapSearchTestUtils } from "../../hexMap/pathfinder/pathGeneration/mapSe
 import { getResultOrThrowError } from "../../utils/ResultOrError"
 import { ActionPerformFailureReason } from "../../squaddie/turn"
 import { CoordinateGeneratorShape } from "../targeting/coordinateGenerator"
-import { DamageType } from "../../squaddie/squaddieService"
+import { Damage } from "../../squaddie/squaddieService"
 import { InBattleAttributesService } from "../stats/inBattleAttributes"
 import { ActionValidityTestUtils } from "./commonTest"
 import { TargetingResults } from "../targeting/targetingService"
@@ -22,7 +22,7 @@ import {
     AttributeModifierService,
     AttributeSource,
 } from "../../squaddie/attribute/attributeModifier"
-import { AttributeType } from "../../squaddie/attribute/attributeType"
+import { Attribute } from "../../squaddie/attribute/attribute"
 import { CanAddModifiersCheck } from "./canAddModifiersCheck"
 
 describe("can add modifiers check", () => {
@@ -73,7 +73,7 @@ describe("can add modifiers check", () => {
                         [TargetBySquaddieAffiliationRelation.TARGET_FOE]: true,
                     },
                     damageDescriptions: {
-                        [DamageType.BODY]: 2,
+                        [Damage.BODY]: 2,
                     },
                 }),
             ],
@@ -93,7 +93,7 @@ describe("can add modifiers check", () => {
         InBattleAttributesService.takeDamage({
             inBattleAttributes: battleSquaddie.inBattleAttributes,
             damageToTake: 1,
-            damageType: DamageType.BODY,
+            damageType: Damage.BODY,
         })
 
         expect(
@@ -130,7 +130,7 @@ describe("can add modifiers check", () => {
                         },
                         attributeModifiers: [
                             AttributeModifierService.new({
-                                type: AttributeType.ARMOR,
+                                type: Attribute.ARMOR,
                                 amount: 1,
                                 source: AttributeSource.CIRCUMSTANCE,
                             }),
@@ -156,7 +156,7 @@ describe("can add modifiers check", () => {
                 InBattleAttributesService.addActiveAttributeModifier(
                     battleSquaddie.inBattleAttributes,
                     AttributeModifierService.new({
-                        type: AttributeType.ARMOR,
+                        type: Attribute.ARMOR,
                         amount: 1,
                         source: AttributeSource.CIRCUMSTANCE,
                     })

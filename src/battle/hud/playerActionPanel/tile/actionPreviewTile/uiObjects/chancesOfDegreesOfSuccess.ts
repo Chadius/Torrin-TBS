@@ -9,12 +9,15 @@ import {
     ActionPreviewTileContext,
     ActionPreviewTileLayout,
     ActionPreviewTileUIObjects,
-    ShowDegreeOfSuccessEvenIfNoEffect,
+    TShowDegreeOfSuccessEvenIfNoEffect,
 } from "../actionPreviewTile"
 import { ActionPreviewTileDegreesOfSuccessService } from "./degreesOfSuccess"
 import { ComponentDataBlob } from "../../../../../../utils/dataBlob/componentDataBlob"
 import { BattleActionSquaddieChange } from "../../../../../history/battleAction/battleActionSquaddieChange"
-import { DegreeOfSuccess } from "../../../../../calculator/actionCalculator/degreeOfSuccess"
+import {
+    DegreeOfSuccess,
+    TDegreeOfSuccess,
+} from "../../../../../calculator/actionCalculator/degreeOfSuccess"
 import { RectangleService } from "../../../../../../ui/rectangle/rectangle"
 
 export class CreateNextChancesOfDegreesOfSuccessTextBoxAction
@@ -94,9 +97,9 @@ export class CreateNextChancesOfDegreesOfSuccessTextBoxAction
         uiObjects: ActionPreviewTileUIObjects
         forecastedChange: BattleActionSquaddieChange
         degreeOfSuccessToDraw: {
-            degreeOfSuccess: DegreeOfSuccess
+            degreeOfSuccess: TDegreeOfSuccess
             suffix: string
-            showEvenIfNoEffect: ShowDegreeOfSuccessEvenIfNoEffect
+            showEvenIfNoEffect: TShowDegreeOfSuccessEvenIfNoEffect
             showChanceOfSuccess: boolean
         }
         top: number
@@ -149,9 +152,9 @@ export class CreateNextChancesOfDegreesOfSuccessTextBoxAction
         uiObjects: ActionPreviewTileUIObjects
         forecastedChange: BattleActionSquaddieChange
         degreeOfSuccessToDraw: {
-            degreeOfSuccess: DegreeOfSuccess
+            degreeOfSuccess: TDegreeOfSuccess
             suffix: string
-            showEvenIfNoEffect: ShowDegreeOfSuccessEvenIfNoEffect
+            showEvenIfNoEffect: TShowDegreeOfSuccessEvenIfNoEffect
             showChanceOfSuccess: boolean
         }
         top: number

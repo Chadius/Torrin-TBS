@@ -1,5 +1,8 @@
 import { RectArea, RectAreaService } from "../../ui/rectArea"
-import { CutsceneActionPlayerType } from "../cutsceneAction"
+import {
+    CutsceneActionPlayerType,
+    TCutsceneActionPlayerType,
+} from "../cutsceneAction"
 import { DialogueTextBox } from "./dialogueTextBox"
 import { DialoguePortraitImage } from "./dialoguePortraitImage"
 import { DialogueAnswerButton } from "./dialogueAnswerButton"
@@ -21,13 +24,14 @@ import { ResourceHandler } from "../../resource/resourceHandler"
 import { OrchestratorComponentKeyEvent } from "../../battle/orchestrator/battleOrchestratorComponent"
 import {
     PlayerInputAction,
+    TPlayerInputAction,
     PlayerInputState,
     PlayerInputStateService,
 } from "../../ui/playerInput/playerInputState"
 import { MousePress } from "../../utils/mouseConfig"
 
 export interface DialoguePlayerState {
-    type: CutsceneActionPlayerType.DIALOGUE
+    type: TCutsceneActionPlayerType
     dialogue: Dialogue
 
     dialogFinished: boolean
@@ -150,7 +154,7 @@ export const DialoguePlayerService = {
         event: OrchestratorComponentKeyEvent
         playerInputState: PlayerInputState
     }) => {
-        const actions: PlayerInputAction[] =
+        const actions: TPlayerInputAction[] =
             PlayerInputStateService.getActionsForPressedKey(
                 playerInputState,
                 event.keyCode

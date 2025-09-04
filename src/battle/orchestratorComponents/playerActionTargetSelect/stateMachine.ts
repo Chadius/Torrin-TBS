@@ -19,6 +19,7 @@ import {
     OrchestratorComponentKeyEventType,
     OrchestratorComponentMouseEvent,
     OrchestratorComponentMouseEventType,
+    TOrchestratorComponentMouseEventType,
 } from "../../orchestrator/battleOrchestratorComponent"
 import {
     PlayerInputAction,
@@ -49,46 +50,63 @@ import {
 import { Label } from "../../../ui/label"
 import { MissionMapSquaddieCoordinateService } from "../../../missionMap/squaddieCoordinate"
 
-export enum PlayerActionTargetStateEnum {
-    UNKNOWN = "UNKNOWN",
-    INITIALIZED = "INITIALIZED",
-    WAITING_FOR_PLAYER_TO_SELECT_TARGET = "WAITING_FOR_PLAYER_TO_SELECT_TARGET",
-    COUNT_TARGETS = "COUNT_TARGETS",
-    WAITING_FOR_PLAYER_CONFIRM = "WAITING_FOR_PLAYER_CONFIRM",
-    CANCEL_ACTION_SELECTION = "CANCEL_ACTION_SELECTION",
-    CONFIRM_ACTION_SELECTION = "CONFIRM_ACTION_SELECTION",
-}
+export const PlayerActionTargetStateEnum = {
+    UNKNOWN: "UNKNOWN",
+    INITIALIZED: "INITIALIZED",
+    WAITING_FOR_PLAYER_TO_SELECT_TARGET: "WAITING_FOR_PLAYER_TO_SELECT_TARGET",
+    COUNT_TARGETS: "COUNT_TARGETS",
+    WAITING_FOR_PLAYER_CONFIRM: "WAITING_FOR_PLAYER_CONFIRM",
+    CANCEL_ACTION_SELECTION: "CANCEL_ACTION_SELECTION",
+    CONFIRM_ACTION_SELECTION: "CONFIRM_ACTION_SELECTION",
+} as const satisfies Record<string, string>
 
-export enum PlayerActionTargetTransitionEnum {
-    UNKNOWN = "UNKNOWN",
-    INITIALIZED = "INITIALIZED",
-    MULTIPLE_TARGETS_FOUND = "MULTIPLE_TARGETS_FOUND",
-    NO_TARGETS_FOUND = "NO_TARGETS_FOUND",
-    TARGETS_AUTOMATICALLY_SELECTED = "TARGETS_AUTOMATICALLY_SELECTED",
-    PLAYER_CONSIDERS_TARGET_SELECTION = "PLAYER_CONSIDERS_TARGET_SELECTION",
-    PLAYER_CONFIRMS_TARGET_SELECTION = "PLAYER_CONFIRMS_TARGET_SELECTION",
-    PLAYER_CANCELS_ACTION_SELECTION = "PLAYER_CANCELS_ACTION_SELECTION",
-    PLAYER_CANCELS_TARGET_SELECTION = "PLAYER_CANCELS_TARGET_SELECTION",
-}
+export type TPlayerActionTargetState = EnumLike<
+    typeof PlayerActionTargetStateEnum
+>
 
-export enum PlayerActionTargetActionEnum {
-    UNKNOWN = "UNKNOWN",
-    COUNT_TARGETS_ENTRY = "COUNT_TARGETS_ENTRY",
-    WAITING_FOR_PLAYER_TO_SELECT_TARGET = "WAITING_FOR_PLAYER_TO_SELECT_TARGET",
-    WAITING_FOR_PLAYER_CONFIRM = "WAITING_FOR_PLAYER_CONFIRM",
-    TRIGGER_TARGETS_AUTOMATICALLY_SELECTED = "TRIGGER_TARGET_AUTOMATICALLY_SELECTED",
-    TRIGGER_PLAYER_CONSIDERS_TARGET_SELECTION = "TRIGGER_PLAYER_CONSIDERS_TARGET_SELECTION",
-    TRIGGER_PLAYER_CONFIRMS_ACTION_SELECTION = "TRIGGER_PLAYER_CONFIRMS_ACTION_SELECTION",
-    TRIGGER_PLAYER_CANCELS_ACTION_SELECTION = "TRIGGER_PLAYER_CANCELS_ACTION_SELECTION",
-    CANCEL_ACTION_SELECTION_ENTRY = "CANCEL_ACTION_SELECTION_ENTRY",
-    CONFIRM_ACTION_SELECTION_ENTRY = "CONFIRM_ACTION_SELECTION_ENTRY",
-    TRIGGER_PLAYER_CANCELS_TARGET_SELECTION = "TRIGGER_PLAYER_CANCELS_TARGET_SELECTION",
-}
+export const PlayerActionTargetTransitionEnum = {
+    UNKNOWN: "UNKNOWN",
+    INITIALIZED: "INITIALIZED",
+    MULTIPLE_TARGETS_FOUND: "MULTIPLE_TARGETS_FOUND",
+    NO_TARGETS_FOUND: "NO_TARGETS_FOUND",
+    TARGETS_AUTOMATICALLY_SELECTED: "TARGETS_AUTOMATICALLY_SELECTED",
+    PLAYER_CONSIDERS_TARGET_SELECTION: "PLAYER_CONSIDERS_TARGET_SELECTION",
+    PLAYER_CONFIRMS_TARGET_SELECTION: "PLAYER_CONFIRMS_TARGET_SELECTION",
+    PLAYER_CANCELS_ACTION_SELECTION: "PLAYER_CANCELS_ACTION_SELECTION",
+    PLAYER_CANCELS_TARGET_SELECTION: "PLAYER_CANCELS_TARGET_SELECTION",
+} as const satisfies Record<string, string>
+
+export type PlayerActionTargetTransitionType = EnumLike<
+    typeof PlayerActionTargetTransitionEnum
+>
+
+export const PlayerActionTargetActionEnum = {
+    UNKNOWN: "UNKNOWN",
+    COUNT_TARGETS_ENTRY: "COUNT_TARGETS_ENTRY",
+    WAITING_FOR_PLAYER_TO_SELECT_TARGET: "WAITING_FOR_PLAYER_TO_SELECT_TARGET",
+    WAITING_FOR_PLAYER_CONFIRM: "WAITING_FOR_PLAYER_CONFIRM",
+    TRIGGER_TARGETS_AUTOMATICALLY_SELECTED:
+        "TRIGGER_TARGET_AUTOMATICALLY_SELECTED",
+    TRIGGER_PLAYER_CONSIDERS_TARGET_SELECTION:
+        "TRIGGER_PLAYER_CONSIDERS_TARGET_SELECTION",
+    TRIGGER_PLAYER_CONFIRMS_ACTION_SELECTION:
+        "TRIGGER_PLAYER_CONFIRMS_ACTION_SELECTION",
+    TRIGGER_PLAYER_CANCELS_ACTION_SELECTION:
+        "TRIGGER_PLAYER_CANCELS_ACTION_SELECTION",
+    CANCEL_ACTION_SELECTION_ENTRY: "CANCEL_ACTION_SELECTION_ENTRY",
+    CONFIRM_ACTION_SELECTION_ENTRY: "CONFIRM_ACTION_SELECTION_ENTRY",
+    TRIGGER_PLAYER_CANCELS_TARGET_SELECTION:
+        "TRIGGER_PLAYER_CANCELS_TARGET_SELECTION",
+} as const satisfies Record<string, string>
+
+export type PlayerActionTargetActionType = EnumLike<
+    typeof PlayerActionTargetActionEnum
+>
 
 export const PlayerActionTargetStateMachineInfoByState: {
-    [s in PlayerActionTargetStateEnum]?: StateMachineStateData<
-        PlayerActionTargetTransitionEnum,
-        PlayerActionTargetActionEnum
+    [s in TPlayerActionTargetState]?: StateMachineStateData<
+        PlayerActionTargetTransitionType,
+        PlayerActionTargetActionType
     >
 } = {
     [PlayerActionTargetStateEnum.INITIALIZED]: {
@@ -144,9 +162,9 @@ export const PlayerActionTargetStateMachineInfoByState: {
 }
 
 export const PlayerActionTargetStateMachineInfoByTransition: {
-    [t in PlayerActionTargetTransitionEnum]?: StateMachineTransitionData<
-        PlayerActionTargetStateEnum,
-        PlayerActionTargetActionEnum
+    [t in PlayerActionTargetTransitionType]?: StateMachineTransitionData<
+        TPlayerActionTargetState,
+        PlayerActionTargetActionType
     >
 } = {
     [PlayerActionTargetTransitionEnum.INITIALIZED]: {
@@ -186,16 +204,16 @@ export const PlayerActionTargetStateMachineInfoByTransition: {
 }
 
 export class PlayerActionTargetStateMachine extends StateMachine<
-    PlayerActionTargetStateEnum,
-    PlayerActionTargetTransitionEnum,
-    PlayerActionTargetActionEnum,
+    TPlayerActionTargetState,
+    PlayerActionTargetTransitionType,
+    PlayerActionTargetActionType,
     PlayerActionTargetStateMachineContext
 > {
-    currentState: PlayerActionTargetStateEnum
+    currentState: TPlayerActionTargetState
     stateMachineData: StateMachineData<
-        PlayerActionTargetStateEnum,
-        PlayerActionTargetTransitionEnum,
-        PlayerActionTargetActionEnum,
+        TPlayerActionTargetState,
+        PlayerActionTargetTransitionType,
+        PlayerActionTargetActionType,
         PlayerActionTargetStateMachineContext
     >
     uiObjects: PlayerActionTargetStateMachineUIObjects
@@ -208,9 +226,9 @@ export class PlayerActionTargetStateMachine extends StateMachine<
         id: string
         context: PlayerActionTargetStateMachineContext
         stateMachineData: StateMachineData<
-            PlayerActionTargetStateEnum,
-            PlayerActionTargetTransitionEnum,
-            PlayerActionTargetActionEnum,
+            TPlayerActionTargetState,
+            PlayerActionTargetTransitionType,
+            PlayerActionTargetActionType,
             PlayerActionTargetStateMachineContext
         >
     }) {
@@ -651,10 +669,10 @@ const parseMouseEventsWhenPlayerCanSelectTarget = (
     }
     context.playerInput
         .filter((event) =>
-            [
+            new Set<TOrchestratorComponentMouseEventType>([
                 OrchestratorComponentMouseEventType.RELEASE,
                 OrchestratorComponentMouseEventType.LOCATION,
-            ].includes(event.eventType as OrchestratorComponentMouseEventType)
+            ]).has(event.eventType as TOrchestratorComponentMouseEventType)
         )
         .forEach((mouseEvent: OrchestratorComponentMouseEvent) => {
             let battleSquaddieIds: string[] = []
@@ -793,11 +811,11 @@ const applyMouseEventsToButtons = (
 ) => {
     context.playerInput
         .filter((event) =>
-            [
+            new Set<TOrchestratorComponentMouseEventType>([
                 OrchestratorComponentMouseEventType.PRESS,
                 OrchestratorComponentMouseEventType.RELEASE,
                 OrchestratorComponentMouseEventType.LOCATION,
-            ].includes(event.eventType as OrchestratorComponentMouseEventType)
+            ]).has(event.eventType as TOrchestratorComponentMouseEventType)
         )
         .forEach((mouseEvent: OrchestratorComponentMouseEvent) => {
             switch (mouseEvent.eventType) {

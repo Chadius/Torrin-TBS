@@ -18,7 +18,7 @@ import {
 } from "vitest"
 import { GraphicsBuffer } from "../../utils/graphics/graphicsRenderer"
 import {
-    PULSE_COLOR_FORMULA_TYPE,
+    PULSE_COLOR_FORMULA,
     PulseColor,
     PulseColorService,
 } from "../../hexMap/pulseColor"
@@ -436,7 +436,7 @@ describe("ImageUI", () => {
                     alpha: 40,
                     pulse: {
                         period: 1000,
-                        formula: PULSE_COLOR_FORMULA_TYPE.LINEAR,
+                        formula: PULSE_COLOR_FORMULA.LINEAR,
                     },
                 })
                 pulseColorSpy = vi.spyOn(PulseColorService, "pulseColorToColor")

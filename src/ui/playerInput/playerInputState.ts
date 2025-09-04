@@ -1,22 +1,23 @@
-export enum PlayerInputAction {
-    ACCEPT = "ACCEPT",
-    NEXT = "NEXT",
-    CANCEL = "CANCEL",
-    SCROLL_LEFT = "SCROLL_LEFT",
-    SCROLL_RIGHT = "SCROLL_RIGHT",
-    SCROLL_UP = "SCROLL_UP",
-    SCROLL_DOWN = "SCROLL_DOWN",
-    END_TURN = "END_TURN",
-    LIST_INDEX_0 = "LIST_INDEX_0",
-    LIST_INDEX_1 = "LIST_INDEX_1",
-    LIST_INDEX_2 = "LIST_INDEX_2",
-    LIST_INDEX_3 = "LIST_INDEX_3",
-    LIST_INDEX_4 = "LIST_INDEX_4",
-    LIST_INDEX_5 = "LIST_INDEX_5",
-    LIST_INDEX_6 = "LIST_INDEX_6",
-    LIST_INDEX_7 = "LIST_INDEX_7",
-    LIST_INDEX_8 = "LIST_INDEX_8",
-}
+export const PlayerInputAction = {
+    ACCEPT: "ACCEPT",
+    NEXT: "NEXT",
+    CANCEL: "CANCEL",
+    SCROLL_LEFT: "SCROLL_LEFT",
+    SCROLL_RIGHT: "SCROLL_RIGHT",
+    SCROLL_UP: "SCROLL_UP",
+    SCROLL_DOWN: "SCROLL_DOWN",
+    END_TURN: "END_TURN",
+    LIST_INDEX_0: "LIST_INDEX_0",
+    LIST_INDEX_1: "LIST_INDEX_1",
+    LIST_INDEX_2: "LIST_INDEX_2",
+    LIST_INDEX_3: "LIST_INDEX_3",
+    LIST_INDEX_4: "LIST_INDEX_4",
+    LIST_INDEX_5: "LIST_INDEX_5",
+    LIST_INDEX_6: "LIST_INDEX_6",
+    LIST_INDEX_7: "LIST_INDEX_7",
+    LIST_INDEX_8: "LIST_INDEX_8",
+} as const satisfies Record<string, string>
+export type TPlayerInputAction = EnumLike<typeof PlayerInputAction>
 
 export interface PlayerInputButtonCombination {
     press?: number
@@ -33,9 +34,9 @@ export interface PlayerInputButtonCombination {
 }
 
 export interface PlayerInputState {
-    actions: { [a in PlayerInputAction]?: PlayerInputButtonCombination[] }
+    actions: { [a in TPlayerInputAction]?: PlayerInputButtonCombination[] }
     heldPlayerInputActions: {
-        [a in PlayerInputAction]?: number
+        [a in TPlayerInputAction]?: number
     }
     modifierKeyCodes: {
         shift: {
@@ -62,7 +63,9 @@ export const PlayerInputStateService = {
         actions,
         modifierKeyCodes,
     }: {
-        actions: { [a in PlayerInputAction]?: PlayerInputButtonCombination[] }
+        actions: {
+            [a in TPlayerInputAction]?: PlayerInputButtonCombination[]
+        }
         modifierKeyCodes: {
             shift: number[]
             ctrl: number[]
@@ -77,7 +80,7 @@ export const PlayerInputStateService = {
     getActionsForPressedKey: (
         playerInput: PlayerInputState,
         keyCode: number
-    ): PlayerInputAction[] =>
+    ): TPlayerInputAction[] =>
         searchInputActions({
             playerInput,
             keyCode,
@@ -167,9 +170,9 @@ export const PlayerInputStateService = {
     },
     getActionsForHeldKeys: (
         playerInput: PlayerInputState
-    ): PlayerInputAction[] =>
+    ): TPlayerInputAction[] =>
         Object.keys(playerInput.actions)
-            .map((inputActionStr) => inputActionStr as PlayerInputAction)
+            .map((inputActionStr) => inputActionStr as TPlayerInputAction)
             .filter(
                 (inputAction) =>
                     playerInput.heldPlayerInputActions[inputAction] != undefined
@@ -184,7 +187,7 @@ export const PlayerInputStateService = {
                         return timeHeld >= combination.hold.delay
                     })
             ),
-    numberToListIndex: (index: number): PlayerInputAction => {
+    numberToListIndex: (index: number): TPlayerInputAction => {
         const numberToListIndex = [
             PlayerInputAction.LIST_INDEX_0,
             PlayerInputAction.LIST_INDEX_1,
@@ -198,8 +201,8 @@ export const PlayerInputStateService = {
         ]
         return numberToListIndex[index]
     },
-    listIndexToNumber: (playerInputAction: PlayerInputAction): number => {
-        const listIndexToNumber: { [p in PlayerInputAction]?: number } = {
+    listIndexToNumber: (playerInputAction: TPlayerInputAction): number => {
+        const listIndexToNumber: { [p in TPlayerInputAction]?: number } = {
             [PlayerInputAction.LIST_INDEX_0]: 0,
             [PlayerInputAction.LIST_INDEX_1]: 1,
             [PlayerInputAction.LIST_INDEX_2]: 2,
@@ -213,9 +216,9 @@ export const PlayerInputStateService = {
         return listIndexToNumber[playerInputAction]
     },
     filterListIndexActions: (
-        playerInputActions: PlayerInputAction[]
-    ): PlayerInputAction[] => {
-        const listIndexActions: Set<PlayerInputAction> = new Set([
+        playerInputActions: TPlayerInputAction[]
+    ): TPlayerInputAction[] => {
+        const listIndexActions: Set<TPlayerInputAction> = new Set([
             PlayerInputAction.LIST_INDEX_0,
             PlayerInputAction.LIST_INDEX_1,
             PlayerInputAction.LIST_INDEX_2,
@@ -236,7 +239,7 @@ const newPlayerInputState = ({
     actions,
     modifierKeyCodes,
 }: {
-    actions: { [a in PlayerInputAction]?: PlayerInputButtonCombination[] }
+    actions: { [a in TPlayerInputAction]?: PlayerInputButtonCombination[] }
     modifierKeyCodes: {
         shift: number[]
         ctrl: number[]
@@ -278,7 +281,7 @@ const searchInputActions = ({
     pressed?: boolean
 }) =>
     Object.keys(playerInput.actions)
-        .map((inputActionStr) => inputActionStr as PlayerInputAction)
+        .map((inputActionStr) => inputActionStr as TPlayerInputAction)
         .filter((inputAction) =>
             playerInput.actions[inputAction].some((combination) => {
                 if (pressed && combination.press !== keyCode) return false

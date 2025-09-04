@@ -3,6 +3,7 @@ import {
     ACTION_ANIMATION_BEFORE_ACTION_TIME,
     ActionAnimationPhase,
     SquaddieEmotion,
+    TSquaddieEmotion,
     TimeElapsedSinceAnimationStarted,
 } from "./actionAnimationConstants"
 import { ScreenDimensions } from "../../../utils/graphics/graphicsConfig"
@@ -62,7 +63,6 @@ export class ActorSprite {
         actorBattleSquaddieId,
         squaddieRepository,
         startingPosition,
-        resourceHandler,
         squaddieChanges,
     }: {
         actorBattleSquaddieId: string
@@ -120,7 +120,7 @@ export class ActorSprite {
         graphicsContext: GraphicsBuffer,
         action: ActionEffectTemplate
     ) {
-        let emotion: SquaddieEmotion = this.getSquaddieEmotion({
+        let emotion: TSquaddieEmotion = this.getSquaddieEmotion({
             timer,
             battleSquaddieId: this.battleSquaddieId,
             squaddieRepository: this.squaddieRepository,
@@ -136,15 +136,13 @@ export class ActorSprite {
 
     public getSquaddieEmotion({
         timer,
-        battleSquaddieId,
-        squaddieRepository,
         action,
     }: {
         timer: ActionTimer
         battleSquaddieId: string
         squaddieRepository: ObjectRepository
         action: ActionEffectTemplate
-    }): SquaddieEmotion {
+    }): TSquaddieEmotion {
         switch (timer.currentPhase) {
             case ActionAnimationPhase.DURING_ACTION:
             case ActionAnimationPhase.TARGET_REACTS:

@@ -8,9 +8,10 @@ import { BattleStateService } from "../battleState/battleState"
 import {
     BattlePhase,
     BattlePhaseService,
+    TBattlePhase,
 } from "../orchestratorComponents/battlePhaseTracker"
 import { ObjectRepository, ObjectRepositoryService } from "../objectRepository"
-import { SquaddieAffiliation } from "../../squaddie/squaddieAffiliation"
+import { TSquaddieAffiliation } from "../../squaddie/squaddieAffiliation"
 import { BattleSquaddieService } from "../battleSquaddie"
 import {
     BattleSquaddieTeam,
@@ -36,7 +37,7 @@ import {
     MockInstance,
     vi,
 } from "vitest"
-import { AttributeType } from "../../squaddie/attribute/attributeType"
+import { Attribute } from "../../squaddie/attribute/attribute"
 
 describe("squaddie phase starts", () => {
     let squaddiePhaseListener: SquaddiePhaseListener
@@ -55,7 +56,7 @@ describe("squaddie phase starts", () => {
     }
 
     const createTeamOfTwo = (
-        affiliation: SquaddieAffiliation
+        affiliation: TSquaddieAffiliation
     ): BattleSquaddieTeam => {
         const { squaddieTemplate } =
             SquaddieRepositoryService.createNewSquaddieAndAddToRepository({
@@ -85,7 +86,7 @@ describe("squaddie phase starts", () => {
 
     const createGameEngineStateWithTeamsAndPhase = (
         teams: BattleSquaddieTeam[],
-        startingBattlePhase: BattlePhase
+        startingBattlePhase: TBattlePhase
     ): GameEngineState => {
         return GameEngineStateService.new({
             battleOrchestratorState: BattleOrchestratorStateService.new({
@@ -256,7 +257,7 @@ describe("squaddie phase starts", () => {
 
             const armorModifierAddedDuringPlayerPhase =
                 AttributeModifierService.new({
-                    type: AttributeType.ARMOR,
+                    type: Attribute.ARMOR,
                     source: AttributeSource.CIRCUMSTANCE,
                     amount: 1,
                     duration: index + 1,
@@ -312,7 +313,7 @@ describe("squaddie phase starts", () => {
             )[0]
         ).toEqual(
             expect.objectContaining({
-                type: AttributeType.ARMOR,
+                type: Attribute.ARMOR,
                 duration: 1,
             })
         )

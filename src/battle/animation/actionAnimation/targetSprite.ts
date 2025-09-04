@@ -3,7 +3,9 @@ import {
     ACTION_ANIMATION_BEFORE_ACTION_TIME,
     ACTION_ANIMATION_TARGET_REACTS_TO_ACTION_TIME,
     ActionAnimationPhase,
+    TActionAnimationPhase,
     SquaddieEmotion,
+    TSquaddieEmotion,
     TimeElapsedSinceAnimationStarted,
 } from "./actionAnimationConstants"
 import { ScreenDimensions } from "../../../utils/graphics/graphicsConfig"
@@ -72,10 +74,8 @@ export class TargetSprite {
     start({
         targetBattleSquaddieId,
         squaddieRepository,
-        actionEffectSquaddieTemplate,
         result,
         startingPosition,
-        resourceHandler,
     }: {
         targetBattleSquaddieId: string
         squaddieRepository: ObjectRepository
@@ -137,7 +137,7 @@ export class TargetSprite {
         squaddieRepository: ObjectRepository
         result: BattleActionSquaddieChange
         actionEffectSquaddieTemplateService: ActionEffectTemplate
-    }): SquaddieEmotion {
+    }): TSquaddieEmotion {
         const { squaddieTemplate, battleSquaddie } = getResultOrThrowError(
             ObjectRepositoryService.getSquaddieByBattleId(
                 squaddieRepository,
@@ -172,7 +172,7 @@ export class TargetSprite {
         graphicsContext: GraphicsBuffer,
         actionEffectSquaddieTemplate: ActionEffectTemplate
     ) {
-        let emotion: SquaddieEmotion = this.getSquaddieEmotion({
+        let emotion: TSquaddieEmotion = this.getSquaddieEmotion({
             timer,
             result: this.actionResult,
             battleSquaddieId: this.battleSquaddieId,
@@ -211,16 +211,13 @@ export class TargetSprite {
         })
 
         if (
-            [
+            new Set<TActionAnimationPhase>([
                 ActionAnimationPhase.BEFORE_ACTION,
                 ActionAnimationPhase.DURING_ACTION,
-            ].includes(timer.currentPhase)
+            ]).has(timer.currentPhase)
         ) {
             ;({ horizontalDistance, verticalDistance } =
-                this.getSpritePositionBeforeActionAndDuringAction(
-                    timer,
-                    emotion
-                ))
+                this.getSpritePositionBeforeActionAndDuringAction())
         } else if (
             ActionEffectTemplateService.doesItTargetFoes(
                 actionEffectSquaddieTemplateService
@@ -244,10 +241,7 @@ export class TargetSprite {
                 result.damage.net === 0
             ) {
                 ;({ horizontalDistance, verticalDistance } =
-                    this.getSpritePositionTargetReactsAndNoDamage(
-                        timer,
-                        emotion
-                    ))
+                    this.getSpritePositionTargetReactsAndNoDamage(timer))
             }
             if (result.actorDegreeOfSuccess === DegreeOfSuccess.FAILURE) {
                 ;({ horizontalDistance, verticalDistance } =
@@ -269,10 +263,7 @@ export class TargetSprite {
         spriteToDraw.draw({ graphicsContext, resourceHandler })
     }
 
-    private getSpritePositionBeforeActionAndDuringAction(
-        timer: ActionTimer,
-        emotion: SquaddieEmotion
-    ): {
+    private getSpritePositionBeforeActionAndDuringAction(): {
         horizontalDistance: number
         verticalDistance: number
     } {
@@ -284,7 +275,7 @@ export class TargetSprite {
 
     private getSpritePositionTargetReactsAndTakesDamage(
         timer: ActionTimer,
-        emotion: SquaddieEmotion
+        emotion: TSquaddieEmotion
     ): {
         horizontalDistance: number
         verticalDistance: number
@@ -337,10 +328,7 @@ export class TargetSprite {
         }
     }
 
-    private getSpritePositionTargetReactsAndNoDamage(
-        timer: ActionTimer,
-        emotion: SquaddieEmotion
-    ): {
+    private getSpritePositionTargetReactsAndNoDamage(timer: ActionTimer): {
         horizontalDistance: number
         verticalDistance: number
     } {

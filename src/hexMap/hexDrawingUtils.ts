@@ -3,7 +3,11 @@ import {
     HEX_TILE_RADIUS,
     HEX_TILE_WIDTH,
 } from "../graphicsConstants"
-import { HexGridMovementCost, HexGridTile } from "./hexGridMovementCost"
+import {
+    HexGridMovementCost,
+    THexGridMovementCost,
+    HexGridTile,
+} from "./hexGridMovementCost"
 import {
     ResourceHandler,
     ResourceHandlerService,
@@ -12,7 +16,7 @@ import { ConvertCoordinateService } from "./convertCoordinates"
 import { TerrainTileMap, TerrainTileMapService } from "./terrainTileMap"
 import {
     BlendColor,
-    PULSE_COLOR_FORMULA_TYPE,
+    PULSE_COLOR_FORMULA,
     PulseColor,
     PulseColorService,
 } from "./pulseColor"
@@ -23,16 +27,19 @@ import p5 from "p5"
 import { TerrainTileGraphicsService } from "./terrainTileGraphics"
 import { ScreenLocation } from "../utils/mouseConfig"
 
-export enum HighlightPulseColorNames {
-    PURPLE = "PURPLE",
-    RED = "RED",
-    BLUE = "BLUE",
-    PALE_BLUE = "PALE_BLUE",
-    GREEN = "GREEN",
-}
+export const HighlightPulseColorNames = {
+    PURPLE: "PURPLE",
+    RED: "RED",
+    BLUE: "BLUE",
+    PALE_BLUE: "PALE_BLUE",
+    GREEN: "GREEN",
+} as const satisfies Record<string, string>
+export type THighlightPulseColorNames = EnumLike<
+    typeof HighlightPulseColorNames
+>
 
 export const HIGHLIGHT_PULSE_COLOR: {
-    [color in HighlightPulseColorNames]: PulseColor
+    [color in THighlightPulseColorNames]: PulseColor
 } = {
     PURPLE: PulseColorService.new({
         hue: 280,
@@ -44,7 +51,7 @@ export const HIGHLIGHT_PULSE_COLOR: {
         },
         pulse: {
             period: 2000,
-            formula: PULSE_COLOR_FORMULA_TYPE.SINE,
+            formula: PULSE_COLOR_FORMULA.SINE,
         },
     }),
     RED: PulseColorService.new({
@@ -57,7 +64,7 @@ export const HIGHLIGHT_PULSE_COLOR: {
         },
         pulse: {
             period: 2000,
-            formula: PULSE_COLOR_FORMULA_TYPE.SINE,
+            formula: PULSE_COLOR_FORMULA.SINE,
         },
     }),
     BLUE: PulseColorService.new({
@@ -70,7 +77,7 @@ export const HIGHLIGHT_PULSE_COLOR: {
         },
         pulse: {
             period: 2000,
-            formula: PULSE_COLOR_FORMULA_TYPE.SINE,
+            formula: PULSE_COLOR_FORMULA.SINE,
         },
     }),
     PALE_BLUE: PulseColorService.new({
@@ -83,7 +90,7 @@ export const HIGHLIGHT_PULSE_COLOR: {
         },
         pulse: {
             period: 2000,
-            formula: PULSE_COLOR_FORMULA_TYPE.SINE,
+            formula: PULSE_COLOR_FORMULA.SINE,
         },
     }),
     GREEN: PulseColorService.new({
@@ -96,13 +103,13 @@ export const HIGHLIGHT_PULSE_COLOR: {
         },
         pulse: {
             period: 2000,
-            formula: PULSE_COLOR_FORMULA_TYPE.SINE,
+            formula: PULSE_COLOR_FORMULA.SINE,
         },
     }),
 }
 
 const defaultTerrainResourceKeyByTerrainType: {
-    [key in HexGridMovementCost]: string
+    [key in THexGridMovementCost]: string
 } = {
     [HexGridMovementCost.singleMovement]: "map-tiles-basic-floor",
     [HexGridMovementCost.doubleMovement]: "map-tiles-basic-sand",
@@ -152,7 +159,7 @@ const drawOutlinedTile = (
                 high: 100,
             },
             periodInMilliseconds: 2000,
-            formula: PULSE_COLOR_FORMULA_TYPE.SINE,
+            formula: PULSE_COLOR_FORMULA.SINE,
         })
     )
     graphicsContext.strokeWeight(2)

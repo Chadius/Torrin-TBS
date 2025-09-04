@@ -1,7 +1,7 @@
 import { ObjectRepository, ObjectRepositoryService } from "../objectRepository"
 import { SquaddieCanPerformActionCheck } from "./squaddieCanPerformActionCheck"
 import { getResultOrThrowError } from "../../utils/ResultOrError"
-import { ActionPerformFailureReason } from "../../squaddie/turn"
+import { TActionPerformFailureReason } from "../../squaddie/turn"
 import { PerRoundCheck } from "./perRoundCheck"
 import { GameEngineState } from "../../gameEngine/gameEngine"
 import { CanAttackTargetsCheck } from "./canAttackTargetsCheck"
@@ -28,7 +28,7 @@ export type ActionValidityStatus = {
 export type ActionCheckResult = {
     isValid: boolean
     warning?: boolean
-    reason?: ActionPerformFailureReason
+    reason?: TActionPerformFailureReason
     message?: string
 }
 

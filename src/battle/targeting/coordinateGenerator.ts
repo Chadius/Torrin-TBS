@@ -3,9 +3,12 @@ import {
     HexCoordinateService,
 } from "../../hexMap/hexCoordinate/hexCoordinate"
 
-export enum CoordinateGeneratorShape {
-    BLOOM = "BLOOM",
-}
+export const CoordinateGeneratorShape = {
+    BLOOM: "BLOOM",
+} as const satisfies Record<string, string>
+export type TCoordinateGeneratorShape = EnumLike<
+    typeof CoordinateGeneratorShape
+>
 
 export type BloomShapeData = {
     distance: number
@@ -18,7 +21,7 @@ export const CoordinateGeneratorService = {
         shapeData,
     }: {
         origin: HexCoordinate
-        shape: CoordinateGeneratorShape
+        shape: TCoordinateGeneratorShape
         shapeData: BloomShapeData
     }): HexCoordinate[] => {
         if (shape === CoordinateGeneratorShape.BLOOM) {
@@ -33,7 +36,7 @@ const generateCoordinatesBloom = ({
     shapeData,
 }: {
     origin: HexCoordinate
-    shape: CoordinateGeneratorShape
+    shape: TCoordinateGeneratorShape
     shapeData: BloomShapeData
 }): HexCoordinate[] => {
     const newCoordinates: { [key: string]: HexCoordinate } = {

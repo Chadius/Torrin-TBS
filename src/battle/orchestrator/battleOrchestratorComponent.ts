@@ -1,4 +1,4 @@
-import { BattleOrchestratorMode } from "./battleOrchestrator"
+import { TBattleOrchestratorMode } from "./battleOrchestrator"
 import { UIControlSettings } from "./uiControlSettings"
 import { GameEngineState } from "../../gameEngine/gameEngine"
 import {
@@ -11,14 +11,17 @@ import {
 import { GraphicsBuffer } from "../../utils/graphics/graphicsRenderer"
 import { ResourceHandler } from "../../resource/resourceHandler"
 
-export enum OrchestratorComponentMouseEventType {
-    UNKNOWN = "UNKNOWN",
-    PRESS = "PRESS",
-    RELEASE = "RELEASE",
-    LOCATION = "LOCATION",
-    WHEEL = "WHEEL",
-    DRAG = "DRAG",
-}
+export const OrchestratorComponentMouseEventType = {
+    UNKNOWN: "UNKNOWN",
+    PRESS: "PRESS",
+    RELEASE: "RELEASE",
+    LOCATION: "LOCATION",
+    WHEEL: "WHEEL",
+    DRAG: "DRAG",
+} as const satisfies Record<string, string>
+export type TOrchestratorComponentMouseEventType = EnumLike<
+    typeof OrchestratorComponentMouseEventType
+>
 
 export type OrchestratorComponentMouseEvent =
     | OrchestratorComponentMouseEventPress
@@ -28,37 +31,40 @@ export type OrchestratorComponentMouseEvent =
     | OrchestratorComponentMouseEventDrag
 
 export type OrchestratorComponentMouseEventPress = {
-    eventType: OrchestratorComponentMouseEventType.PRESS
+    eventType: (typeof OrchestratorComponentMouseEventType)["PRESS"]
     mousePress: MousePress
 }
 
 export type OrchestratorComponentMouseEventRelease = {
-    eventType: OrchestratorComponentMouseEventType.RELEASE
+    eventType: (typeof OrchestratorComponentMouseEventType)["RELEASE"]
     mouseRelease: MouseRelease
 }
 
 export type OrchestratorComponentMouseEventChangeLocation = {
-    eventType: OrchestratorComponentMouseEventType.LOCATION
+    eventType: (typeof OrchestratorComponentMouseEventType)["LOCATION"]
     mouseLocation: ScreenLocation
 }
 
 export type OrchestratorComponentMouseEventWheel = {
-    eventType: OrchestratorComponentMouseEventType.WHEEL
+    eventType: (typeof OrchestratorComponentMouseEventType)["WHEEL"]
     mouseWheel: MouseWheel
 }
 
 export type OrchestratorComponentMouseEventDrag = {
-    eventType: OrchestratorComponentMouseEventType.DRAG
+    eventType: (typeof OrchestratorComponentMouseEventType)["DRAG"]
     mouseDrag: MouseDrag
 }
 
-export enum OrchestratorComponentKeyEventType {
-    UNKNOWN = "UNKNOWN",
-    PRESSED = "PRESSED",
-}
+export const OrchestratorComponentKeyEventType = {
+    UNKNOWN: "UNKNOWN",
+    PRESSED: "PRESSED",
+} as const satisfies Record<string, string>
+export type TOrchestratorComponentKeyEventType = EnumLike<
+    typeof OrchestratorComponentKeyEventType
+>
 
 export type OrchestratorComponentKeyEvent = {
-    eventType: OrchestratorComponentKeyEventType
+    eventType: TOrchestratorComponentKeyEventType
     keyCode: number
 }
 
@@ -72,7 +78,7 @@ export const OrchestratorComponentKeyEventService = {
 }
 
 export type BattleOrchestratorChanges = {
-    nextMode?: BattleOrchestratorMode
+    nextMode?: TBattleOrchestratorMode
     checkMissionObjectives?: boolean
 }
 

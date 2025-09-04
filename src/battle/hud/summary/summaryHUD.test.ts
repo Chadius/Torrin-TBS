@@ -27,6 +27,7 @@ import { CampaignService } from "../../../campaign/campaign"
 import { ResourceHandler } from "../../../resource/resourceHandler"
 import {
     PlayerCommandSelection,
+    TPlayerCommandSelection,
     PlayerCommandStateService,
 } from "../playerCommand/playerCommandHUD"
 import { MouseButton } from "../../../utils/mouseConfig"
@@ -39,7 +40,10 @@ import {
 import { SquaddieNameAndPortraitTileService } from "../playerActionPanel/tile/squaddieNameAndPortraitTile"
 import { MissionMapService } from "../../../missionMap/missionMap"
 import { TerrainTileMapService } from "../../../hexMap/terrainTileMap"
-import { ActionTilePosition } from "../playerActionPanel/tile/actionTilePosition"
+import {
+    ActionTilePosition,
+    TActionTilePosition,
+} from "../playerActionPanel/tile/actionTilePosition"
 import {
     afterEach,
     beforeEach,
@@ -807,7 +811,7 @@ describe("summaryHUD", () => {
 
         const drawAndExpectTileToExist = (
             expectedBattleSquaddieId: string,
-            actionTilePosition: ActionTilePosition
+            actionTilePosition: TActionTilePosition
         ) => {
             SummaryHUDStateService.draw({
                 summaryHUDState,
@@ -826,7 +830,7 @@ describe("summaryHUD", () => {
         }
 
         const drawAndExpectTileNotToExist = (
-            actionTilePosition: ActionTilePosition
+            actionTilePosition: TActionTilePosition
         ) => {
             SummaryHUDStateService.draw({
                 summaryHUDState,
@@ -1060,7 +1064,7 @@ describe("summaryHUD", () => {
             type TestType = {
                 name: string
                 setupPlayerCommandSpy: () => void
-                selectActionButtonAndGetSelection: () => PlayerCommandSelection
+                selectActionButtonAndGetSelection: () => TPlayerCommandSelection
             }
 
             beforeEach(() => {
@@ -1090,7 +1094,7 @@ describe("summaryHUD", () => {
                         )
                     },
                     selectActionButtonAndGetSelection:
-                        (): PlayerCommandSelection => {
+                        (): TPlayerCommandSelection => {
                             return SummaryHUDStateService.mouseReleased({
                                 summaryHUDState,
                                 mouseRelease: {
@@ -1119,7 +1123,7 @@ describe("summaryHUD", () => {
                         )
                     },
                     selectActionButtonAndGetSelection:
-                        (): PlayerCommandSelection => {
+                        (): TPlayerCommandSelection => {
                             return SummaryHUDStateService.keyPressed({
                                 summaryHUDState,
                                 playerInputAction:

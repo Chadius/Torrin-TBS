@@ -1,4 +1,7 @@
-import { SquaddieAffiliation } from "../../squaddie/squaddieAffiliation"
+import {
+    SquaddieAffiliation,
+    TSquaddieAffiliation,
+} from "../../squaddie/squaddieAffiliation"
 import { TraitStatusStorageService } from "../../trait/traitStatusStorage"
 import {
     ObjectRepository,
@@ -33,7 +36,7 @@ export const SquaddieRepositoryService = {
         name: string
         templateId: string
         battleId: string
-        affiliation: SquaddieAffiliation
+        affiliation: TSquaddieAffiliation
         objectRepository: ObjectRepository
         attributes?: ArmyAttributes
         actionTemplateIds: string[]
@@ -57,7 +60,7 @@ const createNewSquaddieAndAddToRepository: (params: {
     name: string
     templateId: string
     battleId: string
-    affiliation: SquaddieAffiliation
+    affiliation: TSquaddieAffiliation
     objectRepository: ObjectRepository
     attributes?: ArmyAttributes
     actionTemplateIds?: string[]
@@ -76,7 +79,7 @@ const createNewSquaddieAndAddToRepository: (params: {
     name: string
     templateId: string
     battleId: string
-    affiliation: SquaddieAffiliation
+    affiliation: TSquaddieAffiliation
     objectRepository: ObjectRepository
     attributes?: ArmyAttributes
     actionTemplateIds?: string[]
@@ -130,7 +133,7 @@ export const CreateNewThiefSquaddie: (params: {
     name?: string
     templateId?: string
     battleId?: string
-    affiliation?: SquaddieAffiliation
+    affiliation?: TSquaddieAffiliation
     attributes?: ArmyAttributes
 }) => {
     thiefSquaddieTemplate: SquaddieTemplate
@@ -147,7 +150,7 @@ export const CreateNewThiefSquaddie: (params: {
     name?: string
     templateId?: string
     battleId?: string
-    affiliation?: SquaddieAffiliation
+    affiliation?: TSquaddieAffiliation
     attributes?: ArmyAttributes
 }) => {
     const {
@@ -176,7 +179,7 @@ export const CreateNewKnightSquaddie: (params: {
     name?: string
     templateId?: string
     battleId?: string
-    affiliation?: SquaddieAffiliation
+    affiliation?: TSquaddieAffiliation
     actionTemplates?: ActionTemplate[]
     attributes?: ArmyAttributes
 }) => {
@@ -194,7 +197,7 @@ export const CreateNewKnightSquaddie: (params: {
     name?: string
     templateId?: string
     battleId?: string
-    affiliation?: SquaddieAffiliation
+    affiliation?: TSquaddieAffiliation
     attributes?: ArmyAttributes
 }) => {
     const {

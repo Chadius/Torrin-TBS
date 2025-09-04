@@ -1,11 +1,11 @@
 import { beforeEach, describe, expect, it } from "vitest"
 
 import {
-    ActionEffectTemplateButtonIconKey,
     CampaignResources,
     CampaignResourcesService,
+    TActionEffectTemplateButtonIconKey,
 } from "./campaignResources"
-import { HexGridMovementCost } from "../hexMap/hexGridMovementCost"
+import { THexGridMovementCost } from "../hexMap/hexGridMovementCost"
 
 describe("campaign resources", () => {
     describe("can clone", () => {
@@ -20,8 +20,8 @@ describe("campaign resources", () => {
             Object.keys(
                 original.actionEffectSquaddieTemplateButtonIcons
             ).forEach((keyString) => {
-                const key: ActionEffectTemplateButtonIconKey =
-                    keyString as ActionEffectTemplateButtonIconKey
+                const key: TActionEffectTemplateButtonIconKey =
+                    keyString as TActionEffectTemplateButtonIconKey
                 expect(
                     cloned.actionEffectSquaddieTemplateButtonIcons[key]
                 ).toEqual(original.actionEffectSquaddieTemplateButtonIcons[key])
@@ -38,8 +38,8 @@ describe("campaign resources", () => {
             it("defaultByTerrainCost", () => {
                 Object.keys(original.mapTiles.defaultByTerrainCost).forEach(
                     (keyString) => {
-                        const key: HexGridMovementCost =
-                            keyString as HexGridMovementCost
+                        const key: THexGridMovementCost =
+                            keyString as THexGridMovementCost
                         expect(
                             cloned.mapTiles.defaultByTerrainCost[key]
                         ).toEqual(original.mapTiles.defaultByTerrainCost[key])

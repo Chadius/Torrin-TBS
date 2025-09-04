@@ -1,9 +1,12 @@
-import { BattleOrchestratorMode } from "../orchestrator/battleOrchestrator"
+import {
+    BattleOrchestratorMode,
+    TBattleOrchestratorMode,
+} from "../orchestrator/battleOrchestrator"
 import { MessageBoardMessage } from "../../message/messageBoardMessage"
 
 export interface PlayerSelectionChanges {
     messageSent: MessageBoardMessage
-    battleOrchestratorMode: BattleOrchestratorMode
+    battleOrchestratorMode: TBattleOrchestratorMode
 }
 
 export const PlayerSelectionChangesService = {
@@ -11,7 +14,7 @@ export const PlayerSelectionChangesService = {
         battleOrchestratorMode,
         messageSent,
     }: {
-        battleOrchestratorMode?: BattleOrchestratorMode
+        battleOrchestratorMode?: TBattleOrchestratorMode
         messageSent?: MessageBoardMessage
     }): PlayerSelectionChanges => {
         return {

@@ -1,4 +1,4 @@
-import { DamageType, HealingType } from "../../../squaddie/squaddieService"
+import { Damage, Healing } from "../../../squaddie/squaddieService"
 import {
     Trait,
     TraitStatusStorageService,
@@ -30,7 +30,7 @@ describe("weapon icon", () => {
             actionEffectTemplates: [
                 ActionEffectTemplateService.new({
                     damageDescriptions: {
-                        [DamageType.BODY]: 1,
+                        [Damage.BODY]: 1,
                     },
                     traits: TraitStatusStorageService.newUsingTraitValues({
                         [Trait.ATTACK]: true,
@@ -48,7 +48,7 @@ describe("weapon icon", () => {
             actionEffectTemplates: [
                 ActionEffectTemplateService.new({
                     healingDescriptions: {
-                        [HealingType.LOST_HIT_POINTS]: 1,
+                        [Healing.LOST_HIT_POINTS]: 1,
                     },
                     traits: TraitStatusStorageService.newUsingTraitValues({
                         [Trait.HEALING]: true,

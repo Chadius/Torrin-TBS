@@ -7,9 +7,9 @@ import {
     EventTriggerTurnRange,
     EventTriggerTurnRangeService,
 } from "./eventTrigger/eventTriggerTurnRange"
-import { TriggeringEventType } from "./eventTrigger/triggeringEventType"
+import { TriggeringEvent } from "./eventTrigger/triggeringEvent"
 import { isValidValue } from "../../utils/objectValidityCheck"
-import { BattleCompletionStatus } from "../orchestrator/missionObjectivesAndCutscenes"
+import { TBattleCompletionStatus } from "../orchestrator/missionObjectivesAndCutscenes"
 import {
     EventTriggerBattleCompletionStatus,
     EventTriggerBattleCompletionStatusService,
@@ -18,8 +18,12 @@ import {
     BattleEventEffectState,
     BattleEventEffectStateService,
 } from "./battleEventEffectState"
-import { CutsceneEffect } from "../../cutscene/cutsceneEffect"
+import {
+    CutsceneEffect,
+    CutsceneEffectService,
+} from "../../cutscene/cutsceneEffect"
 import { ChallengeModifierEffect } from "./eventEffect/challengeModifierEffect/challengeModifierEffect"
+import { BattleEventEffect, BattleEventEffectBase } from "./battleEventEffect"
 
 export type BattleEventEffect = CutsceneEffect | ChallengeModifierEffect
 
@@ -67,7 +71,7 @@ export const BattleEventService = {
                 turnCount?: number
                 ignoreTurn0?: boolean
             }
-            battleCompletionStatus?: BattleCompletionStatus
+            battleCompletionStatus?: TBattleCompletionStatus
             squaddies?: BattleEventTriggerSquaddiesContext
         }
     }): boolean => {
@@ -75,13 +79,13 @@ export const BattleEventService = {
 
         return battleEvent.triggers.every((eventTrigger) => {
             switch (eventTrigger.triggeringEventType) {
-                case TriggeringEventType.START_OF_TURN:
+                case TriggeringEvent.START_OF_TURN:
                     return EventTriggerTurnRangeService.shouldTrigger({
                         eventTrigger: eventTrigger as EventTriggerTurnRange,
                         turnCount: turn?.turnCount,
                         ignoreTurn0: turn?.ignoreTurn0,
                     })
-                case TriggeringEventType.SQUADDIE_IS_DEFEATED:
+                case TriggeringEvent.SQUADDIE_IS_DEFEATED:
                     return (
                         squaddies?.defeated &&
                         EventTriggerSquaddieService.shouldTrigger({
@@ -89,7 +93,7 @@ export const BattleEventService = {
                             targetingSquaddie: squaddies.defeated,
                         })
                     )
-                case TriggeringEventType.SQUADDIE_IS_INJURED:
+                case TriggeringEvent.SQUADDIE_IS_INJURED:
                     return (
                         squaddies?.injured &&
                         EventTriggerSquaddieService.shouldTrigger({
@@ -97,8 +101,8 @@ export const BattleEventService = {
                             targetingSquaddie: squaddies.injured,
                         })
                     )
-                case TriggeringEventType.MISSION_DEFEAT:
-                case TriggeringEventType.MISSION_VICTORY:
+                case TriggeringEvent.MISSION_DEFEAT:
+                case TriggeringEvent.MISSION_VICTORY:
                     return EventTriggerBattleCompletionStatusService.shouldTrigger(
                         {
                             eventTrigger:
@@ -108,6 +112,11 @@ export const BattleEventService = {
                     )
             }
         })
+    },
+    getCutsceneId: (battleEvent: BattleEvent): string => {
+        if (CutsceneEffectService.isCutscene(battleEvent.effect))
+            return battleEvent.effect.cutsceneId
+        return undefined
     },
 }
 
@@ -126,20 +135,20 @@ const sanitize = (event: BattleEvent): BattleEvent => {
         .map((trigger, index) => {
             let isValidTrigger: boolean = false
             switch (trigger.triggeringEventType) {
-                case TriggeringEventType.START_OF_TURN:
+                case TriggeringEvent.START_OF_TURN:
                     isValidTrigger =
                         EventTriggerTurnRangeService.isValidTrigger(
                             trigger as EventTriggerTurnRange
                         )
                     break
-                case TriggeringEventType.SQUADDIE_IS_DEFEATED:
-                case TriggeringEventType.SQUADDIE_IS_INJURED:
+                case TriggeringEvent.SQUADDIE_IS_DEFEATED:
+                case TriggeringEvent.SQUADDIE_IS_INJURED:
                     isValidTrigger = EventTriggerSquaddieService.isValidTrigger(
                         trigger as EventTriggerSquaddie
                     )
                     break
-                case TriggeringEventType.MISSION_DEFEAT:
-                case TriggeringEventType.MISSION_VICTORY:
+                case TriggeringEvent.MISSION_DEFEAT:
+                case TriggeringEvent.MISSION_VICTORY:
                     isValidTrigger = true
                     break
             }
@@ -156,16 +165,16 @@ const sanitize = (event: BattleEvent): BattleEvent => {
 
     event.triggers = event.triggers.map((trigger) => {
         switch (trigger.triggeringEventType) {
-            case TriggeringEventType.SQUADDIE_IS_INJURED:
-            case TriggeringEventType.SQUADDIE_IS_DEFEATED:
+            case TriggeringEvent.SQUADDIE_IS_INJURED:
+            case TriggeringEvent.SQUADDIE_IS_DEFEATED:
                 return {
                     ...trigger,
                     ...EventTriggerSquaddieService.sanitize(
                         trigger as EventTriggerSquaddie
                     ),
                 }
-            case TriggeringEventType.MISSION_DEFEAT:
-            case TriggeringEventType.MISSION_VICTORY:
+            case TriggeringEvent.MISSION_DEFEAT:
+            case TriggeringEvent.MISSION_VICTORY:
                 return {
                     ...trigger,
                     ...EventTriggerBattleCompletionStatusService.sanitize(

@@ -2,7 +2,7 @@ import {
     ResourceHandler,
     ResourceHandlerService,
     ResourceLocator,
-    ResourceType,
+    Resource,
 } from "./resourceHandler"
 import { StubImmediateLoader } from "./resourceHandlerTestUtils"
 import { MockedP5GraphicsBuffer } from "../utils/test/mocks"
@@ -30,7 +30,7 @@ describe("Resource Handler", () => {
             imageLoader: new StubImmediateLoader(mockedP5Graphics),
             resourceLocators: [
                 {
-                    type: ResourceType.IMAGE,
+                    type: Resource.IMAGE,
                     path: "path/to/image",
                     key: "some_image_key",
                 },
@@ -45,12 +45,12 @@ describe("Resource Handler", () => {
             imageLoader: new StubImmediateLoader(mockedP5Graphics),
             resourceLocators: [
                 {
-                    type: ResourceType.IMAGE,
+                    type: Resource.IMAGE,
                     path: "path/to/image1",
                     key: "key1",
                 },
                 {
-                    type: ResourceType.IMAGE,
+                    type: Resource.IMAGE,
                     path: "path/to/image2",
                     key: "key2",
                 },
@@ -69,7 +69,7 @@ describe("Resource Handler", () => {
                 imageLoader: new StubImmediateLoader(mockedP5Graphics),
                 resourceLocators: [
                     {
-                        type: ResourceType.IMAGE,
+                        type: Resource.IMAGE,
                         path: "path/to/image",
                         key: "some_image_key",
                     },
@@ -134,7 +134,7 @@ describe("Resource Handler", () => {
                 imageLoader,
                 resourceLocators: [
                     {
-                        type: ResourceType.IMAGE,
+                        type: Resource.IMAGE,
                         path: "path/to/image",
                         key: "some_image_key",
                     },
@@ -164,7 +164,7 @@ describe("Resource Handler", () => {
             imageLoader: new StubImmediateLoader(mockedP5Graphics),
             resourceLocators: [
                 {
-                    type: ResourceType.IMAGE,
+                    type: Resource.IMAGE,
                     path: "path/to/image",
                     key: "some_image_key",
                 },
@@ -181,12 +181,12 @@ describe("Resource Handler", () => {
             imageLoader: new StubImmediateLoader(mockedP5Graphics),
             resourceLocators: [
                 {
-                    type: ResourceType.IMAGE,
+                    type: Resource.IMAGE,
                     path: "path/to/image1",
                     key: "image1",
                 },
                 {
-                    type: ResourceType.IMAGE,
+                    type: Resource.IMAGE,
                     path: "path/to/image2",
                     key: "image2",
                 },
@@ -204,12 +204,12 @@ describe("Resource Handler", () => {
             imageLoader: new StubImmediateLoader(mockedP5Graphics),
             resourceLocators: [
                 {
-                    type: ResourceType.IMAGE,
+                    type: Resource.IMAGE,
                     path: "path/to/image1",
                     key: "image1",
                 },
                 {
-                    type: ResourceType.IMAGE,
+                    type: Resource.IMAGE,
                     path: "path/to/image2",
                     key: "image2",
                 },
@@ -238,7 +238,7 @@ describe("Resource Handler", () => {
                 imageLoader: new StubImmediateLoader(mockedP5Graphics),
                 resourceLocators: [
                     {
-                        type: ResourceType.IMAGE,
+                        type: Resource.IMAGE,
                         key: "Cool pic",
                         path: "/path/to/cool_pic.png",
                     },
@@ -252,12 +252,12 @@ describe("Resource Handler", () => {
         it("can try to load resource locations from a file asynchronously", async () => {
             const resourceLocators: ResourceLocator[] = [
                 {
-                    type: ResourceType.IMAGE,
+                    type: Resource.IMAGE,
                     key: "Cool pic",
                     path: "/path/to/cool_pic.png",
                 },
                 {
-                    type: ResourceType.IMAGE,
+                    type: Resource.IMAGE,
                     key: "Cool pic2",
                     path: "/path/to/cool_pic_2.png",
                 },

@@ -4,6 +4,7 @@ import {
     ACTION_ANIMATION_SHOW_RESULTS_TIME,
     ACTION_ANIMATION_TARGET_REACTS_TO_ACTION_TIME,
     ActionAnimationPhase,
+    TActionAnimationPhase,
     TimeElapsedSinceAnimationStarted,
 } from "./actionAnimationConstants"
 
@@ -12,7 +13,7 @@ export class ActionTimer {
         this.reset()
     }
 
-    get currentPhase(): ActionAnimationPhase {
+    get currentPhase(): TActionAnimationPhase {
         if (this.startTime === undefined) {
             return ActionAnimationPhase.INITIALIZED
         }

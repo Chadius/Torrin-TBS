@@ -4,9 +4,10 @@ import { RollResult, RollResultService } from "./rollResult"
 import {
     DegreeOfSuccess,
     DegreeOfSuccessAndSuccessBonus,
+    TDegreeOfSuccess,
 } from "./degreeOfSuccess"
 import { CalculatedEffect, DegreeOfSuccessExplanation } from "./calculator"
-import { HealingType, SquaddieService } from "../../../squaddie/squaddieService"
+import { Healing, SquaddieService } from "../../../squaddie/squaddieService"
 import { isValidValue } from "../../../utils/objectValidityCheck"
 import { InBattleAttributesService } from "../../stats/inBattleAttributes"
 import { AttributeModifier } from "../../../squaddie/attribute/attributeModifier"
@@ -16,7 +17,7 @@ import {
     BattleActionActorContext,
     BattleActionActorContextService,
 } from "../../history/battleAction/battleActionActorContext"
-import { AttributeTypeAndAmount } from "../../../squaddie/attribute/attributeType"
+import { AttributeTypeAndAmount } from "../../../squaddie/attribute/attribute"
 
 export const CalculatorMiscellaneous = {
     getActorContext: (): BattleActionActorContext => {
@@ -71,7 +72,7 @@ export const CalculatorMiscellaneous = {
     }: {
         actionEffectTemplate: ActionEffectTemplate
         actorContext: BattleActionActorContext
-        degreeOfSuccess: DegreeOfSuccess
+        degreeOfSuccess: TDegreeOfSuccess
         targetSquaddieTemplate: SquaddieTemplate
         targetBattleSquaddie: BattleSquaddie
     }): CalculatedEffect =>
@@ -105,7 +106,6 @@ export const CalculatorMiscellaneous = {
 }
 
 const getTargetSquaddieModifiers = ({
-    actionEffectTemplate,
     targetBattleSquaddie,
 }: {
     actionEffectTemplate: ActionEffectTemplate
@@ -116,13 +116,7 @@ const getTargetSquaddieModifiers = ({
     )
 }
 
-const getDegreeOfSuccess = ({
-    actionEffectTemplate,
-    targetBattleSquaddie,
-    actorContext,
-    actorBattleSquaddie,
-    targetSquaddieTemplate,
-}: {
+const getDegreeOfSuccess = ({}: {
     actionEffectTemplate: ActionEffectTemplate
     targetBattleSquaddie: BattleSquaddie
     actorBattleSquaddie: BattleSquaddie
@@ -135,14 +129,11 @@ const getDegreeOfSuccess = ({
 
 const calculateEffectBasedOnDegreeOfSuccess = ({
     actionEffectTemplate,
-    actorContext,
-    degreeOfSuccess,
-    targetSquaddieTemplate,
     targetBattleSquaddie,
 }: {
     actionEffectTemplate: ActionEffectTemplate
     actorContext: BattleActionActorContext
-    degreeOfSuccess: DegreeOfSuccess
+    degreeOfSuccess: TDegreeOfSuccess
     targetSquaddieTemplate: SquaddieTemplate
     targetBattleSquaddie: BattleSquaddie
 }): CalculatedEffect => {
@@ -183,7 +174,7 @@ const calculateTotalHealingReceived = ({
                 battleSquaddie: targetBattleSquaddie,
                 healingAmount:
                     actionEffectTemplate.healingDescriptions.LOST_HIT_POINTS,
-                healingType: HealingType.LOST_HIT_POINTS,
+                healingType: Healing.LOST_HIT_POINTS,
             }))
     }
     return healingReceived
@@ -201,13 +192,7 @@ const calculateAttributeModifiers = ({
     return [...actionEffectTemplate.attributeModifiers]
 }
 
-const getAllPossibleDegreesOfSuccess = ({
-    actionEffectTemplate,
-    targetBattleSquaddie,
-    targetSquaddieTemplate,
-    actorContext,
-    actorBattleSquaddie,
-}: {
+const getAllPossibleDegreesOfSuccess = ({}: {
     actionEffectTemplate: ActionEffectTemplate
     targetBattleSquaddie: BattleSquaddie
     targetSquaddieTemplate: SquaddieTemplate

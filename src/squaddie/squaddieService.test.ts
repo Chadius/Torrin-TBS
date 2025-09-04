@@ -4,7 +4,7 @@ import {
     ObjectRepositoryService,
 } from "../battle/objectRepository"
 import { BattleSquaddie, BattleSquaddieService } from "../battle/battleSquaddie"
-import { DamageType, HealingType, SquaddieService } from "./squaddieService"
+import { Damage, Healing, SquaddieService } from "./squaddieService"
 import { ArmyAttributesService, ProficiencyLevel } from "./armyAttributes"
 import {
     SquaddieTemplate,
@@ -28,7 +28,7 @@ import { Trait, TraitStatusStorageService } from "../trait/traitStatusStorage"
 import { SquaddieIdService } from "./id"
 import { SquaddieMovement, SquaddieMovementService } from "./movement"
 import { beforeEach, describe, expect, it } from "vitest"
-import { AttributeType } from "./attribute/attributeType"
+import { Attribute } from "./attribute/attribute"
 
 describe("Squaddie Service", () => {
     let playerSquaddieTemplate: SquaddieTemplate
@@ -220,7 +220,7 @@ describe("Squaddie Service", () => {
             const { net: damageTaken } = InBattleAttributesService.takeDamage({
                 inBattleAttributes: playerBattleSquaddie.inBattleAttributes,
                 damageToTake: 1,
-                damageType: DamageType.BODY,
+                damageType: Damage.BODY,
             })
 
             expect(damageTaken).toBe(1)
@@ -238,7 +238,7 @@ describe("Squaddie Service", () => {
             InBattleAttributesService.addActiveAttributeModifier(
                 playerBattleSquaddie.inBattleAttributes,
                 AttributeModifierService.new({
-                    type: AttributeType.ABSORB,
+                    type: Attribute.ABSORB,
                     amount: 1,
                     source: AttributeSource.CIRCUMSTANCE,
                 })
@@ -248,9 +248,8 @@ describe("Squaddie Service", () => {
                     playerBattleSquaddie.inBattleAttributes
                 )
             expect(
-                attributeTypeAndAmounts.find(
-                    (a) => a.type === AttributeType.ABSORB
-                ).amount
+                attributeTypeAndAmounts.find((a) => a.type === Attribute.ABSORB)
+                    .amount
             ).toBe(1)
 
             let damageExplanation: DamageExplanation =
@@ -258,7 +257,7 @@ describe("Squaddie Service", () => {
                     squaddieTemplate: playerSquaddieTemplate,
                     battleSquaddie: playerBattleSquaddie,
                     damage: 1,
-                    damageType: DamageType.BODY,
+                    damageType: Damage.BODY,
                 })
             expect(damageExplanation.raw).toBe(1)
             expect(damageExplanation.absorbed).toBe(1)
@@ -279,22 +278,21 @@ describe("Squaddie Service", () => {
                     playerBattleSquaddie.inBattleAttributes
                 )
             expect(
-                attributeTypeAndAmounts.find(
-                    (a) => a.type === AttributeType.ABSORB
-                ).amount
+                attributeTypeAndAmounts.find((a) => a.type === Attribute.ABSORB)
+                    .amount
             ).toBe(1)
         })
         it("can give healing to the squaddie", () => {
             InBattleAttributesService.takeDamage({
                 inBattleAttributes: playerBattleSquaddie.inBattleAttributes,
                 damageToTake: 2,
-                damageType: DamageType.BODY,
+                damageType: Damage.BODY,
             })
 
             let { healingReceived } = SquaddieService.giveHealingToTheSquaddie({
                 battleSquaddie: playerBattleSquaddie,
                 healingAmount: 1,
-                healingType: HealingType.LOST_HIT_POINTS,
+                healingType: Healing.LOST_HIT_POINTS,
             })
             expect(healingReceived).toBe(1)
 
@@ -309,7 +307,7 @@ describe("Squaddie Service", () => {
             ;({ healingReceived } = SquaddieService.giveHealingToTheSquaddie({
                 battleSquaddie: playerBattleSquaddie,
                 healingAmount: 9001,
-                healingType: HealingType.LOST_HIT_POINTS,
+                healingType: Healing.LOST_HIT_POINTS,
             }))
             expect(healingReceived).toBe(1)
             ;({ currentHitPoints } = SquaddieService.getHitPoints({
@@ -336,7 +334,7 @@ describe("Squaddie Service", () => {
                 damageToTake:
                     playerBattleSquaddie.inBattleAttributes.currentHitPoints *
                     2,
-                damageType: DamageType.BODY,
+                damageType: Damage.BODY,
             })
 
             const squaddieIsAlive = SquaddieService.isSquaddieAlive({
@@ -388,7 +386,7 @@ describe("Squaddie Service", () => {
                 damageToTake:
                     playerBattleSquaddie.inBattleAttributes.currentHitPoints *
                     2,
-                damageType: DamageType.BODY,
+                damageType: Damage.BODY,
             })
 
             let { canAct, isDead } = SquaddieService.canSquaddieActRightNow({
@@ -461,7 +459,7 @@ describe("Squaddie Service", () => {
                 damageToTake:
                     playerBattleSquaddie.inBattleAttributes.currentHitPoints *
                     2,
-                damageType: DamageType.BODY,
+                damageType: Damage.BODY,
             })
 
             let {
@@ -652,7 +650,7 @@ describe("Squaddie Service", () => {
             InBattleAttributesService.addActiveAttributeModifier(
                 battleSquaddieWithMovementUp2.inBattleAttributes,
                 AttributeModifierService.new({
-                    type: AttributeType.MOVEMENT,
+                    type: Attribute.MOVEMENT,
                     duration: 1,
                     amount: 2,
                     source: AttributeSource.CIRCUMSTANCE,
@@ -698,7 +696,7 @@ describe("Squaddie Service", () => {
             InBattleAttributesService.addActiveAttributeModifier(
                 battleSquaddieWithIgnoreTerrainCost.inBattleAttributes,
                 AttributeModifierService.new({
-                    type: AttributeType.HUSTLE,
+                    type: Attribute.HUSTLE,
                     duration: 1,
                     amount: 1,
                     source: AttributeSource.CIRCUMSTANCE,

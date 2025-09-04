@@ -1,13 +1,14 @@
-export enum MouseButton {
-    NONE = "NONE",
-    ACCEPT = "ACCEPT",
-    INFO = "INFO",
-    CANCEL = "CANCEL",
-}
+export const MouseButton = {
+    NONE: "NONE",
+    ACCEPT: "ACCEPT",
+    INFO: "INFO",
+    CANCEL: "CANCEL",
+} as const satisfies Record<string, string>
+export type TMouseButton = EnumLike<typeof MouseButton>
 
 const convertButtonsToHighestPriorityMouseButton = (
     buttons?: number
-): MouseButton => {
+): TMouseButton => {
     switch (true) {
         case buttons == undefined:
             return MouseButton.NONE
@@ -22,7 +23,7 @@ const convertButtonsToHighestPriorityMouseButton = (
     }
 }
 
-const getMouseButton = (physicalMouseButton: string): MouseButton => {
+const getMouseButton = (physicalMouseButton: string): TMouseButton => {
     switch (physicalMouseButton) {
         case process.env.MOUSE_BUTTON_BINDINGS_ACCEPT:
             return MouseButton.ACCEPT
@@ -40,15 +41,15 @@ export interface ScreenLocation {
 }
 
 export interface MousePress extends ScreenLocation {
-    button: MouseButton
+    button: TMouseButton
 }
 
 export interface MouseRelease extends ScreenLocation {
-    button: MouseButton
+    button: TMouseButton
 }
 
 export interface MouseRelease extends ScreenLocation {
-    button: MouseButton
+    button: TMouseButton
 }
 
 export interface MouseWheel extends ScreenLocation {
@@ -58,7 +59,7 @@ export interface MouseWheel extends ScreenLocation {
 }
 
 export interface MouseDrag extends ScreenLocation {
-    button: MouseButton
+    button: TMouseButton
     movementX: -1 | 0 | 1
     movementY: -1 | 0 | 1
 }
@@ -71,7 +72,7 @@ export const MouseConfigService = {
     }: {
         x: number
         y: number
-        button: MouseButton
+        button: TMouseButton
     }): MousePress => {
         return {
             x,
@@ -80,7 +81,7 @@ export const MouseConfigService = {
         }
     },
     convertBrowserMouseEventToMouseDrag: (event: any): MouseDrag => {
-        let button: MouseButton = convertButtonsToHighestPriorityMouseButton(
+        let button: TMouseButton = convertButtonsToHighestPriorityMouseButton(
             event.buttons
         )
 

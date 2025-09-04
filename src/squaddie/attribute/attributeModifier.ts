@@ -1,22 +1,24 @@
 import { isValidValue } from "../../utils/objectValidityCheck"
 import {
-    AttributeType,
+    Attribute,
+    TAttribute,
     AttributeTypeAndAmount,
     AttributeTypeService,
-} from "./attributeType"
+} from "./attribute"
 import { TextFormatService } from "../../utils/graphics/textFormatService"
 
-export enum AttributeSource {
-    PROFICIENCY = "PROFICIENCY",
-    MARTIAL = "MARTIAL",
-    ELEMENTAL = "ELEMENTAL",
-    SPIRITUAL = "SPIRITUAL",
-    CIRCUMSTANCE = "CIRCUMSTANCE",
-}
+export const AttributeSource = {
+    PROFICIENCY: "PROFICIENCY",
+    MARTIAL: "MARTIAL",
+    ELEMENTAL: "ELEMENTAL",
+    SPIRITUAL: "SPIRITUAL",
+    CIRCUMSTANCE: "CIRCUMSTANCE",
+} as const satisfies Record<string, string>
+export type TAttributeSource = EnumLike<typeof AttributeSource>
 
 export interface AttributeModifier {
-    type: AttributeType
-    source: AttributeSource
+    type: TAttribute
+    source: TAttributeSource
     amount: number
     duration: number | undefined
     numberOfUses: number | undefined
@@ -32,8 +34,8 @@ export const AttributeModifierService = {
         numberOfUses,
         description,
     }: {
-        type: AttributeType
-        source: AttributeSource
+        type: TAttribute
+        source: TAttributeSource
         amount: number
         duration?: number
         numberOfUses?: number
@@ -54,11 +56,9 @@ export const AttributeModifierService = {
             case modifier.amount <= 0 &&
                 AttributeTypeService.isBinary(modifier.type):
                 return false
-            case modifier.amount <= 0 &&
-                [AttributeType.ABSORB].includes(modifier.type):
+            case modifier.amount <= 0 && modifier.type == Attribute.ABSORB:
                 return false
-            case modifier.amount == 0 &&
-                [AttributeType.MOVEMENT].includes(modifier.type):
+            case modifier.amount == 0 && modifier.type == Attribute.MOVEMENT:
                 return false
             case isValidValue(modifier.numberOfUses) &&
                 modifier.numberOfUses <= 0:
@@ -86,8 +86,8 @@ export const AttributeModifierService = {
     ): AttributeTypeAndAmount[] => {
         const addToModifierAmountByTypeIfItExceeds = (
             modifierByTypeAndSource: {
-                type: AttributeType
-                source: AttributeSource
+                type: TAttribute
+                source: TAttributeSource
                 amount: number
             }[],
             howToExceed: "GreaterThan" | "LessThan",
@@ -122,8 +122,8 @@ export const AttributeModifierService = {
         }
 
         const positiveModifierAmountByTypeAndSource: {
-            type: AttributeType
-            source: AttributeSource
+            type: TAttribute
+            source: TAttributeSource
             amount: number
         }[] = []
         attributeModifiers
@@ -138,8 +138,8 @@ export const AttributeModifierService = {
             })
 
         const negativeModifierAmountByTypeAndSource: {
-            type: AttributeType
-            source: AttributeSource
+            type: TAttribute
+            source: TAttributeSource
             amount: number
         }[] = []
         attributeModifiers
@@ -154,11 +154,11 @@ export const AttributeModifierService = {
             })
 
         const combinedModifierAmountByType: {
-            [t in AttributeType]?: { type: AttributeType; amount: number }
+            [t in TAttribute]?: { type: TAttribute; amount: number }
         } = {}
         const combineModifiersByType = (modifierByTypeAndSource: {
-            type: AttributeType
-            source: AttributeSource
+            type: TAttribute
+            source: TAttributeSource
             amount: number
         }) => {
             if (
@@ -205,8 +205,8 @@ export const AttributeModifierService = {
             | AttributeModifier
             | {
                   amount: number
-                  source?: AttributeSource
-                  type: AttributeType
+                  source?: TAttributeSource
+                  type: TAttribute
               }
     ): string => {
         const attributeModifier: AttributeModifier = newAttributeModifier({
@@ -261,7 +261,7 @@ export const AttributeModifierService = {
 
         return `${AttributeTypeService.readableName(attributeModifier.type)}${attributeAmountAsString}`
     },
-    getReadableAttributeSource: (attributeSource: AttributeSource): string => {
+    getReadableAttributeSource: (attributeSource: TAttributeSource): string => {
         return getReadableAttributeSource(attributeSource)
     },
 }
@@ -274,8 +274,8 @@ const newAttributeModifier = ({
     numberOfUses,
     description,
 }: {
-    type: AttributeType
-    source: AttributeSource
+    type: TAttribute
+    source: TAttributeSource
     amount: number
     duration?: number
     numberOfUses?: number
@@ -290,10 +290,10 @@ const newAttributeModifier = ({
 })
 
 const getReadableAttributeSource = (
-    attributeSource: AttributeSource
+    attributeSource: TAttributeSource
 ): string => {
     const attributeSourceToStringMapping: {
-        [t in AttributeSource]?: string
+        [t in TAttributeSource]?: string
     } = {
         [AttributeSource.CIRCUMSTANCE]: "Circumstance",
         [AttributeSource.PROFICIENCY]: "Proficiency",

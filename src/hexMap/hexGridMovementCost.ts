@@ -1,13 +1,15 @@
 import { HexCoordinate } from "./hexCoordinate/hexCoordinate"
 
-export enum HexGridMovementCost {
-    singleMovement = "singleMovement",
-    doubleMovement = "doubleMovement",
-    pit = "pit",
-    wall = "wall",
-}
+export const HexGridMovementCost = {
+    singleMovement: "singleMovement",
+    doubleMovement: "doubleMovement",
+    pit: "pit",
+    wall: "wall",
+} as const satisfies Record<string, string>
 
-const convertStringToMovementCost = (text: string): HexGridMovementCost => {
+export type THexGridMovementCost = EnumLike<typeof HexGridMovementCost>
+
+const convertStringToMovementCost = (text: string): THexGridMovementCost => {
     switch (true) {
         case text.length === 0:
             return HexGridMovementCost.wall
@@ -27,18 +29,19 @@ const convertStringToMovementCost = (text: string): HexGridMovementCost => {
 }
 
 export const HexGridMovementCostService = {
-    movingCostByTerrainType: (cost: HexGridMovementCost) =>
+    movingCostByTerrainType: (cost: THexGridMovementCost) =>
         MovingCostByTerrainType[cost],
     convertStringToMovementCost,
 }
 
-export const MovingCostByTerrainType: { [t in HexGridMovementCost]: number } = {
-    [HexGridMovementCost.singleMovement]: 1,
-    [HexGridMovementCost.doubleMovement]: 2,
-    [HexGridMovementCost.pit]: 1,
-    [HexGridMovementCost.wall]: 1,
-}
+export const MovingCostByTerrainType: { [t in THexGridMovementCost]: number } =
+    {
+        [HexGridMovementCost.singleMovement]: 1,
+        [HexGridMovementCost.doubleMovement]: 2,
+        [HexGridMovementCost.pit]: 1,
+        [HexGridMovementCost.wall]: 1,
+    }
 
 export interface HexGridTile extends HexCoordinate {
-    terrainType: HexGridMovementCost
+    terrainType: THexGridMovementCost
 }

@@ -15,7 +15,7 @@ import { BattleActionActorContextService } from "../history/battleAction/battleA
 import { DegreeOfSuccess } from "../calculator/actionCalculator/degreeOfSuccess"
 import { AttributeModifier } from "../../squaddie/attribute/attributeModifier"
 import { InBattleAttributesService } from "../stats/inBattleAttributes"
-import { AttributeTypeAndAmount } from "../../squaddie/attribute/attributeType"
+import { AttributeTypeAndAmount } from "../../squaddie/attribute/attribute"
 
 export const CanAddModifiersCheck = {
     canAddAttributeModifiers: ({

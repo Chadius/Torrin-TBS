@@ -1,6 +1,6 @@
-import { PlayerIntent } from "./playerSelectionService"
+import { TPlayerIntent } from "./playerSelectionService"
 import { MousePress } from "../../utils/mouseConfig"
-import { PlayerInputAction } from "../../ui/playerInput/playerInputState"
+import { TPlayerInputAction } from "../../ui/playerInput/playerInputState"
 import { HexCoordinate } from "../../hexMap/hexCoordinate/hexCoordinate"
 
 export interface MovementDecision {
@@ -11,11 +11,11 @@ export interface MovementDecision {
 
 export interface PlayerSelectionContext {
     actionTemplateId: string
-    playerInputActions: PlayerInputAction[]
+    playerInputActions: TPlayerInputAction[]
     mouseClick: MousePress
     mouseMovement: { x: number; y: number }
     actorBattleSquaddieId: string
-    playerIntent: PlayerIntent
+    playerIntent: TPlayerIntent
     targetBattleSquaddieIds: string[]
     movement?: MovementDecision
 }
@@ -31,12 +31,12 @@ export const PlayerSelectionContextService = {
         targetBattleSquaddieIds,
         movement,
     }: {
-        playerIntent: PlayerIntent
+        playerIntent: TPlayerIntent
         actorBattleSquaddieId?: string
         mouseClick?: MousePress
         mouseMovement?: { x: number; y: number }
         actionTemplateId?: string
-        playerInputActions?: PlayerInputAction[]
+        playerInputActions?: TPlayerInputAction[]
         targetBattleSquaddieIds?: string[]
         movement?: MovementDecision
     }): PlayerSelectionContext => {

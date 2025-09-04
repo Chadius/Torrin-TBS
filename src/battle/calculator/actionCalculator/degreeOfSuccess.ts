@@ -1,30 +1,30 @@
-export enum DegreeOfSuccess {
-    NONE = "NONE",
-    CRITICAL_SUCCESS = "CRITICAL_SUCCESS",
-    SUCCESS = "SUCCESS",
-    FAILURE = "FAILURE",
-    CRITICAL_FAILURE = "CRITICAL_FAILURE",
-}
+export const DegreeOfSuccess = {
+    NONE: "NONE",
+    CRITICAL_SUCCESS: "CRITICAL_SUCCESS",
+    SUCCESS: "SUCCESS",
+    FAILURE: "FAILURE",
+    CRITICAL_FAILURE: "CRITICAL_FAILURE",
+} as const satisfies Record<string, string>
+
+export type TDegreeOfSuccess = EnumLike<typeof DegreeOfSuccess>
 
 export type DegreeOfSuccessAndSuccessBonus = {
-    degreeOfSuccess: DegreeOfSuccess
+    degreeOfSuccess: TDegreeOfSuccess
     successBonus: number
 }
 
 export const DegreeOfSuccessService = {
-    atLeastSuccessful: (degree: DegreeOfSuccess): boolean => {
-        return [
+    atLeastSuccessful: (degree: TDegreeOfSuccess): boolean =>
+        new Set<TDegreeOfSuccess>([
             DegreeOfSuccess.SUCCESS,
             DegreeOfSuccess.CRITICAL_SUCCESS,
-        ].includes(degree)
-    },
-    atBestFailure: (degree: DegreeOfSuccess): boolean => {
-        return [
+        ]).has(degree),
+    atBestFailure: (degree: TDegreeOfSuccess): boolean =>
+        new Set<TDegreeOfSuccess>([
             DegreeOfSuccess.FAILURE,
             DegreeOfSuccess.CRITICAL_FAILURE,
-        ].includes(degree)
-    },
-    upgradeByOneStep: (degreeOfSuccess: DegreeOfSuccess): DegreeOfSuccess => {
+        ]).has(degree),
+    upgradeByOneStep: (degreeOfSuccess: TDegreeOfSuccess): TDegreeOfSuccess => {
         switch (degreeOfSuccess) {
             case DegreeOfSuccess.CRITICAL_FAILURE:
                 return DegreeOfSuccess.FAILURE
@@ -38,7 +38,7 @@ export const DegreeOfSuccessService = {
 
         return DegreeOfSuccess.NONE
     },
-    degradeByOneStep: (degreeOfSuccess: DegreeOfSuccess) => {
+    degradeByOneStep: (degreeOfSuccess: TDegreeOfSuccess) => {
         switch (degreeOfSuccess) {
             case DegreeOfSuccess.CRITICAL_FAILURE:
                 return DegreeOfSuccess.CRITICAL_FAILURE

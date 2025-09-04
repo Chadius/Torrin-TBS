@@ -2,7 +2,10 @@ import {
     InBattleAttributes,
     InBattleAttributesService,
 } from "../../stats/inBattleAttributes"
-import { DegreeOfSuccess } from "../../calculator/actionCalculator/degreeOfSuccess"
+import {
+    DegreeOfSuccess,
+    TDegreeOfSuccess,
+} from "../../calculator/actionCalculator/degreeOfSuccess"
 import { isValidValue } from "../../../utils/objectValidityCheck"
 
 export interface DamageExplanation {
@@ -37,7 +40,7 @@ export interface BattleActionSquaddieChange {
     attributesAfter: InBattleAttributes
     damage: DamageExplanation
     healingReceived: number
-    actorDegreeOfSuccess: DegreeOfSuccess
+    actorDegreeOfSuccess: TDegreeOfSuccess
     chanceOfDegreeOfSuccess?: number
     successBonus?: number
 }
@@ -58,7 +61,7 @@ export const BattleActionSquaddieChangeService = {
         attributesAfter?: InBattleAttributes
         damageExplanation?: DamageExplanation
         healingReceived?: number
-        actorDegreeOfSuccess?: DegreeOfSuccess
+        actorDegreeOfSuccess?: TDegreeOfSuccess
         chanceOfDegreeOfSuccess?: number
         successBonus?: number
     }): BattleActionSquaddieChange =>
@@ -110,7 +113,7 @@ const newBattleActionSquaddieChange = ({
     attributesAfter?: InBattleAttributes
     damageExplanation?: DamageExplanation
     healingReceived?: number
-    actorDegreeOfSuccess?: DegreeOfSuccess
+    actorDegreeOfSuccess?: TDegreeOfSuccess
     chanceOfDegreeOfSuccess?: number
     successBonus?: number
 }): BattleActionSquaddieChange => ({

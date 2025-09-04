@@ -4,16 +4,19 @@ import { Button } from "../../../ui/button/button"
 import { ImageUI } from "../../../ui/imageUI/imageUI"
 import { Label } from "../../../ui/label"
 
-export enum PlayerActionTargetSelectMapHighlight {
-    NONE = "NONE",
-    ALL_VALID_COORDINATES = "ALL_VALID_COORDINATES",
-    SELECTED_SQUADDIES_ONLY = "SELECTED_SQUADDIES_ONLY",
-}
+export const PlayerActionTargetSelectMapHighlight = {
+    NONE: "NONE",
+    ALL_VALID_COORDINATES: "ALL_VALID_COORDINATES",
+    SELECTED_SQUADDIES_ONLY: "SELECTED_SQUADDIES_ONLY",
+} as const satisfies Record<string, string>
+export type TPlayerActionTargetSelectMapHighlight = EnumLike<
+    typeof PlayerActionTargetSelectMapHighlight
+>
 
 export interface PlayerActionTargetStateMachineUIObjects {
     graphicsContext: GraphicsBuffer
     camera: BattleCamera
-    mapHighlight: PlayerActionTargetSelectMapHighlight
+    mapHighlight: TPlayerActionTargetSelectMapHighlight
     confirm: {
         okButton: Button
         cancelButton: Button

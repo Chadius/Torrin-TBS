@@ -3,7 +3,7 @@ import {
     MouseRelease,
     ScreenLocation,
 } from "../../utils/mouseConfig"
-import { ButtonStatus } from "./buttonStatus"
+import { TButtonStatus } from "./buttonStatus"
 import {
     ButtonLogic,
     ButtonLogicClassFunctions,
@@ -38,7 +38,7 @@ export class Button implements ButtonLogicClassFunctions {
         mousePress,
         mouseRelease,
     }: {
-        newStatus: ButtonStatus
+        newStatus: TButtonStatus
         mouseLocation?: ScreenLocation
         mousePress?: MousePress
         mouseRelease?: MouseRelease
@@ -80,7 +80,7 @@ export class Button implements ButtonLogicClassFunctions {
         this.buttonStyle.run()
     }
 
-    getStatus(): ButtonStatus {
+    getStatus(): TButtonStatus {
         return this.logic.status
     }
 

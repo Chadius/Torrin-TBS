@@ -4,7 +4,7 @@ import {
 } from "./battleActionDecisionStep"
 import { BattleOrchestratorMode } from "../orchestrator/battleOrchestrator"
 import {
-    ActionDecisionType,
+    ActionDecision,
     ActionTemplate,
     ActionTemplateService,
 } from "../../action/template/actionTemplate"
@@ -12,7 +12,7 @@ import {
     ActionEffectTemplateService,
     TargetBySquaddieAffiliationRelation,
 } from "../../action/template/actionEffectTemplate"
-import { DamageType } from "../../squaddie/squaddieService"
+import { Damage } from "../../squaddie/squaddieService"
 import { ActionComponentCalculator } from "./actionComponentCalculator"
 import { BattleActionService } from "../history/battleAction/battleAction"
 import {
@@ -30,7 +30,7 @@ describe("ActionComponentCalculator", () => {
             name: "single target",
             actionEffectTemplates: [
                 ActionEffectTemplateService.new({
-                    damageDescriptions: { [DamageType.BODY]: 2 },
+                    damageDescriptions: { [Damage.BODY]: 2 },
                     squaddieAffiliationRelation: {
                         [TargetBySquaddieAffiliationRelation.TARGET_FOE]: true,
                     },
@@ -117,8 +117,8 @@ describe("ActionComponentCalculator", () => {
                 ActionComponentCalculator.getPendingActionDecisions(undefined)
             ).toEqual(
                 expect.arrayContaining([
-                    ActionDecisionType.ACTOR_SELECTION,
-                    ActionDecisionType.ACTION_SELECTION,
+                    ActionDecision.ACTOR_SELECTION,
+                    ActionDecision.ACTION_SELECTION,
                 ])
             )
         })
@@ -131,8 +131,8 @@ describe("ActionComponentCalculator", () => {
                 )
             ).toEqual(
                 expect.arrayContaining([
-                    ActionDecisionType.ACTOR_SELECTION,
-                    ActionDecisionType.ACTION_SELECTION,
+                    ActionDecision.ACTOR_SELECTION,
+                    ActionDecision.ACTION_SELECTION,
                 ])
             )
         })
@@ -148,9 +148,7 @@ describe("ActionComponentCalculator", () => {
                 ActionComponentCalculator.getPendingActionDecisions(
                     builderStateWithActor
                 )
-            ).toEqual(
-                expect.arrayContaining([ActionDecisionType.ACTION_SELECTION])
-            )
+            ).toEqual(expect.arrayContaining([ActionDecision.ACTION_SELECTION]))
         })
         it("action builder with an actor and single target action needs a target", () => {
             const builderStateWithActor = BattleActionDecisionStepService.new()
@@ -167,9 +165,7 @@ describe("ActionComponentCalculator", () => {
                 ActionComponentCalculator.getPendingActionDecisions(
                     builderStateWithActor
                 )
-            ).toEqual(
-                expect.arrayContaining([ActionDecisionType.TARGET_SQUADDIE])
-            )
+            ).toEqual(expect.arrayContaining([ActionDecision.TARGET_SQUADDIE]))
         })
         it("action builder with an actor, single target action and target is settled", () => {
             const builderStateWithActor = BattleActionDecisionStepService.new()

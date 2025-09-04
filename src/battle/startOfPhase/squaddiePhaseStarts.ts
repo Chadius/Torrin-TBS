@@ -1,8 +1,8 @@
 import { GameEngineState } from "../../gameEngine/gameEngine"
 import { MessageBoardMessageSquaddiePhaseStarts } from "../../message/messageBoardMessage"
 import {
-    BattlePhase,
     BattlePhaseService,
+    TBattlePhase,
 } from "../orchestratorComponents/battlePhaseTracker"
 import { InBattleAttributesService } from "../stats/inBattleAttributes"
 import { BattleSquaddie, BattleSquaddieService } from "../battleSquaddie"
@@ -16,7 +16,7 @@ export const SquaddiePhaseStartsService = {
         phase,
     }: {
         gameEngineState: GameEngineState
-        phase: BattlePhase
+        phase: TBattlePhase
     }) => {
         BattlePhaseService.doForEachSquaddieOfBattlePhase(
             gameEngineState,
@@ -85,7 +85,7 @@ export const SquaddiePhaseStartsService = {
         phase,
     }: {
         gameEngineState: GameEngineState
-        phase: BattlePhase
+        phase: TBattlePhase
     }) => {
         BattlePhaseService.doForEachSquaddieOfBattlePhase(
             gameEngineState,

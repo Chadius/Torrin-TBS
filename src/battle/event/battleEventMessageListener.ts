@@ -1,7 +1,9 @@
 import { MessageBoardListener } from "../../message/messageBoardListener"
 import {
     MessageBoardMessage,
+    MessageBoardMessageSquaddieIsInjured,
     MessageBoardMessageType,
+    TMessageBoardMessageType,
 } from "../../message/messageBoardMessage"
 import {
     CutsceneIdQueue,
@@ -11,7 +13,7 @@ import {
     BattleActionRecorder,
     BattleActionRecorderService,
 } from "../history/battleAction/battleActionRecorder"
-import { BattleEventEffectType } from "./battleEventEffect"
+import { BattleEventEffect, TBattleEventEffect } from "./battleEventEffect"
 import {
     ChallengeModifierSetting,
     ChallengeModifierSettingService,
@@ -26,7 +28,7 @@ import { getResultOrThrowError } from "../../utils/ResultOrError"
 import { SquaddieService } from "../../squaddie/squaddieService"
 import { CutsceneEffect } from "../../cutscene/cutsceneEffect"
 import { ChallengeModifierEffect } from "./eventEffect/challengeModifierEffect/challengeModifierEffect"
-import { BattleCompletionStatus } from "../orchestrator/missionObjectivesAndCutscenes"
+import { TBattleCompletionStatus } from "../orchestrator/missionObjectivesAndCutscenes"
 
 export class BattleEventMessageListener implements MessageBoardListener {
     messageBoardListenerId: string
@@ -38,34 +40,35 @@ export class BattleEventMessageListener implements MessageBoardListener {
     }
 
     receiveMessage(message: MessageBoardMessage): void {
-        let battleEvents: BattleEvent[] = []
+        if (
+            !new Set<TMessageBoardMessageType>([
+                MessageBoardMessageType.SQUADDIE_IS_INJURED,
+                MessageBoardMessageType.SQUADDIE_IS_DEFEATED,
+                MessageBoardMessageType.SQUADDIE_PHASE_STARTS,
+            ]).has(message.type)
+        )
+            return
 
-        switch (message.type) {
-            case MessageBoardMessageType.SQUADDIE_IS_INJURED:
-            case MessageBoardMessageType.SQUADDIE_IS_DEFEATED:
-            case MessageBoardMessageType.SQUADDIE_PHASE_STARTS:
-                battleEvents =
-                    message.gameEngineState.battleOrchestratorState.battleState
-                        .battleEvents
-                break
-            default:
-                return
-        }
+        let battleEvents = (message as MessageBoardMessageSquaddieIsInjured)
+            .gameEngineState.battleOrchestratorState.battleState.battleEvents
 
         battleEvents = this.filterQualifyingBattleEvents({
             allBattleEvents: battleEvents,
-            objectRepository: message.gameEngineState.repository,
-            battleActionRecorder:
-                message.gameEngineState.battleOrchestratorState.battleState
-                    .battleActionRecorder,
+            objectRepository: (message as MessageBoardMessageSquaddieIsInjured)
+                .gameEngineState.repository,
+            battleActionRecorder: (
+                message as MessageBoardMessageSquaddieIsInjured
+            ).gameEngineState.battleOrchestratorState.battleState
+                .battleActionRecorder,
             turn: {
-                turnCount:
-                    message.gameEngineState.battleOrchestratorState.battleState
-                        ?.battlePhaseState?.turnCount,
+                turnCount: (message as MessageBoardMessageSquaddieIsInjured)
+                    .gameEngineState.battleOrchestratorState.battleState
+                    ?.battlePhaseState?.turnCount,
             },
-            battleCompletionStatus:
-                message.gameEngineState.battleOrchestratorState.battleState
-                    .battleCompletionStatus,
+            battleCompletionStatus: (
+                message as MessageBoardMessageSquaddieIsInjured
+            ).gameEngineState.battleOrchestratorState.battleState
+                .battleCompletionStatus,
         })
 
         this.applyBattleEventEffects(battleEvents)
@@ -85,7 +88,7 @@ export class BattleEventMessageListener implements MessageBoardListener {
             turnCount?: number
             ignoreTurn0?: boolean
         }
-        battleCompletionStatus?: BattleCompletionStatus
+        battleCompletionStatus?: TBattleCompletionStatus
     }): BattleEvent[] {
         let battleEvents =
             filterBattleEventsThatDidNotApplyEffect(allBattleEvents)
@@ -114,7 +117,7 @@ export class BattleEventMessageListener implements MessageBoardListener {
         if (this.cutsceneIdQueue) {
             const cutsceneEffects = filterBattleEventsByBattleEventEffectType(
                 battleEvents,
-                BattleEventEffectType.CUTSCENE
+                BattleEventEffect.CUTSCENE
             ) as (BattleEvent & { effect: CutsceneEffect })[]
             CutsceneQueueService.processBattleEvents(
                 this.cutsceneIdQueue,
@@ -129,7 +132,7 @@ export class BattleEventMessageListener implements MessageBoardListener {
             const challengeModifierEvents =
                 filterBattleEventsByBattleEventEffectType(
                     battleEvents,
-                    BattleEventEffectType.CHALLENGE_MODIFIER
+                    BattleEventEffect.CHALLENGE_MODIFIER
                 ) as (BattleEvent & { effect: ChallengeModifierEffect })[]
             ChallengeModifierSettingService.processBattleEvents(
                 this.challengeModifierSetting,
@@ -154,7 +157,7 @@ export class BattleEventMessageListener implements MessageBoardListener {
 
 const filterBattleEventsByBattleEventEffectType = (
     battleEvents: BattleEvent[],
-    battleEventEffectType: BattleEventEffectType
+    battleEventEffectType: TBattleEventEffect
 ): BattleEvent[] =>
     battleEvents.filter((event) => event.effect.type === battleEventEffectType)
 

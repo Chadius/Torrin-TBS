@@ -20,7 +20,7 @@ import { TerrainTileMapService } from "../../hexMap/terrainTileMap"
 import { ResourceHandler } from "../../resource/resourceHandler"
 import * as mocks from "../../utils/test/mocks"
 import { MockedP5GraphicsBuffer } from "../../utils/test/mocks"
-import { DamageType, SquaddieService } from "../../squaddie/squaddieService"
+import { Damage, SquaddieService } from "../../squaddie/squaddieService"
 import { MissionMap, MissionMapService } from "../../missionMap/missionMap"
 import { SquaddieTargetsOtherSquaddiesAnimator } from "../animation/squaddieTargetsOtherSquaddiesAnimatior"
 import { SquaddieSkipsAnimationAnimator } from "../animation/squaddieSkipsAnimationAnimator"
@@ -146,7 +146,7 @@ describe("BattleSquaddieUsesActionOnSquaddie", () => {
                     }),
                     versusSquaddieResistance: VersusSquaddieResistance.ARMOR,
                     damageDescriptions: {
-                        [DamageType.BODY]: 9001,
+                        [Damage.BODY]: 9001,
                     },
                 }),
             ],
@@ -170,7 +170,7 @@ describe("BattleSquaddieUsesActionOnSquaddie", () => {
                     }),
                     versusSquaddieResistance: VersusSquaddieResistance.ARMOR,
                     damageDescriptions: {
-                        [DamageType.BODY]: 1,
+                        [Damage.BODY]: 1,
                     },
                 }),
             ],
@@ -391,7 +391,7 @@ describe("BattleSquaddieUsesActionOnSquaddie", () => {
         InBattleAttributesService.takeDamage({
             inBattleAttributes: targetDynamic.inBattleAttributes,
             damageToTake: targetStatic.attributes.maxHitPoints,
-            damageType: DamageType.BODY,
+            damageType: Damage.BODY,
         })
         expect(
             SquaddieService.isSquaddieAlive({
@@ -797,7 +797,7 @@ describe("BattleSquaddieUsesActionOnSquaddie", () => {
         InBattleAttributesService.takeDamage({
             inBattleAttributes: targetDynamic.inBattleAttributes,
             damageToTake: 9001,
-            damageType: DamageType.UNKNOWN,
+            damageType: Damage.UNKNOWN,
         })
 
         const missionMap: MissionMap = MissionMapService.new({

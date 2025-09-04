@@ -11,7 +11,10 @@ import {
     ObjectRepository,
     ObjectRepositoryService,
 } from "../../../../battle/objectRepository"
-import { SquaddieAffiliation } from "../../../../squaddie/squaddieAffiliation"
+import {
+    SquaddieAffiliation,
+    TSquaddieAffiliation,
+} from "../../../../squaddie/squaddieAffiliation"
 import { SquaddieRepositoryService } from "../../../../utils/test/squaddie"
 import { getResultOrThrowError } from "../../../../utils/ResultOrError"
 import { InBattleAttributesService } from "../../../../battle/stats/inBattleAttributes"
@@ -19,7 +22,7 @@ import {
     AttributeModifierService,
     AttributeSource,
 } from "../../../../squaddie/attribute/attributeModifier"
-import { AttributeType } from "../../../../squaddie/attribute/attributeType"
+import { Attribute } from "../../../../squaddie/attribute/attribute"
 import { ArmyAttributesService } from "../../../../squaddie/armyAttributes"
 import { SquaddieMovementService } from "../../../../squaddie/movement"
 import { SearchResultAdapterService } from "../../searchResults/searchResultAdapter"
@@ -623,8 +626,8 @@ describe("mapSearch", () => {
             })
 
             const createSquaddiesAndAddToMap = (
-                searchingSquaddieAffiliation: SquaddieAffiliation,
-                blockingSquaddieAffiliation: SquaddieAffiliation
+                searchingSquaddieAffiliation: TSquaddieAffiliation,
+                blockingSquaddieAffiliation: TSquaddieAffiliation
             ) => {
                 SquaddieRepositoryService.createNewSquaddieAndAddToRepository({
                     objectRepository,
@@ -825,7 +828,7 @@ describe("mapSearch", () => {
                         InBattleAttributesService.addActiveAttributeModifier(
                             battleSquaddie.inBattleAttributes,
                             AttributeModifierService.new({
-                                type: AttributeType.ELUSIVE,
+                                type: Attribute.ELUSIVE,
                                 duration: 1,
                                 amount: 1,
                                 source: AttributeSource.CIRCUMSTANCE,

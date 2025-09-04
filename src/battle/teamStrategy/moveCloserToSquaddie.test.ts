@@ -15,7 +15,7 @@ import {
     SquaddieTemplate,
     SquaddieTemplateService,
 } from "../../campaign/squaddieTemplate"
-import { DamageType } from "../../squaddie/squaddieService"
+import { Damage } from "../../squaddie/squaddieService"
 import { SquaddieRepositoryService } from "../../utils/test/squaddie"
 import {
     BattleActionDecisionStep,
@@ -511,7 +511,7 @@ describe("move towards closest squaddie in range", () => {
         InBattleAttributesService.takeDamage({
             inBattleAttributes: targetBattleSquaddie.inBattleAttributes,
             damageToTake: 9001,
-            damageType: DamageType.UNKNOWN,
+            damageType: Damage.UNKNOWN,
         })
 
         const strategy: MoveCloserToSquaddie = new MoveCloserToSquaddie({

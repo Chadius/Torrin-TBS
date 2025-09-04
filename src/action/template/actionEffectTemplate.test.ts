@@ -1,4 +1,4 @@
-import { DamageType } from "../../squaddie/squaddieService"
+import { Damage } from "../../squaddie/squaddieService"
 import {
     Trait,
     TraitStatusStorageService,
@@ -9,20 +9,20 @@ import {
     TargetBySquaddieAffiliationRelation,
     VersusSquaddieResistance,
 } from "./actionEffectTemplate"
-import { ActionDecisionType } from "./actionTemplate"
+import { ActionDecision } from "./actionTemplate"
 import { describe, expect, it } from "vitest"
 
 describe("ActionEffectTemplate", () => {
     it("can be constructed using data object", () => {
         const newAction: ActionEffectTemplate = ActionEffectTemplateService.new(
             {
-                damageDescriptions: { [DamageType.SOUL]: 2 },
+                damageDescriptions: { [Damage.SOUL]: 2 },
                 healingDescriptions: {},
                 traits: { booleanTraits: { [Trait.ATTACK]: true } },
             }
         )
 
-        expect(newAction.damageDescriptions).toEqual({ [DamageType.SOUL]: 2 })
+        expect(newAction.damageDescriptions).toEqual({ [Damage.SOUL]: 2 })
         expect(newAction.healingDescriptions).toEqual({})
         expect(newAction.traits).toEqual(
             TraitStatusStorageService.newUsingTraitValues({
@@ -185,15 +185,15 @@ describe("ActionEffectTemplate", () => {
         it("defaults to choosing a target squaddie", () => {
             const template = ActionEffectTemplateService.new({})
             expect(template.actionDecisions).toEqual([
-                ActionDecisionType.TARGET_SQUADDIE,
+                ActionDecision.TARGET_SQUADDIE,
             ])
         })
         it("can specify other types of decisions", () => {
             const template = ActionEffectTemplateService.new({
-                actionDecisions: [ActionDecisionType.ACTION_SELECTION],
+                actionDecisions: [ActionDecision.ACTION_SELECTION],
             })
             expect(template.actionDecisions).toEqual([
-                ActionDecisionType.ACTION_SELECTION,
+                ActionDecision.ACTION_SELECTION,
             ])
         })
     })

@@ -42,9 +42,9 @@ import {
     AttributeSource,
 } from "../../../../../squaddie/attribute/attributeModifier"
 import {
-    AttributeType,
+    Attribute,
     AttributeTypeService,
-} from "../../../../../squaddie/attribute/attributeType"
+} from "../../../../../squaddie/attribute/attribute"
 import { Glossary } from "../../../../../campaign/glossary/glossary"
 import { TileAttributeLabelStackService } from "../tileAttributeLabel/tileAttributeLabelStack"
 
@@ -89,7 +89,7 @@ describe("Action Selected Tile", () => {
                     },
                     attributeModifiers: [
                         AttributeModifierService.new({
-                            type: AttributeType.MOVEMENT,
+                            type: Attribute.MOVEMENT,
                             source: AttributeSource.MARTIAL,
                             amount: 1,
                         }),
@@ -137,7 +137,7 @@ describe("Action Selected Tile", () => {
             expect(tile.glossaryLabelStack.labels).toHaveLength(2)
             expect(tile.glossaryLabelStack.labels[0].iconResourceKey).toEqual(
                 AttributeTypeService.getAttributeIconResourceKeyForAttributeType(
-                    AttributeType.MOVEMENT
+                    Attribute.MOVEMENT
                 )
             )
             expect(tile.glossaryLabelStack.labels[1].description.text).toEqual(

@@ -9,11 +9,14 @@ import {
 } from "vitest"
 import {
     PlayerActionTargetActionEnum,
+    PlayerActionTargetActionType,
     PlayerActionTargetStateEnum,
     PlayerActionTargetStateMachine,
     PlayerActionTargetStateMachineInfoByState,
     PlayerActionTargetStateMachineInfoByTransition,
+    TPlayerActionTargetState,
     PlayerActionTargetTransitionEnum,
+    PlayerActionTargetTransitionType,
 } from "./stateMachine"
 import { StateMachineDataService } from "../../../utils/stateMachine/stateMachineData/stateMachineData"
 import {
@@ -76,13 +79,13 @@ import { PLAYER_ACTION_CONFIRM_CREATE_CANCEL_BUTTON_ID } from "./playerActionCon
 import { MouseButton, ScreenLocation } from "../../../utils/mouseConfig"
 import { PlayerCommandStateService } from "../../hud/playerCommand/playerCommandHUD"
 import { CoordinateGeneratorShape } from "../../targeting/coordinateGenerator"
-import { DamageType, HealingType } from "../../../squaddie/squaddieService"
+import { Damage, Healing } from "../../../squaddie/squaddieService"
 import { ActionValidityTestUtils } from "../../actionValidity/commonTest"
 import {
     AttributeModifierService,
     AttributeSource,
 } from "../../../squaddie/attribute/attributeModifier"
-import { AttributeType } from "../../../squaddie/attribute/attributeType"
+import { Attribute } from "../../../squaddie/attribute/attribute"
 import { CanHealTargetCheck } from "../../actionValidity/canHealTargetCheck"
 import { CanAddModifiersCheck } from "../../actionValidity/canAddModifiersCheck"
 import { InBattleAttributesService } from "../../stats/inBattleAttributes"
@@ -400,7 +403,7 @@ describe("PlayerActionTargetSelect State Machine", () => {
                                     false,
                             },
                             healingDescriptions: {
-                                [HealingType.LOST_HIT_POINTS]: 2,
+                                [Healing.LOST_HIT_POINTS]: 2,
                             },
                         }),
                     ],
@@ -431,7 +434,7 @@ describe("PlayerActionTargetSelect State Machine", () => {
                             },
                             attributeModifiers: [
                                 AttributeModifierService.new({
-                                    type: AttributeType.ARMOR,
+                                    type: Attribute.ARMOR,
                                     source: AttributeSource.CIRCUMSTANCE,
                                     amount: 1,
                                 }),
@@ -550,7 +553,7 @@ describe("PlayerActionTargetSelect State Machine", () => {
 
                         InBattleAttributesService.takeDamage({
                             damageToTake: 1,
-                            damageType: DamageType.BODY,
+                            damageType: Damage.BODY,
                             inBattleAttributes:
                                 battleSquaddie.inBattleAttributes,
                         })
@@ -572,7 +575,7 @@ describe("PlayerActionTargetSelect State Machine", () => {
                         InBattleAttributesService.addActiveAttributeModifier(
                             battleSquaddie.inBattleAttributes,
                             AttributeModifierService.new({
-                                type: AttributeType.ARMOR,
+                                type: Attribute.ARMOR,
                                 amount: 5,
                                 source: AttributeSource.CIRCUMSTANCE,
                             })
@@ -977,9 +980,9 @@ describe("PlayerActionTargetSelect State Machine", () => {
 
                 describe("TRIGGER_PLAYER_CONSIDERS_TARGET_SELECTION", () => {
                     let update: StateMachineUpdate<
-                        PlayerActionTargetStateEnum,
-                        PlayerActionTargetTransitionEnum,
-                        PlayerActionTargetActionEnum
+                        TPlayerActionTargetState,
+                        PlayerActionTargetTransitionType,
+                        PlayerActionTargetActionType
                     >
 
                     beforeEach(() => {

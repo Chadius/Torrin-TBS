@@ -13,21 +13,23 @@ export const TimeElapsedSinceAnimationStarted = (animationStartTime: number) =>
             ACTION_ANIMATION_SHOW_RESULTS_TIME
     )
 
-export enum ActionAnimationPhase {
-    INITIALIZED = "INITIALIZED",
-    BEFORE_ACTION = "BEFORE_ACTION",
-    DURING_ACTION = "DURING_ACTION",
-    TARGET_REACTS = "TARGET_REACTS",
-    SHOWING_RESULTS = "SHOWING_RESULTS",
-    FINISHED_SHOWING_RESULTS = "FINISHED_SHOWING_RESULTS",
-}
+export const ActionAnimationPhase = {
+    INITIALIZED: "INITIALIZED",
+    BEFORE_ACTION: "BEFORE_ACTION",
+    DURING_ACTION: "DURING_ACTION",
+    TARGET_REACTS: "TARGET_REACTS",
+    SHOWING_RESULTS: "SHOWING_RESULTS",
+    FINISHED_SHOWING_RESULTS: "FINISHED_SHOWING_RESULTS",
+} as const satisfies Record<string, string>
+export type TActionAnimationPhase = EnumLike<typeof ActionAnimationPhase>
 
-export enum SquaddieEmotion {
-    "NEUTRAL" = "NEUTRAL",
-    "ATTACK" = "ATTACK",
-    "TARGETED" = "TARGETED",
-    "DAMAGED" = "DAMAGED",
-    "DEAD" = "DEAD",
-    "ASSISTING" = "ASSISTING",
-    "THANKFUL" = "THANKFUL",
-}
+export const SquaddieEmotion = {
+    NEUTRAL: "NEUTRAL",
+    ATTACK: "ATTACK",
+    TARGETED: "TARGETED",
+    DAMAGED: "DAMAGED",
+    DEAD: "DEAD",
+    ASSISTING: "ASSISTING",
+    THANKFUL: "THANKFUL",
+} as const satisfies Record<string, string>
+export type TSquaddieEmotion = EnumLike<typeof SquaddieEmotion>

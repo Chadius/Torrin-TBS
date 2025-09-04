@@ -1,10 +1,13 @@
-import { DegreeOfSuccess } from "../../calculator/actionCalculator/degreeOfSuccess"
+import {
+    DegreeOfSuccess,
+    TDegreeOfSuccess,
+} from "../../calculator/actionCalculator/degreeOfSuccess"
 import { Rectangle, RectangleService } from "../../../ui/rectangle/rectangle"
 import { GraphicsBuffer } from "../../../utils/graphics/graphicsRenderer"
 import { RectAreaService } from "../../../ui/rectArea"
 
 export interface AttackRollThermometerSegment {
-    degreeOfSuccess: DegreeOfSuccess
+    degreeOfSuccess: TDegreeOfSuccess
     minimum: number
     maximum: number
     drawnObjects: {
@@ -30,7 +33,7 @@ export const AttackRollThermometerSegmentService = {
         minimum,
         maximum,
     }: {
-        degreeOfSuccess: DegreeOfSuccess
+        degreeOfSuccess: TDegreeOfSuccess
         minimum: number
         maximum: number
     }): AttackRollThermometerSegment => {
@@ -84,7 +87,7 @@ export const AttackRollThermometerSegmentService = {
                 strokeWeight: LayoutConstants.strokeWeight,
                 fillColor:
                     LayoutConstants.fillColorByDegreeOfSuccess[
-                        segment.degreeOfSuccess
+                        segment.degreeOfSuccess as keyof typeof LayoutConstants.fillColorByDegreeOfSuccess
                     ],
             })
         }

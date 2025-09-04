@@ -1,17 +1,23 @@
-import { HexGridMovementCost } from "../hexMap/hexGridMovementCost"
+import {
+    HexGridMovementCost,
+    THexGridMovementCost,
+} from "../hexMap/hexGridMovementCost"
 
-export enum ActionEffectTemplateButtonIconKey {
-    UNKNOWN = "UNKNOWN",
-}
+export const ActionEffectTemplateButtonIconKey = {
+    UNKNOWN: "UNKNOWN",
+} as const satisfies Record<string, string>
+export type TActionEffectTemplateButtonIconKey = EnumLike<
+    typeof ActionEffectTemplateButtonIconKey
+>
 
 export interface MapTilesResources {
     resourceKeys: string[]
-    defaultByTerrainCost: { [cost in HexGridMovementCost]: string }
+    defaultByTerrainCost: { [cost in THexGridMovementCost]: string }
 }
 
 export interface CampaignResources {
     actionEffectSquaddieTemplateButtonIcons: {
-        [iconKey in ActionEffectTemplateButtonIconKey]: string
+        [iconKey in TActionEffectTemplateButtonIconKey]: string
     }
     mapTiles: MapTilesResources
     endTurnIconResourceKey: string

@@ -1,7 +1,10 @@
 import { BattleSquaddie, BattleSquaddieService } from "./battleSquaddie"
 import { makeError, makeResult, ResultOrError } from "../utils/ResultOrError"
 import { SquaddieTemplate } from "../campaign/squaddieTemplate"
-import { SquaddieAffiliation } from "../squaddie/squaddieAffiliation"
+import {
+    SquaddieAffiliation,
+    TSquaddieAffiliation,
+} from "../squaddie/squaddieAffiliation"
 import { ActionTemplate } from "../action/template/actionTemplate"
 import { ImageUI } from "../ui/imageUI/imageUI"
 
@@ -20,7 +23,7 @@ export interface ObjectRepository {
     }
     uiElements: {
         phaseBannersByAffiliation: {
-            [affiliation in SquaddieAffiliation]?: string
+            [affiliation in TSquaddieAffiliation]?: string
         }
         teamAffiliationIcons: { [teamId: string]: string }
     }

@@ -50,14 +50,14 @@ import { BattleCompletionStatus } from "../battle/orchestrator/missionObjectives
 import { BattlePhase } from "../battle/orchestratorComponents/battlePhaseTracker"
 import { TitleScreenStateHelper } from "../titleScreen/titleScreenState"
 import { BattleHUDStateService } from "../battle/hud/battleHUD/battleHUDState"
-import { TriggeringEventType } from "../battle/event/eventTrigger/triggeringEventType"
+import { TriggeringEvent } from "../battle/event/eventTrigger/triggeringEvent"
 import { EventTriggerBaseService } from "../battle/event/eventTrigger/eventTriggerBase"
 import { EventTriggerBattleCompletionStatusService } from "../battle/event/eventTrigger/eventTriggerBattleCompletionStatus"
 import { CutsceneEffectService } from "../cutscene/cutsceneEffect"
 import { EventTriggerTurnRangeService } from "../battle/event/eventTrigger/eventTriggerTurnRange"
 import {
+    ChallengeModifierEnum,
     ChallengeModifierSettingService,
-    ChallengeModifierType,
 } from "../battle/challengeModifier/challengeModifierSetting"
 
 describe("GameEngineGameLoader", () => {
@@ -444,7 +444,7 @@ describe("GameEngineGameLoader", () => {
                 ChallengeModifierSettingService.new()
             ChallengeModifierSettingService.setSetting({
                 challengeModifierSetting,
-                type: ChallengeModifierType.TRAINING_WHEELS,
+                type: ChallengeModifierEnum.TRAINING_WHEELS,
                 value: true,
             })
 
@@ -470,7 +470,7 @@ describe("GameEngineGameLoader", () => {
                         triggers: [
                             {
                                 ...EventTriggerBaseService.new(
-                                    TriggeringEventType.MISSION_VICTORY
+                                    TriggeringEvent.MISSION_VICTORY
                                 ),
                                 ...EventTriggerBattleCompletionStatusService.new(
                                     {
@@ -486,7 +486,7 @@ describe("GameEngineGameLoader", () => {
                         triggers: [
                             {
                                 ...EventTriggerBaseService.new(
-                                    TriggeringEventType.START_OF_TURN
+                                    TriggeringEvent.START_OF_TURN
                                 ),
                                 ...EventTriggerTurnRangeService.new({
                                     exactTurn: 0,
@@ -538,7 +538,7 @@ describe("GameEngineGameLoader", () => {
                                 triggers: [
                                     {
                                         ...EventTriggerBaseService.new(
-                                            TriggeringEventType.MISSION_VICTORY
+                                            TriggeringEvent.MISSION_VICTORY
                                         ),
                                         ...EventTriggerBattleCompletionStatusService.new(
                                             {
@@ -554,7 +554,7 @@ describe("GameEngineGameLoader", () => {
                                 triggers: [
                                     {
                                         ...EventTriggerBaseService.new(
-                                            TriggeringEventType.START_OF_TURN
+                                            TriggeringEvent.START_OF_TURN
                                         ),
                                         ...EventTriggerTurnRangeService.new({
                                             exactTurn: 0,
@@ -663,7 +663,7 @@ describe("GameEngineGameLoader", () => {
                 ChallengeModifierSettingService.getSetting(
                     currentState.battleOrchestratorState.battleState
                         .challengeModifierSetting,
-                    ChallengeModifierType.TRAINING_WHEELS
+                    ChallengeModifierEnum.TRAINING_WHEELS
                 )
             ).toBe(true)
         })
@@ -900,7 +900,7 @@ describe("GameEngineGameLoader", () => {
                         triggers: [
                             {
                                 ...EventTriggerBaseService.new(
-                                    TriggeringEventType.MISSION_VICTORY
+                                    TriggeringEvent.MISSION_VICTORY
                                 ),
                                 ...EventTriggerBattleCompletionStatusService.new(
                                     {
@@ -916,7 +916,7 @@ describe("GameEngineGameLoader", () => {
                         triggers: [
                             {
                                 ...EventTriggerBaseService.new(
-                                    TriggeringEventType.START_OF_TURN
+                                    TriggeringEvent.START_OF_TURN
                                 ),
                                 ...EventTriggerTurnRangeService.new({
                                     exactTurn: 0,
@@ -1007,7 +1007,7 @@ describe("GameEngineGameLoader", () => {
                             triggers: [
                                 {
                                     ...EventTriggerBaseService.new(
-                                        TriggeringEventType.MISSION_VICTORY
+                                        TriggeringEvent.MISSION_VICTORY
                                     ),
                                     ...EventTriggerBattleCompletionStatusService.new(
                                         {
@@ -1023,7 +1023,7 @@ describe("GameEngineGameLoader", () => {
                             triggers: [
                                 {
                                     ...EventTriggerBaseService.new(
-                                        TriggeringEventType.START_OF_TURN
+                                        TriggeringEvent.START_OF_TURN
                                     ),
                                     ...EventTriggerTurnRangeService.new({
                                         exactTurn: 0,

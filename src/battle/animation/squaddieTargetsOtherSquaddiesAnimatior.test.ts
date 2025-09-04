@@ -17,9 +17,12 @@ import {
     CreateNewKnightSquaddie,
     CreateNewThiefSquaddie,
 } from "../../utils/test/squaddie"
-import { DamageType } from "../../squaddie/squaddieService"
+import { Damage } from "../../squaddie/squaddieService"
 import { SquaddieTargetsOtherSquaddiesAnimator } from "./squaddieTargetsOtherSquaddiesAnimatior"
-import { ActionAnimationPhase } from "./actionAnimation/actionAnimationConstants"
+import {
+    ActionAnimationPhase,
+    TActionAnimationPhase,
+} from "./actionAnimation/actionAnimationConstants"
 import { ActionTimer } from "./actionAnimation/actionTimer"
 import { BattleStateService } from "../battleState/battleState"
 import {
@@ -50,14 +53,14 @@ import { beforeEach, describe, expect, it, vi } from "vitest"
 import { PlayerInputTestService } from "../../utils/test/playerInput"
 import { BattleActionActorContextService } from "../history/battleAction/battleActionActorContext"
 import {
-    RollModifierType,
+    RollModifierEnum,
     RollModifierTypeService,
     RollResultService,
 } from "../calculator/actionCalculator/rollResult"
 import {
-    AttributeType,
+    Attribute,
     AttributeTypeService,
-} from "../../squaddie/attribute/attributeType"
+} from "../../squaddie/attribute/attribute"
 import { ModifierDisplayColumnPosition } from "./modifierDisplay/modifierDisplayColumn"
 
 describe("SquaddieTargetsOtherSquaddiesAnimation", () => {
@@ -99,7 +102,7 @@ describe("SquaddieTargetsOtherSquaddiesAnimation", () => {
                     }),
                     versusSquaddieResistance: VersusSquaddieResistance.ARMOR,
                     damageDescriptions: {
-                        [DamageType.BODY]: 2,
+                        [Damage.BODY]: 2,
                     },
                 }),
             ],
@@ -153,7 +156,7 @@ describe("SquaddieTargetsOtherSquaddiesAnimation", () => {
 
     function mockActionTimerPhase(
         timer: ActionTimer,
-        actionAnimationPhase: ActionAnimationPhase
+        actionAnimationPhase: TActionAnimationPhase
     ) {
         return vi
             .spyOn(timer, "currentPhase", "get")
@@ -203,19 +206,19 @@ describe("SquaddieTargetsOtherSquaddiesAnimation", () => {
                         rolls: [6, 1],
                         occurred: true,
                         rollModifiers: {
-                            [RollModifierType.MULTIPLE_ATTACK_PENALTY]: -3,
+                            [RollModifierEnum.MULTIPLE_ATTACK_PENALTY]: -3,
                         },
                     }),
                     actingSquaddieModifiers: [
                         {
-                            type: AttributeType.MOVEMENT,
+                            type: Attribute.MOVEMENT,
                             amount: 2,
                         },
                     ],
                     targetSquaddieModifiers: {
                         thiefDynamicId: [
                             {
-                                type: AttributeType.ARMOR,
+                                type: Attribute.ARMOR,
                                 amount: 1,
                             },
                         ],
@@ -253,13 +256,13 @@ describe("SquaddieTargetsOtherSquaddiesAnimation", () => {
         expect(
             animator.modifierDisplayColumns[ModifierDisplayColumnPosition.LEFT]
                 .labels[0].textBox.text
-        ).includes(AttributeTypeService.readableName(AttributeType.MOVEMENT))
+        ).includes(AttributeTypeService.readableName(Attribute.MOVEMENT))
         expect(
             animator.modifierDisplayColumns[ModifierDisplayColumnPosition.LEFT]
                 .labels[1].textBox.text
         ).includes(
             RollModifierTypeService.readableName({
-                type: RollModifierType.MULTIPLE_ATTACK_PENALTY,
+                type: RollModifierEnum.MULTIPLE_ATTACK_PENALTY,
                 abbreviate: false,
             })
         )
@@ -271,7 +274,7 @@ describe("SquaddieTargetsOtherSquaddiesAnimation", () => {
         expect(
             animator.modifierDisplayColumns[ModifierDisplayColumnPosition.RIGHT]
                 .labels[0].textBox.text
-        ).includes(AttributeTypeService.readableName(AttributeType.ARMOR))
+        ).includes(AttributeTypeService.readableName(Attribute.ARMOR))
     })
 
     describe("will skip displaying the results", () => {

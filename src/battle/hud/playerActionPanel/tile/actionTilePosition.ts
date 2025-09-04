@@ -3,32 +3,33 @@ import { ScreenDimensions } from "../../../../utils/graphics/graphicsConfig"
 import { GOLDEN_RATIO } from "../../../../ui/constants"
 import { GraphicsBuffer } from "../../../../utils/graphics/graphicsRenderer"
 import { HUE_BY_SQUADDIE_AFFILIATION } from "../../../../graphicsConstants"
-import { SquaddieAffiliation } from "../../../../squaddie/squaddieAffiliation"
+import { TSquaddieAffiliation } from "../../../../squaddie/squaddieAffiliation"
 
-export enum ActionTilePosition {
-    ACTOR_NAME = "ACTOR_NAME",
-    PEEK_PLAYABLE_NAME = "PEEK_PLAYABLE_NAME",
-    PEEK_RIGHT_NAME = "PEEK_RIGHT_NAME",
-    PEEK_PLAYABLE_STATUS = "PEEK_PLAYABLE_STATUS",
-    PEEK_RIGHT_STATUS = "PEEK_RIGHT_STATUS",
-    TARGET_NAME = "TARGET_NAME",
-    ACTOR_STATUS = "ACTOR_STATUS",
-    TARGET_STATUS = "TARGET_STATUS",
-    SELECTED_ACTION = "SELECTED_ACTION",
-    ACTION_PREVIEW = "ACTION_PREVIEW",
-}
+export const ActionTilePosition = {
+    ACTOR_NAME: "ACTOR_NAME",
+    PEEK_PLAYABLE_NAME: "PEEK_PLAYABLE_NAME",
+    PEEK_RIGHT_NAME: "PEEK_RIGHT_NAME",
+    PEEK_PLAYABLE_STATUS: "PEEK_PLAYABLE_STATUS",
+    PEEK_RIGHT_STATUS: "PEEK_RIGHT_STATUS",
+    TARGET_NAME: "TARGET_NAME",
+    ACTOR_STATUS: "ACTOR_STATUS",
+    TARGET_STATUS: "TARGET_STATUS",
+    SELECTED_ACTION: "SELECTED_ACTION",
+    ACTION_PREVIEW: "ACTION_PREVIEW",
+} as const satisfies Record<string, string>
+export type TActionTilePosition = EnumLike<typeof ActionTilePosition>
 
 export const ActionTilePositionService = {
     getBoundingBoxBasedOnActionTilePosition: (
-        horizontalPosition: ActionTilePosition
+        horizontalPosition: TActionTilePosition
     ): RectArea => getBoundingBoxBasedOnActionPanelPosition(horizontalPosition),
     drawBackground: ({
         squaddieAffiliation,
         horizontalPosition,
         graphicsContext,
     }: {
-        squaddieAffiliation: SquaddieAffiliation
-        horizontalPosition: ActionTilePosition
+        squaddieAffiliation: TSquaddieAffiliation
+        horizontalPosition: TActionTilePosition
         graphicsContext: GraphicsBuffer
     }) => {
         const fillColor = getBackgroundColorByAffiliation(squaddieAffiliation)
@@ -47,16 +48,16 @@ export const ActionTilePositionService = {
         graphicsContext.pop()
     },
     getBackgroundColorByAffiliation: (
-        squaddieAffiliation: SquaddieAffiliation
+        squaddieAffiliation: TSquaddieAffiliation
     ): [number, number, number] =>
         getBackgroundColorByAffiliation(squaddieAffiliation),
 }
 
 const getBoundingBoxBasedOnActionPanelPosition = (
-    horizontalPosition: ActionTilePosition
+    horizontalPosition: TActionTilePosition
 ): RectArea => {
     const columnsByPosition: {
-        [q in ActionTilePosition]: {
+        [q in TActionTilePosition]: {
             startColumn: number
             endColumn: number
         }
@@ -115,7 +116,7 @@ const getBoundingBoxBasedOnActionPanelPosition = (
 }
 
 const getBackgroundColorByAffiliation = (
-    squaddieAffiliation: SquaddieAffiliation
+    squaddieAffiliation: TSquaddieAffiliation
 ): [number, number, number] => {
     const squaddieAffiliationHue: number =
         HUE_BY_SQUADDIE_AFFILIATION[squaddieAffiliation]

@@ -6,7 +6,10 @@ import {
     Trait,
     TraitStatusStorageService,
 } from "../../trait/traitStatusStorage"
-import { SquaddieAffiliation } from "../../squaddie/squaddieAffiliation"
+import {
+    SquaddieAffiliation,
+    TSquaddieAffiliation,
+} from "../../squaddie/squaddieAffiliation"
 import { TargetingResults, TargetingResultsService } from "./targetingService"
 
 import {
@@ -184,7 +187,7 @@ describe("Targeting Service", () => {
         battleMap,
     }: {
         battleSquaddieId: string
-        squaddieAffiliation: SquaddieAffiliation
+        squaddieAffiliation: TSquaddieAffiliation
         coordinate: HexCoordinate
         repository: ObjectRepository
         battleMap: MissionMap
@@ -461,7 +464,7 @@ describe("Targeting Service", () => {
     describe("verify target affiliation in relation to the user", () => {
         type idAndAffiliation = {
             id: string
-            affiliation: SquaddieAffiliation
+            affiliation: TSquaddieAffiliation
         }
 
         let player1: idAndAffiliation = {

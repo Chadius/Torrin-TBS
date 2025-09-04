@@ -45,7 +45,7 @@ import {
     MockInstance,
     vi,
 } from "vitest"
-import { HealingType } from "../../../squaddie/squaddieService"
+import { Healing } from "../../../squaddie/squaddieService"
 import {
     ActionButton,
     ActionButtonService,
@@ -155,7 +155,7 @@ describe("playerCommandHUD", () => {
                         [TargetBySquaddieAffiliationRelation.TARGET_SELF]: true,
                     },
                     healingDescriptions: {
-                        [HealingType.LOST_HIT_POINTS]: 1,
+                        [Healing.LOST_HIT_POINTS]: 1,
                     },
                 }),
             ],

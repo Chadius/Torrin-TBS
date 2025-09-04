@@ -3,7 +3,7 @@ import {
     ObjectRepository,
     ObjectRepositoryService,
 } from "../../../objectRepository"
-import { MouseButton } from "../../../../utils/mouseConfig"
+import { MouseButton, TMouseButton } from "../../../../utils/mouseConfig"
 import { ResourceHandler } from "../../../../resource/resourceHandler"
 import { ImageUI, ImageUILoadingBehavior } from "../../../../ui/imageUI/imageUI"
 import { GraphicsBuffer } from "../../../../utils/graphics/graphicsRenderer"
@@ -11,7 +11,7 @@ import { ActionTemplate } from "../../../../action/template/actionTemplate"
 import { WINDOW_SPACING } from "../../../../ui/constants"
 import { Rectangle, RectangleService } from "../../../../ui/rectangle/rectangle"
 import {
-    PULSE_COLOR_FORMULA_TYPE,
+    PULSE_COLOR_FORMULA,
     PulseColorService,
 } from "../../../../hexMap/pulseColor"
 import { TextBox, TextBoxService } from "../../../../ui/textBox/textBox"
@@ -164,7 +164,7 @@ export const ActionButtonService = {
     shouldSelectActionBecauseOfMouseButton(
         actionButton: ActionButton,
         mouseSelection: {
-            button: MouseButton
+            button: TMouseButton
             x: number
             y: number
         }
@@ -319,7 +319,7 @@ const drawDecorator = ({
             high: actionButton.layout.selectedBorder.strokeBrightnessRange[1],
         },
         periodInMilliseconds: actionButton.layout.selectedBorder.pulsePeriod,
-        formula: PULSE_COLOR_FORMULA_TYPE.SINE,
+        formula: PULSE_COLOR_FORMULA.SINE,
     })
     const fillAlpha: number = PulseColorService.calculatePulseAmount({
         range: {
@@ -327,7 +327,7 @@ const drawDecorator = ({
             high: actionButton.layout.disabled.fillAlphaRange[1],
         },
         periodInMilliseconds: actionButton.layout.disabled.pulsePeriod,
-        formula: PULSE_COLOR_FORMULA_TYPE.SINE,
+        formula: PULSE_COLOR_FORMULA.SINE,
     })
 
     let fillColor: number[]

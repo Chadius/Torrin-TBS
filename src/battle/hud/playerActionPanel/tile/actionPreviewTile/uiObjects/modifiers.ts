@@ -1,6 +1,6 @@
 import { BehaviorTreeTask } from "../../../../../../utils/behaviorTree/task"
 import {
-    RollModifierType,
+    TRollModifier,
     RollModifierTypeService,
 } from "../../../../../calculator/actionCalculator/rollResult"
 import {
@@ -19,7 +19,7 @@ import {
 import {
     AttributeTypeAndAmount,
     AttributeTypeService,
-} from "../../../../../../squaddie/attribute/attributeType"
+} from "../../../../../../squaddie/attribute/attribute"
 import { ComponentDataBlob } from "../../../../../../utils/dataBlob/componentDataBlob"
 import { TextFormatService } from "../../../../../../utils/graphics/textFormatService"
 
@@ -59,7 +59,7 @@ export class CreateLeftModifiersTextBoxAction implements BehaviorTreeTask {
                 .filter(([_, amount]) => amount !== 0)
                 .map(([keyStr, amount]) => ({
                     name: RollModifierTypeService.readableName({
-                        type: keyStr as RollModifierType,
+                        type: keyStr as TRollModifier,
                         abbreviate: true,
                     }),
                     amount,

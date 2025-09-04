@@ -2,7 +2,7 @@ import { MissionRewardType } from "../../battle/missionResult/missionReward"
 import { MissionConditionType } from "../../battle/missionResult/missionCondition"
 import { SquaddieAffiliation } from "../../squaddie/squaddieAffiliation"
 import { Trait } from "../../trait/traitStatusStorage"
-import { DamageType } from "../../squaddie/squaddieService"
+import { Damage } from "../../squaddie/squaddieService"
 import { MissionFileFormat } from "../../dataLoader/missionLoader"
 import {
     SquaddieTemplate,
@@ -19,12 +19,12 @@ import {
     VersusSquaddieResistance,
 } from "../../action/template/actionEffectTemplate"
 import {
-    ActionDecisionType,
+    ActionDecision,
     ActionTemplate,
 } from "../../action/template/actionTemplate"
 import { ArmyAttributesService } from "../../squaddie/armyAttributes"
 import { CoordinateGeneratorShape } from "../../battle/targeting/coordinateGenerator"
-import { TriggeringEventType } from "../../battle/event/eventTrigger/triggeringEventType"
+import { TriggeringEvent } from "../../battle/event/eventTrigger/triggeringEvent"
 import { EventTriggerBaseService } from "../../battle/event/eventTrigger/eventTriggerBase"
 import { CutsceneEffectService } from "../../cutscene/cutsceneEffect"
 import { EventTriggerTurnRangeService } from "../../battle/event/eventTrigger/eventTriggerTurnRange"
@@ -277,7 +277,7 @@ export const TestMissionData = () => {
                 triggers: [
                     {
                         ...EventTriggerBaseService.new(
-                            TriggeringEventType.MISSION_VICTORY
+                            TriggeringEvent.MISSION_VICTORY
                         ),
                         ...EventTriggerBattleCompletionStatusService.new({
                             battleCompletionStatus:
@@ -291,7 +291,7 @@ export const TestMissionData = () => {
                 triggers: [
                     {
                         ...EventTriggerBaseService.new(
-                            TriggeringEventType.MISSION_DEFEAT
+                            TriggeringEvent.MISSION_DEFEAT
                         ),
                         ...EventTriggerBattleCompletionStatusService.new({
                             battleCompletionStatus:
@@ -305,7 +305,7 @@ export const TestMissionData = () => {
                 triggers: [
                     {
                         ...EventTriggerBaseService.new(
-                            TriggeringEventType.START_OF_TURN
+                            TriggeringEvent.START_OF_TURN
                         ),
                         ...EventTriggerTurnRangeService.new({
                             exactTurn: 0,
@@ -318,7 +318,7 @@ export const TestMissionData = () => {
                 triggers: [
                     {
                         ...EventTriggerBaseService.new(
-                            TriggeringEventType.START_OF_TURN
+                            TriggeringEvent.START_OF_TURN
                         ),
                         ...EventTriggerTurnRangeService.new({
                             exactTurn: 1,
@@ -331,7 +331,7 @@ export const TestMissionData = () => {
                 triggers: [
                     {
                         ...EventTriggerBaseService.new(
-                            TriggeringEventType.START_OF_TURN
+                            TriggeringEvent.START_OF_TURN
                         ),
                         ...EventTriggerTurnRangeService.new({
                             exactTurn: 2,
@@ -344,7 +344,7 @@ export const TestMissionData = () => {
                 triggers: [
                     {
                         ...EventTriggerBaseService.new(
-                            TriggeringEventType.START_OF_TURN
+                            TriggeringEvent.START_OF_TURN
                         ),
                         ...EventTriggerTurnRangeService.new({
                             exactTurn: 4,
@@ -357,7 +357,7 @@ export const TestMissionData = () => {
                 triggers: [
                     {
                         ...EventTriggerBaseService.new(
-                            TriggeringEventType.START_OF_TURN
+                            TriggeringEvent.START_OF_TURN
                         ),
                         ...EventTriggerTurnRangeService.new({
                             exactTurn: 5,
@@ -370,7 +370,7 @@ export const TestMissionData = () => {
                 triggers: [
                     {
                         ...EventTriggerBaseService.new(
-                            TriggeringEventType.START_OF_TURN
+                            TriggeringEvent.START_OF_TURN
                         ),
                         ...EventTriggerTurnRangeService.new({
                             exactTurn: 7,
@@ -383,7 +383,7 @@ export const TestMissionData = () => {
                 triggers: [
                     {
                         ...EventTriggerBaseService.new(
-                            TriggeringEventType.START_OF_TURN
+                            TriggeringEvent.START_OF_TURN
                         ),
                         ...EventTriggerTurnRangeService.new({
                             exactTurn: 0,
@@ -396,7 +396,7 @@ export const TestMissionData = () => {
                 triggers: [
                     {
                         ...EventTriggerBaseService.new(
-                            TriggeringEventType.START_OF_TURN
+                            TriggeringEvent.START_OF_TURN
                         ),
                         ...EventTriggerTurnRangeService.new({
                             exactTurn: 0,
@@ -828,10 +828,10 @@ export const TestMissionData = () => {
                     },
                     versusSquaddieResistance: VersusSquaddieResistance.ARMOR,
                     damageDescriptions: {
-                        [DamageType.BODY]: 1,
+                        [Damage.BODY]: 1,
                     },
                     healingDescriptions: {},
-                    actionDecisions: [ActionDecisionType.TARGET_SQUADDIE],
+                    actionDecisions: [ActionDecision.TARGET_SQUADDIE],
                 }),
             ],
             buttonIconResourceKey: "decision-button-sword",
@@ -856,10 +856,10 @@ export const TestMissionData = () => {
                         },
                     },
                     damageDescriptions: {
-                        [DamageType.BODY]: 1,
+                        [Damage.BODY]: 1,
                     },
                     healingDescriptions: {},
-                    actionDecisions: [ActionDecisionType.TARGET_SQUADDIE],
+                    actionDecisions: [ActionDecision.TARGET_SQUADDIE],
                 }),
             ],
             buttonIconResourceKey: "decision-button-sword",
@@ -884,10 +884,10 @@ export const TestMissionData = () => {
                         },
                     },
                     damageDescriptions: {
-                        [DamageType.BODY]: 1,
+                        [Damage.BODY]: 1,
                     },
                     healingDescriptions: {},
-                    actionDecisions: [ActionDecisionType.TARGET_SQUADDIE],
+                    actionDecisions: [ActionDecision.TARGET_SQUADDIE],
                 }),
             ],
             buttonIconResourceKey: "decision-button-sword",

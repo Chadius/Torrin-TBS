@@ -6,11 +6,12 @@ export interface NodeRecordStorage<T> {
     addNodeRecord: (nodeRecord: SearchNodeRecord<T>) => void
 }
 
-export enum SearchNodeRecordStatus {
-    CLOSED = "CLOSED",
-    OPEN = "OPEN",
-    UNVISITED = "UNVISITED",
-}
+export const SearchNodeRecordStatus = {
+    CLOSED: "CLOSED",
+    OPEN: "OPEN",
+    UNVISITED: "UNVISITED",
+} as const satisfies Record<string, string>
+export type TSearchNodeRecordStatus = EnumLike<typeof SearchNodeRecordStatus>
 
 export interface SearchNodeRecord<T> {
     node: T
@@ -18,5 +19,5 @@ export interface SearchNodeRecord<T> {
     lengthSoFar: number
     costSoFar: number
     estimatedTotalCost: number
-    status: SearchNodeRecordStatus
+    status: TSearchNodeRecordStatus
 }

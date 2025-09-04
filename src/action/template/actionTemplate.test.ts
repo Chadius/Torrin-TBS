@@ -1,11 +1,15 @@
 import { beforeEach, describe, expect, it } from "vitest"
-import { ActionDecisionType, ActionTemplateService } from "./actionTemplate"
+import {
+    ActionDecision,
+    TActionDecision,
+    ActionTemplateService,
+} from "./actionTemplate"
 import {
     ActionEffectTemplate,
     ActionEffectTemplateService,
     TargetBySquaddieAffiliationRelation,
 } from "./actionEffectTemplate"
-import { DamageType, HealingType } from "../../squaddie/squaddieService"
+import { Damage, Healing } from "../../squaddie/squaddieService"
 import {
     Trait,
     TraitStatusStorageService,
@@ -38,7 +42,7 @@ describe("ActionTemplate", () => {
 
     it("can create a template with new action effects", () => {
         const attackTemplate = ActionEffectTemplateService.new({
-            damageDescriptions: { [DamageType.BODY]: 2 },
+            damageDescriptions: { [Damage.BODY]: 2 },
             healingDescriptions: {},
             traits: TraitStatusStorageService.newUsingTraitValues({
                 [Trait.ATTACK]: true,
@@ -122,16 +126,16 @@ describe("ActionTemplate", () => {
             actionEffectTemplates: [
                 ActionEffectTemplateService.new({
                     damageDescriptions: {
-                        [DamageType.BODY]: 3,
-                        [DamageType.SOUL]: 1,
+                        [Damage.BODY]: 3,
+                        [Damage.SOUL]: 1,
                     },
                 }),
                 ActionEffectTemplateService.new({
                     damageDescriptions: {
-                        [DamageType.MIND]: 2,
+                        [Damage.MIND]: 2,
                     },
                     healingDescriptions: {
-                        [HealingType.LOST_HIT_POINTS]: 4,
+                        [Healing.LOST_HIT_POINTS]: 4,
                     },
                 }),
             ],
@@ -226,17 +230,15 @@ describe("ActionTemplate", () => {
                 name: "run up and shoot bow",
                 actionEffectTemplates: [
                     ActionEffectTemplateService.new({
-                        actionDecisions: [ActionDecisionType.TARGET_SQUADDIE],
+                        actionDecisions: [ActionDecision.TARGET_SQUADDIE],
                     }),
                 ],
             })
 
-            const requiredDecisions: ActionDecisionType[] =
+            const requiredDecisions: TActionDecision[] =
                 ActionTemplateService.getActionTemplateDecisionTypes(bow)
 
-            expect(requiredDecisions).toEqual([
-                ActionDecisionType.TARGET_SQUADDIE,
-            ])
+            expect(requiredDecisions).toEqual([ActionDecision.TARGET_SQUADDIE])
         })
     })
 
@@ -248,7 +250,7 @@ describe("ActionTemplate", () => {
                 actionEffectTemplates: [
                     ActionEffectTemplateService.new({
                         healingDescriptions: {
-                            [HealingType.LOST_HIT_POINTS]: 1,
+                            [Healing.LOST_HIT_POINTS]: 1,
                         },
                         squaddieAffiliationRelation: {
                             [TargetBySquaddieAffiliationRelation.TARGET_SELF]:
@@ -269,7 +271,7 @@ describe("ActionTemplate", () => {
                 actionEffectTemplates: [
                     ActionEffectTemplateService.new({
                         damageDescriptions: {
-                            [DamageType.BODY]: 2,
+                            [Damage.BODY]: 2,
                         },
                         squaddieAffiliationRelation: {
                             [TargetBySquaddieAffiliationRelation.TARGET_FOE]:
@@ -291,7 +293,7 @@ describe("ActionTemplate", () => {
         beforeEach(() => {
             healSelf = ActionEffectTemplateService.new({
                 healingDescriptions: {
-                    [HealingType.LOST_HIT_POINTS]: 1,
+                    [Healing.LOST_HIT_POINTS]: 1,
                 },
                 squaddieAffiliationRelation: {
                     [TargetBySquaddieAffiliationRelation.TARGET_SELF]: true,
@@ -299,7 +301,7 @@ describe("ActionTemplate", () => {
             })
             hurtOthers = ActionEffectTemplateService.new({
                 damageDescriptions: {
-                    [DamageType.BODY]: 2,
+                    [Damage.BODY]: 2,
                 },
                 squaddieAffiliationRelation: {
                     [TargetBySquaddieAffiliationRelation.TARGET_FOE]: true,

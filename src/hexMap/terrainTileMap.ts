@@ -1,6 +1,6 @@
 import {
-    HexGridMovementCost,
     HexGridMovementCostService,
+    THexGridMovementCost,
     HexGridTile,
 } from "./hexGridMovementCost"
 import {
@@ -12,6 +12,7 @@ import {
     MapGraphicsLayerHighlight,
     MapGraphicsLayerSquaddieTypes,
     MapGraphicsLayerType,
+    TMapGraphicsLayerType,
 } from "./mapLayer/mapGraphicsLayer"
 
 export interface TerrainTileMap {
@@ -27,7 +28,7 @@ export const TerrainTileMapService = {
     getTileTerrainTypeAtCoordinate: (
         terrainTileMap: TerrainTileMap,
         coordinate: HexCoordinate
-    ): HexGridMovementCost => {
+    ): THexGridMovementCost => {
         const tile = getTileAtCoordinate(terrainTileMap, coordinate)
         if (tile === undefined) {
             return undefined
@@ -84,7 +85,7 @@ export const TerrainTileMapService = {
     }: {
         terrainTileMap: TerrainTileMap
         id: string
-        type?: MapGraphicsLayerType
+        type?: TMapGraphicsLayerType
     }): MapGraphicsLayer => {
         return terrainTileMap.highlightLayers.find(
             (layer) =>
@@ -116,7 +117,7 @@ export const TerrainTileMapService = {
     },
     removeGraphicsLayerByType: (
         terrainTileMap: TerrainTileMap,
-        type: MapGraphicsLayerType
+        type: TMapGraphicsLayerType
     ) => {
         terrainTileMap.highlightLayers = terrainTileMap.highlightLayers.filter(
             (map) => map.type !== type
@@ -129,7 +130,7 @@ export const TerrainTileMapService = {
     }: {
         terrainTileMap: TerrainTileMap
         id: string
-        type: MapGraphicsLayerType
+        type: TMapGraphicsLayerType
     }) =>
         removeGraphicsLayerWithIdAndType({
             terrainTileMap,
@@ -270,7 +271,7 @@ const removeGraphicsLayerWithIdAndType = ({
 }: {
     terrainTileMap: TerrainTileMap
     id: string
-    type: MapGraphicsLayerType
+    type: TMapGraphicsLayerType
 }) => {
     terrainTileMap.highlightLayers = terrainTileMap.highlightLayers.filter(
         (map) => map.type !== type || map.id !== id

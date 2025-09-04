@@ -1,24 +1,27 @@
 import { TrashRobotWorld } from "./trashRobotWorld"
 import { StateMachine } from "../stateMachine"
-import { TrashRobotLookForTrashStateEnum } from "./trashRobotLookForTrashStateEnum"
-import { TrashRobotLookForTrashTransitionEnum } from "./trashRobotLookForTrashTransitionEnum"
-import { TrashRobotLookForTrashActionEnum } from "./trashRobotLookForTrashActionEnum"
+import { TTrashRobotLookForTrashState } from "./trashRobotLookForTrashStateEnum"
+import {
+    TrashRobotLookForTrashTransitionEnum,
+    TTrashRobotLookForTrashTransition,
+} from "./trashRobotLookForTrashTransitionEnum"
+import { TTrashRobotLookForTrashAction } from "./trashRobotLookForTrashActionEnum"
 import {
     StateMachineData,
     StateMachineDataService,
 } from "../stateMachineData/stateMachineData"
 
 export class TrashRobotLookForTrashStateMachine extends StateMachine<
-    TrashRobotLookForTrashStateEnum,
-    TrashRobotLookForTrashTransitionEnum,
-    TrashRobotLookForTrashActionEnum,
+    TTrashRobotLookForTrashState,
+    TTrashRobotLookForTrashTransition,
+    TTrashRobotLookForTrashAction,
     TrashRobotWorld
 > {
-    currentState: TrashRobotLookForTrashStateEnum
+    currentState: TTrashRobotLookForTrashState
     stateMachineData: StateMachineData<
-        TrashRobotLookForTrashStateEnum,
-        TrashRobotLookForTrashTransitionEnum,
-        TrashRobotLookForTrashActionEnum,
+        TTrashRobotLookForTrashState,
+        TTrashRobotLookForTrashTransition,
+        TTrashRobotLookForTrashAction,
         TrashRobotWorld
     >
 
@@ -30,9 +33,9 @@ export class TrashRobotLookForTrashStateMachine extends StateMachine<
         id: string
         trashRobotWorld: TrashRobotWorld
         stateMachineData: StateMachineData<
-            TrashRobotLookForTrashStateEnum,
-            TrashRobotLookForTrashTransitionEnum,
-            TrashRobotLookForTrashActionEnum,
+            TTrashRobotLookForTrashState,
+            TTrashRobotLookForTrashTransition,
+            TTrashRobotLookForTrashAction,
             TrashRobotWorld
         >
     }) {

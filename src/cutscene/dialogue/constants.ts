@@ -1,6 +1,7 @@
 import {
     HORIZONTAL_ALIGN,
-    VERTICAL_ALIGN,
+    HORIZONTAL_ALIGN_TYPE,
+    VERTICAL_ALIGN_TYPE,
     WINDOW_SPACING,
 } from "../../ui/constants"
 import { ScreenDimensions } from "../../utils/graphics/graphicsConfig"
@@ -8,25 +9,29 @@ import { TextBoxMargin } from "../../ui/label"
 import { DialogTextBoxLayout } from "./dialogueTextBox"
 import { FontSizeRange } from "../../utils/graphics/textGraphicalHandlingService"
 
-export enum DialoguePosition {
-    CENTER = "CENTER",
-    LEFT = "LEFT",
-}
+export const DialoguePosition = {
+    CENTER: "CENTER",
+    LEFT: "LEFT",
+} as const satisfies Record<string, string>
 
-export enum DialogueComponent {
-    DIALOGUE_BOX = "DIALOGUE_BOX",
-    SPEAKER_NAME = "SPEAKER_NAME",
-}
+export type TDialoguePosition = EnumLike<typeof DialoguePosition>
+
+export const DialogueComponent = {
+    DIALOGUE_BOX: "DIALOGUE_BOX",
+    SPEAKER_NAME: "SPEAKER_NAME",
+} as const satisfies Record<string, string>
+
+export type TDialogueComponent = EnumLike<typeof DialogueComponent>
 
 export const MAX_WIDTH: number = 768
 
 export interface ThirdOfScreenAlignment {
-    thirdOfScreenAlignment: HORIZONTAL_ALIGN
-    thirdOfScreenSubAlignment: HORIZONTAL_ALIGN
+    thirdOfScreenAlignment: HORIZONTAL_ALIGN_TYPE
+    thirdOfScreenSubAlignment: HORIZONTAL_ALIGN_TYPE
 }
 
 export const DIALOGUE_TEXT_BOX_STYLE_CONSTANTS: {
-    [t in DialoguePosition]: DialogTextBoxLayout
+    [t in TDialoguePosition]: DialogTextBoxLayout
 } = {
     [DialoguePosition.CENTER]: {
         fillColor: [200, 10, 50],
@@ -62,16 +67,18 @@ export const DIALOGUE_TEXT_BOX_STYLE_CONSTANTS: {
     },
 }
 
-export enum DialogueFontStyle {
-    BLACK = "BLACK",
-    WARNING_POPUP = "WARNING_POPUP",
-}
+export const DialogueFontStyle = {
+    BLACK: "BLACK",
+    WARNING_POPUP: "WARNING_POPUP",
+} as const satisfies Record<string, string>
+
+export type TDialogueFontStyle = EnumLike<typeof DialogueFontStyle>
 
 export interface StyleFontConstants {
     fontColor: number[]
     fontSizeRange: FontSizeRange
-    horizAlign?: HORIZONTAL_ALIGN
-    vertAlign?: VERTICAL_ALIGN
+    horizAlign?: HORIZONTAL_ALIGN_TYPE
+    vertAlign?: VERTICAL_ALIGN_TYPE
     strokeWeight: number
 }
 
@@ -91,7 +98,7 @@ export const WARNING_POPUP_TEXT_CONSTANTS: PopupWindowConstants = {
 }
 
 export const DIALOGUE_FONT_STYLE_CONSTANTS: {
-    [t in DialogueFontStyle]: StyleFontConstants
+    [t in TDialogueFontStyle]: StyleFontConstants
 } = {
     [DialogueFontStyle.BLACK]: {
         fontColor: [0, 0, 0],
@@ -120,7 +127,7 @@ export interface StylePortraitConstants extends ThirdOfScreenAlignment {
 }
 
 export const DIALOGUE_SPEAKER_PORTRAIT_STYLE_CONSTANTS: {
-    [t in DialoguePosition]: StylePortraitConstants
+    [t in TDialoguePosition]: StylePortraitConstants
 } = {
     [DialoguePosition.CENTER]: {
         maxWidth: MAX_WIDTH,

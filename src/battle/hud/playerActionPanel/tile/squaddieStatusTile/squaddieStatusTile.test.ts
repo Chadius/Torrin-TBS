@@ -2,7 +2,10 @@ import {
     ObjectRepository,
     ObjectRepositoryService,
 } from "../../../../objectRepository"
-import { SquaddieAffiliation } from "../../../../../squaddie/squaddieAffiliation"
+import {
+    SquaddieAffiliation,
+    TSquaddieAffiliation,
+} from "../../../../../squaddie/squaddieAffiliation"
 import { SquaddieTemplateService } from "../../../../../campaign/squaddieTemplate"
 import { SquaddieIdService } from "../../../../../squaddie/id"
 import {
@@ -22,7 +25,7 @@ import {
     SquaddieStatusTileService,
     SquaddieStatusTileUIObjects,
 } from "./squaddieStatusTile"
-import { DamageType } from "../../../../../squaddie/squaddieService"
+import { Damage } from "../../../../../squaddie/squaddieService"
 import { InBattleAttributesService } from "../../../../stats/inBattleAttributes"
 import {
     AttributeModifierService,
@@ -44,7 +47,7 @@ import {
     vi,
 } from "vitest"
 import { ProficiencyLevel } from "../../../../../squaddie/armyAttributes"
-import { AttributeType } from "../../../../../squaddie/attribute/attributeType"
+import { Attribute } from "../../../../../squaddie/attribute/attribute"
 import { DataBlobService } from "../../../../../utils/dataBlob/dataBlob"
 import {
     GameEngineState,
@@ -155,7 +158,7 @@ describe("Squaddie Status Tile", () => {
             InBattleAttributesService.takeDamage({
                 inBattleAttributes: battleSquaddie.inBattleAttributes,
                 damageToTake: 1,
-                damageType: DamageType.UNKNOWN,
+                damageType: Damage.UNKNOWN,
             })
             SquaddieStatusTileService.updateTileUsingSquaddie({
                 tile,
@@ -189,7 +192,7 @@ describe("Squaddie Status Tile", () => {
         })
         it("should draw the amount of absorb", () => {
             const absorb1Damage = AttributeModifierService.new({
-                type: AttributeType.ABSORB,
+                type: Attribute.ABSORB,
                 amount: 1,
                 source: AttributeSource.CIRCUMSTANCE,
             })
@@ -516,7 +519,7 @@ describe("Squaddie Status Tile", () => {
                 InBattleAttributesService.addActiveAttributeModifier(
                     battleSquaddie.inBattleAttributes,
                     AttributeModifierService.new({
-                        type: AttributeType.ABSORB,
+                        type: Attribute.ABSORB,
                         amount: absorbPoints,
                         source: AttributeSource.CIRCUMSTANCE,
                     })
@@ -845,7 +848,7 @@ describe("Squaddie Status Tile", () => {
         })
         it("should draw the amount of movement", () => {
             const increaseMovementBy1 = AttributeModifierService.new({
-                type: AttributeType.MOVEMENT,
+                type: Attribute.MOVEMENT,
                 amount: 3,
                 source: AttributeSource.CIRCUMSTANCE,
             })
@@ -954,7 +957,7 @@ describe("Squaddie Status Tile", () => {
             InBattleAttributesService.addActiveAttributeModifier(
                 battleSquaddie.inBattleAttributes,
                 AttributeModifierService.new({
-                    type: AttributeType.ARMOR,
+                    type: Attribute.ARMOR,
                     amount: 2,
                     source: AttributeSource.CIRCUMSTANCE,
                 })
@@ -1017,7 +1020,7 @@ describe("Squaddie Status Tile", () => {
             InBattleAttributesService.addActiveAttributeModifier(
                 battleSquaddie.inBattleAttributes,
                 AttributeModifierService.new({
-                    type: AttributeType.ARMOR,
+                    type: Attribute.ARMOR,
                     source: AttributeSource.CIRCUMSTANCE,
                     amount: 1,
                 })
@@ -1069,22 +1072,22 @@ describe("Squaddie Status Tile", () => {
             const drawAttributeTests = [
                 {
                     name: "Armor",
-                    attributeType: AttributeType.ARMOR,
+                    attributeType: Attribute.ARMOR,
                     expectedIconKey: "attribute-icon-armor",
                 },
                 {
                     name: "Movement",
-                    attributeType: AttributeType.MOVEMENT,
+                    attributeType: Attribute.MOVEMENT,
                     expectedIconKey: "attribute-icon-movement",
                 },
                 {
                     name: "Hustle",
-                    attributeType: AttributeType.HUSTLE,
+                    attributeType: Attribute.HUSTLE,
                     expectedIconKey: "attribute-icon-hustle",
                 },
                 {
                     name: "Elusive",
-                    attributeType: AttributeType.ELUSIVE,
+                    attributeType: Attribute.ELUSIVE,
                     expectedIconKey: "attribute-icon-elusive",
                 },
             ]
@@ -1191,7 +1194,7 @@ describe("Squaddie Status Tile", () => {
                     InBattleAttributesService.addActiveAttributeModifier(
                         battleSquaddie.inBattleAttributes,
                         AttributeModifierService.new({
-                            type: AttributeType.ARMOR,
+                            type: Attribute.ARMOR,
                             source: AttributeSource.CIRCUMSTANCE,
                             amount,
                         })
@@ -1264,7 +1267,7 @@ describe("Squaddie Status Tile", () => {
             InBattleAttributesService.addActiveAttributeModifier(
                 battleSquaddie.inBattleAttributes,
                 AttributeModifierService.new({
-                    type: AttributeType.HUSTLE,
+                    type: Attribute.HUSTLE,
                     source: AttributeSource.CIRCUMSTANCE,
                     amount: 1,
                 })
@@ -1320,7 +1323,7 @@ describe("Squaddie Status Tile", () => {
                 InBattleAttributesService.addActiveAttributeModifier(
                     battleSquaddie.inBattleAttributes,
                     AttributeModifierService.new({
-                        type: AttributeType.ARMOR,
+                        type: Attribute.ARMOR,
                         source: AttributeSource.CIRCUMSTANCE,
                         amount: 1,
                         duration: 1,
@@ -1403,7 +1406,7 @@ const createSquaddieOfGivenAffiliation = ({
     affiliation,
 }: {
     gameEngineState: GameEngineState
-    affiliation?: SquaddieAffiliation
+    affiliation?: TSquaddieAffiliation
 }) => {
     const squaddieTemplate = SquaddieTemplateService.new({
         squaddieId: SquaddieIdService.new({

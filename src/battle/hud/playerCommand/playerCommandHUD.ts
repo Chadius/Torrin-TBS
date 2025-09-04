@@ -41,18 +41,20 @@ import { SquaddieNameAndPortraitTileService } from "../playerActionPanel/tile/sq
 import { ActionTilePosition } from "../playerActionPanel/tile/actionTilePosition"
 import { CampaignResources } from "../../../campaign/campaignResources"
 import {
-    PlayerInputAction,
     PlayerInputStateService,
+    TPlayerInputAction,
 } from "../../../ui/playerInput/playerInputState"
 
 export const END_TURN_NAME = "END TURN"
 
-export enum PlayerCommandSelection {
-    PLAYER_COMMAND_SELECTION_NONE = "PLAYER_COMMAND_SELECTION_NONE",
-    PLAYER_COMMAND_SELECTION_ACTION = "PLAYER_COMMAND_SELECTION_ACTION",
-    PLAYER_COMMAND_SELECTION_MOVE = "PLAYER_COMMAND_SELECTION_MOVE",
-    PLAYER_COMMAND_SELECTION_END_TURN = "PLAYER_COMMAND_SELECTION_END_TURN",
-}
+export const PlayerCommandSelection = {
+    PLAYER_COMMAND_SELECTION_NONE: "PLAYER_COMMAND_SELECTION_NONE",
+    PLAYER_COMMAND_SELECTION_ACTION: "PLAYER_COMMAND_SELECTION_ACTION",
+    PLAYER_COMMAND_SELECTION_MOVE: "PLAYER_COMMAND_SELECTION_MOVE",
+    PLAYER_COMMAND_SELECTION_END_TURN: "PLAYER_COMMAND_SELECTION_END_TURN",
+} as const satisfies Record<string, string>
+
+export type TPlayerCommandSelection = EnumLike<typeof PlayerCommandSelection>
 
 export interface PlayerCommandState {
     consideredActionTemplateId: string
@@ -120,7 +122,7 @@ export const PlayerCommandStateService = {
         mouseRelease: MouseRelease
         gameEngineState: GameEngineState
         playerCommandState: PlayerCommandState
-    }): PlayerCommandSelection => {
+    }): TPlayerCommandSelection => {
         if (!isValidValue(playerCommandState)) {
             return PlayerCommandSelection.PLAYER_COMMAND_SELECTION_NONE
         }
@@ -332,10 +334,10 @@ export const PlayerCommandStateService = {
         playerCommandState,
         playerInputAction,
     }: {
-        playerInputAction: PlayerInputAction
+        playerInputAction: TPlayerInputAction
         gameEngineState: GameEngineState
         playerCommandState: PlayerCommandState
-    }): PlayerCommandSelection => {
+    }): TPlayerCommandSelection => {
         if (!isValidValue(playerCommandState)) {
             return PlayerCommandSelection.PLAYER_COMMAND_SELECTION_NONE
         }
@@ -415,7 +417,7 @@ const playerSelectedActionButton = ({
 }: {
     playerCommandState: PlayerCommandState
     actionTemplateId: string
-}): PlayerCommandSelection => {
+}): TPlayerCommandSelection => {
     playerCommandState.playerSelectedEndTurn = false
     playerCommandState.playerSelectedSquaddieAction = true
     playerCommandState.selectedActionTemplateId = actionTemplateId
@@ -641,7 +643,7 @@ const getSelectedActionButton = ({
     mouseRelease,
 }: {
     playerCommandState: PlayerCommandState
-    playerInputAction?: PlayerInputAction
+    playerInputAction?: TPlayerInputAction
     mouseRelease?: MouseRelease
 }) => {
     if (!isValidValue(playerCommandState)) {

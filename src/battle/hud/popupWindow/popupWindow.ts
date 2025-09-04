@@ -5,7 +5,10 @@ import { BattleCamera } from "../../battleCamera"
 import { isValidValue } from "../../../utils/objectValidityCheck"
 import { ScreenDimensions } from "../../../utils/graphics/graphicsConfig"
 import { GraphicsBuffer } from "../../../utils/graphics/graphicsRenderer"
-import { CoordinateSystem } from "../../../hexMap/hexCoordinate/hexCoordinate"
+import {
+    CoordinateSystem,
+    TCoordinateSystem,
+} from "../../../hexMap/hexCoordinate/hexCoordinate"
 import {
     DIALOGUE_FONT_STYLE_CONSTANTS,
     WARNING_POPUP_TEXT_CONSTANTS,
@@ -15,7 +18,7 @@ import { ScreenLocation } from "../../../utils/mouseConfig"
 import { TextFormatService } from "../../../utils/graphics/textFormatService"
 
 export interface PopupWindow {
-    status: PopupWindowStatus
+    status: TPopupWindowStatus
     label: Label
     worldLocation: {
         x: number
@@ -23,13 +26,14 @@ export interface PopupWindow {
     }
     camera?: BattleCamera
     setStatusInactiveTimestamp?: number
-    coordinateSystem: CoordinateSystem
+    coordinateSystem: TCoordinateSystem
 }
 
-export enum PopupWindowStatus {
-    INACTIVE = "INACTIVE",
-    ACTIVE = "ACTIVE",
-}
+export const PopupWindowStatus = {
+    INACTIVE: "INACTIVE",
+    ACTIVE: "ACTIVE",
+} as const satisfies Record<string, string>
+export type TPopupWindowStatus = EnumLike<typeof PopupWindowStatus>
 
 export const PopupWindowService = {
     new: ({
@@ -38,10 +42,10 @@ export const PopupWindowService = {
         camera,
         coordinateSystem,
     }: {
-        status?: PopupWindowStatus
+        status?: TPopupWindowStatus
         label?: Label
         camera?: BattleCamera
-        coordinateSystem?: CoordinateSystem
+        coordinateSystem?: TCoordinateSystem
     }): PopupWindow =>
         newPopupWindow({ status, label, camera, coordinateSystem }),
     newWarningWindow: ({
@@ -53,7 +57,7 @@ export const PopupWindowService = {
         text: string
         camera: BattleCamera
         screenLocation: ScreenLocation
-        coordinateSystem: CoordinateSystem
+        coordinateSystem: TCoordinateSystem
     }): PopupWindow => {
         const worldCoordinates =
             ConvertCoordinateService.convertScreenLocationToWorldLocation({
@@ -94,7 +98,7 @@ export const PopupWindowService = {
             }),
         })
     },
-    changeStatus: (popup: PopupWindow, status: PopupWindowStatus) => {
+    changeStatus: (popup: PopupWindow, status: TPopupWindowStatus) => {
         popup.status = status
     },
     setCamera: (popup: PopupWindow, camera: BattleCamera) => {
@@ -128,7 +132,7 @@ export const PopupWindowService = {
     },
     setCoordinateSystem: (
         popup: PopupWindow,
-        coordinateSystem: CoordinateSystem
+        coordinateSystem: TCoordinateSystem
     ) => {
         popup.coordinateSystem = coordinateSystem
     },
@@ -190,10 +194,10 @@ const newPopupWindow = ({
     camera,
     coordinateSystem,
 }: {
-    status?: PopupWindowStatus
+    status?: TPopupWindowStatus
     label?: Label
     camera?: BattleCamera
-    coordinateSystem?: CoordinateSystem
+    coordinateSystem?: TCoordinateSystem
 }): PopupWindow => {
     const labelToAdd =
         label ??
@@ -210,7 +214,7 @@ const newPopupWindow = ({
             textBoxMargin: 0,
         })
 
-    const fallbackCoordinateSystem: CoordinateSystem = isValidValue(camera)
+    const fallbackCoordinateSystem: TCoordinateSystem = isValidValue(camera)
         ? CoordinateSystem.WORLD
         : CoordinateSystem.SCREEN
 

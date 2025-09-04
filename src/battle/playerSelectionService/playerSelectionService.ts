@@ -36,7 +36,10 @@ import {
 } from "../history/battleAction/battleAction"
 import { SquaddieTemplate } from "../../campaign/squaddieTemplate"
 import { PopupWindowService } from "../hud/popupWindow/popupWindow"
-import { PlayerInputAction } from "../../ui/playerInput/playerInputState"
+import {
+    PlayerInputAction,
+    TPlayerInputAction,
+} from "../../ui/playerInput/playerInputState"
 import { ActionTemplate } from "../../action/template/actionTemplate"
 import { ActionEffectTemplateService } from "../../action/template/actionEffectTemplate"
 import { TargetingResultsService } from "../targeting/targetingService"
@@ -57,21 +60,29 @@ export interface PlayerContextDataBlob extends DataBlob {
     }
 }
 
-export enum PlayerIntent {
-    UNKNOWN = "UNKNOWN",
-    END_PHASE = "END_PHASE",
-    START_OF_TURN_CLICK_ON_SQUADDIE_PLAYABLE = "START_OF_TURN_CLICK_ON_SQUADDIE_PLAYABLE",
-    START_OF_TURN_CLICK_ON_SQUADDIE_UNCONTROLLABLE = "START_OF_TURN_CLICK_ON_SQUADDIE_UNCONTROLLABLE",
-    START_OF_TURN_SELECT_NEXT_CONTROLLABLE_SQUADDIE = "START_OF_TURN_SELECT_NEXT_CONTROLLABLE_SQUADDIE",
-    PEEK_AT_SQUADDIE = "PEEK_AT_SQUADDIE",
-    SQUADDIE_SELECTED_MOVE_SQUADDIE_TO_COORDINATE = "SQUADDIE_SELECTED_MOVE_SQUADDIE_TO_COORDINATE",
-    CONSIDER_MOVING_SQUADDIE = "CONSIDER_MOVING_SQUADDIE",
-    SQUADDIE_SELECTED_DIFFERENT_SQUADDIE_MID_TURN = "SQUADDIE_SELECTED_DIFFERENT_SQUADDIE_MID_TURN",
-    CANCEL_SQUADDIE_CONSIDERED_ACTIONS = "CANCEL_SQUADDIE_CONSIDERED_ACTIONS",
-    PLAYER_SELECTS_AN_ACTION = "PLAYER_SELECTS_AN_ACTION",
-    END_SQUADDIE_TURN = "END_SQUADDIE_TURN",
-    SQUADDIE_SELECTED_MOVE_SQUADDIE_TO_SQUADDIE_OUT_OF_RANGE = "SQUADDIE_SELECTED_MOVE_SQUADDIE_TO_SQUADDIE_OUT_OF_RANGE",
-}
+export const PlayerIntent = {
+    UNKNOWN: "UNKNOWN",
+    END_PHASE: "END_PHASE",
+    START_OF_TURN_CLICK_ON_SQUADDIE_PLAYABLE:
+        "START_OF_TURN_CLICK_ON_SQUADDIE_PLAYABLE",
+    START_OF_TURN_CLICK_ON_SQUADDIE_UNCONTROLLABLE:
+        "START_OF_TURN_CLICK_ON_SQUADDIE_UNCONTROLLABLE",
+    START_OF_TURN_SELECT_NEXT_CONTROLLABLE_SQUADDIE:
+        "START_OF_TURN_SELECT_NEXT_CONTROLLABLE_SQUADDIE",
+    PEEK_AT_SQUADDIE: "PEEK_AT_SQUADDIE",
+    SQUADDIE_SELECTED_MOVE_SQUADDIE_TO_COORDINATE:
+        "SQUADDIE_SELECTED_MOVE_SQUADDIE_TO_COORDINATE",
+    CONSIDER_MOVING_SQUADDIE: "CONSIDER_MOVING_SQUADDIE",
+    SQUADDIE_SELECTED_DIFFERENT_SQUADDIE_MID_TURN:
+        "SQUADDIE_SELECTED_DIFFERENT_SQUADDIE_MID_TURN",
+    CANCEL_SQUADDIE_CONSIDERED_ACTIONS: "CANCEL_SQUADDIE_CONSIDERED_ACTIONS",
+    PLAYER_SELECTS_AN_ACTION: "PLAYER_SELECTS_AN_ACTION",
+    END_SQUADDIE_TURN: "END_SQUADDIE_TURN",
+    SQUADDIE_SELECTED_MOVE_SQUADDIE_TO_SQUADDIE_OUT_OF_RANGE:
+        "SQUADDIE_SELECTED_MOVE_SQUADDIE_TO_SQUADDIE_OUT_OF_RANGE",
+} as const satisfies Record<string, string>
+
+export type TPlayerIntent = EnumLike<typeof PlayerIntent>
 
 export interface PlayerSelectionContextCalculationArgs {
     gameEngineState: GameEngineState
@@ -79,7 +90,7 @@ export interface PlayerSelectionContextCalculationArgs {
     mouseMovement?: ScreenLocation
     actionTemplateId?: string
     endTurnSelected?: boolean
-    playerInputActions: PlayerInputAction[]
+    playerInputActions: TPlayerInputAction[]
 }
 
 export const PlayerSelectionContextCalculationArgsService = {
@@ -96,7 +107,7 @@ export const PlayerSelectionContextCalculationArgsService = {
         mouseMovement?: ScreenLocation
         actionTemplateId?: string
         endTurnSelected?: boolean
-        playerInputActions: PlayerInputAction[]
+        playerInputActions: TPlayerInputAction[]
     }): PlayerSelectionContextCalculationArgs => ({
         gameEngineState,
         mouseClick,

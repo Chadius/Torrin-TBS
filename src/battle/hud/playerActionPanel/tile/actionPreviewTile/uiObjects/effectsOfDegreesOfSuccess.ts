@@ -22,8 +22,11 @@ import { InBattleAttributesService } from "../../../../../stats/inBattleAttribut
 import {
     AttributeTypeAndAmount,
     AttributeTypeService,
-} from "../../../../../../squaddie/attribute/attributeType"
-import { DegreeOfSuccess } from "../../../../../calculator/actionCalculator/degreeOfSuccess"
+} from "../../../../../../squaddie/attribute/attribute"
+import {
+    DegreeOfSuccess,
+    TDegreeOfSuccess,
+} from "../../../../../calculator/actionCalculator/degreeOfSuccess"
 import { ComponentDataBlob } from "../../../../../../utils/dataBlob/componentDataBlob"
 import { TextFormatService } from "../../../../../../utils/graphics/textFormatService"
 
@@ -163,10 +166,10 @@ const generateEffectMessageForFoe = (
     if (
         (triesToDealDamage &&
             !dealsDamage &&
-            [
+            new Set<TDegreeOfSuccess>([
                 DegreeOfSuccess.CRITICAL_SUCCESS,
                 DegreeOfSuccess.SUCCESS,
-            ].includes(forecastedChange.actorDegreeOfSuccess)) ||
+            ]).has(forecastedChange.actorDegreeOfSuccess)) ||
         (!triesToDealDamage && attributeModifierDifferences.length === 0)
     ) {
         return "NO DAMAGE"

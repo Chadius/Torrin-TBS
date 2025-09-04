@@ -7,7 +7,7 @@ import {
     MockInstance,
     vi,
 } from "vitest"
-import { TriggeringEventType } from "./eventTrigger/triggeringEventType"
+import { TriggeringEvent } from "./eventTrigger/triggeringEvent"
 import { BattleEvent, BattleEventService } from "./battleEvent"
 import { EventTriggerBaseService } from "./eventTrigger/eventTriggerBase"
 import { EventTriggerTurnRangeService } from "./eventTrigger/eventTriggerTurnRange"
@@ -36,7 +36,7 @@ describe("BattleEvent", () => {
                 BattleEventService.new({
                     triggers: [
                         EventTriggerBaseService.new(
-                            TriggeringEventType.MISSION_VICTORY
+                            TriggeringEvent.MISSION_VICTORY
                         ),
                     ],
                 })
@@ -54,7 +54,7 @@ describe("BattleEvent", () => {
                     triggers: [
                         {
                             ...EventTriggerBaseService.new(
-                                TriggeringEventType.START_OF_TURN
+                                TriggeringEvent.START_OF_TURN
                             ),
                             ...turnTrigger,
                         },
@@ -86,13 +86,13 @@ describe("BattleEvent", () => {
                 triggers: [
                     {
                         ...EventTriggerBaseService.new(
-                            TriggeringEventType.START_OF_TURN
+                            TriggeringEvent.START_OF_TURN
                         ),
                         exactTurn: 0,
                     },
                     {
                         ...EventTriggerBaseService.new(
-                            TriggeringEventType.SQUADDIE_IS_INJURED
+                            TriggeringEvent.SQUADDIE_IS_INJURED
                         ),
                         targetingSquaddie: {
                             battleSquaddieIds: ["battleSquaddieId"],
@@ -101,7 +101,7 @@ describe("BattleEvent", () => {
                     },
                     {
                         ...EventTriggerBaseService.new(
-                            TriggeringEventType.MISSION_VICTORY
+                            TriggeringEvent.MISSION_VICTORY
                         ),
                         ...EventTriggerBattleCompletionStatusService.new({
                             battleCompletionStatus:

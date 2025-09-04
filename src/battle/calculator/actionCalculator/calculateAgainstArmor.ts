@@ -1,9 +1,9 @@
 import { BattleSquaddie } from "../../battleSquaddie"
 import { InBattleAttributesService } from "../../stats/inBattleAttributes"
 import {
-    AttributeType,
+    Attribute,
     AttributeTypeAndAmount,
-} from "../../../squaddie/attribute/attributeType"
+} from "../../../squaddie/attribute/attribute"
 
 export const CalculateAgainstArmor = {
     getTargetSquaddieModifierTotal: (
@@ -19,5 +19,5 @@ const getTargetSquaddieModifierTotal = (
         targetedBattleSquaddie.inBattleAttributes
     ).filter(
         (attributeTypeAndAmount) =>
-            attributeTypeAndAmount.type === AttributeType.ARMOR
+            attributeTypeAndAmount.type === Attribute.ARMOR
     )

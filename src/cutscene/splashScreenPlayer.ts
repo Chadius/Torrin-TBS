@@ -1,4 +1,7 @@
-import { CutsceneActionPlayerType } from "./cutsceneAction"
+import {
+    CutsceneActionPlayerType,
+    TCutsceneActionPlayerType,
+} from "./cutsceneAction"
 import { RectArea, RectAreaService } from "../ui/rectArea"
 import { ScreenDimensions } from "../utils/graphics/graphicsConfig"
 import { SplashScreen } from "./splashScreen"
@@ -11,7 +14,7 @@ import { OrchestratorComponentKeyEvent } from "../battle/orchestrator/battleOrch
 import { PlayerInputState } from "../ui/playerInput/playerInputState"
 
 export interface SplashScreenPlayerState {
-    type: CutsceneActionPlayerType.SPLASH_SCREEN
+    type: TCutsceneActionPlayerType
     splashScreen: SplashScreen
     startTime: number
     dialogFinished: boolean
@@ -85,8 +88,6 @@ export const SplashScreenPlayerService = {
     },
     keyPressed: ({
         splashScreenPlayerState,
-        event,
-        playerInputState,
     }: {
         splashScreenPlayerState: SplashScreenPlayerState
         event: OrchestratorComponentKeyEvent
@@ -122,7 +123,6 @@ const setScreenImage = (
             resourceKey: undefined,
             customAreaCallback: ({
                 imageSize,
-                originalArea,
             }: {
                 imageSize: { width: number; height: number }
                 originalArea: RectArea

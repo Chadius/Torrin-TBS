@@ -8,8 +8,11 @@ import {
 import { ActionResultText } from "./actionAnimation/actionResultText"
 import { DegreeOfSuccess } from "../calculator/actionCalculator/degreeOfSuccess"
 import { ActionTimer } from "./actionAnimation/actionTimer"
-import { ActionAnimationPhase } from "./actionAnimation/actionAnimationConstants"
-import { RollModifierType } from "../calculator/actionCalculator/rollResult"
+import {
+    ActionAnimationPhase,
+    TActionAnimationPhase,
+} from "./actionAnimation/actionAnimationConstants"
+import { TRollModifier } from "../calculator/actionCalculator/rollResult"
 import { BattleSquaddie } from "../battleSquaddie"
 import {
     ActionEffectTemplate,
@@ -23,9 +26,10 @@ import { BattleActionActorContext } from "../history/battleAction/battleActionAc
 import { SquaddieService } from "../../squaddie/squaddieService"
 import { ActionEffectChange } from "../history/calculatedResult"
 import {
-    AttributeType,
+    Attribute,
+    TAttribute,
     AttributeTypeAndAmount,
-} from "../../squaddie/attribute/attributeType"
+} from "../../squaddie/attribute/attribute"
 
 export const ActionResultTextService = {
     outputResultForTextOnly: ({
@@ -65,7 +69,7 @@ export const ActionResultTextService = {
         actingBattleSquaddieId: string
         squaddieRepository: ObjectRepository
         actingSquaddieModifiers: AttributeTypeAndAmount[]
-        rollModifiers: { [r in RollModifierType]?: number }
+        rollModifiers: { [r in TRollModifier]?: number }
     }): string[] => {
         return outputIntentForTextOnly({
             actionTemplate,
@@ -165,12 +169,12 @@ export const ActionResultTextService = {
             return actorUsesActionDescriptionText
         }
         if (
-            [
+            new Set<TActionAnimationPhase>([
                 ActionAnimationPhase.DURING_ACTION,
                 ActionAnimationPhase.TARGET_REACTS,
                 ActionAnimationPhase.SHOWING_RESULTS,
                 ActionAnimationPhase.FINISHED_SHOWING_RESULTS,
-            ].includes(timer.currentPhase) &&
+            ]).has(timer.currentPhase) &&
             results.actorContext?.actorRoll.occurred
         ) {
             const attackPenaltyDescriptions =
@@ -206,7 +210,7 @@ export const ActionResultTextService = {
         let targetBeforeActionText = `${targetTemplate.squaddieId.name}`
 
         const targetModifiers: {
-            type: AttributeType
+            type: TAttribute
             amount: number
         }[] = InBattleAttributesService.calculateCurrentAttributeModifiers(
             targetBattle.inBattleAttributes
@@ -223,7 +227,7 @@ export const ActionResultTextService = {
             }).net
             const armorModifier =
                 targetModifiers.find(
-                    (modifier) => modifier.type === AttributeType.ARMOR
+                    (modifier) => modifier.type === Attribute.ARMOR
                 )?.amount || 0
             targetBeforeActionText += `\nArmor ${armorClass + armorModifier}`
 
@@ -500,7 +504,7 @@ const outputIntentForTextOnly = ({
     actingBattleSquaddieId: string
     squaddieRepository: ObjectRepository
     actingSquaddieModifiers: AttributeTypeAndAmount[]
-    rollModifiers: { [r in RollModifierType]?: number }
+    rollModifiers: { [r in TRollModifier]?: number }
 }): string[] => {
     const { squaddieTemplate: actingSquaddieTemplate } = getResultOrThrowError(
         ObjectRepositoryService.getSquaddieByBattleId(

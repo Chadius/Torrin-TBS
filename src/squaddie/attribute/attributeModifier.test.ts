@@ -4,14 +4,14 @@ import {
     AttributeSource,
 } from "./attributeModifier"
 import { beforeEach, describe, expect, it, test } from "vitest"
-import { AttributeType } from "./attributeType"
+import { Attribute } from "./attribute"
 
 describe("AttributeModifier", () => {
     let armorModifierFor1Round: AttributeModifier
 
     beforeEach(() => {
         armorModifierFor1Round = AttributeModifierService.new({
-            type: AttributeType.ARMOR,
+            type: Attribute.ARMOR,
             source: AttributeSource.CIRCUMSTANCE,
             amount: 2,
             duration: 1,
@@ -27,7 +27,7 @@ describe("AttributeModifier", () => {
     it("Can create a new modifier with a given number of applications", () => {
         const armorModifierFor3Uses: AttributeModifier =
             AttributeModifierService.new({
-                type: AttributeType.ARMOR,
+                type: Attribute.ARMOR,
                 source: AttributeSource.CIRCUMSTANCE,
                 amount: 2,
                 numberOfUses: 3,
@@ -49,7 +49,7 @@ describe("AttributeModifier", () => {
     })
     it("Can decrement duration by a given amount and mark modifiers as inactive", () => {
         const armorModifierFor3Rounds = AttributeModifierService.new({
-            type: AttributeType.ARMOR,
+            type: Attribute.ARMOR,
             source: AttributeSource.CIRCUMSTANCE,
             amount: 2,
             duration: 3,
@@ -68,7 +68,7 @@ describe("AttributeModifier", () => {
     })
     it("Can decrement number of applications and mark modifiers as inactive", () => {
         const armorModifierFor1Use = AttributeModifierService.new({
-            type: AttributeType.ARMOR,
+            type: Attribute.ARMOR,
             source: AttributeSource.CIRCUMSTANCE,
             amount: 2,
             numberOfUses: 2,
@@ -86,7 +86,7 @@ describe("AttributeModifier", () => {
     })
     it("Can decrement the amount", () => {
         const absorbModifierFor3Amount = AttributeModifierService.new({
-            type: AttributeType.ABSORB,
+            type: Attribute.ABSORB,
             source: AttributeSource.CIRCUMSTANCE,
             amount: 3,
         })
@@ -111,23 +111,23 @@ describe("AttributeModifier", () => {
     describe("expect some attribute types to be inactive when amount is 0", () => {
         const tests = [
             {
-                type: AttributeType.ARMOR,
+                type: Attribute.ARMOR,
                 shouldBeActive: true,
             },
             {
-                type: AttributeType.ABSORB,
+                type: Attribute.ABSORB,
                 shouldBeActive: false,
             },
             {
-                type: AttributeType.MOVEMENT,
+                type: Attribute.MOVEMENT,
                 shouldBeActive: false,
             },
             {
-                type: AttributeType.HUSTLE,
+                type: Attribute.HUSTLE,
                 shouldBeActive: false,
             },
             {
-                type: AttributeType.ELUSIVE,
+                type: Attribute.ELUSIVE,
                 shouldBeActive: false,
             },
         ]
@@ -148,7 +148,7 @@ describe("AttributeModifier", () => {
     })
     it("Ignores decrements if duration or uses are not applicable", () => {
         const unlimitedModifier = AttributeModifierService.new({
-            type: AttributeType.ARMOR,
+            type: Attribute.ARMOR,
             source: AttributeSource.CIRCUMSTANCE,
             amount: 2,
         })
@@ -175,30 +175,30 @@ describe("AttributeModifier", () => {
 
             beforeEach(() => {
                 armorCircumstance = AttributeModifierService.new({
-                    type: AttributeType.ARMOR,
+                    type: Attribute.ARMOR,
                     source: AttributeSource.CIRCUMSTANCE,
                     amount: 1,
                     description: "Raise A Shield",
                 })
                 armorItem = AttributeModifierService.new({
-                    type: AttributeType.ARMOR,
+                    type: Attribute.ARMOR,
                     source: AttributeSource.MARTIAL,
                     amount: 2,
                     description: "Magic Armor Plating",
                 })
                 tempHitPointCircumstance = AttributeModifierService.new({
-                    type: AttributeType.ABSORB,
+                    type: Attribute.ABSORB,
                     source: AttributeSource.CIRCUMSTANCE,
                     amount: 3,
                     description: "Inspirational Speech",
                 })
                 armorCircumstancePenalty = AttributeModifierService.new({
-                    type: AttributeType.ARMOR,
+                    type: Attribute.ARMOR,
                     source: AttributeSource.CIRCUMSTANCE,
                     amount: -1,
                 })
                 bigArmorCircumstancePenalty = AttributeModifierService.new({
-                    type: AttributeType.ARMOR,
+                    type: Attribute.ARMOR,
                     source: AttributeSource.CIRCUMSTANCE,
                     amount: -2,
                 })
@@ -219,7 +219,7 @@ describe("AttributeModifier", () => {
                     )
                 ).toEqual([
                     {
-                        type: AttributeType.ARMOR,
+                        type: Attribute.ARMOR,
                         amount: bigArmorCircumstance.amount,
                     },
                 ])
@@ -235,7 +235,7 @@ describe("AttributeModifier", () => {
                     )
                 ).toEqual([
                     {
-                        type: AttributeType.ARMOR,
+                        type: Attribute.ARMOR,
                         amount: bigArmorCircumstancePenalty.amount,
                     },
                 ])
@@ -251,7 +251,7 @@ describe("AttributeModifier", () => {
                     )
                 ).toEqual([
                     {
-                        type: AttributeType.ARMOR,
+                        type: Attribute.ARMOR,
                         amount:
                             bigArmorCircumstancePenalty.amount +
                             armorCircumstance.amount,
@@ -283,7 +283,7 @@ describe("AttributeModifier", () => {
                     )
                 ).toEqual([
                     {
-                        type: AttributeType.ARMOR,
+                        type: Attribute.ARMOR,
                         amount: armorCircumstance.amount + armorItem.amount,
                     },
                 ])
@@ -304,11 +304,11 @@ describe("AttributeModifier", () => {
                 ).toEqual(
                     expect.arrayContaining([
                         {
-                            type: AttributeType.ARMOR,
+                            type: Attribute.ARMOR,
                             amount: armorCircumstance.amount,
                         },
                         {
-                            type: AttributeType.ABSORB,
+                            type: Attribute.ABSORB,
                             amount: tempHitPointCircumstance.amount,
                         },
                     ])
@@ -319,7 +319,7 @@ describe("AttributeModifier", () => {
 
                 const expiredArmorItem: AttributeModifier =
                     AttributeModifierService.new({
-                        type: AttributeType.ARMOR,
+                        type: Attribute.ARMOR,
                         source: AttributeSource.ELEMENTAL,
                         amount: 9001,
                         duration: 0,
@@ -336,7 +336,7 @@ describe("AttributeModifier", () => {
                     )
                 ).toEqual([
                     {
-                        type: AttributeType.ARMOR,
+                        type: Attribute.ARMOR,
                         amount: armorCircumstance.amount,
                     },
                 ])
@@ -346,24 +346,24 @@ describe("AttributeModifier", () => {
 
     describe("knows how to make attribute descriptions", () => {
         const readableDescription: { [t: string]: string } = {
-            [`${AttributeType.ARMOR} ${AttributeSource.CIRCUMSTANCE}`]:
+            [`${Attribute.ARMOR} ${AttributeSource.CIRCUMSTANCE}`]:
                 "Armor -1 (Circumstance): Harder to hit",
-            [AttributeType.ABSORB]: "Absorb +2 (Martial): Temporary HP",
-            [AttributeType.MOVEMENT]: "Movement NO CHANGE",
-            [AttributeType.HUSTLE]:
+            [Attribute.ABSORB]: "Absorb +2 (Martial): Temporary HP",
+            [Attribute.MOVEMENT]: "Movement NO CHANGE",
+            [Attribute.HUSTLE]:
                 "Hustle (Martial): Ignore rough terrain movement cost",
-            [AttributeType.ELUSIVE]:
+            [Attribute.ELUSIVE]:
                 "Elusive (Spiritual): Can pass through enemies",
-            [`${AttributeType.ARMOR} ${AttributeSource.PROFICIENCY}`]:
+            [`${Attribute.ARMOR} ${AttributeSource.PROFICIENCY}`]:
                 "Armor +4 (Proficiency): Harder to hit",
         }
 
         test.each`
-            attributeType             | amount | source                          | readableDescription
-            ${AttributeType.ARMOR}    | ${-1}  | ${AttributeSource.CIRCUMSTANCE} | ${readableDescription[`${AttributeType.ARMOR} ${AttributeSource.CIRCUMSTANCE}`]}
-            ${AttributeType.ABSORB}   | ${2}   | ${AttributeSource.MARTIAL}      | ${readableDescription[AttributeType.ABSORB]}
-            ${AttributeType.MOVEMENT} | ${0}   | ${AttributeSource.ELEMENTAL}    | ${readableDescription[AttributeType.MOVEMENT]}
-            ${AttributeType.ARMOR}    | ${4}   | ${AttributeSource.PROFICIENCY}  | ${readableDescription[`${AttributeType.ARMOR} ${AttributeSource.PROFICIENCY}`]}
+            attributeType         | amount | source                          | readableDescription
+            ${Attribute.ARMOR}    | ${-1}  | ${AttributeSource.CIRCUMSTANCE} | ${readableDescription[`${Attribute.ARMOR} ${AttributeSource.CIRCUMSTANCE}`]}
+            ${Attribute.ABSORB}   | ${2}   | ${AttributeSource.MARTIAL}      | ${readableDescription[Attribute.ABSORB]}
+            ${Attribute.MOVEMENT} | ${0}   | ${AttributeSource.ELEMENTAL}    | ${readableDescription[Attribute.MOVEMENT]}
+            ${Attribute.ARMOR}    | ${4}   | ${AttributeSource.PROFICIENCY}  | ${readableDescription[`${Attribute.ARMOR} ${AttributeSource.PROFICIENCY}`]}
         `(
             "$attributeType $amount $source description is: $readableDescription",
             ({ attributeType, amount, source, readableDescription }) => {
@@ -380,9 +380,9 @@ describe("AttributeModifier", () => {
         )
 
         test.each`
-            attributeType            | source                       | readableDescription
-            ${AttributeType.HUSTLE}  | ${AttributeSource.MARTIAL}   | ${readableDescription[AttributeType.HUSTLE]}
-            ${AttributeType.ELUSIVE} | ${AttributeSource.SPIRITUAL} | ${readableDescription[AttributeType.ELUSIVE]}
+            attributeType        | source                       | readableDescription
+            ${Attribute.HUSTLE}  | ${AttributeSource.MARTIAL}   | ${readableDescription[Attribute.HUSTLE]}
+            ${Attribute.ELUSIVE} | ${AttributeSource.SPIRITUAL} | ${readableDescription[Attribute.ELUSIVE]}
         `(
             "$attributeType $source description is: $readableDescription",
             ({ attributeType, source, readableDescription }) => {
@@ -401,7 +401,7 @@ describe("AttributeModifier", () => {
         it("can manually specify fields", () => {
             expect(
                 AttributeModifierService.readableDescription({
-                    type: AttributeType.MOVEMENT,
+                    type: Attribute.MOVEMENT,
                     source: AttributeSource.CIRCUMSTANCE,
                     amount: 0,
                 })
@@ -409,7 +409,7 @@ describe("AttributeModifier", () => {
 
             expect(
                 AttributeModifierService.readableDescription({
-                    type: AttributeType.ABSORB,
+                    type: Attribute.ABSORB,
                     amount: 1,
                 })
             ).toEqual("Absorb +1: Temporary HP")
@@ -419,7 +419,7 @@ describe("AttributeModifier", () => {
     describe("readableTypeAndAmount", () => {
         it("returns type and amount for non-binary modifier", () => {
             const armorModifier = AttributeModifierService.new({
-                type: AttributeType.ARMOR,
+                type: Attribute.ARMOR,
                 source: AttributeSource.CIRCUMSTANCE,
                 amount: 1,
             })
@@ -431,7 +431,7 @@ describe("AttributeModifier", () => {
 
         it("returns type and amount for negative modifier", () => {
             const armorModifier = AttributeModifierService.new({
-                type: AttributeType.ARMOR,
+                type: Attribute.ARMOR,
                 source: AttributeSource.CIRCUMSTANCE,
                 amount: -2,
             })
@@ -443,7 +443,7 @@ describe("AttributeModifier", () => {
 
         it("returns type only for binary modifier", () => {
             const hustleModifier = AttributeModifierService.new({
-                type: AttributeType.HUSTLE,
+                type: Attribute.HUSTLE,
                 source: AttributeSource.CIRCUMSTANCE,
                 amount: 1,
             })
@@ -455,7 +455,7 @@ describe("AttributeModifier", () => {
 
         it("returns type with (0) for zero amount", () => {
             const movementModifier = AttributeModifierService.new({
-                type: AttributeType.MOVEMENT,
+                type: Attribute.MOVEMENT,
                 source: AttributeSource.CIRCUMSTANCE,
                 amount: 0,
             })

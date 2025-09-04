@@ -1,6 +1,6 @@
 import { BattleSquaddie } from "../../battleSquaddie"
 import { getResultOrThrowError } from "../../../utils/ResultOrError"
-import { DamageType } from "../../../squaddie/squaddieService"
+import { Damage } from "../../../squaddie/squaddieService"
 import { SquaddieAffiliation } from "../../../squaddie/squaddieAffiliation"
 import {
     MissionStatistics,
@@ -17,6 +17,7 @@ import {
 import {
     DegreeOfSuccess,
     DegreeOfSuccessAndSuccessBonus,
+    TDegreeOfSuccess,
 } from "./degreeOfSuccess"
 import { MissionMap, MissionMapService } from "../../../missionMap/missionMap"
 import { MissionMapSquaddieCoordinateService } from "../../../missionMap/squaddieCoordinate"
@@ -46,7 +47,7 @@ import {
     CalculatedResultService,
 } from "../../history/calculatedResult"
 import { BattleActionActorContext } from "../../history/battleAction/battleActionActorContext"
-import { AttributeTypeAndAmount } from "../../../squaddie/attribute/attributeType"
+import { AttributeTypeAndAmount } from "../../../squaddie/attribute/attribute"
 import { HexCoordinate } from "../../../hexMap/hexCoordinate/hexCoordinate"
 import { BattleActionRecorder } from "../../history/battleAction/battleActionRecorder"
 import { NumberGeneratorStrategy } from "../../numberGenerator/strategy"
@@ -59,7 +60,7 @@ export interface CalculatedEffect {
     damage: DamageExplanation
     healingReceived: number
     attributeModifiersToAddToTarget: AttributeModifier[]
-    degreeOfSuccess: DegreeOfSuccess
+    degreeOfSuccess: TDegreeOfSuccess
 }
 
 export interface DegreeOfSuccessExplanation {
@@ -311,7 +312,7 @@ const calculateEffectBasedOnDegreeOfSuccess = ({
 }: {
     actionEffectTemplate: ActionEffectTemplate
     actorContext: BattleActionActorContext
-    degreeOfSuccess: DegreeOfSuccess
+    degreeOfSuccess: TDegreeOfSuccess
     targetSquaddieTemplate: SquaddieTemplate
     targetBattleSquaddie: BattleSquaddie
 }): CalculatedEffect => {
@@ -363,7 +364,7 @@ const applyCalculatedEffectAndReturnChange = ({
     InBattleAttributesService.takeDamage({
         inBattleAttributes: inBattleAttributesToChange,
         damageToTake: calculatedEffect.damage.raw,
-        damageType: DamageType.UNKNOWN,
+        damageType: Damage.UNKNOWN,
     })
 
     InBattleAttributesService.receiveHealing(
@@ -549,7 +550,7 @@ const forecastCalculatedEffectAndReturnChange = ({
     InBattleAttributesService.takeDamage({
         inBattleAttributes: inBattleAttributesToChange,
         damageToTake: calculatedEffect.damage.raw,
-        damageType: DamageType.UNKNOWN,
+        damageType: Damage.UNKNOWN,
     })
 
     InBattleAttributesService.receiveHealing(
@@ -747,7 +748,7 @@ const forecastChangesForSquaddieAndActionEffectTemplate = ({
                                     actionEffectTemplate,
                                     actorContext,
                                     degreeOfSuccess:
-                                        degreeOfSuccess as DegreeOfSuccess,
+                                        degreeOfSuccess as TDegreeOfSuccess,
                                     targetSquaddieTemplate,
                                     targetBattleSquaddie,
                                 })
@@ -757,7 +758,7 @@ const forecastChangesForSquaddieAndActionEffectTemplate = ({
                                 targetedBattleSquaddieId,
                                 chanceOfDegreeOfSuccess:
                                     possibleDegreesOfSuccess[
-                                        degreeOfSuccess as DegreeOfSuccess
+                                        degreeOfSuccess as TDegreeOfSuccess
                                     ],
                             })
                         }

@@ -1,8 +1,9 @@
-export enum CoordinateSystem {
-    UNKNOWN = "UNKNOWN",
-    WORLD = "WORLD",
-    SCREEN = "SCREEN",
-}
+export const CoordinateSystem = {
+    UNKNOWN: "UNKNOWN",
+    WORLD: "WORLD",
+    SCREEN: "SCREEN",
+} as const satisfies Record<string, string>
+export type TCoordinateSystem = EnumLike<typeof CoordinateSystem>
 
 export interface HexCoordinate {
     q: number

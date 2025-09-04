@@ -35,7 +35,7 @@ import {
     SquaddieAffiliationService,
 } from "../../../squaddie/squaddieAffiliation"
 import { InBattleAttributesService } from "../../../battle/stats/inBattleAttributes"
-import { AttributeType } from "../../../squaddie/attribute/attributeType"
+import { Attribute } from "../../../squaddie/attribute/attribute"
 
 export const MapSearchService = {
     calculateAllPossiblePathsFromStartingCoordinate: ({
@@ -486,7 +486,7 @@ const shouldAddNeighborDuringMapSearchWhenThereIsASquaddieAtNeighbor = ({
         battleSquaddieAtStartCoordinate &&
         InBattleAttributesService.getAllActiveAttributeModifiers(
             battleSquaddieAtStartCoordinate.inBattleAttributes
-        ).some((attribute) => attribute.type === AttributeType.ELUSIVE)
+        ).some((attribute) => attribute.type === Attribute.ELUSIVE)
     )
         return true
 

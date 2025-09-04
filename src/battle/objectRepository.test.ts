@@ -21,7 +21,7 @@ import {
     TargetBySquaddieAffiliationRelation,
     VersusSquaddieResistance,
 } from "../action/template/actionEffectTemplate"
-import { DamageType } from "../squaddie/squaddieService"
+import { Damage } from "../squaddie/squaddieService"
 import { SquaddieMovementService } from "../squaddie/movement"
 import { TargetConstraintsService } from "../action/targetConstraints"
 import { ArmyAttributesService } from "../squaddie/armyAttributes"
@@ -308,7 +308,7 @@ describe("Object Repository", () => {
                 actionEffectTemplates: [
                     ActionEffectTemplateService.new({
                         damageDescriptions: {
-                            [DamageType.SOUL]: 2,
+                            [Damage.SOUL]: 2,
                         },
                         versusSquaddieResistance:
                             VersusSquaddieResistance.ARMOR,

@@ -19,10 +19,7 @@ import {
     DrawSquaddieIconOnMapUtilities,
 } from "./drawSquaddieIconOnMap"
 import { HUE_BY_SQUADDIE_AFFILIATION } from "../../../graphicsConstants"
-import {
-    PULSE_COLOR_FORMULA_TYPE,
-    PulseColor,
-} from "../../../hexMap/pulseColor"
+import { PULSE_COLOR_FORMULA, PulseColor } from "../../../hexMap/pulseColor"
 import { BattleCamera } from "../../battleCamera"
 import { ConvertCoordinateService } from "../../../hexMap/convertCoordinates"
 

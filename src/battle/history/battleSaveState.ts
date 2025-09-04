@@ -18,7 +18,10 @@ import { MissionCompletionStatus } from "../missionResult/missionCompletionStatu
 import { BattleEvent } from "../event/battleEvent"
 import { ObjectRepository, ObjectRepositoryService } from "../objectRepository"
 import { getResultOrThrowError } from "../../utils/ResultOrError"
-import { BattlePhase } from "../orchestratorComponents/battlePhaseTracker"
+import {
+    BattlePhase,
+    TBattlePhase,
+} from "../orchestratorComponents/battlePhaseTracker"
 import { isValidValue } from "../../utils/objectValidityCheck"
 import { TerrainTileMapService } from "../../hexMap/terrainTileMap"
 import {
@@ -41,7 +44,7 @@ export interface BattleSaveState {
     saveVersion: string
     missionId: string
     battlePhaseState: {
-        currentPhase: BattlePhase
+        currentPhase: TBattlePhase
         turnCount: number
     }
     camera: {

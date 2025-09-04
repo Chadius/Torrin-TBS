@@ -1,9 +1,12 @@
-import { CoordinateGeneratorShape } from "../battle/targeting/coordinateGenerator"
+import {
+    CoordinateGeneratorShape,
+    TCoordinateGeneratorShape,
+} from "../battle/targeting/coordinateGenerator"
 
 export interface TargetConstraints {
     minimumRange: number
     maximumRange: number
-    coordinateGeneratorShape: CoordinateGeneratorShape
+    coordinateGeneratorShape: TCoordinateGeneratorShape
 }
 
 export const TargetConstraintsService = {
@@ -14,7 +17,7 @@ export const TargetConstraintsService = {
     }: {
         minimumRange?: number
         maximumRange?: number
-        coordinateGeneratorShape?: CoordinateGeneratorShape
+        coordinateGeneratorShape?: TCoordinateGeneratorShape
     }): TargetConstraints => ({
         minimumRange: Math.max(
             Math.min(minimumRange ?? 0, maximumRange ?? 0),

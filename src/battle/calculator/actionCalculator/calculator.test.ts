@@ -10,7 +10,7 @@ import {
     Trait,
     TraitStatusStorageService,
 } from "../../../trait/traitStatusStorage"
-import { DamageType, HealingType } from "../../../squaddie/squaddieService"
+import { Damage, Healing } from "../../../squaddie/squaddieService"
 import { BattleOrchestratorStateService } from "../../orchestrator/battleOrchestratorState"
 import { BattleSquaddie } from "../../battleSquaddie"
 import {
@@ -48,7 +48,7 @@ import {
 import { BattleActionRecorderService } from "../../history/battleAction/battleActionRecorder"
 import { BattleActionService } from "../../history/battleAction/battleAction"
 import { TargetConstraintsService } from "../../../action/targetConstraints"
-import { RollModifierType } from "./rollResult"
+import { RollModifierEnum } from "./rollResult"
 import { CalculatorAttack } from "./attack"
 import {
     afterEach,
@@ -64,12 +64,12 @@ import {
     ProficiencyLevel,
 } from "../../../squaddie/armyAttributes"
 import { CalculatedResult } from "../../history/calculatedResult"
-import { AttributeType } from "../../../squaddie/attribute/attributeType"
+import { Attribute } from "../../../squaddie/attribute/attribute"
 import { RandomNumberGenerator } from "../../numberGenerator/random"
 import {
+    ChallengeModifierEnum,
     ChallengeModifierSetting,
     ChallengeModifierSettingService,
-    ChallengeModifierType,
 } from "../../challengeModifier/challengeModifierSetting"
 
 describe("calculator", () => {
@@ -112,7 +112,7 @@ describe("calculator", () => {
                         [Trait.ALWAYS_SUCCEEDS]: true,
                     }),
                     damageDescriptions: {
-                        [DamageType.BODY]: actionBodyDamageAmount,
+                        [Damage.BODY]: actionBodyDamageAmount,
                     },
                     versusSquaddieResistance: VersusSquaddieResistance.ARMOR,
                 }),
@@ -136,7 +136,7 @@ describe("calculator", () => {
                         [Trait.ATTACK]: true,
                     }),
                     damageDescriptions: {
-                        [DamageType.BODY]: actionBodyDamageAmount,
+                        [Damage.BODY]: actionBodyDamageAmount,
                     },
                     versusSquaddieResistance: VersusSquaddieResistance.ARMOR,
                 }),
@@ -584,7 +584,7 @@ describe("calculator", () => {
             MissionStatisticsService.startRecording(missionStatistics)
 
             const absorb1Damage = AttributeModifierService.new({
-                type: AttributeType.ABSORB,
+                type: Attribute.ABSORB,
                 amount: 1,
                 source: AttributeSource.CIRCUMSTANCE,
             })
@@ -684,7 +684,7 @@ describe("calculator", () => {
                             [Trait.ALWAYS_SUCCEEDS]: true,
                         }),
                         healingDescriptions: {
-                            [HealingType.LOST_HIT_POINTS]: 2,
+                            [Healing.LOST_HIT_POINTS]: 2,
                         },
                     }),
                 ],
@@ -724,7 +724,7 @@ describe("calculator", () => {
                 damageToTake:
                     ally1BattleSquaddie.inBattleAttributes.armyAttributes
                         .maxHitPoints - 1,
-                damageType: DamageType.UNKNOWN,
+                damageType: Damage.UNKNOWN,
             })
             const actionStep = createPlayerHealsAllyAction(healsLostHitPoints)
 
@@ -755,7 +755,7 @@ describe("calculator", () => {
                 damageToTake:
                     ally1BattleSquaddie.inBattleAttributes.armyAttributes
                         .maxHitPoints - 1,
-                damageType: DamageType.UNKNOWN,
+                damageType: Damage.UNKNOWN,
             })
 
             const actionStep = createPlayerHealsAllyAction(healsLostHitPoints)
@@ -790,7 +790,7 @@ describe("calculator", () => {
                 damageToTake:
                     ally1BattleSquaddie.inBattleAttributes.armyAttributes
                         .maxHitPoints - 1,
-                damageType: DamageType.UNKNOWN,
+                damageType: Damage.UNKNOWN,
             })
 
             const actionStep = createPlayerHealsAllyAction(healsLostHitPoints)
@@ -826,7 +826,7 @@ describe("calculator", () => {
             })
 
             armorCircumstanceModifier = AttributeModifierService.new({
-                type: AttributeType.ARMOR,
+                type: Attribute.ARMOR,
                 source: AttributeSource.CIRCUMSTANCE,
                 amount: 1,
                 duration: 1,
@@ -904,7 +904,7 @@ describe("calculator", () => {
                 )
             expect(afterChanges).toEqual([
                 {
-                    type: AttributeType.ARMOR,
+                    type: Attribute.ARMOR,
                     amount: 1,
                 },
             ])
@@ -1125,7 +1125,7 @@ describe("calculator", () => {
                 )
                 expect(
                     results.changesPerEffect[0].actorContext.actorRoll
-                        .rollModifiers[RollModifierType.MULTIPLE_ATTACK_PENALTY]
+                        .rollModifiers[RollModifierEnum.MULTIPLE_ATTACK_PENALTY]
                 ).toEqual(-3)
             })
             it("reduces the forecasted chance to succeed because of the penalty", () => {
@@ -1169,7 +1169,7 @@ describe("calculator", () => {
                 expect(
                     forecastForSecondAttack.changesPerEffect[0].actorContext
                         .actorRoll.rollModifiers[
-                        RollModifierType.MULTIPLE_ATTACK_PENALTY
+                        RollModifierEnum.MULTIPLE_ATTACK_PENALTY
                     ]
                 ).toBe(-3)
 
@@ -1673,7 +1673,7 @@ describe("calculator", () => {
                             [Trait.ALWAYS_SUCCEEDS]: true,
                         }),
                         damageDescriptions: {
-                            [DamageType.BODY]: 1,
+                            [Damage.BODY]: 1,
                         },
                     }),
                     ActionEffectTemplateService.new({
@@ -1682,7 +1682,7 @@ describe("calculator", () => {
                             [Trait.ALWAYS_SUCCEEDS]: true,
                         }),
                         damageDescriptions: {
-                            [DamageType.BODY]: 2,
+                            [Damage.BODY]: 2,
                         },
                     }),
                 ],
@@ -1751,7 +1751,7 @@ describe("calculator", () => {
             challengeModifierSetting = ChallengeModifierSettingService.new()
             ChallengeModifierSettingService.setSetting({
                 challengeModifierSetting,
-                type: ChallengeModifierType.TRAINING_WHEELS,
+                type: ChallengeModifierEnum.TRAINING_WHEELS,
                 value: true,
             })
             MissionMapService.addSquaddie({
@@ -1769,7 +1769,7 @@ describe("calculator", () => {
             challengeModifierSetting = ChallengeModifierSettingService.new()
             ChallengeModifierSettingService.setSetting({
                 challengeModifierSetting,
-                type: ChallengeModifierType.TRAINING_WHEELS,
+                type: ChallengeModifierEnum.TRAINING_WHEELS,
                 value: true,
             })
             challengeModifierServiceSpy = vi.spyOn(

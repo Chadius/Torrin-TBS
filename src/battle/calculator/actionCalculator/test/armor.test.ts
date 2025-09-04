@@ -18,7 +18,7 @@ import {
     TargetBySquaddieAffiliationRelation,
     VersusSquaddieResistance,
 } from "../../../../action/template/actionEffectTemplate"
-import { DamageType } from "../../../../squaddie/squaddieService"
+import { Damage } from "../../../../squaddie/squaddieService"
 import {
     Trait,
     TraitStatusStorageService,
@@ -46,7 +46,7 @@ import {
 } from "../../../actionDecision/battleActionDecisionStep"
 import { TargetConstraintsService } from "../../../../action/targetConstraints"
 import { beforeEach, describe, expect, it } from "vitest"
-import { AttributeType } from "../../../../squaddie/attribute/attributeType"
+import { Attribute } from "../../../../squaddie/attribute/attribute"
 import { MissionStatisticsService } from "../../../missionStatistics/missionStatistics"
 import { ChallengeModifierSettingService } from "../../../challengeModifier/challengeModifierSetting"
 
@@ -77,7 +77,7 @@ describe("Armor Attribute affects Armor Attacks", () => {
             actionEffectTemplates: [
                 ActionEffectTemplateService.new({
                     damageDescriptions: {
-                        [DamageType.UNKNOWN]: 1,
+                        [Damage.UNKNOWN]: 1,
                     },
                     traits: TraitStatusStorageService.newUsingTraitValues({
                         [Trait.ATTACK]: true,
@@ -169,7 +169,7 @@ describe("Armor Attribute affects Armor Attacks", () => {
         InBattleAttributesService.addActiveAttributeModifier(
             targetSquaddie.inBattleAttributes,
             AttributeModifierService.new({
-                type: AttributeType.ARMOR,
+                type: Attribute.ARMOR,
                 source: AttributeSource.CIRCUMSTANCE,
                 amount: 8,
                 duration: 1,
@@ -208,7 +208,7 @@ describe("Armor Attribute affects Armor Attacks", () => {
         expect(
             results.changesPerEffect[0].actorContext.targetAttributeModifiers[
                 targetSquaddie.battleSquaddieId
-            ].find((t) => t.type === AttributeType.ARMOR).amount
+            ].find((t) => t.type === Attribute.ARMOR).amount
         ).toEqual(8)
         expect(
             results.changesPerEffect[0].squaddieChanges[0].actorDegreeOfSuccess
@@ -231,7 +231,7 @@ describe("Armor Attribute affects Armor Attacks", () => {
             actionEffectTemplates: [
                 ActionEffectTemplateService.new({
                     damageDescriptions: {
-                        [DamageType.UNKNOWN]: 1,
+                        [Damage.UNKNOWN]: 1,
                     },
                     traits: TraitStatusStorageService.newUsingTraitValues({
                         [Trait.ATTACK]: true,
@@ -250,7 +250,7 @@ describe("Armor Attribute affects Armor Attacks", () => {
         InBattleAttributesService.addActiveAttributeModifier(
             targetSquaddie.inBattleAttributes,
             AttributeModifierService.new({
-                type: AttributeType.ARMOR,
+                type: Attribute.ARMOR,
                 source: AttributeSource.CIRCUMSTANCE,
                 amount: 9001,
                 duration: 1,
@@ -289,7 +289,7 @@ describe("Armor Attribute affects Armor Attacks", () => {
         expect(
             results.changesPerEffect[0].actorContext.targetAttributeModifiers[
                 targetSquaddie.battleSquaddieId
-            ].find((t) => t.type === AttributeType.ARMOR)
+            ].find((t) => t.type === Attribute.ARMOR)
         ).toBeUndefined()
         expect(
             results.changesPerEffect[0].squaddieChanges[0].actorDegreeOfSuccess

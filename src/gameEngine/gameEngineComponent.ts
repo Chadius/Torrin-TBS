@@ -6,11 +6,11 @@ import {
     ScreenLocation,
 } from "../utils/mouseConfig"
 import { GameEngineState } from "./gameEngine"
-import { GameModeEnum } from "../utils/startupConfig"
+import { TGameMode } from "../utils/startupConfig"
 import { GraphicsBuffer } from "../utils/graphics/graphicsRenderer"
 
 export type GameEngineChanges = {
-    nextMode?: GameModeEnum
+    nextMode?: TGameMode
 }
 
 export interface GameEngineComponent {

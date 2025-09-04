@@ -1,5 +1,8 @@
 import { ObjectRepository, ObjectRepositoryService } from "../objectRepository"
-import { SquaddieAffiliation } from "../../squaddie/squaddieAffiliation"
+import {
+    SquaddieAffiliation,
+    TSquaddieAffiliation,
+} from "../../squaddie/squaddieAffiliation"
 import { BattleSquaddie } from "../battleSquaddie"
 import {
     BattleOrchestratorState,
@@ -189,7 +192,7 @@ describe("BattleSquaddieMover", () => {
         const setupSquaddie = ({
             squaddieAffiliation,
         }: {
-            squaddieAffiliation: SquaddieAffiliation
+            squaddieAffiliation: TSquaddieAffiliation
         }): BattleOrchestratorState => {
             const searchResults: SearchResult =
                 MapSearchService.calculatePathsToDestinations({

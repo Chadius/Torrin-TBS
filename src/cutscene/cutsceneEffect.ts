@@ -3,26 +3,30 @@ import {
     BattleEventEffectStateService,
 } from "../battle/event/battleEventEffectState"
 import {
+    BattleEventEffect,
     BattleEventEffectBase,
     BattleEventEffectBaseService,
-    BattleEventEffectType,
 } from "../battle/event/battleEventEffect"
 
 export interface CutsceneEffect
     extends BattleEventEffectState,
         BattleEventEffectBase {
     cutsceneId: string
-    type: BattleEventEffectType.CUTSCENE
 }
 
 export const CutsceneEffectService = {
     new: (cutsceneId: string): CutsceneEffect =>
         sanitize({
             cutsceneId,
-            type: BattleEventEffectType.CUTSCENE,
+            type: BattleEventEffect.CUTSCENE,
             alreadyAppliedEffect: false,
         }),
     sanitize: (cutscene: CutsceneEffect) => sanitize(cutscene),
+    isCutscene: (
+        battleEventEffectBase: BattleEventEffectBase
+    ): battleEventEffectBase is CutsceneEffect => {
+        return battleEventEffectBase.type === BattleEventEffect.CUTSCENE
+    },
 }
 
 const sanitize = (cutscene: CutsceneEffect) => {

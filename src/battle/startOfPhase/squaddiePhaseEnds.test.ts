@@ -8,9 +8,10 @@ import { BattleStateService } from "../battleState/battleState"
 import {
     BattlePhase,
     BattlePhaseService,
+    TBattlePhase,
 } from "../orchestratorComponents/battlePhaseTracker"
 import { ObjectRepository, ObjectRepositoryService } from "../objectRepository"
-import { SquaddieAffiliation } from "../../squaddie/squaddieAffiliation"
+import { TSquaddieAffiliation } from "../../squaddie/squaddieAffiliation"
 import { BattleSquaddieService } from "../battleSquaddie"
 import {
     BattleSquaddieTeam,
@@ -52,7 +53,7 @@ describe("squaddie phase ends", () => {
     }
 
     const createTeamOfTwo = (
-        affiliation: SquaddieAffiliation
+        affiliation: TSquaddieAffiliation
     ): BattleSquaddieTeam => {
         const { squaddieTemplate } =
             SquaddieRepositoryService.createNewSquaddieAndAddToRepository({
@@ -82,7 +83,7 @@ describe("squaddie phase ends", () => {
 
     const createGameEngineStateWithTeamsAndPhase = (
         teams: BattleSquaddieTeam[],
-        startingBattlePhase: BattlePhase
+        startingBattlePhase: TBattlePhase
     ): GameEngineState => {
         return GameEngineStateService.new({
             battleOrchestratorState: BattleOrchestratorStateService.new({

@@ -19,7 +19,7 @@ import {
     MouseWheel,
     ScreenLocation,
 } from "../utils/mouseConfig"
-import { GameModeEnum } from "../utils/startupConfig"
+import { GameModeEnum, TGameMode } from "../utils/startupConfig"
 import { GameEngineChanges, GameEngineComponent } from "./gameEngineComponent"
 import { TitleScreen } from "../titleScreen/titleScreen"
 import {
@@ -61,7 +61,7 @@ import { PlayerActionTargetSelect } from "../battle/orchestratorComponents/playe
 import { BattleEventMessageListener } from "../battle/event/battleEventMessageListener"
 
 export interface GameEngineState {
-    modeThatInitiatedLoading: GameModeEnum
+    modeThatInitiatedLoading: TGameMode
     battleOrchestratorState: BattleOrchestratorState
     repository: ObjectRepository
     resourceHandler: ResourceHandler
@@ -86,7 +86,7 @@ export const GameEngineStateService = {
         battleOrchestratorState?: BattleOrchestratorState
         titleScreenState?: TitleScreenState
         resourceHandler?: ResourceHandler
-        previousMode?: GameModeEnum
+        previousMode?: TGameMode
         campaign?: Campaign
         repository?: ObjectRepository
         playerInputState?: PlayerInputState
@@ -125,7 +125,7 @@ export class GameEngine {
         startupMode,
     }: {
         graphicsBuffer: GraphicsBuffer
-        startupMode: GameModeEnum
+        startupMode: TGameMode
     }) {
         this.graphicsBuffer = graphicsBuffer
         this._currentMode = startupMode
@@ -152,9 +152,9 @@ export class GameEngine {
         }
     }
 
-    private _currentMode: GameModeEnum
+    private _currentMode: TGameMode
 
-    get currentMode(): GameModeEnum {
+    get currentMode(): TGameMode {
         return this._currentMode
     }
 

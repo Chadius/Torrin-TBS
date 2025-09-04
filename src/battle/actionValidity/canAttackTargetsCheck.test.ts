@@ -13,7 +13,7 @@ import {
 import { MapSearchTestUtils } from "../../hexMap/pathfinder/pathGeneration/mapSearchTests/mapSearchTestUtils"
 import { ActionValidityTestUtils } from "./commonTest"
 import { CoordinateGeneratorShape } from "../targeting/coordinateGenerator"
-import { DamageType, HealingType } from "../../squaddie/squaddieService"
+import { Damage, Healing } from "../../squaddie/squaddieService"
 import { CanAttackTargetsCheck } from "./canAttackTargetsCheck"
 import { ActionPerformFailureReason } from "../../squaddie/turn"
 import { TargetingResults } from "../targeting/targetingService"
@@ -65,7 +65,7 @@ describe("canAttackTargetsCheck", () => {
                         [TargetBySquaddieAffiliationRelation.TARGET_FOE]: false,
                     },
                     healingDescriptions: {
-                        [HealingType.LOST_HIT_POINTS]: 2,
+                        [Healing.LOST_HIT_POINTS]: 2,
                     },
                 }),
             ],
@@ -109,7 +109,7 @@ describe("canAttackTargetsCheck", () => {
                                 true,
                         },
                         damageDescriptions: {
-                            [DamageType.BODY]: 2,
+                            [Damage.BODY]: 2,
                         },
                     }),
                 ],

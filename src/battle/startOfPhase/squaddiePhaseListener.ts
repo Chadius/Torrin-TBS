@@ -1,7 +1,9 @@
 import { MessageBoardListener } from "../../message/messageBoardListener"
 import {
     MessageBoardMessage,
-    MessageBoardMessageType,
+    MessageBoardMessageService,
+    MessageBoardMessageSquaddiePhaseEnds,
+    MessageBoardMessageSquaddiePhaseStarts,
 } from "../../message/messageBoardMessage"
 import { SquaddiePhaseStartsService } from "./squaddiePhaseStarts"
 import { PlayerPhaseService } from "./playerPhase"
@@ -15,40 +17,63 @@ export class SquaddiePhaseListener implements MessageBoardListener {
     }
 
     receiveMessage(message: MessageBoardMessage): void {
-        switch (message.type) {
-            case MessageBoardMessageType.SQUADDIE_PHASE_ENDS:
-                SquaddiePhaseEndsService.unTintSquaddieMapIconForEachSquaddie(
-                    message
-                )
-                SquaddiePhaseStartsService.restoreTurnForAllSquaddies({
-                    gameEngineState: message.gameEngineState,
-                    phase: message.phase,
-                })
-                SquaddiePhaseEndsService.clearMapSquaddieGameplayLayers(message)
-                break
-            case MessageBoardMessageType.SQUADDIE_PHASE_STARTS:
-                SquaddiePhaseStartsService.restoreTurnForAllSquaddies({
-                    gameEngineState: message.gameEngineState,
-                    phase: message.phase,
-                })
-                SquaddiePhaseStartsService.reduceCooldownForAllSquaddies({
-                    gameEngineState: message.gameEngineState,
-                    phase: message.phase,
-                })
-                SquaddiePhaseStartsService.reduceDurationForAttributeModifiers(
-                    message
-                )
-                SquaddiePhaseStartsService.unTintSquaddieMapIconForEachSquaddieWhoCanAct(
-                    message
-                )
-                SquaddiePhaseStartsService.stopCamera(message)
-                SquaddiePhaseStartsService.stopHighlightingMapTiles(message)
-                break
-            case MessageBoardMessageType.STARTED_PLAYER_PHASE:
-                PlayerPhaseService.panToControllablePlayerSquaddieIfPlayerPhase(
-                    message
-                )
-                break
+        if (
+            MessageBoardMessageService.isMessageBoardMessageSquaddiePhaseEnds(
+                message
+            )
+        ) {
+            this.squaddiePhaseEnds(message)
+            return
         }
+
+        if (
+            MessageBoardMessageService.isMessageBoardMessageSquaddiePhaseStarts(
+                message
+            )
+        ) {
+            this.squaddiePhaseStarts(message)
+            return
+        }
+
+        if (
+            MessageBoardMessageService.isMessageBoardMessageStartedPlayerPhase(
+                message
+            )
+        ) {
+            PlayerPhaseService.panToControllablePlayerSquaddieIfPlayerPhase(
+                message
+            )
+        }
+    }
+
+    private squaddiePhaseStarts = (
+        message: MessageBoardMessageSquaddiePhaseStarts
+    ) => {
+        SquaddiePhaseStartsService.restoreTurnForAllSquaddies({
+            gameEngineState: message.gameEngineState,
+            phase: message.phase,
+        })
+        SquaddiePhaseStartsService.reduceCooldownForAllSquaddies({
+            gameEngineState: message.gameEngineState,
+            phase: message.phase,
+        })
+        SquaddiePhaseStartsService.reduceDurationForAttributeModifiers(message)
+        SquaddiePhaseStartsService.unTintSquaddieMapIconForEachSquaddieWhoCanAct(
+            message
+        )
+        SquaddiePhaseStartsService.stopCamera(message)
+        SquaddiePhaseStartsService.stopHighlightingMapTiles(message)
+    }
+    private squaddiePhaseEnds = (
+        message:
+            | MessageBoardMessageSquaddiePhaseStarts
+            | MessageBoardMessageSquaddiePhaseEnds
+    ) => {
+        SquaddiePhaseEndsService.unTintSquaddieMapIconForEachSquaddie(message)
+        SquaddiePhaseStartsService.restoreTurnForAllSquaddies({
+            gameEngineState: message.gameEngineState,
+            phase: message.phase,
+        })
+        SquaddiePhaseEndsService.clearMapSquaddieGameplayLayers(message)
     }
 }

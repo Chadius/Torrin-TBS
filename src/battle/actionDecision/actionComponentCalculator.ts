@@ -2,9 +2,15 @@ import {
     BattleActionDecisionStep,
     BattleActionDecisionStepService,
 } from "./battleActionDecisionStep"
-import { BattleOrchestratorMode } from "../orchestrator/battleOrchestrator"
+import {
+    BattleOrchestratorMode,
+    TBattleOrchestratorMode,
+} from "../orchestrator/battleOrchestrator"
 import { isValidValue } from "../../utils/objectValidityCheck"
-import { ActionDecisionType } from "../../action/template/actionTemplate"
+import {
+    ActionDecision,
+    TActionDecision,
+} from "../../action/template/actionTemplate"
 import { BattleAction } from "../history/battleAction/battleAction"
 import {
     BattleActionRecorder,
@@ -14,7 +20,7 @@ import {
 export const ActionComponentCalculator = {
     getNextModeBasedOnBattleActionRecorder: (
         battleActionRecorder: BattleActionRecorder
-    ): BattleOrchestratorMode => {
+    ): TBattleOrchestratorMode => {
         if (
             BattleActionRecorderService.isAnimationQueueEmpty(
                 battleActionRecorder
@@ -41,20 +47,20 @@ export const ActionComponentCalculator = {
     },
     getPendingActionDecisions: (
         actionBuilderState: BattleActionDecisionStep
-    ): ActionDecisionType[] => {
+    ): TActionDecision[] => {
         if (!isValidValue(actionBuilderState)) {
             return [
-                ActionDecisionType.ACTOR_SELECTION,
-                ActionDecisionType.ACTION_SELECTION,
+                ActionDecision.ACTOR_SELECTION,
+                ActionDecision.ACTION_SELECTION,
             ]
         }
 
-        let actorAndActionMissing: ActionDecisionType[] = []
+        let actorAndActionMissing: TActionDecision[] = []
         if (!BattleActionDecisionStepService.isActorSet(actionBuilderState)) {
-            actorAndActionMissing.push(ActionDecisionType.ACTOR_SELECTION)
+            actorAndActionMissing.push(ActionDecision.ACTOR_SELECTION)
         }
         if (!BattleActionDecisionStepService.isActionSet(actionBuilderState)) {
-            actorAndActionMissing.push(ActionDecisionType.ACTION_SELECTION)
+            actorAndActionMissing.push(ActionDecision.ACTION_SELECTION)
         }
         if (actorAndActionMissing.length > 0) {
             return actorAndActionMissing
@@ -65,7 +71,7 @@ export const ActionComponentCalculator = {
                 actionBuilderState
             )
         ) {
-            return [ActionDecisionType.TARGET_SQUADDIE]
+            return [ActionDecision.TARGET_SQUADDIE]
         }
 
         return []

@@ -1,9 +1,10 @@
 export type BlendColor = [number, number, number, number]
 
-export enum PULSE_COLOR_FORMULA_TYPE {
-    SINE = "SINE",
-    LINEAR = "LINEAR",
-}
+export const PULSE_COLOR_FORMULA = {
+    SINE: "SINE",
+    LINEAR: "LINEAR",
+} as const satisfies Record<string, string>
+export type PULSE_COLOR_FORMULA_TYPE = EnumLike<typeof PULSE_COLOR_FORMULA>
 
 type LowHighRange = { low: number; high: number }
 
@@ -110,13 +111,13 @@ const useFormulaOnTimeElapsed = ({
     periodInMilliseconds: number
 }) => {
     switch (formulaType) {
-        case PULSE_COLOR_FORMULA_TYPE.SINE:
+        case PULSE_COLOR_FORMULA.SINE:
             return useSineFormulaOnTimeElapsed({
                 low,
                 high,
                 periodInMilliseconds,
             })
-        case PULSE_COLOR_FORMULA_TYPE.LINEAR:
+        case PULSE_COLOR_FORMULA.LINEAR:
             return (
                 ((high - low) / periodInMilliseconds) *
                     (Date.now() % periodInMilliseconds) +

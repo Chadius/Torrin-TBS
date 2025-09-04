@@ -11,11 +11,20 @@ import {
     TrashRobotWorld,
     TrashRobotWorldService,
 } from "./trashRobot/trashRobotWorld"
-import { TrashRobotLookForTrashStateEnum } from "./trashRobot/trashRobotLookForTrashStateEnum"
+import {
+    TrashRobotLookForTrashStateEnum,
+    TTrashRobotLookForTrashState,
+} from "./trashRobot/trashRobotLookForTrashStateEnum"
 import { TrashRobotLookForTrashStateMachine } from "./trashRobot/trashRobotLookForTrashStateMachine"
-import { TrashRobotLookForTrashTransitionEnum } from "./trashRobot/trashRobotLookForTrashTransitionEnum"
+import {
+    TrashRobotLookForTrashTransitionEnum,
+    TTrashRobotLookForTrashTransition,
+} from "./trashRobot/trashRobotLookForTrashTransitionEnum"
 import { StateMachineUpdate } from "./stateMachineUpdate"
-import { TrashRobotLookForTrashActionEnum } from "./trashRobot/trashRobotLookForTrashActionEnum"
+import {
+    TrashRobotLookForTrashActionEnum,
+    TTrashRobotLookForTrashAction,
+} from "./trashRobot/trashRobotLookForTrashActionEnum"
 import {
     StateMachineData,
     StateMachineDataService,
@@ -25,9 +34,9 @@ import { StateMachineTransitionData } from "./stateMachineData/stateMachineTrans
 import { STATE_MACHINE_DEFAULT_UPDATE_UNTIL_TIMEOUT_MS } from "./stateMachine"
 
 const infoByState: {
-    [s in TrashRobotLookForTrashStateEnum]?: StateMachineStateData<
-        TrashRobotLookForTrashTransitionEnum,
-        TrashRobotLookForTrashActionEnum
+    [s in TTrashRobotLookForTrashState]?: StateMachineStateData<
+        TTrashRobotLookForTrashTransition,
+        TTrashRobotLookForTrashAction
     >
 } = {
     [TrashRobotLookForTrashStateEnum.INITIALIZED]: {
@@ -45,9 +54,9 @@ const infoByState: {
 }
 
 const infoByTransition: {
-    [s in TrashRobotLookForTrashTransitionEnum]?: StateMachineTransitionData<
-        TrashRobotLookForTrashStateEnum,
-        TrashRobotLookForTrashActionEnum
+    [s in TTrashRobotLookForTrashTransition]?: StateMachineTransitionData<
+        TTrashRobotLookForTrashState,
+        TTrashRobotLookForTrashAction
     >
 } = {
     [TrashRobotLookForTrashTransitionEnum.INITIALIZED]: {
@@ -61,9 +70,9 @@ describe("StateMachine", () => {
         let trashRobotStateMachine: TrashRobotLookForTrashStateMachine
         let trashRobotWorld: TrashRobotWorld
         let trashStateMachineData: StateMachineData<
-            TrashRobotLookForTrashStateEnum,
-            TrashRobotLookForTrashTransitionEnum,
-            TrashRobotLookForTrashActionEnum,
+            TTrashRobotLookForTrashState,
+            TTrashRobotLookForTrashTransition,
+            TTrashRobotLookForTrashAction,
             TrashRobotWorld
         >
 
@@ -89,9 +98,9 @@ describe("StateMachine", () => {
 
         describe("triggering a transition generates updates", () => {
             let stateMachineUpdate: StateMachineUpdate<
-                TrashRobotLookForTrashStateEnum,
-                TrashRobotLookForTrashTransitionEnum,
-                TrashRobotLookForTrashActionEnum
+                TTrashRobotLookForTrashState,
+                TTrashRobotLookForTrashTransition,
+                TTrashRobotLookForTrashAction
             >
 
             beforeEach(() => {

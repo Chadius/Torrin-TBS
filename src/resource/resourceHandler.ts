@@ -2,14 +2,16 @@ import p5 from "p5"
 import { LoadFileIntoFormat } from "../dataLoader/dataLoader"
 import { GraphicsBuffer } from "../utils/graphics/graphicsRenderer"
 
-export enum ResourceType {
-    IMAGE = "IMAGE",
-}
+export const Resource = {
+    IMAGE: "IMAGE",
+} as const satisfies Record<string, string>
+
+export type TResource = EnumLike<typeof Resource>
 
 export type ResourceLocator = {
     key: string
     path?: string
-    type: ResourceType
+    type: TResource
 }
 
 type ImageResource = {
@@ -160,7 +162,7 @@ export class ResourceHandler {
 
     loadResource(resourceKey: string) {
         const resourceLoadersByType = {
-            [ResourceType.IMAGE]: this.imageLoader,
+            [Resource.IMAGE]: this.imageLoader,
         }
 
         const resource = this.resourcesByKey[resourceKey]
@@ -190,7 +192,7 @@ export class ResourceHandler {
         }
         const resourceType = this.resourcesByKey[resourceKey].type
 
-        if (resourceType === ResourceType.IMAGE) {
+        if (resourceType === Resource.IMAGE) {
             if (!this.imagesByKey[resourceKey]) {
                 console.warn(
                     `getResource: "${resourceKey}" was not loaded, will retry and return placeholder image`
@@ -230,7 +232,7 @@ export class ResourceHandler {
         }
         const resourceType = this.resourcesByKey[resourceKey].type
 
-        if (resourceType === ResourceType.IMAGE) {
+        if (resourceType === Resource.IMAGE) {
             return this.imagesByKey[resourceKey]?.image !== undefined
         }
 

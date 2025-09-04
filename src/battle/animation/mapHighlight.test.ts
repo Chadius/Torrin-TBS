@@ -12,7 +12,10 @@ import {
     SquaddieTemplateService,
 } from "../../campaign/squaddieTemplate"
 import { SquaddieIdService } from "../../squaddie/id"
-import { SquaddieAffiliation } from "../../squaddie/squaddieAffiliation"
+import {
+    SquaddieAffiliation,
+    TSquaddieAffiliation,
+} from "../../squaddie/squaddieAffiliation"
 import { ArmyAttributesService } from "../../squaddie/armyAttributes"
 import { SquaddieMovementService } from "../../squaddie/movement"
 import { BattleSquaddie, BattleSquaddieService } from "../battleSquaddie"
@@ -35,7 +38,7 @@ import {
 } from "../../squaddie/attribute/attributeModifier"
 import { InBattleAttributesService } from "../stats/inBattleAttributes"
 import { beforeEach, describe, expect, it } from "vitest"
-import { AttributeType } from "../../squaddie/attribute/attributeType"
+import { Attribute } from "../../squaddie/attribute/attribute"
 import { SearchPathAdapterService } from "../../search/searchPathAdapter/searchPathAdapter"
 import { SearchConnection } from "../../search/searchGraph/graph"
 import { HexCoordinate } from "../../hexMap/hexCoordinate/hexCoordinate"
@@ -45,7 +48,7 @@ import {
     HighlightCoordinateDescriptionService,
 } from "../../hexMap/highlightCoordinateDescription"
 import { CoordinateGeneratorShape } from "../targeting/coordinateGenerator"
-import { HealingType } from "../../squaddie/squaddieService"
+import { Healing } from "../../squaddie/squaddieService"
 
 describe("map highlight generator", () => {
     let terrainAllSingleMovement: TerrainTileMap
@@ -113,7 +116,7 @@ describe("map highlight generator", () => {
                         [TargetBySquaddieAffiliationRelation.TARGET_FOE]: false,
                     },
                     healingDescriptions: {
-                        [HealingType.LOST_HIT_POINTS]: 2,
+                        [Healing.LOST_HIT_POINTS]: 2,
                     },
                 }),
             ],
@@ -228,7 +231,7 @@ describe("map highlight generator", () => {
         let squaddieWithMovement1: SquaddieTemplate
         let battleSquaddie: BattleSquaddie
 
-        const createSquaddie = (affiliation: SquaddieAffiliation) => {
+        const createSquaddie = (affiliation: TSquaddieAffiliation) => {
             squaddieWithMovement1 = SquaddieTemplateService.new({
                 squaddieId: SquaddieIdService.new({
                     squaddieTemplateId: "templateId",
@@ -406,7 +409,7 @@ describe("map highlight generator", () => {
             InBattleAttributesService.addActiveAttributeModifier(
                 battleSquaddie.inBattleAttributes,
                 AttributeModifierService.new({
-                    type: AttributeType.HUSTLE,
+                    type: Attribute.HUSTLE,
                     source: AttributeSource.CIRCUMSTANCE,
                     amount: 1,
                 })
@@ -443,7 +446,7 @@ describe("map highlight generator", () => {
         }: {
             squaddieTemplateId: string
             name: string
-            affiliation: SquaddieAffiliation
+            affiliation: TSquaddieAffiliation
             battleSquaddieId: string
             actionTemplateIds: string[]
         }) => {

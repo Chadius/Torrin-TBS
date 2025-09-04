@@ -56,12 +56,12 @@ import {
     Trait,
     TraitStatusStorageService,
 } from "../../../trait/traitStatusStorage"
-import { DamageType, HealingType } from "../../../squaddie/squaddieService"
+import { Damage, Healing } from "../../../squaddie/squaddieService"
 import {
     AttributeModifierService,
     AttributeSource,
 } from "../../../squaddie/attribute/attributeModifier"
-import { AttributeType } from "../../../squaddie/attribute/attributeType"
+import { Attribute } from "../../../squaddie/attribute/attribute"
 import { SquaddieRepositoryService } from "../../../utils/test/squaddie"
 import { SquaddieTurnService } from "../../../squaddie/turn"
 import { BattleHUDService } from "../battleHUD/battleHUD"
@@ -272,7 +272,7 @@ describe("Player Decision HUD", () => {
                         [Trait.ATTACK]: true,
                     }),
                     damageDescriptions: {
-                        [DamageType.BODY]: 2,
+                        [Damage.BODY]: 2,
                     },
                 }),
             ],
@@ -295,13 +295,13 @@ describe("Player Decision HUD", () => {
                     }),
                     attributeModifiers: [
                         AttributeModifierService.new({
-                            type: AttributeType.ARMOR,
+                            type: Attribute.ARMOR,
                             amount: 1,
                             source: AttributeSource.CIRCUMSTANCE,
                         }),
                     ],
                     healingDescriptions: {
-                        [HealingType.LOST_HIT_POINTS]: 1,
+                        [Healing.LOST_HIT_POINTS]: 1,
                     },
                 }),
             ],

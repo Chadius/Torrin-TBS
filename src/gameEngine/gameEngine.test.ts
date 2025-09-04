@@ -1,6 +1,6 @@
 import { MockedP5GraphicsBuffer } from "../utils/test/mocks"
 import { GameEngine } from "./gameEngine"
-import { GameModeEnum } from "../utils/startupConfig"
+import { GameModeEnum, TGameMode } from "../utils/startupConfig"
 import { MouseButton } from "../utils/mouseConfig"
 import { TitleScreen } from "../titleScreen/titleScreen"
 import { BattleOrchestrator } from "../battle/orchestrator/battleOrchestrator"
@@ -14,7 +14,7 @@ import { MissionObjectiveService } from "../battle/missionResult/missionObjectiv
 import { MissionRewardType } from "../battle/missionResult/missionReward"
 import { MissionConditionType } from "../battle/missionResult/missionCondition"
 import { ObjectRepositoryService } from "../battle/objectRepository"
-import { ResourceLocator, ResourceType } from "../resource/resourceHandler"
+import { ResourceLocator, Resource } from "../resource/resourceHandler"
 import * as DataLoader from "../dataLoader/dataLoader"
 import { SaveSaveStateService } from "../dataLoader/saveSaveState"
 import { MessageBoardMessageType } from "../message/messageBoardMessage"
@@ -32,12 +32,12 @@ import { ScreenDimensions } from "../utils/graphics/graphicsConfig"
 
 const resourceLocators: ResourceLocator[] = [
     {
-        type: ResourceType.IMAGE,
+        type: Resource.IMAGE,
         key: "Cool pic",
         path: "/path/to/cool_pic.png",
     },
     {
-        type: ResourceType.IMAGE,
+        type: Resource.IMAGE,
         key: "Cool pic2",
         path: "/path/to/cool_pic_2.png",
     },
@@ -182,7 +182,7 @@ describe("Game Engine", () => {
             startupMode,
             componentType,
         }: {
-            startupMode: GameModeEnum
+            startupMode: TGameMode
             componentType: any
         }) => {
             const newGameEngine = new GameEngine({

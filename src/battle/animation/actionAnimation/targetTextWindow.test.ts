@@ -13,7 +13,7 @@ import { DefaultArmyAttributes } from "../../../squaddie/armyAttributes"
 import { BattleSquaddie, BattleSquaddieService } from "../../battleSquaddie"
 import { SquaddieTurnService } from "../../../squaddie/turn"
 import { InBattleAttributesService } from "../../stats/inBattleAttributes"
-import { DamageType } from "../../../squaddie/squaddieService"
+import { Damage } from "../../../squaddie/squaddieService"
 import { DegreeOfSuccess } from "../../calculator/actionCalculator/degreeOfSuccess"
 import {
     ActionTemplate,
@@ -48,7 +48,7 @@ describe("TargetTextWindow", () => {
             actionEffectTemplates: [
                 ActionEffectTemplateService.new({
                     damageDescriptions: {
-                        [DamageType.BODY]: 2,
+                        [Damage.BODY]: 2,
                     },
                     traits: TraitStatusStorageService.newUsingTraitValues({
                         [Trait.ATTACK]: true,

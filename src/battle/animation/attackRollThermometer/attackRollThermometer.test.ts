@@ -11,7 +11,10 @@ import {
     AttackRollThermometer,
     AttackRollThermometerService,
 } from "./attackRollThermometer"
-import { DegreeOfSuccess } from "../../calculator/actionCalculator/degreeOfSuccess"
+import {
+    DegreeOfSuccess,
+    TDegreeOfSuccess,
+} from "../../calculator/actionCalculator/degreeOfSuccess"
 import {
     MockedGraphicsBufferService,
     MockedP5GraphicsBuffer,
@@ -202,7 +205,7 @@ describe("Attack Roll Thermometer", () => {
         rolls: [number, number]
         thermometer: AttackRollThermometer
         graphicsBuffer: GraphicsBuffer
-        degreeOfSuccess: DegreeOfSuccess
+        degreeOfSuccess: TDegreeOfSuccess
     }) => {
         dateSpy.mockReturnValue(0)
         AttackRollThermometerService.beginRollingAnimation({

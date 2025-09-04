@@ -61,7 +61,7 @@ import {
     Trait,
     TraitStatusStorageService,
 } from "../../trait/traitStatusStorage"
-import { DamageType, HealingType } from "../../squaddie/squaddieService"
+import { Damage, Healing } from "../../squaddie/squaddieService"
 import { BattleActionRecorderService } from "../history/battleAction/battleActionRecorder"
 import { TargetConstraintsService } from "../../action/targetConstraints"
 import {
@@ -81,7 +81,7 @@ import {
     AttributeModifierService,
     AttributeSource,
 } from "../../squaddie/attribute/attributeModifier"
-import { AttributeType } from "../../squaddie/attribute/attributeType"
+import { Attribute } from "../../squaddie/attribute/attribute"
 import { ActionButtonService } from "../hud/playerActionPanel/actionButton/actionButton"
 import { SummaryHUDStateService } from "../hud/summary/summaryHUD"
 import { getResultOrThrowError } from "../../utils/ResultOrError"
@@ -145,7 +145,7 @@ describe("BattleSquaddieSelector", () => {
                         [TargetBySquaddieAffiliationRelation.TARGET_FOE]: true,
                     },
                     damageDescriptions: {
-                        [DamageType.BODY]: 1,
+                        [Damage.BODY]: 1,
                     },
                 }),
             ],
@@ -168,13 +168,13 @@ describe("BattleSquaddieSelector", () => {
                     }),
                     attributeModifiers: [
                         AttributeModifierService.new({
-                            type: AttributeType.ARMOR,
+                            type: Attribute.ARMOR,
                             amount: 1,
                             source: AttributeSource.CIRCUMSTANCE,
                         }),
                     ],
                     healingDescriptions: {
-                        [HealingType.LOST_HIT_POINTS]: 1,
+                        [Healing.LOST_HIT_POINTS]: 1,
                     },
                 }),
             ],
@@ -197,7 +197,7 @@ describe("BattleSquaddieSelector", () => {
                         [Trait.ATTACK]: true,
                     }),
                     damageDescriptions: {
-                        [DamageType.BODY]: 2,
+                        [Damage.BODY]: 2,
                     },
                 }),
             ],

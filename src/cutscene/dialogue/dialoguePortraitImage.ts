@@ -5,6 +5,7 @@ import p5 from "p5"
 import {
     DIALOGUE_SPEAKER_PORTRAIT_STYLE_CONSTANTS,
     DialoguePosition,
+    TDialoguePosition,
     DialogueTextService,
 } from "./constants"
 import { ImageUI, ImageUILoadingBehavior } from "../../ui/imageUI/imageUI"
@@ -13,14 +14,14 @@ import { ResourceHandler } from "../../resource/resourceHandler"
 export class DialoguePortraitImage {
     speakerPortrait: p5.Image
     speakerImage: ImageUI
-    position: DialoguePosition
+    position: TDialoguePosition
 
     constructor({
         speakerPortrait,
         position,
     }: {
         speakerPortrait?: p5.Image
-        position?: DialoguePosition
+        position?: TDialoguePosition
     }) {
         this.speakerPortrait = speakerPortrait
         this.position = position || DialoguePosition.CENTER

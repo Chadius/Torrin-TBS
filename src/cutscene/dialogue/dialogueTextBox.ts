@@ -5,8 +5,11 @@ import {
     DIALOGUE_FONT_STYLE_CONSTANTS,
     DIALOGUE_TEXT_BOX_STYLE_CONSTANTS,
     DialogueComponent,
+    TDialogueComponent,
     DialogueFontStyle,
+    TDialogueFontStyle,
     DialoguePosition,
+    TDialoguePosition,
     DialogueTextService,
     ThirdOfScreenAlignment,
 } from "./constants"
@@ -28,7 +31,7 @@ export interface DialogTextBoxLayout extends ThirdOfScreenAlignment {
 }
 
 const DIALOGUE_SPEAKER_NAME_BOX_STYLE_CONSTANTS: {
-    [t in DialoguePosition]: DialogTextBoxLayout
+    [t in TDialoguePosition]: DialogTextBoxLayout
 } = {
     [DialoguePosition.CENTER]: {
         fillColor: [200, 10, 50],
@@ -67,9 +70,9 @@ const DIALOGUE_SPEAKER_NAME_BOX_STYLE_CONSTANTS: {
 export class DialogueTextBox {
     dialogueText: string
     dialogueTextLabel: Label
-    position: DialoguePosition
-    fontStyle: DialogueFontStyle
-    dialogueComponent: DialogueComponent
+    position: TDialoguePosition
+    fontStyle: TDialogueFontStyle
+    dialogueComponent: TDialogueComponent
 
     constructor({
         text,
@@ -78,9 +81,9 @@ export class DialogueTextBox {
         fontStyle,
     }: {
         text: string
-        position: DialoguePosition
-        fontStyle: DialogueFontStyle
-        dialogueComponent: DialogueComponent
+        position: TDialoguePosition
+        fontStyle: TDialogueFontStyle
+        dialogueComponent: TDialogueComponent
     }) {
         this.dialogueText = text
         this.position = position || DialoguePosition.CENTER
@@ -98,7 +101,7 @@ export class DialogueTextBox {
     }
 
     private createUIObjects(
-        dialogueComponent: DialogueComponent,
+        dialogueComponent: TDialogueComponent,
         graphicsContext: GraphicsBuffer
     ) {
         let rectStyle: DialogTextBoxLayout

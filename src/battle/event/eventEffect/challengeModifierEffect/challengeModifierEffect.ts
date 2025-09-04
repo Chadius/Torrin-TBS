@@ -3,32 +3,31 @@ import {
     BattleEventEffectStateService,
 } from "../../battleEventEffectState"
 import {
+    BattleEventEffect,
     BattleEventEffectBase,
     BattleEventEffectBaseService,
-    BattleEventEffectType,
 } from "../../battleEventEffect"
 import {
-    ChallengeModifierType,
+    TChallengeModifier,
     ChallengeModifierValue,
 } from "../../../challengeModifier/challengeModifierSetting"
 
 export interface ChallengeModifierEffect
     extends BattleEventEffectState,
         BattleEventEffectBase {
-    type: BattleEventEffectType.CHALLENGE_MODIFIER
-    challengeModifierType: ChallengeModifierType
+    challengeModifierType: TChallengeModifier
     value: ChallengeModifierValue
 }
 
 export const ChallengeModifierEffectService = {
     new: (
-        challengeModifierType: ChallengeModifierType,
+        challengeModifierType: TChallengeModifier,
         value: ChallengeModifierValue
     ): ChallengeModifierEffect =>
         sanitize({
             challengeModifierType,
             value,
-            type: BattleEventEffectType.CHALLENGE_MODIFIER,
+            type: BattleEventEffect.CHALLENGE_MODIFIER,
             alreadyAppliedEffect: false,
         }),
     sanitize: (challengeModifierEffect: ChallengeModifierEffect) =>

@@ -25,10 +25,7 @@ import {
     Trait,
     TraitStatusStorageService,
 } from "../../../../../trait/traitStatusStorage"
-import {
-    DamageType,
-    HealingType,
-} from "../../../../../squaddie/squaddieService"
+import { Damage, Healing } from "../../../../../squaddie/squaddieService"
 
 import { GraphicsBuffer } from "../../../../../utils/graphics/graphicsRenderer"
 import {
@@ -71,10 +68,10 @@ import {
 } from "../../../../../squaddie/attribute/attributeModifier"
 import { InBattleAttributesService } from "../../../../stats/inBattleAttributes"
 import {
-    RollModifierType,
+    RollModifierEnum,
     RollResultService,
 } from "../../../../calculator/actionCalculator/rollResult"
-import { AttributeType } from "../../../../../squaddie/attribute/attributeType"
+import { Attribute } from "../../../../../squaddie/attribute/attribute"
 import { BattleActionRecorderService } from "../../../../history/battleAction/battleActionRecorder"
 import { RandomNumberGenerator } from "../../../../numberGenerator/random"
 
@@ -99,7 +96,7 @@ describe("Action Preview Tile", () => {
                         [Trait.ATTACK]: true,
                     }),
                     damageDescriptions: {
-                        [DamageType.BODY]: 2,
+                        [Damage.BODY]: 2,
                     },
                     squaddieAffiliationRelation: {
                         [TargetBySquaddieAffiliationRelation.TARGET_FOE]: true,
@@ -519,7 +516,7 @@ describe("Action Preview Tile", () => {
                                 }
                             ),
                             healingDescriptions: {
-                                [HealingType.LOST_HIT_POINTS]: 2,
+                                [Healing.LOST_HIT_POINTS]: 2,
                             },
                         }),
                     ],
@@ -540,7 +537,7 @@ describe("Action Preview Tile", () => {
                             },
                             attributeModifiers: [
                                 AttributeModifierService.new({
-                                    type: AttributeType.ARMOR,
+                                    type: Attribute.ARMOR,
                                     source: AttributeSource.CIRCUMSTANCE,
                                     amount: 1,
                                 }),
@@ -718,7 +715,7 @@ describe("Action Preview Tile", () => {
                         attributesAfter: InBattleAttributesService.new({
                             attributeModifiers: [
                                 AttributeModifierService.new({
-                                    type: AttributeType.ARMOR,
+                                    type: Attribute.ARMOR,
                                     source: AttributeSource.ELEMENTAL,
                                     amount: 1,
                                 }),
@@ -749,7 +746,7 @@ describe("Action Preview Tile", () => {
                         attributesBefore: InBattleAttributesService.new({
                             attributeModifiers: [
                                 AttributeModifierService.new({
-                                    type: AttributeType.ARMOR,
+                                    type: Attribute.ARMOR,
                                     source: AttributeSource.MARTIAL,
                                     amount: 1,
                                 }),
@@ -758,7 +755,7 @@ describe("Action Preview Tile", () => {
                         attributesAfter: InBattleAttributesService.new({
                             attributeModifiers: [
                                 AttributeModifierService.new({
-                                    type: AttributeType.ARMOR,
+                                    type: Attribute.ARMOR,
                                     source: AttributeSource.MARTIAL,
                                     amount: 1,
                                 }),
@@ -833,7 +830,7 @@ describe("Action Preview Tile", () => {
                             },
                             attributeModifiers: [
                                 AttributeModifierService.new({
-                                    type: AttributeType.ELUSIVE,
+                                    type: Attribute.ELUSIVE,
                                     amount: 2,
                                     duration: 1,
                                     source: AttributeSource.SPIRITUAL,
@@ -873,7 +870,7 @@ describe("Action Preview Tile", () => {
                                                 attributeModifiers: [
                                                     AttributeModifierService.new(
                                                         {
-                                                            type: AttributeType.ELUSIVE,
+                                                            type: Attribute.ELUSIVE,
                                                             amount: 1,
                                                             duration: 1,
                                                             source: AttributeSource.SPIRITUAL,
@@ -913,7 +910,7 @@ describe("Action Preview Tile", () => {
                             },
                             attributeModifiers: [
                                 AttributeModifierService.new({
-                                    type: AttributeType.ABSORB,
+                                    type: Attribute.ABSORB,
                                     amount: 2,
                                     duration: 1,
                                     source: AttributeSource.ELEMENTAL,
@@ -953,7 +950,7 @@ describe("Action Preview Tile", () => {
                                                 attributeModifiers: [
                                                     AttributeModifierService.new(
                                                         {
-                                                            type: AttributeType.ABSORB,
+                                                            type: Attribute.ABSORB,
                                                             amount: 2,
                                                             duration: 1,
                                                             source: AttributeSource.ELEMENTAL,
@@ -1060,21 +1057,21 @@ describe("Action Preview Tile", () => {
                                             actingSquaddieRoll:
                                                 RollResultService.new({
                                                     rollModifiers: {
-                                                        [RollModifierType.MULTIPLE_ATTACK_PENALTY]:
+                                                        [RollModifierEnum.MULTIPLE_ATTACK_PENALTY]:
                                                             -3,
-                                                        [RollModifierType.PROFICIENCY]: 2,
+                                                        [RollModifierEnum.PROFICIENCY]: 2,
                                                     },
                                                 }),
                                             targetSquaddieModifiers: {
                                                 enemy_0: [
                                                     {
-                                                        type: AttributeType.ABSORB,
+                                                        type: Attribute.ABSORB,
                                                         amount: 1,
                                                     },
                                                 ],
                                                 enemy_1: [
                                                     {
-                                                        type: AttributeType.ABSORB,
+                                                        type: Attribute.ABSORB,
                                                         amount: 9001,
                                                     },
                                                 ],

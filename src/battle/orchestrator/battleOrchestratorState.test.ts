@@ -2,6 +2,7 @@ import {
     BattleOrchestratorState,
     BattleOrchestratorStateService,
     BattleOrchestratorStateValidityReason,
+    TBattleOrchestratorStateValidityReason,
 } from "./battleOrchestratorState"
 import { SquaddieAffiliation } from "../../squaddie/squaddieAffiliation"
 import { NullMissionMap } from "../../utils/test/battleOrchestratorState"
@@ -59,7 +60,7 @@ describe("orchestratorState", () => {
         const validityCheck = (
             args: any,
             isValid: boolean,
-            reasons: BattleOrchestratorStateValidityReason[]
+            reasons: TBattleOrchestratorStateValidityReason[]
         ) => {
             const state: BattleOrchestratorState = new BattleOrchestratorState(
                 args

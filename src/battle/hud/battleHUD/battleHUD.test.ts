@@ -5,7 +5,10 @@ import {
     MessageBoardMessagePlayerControlledSquaddieNeedsNextAction,
     MessageBoardMessageType,
 } from "../../../message/messageBoardMessage"
-import { BattlePhase } from "../../orchestratorComponents/battlePhaseTracker"
+import {
+    BattlePhase,
+    TBattlePhase,
+} from "../../orchestratorComponents/battlePhaseTracker"
 import {
     GameEngineState,
     GameEngineStateService,
@@ -23,7 +26,10 @@ import {
     SquaddieTemplateService,
 } from "../../../campaign/squaddieTemplate"
 import { SquaddieIdService } from "../../../squaddie/id"
-import { SquaddieAffiliation } from "../../../squaddie/squaddieAffiliation"
+import {
+    SquaddieAffiliation,
+    TSquaddieAffiliation,
+} from "../../../squaddie/squaddieAffiliation"
 import { BattleSquaddie, BattleSquaddieService } from "../../battleSquaddie"
 import {
     ObjectRepository,
@@ -73,8 +79,8 @@ import {
 } from "../../../squaddie/turn"
 import { SquaddieMovementService } from "../../../squaddie/movement"
 import {
-    DamageType,
-    HealingType,
+    Damage,
+    Healing,
     SquaddieService,
 } from "../../../squaddie/squaddieService"
 import { getResultOrThrowError } from "../../../utils/ResultOrError"
@@ -113,7 +119,7 @@ import {
     AttributeModifierService,
     AttributeSource,
 } from "../../../squaddie/attribute/attributeModifier"
-import { AttributeType } from "../../../squaddie/attribute/attributeType"
+import { Attribute } from "../../../squaddie/attribute/attribute"
 import { SquaddieSelectorPanelService } from "../playerActionPanel/squaddieSelectorPanel/squaddieSelectorPanel"
 import { PlayerConsideredActionsService } from "../../battleState/playerConsideredActions"
 import { ButtonStatus } from "../../../ui/button/buttonStatus"
@@ -176,7 +182,7 @@ describe("Battle HUD", () => {
                         [Trait.ATTACK]: true,
                     }),
                     damageDescriptions: {
-                        [DamageType.BODY]: 2,
+                        [Damage.BODY]: 2,
                     },
                 }),
             ],
@@ -199,13 +205,13 @@ describe("Battle HUD", () => {
                     }),
                     attributeModifiers: [
                         AttributeModifierService.new({
-                            type: AttributeType.ARMOR,
+                            type: Attribute.ARMOR,
                             amount: 1,
                             source: AttributeSource.CIRCUMSTANCE,
                         }),
                     ],
                     healingDescriptions: {
-                        [HealingType.LOST_HIT_POINTS]: 1,
+                        [Healing.LOST_HIT_POINTS]: 1,
                     },
                 }),
             ],
@@ -401,8 +407,8 @@ describe("Battle HUD", () => {
             battlePhase,
         }: {
             missionMap: MissionMap
-            teamAffiliation: SquaddieAffiliation
-            battlePhase: BattlePhase
+            teamAffiliation: TSquaddieAffiliation
+            battlePhase: TBattlePhase
             repository: ObjectRepository
         }): {
             gameEngineState: GameEngineState
@@ -1599,7 +1605,7 @@ describe("Battle HUD", () => {
                             [Trait.ATTACK]: true,
                         }),
                         damageDescriptions: {
-                            [DamageType.BODY]: 1,
+                            [Damage.BODY]: 1,
                         },
                     }),
                     ActionEffectTemplateService.new({
@@ -1608,7 +1614,7 @@ describe("Battle HUD", () => {
                             [Trait.ATTACK]: true,
                         }),
                         damageDescriptions: {
-                            [DamageType.BODY]: 2,
+                            [Damage.BODY]: 2,
                         },
                     }),
                 ],

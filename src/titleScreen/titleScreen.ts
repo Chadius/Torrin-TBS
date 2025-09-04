@@ -21,6 +21,7 @@ import { GraphicsBuffer } from "../utils/graphics/graphicsRenderer"
 import { ImageUI } from "../ui/imageUI/imageUI"
 import {
     PlayerInputAction,
+    TPlayerInputAction,
     PlayerInputStateService,
 } from "../ui/playerInput/playerInputState"
 import { DataBlob, DataBlobService } from "../utils/dataBlob/dataBlob"
@@ -86,11 +87,15 @@ const EXTERNAL_LINK_ITCH_IO_IMAGE_PATH =
     "assets/externalLinks/itchIo-app-icon.png"
 const EXTERNAL_LINK_ITCH_IO_HTML = `<div style="display: flex; flex-direction: row; border: hotpink 2px solid; border-radius: 8px; background-color: lightpink; padding: 8px"><img src=${EXTERNAL_LINK_ITCH_IO_IMAGE_PATH} alt="Button to add game to itch.io collection" height="50"/><span style="padding-left: 8px; align-self: center">Add to Collection</span></div>`
 
-export enum TitleScreenMenuSelection {
-    NONE = "NONE",
-    NEW_GAME = "NEW_GAME",
-    CONTINUE_GAME = "CONTINUE_GAME",
-}
+export const TitleScreenMenuSelection = {
+    NONE: "NONE",
+    NEW_GAME: "NEW_GAME",
+    CONTINUE_GAME: "CONTINUE_GAME",
+} as const satisfies Record<string, string>
+
+export type TTitleScreenMenuSelection = EnumLike<
+    typeof TitleScreenMenuSelection
+>
 
 export interface TitleScreenLayout {
     colors: {
@@ -219,7 +224,7 @@ export interface TitleScreenLayout {
 
 export interface TitleScreenContext {
     errorDuringLoadingDisplayStartTimestamp: number
-    menuSelection: TitleScreenMenuSelection
+    menuSelection: TTitleScreenMenuSelection
     version: string
     fileState: FileState
     messageBoard: MessageBoard
@@ -442,7 +447,7 @@ export class TitleScreen implements GameEngineComponent {
     }
 
     keyPressed(gameEngineState: GameEngineState, keyCode: number): void {
-        const actions: PlayerInputAction[] =
+        const actions: TPlayerInputAction[] =
             PlayerInputStateService.getActionsForPressedKey(
                 gameEngineState.playerInputState,
                 keyCode

@@ -1,25 +1,26 @@
 import { DegreeOfSuccessExplanation } from "./calculator"
-import { DegreeOfSuccess } from "./degreeOfSuccess"
+import { DegreeOfSuccess, TDegreeOfSuccess } from "./degreeOfSuccess"
 import { TextFormatService } from "../../../utils/graphics/textFormatService"
 
 export const DIE_SIZE = 6
 
-export enum RollModifierType {
-    MULTIPLE_ATTACK_PENALTY = "MULTIPLE_ATTACK_PENALTY",
-    PROFICIENCY = "PROFICIENCY",
-}
+export const RollModifierEnum = {
+    MULTIPLE_ATTACK_PENALTY: "MULTIPLE_ATTACK_PENALTY",
+    PROFICIENCY: "PROFICIENCY",
+} as const satisfies Record<string, string>
+export type TRollModifier = EnumLike<typeof RollModifierEnum>
 
 export const RollModifierTypeService = {
     readableName: ({
         type,
         abbreviate,
     }: {
-        type: RollModifierType
+        type: TRollModifier
         abbreviate?: boolean
     }): string => {
         if (abbreviate) {
-            if (type === RollModifierType.MULTIPLE_ATTACK_PENALTY) return "MAP"
-            if (type === RollModifierType.PROFICIENCY) return "Prof"
+            if (type === RollModifierEnum.MULTIPLE_ATTACK_PENALTY) return "MAP"
+            if (type === RollModifierEnum.PROFICIENCY) return "Prof"
         }
         return `${TextFormatService.titleCase(type).replaceAll("_", " ")}`
     },
@@ -29,7 +30,7 @@ export interface RollResult {
     occurred: boolean
     rolls: number[]
     rollModifiers: {
-        [t in RollModifierType]?: number
+        [t in TRollModifier]?: number
     }
 }
 
@@ -48,7 +49,7 @@ export const RollResultService = {
         rolls?: number[]
         occurred?: boolean
         rollModifiers?: {
-            [t in RollModifierType]?: number
+            [t in TRollModifier]?: number
         }
     }): RollResult => {
         return sanitize({
@@ -66,14 +67,14 @@ export const RollResultService = {
     totalAttackRoll: (rollResult: RollResult) => totalAttackRoll(rollResult),
     getPossibleDegreesOfSuccessBasedOnBonus: (
         successBonus: number
-    ): DegreeOfSuccess[] => {
+    ): TDegreeOfSuccess[] => {
         return Object.entries(
             calculateChanceOfDegreeOfSuccessBasedOnSuccessBonus(successBonus)
         )
             .filter(([_, chance]) => chance > 0)
             .map(
                 ([degreeOfSuccessStr, _]) =>
-                    degreeOfSuccessStr as DegreeOfSuccess
+                    degreeOfSuccessStr as TDegreeOfSuccess
             )
     },
     calculateChanceOfDegreeOfSuccessBasedOnSuccessBonus: (

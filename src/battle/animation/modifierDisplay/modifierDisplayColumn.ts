@@ -11,10 +11,13 @@ export type ModifierDisplayColumnData = {
     description: string
 }
 
-export enum ModifierDisplayColumnPosition {
-    LEFT = "LEFT",
-    RIGHT = "RIGHT",
-}
+export const ModifierDisplayColumnPosition = {
+    LEFT: "LEFT",
+    RIGHT: "RIGHT",
+} as const satisfies Record<string, string>
+export type TModifierDisplayColumnPosition = EnumLike<
+    typeof ModifierDisplayColumnPosition
+>
 
 const ModifierDisplayDataLayout = {
     fontSize: 16,
@@ -58,7 +61,7 @@ export const ModifierDisplayColumnService = {
     }: {
         modifiers: ModifierDisplayColumnData[]
         sortOrderLeastToGreatest: boolean
-        position: ModifierDisplayColumnPosition
+        position: TModifierDisplayColumnPosition
     }): ModifierDisplayColumn => {
         const modifiersThatCanBeSorted = modifiers
             .filter(
@@ -121,7 +124,7 @@ const createLabel = ({
 }: {
     modifier: ModifierDisplayColumnData
     index: number
-    position: ModifierDisplayColumnPosition
+    position: TModifierDisplayColumnPosition
 }): Label => {
     let fontColor = ModifierDisplayDataLayout.fontColorBasedOnValue.neutral
     switch (true) {

@@ -9,14 +9,16 @@ import {
 import { CutsceneActionPlayerType } from "./cutsceneAction"
 import {
     HORIZONTAL_ALIGN,
+    HORIZONTAL_ALIGN_TYPE,
     VERTICAL_ALIGN,
+    VERTICAL_ALIGN_TYPE,
     WINDOW_SPACING,
 } from "../ui/constants"
 import { RectArea, RectAreaService } from "../ui/rectArea"
 import {
     ResourceHandler,
     ResourceLocator,
-    ResourceType,
+    Resource,
 } from "../resource/resourceHandler"
 import { TextSubstitutionContext } from "../textSubstitution/textSubstitution"
 import { Dialogue, DialogueService } from "./dialogue/dialogue"
@@ -31,6 +33,7 @@ import p5 from "p5"
 import { GraphicsBuffer } from "../utils/graphics/graphicsRenderer"
 import {
     PlayerInputAction,
+    TPlayerInputAction,
     PlayerInputState,
     PlayerInputStateService,
 } from "../ui/playerInput/playerInputState"
@@ -68,8 +71,8 @@ export interface CutsceneLayout {
             strokeColor: number[]
             strokeWeight: number
             textBoxMargin: number
-            horizAlign: HORIZONTAL_ALIGN
-            vertAlign: VERTICAL_ALIGN
+            horizAlign: HORIZONTAL_ALIGN_TYPE
+            vertAlign: VERTICAL_ALIGN_TYPE
             hover: {
                 strokeColor: number[]
                 strokeWeight: number
@@ -86,8 +89,8 @@ export interface CutsceneLayout {
             strokeColor: number[]
             strokeWeight: number
             textBoxMargin: number
-            horizAlign: HORIZONTAL_ALIGN
-            vertAlign: VERTICAL_ALIGN
+            horizAlign: HORIZONTAL_ALIGN_TYPE
+            vertAlign: VERTICAL_ALIGN_TYPE
             hover: {
                 strokeColor: number[]
                 strokeWeight: number
@@ -157,37 +160,33 @@ export const CutsceneService = {
         }
 
         cutscene.directions = cutscene.directions.map((rawDirection) => {
-            switch (rawDirection.type) {
-                case CutsceneActionPlayerType.DIALOGUE:
-                    return DialogueService.new({ ...rawDirection })
-                case CutsceneActionPlayerType.SPLASH_SCREEN:
-                    return SplashScreenService.new({ ...rawDirection })
-                default:
-                    throw new Error(
-                        `CutsceneService.new: unknown direction type: ${rawDirection}`
-                    )
+            if (isDialogue(rawDirection)) {
+                return DialogueService.new({ ...rawDirection })
             }
+            if (isSplashScreen(rawDirection)) {
+                return SplashScreenService.new({ ...rawDirection })
+            }
+            throw new Error(
+                `CutsceneService.new: unknown direction type: ${rawDirection}`
+            )
         })
 
         cutscene.directions.forEach((direction) => {
-            switch (direction.type) {
-                case CutsceneActionPlayerType.DIALOGUE:
-                    cutscene.cutscenePlayerStateById[direction.id] =
-                        DialoguePlayerService.new({
-                            dialogue: direction,
-                        })
-                    break
-                case CutsceneActionPlayerType.SPLASH_SCREEN:
-                    cutscene.cutscenePlayerStateById[direction.id] =
-                        SplashScreenPlayerService.new({
-                            splashScreen: direction,
-                        })
-                    break
-                default:
-                    throw new Error(
-                        `CutsceneService.new: unknown direction type: ${direction}`
-                    )
+            if (isDialogue(direction)) {
+                return (cutscene.cutscenePlayerStateById[direction.id] =
+                    DialoguePlayerService.new({
+                        dialogue: direction,
+                    }))
             }
+            if (isSplashScreen(direction)) {
+                return (cutscene.cutscenePlayerStateById[direction.id] =
+                    SplashScreenPlayerService.new({
+                        splashScreen: direction,
+                    }))
+            }
+            throw new Error(
+                `CutsceneService.new: unknown direction type: ${direction}`
+            )
         })
 
         cutscene.uiData.setContext({
@@ -289,7 +288,7 @@ export const CutsceneService = {
         context: TextSubstitutionContext
         playerInputState: PlayerInputState
     }): void {
-        const actions: PlayerInputAction[] =
+        const actions: TPlayerInputAction[] =
             PlayerInputStateService.getActionsForPressedKey(
                 playerInputState,
                 event.keyCode
@@ -416,19 +415,16 @@ export const CutsceneService = {
                 direction
             )
 
-            switch (direction.type) {
-                case CutsceneActionPlayerType.DIALOGUE:
-                    cutscene.cutscenePlayerStateById[direction.id] =
-                        DialoguePlayerService.new({
-                            dialogue: direction,
-                        })
-                    break
-                case CutsceneActionPlayerType.SPLASH_SCREEN:
-                    cutscene.cutscenePlayerStateById[direction.id] =
-                        SplashScreenPlayerService.new({
-                            splashScreen: direction,
-                        })
-                    break
+            if (isDialogue(direction)) {
+                cutscene.cutscenePlayerStateById[direction.id] =
+                    DialoguePlayerService.new({
+                        dialogue: direction,
+                    })
+            } else if (isSplashScreen(direction)) {
+                cutscene.cutscenePlayerStateById[direction.id] =
+                    SplashScreenPlayerService.new({
+                        splashScreen: direction,
+                    })
             }
 
             resourceLocators.forEach((locator) => {
@@ -436,7 +432,7 @@ export const CutsceneService = {
                     return
                 }
 
-                if (locator.type === ResourceType.IMAGE) {
+                if (locator.type === Resource.IMAGE) {
                     let foundImage: p5.Image = resourceHandler.getResource(
                         locator.key
                     )
@@ -510,19 +506,7 @@ export const CutsceneService = {
     isFastForward: (cutscene: Cutscene): boolean => {
         return isFastForward(cutscene)
     },
-    canFastForward: (cutscene: Cutscene): boolean => {
-        if (getNextCutsceneDirection(cutscene).nextDirection === undefined) {
-            return false
-        }
-
-        if (
-            cutscene.currentDirection.type !== CutsceneActionPlayerType.DIALOGUE
-        ) {
-            return true
-        }
-
-        return !DialogueService.asksUserForAnAnswer(cutscene.currentDirection)
-    },
+    canFastForward: (cutscene: Cutscene): boolean => canFastForward(cutscene),
 }
 
 const hasLoaded = (
@@ -569,11 +553,11 @@ const canFastForward = (cutscene: Cutscene): boolean => {
         return false
     }
 
-    if (cutscene.currentDirection.type !== CutsceneActionPlayerType.DIALOGUE) {
-        return true
+    if (isDialogue(cutscene.currentDirection)) {
+        return !DialogueService.asksUserForAnAnswer(cutscene.currentDirection)
     }
 
-    return !DialogueService.asksUserForAnAnswer(cutscene.currentDirection)
+    return true
 }
 
 const getNextCutsceneDirection = (
@@ -641,14 +625,13 @@ const getResourceLocators = (
     _cutscene: Cutscene,
     direction: CutsceneDirection
 ): ResourceLocator[] => {
-    switch (direction.type) {
-        case CutsceneActionPlayerType.DIALOGUE:
-            return DialogueService.getResourceLocators(direction)
-        case CutsceneActionPlayerType.SPLASH_SCREEN:
-            return SplashScreenService.getResourceLocators(direction)
-        default:
-            throw new Error(`Unknown cutscene direction type ${direction}`)
+    if (isDialogue(direction)) {
+        return DialogueService.getResourceLocators(direction)
     }
+    if (isSplashScreen(direction)) {
+        return SplashScreenService.getResourceLocators(direction)
+    }
+    throw new Error(`Unknown cutscene direction type ${direction}`)
 }
 
 const toggleFastForwardAndUpdateFFButton = (cutscene: Cutscene) => {
@@ -861,4 +844,16 @@ const createLayout = (cutscene: Cutscene) => {
             },
         },
     })
+}
+
+const isDialogue = (
+    cutsceneDirection: CutsceneDirection
+): cutsceneDirection is Dialogue => {
+    return cutsceneDirection.type === CutsceneActionPlayerType.DIALOGUE
+}
+
+const isSplashScreen = (
+    cutsceneDirection: CutsceneDirection
+): cutsceneDirection is SplashScreen => {
+    return cutsceneDirection.type === CutsceneActionPlayerType.SPLASH_SCREEN
 }

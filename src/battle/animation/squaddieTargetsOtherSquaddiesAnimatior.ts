@@ -4,7 +4,10 @@ import {
     OrchestratorComponentMouseEvent,
     OrchestratorComponentMouseEventType,
 } from "../orchestrator/battleOrchestratorComponent"
-import { ActionAnimationPhase } from "./actionAnimation/actionAnimationConstants"
+import {
+    ActionAnimationPhase,
+    TActionAnimationPhase,
+} from "./actionAnimation/actionAnimationConstants"
 import { ActionTimer } from "./actionAnimation/actionTimer"
 import { ActorTextWindow } from "./actionAnimation/actorTextWindow"
 import { WeaponIcon } from "./actionAnimation/weaponIcon"
@@ -40,14 +43,15 @@ import {
     ModifierDisplayColumn,
     ModifierDisplayColumnData,
     ModifierDisplayColumnPosition,
+    TModifierDisplayColumnPosition,
     ModifierDisplayColumnService,
 } from "./modifierDisplay/modifierDisplayColumn"
 import {
     AttributeTypeAndAmount,
     AttributeTypeService,
-} from "../../squaddie/attribute/attributeType"
+} from "../../squaddie/attribute/attribute"
 import {
-    RollModifierType,
+    TRollModifier,
     RollModifierTypeService,
 } from "../calculator/actionCalculator/rollResult"
 import {
@@ -87,7 +91,7 @@ export class SquaddieTargetsOtherSquaddiesAnimator
     private _userRequestedAnimationSkip: boolean
     diceRollAnimation: DiceRollAnimation
     modifierDisplayColumns: {
-        [p in ModifierDisplayColumnPosition]: ModifierDisplayColumn
+        [p in TModifierDisplayColumnPosition]: ModifierDisplayColumn
     }
     attackRollThermometer: AttackRollThermometer
 
@@ -203,7 +207,7 @@ export class SquaddieTargetsOtherSquaddiesAnimator
             this.actionAnimationTimer.start()
         }
 
-        const phaseToShow: ActionAnimationPhase = this
+        const phaseToShow: TActionAnimationPhase = this
             ._userRequestedAnimationSkip
             ? ActionAnimationPhase.FINISHED_SHOWING_RESULTS
             : this.actionAnimationTimer.currentPhase
@@ -659,14 +663,14 @@ export class SquaddieTargetsOtherSquaddiesAnimator
 
         const convertRollModifiersToModifierDisplayColumnData =
             (rollModifiers: {
-                [t in RollModifierType]?: number
+                [t in TRollModifier]?: number
             }): ModifierDisplayColumnData[] =>
                 Object.entries(rollModifiers).map(
                     ([rollModifierType, amount]) => {
                         return {
                             amount,
                             description: RollModifierTypeService.readableName({
-                                type: rollModifierType as RollModifierType,
+                                type: rollModifierType as TRollModifier,
                                 abbreviate: false,
                             }),
                         }

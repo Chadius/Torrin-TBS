@@ -6,8 +6,9 @@ import {
 import {
     ActionTilePosition,
     ActionTilePositionService,
+    TActionTilePosition,
 } from "../actionTilePosition"
-import { SquaddieAffiliation } from "../../../../../squaddie/squaddieAffiliation"
+import { TSquaddieAffiliation } from "../../../../../squaddie/squaddieAffiliation"
 import { TextBox } from "../../../../../ui/textBox/textBox"
 import { getResultOrThrowError } from "../../../../../utils/ResultOrError"
 import {
@@ -17,12 +18,16 @@ import {
 import {
     GOLDEN_RATIO,
     HORIZONTAL_ALIGN,
+    HORIZONTAL_ALIGN_TYPE,
     WINDOW_SPACING,
 } from "../../../../../ui/constants"
 import { SquaddieTemplate } from "../../../../../campaign/squaddieTemplate"
 import { ActionCalculator } from "../../../../calculator/actionCalculator/calculator"
 import { CalculatedResult } from "../../../../history/calculatedResult"
-import { DegreeOfSuccess } from "../../../../calculator/actionCalculator/degreeOfSuccess"
+import {
+    DegreeOfSuccess,
+    TDegreeOfSuccess,
+} from "../../../../calculator/actionCalculator/degreeOfSuccess"
 import { BehaviorTreeTask } from "../../../../../utils/behaviorTree/task"
 import { SequenceComposite } from "../../../../../utils/behaviorTree/composite/sequence/sequence"
 import { InverterDecorator } from "../../../../../utils/behaviorTree/decorator/inverter/inverter"
@@ -60,11 +65,15 @@ const actionPreviewTileWidth = ScreenDimensions.SCREEN_WIDTH / 6
 const shortWidth = ScreenDimensions.SCREEN_WIDTH / 6 / (GOLDEN_RATIO + 1)
 const longWidth = ScreenDimensions.SCREEN_WIDTH / 6 / GOLDEN_RATIO
 
-export enum ShowDegreeOfSuccessEvenIfNoEffect {
-    YES = "YES",
-    NO = "NO",
-    IF_CRITICAL_FAILURE_DOES_NOT_EXIST = "IF_CRITICAL_FAILURE_DOES_NOT_EXIST",
-}
+export const ShowDegreeOfSuccessEvenIfNoEffect = {
+    YES: "YES",
+    NO: "NO",
+    IF_CRITICAL_FAILURE_DOES_NOT_EXIST: "IF_CRITICAL_FAILURE_DOES_NOT_EXIST",
+} as const satisfies Record<string, string>
+
+export type TShowDegreeOfSuccessEvenIfNoEffect = EnumLike<
+    typeof ShowDegreeOfSuccessEvenIfNoEffect
+>
 
 export interface ActionPreviewTileLayout {
     topRowOffset: number
@@ -83,9 +92,9 @@ export interface ActionPreviewTileLayout {
     degreesOfSuccess: {
         height: number
         rowOrder: {
-            degreeOfSuccess: DegreeOfSuccess
+            degreeOfSuccess: TDegreeOfSuccess
             suffix: string
-            showEvenIfNoEffect: ShowDegreeOfSuccessEvenIfNoEffect
+            showEvenIfNoEffect: TShowDegreeOfSuccessEvenIfNoEffect
             showChanceOfSuccess: boolean
         }[]
     }
@@ -101,7 +110,9 @@ export interface ActionPreviewTileLayout {
         fontColor: number[]
         margin: number[]
         bar: {
-            colorByDegreeOfSuccess: { [degree in DegreeOfSuccess]: number[] }
+            colorByDegreeOfSuccess: {
+                [degree in TDegreeOfSuccess]: number[]
+            }
             lengthPerChance: number
             horizontalOffset: number
             height: number
@@ -133,7 +144,7 @@ export interface ActionPreviewTileLayout {
             width: number
             margin: number[]
             limit: number
-            horizAlign: HORIZONTAL_ALIGN
+            horizAlign: HORIZONTAL_ALIGN_TYPE
         }
         rightColumn: {
             width: number
@@ -144,8 +155,8 @@ export interface ActionPreviewTileLayout {
 }
 
 export interface ActionPreviewTileContext {
-    horizontalPosition: ActionTilePosition.ACTION_PREVIEW
-    squaddieAffiliation: SquaddieAffiliation
+    horizontalPosition: TActionTilePosition
+    squaddieAffiliation: TSquaddieAffiliation
     forecast: CalculatedResult
     squaddieNamesByBattleSquaddieId: { [battleSquaddieId: string]: string }
     actionTemplate: ActionTemplate
@@ -156,19 +167,19 @@ export interface ActionPreviewTileUIObjects {
     graphicsContext: GraphicsBuffer
     infoTextBox: TextBox
     namesOfDegreesOfSuccessTextBoxes: {
-        degreeOfSuccess: DegreeOfSuccess
+        degreeOfSuccess: TDegreeOfSuccess
         textBox: TextBox
     }[]
     chancesOfDegreesOfSuccessTextBoxes: {
-        degreeOfSuccess: DegreeOfSuccess
+        degreeOfSuccess: TDegreeOfSuccess
         textBox: TextBox
     }[]
     chancesOfDegreesOfSuccessRectangles: {
-        degreeOfSuccess: DegreeOfSuccess
+        degreeOfSuccess: TDegreeOfSuccess
         bar: Rectangle
     }[]
     effectsOfDegreesOfSuccessTextBoxes: {
-        degreeOfSuccess: DegreeOfSuccess
+        degreeOfSuccess: TDegreeOfSuccess
         textBox: TextBox
     }[]
     targetNameTextBox: TextBox

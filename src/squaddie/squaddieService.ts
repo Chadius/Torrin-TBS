@@ -14,10 +14,11 @@ import { DamageExplanation } from "../battle/history/battleAction/battleActionSq
 import { ActionTemplateService } from "../action/template/actionTemplate"
 import { isValidValue } from "../utils/objectValidityCheck"
 import { BonusByProficiencyLevel, ProficiencyLevel } from "./armyAttributes"
-import { AttributeType } from "./attribute/attributeType"
+import { Attribute } from "./attribute/attribute"
 import {
     TargetBySquaddieAffiliationRelation,
-    VersusSquaddieResistance,
+    TTargetBySquaddieAffiliationRelation,
+    TVersusSquaddieResistance,
 } from "../action/template/actionEffectTemplate"
 import { SearchPathAdapter } from "../search/searchPathAdapter/searchPathAdapter"
 import { HexCoordinate } from "../hexMap/hexCoordinate/hexCoordinate"
@@ -66,7 +67,7 @@ export const SquaddieService = {
         squaddieTemplate: SquaddieTemplate
         battleSquaddie: BattleSquaddie
         damage: number
-        damageType: DamageType
+        damageType: TDamage
     }): DamageExplanation => {
         const clonedInBattleAttributes: InBattleAttributes =
             InBattleAttributesService.clone(battleSquaddie.inBattleAttributes)
@@ -171,7 +172,7 @@ export const SquaddieService = {
     }: {
         battleSquaddie: BattleSquaddie
         healingAmount: number
-        healingType: HealingType
+        healingType: THealing
     }): {
         healingReceived: number
     } => {
@@ -188,7 +189,7 @@ export const SquaddieService = {
     }: {
         battleSquaddie: BattleSquaddie
         healingAmount: number
-        healingType: HealingType
+        healingType: THealing
     }): {
         healingReceived: number
     } => {
@@ -269,11 +270,11 @@ export const SquaddieService = {
             battleSquaddie.inBattleAttributes
         ).reduce(
             (currentMovementAttributes, attributeModifier) => {
-                if (attributeModifier.type === AttributeType.MOVEMENT) {
+                if (attributeModifier.type === Attribute.MOVEMENT) {
                     currentMovementAttributes.net.movementPerAction +=
                         attributeModifier.amount
                 }
-                if (attributeModifier.type === AttributeType.HUSTLE)
+                if (attributeModifier.type === Attribute.HUSTLE)
                     currentMovementAttributes.net.ignoreTerrainCost = true
                 return currentMovementAttributes
             },
@@ -306,7 +307,7 @@ export const SquaddieService = {
         versusSquaddieResistance,
     }: {
         squaddieTemplate: SquaddieTemplate
-        versusSquaddieResistance: VersusSquaddieResistance
+        versusSquaddieResistance: TVersusSquaddieResistance
     }): SquaddieVersusSquaddieResistanceExplanation => {
         const proficiencyLevel =
             squaddieTemplate.attributes.versusProficiencyLevels[
@@ -369,17 +370,19 @@ const getHitPoints = ({
     }
 }
 
-export enum DamageType {
-    UNKNOWN = "UNKNOWN",
-    BODY = "BODY",
-    MIND = "MIND",
-    SOUL = "SOUL",
-}
+export const Damage = {
+    UNKNOWN: "UNKNOWN",
+    BODY: "BODY",
+    MIND: "MIND",
+    SOUL: "SOUL",
+} as const satisfies Record<string, string>
+export type TDamage = EnumLike<typeof Damage>
 
-export enum HealingType {
-    UNKNOWN = "UNKNOWN",
-    LOST_HIT_POINTS = "LOST_HIT_POINTS",
-}
+export const Healing = {
+    UNKNOWN: "UNKNOWN",
+    LOST_HIT_POINTS: "LOST_HIT_POINTS",
+} as const satisfies Record<string, string>
+export type THealing = EnumLike<typeof Healing>
 
 const giveHealingToTheSquaddie = ({
     inBattleAttributes,
@@ -387,7 +390,7 @@ const giveHealingToTheSquaddie = ({
 }: {
     inBattleAttributes: InBattleAttributes
     healingAmount: number
-    healingType: HealingType
+    healingType: THealing
 }): {
     healingReceived: number
 } => {
@@ -485,10 +488,7 @@ const getActionsBasedOnTargetType = ({
 }: {
     squaddieTemplate: SquaddieTemplate
     objectRepository: ObjectRepository
-    targetBySquaddieAffiliationRelation:
-        | TargetBySquaddieAffiliationRelation.TARGET_SELF
-        | TargetBySquaddieAffiliationRelation.TARGET_ALLY
-        | TargetBySquaddieAffiliationRelation.TARGET_FOE
+    targetBySquaddieAffiliationRelation: TTargetBySquaddieAffiliationRelation
 }): string[] => {
     return squaddieTemplate.actionTemplateIds.filter((actionTemplateId) => {
         const actionTemplate = ObjectRepositoryService.getActionTemplateById(

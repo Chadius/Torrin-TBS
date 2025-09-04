@@ -121,7 +121,7 @@ describe("PopUp", () => {
         ]
         it.each(tests)(
             `$name will always be drawn`,
-            ({ name, worldX, worldY, expectation }) => {
+            ({ worldX, worldY, expectation }) => {
                 popup = PopupWindowService.new({
                     label: LabelService.new({
                         textBoxMargin: 0,

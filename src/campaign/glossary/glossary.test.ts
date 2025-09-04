@@ -1,8 +1,8 @@
 import { beforeEach, describe, expect, it } from "vitest"
 import {
-    AttributeType,
+    Attribute,
     AttributeTypeService,
-} from "../../squaddie/attribute/attributeType"
+} from "../../squaddie/attribute/attribute"
 import { Glossary, GlossaryTerm } from "./glossary"
 import {
     ActionTemplate,
@@ -29,7 +29,7 @@ describe("glossary", () => {
     it("will have all attribute types as glossary terms", () => {
         let glossary = new Glossary()
         expect(
-            Object.values(AttributeType).every((attributeType) =>
+            Object.values(Attribute).every((attributeType) =>
                 glossary.hasAttributeTypeTerm(attributeType)
             )
         ).toBe(true)
@@ -37,7 +37,7 @@ describe("glossary", () => {
     it("can get a definition and icon for a given Attribute Type", () => {
         let glossary = new Glossary()
         const armorModifier = AttributeModifierService.new({
-            type: AttributeType.ARMOR,
+            type: Attribute.ARMOR,
             source: AttributeSource.CIRCUMSTANCE,
             amount: 1,
             duration: 2,
@@ -47,7 +47,7 @@ describe("glossary", () => {
             glossary.getGlossaryTermFromAttributeModifier(armorModifier)
         expect(glossaryTerm.iconResourceKey).toEqual(
             AttributeTypeService.getAttributeIconResourceKeyForAttributeType(
-                AttributeType.ARMOR
+                Attribute.ARMOR
             )
         )
         expect(glossaryTerm.name).toEqual("Armor +1")
@@ -104,12 +104,12 @@ describe("glossary", () => {
                         },
                         attributeModifiers: [
                             AttributeModifierService.new({
-                                type: AttributeType.ARMOR,
+                                type: Attribute.ARMOR,
                                 source: AttributeSource.CIRCUMSTANCE,
                                 amount: 1,
                             }),
                             AttributeModifierService.new({
-                                type: AttributeType.ELUSIVE,
+                                type: Attribute.ELUSIVE,
                                 source: AttributeSource.SPIRITUAL,
                                 amount: 1,
                                 duration: 1,
@@ -133,14 +133,14 @@ describe("glossary", () => {
             expect.arrayContaining([
                 glossary.getGlossaryTermFromAttributeModifier(
                     AttributeModifierService.new({
-                        type: AttributeType.ARMOR,
+                        type: Attribute.ARMOR,
                         source: AttributeSource.CIRCUMSTANCE,
                         amount: 1,
                     })
                 ),
                 glossary.getGlossaryTermFromAttributeModifier(
                     AttributeModifierService.new({
-                        type: AttributeType.ELUSIVE,
+                        type: Attribute.ELUSIVE,
                         source: AttributeSource.SPIRITUAL,
                         amount: 1,
                         duration: 1,
@@ -176,7 +176,7 @@ describe("glossary", () => {
                         },
                         attributeModifiers: [
                             AttributeModifierService.new({
-                                type: AttributeType.MOVEMENT,
+                                type: Attribute.MOVEMENT,
                                 source: AttributeSource.CIRCUMSTANCE,
                                 amount: 1,
                             }),
@@ -199,7 +199,7 @@ describe("glossary", () => {
             expect.arrayContaining([
                 glossary.getGlossaryTermFromAttributeModifier(
                     AttributeModifierService.new({
-                        type: AttributeType.MOVEMENT,
+                        type: Attribute.MOVEMENT,
                         source: AttributeSource.CIRCUMSTANCE,
                         amount: 1,
                     })
@@ -242,14 +242,14 @@ describe("glossary", () => {
 
         it("returns glossary terms for multiple active attribute modifiers", () => {
             const armorModifier = AttributeModifierService.new({
-                type: AttributeType.ARMOR,
+                type: Attribute.ARMOR,
                 source: AttributeSource.CIRCUMSTANCE,
                 amount: 2,
                 duration: 3,
             })
 
             const movementModifier = AttributeModifierService.new({
-                type: AttributeType.MOVEMENT,
+                type: Attribute.MOVEMENT,
                 source: AttributeSource.MARTIAL,
                 amount: 1,
                 numberOfUses: 2,
@@ -280,14 +280,14 @@ describe("glossary", () => {
 
         it("returns glossary terms for binary attribute modifiers", () => {
             const hustleModifier = AttributeModifierService.new({
-                type: AttributeType.HUSTLE,
+                type: Attribute.HUSTLE,
                 source: AttributeSource.SPIRITUAL,
                 amount: 1,
                 duration: 2,
             })
 
             const elusiveModifier = AttributeModifierService.new({
-                type: AttributeType.ELUSIVE,
+                type: Attribute.ELUSIVE,
                 source: AttributeSource.CIRCUMSTANCE,
                 amount: 1,
                 numberOfUses: 1,
@@ -318,21 +318,21 @@ describe("glossary", () => {
 
         it("filters out inactive modifiers and returns only active ones", () => {
             const activeModifier = AttributeModifierService.new({
-                type: AttributeType.ARMOR,
+                type: Attribute.ARMOR,
                 source: AttributeSource.CIRCUMSTANCE,
                 amount: 2,
                 duration: 3,
             })
 
             const expiredModifier = AttributeModifierService.new({
-                type: AttributeType.MOVEMENT,
+                type: Attribute.MOVEMENT,
                 source: AttributeSource.SPIRITUAL,
                 amount: 1,
                 duration: 0,
             })
 
             const usedUpModifier = AttributeModifierService.new({
-                type: AttributeType.ABSORB,
+                type: Attribute.ABSORB,
                 source: AttributeSource.MARTIAL,
                 amount: 5,
                 numberOfUses: 0,

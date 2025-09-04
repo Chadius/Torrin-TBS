@@ -3,7 +3,7 @@ import { GraphicsBuffer } from "../../../utils/graphics/graphicsRenderer"
 import { BehaviorTreeTask } from "../../../utils/behaviorTree/task"
 import { RectArea, RectAreaService } from "../../../ui/rectArea"
 import {
-    PULSE_COLOR_FORMULA_TYPE,
+    PULSE_COLOR_FORMULA,
     PulseColorService,
 } from "../../../hexMap/pulseColor"
 
@@ -201,7 +201,7 @@ export class DrawHorizontalMeterAction implements BehaviorTreeTask {
                     high: this.currentValueFillAlphaRange[1],
                 },
                 periodInMilliseconds: this.currentValueFillAlphaPeriod,
-                formula: PULSE_COLOR_FORMULA_TYPE.SINE,
+                formula: PULSE_COLOR_FORMULA.SINE,
             })
             this.graphicsContext.fill(
                 this.currentValueFillColor[0],
@@ -325,7 +325,7 @@ export class DrawHorizontalMeterAction implements BehaviorTreeTask {
                 high: this.highlightedValueFillAlphaRange[1],
             },
             periodInMilliseconds: this.highlightedValueFillAlphaPeriod,
-            formula: PULSE_COLOR_FORMULA_TYPE.SINE,
+            formula: PULSE_COLOR_FORMULA.SINE,
         })
 
         this.graphicsContext.fill(

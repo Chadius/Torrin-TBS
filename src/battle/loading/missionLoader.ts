@@ -14,7 +14,10 @@ import {
     MissionCutsceneCollection,
     MissionCutsceneCollectionHelper,
 } from "../orchestrator/missionCutsceneCollection"
-import { SquaddieAffiliation } from "../../squaddie/squaddieAffiliation"
+import {
+    SquaddieAffiliation,
+    TSquaddieAffiliation,
+} from "../../squaddie/squaddieAffiliation"
 import { BattleSquaddieTeam } from "../battleSquaddieTeam"
 import { TeamStrategy } from "../teamStrategy/teamStrategy"
 import { ObjectRepository, ObjectRepositoryService } from "../objectRepository"
@@ -66,7 +69,9 @@ export interface MissionLoaderContext {
     mapSettings: {
         camera: BattleCamera
     }
-    phaseBannersByAffiliation: { [affiliation in SquaddieAffiliation]?: string }
+    phaseBannersByAffiliation: {
+        [affiliation in TSquaddieAffiliation]?: string
+    }
 }
 
 export const MissionLoader = {
@@ -532,7 +537,7 @@ const createSquaddieTeams = ({
     missionLoaderContext: MissionLoaderContext
 }) => {
     const deploymentInfo: {
-        affiliation: SquaddieAffiliation
+        affiliation: TSquaddieAffiliation
         deployment: NpcTeamMissionDeployment
     }[] = [
         {
@@ -618,8 +623,8 @@ const loadPhaseAffiliationBanners = (
                 return
             }
 
-            const affiliation: SquaddieAffiliation =
-                affiliationKey as SquaddieAffiliation
+            const affiliation: TSquaddieAffiliation =
+                affiliationKey as TSquaddieAffiliation
             repository.uiElements.phaseBannersByAffiliation[affiliation] =
                 resourceKeyName
 

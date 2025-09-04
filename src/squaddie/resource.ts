@@ -1,9 +1,9 @@
-import { SquaddieEmotion } from "../battle/animation/actionAnimation/actionAnimationConstants"
+import { TSquaddieEmotion } from "../battle/animation/actionAnimation/actionAnimationConstants"
 import { isValidValue } from "../utils/objectValidityCheck"
 
 export interface SquaddieResource {
     mapIconResourceKey: string
-    actionSpritesByEmotion: { [key in SquaddieEmotion]?: string }
+    actionSpritesByEmotion: { [key in TSquaddieEmotion]?: string }
 }
 
 export const SquaddieResourceService = {
@@ -12,7 +12,7 @@ export const SquaddieResourceService = {
         actionSpritesByEmotion,
     }: {
         mapIconResourceKey?: string
-        actionSpritesByEmotion?: { [key in SquaddieEmotion]?: string }
+        actionSpritesByEmotion?: { [key in TSquaddieEmotion]?: string }
     }) => {
         return sanitize({
             mapIconResourceKey,

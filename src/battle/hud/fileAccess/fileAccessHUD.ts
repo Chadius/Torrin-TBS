@@ -38,12 +38,13 @@ import {
     FileAccessHUDShouldCreateSaveButton,
 } from "./saveButton"
 
-export enum FileAccessHUDMessage {
-    SAVE_SUCCESS = "Saved!",
-    SAVE_FAILED = "Save Failed",
-    LOAD_FAILED = "Load Failed",
-    SAVE_IN_PROGRESS = "Saving...",
-}
+export const FileAccessHUDMessage = {
+    SAVE_SUCCESS: "Saved!",
+    SAVE_FAILED: "Save Failed",
+    LOAD_FAILED: "Load Failed",
+    SAVE_IN_PROGRESS: "Saving...",
+} as const satisfies Record<string, string>
+export type TFileAccessHUDMessage = EnumLike<typeof FileAccessHUDMessage>
 
 type FileAccessHUDRectangleColorDescription = {
     fillColor: number[]
@@ -466,7 +467,7 @@ const calculateMessageToShow = (
     fileState: FileState,
     _fileAccessHUD: FileAccessHUD
 ): string => {
-    const messageChecks: { [key in FileAccessHUDMessage]?: boolean } = {
+    const messageChecks: { [key in TFileAccessHUDMessage]?: boolean } = {
         [FileAccessHUDMessage.SAVE_IN_PROGRESS]:
             fileState.saveSaveState.userRequestedSave &&
             fileState.saveSaveState.savingInProgress,
