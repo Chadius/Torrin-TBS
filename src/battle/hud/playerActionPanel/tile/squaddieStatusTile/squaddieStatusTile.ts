@@ -69,6 +69,7 @@ import {
     UpdateActionPointsContextAction,
     UpdateActionPointsUIObjectsAction,
 } from "./uiObjects/actionPoints"
+import { ACTION_POINT_METER_FILL_COLOR } from "../../../../../ui/colors"
 
 export interface SquaddieStatusTile {
     data: DataBlob
@@ -336,7 +337,7 @@ export const SquaddieStatusTileService = {
                 fontBrightness: 112,
                 meter: {
                     emptyColor: [0, 0, 12],
-                    currentValueFillColor: [5, 6, 69],
+                    currentValueFillColor: ACTION_POINT_METER_FILL_COLOR,
                     currentValueSegmentColor: [0, 2, 10],
                     currentValueSegmentStrokeWeight: 2,
 

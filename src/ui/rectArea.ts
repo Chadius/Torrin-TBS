@@ -289,6 +289,14 @@ export const RectAreaService = {
             bottom,
         })
     },
+    withLeft: (area: RectArea, newLeft: number): RectArea => {
+        return newRectArea({
+            left: newLeft,
+            top: area.top,
+            height: area.height,
+            width: area.width,
+        })
+    },
     withWidth: (area: RectArea, newWidth: number): RectArea => {
         return newRectArea({
             left: area.left,

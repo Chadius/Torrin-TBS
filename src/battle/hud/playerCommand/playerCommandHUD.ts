@@ -596,6 +596,16 @@ const drawActionButtons = ({
                     ) + WINDOW_SPACING.SPACING2
                 break
         }
+        if (actionButton.uiObjects.actionResourceCostDisplay) {
+            actionButton.uiObjects.actionResourceCostDisplay.drawingArea =
+                RectAreaService.withLeft(
+                    actionButton.uiObjects.actionResourceCostDisplay
+                        .drawingArea,
+                    RectAreaService.left(
+                        actionButton.uiObjects.buttonIcon.drawArea
+                    )
+                )
+        }
 
         const actionIsEnabled: boolean = actionButton.actionTemplate
             ? actionValidity[actionButton.actionTemplate.id]?.isValid

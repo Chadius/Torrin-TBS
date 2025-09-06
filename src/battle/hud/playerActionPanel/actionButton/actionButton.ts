@@ -15,6 +15,10 @@ import {
     PulseColorService,
 } from "../../../../hexMap/pulseColor"
 import { TextBox, TextBoxService } from "../../../../ui/textBox/textBox"
+import {
+    ActionResourceCostDisplay,
+    ActionResourceCostDisplayService,
+} from "../../actionResourceCostDisplay/actionResourceCostDisplay"
 
 interface ActionButtonLayout {
     creationTime: number
@@ -50,12 +54,19 @@ interface ActionButtonLayout {
         fillAlphaRange: number[]
         pulsePeriod: number
     }
+    actionResourceCostDisplay: {
+        belowButton: number
+        leftOffsetFromButton: number
+        height: number
+        bottomMargin: number
+    }
 }
 
 interface ActionButtonUIObjects {
     buttonIcon: ImageUI
     actionName: TextBox
     decorator: Rectangle
+    actionResourceCostDisplay?: ActionResourceCostDisplay
 }
 
 export interface ActionButton {
@@ -85,7 +96,15 @@ export const ActionButtonService = {
             buttonIconResourceKey: string
         }
     }): ActionButton => {
+        let actionResourceCostDisplayLayout = {
+            belowButton: WINDOW_SPACING.SPACING1 / 4,
+            leftOffsetFromButton: 1,
+            height: WINDOW_SPACING.SPACING1 / 2,
+            bottomMargin: WINDOW_SPACING.SPACING1 / 4,
+        }
+
         let actionTemplate: ActionTemplate = undefined
+        let actionResourceCostDisplay: ActionResourceCostDisplay = undefined
         let buttonIconResourceKey: string
         if (actionTemplateId) {
             actionTemplate = ObjectRepositoryService.getActionTemplateById(
@@ -93,6 +112,23 @@ export const ActionButtonService = {
                 actionTemplateId
             )
             buttonIconResourceKey = actionTemplate.buttonIconResourceKey
+            actionResourceCostDisplay = ActionResourceCostDisplayService.new({
+                objectRepository,
+                actionTemplateId,
+                drawingArea: RectAreaService.new({
+                    left:
+                        RectAreaService.left(buttonArea) +
+                        actionResourceCostDisplayLayout.leftOffsetFromButton,
+                    top:
+                        RectAreaService.bottom(buttonArea) +
+                        actionResourceCostDisplayLayout.belowButton,
+                    width:
+                        RectAreaService.width(buttonArea) -
+                        actionResourceCostDisplayLayout.leftOffsetFromButton -
+                        actionResourceCostDisplayLayout.leftOffsetFromButton,
+                    height: actionResourceCostDisplayLayout.height,
+                }),
+            })
         } else {
             buttonIconResourceKey = actionTemplateOverride.buttonIconResourceKey
         }
@@ -113,6 +149,7 @@ export const ActionButtonService = {
                 }),
                 actionName: undefined,
                 decorator: undefined,
+                actionResourceCostDisplay,
             },
             layout: {
                 creationTime: Date.now(),
@@ -148,6 +185,7 @@ export const ActionButtonService = {
                     fillAlphaRange: [192 - 8, 192 + 8],
                     pulsePeriod: 5000,
                 },
+                actionResourceCostDisplay: actionResourceCostDisplayLayout,
             },
         }
     },
@@ -204,6 +242,13 @@ export const ActionButtonService = {
                 warning,
             })
         }
+        if (actionButton.uiObjects.actionResourceCostDisplay) {
+            ActionResourceCostDisplayService.draw({
+                actionResourceCostDisplay:
+                    actionButton.uiObjects.actionResourceCostDisplay,
+                graphicsContext: graphicsBuffer,
+            })
+        }
     },
     getExpectedDrawBoundingBox: (
         actionButton: ActionButton,
@@ -213,6 +258,12 @@ export const ActionButtonService = {
             actionButton,
             graphicsContext
         )
+        const actionResourceCostDisplayHeight = actionButton.uiObjects
+            .actionResourceCostDisplay
+            ? RectAreaService.height(
+                  actionButton.uiObjects.actionResourceCostDisplay.drawingArea
+              )
+            : 0
         return RectAreaService.new({
             left: RectAreaService.left(
                 actionButton.uiObjects.buttonIcon.drawArea
@@ -229,7 +280,9 @@ export const ActionButtonService = {
             height:
                 RectAreaService.height(
                     actionButton.uiObjects.buttonIcon.drawArea
-                ) + actionNameBoundingBox.height,
+                ) +
+                actionNameBoundingBox.height +
+                actionResourceCostDisplayHeight,
         })
     },
     getActionTemplateId: (actionButton: ActionButton): string =>
@@ -280,6 +333,12 @@ const createActionNameTextBox = (
     graphicsContext: GraphicsBuffer
 ): TextBox => {
     const actionName = getActionName(actionButton)
+    const actionResourceDisplayHeight = actionButton.uiObjects
+        .actionResourceCostDisplay
+        ? RectAreaService.height(
+              actionButton.uiObjects.actionResourceCostDisplay.drawingArea
+          ) + actionButton.layout.actionResourceCostDisplay.bottomMargin
+        : 0
     return TextBoxService.new({
         area: RectAreaService.new({
             left: RectAreaService.left(
@@ -288,7 +347,9 @@ const createActionNameTextBox = (
             top:
                 RectAreaService.bottom(
                     actionButton.uiObjects.buttonIcon.drawArea
-                ) + actionButton.layout.actionName.textBoxMargin,
+                ) +
+                actionButton.layout.actionName.textBoxMargin +
+                actionResourceDisplayHeight,
             ...getExpectedActionNameDrawBoundingBox(
                 actionButton,
                 graphicsContext
