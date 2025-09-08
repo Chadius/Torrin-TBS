@@ -199,7 +199,7 @@ export const PlayerActionTargetStateMachineInfoByTransition: {
     },
     [PlayerActionTargetTransitionEnum.NO_TARGETS_FOUND]: {
         targetedState: PlayerActionTargetStateEnum.CANCEL_ACTION_SELECTION,
-        action: undefined,
+        action: PlayerActionTargetActionEnum.TRIGGER_PLAYER_CANCELS_ACTION_SELECTION,
     },
 }
 

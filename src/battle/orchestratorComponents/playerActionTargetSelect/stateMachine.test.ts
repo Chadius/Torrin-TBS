@@ -14,9 +14,9 @@ import {
     PlayerActionTargetStateMachine,
     PlayerActionTargetStateMachineInfoByState,
     PlayerActionTargetStateMachineInfoByTransition,
-    TPlayerActionTargetState,
     PlayerActionTargetTransitionEnum,
     PlayerActionTargetTransitionType,
+    TPlayerActionTargetState,
 } from "./stateMachine"
 import { StateMachineDataService } from "../../../utils/stateMachine/stateMachineData/stateMachineData"
 import {
@@ -73,7 +73,7 @@ import { Button } from "../../../ui/button/button"
 import { ButtonLogicChangeOnRelease } from "../../../ui/button/logic/buttonLogicChangeOnRelease"
 import { DataBlobService } from "../../../utils/dataBlob/dataBlob"
 import { TestButtonStyle } from "../../../ui/button/button.test"
-import { RectAreaService } from "../../../ui/rectArea"
+import { RectArea, RectAreaService } from "../../../ui/rectArea"
 import { PLAYER_ACTION_CONFIRM_CREATE_OK_BUTTON_ID } from "./playerActionConfirm/okButton"
 import { PLAYER_ACTION_CONFIRM_CREATE_CANCEL_BUTTON_ID } from "./playerActionConfirm/cancelButton"
 import { MouseButton, ScreenLocation } from "../../../utils/mouseConfig"
@@ -1030,26 +1030,10 @@ describe("PlayerActionTargetSelect State Machine", () => {
                 {
                     name: "player clicks on the the cancel button on screen",
                     acceptPlayerInput: () => {
-                        const cancelButtonArea =
-                            selectTargetCancelButton.getArea()
-                        stateMachine.acceptPlayerInput({
-                            eventType:
-                                OrchestratorComponentMouseEventType.PRESS,
-                            mousePress: {
-                                x: RectAreaService.centerX(cancelButtonArea),
-                                y: RectAreaService.centerY(cancelButtonArea),
-                                button: MouseButton.ACCEPT,
-                            },
-                        })
-                        stateMachine.acceptPlayerInput({
-                            eventType:
-                                OrchestratorComponentMouseEventType.RELEASE,
-                            mouseRelease: {
-                                x: RectAreaService.centerX(cancelButtonArea),
-                                y: RectAreaService.centerY(cancelButtonArea),
-                                button: MouseButton.ACCEPT,
-                            },
-                        })
+                        clickOnButton(
+                            selectTargetCancelButton.getArea(),
+                            stateMachine
+                        )
                     },
                 },
                 {
@@ -1092,23 +1076,12 @@ describe("PlayerActionTargetSelect State Machine", () => {
                     "$name will trigger a transition",
                     ({ acceptPlayerInput }) => {
                         acceptPlayerInput()
-                        let update = stateMachine.update()
-                        update.actions.forEach((action) => {
-                            stateMachine.getActionLogic(action)(context)
-                        })
-
-                        update = stateMachine.update()
-                        expect(update.transitionFired).toEqual(
-                            PlayerActionTargetTransitionEnum.PLAYER_CANCELS_ACTION_SELECTION
-                        )
-
-                        expect(update.targetedState).toEqual(
-                            PlayerActionTargetStateEnum.CANCEL_ACTION_SELECTION
-                        )
-                        expect(update.actions).toEqual([
-                            PlayerActionTargetActionEnum.TRIGGER_PLAYER_CANCELS_ACTION_SELECTION,
-                            PlayerActionTargetActionEnum.CANCEL_ACTION_SELECTION_ENTRY,
-                        ])
+                        expect(
+                            expectTransitionToCancelActionState(
+                                stateMachine,
+                                context
+                            )
+                        ).toBe(true)
                     }
                 )
 
@@ -1172,6 +1145,7 @@ describe("PlayerActionTargetSelect State Machine", () => {
                 PlayerActionTargetStateEnum.CANCEL_ACTION_SELECTION
             )
             expect(update.actions).toEqual([
+                PlayerActionTargetActionEnum.TRIGGER_PLAYER_CANCELS_ACTION_SELECTION,
                 PlayerActionTargetActionEnum.CANCEL_ACTION_SELECTION_ENTRY,
             ])
         })
@@ -1252,23 +1226,7 @@ describe("PlayerActionTargetSelect State Machine", () => {
         {
             name: "player clicks on the the cancel button",
             acceptPlayerInput: () => {
-                const cancelButtonArea = confirmCancelButton.getArea()
-                stateMachine.acceptPlayerInput({
-                    eventType: OrchestratorComponentMouseEventType.PRESS,
-                    mousePress: {
-                        x: RectAreaService.centerX(cancelButtonArea),
-                        y: RectAreaService.centerY(cancelButtonArea),
-                        button: MouseButton.ACCEPT,
-                    },
-                })
-                stateMachine.acceptPlayerInput({
-                    eventType: OrchestratorComponentMouseEventType.RELEASE,
-                    mouseRelease: {
-                        x: RectAreaService.centerX(cancelButtonArea),
-                        y: RectAreaService.centerY(cancelButtonArea),
-                        button: MouseButton.ACCEPT,
-                    },
-                })
+                clickOnButton(confirmCancelButton.getArea(), stateMachine)
             },
         },
         {
@@ -1298,23 +1256,7 @@ describe("PlayerActionTargetSelect State Machine", () => {
         {
             name: "player clicks on the the cancel button",
             acceptPlayerInput: () => {
-                const cancelButtonArea = confirmCancelButton.getArea()
-                stateMachine.acceptPlayerInput({
-                    eventType: OrchestratorComponentMouseEventType.PRESS,
-                    mousePress: {
-                        x: RectAreaService.centerX(cancelButtonArea),
-                        y: RectAreaService.centerY(cancelButtonArea),
-                        button: MouseButton.ACCEPT,
-                    },
-                })
-                stateMachine.acceptPlayerInput({
-                    eventType: OrchestratorComponentMouseEventType.RELEASE,
-                    mouseRelease: {
-                        x: RectAreaService.centerX(cancelButtonArea),
-                        y: RectAreaService.centerY(cancelButtonArea),
-                        button: MouseButton.ACCEPT,
-                    },
-                })
+                clickOnButton(confirmCancelButton.getArea(), stateMachine)
             },
         },
     ]
@@ -1383,25 +1325,7 @@ describe("PlayerActionTargetSelect State Machine", () => {
                 {
                     name: "player presses and releases the ok button",
                     acceptPlayerInput: () => {
-                        const okButtonArea = confirmOKButton.getArea()
-                        stateMachine.acceptPlayerInput({
-                            eventType:
-                                OrchestratorComponentMouseEventType.PRESS,
-                            mousePress: {
-                                x: RectAreaService.centerX(okButtonArea),
-                                y: RectAreaService.centerY(okButtonArea),
-                                button: MouseButton.ACCEPT,
-                            },
-                        })
-                        stateMachine.acceptPlayerInput({
-                            eventType:
-                                OrchestratorComponentMouseEventType.RELEASE,
-                            mouseRelease: {
-                                x: RectAreaService.centerX(okButtonArea),
-                                y: RectAreaService.centerY(okButtonArea),
-                                button: MouseButton.ACCEPT,
-                            },
-                        })
+                        clickOnButton(confirmOKButton.getArea(), stateMachine)
                     },
                 },
             ]
@@ -1504,23 +1428,12 @@ describe("PlayerActionTargetSelect State Machine", () => {
                 "$name will trigger a transition",
                 ({ acceptPlayerInput }) => {
                     acceptPlayerInput()
-                    let update = stateMachine.update()
-                    update.actions.forEach((action) => {
-                        stateMachine.getActionLogic(action)(context)
-                    })
-
-                    update = stateMachine.update()
-                    expect(update.transitionFired).toEqual(
-                        PlayerActionTargetTransitionEnum.PLAYER_CANCELS_ACTION_SELECTION
-                    )
-
-                    expect(update.targetedState).toEqual(
-                        PlayerActionTargetStateEnum.CANCEL_ACTION_SELECTION
-                    )
-                    expect(update.actions).toEqual([
-                        PlayerActionTargetActionEnum.TRIGGER_PLAYER_CANCELS_ACTION_SELECTION,
-                        PlayerActionTargetActionEnum.CANCEL_ACTION_SELECTION_ENTRY,
-                    ])
+                    expect(
+                        expectTransitionToCancelActionState(
+                            stateMachine,
+                            context
+                        )
+                    ).toBe(true)
                 }
             )
 
@@ -1698,3 +1611,49 @@ describe("PlayerActionTargetSelect State Machine", () => {
         })
     })
 })
+
+const clickOnButton = (
+    buttonArea: RectArea,
+    stateMachine: PlayerActionTargetStateMachine
+) => {
+    stateMachine.acceptPlayerInput({
+        eventType: OrchestratorComponentMouseEventType.PRESS,
+        mousePress: {
+            x: RectAreaService.centerX(buttonArea),
+            y: RectAreaService.centerY(buttonArea),
+            button: MouseButton.ACCEPT,
+        },
+    })
+    stateMachine.acceptPlayerInput({
+        eventType: OrchestratorComponentMouseEventType.RELEASE,
+        mouseRelease: {
+            x: RectAreaService.centerX(buttonArea),
+            y: RectAreaService.centerY(buttonArea),
+            button: MouseButton.ACCEPT,
+        },
+    })
+}
+
+const expectTransitionToCancelActionState = (
+    stateMachine: PlayerActionTargetStateMachine,
+    context: PlayerActionTargetStateMachineContext
+): boolean => {
+    let update = stateMachine.update()
+    update.actions.forEach((action) => {
+        stateMachine.getActionLogic(action)(context)
+    })
+
+    update = stateMachine.update()
+    expect(update.transitionFired).toEqual(
+        PlayerActionTargetTransitionEnum.PLAYER_CANCELS_ACTION_SELECTION
+    )
+
+    expect(update.targetedState).toEqual(
+        PlayerActionTargetStateEnum.CANCEL_ACTION_SELECTION
+    )
+    expect(update.actions).toEqual([
+        PlayerActionTargetActionEnum.TRIGGER_PLAYER_CANCELS_ACTION_SELECTION,
+        PlayerActionTargetActionEnum.CANCEL_ACTION_SELECTION_ENTRY,
+    ])
+    return true
+}
