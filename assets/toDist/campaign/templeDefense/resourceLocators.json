@@ -331,38 +331,38 @@
   },
   {
     "type": "IMAGE",
-    "path": "assets/decisions/decision-button-unknown-64.png",
+    "path": "assets/ui/actionButtons/decision-button-unknown-64.png",
     "key": "decision-button-unknown"
   },
   {
     "type": "IMAGE",
-    "path": "assets/decisions/decision-button-end-48.png",
-    "key": "decision-button-end"
+    "path": "assets/ui/actionButtons/endTurn.png",
+    "key": "decision-button-end-turn"
   },
   {
     "type": "IMAGE",
-    "path": "assets/decisions/decision-button-sword-64.png",
+    "path": "assets/ui/actionButtons/sword.png",
     "key": "decision-button-sword"
   },
   {
     "type": "IMAGE",
-    "path": "assets/decisions/decision-button-heart-64.png",
+    "path": "assets/ui/actionButtons/heart.png",
     "key": "decision-button-heart"
   },
   {
     "type": "IMAGE",
-    "path": "assets/decisions/decision-button-bow-64.png",
-    "key": "decision-button-bow"
+    "path": "assets/ui/actionButtons/blast.png",
+    "key": "decision-button-blast"
   },
   {
     "type": "IMAGE",
-    "path": "assets/decisions/decision-button-shield-64.png",
+    "path": "assets/ui/actionButtons/shield.png",
     "key": "decision-button-shield"
   },
   {
     "type": "IMAGE",
-    "path": "assets/decisions/decision-button-movement-64.png",
-    "key": "decision-button-movement"
+    "path": "assets/ui/actionButtons/gecko.png",
+    "key": "decision-button-gecko"
   },
   {
     "type": "IMAGE",

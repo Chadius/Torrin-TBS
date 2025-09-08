@@ -47,7 +47,7 @@ export const CampaignResourcesService = {
                     [HexGridMovementCost.wall]: "map-tiles-basic-wall",
                 },
             },
-            endTurnIconResourceKey: "decision-button-end",
+            endTurnIconResourceKey: "decision-button-end-turn",
         }
     },
     clone: (original: CampaignResources): CampaignResources => ({

@@ -28,7 +28,7 @@
         }
       }
     ],
-    "buttonIconResourceKey": "decision-button-bow",
+    "buttonIconResourceKey": "decision-button-blast",
     "actionDecisions": [
       "TARGET_SQUADDIE"
     ]
@@ -117,7 +117,7 @@
         ]
       }
     ],
-    "buttonIconResourceKey": "decision-button-movement",
+    "buttonIconResourceKey": "decision-button-gecko",
     "actionDecisions": [
       "TARGET_SQUADDIE"
     ]

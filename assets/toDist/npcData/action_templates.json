@@ -60,7 +60,7 @@
         }
       }
     ],
-    "buttonIconResourceKey": "decision-button-bow",
+    "buttonIconResourceKey": "decision-button-blast",
     "actionDecisions": ["TARGET_SQUADDIE"]
   }
 ]

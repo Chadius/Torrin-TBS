@@ -58,10 +58,10 @@ export const TestPlayerArmyData = () => {
                         BODY: 2,
                     },
                     actionDecisions: [ActionDecision.TARGET_SQUADDIE],
-                    buttonIconResourceKey: "decision-button-bow",
+                    buttonIconResourceKey: "decision-button-blast",
                 }),
             ],
-            buttonIconResourceKey: "decision-button-bow",
+            buttonIconResourceKey: "decision-button-blast",
         }),
         ActionTemplateService.new({
             id: "young_nahla_healing_touch",

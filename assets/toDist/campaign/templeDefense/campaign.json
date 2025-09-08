@@ -22,6 +22,6 @@
         "wall": "map-tiles-basic-wall"
       }
     },
-    "endTurnIconResourceKey": "decision-button-end"
+    "endTurnIconResourceKey": "decision-button-end-turn"
   }
 }
