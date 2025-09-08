@@ -125,6 +125,7 @@ import { PlayerConsideredActionsService } from "../../battleState/playerConsider
 import { ButtonStatus } from "../../../ui/button/buttonStatus"
 import { CampaignResourcesService } from "../../../campaign/campaignResources"
 import { PlayerCommandStateService } from "../playerCommand/playerCommandHUD"
+import { ActionValidityByIdCacheService } from "../../actionValidity/cache/actionValidityByIdCache"
 
 describe("Battle HUD", () => {
     let mockP5GraphicsContext: MockedP5GraphicsBuffer
@@ -2319,7 +2320,9 @@ describe("Battle HUD", () => {
                 PlayerCommandStateService.new()
             gameEngineState.battleOrchestratorState.battleHUDState =
                 battleHUDState
-            gameEngineState.battleOrchestratorState.battleHUDState.summaryHUDState.playerCommandState.actionValidity =
+            gameEngineState.battleOrchestratorState.cache.actionValidity =
+                ActionValidityByIdCacheService.new()
+            gameEngineState.battleOrchestratorState.cache.actionValidity.byActionTemplateId =
                 {
                     actionId: {
                         isValid: true,
@@ -2350,8 +2353,7 @@ describe("Battle HUD", () => {
 
             gameEngineState.messageBoard.sendMessage(message)
             expect(
-                gameEngineState.battleOrchestratorState.battleHUDState
-                    .summaryHUDState.playerCommandState.actionValidity
+                gameEngineState.battleOrchestratorState.cache.actionValidity.key
             ).toBeUndefined()
         })
     })

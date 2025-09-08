@@ -63,6 +63,7 @@ import { MapSearchTestUtils } from "../../hexMap/pathfinder/pathGeneration/mapSe
 import { MissionMapService } from "../../missionMap/missionMap"
 import { SearchResultsCacheService } from "../../hexMap/pathfinder/searchResults/searchResultsCache"
 import { SearchLimitService } from "../../hexMap/pathfinder/pathGeneration/searchLimit"
+import { ActionValidityByIdCacheService } from "../actionValidity/cache/actionValidityByIdCache"
 
 describe("Battle State", () => {
     it("overrides team strategy for non-player teams", () => {
@@ -796,6 +797,30 @@ describe("Battle State", () => {
             ).toBeFalsy()
         })
 
+        it("invalidates the action validity", () => {
+            gameEngineState.battleOrchestratorState.cache.actionValidity =
+                ActionValidityByIdCacheService.new()
+            gameEngineState.battleOrchestratorState.cache.actionValidity.byActionTemplateId =
+                {
+                    ["action template id"]: {
+                        isValid: true,
+                        warning: false,
+                        messages: [],
+                    },
+                }
+
+            gameEngineState.messageBoard.sendMessage({
+                type: MessageBoardMessageType.BATTLE_ACTION_FINISHES_ANIMATION,
+                gameEngineState,
+                graphicsContext: new MockedP5GraphicsBuffer(),
+                resourceHandler: gameEngineState.resourceHandler,
+            })
+
+            expect(
+                gameEngineState.battleOrchestratorState.cache.actionValidity.key
+            ).toBeUndefined()
+        })
+
         describe("Squaddie still has a turn after finishing the action", () => {
             beforeEach(() => {
                 gameEngineState.messageBoard.sendMessage({
@@ -1069,6 +1094,28 @@ describe("Battle State", () => {
                     battleSquaddieId,
                 })
             ).toBeFalsy()
+        })
+
+        it("invalidates the action validity", () => {
+            gameEngineState.battleOrchestratorState.cache.actionValidity =
+                ActionValidityByIdCacheService.new()
+            gameEngineState.battleOrchestratorState.cache.actionValidity.byActionTemplateId =
+                {
+                    ["action template id"]: {
+                        isValid: true,
+                        warning: false,
+                        messages: [],
+                    },
+                }
+
+            gameEngineState.messageBoard.sendMessage({
+                type: MessageBoardMessageType.SQUADDIE_TURN_ENDS,
+                gameEngineState,
+            })
+
+            expect(
+                gameEngineState.battleOrchestratorState.cache.actionValidity.key
+            ).toBeUndefined()
         })
     })
 })

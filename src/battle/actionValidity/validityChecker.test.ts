@@ -36,6 +36,8 @@ import {
 } from "../../squaddie/attribute/attributeModifier"
 import { Attribute } from "../../squaddie/attribute/attribute"
 import { CanAddModifiersCheck } from "./canAddModifiersCheck"
+import { MapSearchTestUtils } from "../../hexMap/pathfinder/pathGeneration/mapSearchTests/mapSearchTestUtils"
+import { BattleActionRecorderService } from "../history/battleAction/battleActionRecorder"
 
 describe("validity checker", () => {
     const setupSingleSquaddie = (actionTemplate?: ActionTemplate) => {
@@ -116,10 +118,16 @@ describe("validity checker", () => {
 
             const spy: MockInstance = setupSpy()
 
+            const gameEngineState = GameEngineStateService.new({})
             const actionStatus = ValidityCheckService.calculateActionValidity({
                 objectRepository,
                 battleSquaddieId,
-                gameEngineState: GameEngineStateService.new({}),
+                battleActionRecorder:
+                    gameEngineState.battleOrchestratorState.battleState
+                        .battleActionRecorder,
+                missionMap:
+                    gameEngineState.battleOrchestratorState.battleState
+                        .missionMap,
             })
 
             expect(actionStatus[actionTemplateId]).toEqual({
@@ -169,7 +177,8 @@ describe("validity checker", () => {
         const actionStatus = ValidityCheckService.calculateActionValidity({
             objectRepository,
             battleSquaddieId,
-            gameEngineState: GameEngineStateService.new({}),
+            missionMap: MapSearchTestUtils.create1row5columnsWithPitAndWall(),
+            battleActionRecorder: BattleActionRecorderService.new(),
         })
 
         expect(actionStatus[actionTemplateId]).toEqual({
@@ -244,7 +253,8 @@ describe("validity checker", () => {
         const actionStatus = ValidityCheckService.calculateActionValidity({
             objectRepository,
             battleSquaddieId,
-            gameEngineState: GameEngineStateService.new({}),
+            missionMap: MapSearchTestUtils.create1row5columnsWithPitAndWall(),
+            battleActionRecorder: BattleActionRecorderService.new(),
         })
 
         expect(actionStatus[actionTemplateId]).toEqual({
@@ -331,10 +341,16 @@ describe("validity checker", () => {
                 message: "No targets to heal",
             })
 
+            const gameEngineState = GameEngineStateService.new({})
             const actionStatus = ValidityCheckService.calculateActionValidity({
                 objectRepository,
                 battleSquaddieId,
-                gameEngineState: GameEngineStateService.new({}),
+                battleActionRecorder:
+                    gameEngineState.battleOrchestratorState.battleState
+                        .battleActionRecorder,
+                missionMap:
+                    gameEngineState.battleOrchestratorState.battleState
+                        .missionMap,
             })
 
             expect(actionStatus[actionTemplateId]).toEqual({
@@ -360,10 +376,16 @@ describe("validity checker", () => {
                 isValid: true,
             })
 
+            const gameEngineState = GameEngineStateService.new({})
             const actionStatus = ValidityCheckService.calculateActionValidity({
                 objectRepository,
                 battleSquaddieId,
-                gameEngineState: GameEngineStateService.new({}),
+                battleActionRecorder:
+                    gameEngineState.battleOrchestratorState.battleState
+                        .battleActionRecorder,
+                missionMap:
+                    gameEngineState.battleOrchestratorState.battleState
+                        .missionMap,
             })
 
             expect(actionStatus[actionTemplateId]).toEqual({
@@ -388,10 +410,16 @@ describe("validity checker", () => {
                 isValid: true,
             })
 
+            const gameEngineState = GameEngineStateService.new({})
             const actionStatus = ValidityCheckService.calculateActionValidity({
                 objectRepository,
                 battleSquaddieId,
-                gameEngineState: GameEngineStateService.new({}),
+                battleActionRecorder:
+                    gameEngineState.battleOrchestratorState.battleState
+                        .battleActionRecorder,
+                missionMap:
+                    gameEngineState.battleOrchestratorState.battleState
+                        .missionMap,
             })
 
             expect(actionStatus[actionTemplateId]).toEqual({
@@ -416,10 +444,16 @@ describe("validity checker", () => {
                 message: "No targets to heal",
             })
 
+            const gameEngineState = GameEngineStateService.new({})
             const actionStatus = ValidityCheckService.calculateActionValidity({
                 objectRepository,
                 battleSquaddieId,
-                gameEngineState: GameEngineStateService.new({}),
+                battleActionRecorder:
+                    gameEngineState.battleOrchestratorState.battleState
+                        .battleActionRecorder,
+                missionMap:
+                    gameEngineState.battleOrchestratorState.battleState
+                        .missionMap,
             })
 
             expect(actionStatus[actionTemplateId]).toEqual({

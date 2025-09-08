@@ -684,8 +684,6 @@ const playerControlledSquaddieNeedsNextAction = (
         missionMap.terrainTileMap,
         actionRangeOnMap
     )
-
-    message.playerCommandState.actionValidity = undefined
 }
 
 const showHUDForControllableSquaddie = (

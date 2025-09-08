@@ -25,9 +25,14 @@ import {
 import { Glossary } from "../../campaign/glossary/glossary"
 import { DebugModeMenuService } from "../hud/debugModeMenu/debugModeMenu"
 import { ChallengeModifierSetting } from "../challengeModifier/challengeModifierSetting"
+import {
+    ActionValidityByIdCache,
+    ActionValidityByIdCacheService,
+} from "../actionValidity/cache/actionValidityByIdCache"
 
 export type BattleCache = {
     searchResultsCache: SearchResultsCache
+    actionValidity: ActionValidityByIdCache
 }
 
 export class BattleOrchestratorState {
@@ -72,6 +77,7 @@ export class BattleOrchestratorState {
         this.playerDecisionHUD = PlayerDecisionHUDService.new()
         this.cache = {
             searchResultsCache: SearchResultsCacheService.new(),
+            actionValidity: ActionValidityByIdCacheService.new(),
         }
         this.glossary = new Glossary()
     }

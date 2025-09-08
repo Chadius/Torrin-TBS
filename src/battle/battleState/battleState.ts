@@ -65,6 +65,8 @@ import {
     ChallengeModifierSetting,
     ChallengeModifierSettingService,
 } from "../challengeModifier/challengeModifierSetting"
+import { PlayerCommandStateService } from "../hud/playerCommand/playerCommandHUD"
+import { ActionValidityByIdCacheService } from "../actionValidity/cache/actionValidityByIdCache"
 
 export const BattleStateValidityMissingComponent = {
     MISSION_MAP: "MISSION_MAP",
@@ -351,6 +353,8 @@ const battleActionFinishesAnimation = (
         searchResultsCache:
             gameEngineState.battleOrchestratorState.cache.searchResultsCache,
     })
+    gameEngineState.battleOrchestratorState.cache.actionValidity =
+        ActionValidityByIdCacheService.new()
 
     updateSummaryHUDAfterFinishingAnimation(message)
 
@@ -444,6 +448,10 @@ const squaddieTurnEnds = (message: MessageBoardMessageSquaddieTurnEnds) => {
         searchResultsCache:
             gameEngineState.battleOrchestratorState.cache.searchResultsCache,
     })
+
+    gameEngineState.battleOrchestratorState.cache.actionValidity =
+        ActionValidityByIdCacheService.new()
+
     gameEngineState.battleOrchestratorState.battleHUDState.summaryHUDState =
         undefined
     gameEngineState.battleOrchestratorState.battleState.playerConsideredActions =

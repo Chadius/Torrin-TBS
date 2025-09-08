@@ -65,6 +65,7 @@ import { BattleEventEffect } from "../event/battleEventEffect"
 import { BattleEventMessageListener } from "../event/battleEventMessageListener"
 import { CutsceneEffect } from "../../cutscene/cutsceneEffect"
 import { ChallengeModifierSetting } from "../challengeModifier/challengeModifierSetting"
+import { ActionValidityByIdCacheService } from "../actionValidity/cache/actionValidityByIdCache"
 
 export const BattleOrchestratorMode = {
     UNKNOWN: "UNKNOWN",
@@ -781,6 +782,7 @@ export class BattleOrchestrator implements GameEngineComponent {
     private initializeCache({ cache }: { cache: BattleCache }) {
         if (cache.searchResultsCache == undefined) {
             cache.searchResultsCache = SearchResultsCacheService.new()
+            cache.actionValidity = ActionValidityByIdCacheService.new()
         }
     }
 

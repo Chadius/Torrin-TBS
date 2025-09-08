@@ -20,10 +20,7 @@ import { isValidValue } from "../../../utils/objectValidityCheck"
 import { WINDOW_SPACING } from "../../../ui/constants"
 import { LabelService } from "../../../ui/label"
 import { SquaddieAffiliation } from "../../../squaddie/squaddieAffiliation"
-import {
-    ActionValidityStatus,
-    ValidityCheckService,
-} from "../../actionValidity/validityChecker"
+import { ActionValidityStatus } from "../../actionValidity/validityChecker"
 import { MessageBoardMessageType } from "../../../message/messageBoardMessage"
 import { CoordinateSystem } from "../../../hexMap/hexCoordinate/hexCoordinate"
 import { TextGraphicalHandlingService } from "../../../utils/graphics/textGraphicalHandlingService"
@@ -44,6 +41,10 @@ import {
     PlayerInputStateService,
     TPlayerInputAction,
 } from "../../../ui/playerInput/playerInputState"
+import {
+    ActionValidityByIdCache,
+    ActionValidityByIdCacheService,
+} from "../../actionValidity/cache/actionValidityByIdCache"
 
 export const END_TURN_NAME = "END TURN"
 
@@ -66,10 +67,6 @@ export interface PlayerCommandState {
         buttonArea: RectArea
         message: string
     }
-    actionValidity: {
-        [actionTemplateId: string]: ActionValidityStatus
-    }
-
     squaddieAffiliationHue: number
     actionButtons: ActionButton[]
 }
@@ -86,7 +83,6 @@ export const PlayerCommandStateService = {
             actionButtons: [],
             squaddieAffiliationHue:
                 HUE_BY_SQUADDIE_AFFILIATION[SquaddieAffiliation.UNKNOWN],
-            actionValidity: undefined,
         }
     },
     removeSelection: (playerCommandState: PlayerCommandState) => {
@@ -138,13 +134,26 @@ export const PlayerCommandStateService = {
             })
         }
 
-        regenerateActionValidity(playerCommandState, gameEngineState)
+        gameEngineState.battleOrchestratorState.cache.actionValidity =
+            ActionValidityByIdCacheService.calculateActionValidity({
+                objectRepository: gameEngineState.repository,
+                battleSquaddieId: playerCommandState.battleSquaddieId,
+                missionMap:
+                    gameEngineState.battleOrchestratorState.battleState
+                        .missionMap,
+                battleActionRecorder:
+                    gameEngineState.battleOrchestratorState.battleState
+                        .battleActionRecorder,
+                actionValidityByIdCache:
+                    gameEngineState.battleOrchestratorState.cache
+                        .actionValidity,
+            })
 
         if (
             actionButtonClicked &&
-            playerCommandState.actionValidity[
-                actionButtonClicked.actionTemplate.id
-            ]?.isValid
+            gameEngineState.battleOrchestratorState.cache.actionValidity
+                .byActionTemplateId[actionButtonClicked.actionTemplate.id]
+                ?.isValid
         ) {
             return playerSelectedActionButton({
                 playerCommandState,
@@ -168,19 +177,23 @@ export const PlayerCommandStateService = {
 
         if (playerCommandState.selectedActionTemplateId) return
 
-        let battleSquaddieId = BattleActionDecisionStepService.getActor(
-            gameEngineState.battleOrchestratorState.battleState
-                .battleActionDecisionStep
-        ).battleSquaddieId
-
-        if (playerCommandState.actionValidity == undefined) {
-            playerCommandState.actionValidity =
-                ValidityCheckService.calculateActionValidity({
-                    objectRepository: gameEngineState.repository,
-                    battleSquaddieId: battleSquaddieId,
-                    gameEngineState,
-                })
-        }
+        gameEngineState.battleOrchestratorState.cache.actionValidity =
+            ActionValidityByIdCacheService.calculateActionValidity({
+                objectRepository: gameEngineState.repository,
+                battleSquaddieId: BattleActionDecisionStepService.getActor(
+                    gameEngineState.battleOrchestratorState.battleState
+                        .battleActionDecisionStep
+                ).battleSquaddieId,
+                missionMap:
+                    gameEngineState.battleOrchestratorState.battleState
+                        .missionMap,
+                battleActionRecorder:
+                    gameEngineState.battleOrchestratorState.battleState
+                        .battleActionRecorder,
+                actionValidityByIdCache:
+                    gameEngineState.battleOrchestratorState.cache
+                        .actionValidity,
+            })
 
         const consideredActionButton = playerCommandState.actionButtons.find(
             (actionButton) =>
@@ -229,10 +242,13 @@ export const PlayerCommandStateService = {
         createNewInvalidPopupMessageIfNeeded({
             playerCommandState,
             actionButton: consideredActionButton,
+            actionValidityByIdCache:
+                gameEngineState.battleOrchestratorState.cache.actionValidity,
         })
 
         if (
-            !playerCommandState.actionValidity[
+            !gameEngineState.battleOrchestratorState.cache.actionValidity
+                .byActionTemplateId[
                 playerCommandState.consideredActionTemplateId
             ]?.isValid
         ) {
@@ -291,23 +307,31 @@ export const PlayerCommandStateService = {
         )
             return
 
-        if (playerCommandState.actionValidity == undefined) {
-            playerCommandState.actionValidity =
-                ValidityCheckService.calculateActionValidity({
-                    objectRepository: gameEngineState.repository,
-                    battleSquaddieId: BattleActionDecisionStepService.getActor(
-                        gameEngineState.battleOrchestratorState.battleState
-                            .battleActionDecisionStep
-                    ).battleSquaddieId,
-                    gameEngineState,
-                })
-        }
+        gameEngineState.battleOrchestratorState.cache.actionValidity =
+            ActionValidityByIdCacheService.calculateActionValidity({
+                objectRepository: gameEngineState.repository,
+                battleSquaddieId: BattleActionDecisionStepService.getActor(
+                    gameEngineState.battleOrchestratorState.battleState
+                        .battleActionDecisionStep
+                ).battleSquaddieId,
+                missionMap:
+                    gameEngineState.battleOrchestratorState.battleState
+                        .missionMap,
+                battleActionRecorder:
+                    gameEngineState.battleOrchestratorState.battleState
+                        .battleActionRecorder,
+                actionValidityByIdCache:
+                    gameEngineState.battleOrchestratorState.cache
+                        .actionValidity,
+            })
 
         drawActionButtons({
             actionButtons: playerCommandState.actionButtons,
             graphicsBuffer: graphicsBuffer,
             resourceHandler: resourceHandler,
-            actionValidity: playerCommandState.actionValidity,
+            actionValidity:
+                gameEngineState.battleOrchestratorState.cache.actionValidity
+                    .byActionTemplateId,
             consideredActionTemplateId:
                 playerCommandState.consideredActionTemplateId,
             selectedActionTemplateId:
@@ -352,12 +376,29 @@ export const PlayerCommandStateService = {
                 playerCommandState,
             })
         }
-        regenerateActionValidity(playerCommandState, gameEngineState)
+
+        gameEngineState.battleOrchestratorState.cache.actionValidity =
+            ActionValidityByIdCacheService.calculateActionValidity({
+                objectRepository: gameEngineState.repository,
+                battleSquaddieId: BattleActionDecisionStepService.getActor(
+                    gameEngineState.battleOrchestratorState.battleState
+                        .battleActionDecisionStep
+                ).battleSquaddieId,
+                missionMap:
+                    gameEngineState.battleOrchestratorState.battleState
+                        .missionMap,
+                battleActionRecorder:
+                    gameEngineState.battleOrchestratorState.battleState
+                        .battleActionRecorder,
+                actionValidityByIdCache:
+                    gameEngineState.battleOrchestratorState.cache
+                        .actionValidity,
+            })
 
         if (
-            playerCommandState.actionValidity[
-                actionButtonClicked.actionTemplate.id
-            ]?.isValid
+            gameEngineState.battleOrchestratorState.cache.actionValidity
+                .byActionTemplateId[actionButtonClicked.actionTemplate.id]
+                ?.isValid
         ) {
             return playerSelectedActionButton({
                 playerCommandState,
@@ -368,6 +409,8 @@ export const PlayerCommandStateService = {
         createNewInvalidPopupMessageIfNeeded({
             playerCommandState,
             actionButton: actionButtonClicked,
+            actionValidityByIdCache:
+                gameEngineState.battleOrchestratorState.cache.actionValidity,
         })
         return PlayerCommandSelection.PLAYER_COMMAND_SELECTION_NONE
     },
@@ -376,24 +419,26 @@ export const PlayerCommandStateService = {
 const createNewInvalidPopupMessageIfNeeded = ({
     playerCommandState,
     actionButton,
+    actionValidityByIdCache,
 }: {
     playerCommandState: PlayerCommandState
     actionButton: ActionButton
+    actionValidityByIdCache: ActionValidityByIdCache
 }) => {
     const actionTemplateId = actionButton.actionTemplate?.id
     if (
         actionTemplateId == undefined ||
-        playerCommandState.actionValidity[actionTemplateId]?.messages.length ==
-            0
+        actionValidityByIdCache.byActionTemplateId[actionTemplateId]?.messages
+            .length == 0
     )
         return
 
     playerCommandState.newInvalidPopup = {
         buttonArea: actionButton.uiObjects.buttonIcon.drawArea,
         message:
-            playerCommandState.actionValidity[actionTemplateId].messages.join(
-                "\n"
-            ),
+            actionValidityByIdCache.byActionTemplateId[
+                actionTemplateId
+            ].messages.join("\n"),
     }
 }
 
@@ -629,22 +674,6 @@ const drawActionButtons = ({
             warning: actionHasAWarning,
         })
     })
-}
-
-const regenerateActionValidity = (
-    playerCommandState: PlayerCommandState,
-    gameEngineState: GameEngineState
-) => {
-    if (playerCommandState.actionValidity != undefined) return
-    playerCommandState.actionValidity =
-        ValidityCheckService.calculateActionValidity({
-            objectRepository: gameEngineState.repository,
-            battleSquaddieId: BattleActionDecisionStepService.getActor(
-                gameEngineState.battleOrchestratorState.battleState
-                    .battleActionDecisionStep
-            ).battleSquaddieId,
-            gameEngineState,
-        })
 }
 
 const getSelectedActionButton = ({

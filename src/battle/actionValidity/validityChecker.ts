@@ -3,7 +3,6 @@ import { SquaddieCanPerformActionCheck } from "./squaddieCanPerformActionCheck"
 import { getResultOrThrowError } from "../../utils/ResultOrError"
 import { TActionPerformFailureReason } from "../../squaddie/turn"
 import { PerRoundCheck } from "./perRoundCheck"
-import { GameEngineState } from "../../gameEngine/gameEngine"
 import { CanAttackTargetsCheck } from "./canAttackTargetsCheck"
 import { CanHealTargetCheck } from "./canHealTargetCheck"
 import { BattleSquaddie } from "../battleSquaddie"
@@ -18,6 +17,7 @@ import {
 } from "../targeting/targetingService"
 import { ActionEffectTemplateService } from "../../action/template/actionEffectTemplate"
 import { CanAddModifiersCheck } from "./canAddModifiersCheck"
+import { MissionMap } from "../../missionMap/missionMap"
 
 export type ActionValidityStatus = {
     isValid: boolean
@@ -36,11 +36,13 @@ export const ValidityCheckService = {
     calculateActionValidity: ({
         objectRepository,
         battleSquaddieId,
-        gameEngineState,
+        battleActionRecorder,
+        missionMap,
     }: {
         objectRepository: ObjectRepository
         battleSquaddieId: string
-        gameEngineState: GameEngineState
+        battleActionRecorder: BattleActionRecorder
+        missionMap: MissionMap
     }): {
         [actionTemplateId: string]: ActionValidityStatus
     } => {
@@ -81,9 +83,7 @@ export const ValidityCheckService = {
                     checkIfActorCanAffordToUseTheAction({
                         battleSquaddie,
                         actionTemplate,
-                        battleActionRecorder:
-                            gameEngineState.battleOrchestratorState.battleState
-                                .battleActionRecorder,
+                        battleActionRecorder,
                     })
 
                 actorCanAffordToUseTheActionCheckResults.forEach((result) => {
@@ -98,8 +98,7 @@ export const ValidityCheckService = {
 
                 const validTargetResults =
                     TargetingResultsService.findValidTargets({
-                        map: gameEngineState.battleOrchestratorState.battleState
-                            .missionMap,
+                        map: missionMap,
                         actingBattleSquaddie: battleSquaddie,
                         actingSquaddieTemplate: squaddieTemplate,
                         actionTemplate,
