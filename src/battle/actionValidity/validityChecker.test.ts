@@ -231,7 +231,7 @@ describe("validity checker", () => {
         actionPointCheckSpy.mockReturnValue({
             isValid: true,
             warning: true,
-            reason: ActionPerformFailureReason.CAN_PERFORM_BUT_TOO_MANY_CONSIDERED_ACTION_POINTS,
+            reason: ActionPerformFailureReason.UNKNOWN,
         })
 
         const willBuffUserSpy = vi.spyOn(

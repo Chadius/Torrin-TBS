@@ -50,16 +50,8 @@ export const SquaddieCanPerformActionCheck = {
             }
         }
 
-        if (reason == ActionPerformFailureReason.UNKNOWN) {
-            return {
-                isValid: true,
-            }
-        }
-
         return {
             isValid: true,
-            warning: true,
-            reason: ActionPerformFailureReason.CAN_PERFORM_BUT_TOO_MANY_CONSIDERED_ACTION_POINTS,
         }
     },
 }

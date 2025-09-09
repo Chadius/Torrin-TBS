@@ -533,7 +533,7 @@ export const TestMissionData = () => {
                                 "young nahla cutscene portrait",
                             speakerName: "Nahla",
                             dialogueText:
-                                "Nahla can use her Water Cannon to attack from range.\nHealing Touch costs 2 of your 3 action points.\nBut it can heal one target.",
+                                "Nahla can use her Water Cannon to attack from range.\nHealing Touch costs 2 of your 3 action points.\nIt heals 2 HP.",
                             animationDuration: 0,
                         },
                         {

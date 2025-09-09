@@ -8,8 +8,6 @@ export const DEFAULT_ACTION_POINTS_PER_TURN = 3
 export const ActionPerformFailureReason = {
     UNKNOWN: "UNKNOWN",
     TOO_FEW_ACTIONS_REMAINING: "TOO_FEW_ACTIONS_REMAINING",
-    CAN_PERFORM_BUT_TOO_MANY_CONSIDERED_ACTION_POINTS:
-        "CAN_PERFORM_BUT_TOO_MANY_CONSIDERED_ACTION_POINTS",
     NO_ATTRIBUTES_WILL_BE_ADDED: "NO_ATTRIBUTES_WILL_BE_ADDED",
     TOO_MANY_USES_THIS_ROUND: "TOO_MANY_USES_THIS_ROUND",
     STILL_ON_COOLDOWN: "STILL_ON_COOLDOWN",
@@ -106,19 +104,6 @@ export const SquaddieTurnService = {
             return {
                 canPerform: false,
                 reason: ActionPerformFailureReason.TOO_FEW_ACTIONS_REMAINING,
-            }
-        }
-
-        if (
-            actionPointsToSpend -
-                SquaddieTurnService.getMovementActionPointsPreviewedByPlayer(
-                    battleSquaddie.squaddieTurn
-                ) <
-            actionTemplate.resourceCost.actionPoints
-        ) {
-            return {
-                canPerform: true,
-                reason: ActionPerformFailureReason.CAN_PERFORM_BUT_TOO_MANY_CONSIDERED_ACTION_POINTS,
             }
         }
 

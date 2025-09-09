@@ -187,23 +187,6 @@ describe("Action Button", () => {
                 expect.any(Number)
             )
         })
-
-        it("will use the warning style if the action has a warning", () => {
-            ActionButtonService.draw({
-                actionButton,
-                graphicsBuffer,
-                resourceHandler,
-                warning: true,
-            })
-
-            expect(graphicsSpies["fill"]).toBeCalledWith(
-                actionButton.layout.warning.fillColor[0],
-                actionButton.layout.warning.fillColor[1],
-                actionButton.layout.warning.fillColor[2],
-                expect.any(Number)
-            )
-        })
-
         it("can get overall dimensions", () => {
             graphicsSpies["textWidth"].mockReturnValue(9001)
             const boundingBox: RectArea =

@@ -257,29 +257,6 @@ describe("Squaddie Can Perform Action", () => {
                 isValid: true,
             })
         })
-        it("You can afford the action but there is a warning if too many action points are refunded", () => {
-            const { battleSquaddie, actionTemplate } = setup({
-                actionTemplateId: "action1PointCost",
-                actionPointCost: 1,
-                movementActionPoints: {
-                    previewedByPlayer: 2,
-                    spentAndCannotBeRefunded: 1,
-                },
-            })
-            playerConsideredActions.actionTemplateId = "action1PointCost"
-            expect(
-                SquaddieCanPerformActionCheck.canPerform({
-                    battleSquaddie,
-                    actionTemplate,
-                })
-            ).toEqual(
-                expect.objectContaining({
-                    isValid: true,
-                    warning: true,
-                    reason: ActionPerformFailureReason.CAN_PERFORM_BUT_TOO_MANY_CONSIDERED_ACTION_POINTS,
-                })
-            )
-        })
         it("The marked action points are ignored if it's marked because of this action", () => {
             const { battleSquaddie, actionTemplate } = setup({
                 actionTemplateId: "action1PointCost",

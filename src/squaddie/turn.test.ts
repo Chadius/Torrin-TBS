@@ -146,20 +146,6 @@ describe("SquaddieTurn and resources", () => {
                 ActionPerformFailureReason.TOO_FEW_ACTIONS_REMAINING
             )
         })
-        it("should report when an action can be performed but there are too many action points previewed", () => {
-            SquaddieTurnService.setMovementActionPointsPreviewedByPlayer({
-                squaddieTurn: battleSquaddie.squaddieTurn,
-                actionPoints: 2,
-            })
-            const query = SquaddieTurnService.canPerformAction({
-                actionTemplate: actionSpends2ActionPoints,
-                battleSquaddie,
-            })
-            expect(query.canPerform).toBeTruthy()
-            expect(query.reason).toBe(
-                ActionPerformFailureReason.CAN_PERFORM_BUT_TOO_MANY_CONSIDERED_ACTION_POINTS
-            )
-        })
         it("should report when an action cannot be performed because it is on cooldown", () => {
             InBattleAttributesService.addActionCooldown({
                 inBattleAttributes: battleSquaddie.inBattleAttributes,

@@ -49,11 +49,6 @@ interface ActionButtonLayout {
         fillAlphaRange: number[]
         pulsePeriod: number
     }
-    warning: {
-        fillColor: number[]
-        fillAlphaRange: number[]
-        pulsePeriod: number
-    }
     actionResourceCostDisplay: {
         belowButton: number
         leftOffsetFromButton: number
@@ -179,11 +174,6 @@ export const ActionButtonService = {
                     fillColor: [0, 15, 0],
                     fillAlphaRange: [192 - 8, 192 + 8],
                     pulsePeriod: 10000,
-                },
-                warning: {
-                    fillColor: [60, 30, 30],
-                    fillAlphaRange: [192 - 8, 192 + 8],
-                    pulsePeriod: 5000,
                 },
                 actionResourceCostDisplay: actionResourceCostDisplayLayout,
             },
@@ -395,9 +385,6 @@ const drawDecorator = ({
     switch (true) {
         case disabled:
             fillColor = [...actionButton.layout.disabled.fillColor, fillAlpha]
-            break
-        case warning:
-            fillColor = [...actionButton.layout.warning.fillColor, fillAlpha]
             break
         default:
             fillColor = undefined
