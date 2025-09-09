@@ -11,6 +11,10 @@ import {
 import { GraphicsBuffer } from "../../../utils/graphics/graphicsRenderer"
 import { Rectangle, RectangleService } from "../../../ui/rectangle/rectangle"
 import { RectArea, RectAreaService } from "../../../ui/rectArea"
+import {
+    type CurveInterpolation,
+    CurveInterpolationService,
+} from "../../../../gitSubmodules/CurveInterpolation/src/curveInterpolation"
 
 export interface AttackRollThermometer {
     segments: {
@@ -26,7 +30,11 @@ export interface AttackRollThermometer {
     degreeOfSuccess: TDegreeOfSuccess
     drawnObjects: {
         startAnimationTime: number
-        progressBar: Rectangle
+        progressBar: {
+            rectangle: Rectangle | undefined
+            initialFillWidthFormula: CurveInterpolation | undefined
+            criticalFillWidthFormula: CurveInterpolation | undefined
+        }
     }
     drawArea: RectArea
 }
@@ -41,6 +49,14 @@ const LayoutConstants = {
         strokeColor: [0, 0, 0],
         strokeWeight: 4,
         height: 16,
+        easeIn: {
+            timeRatio: 0.2,
+            distanceRatio: 0.5,
+        },
+        easeOut: {
+            timeRatio: 0.2,
+            distanceRatio: 0.2,
+        },
     },
 }
 
@@ -118,7 +134,11 @@ export const AttackRollThermometerService = {
             degreeOfSuccess: DegreeOfSuccess.NONE,
             drawnObjects: {
                 startAnimationTime: undefined,
-                progressBar: undefined,
+                progressBar: {
+                    rectangle: undefined,
+                    initialFillWidthFormula: undefined,
+                    criticalFillWidthFormula: undefined,
+                },
             },
             drawArea: drawArea,
         }
@@ -288,8 +308,8 @@ const drawProgressBar = ({
 }) => {
     if (!isValidValue(thermometer?.drawnObjects?.startAnimationTime)) return
 
-    if (thermometer.drawnObjects.progressBar == undefined) {
-        thermometer.drawnObjects.progressBar = RectangleService.new({
+    if (thermometer.drawnObjects.progressBar.rectangle == undefined) {
+        thermometer.drawnObjects.progressBar.rectangle = RectangleService.new({
             area: RectAreaService.new({
                 left: RectAreaService.left(thermometer.drawArea),
                 width: 0,
@@ -301,13 +321,41 @@ const drawProgressBar = ({
             strokeWeight: LayoutConstants.thermometerProgressBar.strokeWeight,
             fillColor: LayoutConstants.thermometerProgressBar.fillColor,
         })
+
+        thermometer.drawnObjects.progressBar.initialFillWidthFormula =
+            createWidthFormulaForInitialFill(thermometer)
+        thermometer.drawnObjects.progressBar.criticalFillWidthFormula =
+            createWidthFormulaForCriticalFill(thermometer)
     }
-    const newWidth = calculateProgressBarWidthRightNow(thermometer)
-    thermometer.drawnObjects.progressBar.area = RectAreaService.withWidth(
-        thermometer.drawnObjects.progressBar.area,
-        newWidth
+
+    let timeElapsed = Date.now() - thermometer.drawnObjects.startAnimationTime
+    const initialWidth = CurveInterpolationService.calculate(
+        thermometer.drawnObjects.progressBar.initialFillWidthFormula,
+        timeElapsed
     )
-    RectangleService.draw(thermometer.drawnObjects.progressBar, graphicsBuffer)
+
+    let criticalWidth = 0
+    if (
+        thermometer.drawnObjects.progressBar.criticalFillWidthFormula &&
+        timeElapsed >
+            LayoutConstants.thermometerProgressBar.animationTimeForInitialFill
+    ) {
+        criticalWidth = CurveInterpolationService.calculate(
+            thermometer.drawnObjects.progressBar.criticalFillWidthFormula,
+            timeElapsed
+        )
+        if (thermometer.degreeOfSuccess == DegreeOfSuccess.CRITICAL_FAILURE)
+            criticalWidth *= -1
+    }
+    thermometer.drawnObjects.progressBar.rectangle.area =
+        RectAreaService.withWidth(
+            thermometer.drawnObjects.progressBar.rectangle.area,
+            initialWidth + criticalWidth
+        )
+    RectangleService.draw(
+        thermometer.drawnObjects.progressBar.rectangle,
+        graphicsBuffer
+    )
 }
 
 const drawSegments = ({
@@ -380,6 +428,15 @@ const getMaximumValue = (thermometer: AttackRollThermometer): number => {
     }
 }
 
+const calculateCriticalWidthOfProgressBar = (
+    thermometer: AttackRollThermometer
+) => {
+    const widthRatio =
+        RollResultService.DIE_SIZE /
+        (getMaximumValue(thermometer) - getMinimumValue(thermometer))
+    return getMaximumProgressBarWidth(thermometer) * widthRatio
+}
+
 const calculateFillFinalWidthOfProgressBarBasedOnValue = (
     thermometer: AttackRollThermometer,
     valueToDisplay: number
@@ -401,67 +458,95 @@ const calculateInitialFillFinalWidthOfProgressBar = (
     )
 }
 
-const calculateProgressBarWidthRightNow = (
-    thermometer: AttackRollThermometer
-) => {
-    const timeElapsed = Date.now() - thermometer.drawnObjects.startAnimationTime
-    const isInitialFillComplete =
-        timeElapsed >=
-        LayoutConstants.thermometerProgressBar.animationTimeForInitialFill
-    const initialFillFinalWidth =
-        calculateInitialFillFinalWidthOfProgressBar(thermometer)
-    const initialFillWidth = isInitialFillComplete
-        ? initialFillFinalWidth
-        : initialFillFinalWidth *
-          (timeElapsed /
-              LayoutConstants.thermometerProgressBar
-                  .animationTimeForInitialFill)
-
-    if (!isInitialFillComplete) return initialFillWidth
-
-    if (
-        !new Set<TDegreeOfSuccess>([
-            DegreeOfSuccess.CRITICAL_FAILURE,
-            DegreeOfSuccess.CRITICAL_SUCCESS,
-        ]).has(thermometer.degreeOfSuccess)
-    )
-        return initialFillWidth
-
-    let rollValue = thermometer.rolls[0] + thermometer.rolls[1]
-    if (thermometer.degreeOfSuccess == DegreeOfSuccess.CRITICAL_SUCCESS)
-        rollValue += RollResultService.DIE_SIZE
-    else rollValue -= RollResultService.DIE_SIZE
-    rollValue = Math.min(
-        Math.max(rollValue, getMinimumValue(thermometer)),
-        getMaximumValue(thermometer)
-    )
-
-    const initialToCriticalFinalWidth =
-        calculateFillFinalWidthOfProgressBarBasedOnValue(
-            thermometer,
-            rollValue
-        ) - initialFillFinalWidth
-    const timeElapsedSinceInitialFill =
-        timeElapsed -
-        LayoutConstants.thermometerProgressBar.animationTimeForInitialFill
-    const isCriticalFillComplete =
-        timeElapsedSinceInitialFill >=
-        LayoutConstants.thermometerProgressBar.animationTimeForCriticalFill
-
-    if (isCriticalFillComplete)
-        return initialFillFinalWidth + initialToCriticalFinalWidth
-
-    return (
-        initialFillFinalWidth +
-        initialToCriticalFinalWidth *
-            (timeElapsedSinceInitialFill /
-                LayoutConstants.thermometerProgressBar
-                    .animationTimeForCriticalFill)
-    )
-}
-
 const getMaximumProgressBarWidth = (
     thermometer: AttackRollThermometer
 ): number => {
     return RectAreaService.width(thermometer.drawArea)
+}
+
+const createWidthFormulaForInitialFill = (
+    thermometer: AttackRollThermometer
+): CurveInterpolation | undefined => {
+    const startPoint: [number, number] = [0, 0]
+    const initialFillEndWidth =
+        calculateInitialFillFinalWidthOfProgressBar(thermometer)
+
+    const endPoint: [number, number] = [
+        LayoutConstants.thermometerProgressBar.animationTimeForInitialFill,
+        initialFillEndWidth,
+    ]
+
+    const easeOut = isRollACritical(thermometer)
+        ? undefined
+        : {
+              time:
+                  LayoutConstants.thermometerProgressBar
+                      .animationTimeForInitialFill *
+                  LayoutConstants.thermometerProgressBar.easeOut.timeRatio,
+              distance:
+                  initialFillEndWidth *
+                  LayoutConstants.thermometerProgressBar.easeOut.distanceRatio,
+          }
+
+    return CurveInterpolationService.new({
+        startPoint,
+        endPoint,
+        easeIn: {
+            time:
+                LayoutConstants.thermometerProgressBar
+                    .animationTimeForInitialFill *
+                LayoutConstants.thermometerProgressBar.easeIn.timeRatio,
+            distance:
+                initialFillEndWidth *
+                LayoutConstants.thermometerProgressBar.easeIn.distanceRatio,
+        },
+        easeOut,
+    })
+}
+
+const isRollACritical = (thermometer: AttackRollThermometer) => {
+    return new Set<TDegreeOfSuccess>([
+        DegreeOfSuccess.CRITICAL_FAILURE,
+        DegreeOfSuccess.CRITICAL_SUCCESS,
+    ]).has(thermometer.degreeOfSuccess)
+}
+
+const createWidthFormulaForCriticalFill = (
+    thermometer: AttackRollThermometer
+): CurveInterpolation | undefined => {
+    if (!isRollACritical(thermometer)) return undefined
+
+    const initialFillEndWidth =
+        calculateInitialFillFinalWidthOfProgressBar(thermometer)
+    const startPoint: [number, number] = [
+        LayoutConstants.thermometerProgressBar.animationTimeForInitialFill,
+        0,
+    ]
+
+    let rollWidth = calculateCriticalWidthOfProgressBar(thermometer)
+
+    if (thermometer.degreeOfSuccess == DegreeOfSuccess.CRITICAL_SUCCESS)
+        rollWidth = Math.min(
+            rollWidth,
+            getMaximumProgressBarWidth(thermometer) - initialFillEndWidth
+        )
+    else rollWidth = Math.max(rollWidth, initialFillEndWidth)
+
+    const totalAnimationTimeForFill =
+        LayoutConstants.thermometerProgressBar.animationTimeForInitialFill +
+        LayoutConstants.thermometerProgressBar.animationTimeForCriticalFill
+    const endPoint: [number, number] = [totalAnimationTimeForFill, rollWidth]
+
+    return CurveInterpolationService.new({
+        startPoint,
+        endPoint,
+        easeOut: {
+            time:
+                totalAnimationTimeForFill *
+                LayoutConstants.thermometerProgressBar.easeOut.timeRatio,
+            distance:
+                rollWidth *
+                LayoutConstants.thermometerProgressBar.easeOut.distanceRatio,
+        },
+    })
 }

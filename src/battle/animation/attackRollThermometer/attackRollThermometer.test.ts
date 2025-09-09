@@ -316,12 +316,6 @@ describe("Attack Roll Thermometer", () => {
                 rolls: [6, 1],
                 expectedFillLengthRatio: (7 - -4) / (18 - -4),
             },
-            {
-                name: "fill halfway when halfway through",
-                timeElapsedRatioForFirstFill: 0.5,
-                rolls: [6, 1],
-                expectedFillLengthRatio: ((7 - -4) / (18 - -4)) * 0.5,
-            },
         ]
 
         it.each(progressBarTests)(
