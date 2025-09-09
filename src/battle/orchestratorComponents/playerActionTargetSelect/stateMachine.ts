@@ -209,13 +209,6 @@ export class PlayerActionTargetStateMachine extends StateMachine<
     PlayerActionTargetActionType,
     PlayerActionTargetStateMachineContext
 > {
-    currentState: TPlayerActionTargetState
-    stateMachineData: StateMachineData<
-        TPlayerActionTargetState,
-        PlayerActionTargetTransitionType,
-        PlayerActionTargetActionType,
-        PlayerActionTargetStateMachineContext
-    >
     uiObjects: PlayerActionTargetStateMachineUIObjects
 
     constructor({
@@ -282,8 +275,7 @@ export class PlayerActionTargetStateMachine extends StateMachine<
                 countTargetsEntry,
             [PlayerActionTargetActionEnum.TRIGGER_TARGETS_AUTOMATICALLY_SELECTED]:
                 (context: PlayerActionTargetStateMachineContext) => {
-                    context.playerIntent.targetSelection.automaticallySelected =
-                        true
+                    context.playerIntent.targetSelection.automaticallySelected = true
                     context.playerIntent.targetSelection.battleSquaddieIds =
                         Object.keys(context.targetResults.validTargets)
                     context.messageBoard.sendMessage({
@@ -692,8 +684,7 @@ const parseMouseEventsWhenPlayerCanSelectTarget = (
 
                     context.playerIntent.targetSelection.battleSquaddieIds =
                         battleSquaddieIds
-                    context.playerIntent.targetSelection.automaticallySelected =
-                        false
+                    context.playerIntent.targetSelection.automaticallySelected = false
 
                     if (battleSquaddieIds.length === 0) {
                         updateSelectTargetExplanationText(

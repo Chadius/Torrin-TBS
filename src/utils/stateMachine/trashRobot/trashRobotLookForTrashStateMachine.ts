@@ -17,14 +17,6 @@ export class TrashRobotLookForTrashStateMachine extends StateMachine<
     TTrashRobotLookForTrashAction,
     TrashRobotWorld
 > {
-    currentState: TTrashRobotLookForTrashState
-    stateMachineData: StateMachineData<
-        TTrashRobotLookForTrashState,
-        TTrashRobotLookForTrashTransition,
-        TTrashRobotLookForTrashAction,
-        TrashRobotWorld
-    >
-
     constructor({
         id,
         trashRobotWorld,
