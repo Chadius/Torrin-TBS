@@ -323,6 +323,10 @@ export const DrawSquaddieIconOnMapUtilities = {
             highlightedTileDescriptions: squaddieReachHighlightedOnMap,
             type: MapGraphicsLayerType.UNKNOWN,
         })
+        TerrainTileMapService.removeGraphicsLayerById(
+            missionMap.terrainTileMap,
+            battleSquaddieId
+        )
         TerrainTileMapService.addGraphicsLayer(
             missionMap.terrainTileMap,
             actionRangeOnMap
