@@ -32,7 +32,7 @@ import {
     SquaddieSelectorPanelService,
 } from "./squaddieSelectorPanel"
 import { SquaddieSelectorPanelButtonService } from "./squaddieSelectorPanelButton/squaddieSelectorPanelButton"
-import { getResultOrThrowError } from "../../../../utils/ResultOrError"
+import { getResultOrThrowError } from "../../../../utils/resultOrError"
 import { SquaddieTurnService } from "../../../../squaddie/turn"
 import {
     BattleActionDecisionStep,

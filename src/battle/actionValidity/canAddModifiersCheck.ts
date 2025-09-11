@@ -5,7 +5,7 @@ import {
 import { ObjectRepository, ObjectRepositoryService } from "../objectRepository"
 import { TargetingResults } from "../targeting/targetingService"
 import { ActionCheckResult } from "./validityChecker"
-import { getResultOrThrowError } from "../../utils/ResultOrError"
+import { getResultOrThrowError } from "../../utils/resultOrError"
 import { ActionPerformFailureReason } from "../../squaddie/turn"
 import { BattleSquaddie } from "../battleSquaddie"
 import { SquaddieTemplate } from "../../campaign/squaddieTemplate"

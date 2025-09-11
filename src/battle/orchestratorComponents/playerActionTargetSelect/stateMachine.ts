@@ -10,7 +10,7 @@ import {
     TargetingResultsService,
 } from "../../targeting/targetingService"
 import { BattleActionDecisionStepService } from "../../actionDecision/battleActionDecisionStep"
-import { getResultOrThrowError } from "../../../utils/ResultOrError"
+import { getResultOrThrowError } from "../../../utils/resultOrError"
 import { ObjectRepositoryService } from "../../objectRepository"
 import { MissionMapService } from "../../../missionMap/missionMap"
 import { MessageBoardMessageType } from "../../../message/messageBoardMessage"

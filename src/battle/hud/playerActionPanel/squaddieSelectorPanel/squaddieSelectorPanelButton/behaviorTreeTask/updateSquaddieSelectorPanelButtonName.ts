@@ -12,7 +12,7 @@ import {
 } from "../../../../../objectRepository"
 import { GraphicsBuffer } from "../../../../../../utils/graphics/graphicsRenderer"
 import { DataBlobService } from "../../../../../../utils/dataBlob/dataBlob"
-import { getResultOrThrowError } from "../../../../../../utils/ResultOrError"
+import { getResultOrThrowError } from "../../../../../../utils/resultOrError"
 import { RectAreaService } from "../../../../../../ui/rectArea"
 import { WINDOW_SPACING } from "../../../../../../ui/constants"
 import { TextGraphicalHandlingService } from "../../../../../../utils/graphics/textGraphicalHandlingService"

@@ -37,7 +37,7 @@ import {
     CutsceneEffectService,
 } from "../../cutscene/cutsceneEffect"
 import { CutsceneQueueService } from "../cutscene/cutsceneIdQueue"
-import { getResultOrThrowError } from "../../utils/ResultOrError"
+import { getResultOrThrowError } from "../../utils/resultOrError"
 import { InBattleAttributesService } from "../stats/inBattleAttributes"
 import { Damage } from "../../squaddie/squaddieService"
 import { BattleActionRecorderService } from "../history/battleAction/battleActionRecorder"

@@ -7,7 +7,7 @@ import {
     SquaddieAffiliation,
     TSquaddieAffiliation,
 } from "../../squaddie/squaddieAffiliation"
-import { getResultOrThrowError } from "../../utils/ResultOrError"
+import { getResultOrThrowError } from "../../utils/resultOrError"
 import {
     TargetingResults,
     TargetingResultsService,

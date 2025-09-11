@@ -7,7 +7,7 @@ import {
 } from "./battleOrchestratorComponent"
 import { DrawSquaddieIconOnMapUtilities } from "../animation/drawSquaddieIconOnMap/drawSquaddieIconOnMap"
 import { SquaddieAffiliation } from "../../squaddie/squaddieAffiliation"
-import { getResultOrThrowError } from "../../utils/ResultOrError"
+import { getResultOrThrowError } from "../../utils/resultOrError"
 import { GameEngineState } from "../../gameEngine/gameEngine"
 import { BattleSquaddieTeam } from "../battleSquaddieTeam"
 import { BattlePhaseService } from "../orchestratorComponents/battlePhaseTracker"

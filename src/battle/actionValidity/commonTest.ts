@@ -4,7 +4,7 @@ import { HexCoordinate } from "../../hexMap/hexCoordinate/hexCoordinate"
 import { ObjectRepository, ObjectRepositoryService } from "../objectRepository"
 import { SquaddieRepositoryService } from "../../utils/test/squaddie"
 import { ActionTemplate } from "../../action/template/actionTemplate"
-import { getResultOrThrowError } from "../../utils/ResultOrError"
+import { getResultOrThrowError } from "../../utils/resultOrError"
 
 export const ActionValidityTestUtils = {
     setup: ({

@@ -1,6 +1,6 @@
 import { ObjectRepository, ObjectRepositoryService } from "../objectRepository"
 import { ActionCheckResult } from "./validityChecker"
-import { getResultOrThrowError } from "../../utils/ResultOrError"
+import { getResultOrThrowError } from "../../utils/resultOrError"
 import { TargetingResults } from "../targeting/targetingService"
 import { ActionPerformFailureReason } from "../../squaddie/turn"
 import {

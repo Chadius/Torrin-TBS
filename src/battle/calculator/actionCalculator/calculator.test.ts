@@ -23,7 +23,7 @@ import { BattleStateService } from "../../battleState/battleState"
 import { HexCoordinate } from "../../../hexMap/hexCoordinate/hexCoordinate"
 import { StreamNumberGenerator } from "../../numberGenerator/stream"
 import { NumberGeneratorStrategy } from "../../numberGenerator/strategy"
-import { getResultOrThrowError } from "../../../utils/ResultOrError"
+import { getResultOrThrowError } from "../../../utils/resultOrError"
 import { ActionCalculator } from "./calculator"
 import { DegreeOfSuccess } from "./degreeOfSuccess"
 import { GameEngineStateService } from "../../../gameEngine/gameEngine"
@@ -844,8 +844,7 @@ describe("calculator", () => {
                             [Trait.ALWAYS_SUCCEEDS]: true,
                         }),
                         squaddieAffiliationRelation: {
-                            [TargetBySquaddieAffiliationRelation.TARGET_SELF]:
-                                true,
+                            [TargetBySquaddieAffiliationRelation.TARGET_SELF]: true,
                         },
                         attributeModifiers: [armorCircumstanceModifier],
                     }),

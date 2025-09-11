@@ -81,7 +81,7 @@ const convertGraphToNodeRecordMapping = <T>(
     [key: string]: SearchNodeRecord<T>
 } =>
     Object.fromEntries(
-        graph.getAllNodes().map((info) => [
+        graph.getAllNodes().map((info): [string, SearchNodeRecord<T>] => [
             info.key,
             {
                 node: info.data,

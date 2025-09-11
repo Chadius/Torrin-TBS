@@ -1,5 +1,5 @@
 import { BattleOrchestratorState } from "../battle/orchestrator/battleOrchestratorState"
-import { SubstituteTextUsingBattleOrchestraState } from "./BattleOrchestratorStateSubstitution"
+import { SubstituteTextUsingBattleOrchestraState } from "./battleOrchestratorStateSubstitution"
 
 export type TextSubstitution = {
     name: string

@@ -1,4 +1,4 @@
-import { TextFormatService } from "./TextFormatService"
+import { TextFormatService } from "./textFormatService"
 import { beforeEach, describe, expect, it, test } from "vitest"
 
 describe("Text Graphical Handling Service", () => {

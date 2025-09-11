@@ -2,10 +2,6 @@ import { SquaddieAffiliation } from "../squaddie/squaddieAffiliation"
 import { ObjectRepository, ObjectRepositoryService } from "./objectRepository"
 import { BattleSquaddie, BattleSquaddieService } from "./battleSquaddie"
 import {
-    BattleSquaddieTeam,
-    BattleSquaddieTeamService,
-} from "./BattleSquaddieTeam"
-import {
     SquaddieTemplate,
     SquaddieTemplateService,
 } from "../campaign/squaddieTemplate"
@@ -20,6 +16,10 @@ import {
     MockInstance,
     vi,
 } from "vitest"
+import {
+    BattleSquaddieTeam,
+    BattleSquaddieTeamService,
+} from "./battleSquaddieTeam"
 
 describe("Battle Squaddie Team", () => {
     let squaddieRepository: ObjectRepository

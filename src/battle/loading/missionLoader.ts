@@ -27,7 +27,7 @@ import {
     SquaddieTemplate,
     SquaddieTemplateService,
 } from "../../campaign/squaddieTemplate"
-import { getResultOrThrowError } from "../../utils/ResultOrError"
+import { getResultOrThrowError } from "../../utils/resultOrError"
 import { ConvertCoordinateService } from "../../hexMap/convertCoordinates"
 import { RectAreaService } from "../../ui/rectArea"
 import { HORIZONTAL_ALIGN, VERTICAL_ALIGN } from "../../ui/constants"

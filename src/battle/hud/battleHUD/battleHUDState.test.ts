@@ -13,7 +13,7 @@ import {
 } from "../../battleSquaddieTeam"
 import { MissionMap, MissionMapService } from "../../../missionMap/missionMap"
 import { TerrainTileMapService } from "../../../hexMap/terrainTileMap"
-import { getResultOrThrowError } from "../../../utils/ResultOrError"
+import { getResultOrThrowError } from "../../../utils/resultOrError"
 import { SquaddieTurnService } from "../../../squaddie/turn"
 import { SquaddieSelectorPanelService } from "../playerActionPanel/squaddieSelectorPanel/squaddieSelectorPanel"
 import { BattleActionDecisionStepService } from "../../actionDecision/battleActionDecisionStep"

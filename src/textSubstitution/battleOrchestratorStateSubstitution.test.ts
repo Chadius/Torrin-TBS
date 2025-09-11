@@ -3,7 +3,7 @@ import {
     BattleOrchestratorStateService,
 } from "../battle/orchestrator/battleOrchestratorState"
 import { BattlePhase } from "../battle/orchestratorComponents/battlePhaseTracker"
-import { SubstituteTextUsingBattleOrchestraState } from "./BattleOrchestratorStateSubstitution"
+import { SubstituteTextUsingBattleOrchestraState } from "./battleOrchestratorStateSubstitution"
 import { MissionStatisticsService } from "../battle/missionStatistics/missionStatistics"
 import { BattleStateService } from "../battle/battleState/battleState"
 import { beforeEach, describe, expect, it } from "vitest"

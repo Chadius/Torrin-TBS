@@ -14,7 +14,7 @@ import {
 } from "../../../utils/mouseConfig"
 import { ActionTemplate } from "../../../action/template/actionTemplate"
 import { ResourceHandler } from "../../../resource/resourceHandler"
-import { getResultOrThrowError } from "../../../utils/ResultOrError"
+import { getResultOrThrowError } from "../../../utils/resultOrError"
 import { GraphicsBuffer } from "../../../utils/graphics/graphicsRenderer"
 import { isValidValue } from "../../../utils/objectValidityCheck"
 import { WINDOW_SPACING } from "../../../ui/constants"

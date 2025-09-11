@@ -83,7 +83,7 @@ import {
     Healing,
     SquaddieService,
 } from "../../../squaddie/squaddieService"
-import { getResultOrThrowError } from "../../../utils/ResultOrError"
+import { getResultOrThrowError } from "../../../utils/resultOrError"
 import { DegreeOfSuccess } from "../../calculator/actionCalculator/degreeOfSuccess"
 import {
     BattleActionSquaddieChangeService,

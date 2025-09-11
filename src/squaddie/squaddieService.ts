@@ -5,7 +5,7 @@ import {
     InBattleAttributes,
     InBattleAttributesService,
 } from "../battle/stats/inBattleAttributes"
-import { getResultOrThrowError } from "../utils/ResultOrError"
+import { getResultOrThrowError } from "../utils/resultOrError"
 import {
     ObjectRepository,
     ObjectRepositoryService,

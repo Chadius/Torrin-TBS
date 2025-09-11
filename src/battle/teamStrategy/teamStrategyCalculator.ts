@@ -4,7 +4,7 @@ import {
     BattleSquaddieTeamService,
 } from "../battleSquaddieTeam"
 import { isValidValue } from "../../utils/objectValidityCheck"
-import { getResultOrThrowError } from "../../utils/ResultOrError"
+import { getResultOrThrowError } from "../../utils/resultOrError"
 import { SquaddieService } from "../../squaddie/squaddieService"
 import { BattleActionDecisionStep } from "../actionDecision/battleActionDecisionStep"
 import { GameEngineState } from "../../gameEngine/gameEngine"

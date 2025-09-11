@@ -8,7 +8,7 @@ import {
     PlayerSelectionService,
 } from "../playerSelectionService"
 import { HexCoordinate } from "../../../hexMap/hexCoordinate/hexCoordinate"
-import { getResultOrThrowError } from "../../../utils/ResultOrError"
+import { getResultOrThrowError } from "../../../utils/resultOrError"
 import { ObjectRepositoryService } from "../../objectRepository"
 import { BattleActionDecisionStepService } from "../../actionDecision/battleActionDecisionStep"
 import { SquaddieTurnService } from "../../../squaddie/turn"

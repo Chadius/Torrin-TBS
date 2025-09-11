@@ -12,7 +12,7 @@ import { RectArea, RectAreaService } from "../../rectArea"
 import { MouseButton } from "../../../utils/mouseConfig"
 import { DataBlobService } from "../../../utils/dataBlob/dataBlob"
 import { ButtonLogic, ButtonStatusChangeEventByButtonId } from "./base"
-import { ButtonLogicToggleOnPress } from "./ButtonLogicToggleOnPress"
+import { ButtonLogicToggleOnPress } from "./buttonLogicToggleOnPress"
 import { CommonButtonLogicTests } from "./commonButtonLogicTests"
 
 describe("Button Logic Toggle On Press", () => {

@@ -25,7 +25,7 @@ import {
 import { SquaddieAffiliation } from "../../squaddie/squaddieAffiliation"
 import { BattleSquaddie, BattleSquaddieService } from "../battleSquaddie"
 import { SquaddieTurnService } from "../../squaddie/turn"
-import { getResultOrThrowError } from "../../utils/ResultOrError"
+import { getResultOrThrowError } from "../../utils/resultOrError"
 import { InBattleAttributesService } from "../stats/inBattleAttributes"
 import { DefaultArmyAttributes } from "../../squaddie/armyAttributes"
 import { Damage } from "../../squaddie/squaddieService"

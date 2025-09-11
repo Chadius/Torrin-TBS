@@ -12,7 +12,7 @@ import {
     BANNER_ANIMATION_TIME,
     BattlePhaseController,
 } from "./battlePhaseController"
-import { getResultOrThrowError } from "../../utils/ResultOrError"
+import { getResultOrThrowError } from "../../utils/resultOrError"
 import { ResourceHandler } from "../../resource/resourceHandler"
 import * as mocks from "../../utils/test/mocks"
 import { MockedP5GraphicsBuffer } from "../../utils/test/mocks"

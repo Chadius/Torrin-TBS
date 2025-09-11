@@ -1,4 +1,4 @@
-import { getResultOrThrowError } from "../../utils/ResultOrError"
+import { getResultOrThrowError } from "../../utils/resultOrError"
 import { ObjectRepository, ObjectRepositoryService } from "../objectRepository"
 import { BattleCamera } from "../battleCamera"
 import { MissionMap, MissionMapService } from "../../missionMap/missionMap"

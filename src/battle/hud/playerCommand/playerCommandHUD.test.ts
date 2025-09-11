@@ -26,7 +26,7 @@ import {
 } from "../../../action/template/actionEffectTemplate"
 import { MouseButton } from "../../../utils/mouseConfig"
 import { ResourceHandler } from "../../../resource/resourceHandler"
-import { getResultOrThrowError } from "../../../utils/ResultOrError"
+import { getResultOrThrowError } from "../../../utils/resultOrError"
 import { CampaignService } from "../../../campaign/campaign"
 import { SquaddieRepositoryService } from "../../../utils/test/squaddie"
 import { ValidityCheckService } from "../../actionValidity/validityChecker"

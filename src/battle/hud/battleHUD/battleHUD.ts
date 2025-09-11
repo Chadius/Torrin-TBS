@@ -17,7 +17,7 @@ import {
 } from "../../../message/messageBoardMessage"
 import { GameEngineState } from "../../../gameEngine/gameEngine"
 import { ObjectRepositoryService } from "../../objectRepository"
-import { getResultOrThrowError } from "../../../utils/ResultOrError"
+import { getResultOrThrowError } from "../../../utils/resultOrError"
 import { MissionMap, MissionMapService } from "../../../missionMap/missionMap"
 import { OrchestratorUtilities } from "../../orchestratorComponents/orchestratorUtils"
 import { BattleActionDecisionStepService } from "../../actionDecision/battleActionDecisionStep"

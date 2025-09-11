@@ -8,7 +8,7 @@ import {
     MissionConditionType,
     TMissionConditionType,
 } from "./missionCondition"
-import { getResultOrThrowError } from "../../utils/ResultOrError"
+import { getResultOrThrowError } from "../../utils/resultOrError"
 import { SquaddieService } from "../../squaddie/squaddieService"
 import { MissionMapSquaddieCoordinate } from "../../missionMap/squaddieCoordinate"
 import { ObjectRepositoryService } from "../objectRepository"

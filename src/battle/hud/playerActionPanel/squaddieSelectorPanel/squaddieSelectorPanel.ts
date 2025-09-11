@@ -7,7 +7,7 @@ import {
     SquaddieSelectorPanelButtonContext,
     SquaddieSelectorPanelButtonService,
 } from "./squaddieSelectorPanelButton/squaddieSelectorPanelButton"
-import { getResultOrThrowError } from "../../../../utils/ResultOrError"
+import { getResultOrThrowError } from "../../../../utils/resultOrError"
 import { SquaddieService } from "../../../../squaddie/squaddieService"
 import {
     BattleActionDecisionStep,

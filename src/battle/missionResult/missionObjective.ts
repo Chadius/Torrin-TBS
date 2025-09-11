@@ -57,8 +57,10 @@ export const MissionObjectiveService = {
             }
         )
         return (
+            typeof objective.numberOfRequiredConditionsToComplete ===
+                "number" &&
             completeConditions.length >=
-            objective.numberOfRequiredConditionsToComplete
+                objective.numberOfRequiredConditionsToComplete
         )
     },
 }

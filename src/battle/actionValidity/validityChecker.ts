@@ -1,6 +1,6 @@
 import { ObjectRepository, ObjectRepositoryService } from "../objectRepository"
 import { SquaddieCanPerformActionCheck } from "./squaddieCanPerformActionCheck"
-import { getResultOrThrowError } from "../../utils/ResultOrError"
+import { getResultOrThrowError } from "../../utils/resultOrError"
 import { TActionPerformFailureReason } from "../../squaddie/turn"
 import { PerRoundCheck } from "./perRoundCheck"
 import { CanAttackTargetsCheck } from "./canAttackTargetsCheck"

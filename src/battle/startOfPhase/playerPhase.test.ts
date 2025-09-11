@@ -18,7 +18,7 @@ import {
     BattleSquaddieTeamService,
 } from "../battleSquaddieTeam"
 import { MessageBoardMessageType } from "../../message/messageBoardMessage"
-import { getResultOrThrowError } from "../../utils/ResultOrError"
+import { getResultOrThrowError } from "../../utils/resultOrError"
 import { SquaddiePhaseListener } from "./squaddiePhaseListener"
 import { MissionMap, MissionMapService } from "../../missionMap/missionMap"
 import { TerrainTileMapService } from "../../hexMap/terrainTileMap"

@@ -7,7 +7,7 @@ import {
     getResultOrThrowError,
     isError,
     unwrapResultOrError,
-} from "../utils/ResultOrError"
+} from "../utils/resultOrError"
 import {
     SquaddieTemplate,
     SquaddieTemplateService,
@@ -313,8 +313,7 @@ describe("Object Repository", () => {
                         versusSquaddieResistance:
                             VersusSquaddieResistance.ARMOR,
                         squaddieAffiliationRelation: {
-                            [TargetBySquaddieAffiliationRelation.TARGET_FOE]:
-                                true,
+                            [TargetBySquaddieAffiliationRelation.TARGET_FOE]: true,
                         },
                     }),
                 ],

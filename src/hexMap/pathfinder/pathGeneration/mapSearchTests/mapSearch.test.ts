@@ -16,7 +16,7 @@ import {
     TSquaddieAffiliation,
 } from "../../../../squaddie/squaddieAffiliation"
 import { SquaddieRepositoryService } from "../../../../utils/test/squaddie"
-import { getResultOrThrowError } from "../../../../utils/ResultOrError"
+import { getResultOrThrowError } from "../../../../utils/resultOrError"
 import { InBattleAttributesService } from "../../../../battle/stats/inBattleAttributes"
 import {
     AttributeModifierService,

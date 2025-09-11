@@ -29,7 +29,7 @@ import {
     ObjectRepository,
     ObjectRepositoryService,
 } from "../../../battle/objectRepository"
-import { getResultOrThrowError } from "../../../utils/ResultOrError"
+import { getResultOrThrowError } from "../../../utils/resultOrError"
 import {
     SquaddieAffiliation,
     SquaddieAffiliationService,

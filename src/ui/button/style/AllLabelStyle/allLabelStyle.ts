@@ -104,7 +104,7 @@ export class AllLabelButtonDrawTask implements ButtonStyle {
                     buttonLabelsByStatus: Object.fromEntries(
                         Object.keys(ButtonStatus)
                             .map((keyStr) => keyStr as TButtonStatus)
-                            .map((key) => {
+                            .map((key): [TButtonStatus, Label] => {
                                 return [key, undefined]
                             })
                     ),

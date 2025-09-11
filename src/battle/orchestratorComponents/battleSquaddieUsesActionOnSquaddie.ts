@@ -6,7 +6,7 @@ import {
     OrchestratorComponentMouseEvent,
     OrchestratorComponentMouseEventType,
 } from "../orchestrator/battleOrchestratorComponent"
-import { getResultOrThrowError } from "../../utils/ResultOrError"
+import { getResultOrThrowError } from "../../utils/resultOrError"
 import { OrchestratorUtilities } from "./orchestratorUtils"
 import { SquaddieService } from "../../squaddie/squaddieService"
 import { UIControlSettings } from "../orchestrator/uiControlSettings"

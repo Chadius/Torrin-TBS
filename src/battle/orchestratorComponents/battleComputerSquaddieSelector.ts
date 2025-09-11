@@ -6,7 +6,7 @@ import {
     OrchestratorComponentMouseEventType,
 } from "../orchestrator/battleOrchestratorComponent"
 import { ConvertCoordinateService } from "../../hexMap/convertCoordinates"
-import { getResultOrThrowError } from "../../utils/ResultOrError"
+import { getResultOrThrowError } from "../../utils/resultOrError"
 import {
     BattleSquaddieTeam,
     BattleSquaddieTeamService,

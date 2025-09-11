@@ -7,7 +7,7 @@ import {
 } from "../../dataLoader/missionLoader"
 import { MissionLoader, MissionLoaderContext } from "./missionLoader"
 import { ObjectRepository, ObjectRepositoryService } from "../objectRepository"
-import { getResultOrThrowError } from "../../utils/ResultOrError"
+import { getResultOrThrowError } from "../../utils/resultOrError"
 import { DEFAULT_VICTORY_CUTSCENE_ID } from "../orchestrator/missionCutsceneCollection"
 import { MissionObjectiveService } from "../missionResult/missionObjective"
 import {

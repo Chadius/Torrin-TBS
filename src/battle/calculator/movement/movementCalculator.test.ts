@@ -17,7 +17,7 @@ import { MapGraphicsLayerHighlight } from "../../../hexMap/mapLayer/mapGraphicsL
 import { HIGHLIGHT_PULSE_COLOR } from "../../../hexMap/hexDrawingUtils"
 import { CampaignService } from "../../../campaign/campaign"
 import { BattleActionRecorderService } from "../../history/battleAction/battleActionRecorder"
-import { getResultOrThrowError } from "../../../utils/ResultOrError"
+import { getResultOrThrowError } from "../../../utils/resultOrError"
 import { InBattleAttributesService } from "../../stats/inBattleAttributes"
 import {
     AttributeModifierService,

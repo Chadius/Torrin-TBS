@@ -2,7 +2,7 @@ import {
     ObjectRepository,
     ObjectRepositoryService,
 } from "../../../objectRepository"
-import { getResultOrThrowError } from "../../../../utils/ResultOrError"
+import { getResultOrThrowError } from "../../../../utils/resultOrError"
 import { SquaddieEmotion } from "../../../animation/actionAnimation/actionAnimationConstants"
 import { BattleSquaddieTeam } from "../../../battleSquaddieTeam"
 import {

@@ -3,7 +3,7 @@ import {
     DegreeOfSuccess,
     TDegreeOfSuccess,
 } from "../calculator/actionCalculator/degreeOfSuccess"
-import { getResultOrThrowError } from "../../utils/ResultOrError"
+import { getResultOrThrowError } from "../../utils/resultOrError"
 import {
     SquaddieAffiliation,
     SquaddieAffiliationService,

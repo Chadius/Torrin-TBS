@@ -6,7 +6,7 @@ import {
     makeResult,
     ResultOrError,
     unwrapResultOrError,
-} from "./ResultOrError"
+} from "./resultOrError"
 import { describe, expect, it } from "vitest"
 
 describe("ResultOrError", () => {

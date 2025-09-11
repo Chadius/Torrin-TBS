@@ -9,7 +9,7 @@ import {
 import { BattlePhaseState } from "./battlePhaseController"
 import { GameEngineState } from "../../gameEngine/gameEngine"
 import { BattleSquaddie } from "../battleSquaddie"
-import { getResultOrThrowError } from "../../utils/ResultOrError"
+import { getResultOrThrowError } from "../../utils/resultOrError"
 import { ObjectRepositoryService } from "../objectRepository"
 
 export const BattlePhase = {

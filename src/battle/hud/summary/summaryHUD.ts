@@ -22,7 +22,7 @@ import {
     BattleActionDecisionStepService,
 } from "../../actionDecision/battleActionDecisionStep"
 import { RectAreaService } from "../../../ui/rectArea"
-import { getResultOrThrowError } from "../../../utils/ResultOrError"
+import { getResultOrThrowError } from "../../../utils/resultOrError"
 import { SquaddieService } from "../../../squaddie/squaddieService"
 import { MissionMap, MissionMapService } from "../../../missionMap/missionMap"
 import {

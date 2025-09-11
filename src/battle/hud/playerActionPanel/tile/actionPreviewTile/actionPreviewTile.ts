@@ -10,7 +10,7 @@ import {
 } from "../actionTilePosition"
 import { TSquaddieAffiliation } from "../../../../../squaddie/squaddieAffiliation"
 import { TextBox } from "../../../../../ui/textBox/textBox"
-import { getResultOrThrowError } from "../../../../../utils/ResultOrError"
+import { getResultOrThrowError } from "../../../../../utils/resultOrError"
 import {
     BattleActionDecisionStep,
     BattleActionDecisionStepService,

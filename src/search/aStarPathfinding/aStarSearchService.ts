@@ -125,14 +125,16 @@ const createStartingNodeRecords = <T>({
     startingNodes: T[]
     estimateCostBetweenNodes: (fromNode: T) => number
 }): SearchNodeRecord<T>[] =>
-    startingNodes.map((startingNode) => ({
-        node: startingNode,
-        connection: undefined,
-        lengthSoFar: 0,
-        costSoFar: 0,
-        estimatedTotalCost: estimateCostBetweenNodes(startingNode),
-        status: SearchNodeRecordStatus.OPEN,
-    }))
+    startingNodes.map(
+        (startingNode): SearchNodeRecord<T> => ({
+            node: startingNode,
+            connection: undefined,
+            lengthSoFar: 0,
+            costSoFar: 0,
+            estimatedTotalCost: estimateCostBetweenNodes(startingNode),
+            status: SearchNodeRecordStatus.OPEN,
+        })
+    )
 
 const addStartingNodeRecordsToPriorityQueue = <T>({
     startingNodeRecords,

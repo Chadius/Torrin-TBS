@@ -20,7 +20,7 @@ import {
 import { SquaddieTurnService } from "../../squaddie/turn"
 import { MessageBoardMessageType } from "../../message/messageBoardMessage"
 import { SquaddieService } from "../../squaddie/squaddieService"
-import { getResultOrThrowError } from "../../utils/ResultOrError"
+import { getResultOrThrowError } from "../../utils/resultOrError"
 import { SquaddiePhaseListener } from "./squaddiePhaseListener"
 import {
     AttributeModifierService,

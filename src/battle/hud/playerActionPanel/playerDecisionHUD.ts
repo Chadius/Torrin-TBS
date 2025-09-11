@@ -30,7 +30,7 @@ import { ConvertCoordinateService } from "../../../hexMap/convertCoordinates"
 import { BattleActionDecisionStepService } from "../../actionDecision/battleActionDecisionStep"
 import { PlayerCommandStateService } from "../playerCommand/playerCommandHUD"
 import { ObjectRepositoryService } from "../../objectRepository"
-import { getResultOrThrowError } from "../../../utils/ResultOrError"
+import { getResultOrThrowError } from "../../../utils/resultOrError"
 import { SquaddieTurnService } from "../../../squaddie/turn"
 import { SummaryHUDStateService } from "../summary/summaryHUD"
 

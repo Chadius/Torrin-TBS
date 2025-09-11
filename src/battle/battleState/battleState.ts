@@ -43,7 +43,7 @@ import {
     MessageBoardMessageType,
 } from "../../message/messageBoardMessage"
 import { GameEngineState } from "../../gameEngine/gameEngine"
-import { getResultOrThrowError } from "../../utils/ResultOrError"
+import { getResultOrThrowError } from "../../utils/resultOrError"
 import { SquaddieService } from "../../squaddie/squaddieService"
 import {
     BattleActionRecorder,

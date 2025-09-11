@@ -7,7 +7,7 @@ import {
 import { RectArea, RectAreaService } from "../../../ui/rectArea"
 import { Rectangle, RectangleService } from "../../../ui/rectangle/rectangle"
 import { BattleCamera } from "../../battleCamera"
-import { getResultOrThrowError } from "../../../utils/ResultOrError"
+import { getResultOrThrowError } from "../../../utils/resultOrError"
 import {
     ObjectRepository,
     ObjectRepositoryService,

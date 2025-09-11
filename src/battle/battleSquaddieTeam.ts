@@ -3,7 +3,7 @@ import {
     TSquaddieAffiliation,
 } from "../squaddie/squaddieAffiliation"
 import { ObjectRepository, ObjectRepositoryService } from "./objectRepository"
-import { getResultOrThrowError } from "../utils/ResultOrError"
+import { getResultOrThrowError } from "../utils/resultOrError"
 import { DrawSquaddieIconOnMapUtilities } from "./animation/drawSquaddieIconOnMap/drawSquaddieIconOnMap"
 import { SquaddieService } from "../squaddie/squaddieService"
 import { BattleSquaddieService } from "./battleSquaddie"

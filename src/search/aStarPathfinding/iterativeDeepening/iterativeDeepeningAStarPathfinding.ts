@@ -200,15 +200,15 @@ const initializeDepthFirstSearchStorage = <WorldModel, Action>({
 } => {
     const models: WorldModel[] = Array.from(
         new Array(maxDepth),
-        () => undefined
+        (): WorldModel => undefined
     )
     const actionGeneratorsPerWorldModel: Iterator<Action>[] = Array.from(
         new Array(maxDepth),
-        () => undefined
+        (): Iterator<Action> => undefined
     )
     const actionsThatShouldBePerformed: Action[] = Array.from(
         new Array(maxDepth),
-        () => undefined
+        (): Action => undefined
     )
 
     const costs: number[] = Array.from(new Array(maxDepth), () => 0)

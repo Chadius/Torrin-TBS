@@ -17,7 +17,7 @@ import { BattleOrchestratorMode } from "../orchestrator/battleOrchestrator"
 import { ConvertCoordinateService } from "../../hexMap/convertCoordinates"
 import { MissionMapService } from "../../missionMap/missionMap"
 import { ObjectRepositoryService } from "../objectRepository"
-import { getResultOrThrowError } from "../../utils/ResultOrError"
+import { getResultOrThrowError } from "../../utils/resultOrError"
 import { SquaddieService } from "../../squaddie/squaddieService"
 import {
     MessageBoardMessage,

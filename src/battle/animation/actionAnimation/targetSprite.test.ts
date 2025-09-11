@@ -10,7 +10,7 @@ import {
     TActionAnimationPhase,
     SquaddieEmotion,
 } from "./actionAnimationConstants"
-import { getResultOrThrowError } from "../../../utils/ResultOrError"
+import { getResultOrThrowError } from "../../../utils/resultOrError"
 import { SquaddieMovementService } from "../../../squaddie/movement"
 import { Damage, Healing } from "../../../squaddie/squaddieService"
 import {

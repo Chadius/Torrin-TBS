@@ -73,7 +73,7 @@ import { BattleActionDecisionStepService } from "../../actionDecision/battleActi
 import { MovementDecision } from "../../playerSelectionService/playerSelectionContext"
 import { PlayerConsideredActionsService } from "../../battleState/playerConsideredActions"
 import { SquaddieSelectorPanelService } from "./squaddieSelectorPanel/squaddieSelectorPanel"
-import { getResultOrThrowError } from "../../../utils/ResultOrError"
+import { getResultOrThrowError } from "../../../utils/resultOrError"
 import { BattleActionRecorderService } from "../../history/battleAction/battleActionRecorder"
 import { BattleActionService } from "../../history/battleAction/battleAction"
 import { PlayerCommandStateService } from "../playerCommand/playerCommandHUD"
@@ -762,8 +762,7 @@ describe("Player Decision HUD", () => {
             gameEngineState.battleOrchestratorState.battleHUDState.summaryHUDState.playerCommandState.squaddieAffiliationHue = 10
             gameEngineState.battleOrchestratorState.battleHUDState.summaryHUDState.playerCommandState.selectedActionTemplateId =
                 "longsword"
-            gameEngineState.battleOrchestratorState.battleHUDState.summaryHUDState.playerCommandState.playerSelectedSquaddieAction =
-                true
+            gameEngineState.battleOrchestratorState.battleHUDState.summaryHUDState.playerCommandState.playerSelectedSquaddieAction = true
             gameEngineState.messageBoard.sendMessage({
                 type: MessageBoardMessageType.PLAYER_CANCELS_PLAYER_ACTION_CONSIDERATIONS,
                 missionMap:

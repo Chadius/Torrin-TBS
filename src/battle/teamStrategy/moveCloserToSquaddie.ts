@@ -3,7 +3,7 @@ import {
     TeamStrategyCalculator,
     TeamStrategyService,
 } from "./teamStrategyCalculator"
-import { getResultOrThrowError } from "../../utils/ResultOrError"
+import { getResultOrThrowError } from "../../utils/resultOrError"
 import {
     SquaddieAffiliation,
     TSquaddieAffiliation,

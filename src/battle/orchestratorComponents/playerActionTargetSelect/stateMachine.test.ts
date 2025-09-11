@@ -89,7 +89,7 @@ import { Attribute } from "../../../squaddie/attribute/attribute"
 import { CanHealTargetCheck } from "../../actionValidity/canHealTargetCheck"
 import { CanAddModifiersCheck } from "../../actionValidity/canAddModifiersCheck"
 import { InBattleAttributesService } from "../../stats/inBattleAttributes"
-import { getResultOrThrowError } from "../../../utils/ResultOrError"
+import { getResultOrThrowError } from "../../../utils/resultOrError"
 import { PLAYER_ACTION_SELECT_TARGET_CREATE_CANCEL_BUTTON_ID } from "./playerActionTarget/cancelButton"
 import { ConvertCoordinateService } from "../../../hexMap/convertCoordinates"
 import { BattleCamera } from "../../battleCamera"
@@ -395,12 +395,9 @@ describe("PlayerActionTargetSelect State Machine", () => {
                     actionEffectTemplates: [
                         ActionEffectTemplateService.new({
                             squaddieAffiliationRelation: {
-                                [TargetBySquaddieAffiliationRelation.TARGET_SELF]:
-                                    true,
-                                [TargetBySquaddieAffiliationRelation.TARGET_ALLY]:
-                                    true,
-                                [TargetBySquaddieAffiliationRelation.TARGET_FOE]:
-                                    false,
+                                [TargetBySquaddieAffiliationRelation.TARGET_SELF]: true,
+                                [TargetBySquaddieAffiliationRelation.TARGET_ALLY]: true,
+                                [TargetBySquaddieAffiliationRelation.TARGET_FOE]: false,
                             },
                             healingDescriptions: {
                                 [Healing.LOST_HIT_POINTS]: 2,
@@ -425,12 +422,9 @@ describe("PlayerActionTargetSelect State Machine", () => {
                     actionEffectTemplates: [
                         ActionEffectTemplateService.new({
                             squaddieAffiliationRelation: {
-                                [TargetBySquaddieAffiliationRelation.TARGET_SELF]:
-                                    true,
-                                [TargetBySquaddieAffiliationRelation.TARGET_ALLY]:
-                                    false,
-                                [TargetBySquaddieAffiliationRelation.TARGET_FOE]:
-                                    false,
+                                [TargetBySquaddieAffiliationRelation.TARGET_SELF]: true,
+                                [TargetBySquaddieAffiliationRelation.TARGET_ALLY]: false,
+                                [TargetBySquaddieAffiliationRelation.TARGET_FOE]: false,
                             },
                             attributeModifiers: [
                                 AttributeModifierService.new({

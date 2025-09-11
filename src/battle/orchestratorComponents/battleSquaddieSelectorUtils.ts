@@ -4,7 +4,7 @@ import {
     HexCoordinateService,
 } from "../../hexMap/hexCoordinate/hexCoordinate"
 import { SquaddieService } from "../../squaddie/squaddieService"
-import { getResultOrThrowError } from "../../utils/ResultOrError"
+import { getResultOrThrowError } from "../../utils/resultOrError"
 import { SquaddieTemplate } from "../../campaign/squaddieTemplate"
 import { SearchResult } from "../../hexMap/pathfinder/searchResults/searchResult"
 import { MapHighlightService } from "../animation/mapHighlight"

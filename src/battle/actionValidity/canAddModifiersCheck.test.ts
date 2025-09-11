@@ -11,7 +11,7 @@ import {
     ActionTemplateService,
 } from "../../action/template/actionTemplate"
 import { MapSearchTestUtils } from "../../hexMap/pathfinder/pathGeneration/mapSearchTests/mapSearchTestUtils"
-import { getResultOrThrowError } from "../../utils/ResultOrError"
+import { getResultOrThrowError } from "../../utils/resultOrError"
 import { ActionPerformFailureReason } from "../../squaddie/turn"
 import { CoordinateGeneratorShape } from "../targeting/coordinateGenerator"
 import { Damage } from "../../squaddie/squaddieService"
@@ -66,10 +66,8 @@ describe("can add modifiers check", () => {
             actionEffectTemplates: [
                 ActionEffectTemplateService.new({
                     squaddieAffiliationRelation: {
-                        [TargetBySquaddieAffiliationRelation.TARGET_SELF]:
-                            false,
-                        [TargetBySquaddieAffiliationRelation.TARGET_ALLY]:
-                            false,
+                        [TargetBySquaddieAffiliationRelation.TARGET_SELF]: false,
+                        [TargetBySquaddieAffiliationRelation.TARGET_ALLY]: false,
                         [TargetBySquaddieAffiliationRelation.TARGET_FOE]: true,
                     },
                     damageDescriptions: {
@@ -121,12 +119,9 @@ describe("can add modifiers check", () => {
                 actionEffectTemplates: [
                     ActionEffectTemplateService.new({
                         squaddieAffiliationRelation: {
-                            [TargetBySquaddieAffiliationRelation.TARGET_SELF]:
-                                true,
-                            [TargetBySquaddieAffiliationRelation.TARGET_ALLY]:
-                                true,
-                            [TargetBySquaddieAffiliationRelation.TARGET_FOE]:
-                                false,
+                            [TargetBySquaddieAffiliationRelation.TARGET_SELF]: true,
+                            [TargetBySquaddieAffiliationRelation.TARGET_ALLY]: true,
+                            [TargetBySquaddieAffiliationRelation.TARGET_FOE]: false,
                         },
                         attributeModifiers: [
                             AttributeModifierService.new({

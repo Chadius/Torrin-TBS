@@ -19,7 +19,7 @@ import {
 } from "../battleSquaddieTeam"
 import { SquaddieTurnService } from "../../squaddie/turn"
 import { MessageBoardMessageType } from "../../message/messageBoardMessage"
-import { getResultOrThrowError } from "../../utils/ResultOrError"
+import { getResultOrThrowError } from "../../utils/resultOrError"
 import { SquaddiePhaseListener } from "./squaddiePhaseListener"
 import { DrawSquaddieIconOnMapUtilities } from "../animation/drawSquaddieIconOnMap/drawSquaddieIconOnMap"
 import { SquaddieRepositoryService } from "../../utils/test/squaddie"

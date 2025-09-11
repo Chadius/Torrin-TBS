@@ -1,7 +1,7 @@
 import { GameEngineState } from "../../gameEngine/gameEngine"
 import { SquaddieAffiliation } from "../../squaddie/squaddieAffiliation"
 import { ObjectRepositoryService } from "../objectRepository"
-import { getResultOrThrowError } from "../../utils/ResultOrError"
+import { getResultOrThrowError } from "../../utils/resultOrError"
 import { BattlePhaseService } from "../orchestratorComponents/battlePhaseTracker"
 import { BattleSquaddieTeam } from "../battleSquaddieTeam"
 import { SquaddieService } from "../../squaddie/squaddieService"

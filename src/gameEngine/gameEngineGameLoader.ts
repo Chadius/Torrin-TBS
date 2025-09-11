@@ -24,7 +24,7 @@ import {
 } from "../battle/history/battleSaveState"
 import { SaveFile } from "../utils/fileHandling/saveFile"
 import { DrawSquaddieIconOnMapUtilities } from "../battle/animation/drawSquaddieIconOnMap/drawSquaddieIconOnMap"
-import { getResultOrThrowError } from "../utils/ResultOrError"
+import { getResultOrThrowError } from "../utils/resultOrError"
 import { BattleCompletionStatus } from "../battle/orchestrator/missionObjectivesAndCutscenes"
 import { BattleCameraService } from "../battle/battleCamera"
 import {

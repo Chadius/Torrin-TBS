@@ -55,7 +55,7 @@ import {
 } from "../../../../squaddie/attribute/attributeModifier"
 import { Attribute } from "../../../../squaddie/attribute/attribute"
 import { GraphicsBuffer } from "../../../../utils/graphics/graphicsRenderer"
-import { getResultOrThrowError } from "../../../../utils/ResultOrError"
+import { getResultOrThrowError } from "../../../../utils/resultOrError"
 
 describe("Squaddie Name and Portrait Tile", () => {
     let objectRepository: ObjectRepository
