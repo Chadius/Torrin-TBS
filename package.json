@@ -17,7 +17,7 @@
         "dev": "npm run copy-assets && BROWSER='firefox' DEBUG='true' CAMPAIGN_ID='sandbox' npx vite dev",
         "build": "npm run copy-assets && npx vite build",
         "preview": "npm run copy-assets && BROWSER='firefox' CAMPAIGN_ID='sandbox' npx vite preview",
-        "copy-assets": "rm -rf public/assets && mkdir -p public/assets && rsync --recursive assets/toDist/* public/assets",
+        "copy-assets": "rm -rf public/assets && mkdir -p public/assets && rsync --exclude='*.DS_Store' --recursive assets/toDist/* public/assets",
         "tsc": "npx tsc --noEmit 2>&1 | head -10",
         "test": "vitest run",
         "test-watch": "vitest"
