@@ -507,8 +507,7 @@ describe("Action Preview Tile", () => {
                     actionEffectTemplates: [
                         ActionEffectTemplateService.new({
                             squaddieAffiliationRelation: {
-                                [TargetBySquaddieAffiliationRelation.TARGET_SELF]:
-                                    true,
+                                [TargetBySquaddieAffiliationRelation.TARGET_SELF]: true,
                             },
                             traits: TraitStatusStorageService.newUsingTraitValues(
                                 {
@@ -532,8 +531,7 @@ describe("Action Preview Tile", () => {
                     actionEffectTemplates: [
                         ActionEffectTemplateService.new({
                             squaddieAffiliationRelation: {
-                                [TargetBySquaddieAffiliationRelation.TARGET_SELF]:
-                                    true,
+                                [TargetBySquaddieAffiliationRelation.TARGET_SELF]: true,
                             },
                             attributeModifiers: [
                                 AttributeModifierService.new({
@@ -825,8 +823,7 @@ describe("Action Preview Tile", () => {
                     actionEffectTemplates: [
                         ActionEffectTemplateService.new({
                             squaddieAffiliationRelation: {
-                                [TargetBySquaddieAffiliationRelation.TARGET_SELF]:
-                                    true,
+                                [TargetBySquaddieAffiliationRelation.TARGET_SELF]: true,
                             },
                             attributeModifiers: [
                                 AttributeModifierService.new({
@@ -905,8 +902,7 @@ describe("Action Preview Tile", () => {
                     actionEffectTemplates: [
                         ActionEffectTemplateService.new({
                             squaddieAffiliationRelation: {
-                                [TargetBySquaddieAffiliationRelation.TARGET_SELF]:
-                                    true,
+                                [TargetBySquaddieAffiliationRelation.TARGET_SELF]: true,
                             },
                             attributeModifiers: [
                                 AttributeModifierService.new({
@@ -986,8 +982,7 @@ describe("Action Preview Tile", () => {
                     actionEffectTemplates: [
                         ActionEffectTemplateService.new({
                             squaddieAffiliationRelation: {
-                                [TargetBySquaddieAffiliationRelation.TARGET_SELF]:
-                                    true,
+                                [TargetBySquaddieAffiliationRelation.TARGET_SELF]: true,
                             },
                             attributeModifiers: [],
                         }),

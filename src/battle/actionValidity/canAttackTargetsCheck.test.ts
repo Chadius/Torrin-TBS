@@ -101,12 +101,9 @@ describe("canAttackTargetsCheck", () => {
                 actionEffectTemplates: [
                     ActionEffectTemplateService.new({
                         squaddieAffiliationRelation: {
-                            [TargetBySquaddieAffiliationRelation.TARGET_SELF]:
-                                false,
-                            [TargetBySquaddieAffiliationRelation.TARGET_ALLY]:
-                                false,
-                            [TargetBySquaddieAffiliationRelation.TARGET_FOE]:
-                                true,
+                            [TargetBySquaddieAffiliationRelation.TARGET_SELF]: false,
+                            [TargetBySquaddieAffiliationRelation.TARGET_ALLY]: false,
+                            [TargetBySquaddieAffiliationRelation.TARGET_FOE]: true,
                         },
                         damageDescriptions: {
                             [Damage.BODY]: 2,

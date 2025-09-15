@@ -264,8 +264,7 @@ describe("Action Result Text Writer", () => {
                 actionEffectTemplates: [
                     ActionEffectTemplateService.new({
                         squaddieAffiliationRelation: {
-                            [TargetBySquaddieAffiliationRelation.TARGET_SELF]:
-                                true,
+                            [TargetBySquaddieAffiliationRelation.TARGET_SELF]: true,
                         },
                         attributeModifiers: [
                             AttributeModifierService.new({
@@ -386,8 +385,7 @@ describe("Action Result Text Writer", () => {
                 actionEffectTemplates: [
                     ActionEffectTemplateService.new({
                         squaddieAffiliationRelation: {
-                            [TargetBySquaddieAffiliationRelation.TARGET_SELF]:
-                                true,
+                            [TargetBySquaddieAffiliationRelation.TARGET_SELF]: true,
                         },
                         attributeModifiers: [
                             AttributeModifierService.new({

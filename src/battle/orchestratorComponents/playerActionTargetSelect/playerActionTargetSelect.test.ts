@@ -296,8 +296,7 @@ describe("Player Action Target Select", () => {
             {
                 name: "finished",
                 setupTest: () => {
-                    playerActionTargetSelect.stateMachine.context.externalFlags.actionConfirmed =
-                        true
+                    playerActionTargetSelect.stateMachine.context.externalFlags.actionConfirmed = true
                 },
                 expectedRecommendedMode:
                     BattleOrchestratorMode.PLAYER_HUD_CONTROLLER,
@@ -305,8 +304,7 @@ describe("Player Action Target Select", () => {
             {
                 name: "cancel action",
                 setupTest: () => {
-                    playerActionTargetSelect.stateMachine.context.externalFlags.cancelActionSelection =
-                        true
+                    playerActionTargetSelect.stateMachine.context.externalFlags.cancelActionSelection = true
                 },
                 expectedRecommendedMode:
                     BattleOrchestratorMode.PLAYER_HUD_CONTROLLER,

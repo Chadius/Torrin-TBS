@@ -151,12 +151,9 @@ describe("Challenge Modifier Setting", () => {
                             versusSquaddieResistance:
                                 VersusSquaddieResistance.ARMOR,
                             squaddieAffiliationRelation: {
-                                [TargetBySquaddieAffiliationRelation.TARGET_SELF]:
-                                    false,
-                                [TargetBySquaddieAffiliationRelation.TARGET_FOE]:
-                                    true,
-                                [TargetBySquaddieAffiliationRelation.TARGET_ALLY]:
-                                    true,
+                                [TargetBySquaddieAffiliationRelation.TARGET_SELF]: false,
+                                [TargetBySquaddieAffiliationRelation.TARGET_FOE]: true,
+                                [TargetBySquaddieAffiliationRelation.TARGET_ALLY]: true,
                             },
                         }),
                     ],
@@ -453,8 +450,7 @@ describe("Challenge Modifier Setting", () => {
                             versusSquaddieResistance:
                                 VersusSquaddieResistance.ARMOR,
                             squaddieAffiliationRelation: {
-                                [TargetBySquaddieAffiliationRelation.TARGET_FOE]:
-                                    true,
+                                [TargetBySquaddieAffiliationRelation.TARGET_FOE]: true,
                             },
                         }),
                     ],
@@ -502,8 +498,7 @@ describe("Challenge Modifier Setting", () => {
                             versusSquaddieResistance:
                                 VersusSquaddieResistance.ARMOR,
                             squaddieAffiliationRelation: {
-                                [TargetBySquaddieAffiliationRelation.TARGET_FOE]:
-                                    true,
+                                [TargetBySquaddieAffiliationRelation.TARGET_FOE]: true,
                             },
                         }),
                     ],

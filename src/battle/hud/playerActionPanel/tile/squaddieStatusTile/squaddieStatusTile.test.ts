@@ -705,8 +705,7 @@ describe("Squaddie Status Tile", () => {
                     actionPoints: 2,
                 }
             )
-            gameEngineState.battleOrchestratorState.battleState.playerConsideredActions.endTurn =
-                true
+            gameEngineState.battleOrchestratorState.battleState.playerConsideredActions.endTurn = true
             const { currentValue, highlightedValue } =
                 drawActionPointBarAndGetValues()
             expect(currentValue).toEqual(1)

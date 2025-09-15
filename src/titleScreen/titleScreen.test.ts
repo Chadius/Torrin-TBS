@@ -426,8 +426,7 @@ describe("Title Screen", () => {
             )
             titleScreen.update(gameEngineState, mockedP5GraphicsContext)
             mousePressContinueButton(titleScreen, gameEngineState)
-            gameEngineState.fileState.loadSaveState.applicationErroredWhileLoading =
-                true
+            gameEngineState.fileState.loadSaveState.applicationErroredWhileLoading = true
 
             const textSpy = vi.spyOn(mockedP5GraphicsContext.mockedP5, "text")
             titleScreen.update(gameEngineState, mockedP5GraphicsContext)

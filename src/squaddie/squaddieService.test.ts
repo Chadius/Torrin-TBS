@@ -492,8 +492,7 @@ describe("Squaddie Service", () => {
                     actionEffectTemplates: [
                         ActionEffectTemplateService.new({
                             squaddieAffiliationRelation: {
-                                [TargetBySquaddieAffiliationRelation.TARGET_SELF]:
-                                    true,
+                                [TargetBySquaddieAffiliationRelation.TARGET_SELF]: true,
                             },
                         }),
                     ],
@@ -507,8 +506,7 @@ describe("Squaddie Service", () => {
                     actionEffectTemplates: [
                         ActionEffectTemplateService.new({
                             squaddieAffiliationRelation: {
-                                [TargetBySquaddieAffiliationRelation.TARGET_FOE]:
-                                    true,
+                                [TargetBySquaddieAffiliationRelation.TARGET_FOE]: true,
                             },
                         }),
                     ],
@@ -522,8 +520,7 @@ describe("Squaddie Service", () => {
                     actionEffectTemplates: [
                         ActionEffectTemplateService.new({
                             squaddieAffiliationRelation: {
-                                [TargetBySquaddieAffiliationRelation.TARGET_ALLY]:
-                                    true,
+                                [TargetBySquaddieAffiliationRelation.TARGET_ALLY]: true,
                             },
                         }),
                     ],

@@ -83,10 +83,8 @@ describe("map highlight generator", () => {
             actionEffectTemplates: [
                 ActionEffectTemplateService.new({
                     squaddieAffiliationRelation: {
-                        [TargetBySquaddieAffiliationRelation.TARGET_SELF]:
-                            false,
-                        [TargetBySquaddieAffiliationRelation.TARGET_ALLY]:
-                            false,
+                        [TargetBySquaddieAffiliationRelation.TARGET_SELF]: false,
+                        [TargetBySquaddieAffiliationRelation.TARGET_ALLY]: false,
                         [TargetBySquaddieAffiliationRelation.TARGET_FOE]: true,
                     },
                     traits: TraitStatusStorageService.newUsingTraitValues({

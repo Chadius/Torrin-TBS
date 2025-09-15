@@ -113,8 +113,7 @@ describe("PlayerHUDController", () => {
                     ActionEffectTemplateService.new({
                         damageDescriptions: { [Damage.BODY]: 2 },
                         squaddieAffiliationRelation: {
-                            [TargetBySquaddieAffiliationRelation.TARGET_FOE]:
-                                true,
+                            [TargetBySquaddieAffiliationRelation.TARGET_FOE]: true,
                         },
                     }),
                 ],

@@ -466,8 +466,7 @@ export class GameEngine {
             BattleSaveStateService.SaveToFile(saveData)
         } catch (error) {
             console.log(`Save game failed: ${error}`)
-            this.gameEngineState.fileState.saveSaveState.errorDuringSaving =
-                true
+            this.gameEngineState.fileState.saveSaveState.errorDuringSaving = true
             SaveSaveStateService.foundErrorDuringSaving(
                 this.gameEngineState.fileState.saveSaveState
             )

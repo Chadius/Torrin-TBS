@@ -1340,8 +1340,7 @@ const createSquaddie = ({
                         versusSquaddieResistance:
                             VersusSquaddieResistance.ARMOR,
                         squaddieAffiliationRelation: {
-                            [TargetBySquaddieAffiliationRelation.TARGET_FOE]:
-                                true,
+                            [TargetBySquaddieAffiliationRelation.TARGET_FOE]: true,
                         },
                         damageDescriptions: {
                             [Damage.BODY]: 1,
@@ -1371,8 +1370,7 @@ const createSquaddie = ({
                         versusSquaddieResistance:
                             VersusSquaddieResistance.ARMOR,
                         squaddieAffiliationRelation: {
-                            [TargetBySquaddieAffiliationRelation.TARGET_FOE]:
-                                true,
+                            [TargetBySquaddieAffiliationRelation.TARGET_FOE]: true,
                         },
                         damageDescriptions: {
                             [Damage.BODY]: 1,
@@ -1400,10 +1398,8 @@ const createSquaddie = ({
                             [Trait.HEALING]: true,
                         }),
                         squaddieAffiliationRelation: {
-                            [TargetBySquaddieAffiliationRelation.TARGET_SELF]:
-                                true,
-                            [TargetBySquaddieAffiliationRelation.TARGET_ALLY]:
-                                true,
+                            [TargetBySquaddieAffiliationRelation.TARGET_SELF]: true,
+                            [TargetBySquaddieAffiliationRelation.TARGET_ALLY]: true,
                         },
                         healingDescriptions: {
                             [Healing.LOST_HIT_POINTS]: 1,
@@ -1431,8 +1427,7 @@ const createSquaddie = ({
                             [Trait.HEALING]: true,
                         }),
                         squaddieAffiliationRelation: {
-                            [TargetBySquaddieAffiliationRelation.TARGET_SELF]:
-                                true,
+                            [TargetBySquaddieAffiliationRelation.TARGET_SELF]: true,
                         },
                         healingDescriptions: {
                             [Healing.LOST_HIT_POINTS]: 1,

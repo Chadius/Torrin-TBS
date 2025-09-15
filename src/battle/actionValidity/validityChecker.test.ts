@@ -210,8 +210,7 @@ describe("validity checker", () => {
                                 }),
                             ],
                             squaddieAffiliationRelation: {
-                                [TargetBySquaddieAffiliationRelation.TARGET_SELF]:
-                                    true,
+                                [TargetBySquaddieAffiliationRelation.TARGET_SELF]: true,
                             },
                         }),
                     ],
@@ -299,8 +298,7 @@ describe("validity checker", () => {
                                     }),
                                 ],
                                 squaddieAffiliationRelation: {
-                                    [TargetBySquaddieAffiliationRelation.TARGET_SELF]:
-                                        true,
+                                    [TargetBySquaddieAffiliationRelation.TARGET_SELF]: true,
                                 },
                             }),
                         ],

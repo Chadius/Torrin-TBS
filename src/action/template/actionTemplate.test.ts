@@ -253,8 +253,7 @@ describe("ActionTemplate", () => {
                             [Healing.LOST_HIT_POINTS]: 1,
                         },
                         squaddieAffiliationRelation: {
-                            [TargetBySquaddieAffiliationRelation.TARGET_SELF]:
-                                true,
+                            [TargetBySquaddieAffiliationRelation.TARGET_SELF]: true,
                         },
                     }),
                 ],
@@ -274,8 +273,7 @@ describe("ActionTemplate", () => {
                             [Damage.BODY]: 2,
                         },
                         squaddieAffiliationRelation: {
-                            [TargetBySquaddieAffiliationRelation.TARGET_FOE]:
-                                true,
+                            [TargetBySquaddieAffiliationRelation.TARGET_FOE]: true,
                         },
                     }),
                 ],

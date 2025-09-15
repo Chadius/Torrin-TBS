@@ -539,8 +539,7 @@ describe("Targeting Service", () => {
                     target: player2,
                     squaddieAffiliationRelation: {
                         [TargetBySquaddieAffiliationRelation.TARGET_SELF]: true,
-                        [TargetBySquaddieAffiliationRelation.TARGET_ALLY]:
-                            false,
+                        [TargetBySquaddieAffiliationRelation.TARGET_ALLY]: false,
                         [TargetBySquaddieAffiliationRelation.TARGET_FOE]: false,
                     },
                     expectedToTarget: false,
@@ -572,8 +571,7 @@ describe("Targeting Service", () => {
                     actor: player1,
                     target: player1,
                     squaddieAffiliationRelation: {
-                        [TargetBySquaddieAffiliationRelation.TARGET_SELF]:
-                            false,
+                        [TargetBySquaddieAffiliationRelation.TARGET_SELF]: false,
                         [TargetBySquaddieAffiliationRelation.TARGET_ALLY]: true,
                         [TargetBySquaddieAffiliationRelation.TARGET_FOE]: false,
                     },
@@ -584,8 +582,7 @@ describe("Targeting Service", () => {
                     actor: player1,
                     target: player2,
                     squaddieAffiliationRelation: {
-                        [TargetBySquaddieAffiliationRelation.TARGET_SELF]:
-                            false,
+                        [TargetBySquaddieAffiliationRelation.TARGET_SELF]: false,
                         [TargetBySquaddieAffiliationRelation.TARGET_ALLY]: true,
                         [TargetBySquaddieAffiliationRelation.TARGET_FOE]: false,
                     },
@@ -596,8 +593,7 @@ describe("Targeting Service", () => {
                     actor: player1,
                     target: enemy1,
                     squaddieAffiliationRelation: {
-                        [TargetBySquaddieAffiliationRelation.TARGET_SELF]:
-                            false,
+                        [TargetBySquaddieAffiliationRelation.TARGET_SELF]: false,
                         [TargetBySquaddieAffiliationRelation.TARGET_ALLY]: true,
                         [TargetBySquaddieAffiliationRelation.TARGET_FOE]: false,
                     },
@@ -630,10 +626,8 @@ describe("Targeting Service", () => {
                     actor: player1,
                     target: enemy1,
                     squaddieAffiliationRelation: {
-                        [TargetBySquaddieAffiliationRelation.TARGET_SELF]:
-                            false,
-                        [TargetBySquaddieAffiliationRelation.TARGET_ALLY]:
-                            false,
+                        [TargetBySquaddieAffiliationRelation.TARGET_SELF]: false,
+                        [TargetBySquaddieAffiliationRelation.TARGET_ALLY]: false,
                         [TargetBySquaddieAffiliationRelation.TARGET_FOE]: true,
                     },
                     expectedToTarget: true,
@@ -643,10 +637,8 @@ describe("Targeting Service", () => {
                     actor: enemy1,
                     target: player1,
                     squaddieAffiliationRelation: {
-                        [TargetBySquaddieAffiliationRelation.TARGET_SELF]:
-                            false,
-                        [TargetBySquaddieAffiliationRelation.TARGET_ALLY]:
-                            false,
+                        [TargetBySquaddieAffiliationRelation.TARGET_SELF]: false,
+                        [TargetBySquaddieAffiliationRelation.TARGET_ALLY]: false,
                         [TargetBySquaddieAffiliationRelation.TARGET_FOE]: true,
                     },
                     expectedToTarget: true,
@@ -656,10 +648,8 @@ describe("Targeting Service", () => {
                     actor: player1,
                     target: player1,
                     squaddieAffiliationRelation: {
-                        [TargetBySquaddieAffiliationRelation.TARGET_SELF]:
-                            false,
-                        [TargetBySquaddieAffiliationRelation.TARGET_ALLY]:
-                            false,
+                        [TargetBySquaddieAffiliationRelation.TARGET_SELF]: false,
+                        [TargetBySquaddieAffiliationRelation.TARGET_ALLY]: false,
                         [TargetBySquaddieAffiliationRelation.TARGET_FOE]: true,
                     },
                     expectedToTarget: false,
@@ -669,10 +659,8 @@ describe("Targeting Service", () => {
                     actor: player1,
                     target: player2,
                     squaddieAffiliationRelation: {
-                        [TargetBySquaddieAffiliationRelation.TARGET_SELF]:
-                            false,
-                        [TargetBySquaddieAffiliationRelation.TARGET_ALLY]:
-                            false,
+                        [TargetBySquaddieAffiliationRelation.TARGET_SELF]: false,
+                        [TargetBySquaddieAffiliationRelation.TARGET_ALLY]: false,
                         [TargetBySquaddieAffiliationRelation.TARGET_FOE]: true,
                     },
                     expectedToTarget: false,
