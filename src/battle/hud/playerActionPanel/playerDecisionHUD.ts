@@ -10,7 +10,6 @@ import {
     MessageBoardMessageService,
     MessageBoardMessageType,
 } from "../../../message/messageBoardMessage"
-import { isValidValue } from "../../../utils/objectValidityCheck"
 import { GraphicsBuffer } from "../../../utils/graphics/graphicsRenderer"
 import {
     PopupWindow,
@@ -33,6 +32,7 @@ import { ObjectRepositoryService } from "../../objectRepository"
 import { getResultOrThrowError } from "../../../utils/resultOrError"
 import { SquaddieTurnService } from "../../../squaddie/turn"
 import { SummaryHUDStateService } from "../summary/summaryHUD"
+import { EnumLike } from "../../../utils/enum"
 
 const INVALID_SELECTION_POP_UP_DURATION_MS = 2000
 
@@ -112,7 +112,7 @@ export type TPopupWindowType = EnumLike<typeof PopupWindowType>
 
 export interface PlayerDecisionHUD {
     popupWindows: {
-        [key in TPopupWindowType]: PopupWindow
+        [key in TPopupWindowType]: PopupWindow | undefined
     }
 }
 
@@ -129,7 +129,7 @@ export const PlayerDecisionHUDService = {
         graphicsContext: GraphicsBuffer
     ) => {
         Object.values(playerDecisionHUD.popupWindows)
-            .filter(isValidValue)
+            .filter((p) => p != undefined)
             .forEach((popupWindow) => {
                 PopupWindowService.draw(popupWindow, graphicsContext)
             })
@@ -193,15 +193,13 @@ const playerConsidersAction = (
             break
     }
 
-    if (
+    const squaddieStatusTile =
         message.summaryHUDState.squaddieStatusTiles[
             ActionTilePosition.ACTOR_STATUS
         ]
-    ) {
+    if (squaddieStatusTile != undefined) {
         SquaddieStatusTileService.updateTileUsingSquaddie({
-            tile: message.summaryHUDState.squaddieStatusTiles[
-                ActionTilePosition.ACTOR_STATUS
-            ],
+            tile: squaddieStatusTile,
             missionMap: message.missionMap,
             playerConsideredActions: message.playerConsideredActions,
             battleActionDecisionStep: message.battleActionDecisionStep,
@@ -226,12 +224,15 @@ const playerConsidersAction = (
 const playerConsidersMovement = (
     message: MessageBoardMessagePlayerConsidersMovement
 ) => {
+    const battleSquaddieId = BattleActionDecisionStepService.getActor(
+        message.battleActionDecisionStep
+    )?.battleSquaddieId
+    if (battleSquaddieId == undefined) return
+
     const { battleSquaddie } = getResultOrThrowError(
         ObjectRepositoryService.getSquaddieByBattleId(
             message.objectRepository,
-            BattleActionDecisionStepService.getActor(
-                message.battleActionDecisionStep
-            ).battleSquaddieId
+            battleSquaddieId
         )
     )
 
@@ -244,15 +245,13 @@ const playerConsidersMovement = (
         actionPoints: message.movementDecision.actionPointCost,
     })
 
-    if (
+    const squaddieStatusTile =
         message.summaryHUDState.squaddieStatusTiles[
             ActionTilePosition.ACTOR_STATUS
         ]
-    ) {
+    if (squaddieStatusTile != undefined) {
         SquaddieStatusTileService.updateTileUsingSquaddie({
-            tile: message.summaryHUDState.squaddieStatusTiles[
-                ActionTilePosition.ACTOR_STATUS
-            ],
+            tile: squaddieStatusTile,
             missionMap: message.missionMap,
             playerConsideredActions: message.playerConsideredActions,
             battleActionDecisionStep: message.battleActionDecisionStep,
@@ -269,12 +268,17 @@ const playerConsidersMovement = (
 const cancelPlayerActionConsiderations = (
     message: MessageBoardMessagePlayerCancelsPlayerActionConsiderations
 ) => {
+    const battleSquaddieId = BattleActionDecisionStepService.getActor(
+        message.battleActionDecisionStep
+    )?.battleSquaddieId
+    if (battleSquaddieId == undefined) {
+        throw new Error("battleSquaddieId is undefined")
+    }
+
     const { battleSquaddie } = getResultOrThrowError(
         ObjectRepositoryService.getSquaddieByBattleId(
             message.objectRepository,
-            BattleActionDecisionStepService.getActor(
-                message.battleActionDecisionStep
-            ).battleSquaddieId
+            battleSquaddieId
         )
     )
 
@@ -291,15 +295,13 @@ const cancelPlayerActionConsiderations = (
 
     PlayerCommandStateService.removeSelection(message.playerCommandState)
 
-    if (
+    const squaddieStatusTile =
         message.summaryHUDState.squaddieStatusTiles[
             ActionTilePosition.ACTOR_STATUS
         ]
-    ) {
+    if (squaddieStatusTile != undefined) {
         SquaddieStatusTileService.updateTileUsingSquaddie({
-            tile: message.summaryHUDState.squaddieStatusTiles[
-                ActionTilePosition.ACTOR_STATUS
-            ],
+            tile: squaddieStatusTile,
             missionMap: message.missionMap,
             playerConsideredActions: message.playerConsideredActions,
             battleActionDecisionStep: message.battleActionDecisionStep,
@@ -335,6 +337,7 @@ const selectAndLockNextSquaddie = (
         return
     }
 
+    if (gameEngineState.repository == undefined) return
     const nextBattleSquaddieId = BattleHUDStateService.getNextSquaddieId({
         battleHUDState: gameEngineState.battleOrchestratorState.battleHUDState,
         objectRepository: gameEngineState.repository,
@@ -359,11 +362,13 @@ const selectAndLockNextSquaddie = (
 }
 
 const createSquaddieSelectorPanel = (gameEngineState: GameEngineState) => {
+    if (gameEngineState.repository == undefined) return
     const currentTeam = BattleStateService.getCurrentTeam(
         gameEngineState.battleOrchestratorState.battleState,
         gameEngineState.repository
     )
 
+    if (currentTeam == undefined) return
     if (
         gameEngineState.battleOrchestratorState.battleHUDState
             .squaddieListing === undefined ||
@@ -390,7 +395,10 @@ const panCameraToSquaddie = (
         gameEngineState.battleOrchestratorState.battleState.missionMap,
         nextBattleSquaddieId
     )
-    if (MissionMapSquaddieCoordinateService.isValid(selectedMapCoordinates)) {
+    if (
+        MissionMapSquaddieCoordinateService.isValid(selectedMapCoordinates) &&
+        selectedMapCoordinates.currentMapCoordinate != undefined
+    ) {
         const selectedWorldCoordinates =
             ConvertCoordinateService.convertMapCoordinatesToWorldLocation({
                 mapCoordinate: {

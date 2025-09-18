@@ -194,7 +194,7 @@ describe("battleMapDisplay", () => {
                 dateSpy.mockReturnValue(1000)
                 battleMapDisplay.update({
                     gameEngineState,
-                    resourceHandler: gameEngineState.resourceHandler,
+                    resourceHandler: gameEngineState.resourceHandler!,
                     graphicsContext: mockedP5GraphicsContext,
                 })
 
@@ -381,11 +381,11 @@ describe("battleMapDisplay", () => {
                 scrollConfigSpy.mockRestore()
             })
 
-            const findTestByCameraDescription = (cameraDescription: string) =>
-                tests.find((t) => t.cameraDescription === cameraDescription)
-
             const useMouseWheelToMoveCamera = (cameraDescription: string) => {
-                const test = findTestByCameraDescription(cameraDescription)
+                const test = findTestByCameraDescription(
+                    tests,
+                    cameraDescription
+                )
 
                 battleMapDisplay.moveCameraBasedOnMouseWheel(
                     battleOrchestratorState,
@@ -397,6 +397,7 @@ describe("battleMapDisplay", () => {
                 useMouseWheelToMoveCamera("move left")
                 expect(
                     findTestByCameraDescription(
+                        tests,
                         "move right"
                     ).cameraLocationTest(camera)
                 ).toBeTruthy()
@@ -406,9 +407,10 @@ describe("battleMapDisplay", () => {
             it("right", () => {
                 useMouseWheelToMoveCamera("move right")
                 expect(
-                    findTestByCameraDescription("move left").cameraLocationTest(
-                        camera
-                    )
+                    findTestByCameraDescription(
+                        tests,
+                        "move left"
+                    ).cameraLocationTest(camera)
                 ).toBeTruthy()
 
                 expect(scrollConfigSpy).toBeCalled()
@@ -417,9 +419,10 @@ describe("battleMapDisplay", () => {
             it("down", () => {
                 useMouseWheelToMoveCamera("move down")
                 expect(
-                    findTestByCameraDescription("move up").cameraLocationTest(
-                        camera
-                    )
+                    findTestByCameraDescription(
+                        tests,
+                        "move up"
+                    ).cameraLocationTest(camera)
                 ).toBeTruthy()
 
                 expect(scrollConfigSpy).toBeCalled()
@@ -428,9 +431,10 @@ describe("battleMapDisplay", () => {
             it("right", () => {
                 useMouseWheelToMoveCamera("move up")
                 expect(
-                    findTestByCameraDescription("move down").cameraLocationTest(
-                        camera
-                    )
+                    findTestByCameraDescription(
+                        tests,
+                        "move down"
+                    ).cameraLocationTest(camera)
                 ).toBeTruthy()
                 expect(scrollConfigSpy).toBeCalled()
             })
@@ -528,9 +532,7 @@ describe("battleMapDisplay", () => {
         )
 
         it("will not scroll unless a button is pressed", () => {
-            const moveLeftTest = tests.find(
-                (test) => test.cameraDescription == "move left"
-            )
+            const moveLeftTest = findTestByCameraDescription(tests, "move left")
             const dragWithNoButton = {
                 ...moveLeftTest.mouseDrag,
                 button: MouseButton.NONE,
@@ -554,11 +556,11 @@ describe("battleMapDisplay", () => {
                 scrollConfigSpy.mockRestore()
             })
 
-            const findTestByCameraDescription = (cameraDescription: string) =>
-                tests.find((t) => t.cameraDescription === cameraDescription)
-
             const useMouseDragToMoveCamera = (cameraDescription: string) => {
-                const test = findTestByCameraDescription(cameraDescription)
+                const test = findTestByCameraDescription(
+                    tests,
+                    cameraDescription
+                )
 
                 battleMapDisplay.moveCameraBasedOnMouseDrag(
                     battleOrchestratorState,
@@ -570,6 +572,7 @@ describe("battleMapDisplay", () => {
                 useMouseDragToMoveCamera("move left")
                 expect(
                     findTestByCameraDescription(
+                        tests,
                         "move right"
                     ).cameraLocationTest(camera)
                 ).toBeTruthy()
@@ -579,9 +582,10 @@ describe("battleMapDisplay", () => {
             it("right", () => {
                 useMouseDragToMoveCamera("move right")
                 expect(
-                    findTestByCameraDescription("move left").cameraLocationTest(
-                        camera
-                    )
+                    findTestByCameraDescription(
+                        tests,
+                        "move left"
+                    ).cameraLocationTest(camera)
                 ).toBeTruthy()
 
                 expect(scrollConfigSpy).toBeCalled()
@@ -590,9 +594,10 @@ describe("battleMapDisplay", () => {
             it("down", () => {
                 useMouseDragToMoveCamera("move down")
                 expect(
-                    findTestByCameraDescription("move up").cameraLocationTest(
-                        camera
-                    )
+                    findTestByCameraDescription(
+                        tests,
+                        "move up"
+                    ).cameraLocationTest(camera)
                 ).toBeTruthy()
 
                 expect(scrollConfigSpy).toBeCalled()
@@ -601,9 +606,10 @@ describe("battleMapDisplay", () => {
             it("right", () => {
                 useMouseDragToMoveCamera("move up")
                 expect(
-                    findTestByCameraDescription("move down").cameraLocationTest(
-                        camera
-                    )
+                    findTestByCameraDescription(
+                        tests,
+                        "move down"
+                    ).cameraLocationTest(camera)
                 ).toBeTruthy()
                 expect(scrollConfigSpy).toBeCalled()
             })
@@ -655,4 +661,21 @@ const getScrollConfigSpy = (battleMapDisplay: BattleMapDisplay) => {
             horizontalTracksMouseDrag: false,
             verticalTracksMouseDrag: false,
         })
+}
+
+type CameraTestDescription = {
+    cameraDescription: string
+}
+
+const findTestByCameraDescription = <T>(
+    tests: (T & CameraTestDescription)[],
+    cameraDescription: string
+): T => {
+    const foundTest = tests.find(
+        (t) => t.cameraDescription === cameraDescription
+    )
+    if (foundTest == undefined) {
+        throw new Error("Could not find camera description test")
+    }
+    return foundTest
 }

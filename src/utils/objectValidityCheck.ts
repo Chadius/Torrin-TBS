@@ -4,6 +4,6 @@ export const isValidValue = (value: any): boolean => {
     return !notFound.includes(value)
 }
 
-export const getValidValueOrDefault = <T>(value: T, defaultValue: T) => {
-    return isValidValue(value) ? value : defaultValue
+export const getValidValueOrDefault = <T>(value: T, defaultValue: T): T => {
+    return (isValidValue(value) ? value : defaultValue) ?? defaultValue
 }

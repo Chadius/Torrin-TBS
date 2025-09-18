@@ -49,14 +49,15 @@ export const MapHighlightService = {
         squaddieTurnOverride,
         squaddieAllMovementCache,
     }: {
-        currentMapCoordinate: HexCoordinate
-        originMapCoordinate: HexCoordinate
+        currentMapCoordinate: HexCoordinate | undefined
+        originMapCoordinate: HexCoordinate | undefined
         missionMap: MissionMap
         repository: ObjectRepository
         battleSquaddieId: string
         squaddieAllMovementCache: SearchResultsCache
         squaddieTurnOverride?: SquaddieTurn
     }): HighlightCoordinateDescription[] => {
+        if (originMapCoordinate == undefined) return []
         const { squaddieTemplate, battleSquaddie } = getResultOrThrowError(
             ObjectRepositoryService.getSquaddieByBattleId(
                 repository,
@@ -95,7 +96,7 @@ export const MapHighlightService = {
             }).net.passThroughWalls,
             squaddieAffiliation: squaddieTemplate.squaddieId.affiliation,
         })
-        const reachableCoordinateSearch: SearchResult =
+        const reachableCoordinateSearch: SearchResult | undefined =
             SearchResultsCacheService.calculateSquaddieAllMovement({
                 searchResultsCache: squaddieAllMovementCache,
                 battleSquaddieId,
@@ -135,7 +136,7 @@ const highlightAllCoordinatesWithinSquaddieMovementRange = ({
     reachableCoordinatesSearch,
     squaddieIsNormallyControllableByPlayer,
 }: {
-    reachableCoordinatesSearch: SearchResult
+    reachableCoordinatesSearch: SearchResult | undefined
     squaddieIsNormallyControllableByPlayer: boolean
 }) => {
     const pulseMovementColor: PulseColor =
@@ -163,11 +164,13 @@ const getHighlightsForAttackRange = ({
 }: {
     objectRepository: ObjectRepository
     battleSquaddieId: string
-    reachableCoordinateSearch: SearchResult
+    reachableCoordinateSearch: SearchResult | undefined
     missionMap: MissionMap
     squaddieIsNormallyControllableByPlayer: boolean
     actionPointsRemaining: number
 }): HighlightCoordinateDescription[] => {
+    if (reachableCoordinateSearch == undefined) return []
+
     const {
         targetsFoes: attackCoordinates,
         doesNotTargetFoes: assistCoordinates,

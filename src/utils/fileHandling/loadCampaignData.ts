@@ -44,6 +44,7 @@ export const LoadCampaignData = {
                     | PlayerArmy
                     | CampaignFileFormat
                     | ActionTemplate[]
+                    | undefined
                 > => {
                     if (
                         filename ===

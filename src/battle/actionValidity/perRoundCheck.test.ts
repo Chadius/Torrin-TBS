@@ -80,7 +80,7 @@ describe("Per Round Checker", () => {
 })
 
 const setup = (
-    numberOfAllowedUses: number,
+    numberOfAllowedUses: number | undefined,
     numberOfTimesAlreadyUsed: number
 ) => {
     const objectRepository = ObjectRepositoryService.new()

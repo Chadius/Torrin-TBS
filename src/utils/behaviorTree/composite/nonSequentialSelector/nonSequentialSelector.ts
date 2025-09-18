@@ -11,7 +11,7 @@ export class NonSequentialSelectorComposite implements BehaviorTreeTask {
     }
 
     run(): boolean {
-        if (!this.children) {
+        if (this.children == undefined) {
             return false
         }
 
@@ -19,6 +19,9 @@ export class NonSequentialSelectorComposite implements BehaviorTreeTask {
             new Array(this.children.length),
             (x, i) => i
         ).sort(() => Math.random() - 0.5)
-        return randomIndexOrder.some((i) => this.children[i].run())
+        return randomIndexOrder.some((i) => {
+            if (this.children == undefined) return false
+            return this.children[i].run()
+        })
     }
 }

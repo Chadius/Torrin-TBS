@@ -248,8 +248,9 @@ describe("Squaddie Service", () => {
                     playerBattleSquaddie.inBattleAttributes
                 )
             expect(
-                attributeTypeAndAmounts.find((a) => a.type === Attribute.ABSORB)
-                    .amount
+                attributeTypeAndAmounts.find(
+                    (a) => a.type === Attribute.ABSORB
+                )!.amount
             ).toBe(1)
 
             let damageExplanation: DamageExplanation =
@@ -278,8 +279,9 @@ describe("Squaddie Service", () => {
                     playerBattleSquaddie.inBattleAttributes
                 )
             expect(
-                attributeTypeAndAmounts.find((a) => a.type === Attribute.ABSORB)
-                    .amount
+                attributeTypeAndAmounts.find(
+                    (a) => a.type === Attribute.ABSORB
+                )!.amount
             ).toBe(1)
         })
         it("can give healing to the squaddie", () => {

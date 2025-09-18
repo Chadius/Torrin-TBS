@@ -16,12 +16,12 @@ import { BattleActionDecisionStep } from "../../actionDecision/battleActionDecis
 
 export interface BattleHUDState {
     squaddieListing: {
-        teamId: string
+        teamId: string | undefined
         battleSquaddieIds: string[]
-        currentIndex: number
+        currentIndex: number | undefined
     }
-    summaryHUDState: SummaryHUDState
-    squaddieSelectorPanel: SquaddieSelectorPanel
+    summaryHUDState: SummaryHUDState | undefined
+    squaddieSelectorPanel: SquaddieSelectorPanel | undefined
 }
 
 export const BattleHUDStateService = {
@@ -61,7 +61,7 @@ export const BattleHUDStateService = {
         battleHUDState: BattleHUDState
         objectRepository: ObjectRepository
         missionMap: MissionMap
-    }): string => {
+    }): string | undefined => {
         if (battleHUDState?.squaddieListing?.battleSquaddieIds === undefined) {
             return undefined
         }
@@ -91,7 +91,7 @@ export const BattleHUDStateService = {
                             MissionMapService.getByBattleSquaddieId(
                                 missionMap,
                                 battleSquaddieId
-                            ).currentMapCoordinate
+                            )?.currentMapCoordinate
                         )
                     )
                         return undefined
@@ -101,44 +101,52 @@ export const BattleHUDStateService = {
                         squaddieListingIndex,
                     }
                 })
-                .filter((x) => x)
+                .filter((x) => x != undefined)
 
         if (selectableSquaddies.length === 0) {
             battleHUDState.squaddieListing.currentIndex = undefined
-            SquaddieSelectorPanelService.selectSquaddie(
-                battleHUDState.squaddieSelectorPanel,
-                undefined
-            )
+            if (battleHUDState.squaddieSelectorPanel != undefined) {
+                SquaddieSelectorPanelService.selectSquaddie(
+                    battleHUDState.squaddieSelectorPanel,
+                    undefined
+                )
+            }
             return undefined
         }
 
         if (selectableSquaddies.length === 1) {
             battleHUDState.squaddieListing.currentIndex =
-                selectableSquaddies[0].squaddieListingIndex
-            SquaddieSelectorPanelService.selectSquaddie(
-                battleHUDState.squaddieSelectorPanel,
-                selectableSquaddies[0].battleSquaddieId
-            )
-            return selectableSquaddies[0].battleSquaddieId
+                selectableSquaddies[0]!.squaddieListingIndex
+            if (battleHUDState.squaddieSelectorPanel != undefined) {
+                SquaddieSelectorPanelService.selectSquaddie(
+                    battleHUDState.squaddieSelectorPanel,
+                    selectableSquaddies[0]!.battleSquaddieId
+                )
+            }
+            return selectableSquaddies[0]!.battleSquaddieId
         }
 
-        const alreadySelectedIndex = selectableSquaddies.findIndex(
-            ({ squaddieListingIndex }) =>
-                squaddieListingIndex ===
-                battleHUDState.squaddieListing.currentIndex
-        )
+        const alreadySelectedIndex = selectableSquaddies
+            .filter((s) => s != undefined)
+            .findIndex(
+                ({ squaddieListingIndex }) =>
+                    squaddieListingIndex ===
+                    battleHUDState.squaddieListing.currentIndex
+            )
         let nextBattleSquaddieId =
             alreadySelectedIndex === -1 ||
             alreadySelectedIndex >= selectableSquaddies.length - 1
                 ? selectableSquaddies[0]
                 : selectableSquaddies[alreadySelectedIndex + 1]
         battleHUDState.squaddieListing.currentIndex =
-            nextBattleSquaddieId.squaddieListingIndex
-        SquaddieSelectorPanelService.selectSquaddie(
-            battleHUDState.squaddieSelectorPanel,
-            nextBattleSquaddieId.battleSquaddieId
-        )
-        return nextBattleSquaddieId.battleSquaddieId
+            nextBattleSquaddieId?.squaddieListingIndex
+        if (battleHUDState.squaddieSelectorPanel != undefined) {
+            SquaddieSelectorPanelService.selectSquaddie(
+                battleHUDState.squaddieSelectorPanel,
+                nextBattleSquaddieId?.battleSquaddieId
+            )
+        }
+        return nextBattleSquaddieId?.battleSquaddieId
     },
 }
 

@@ -1,11 +1,7 @@
 import { BattleSaveState } from "../../battle/history/battleSaveState"
-import {
-    getValidValueOrDefault,
-    isValidValue,
-} from "../../utils/objectValidityCheck"
 
 export interface LoadSaveState {
-    saveState: BattleSaveState
+    saveState: BattleSaveState | undefined
     applicationStartedLoad: boolean
     applicationCompletedLoad: boolean
     userRequestedLoad: boolean
@@ -30,21 +26,13 @@ export const LoadSaveStateService = {
         userCanceledLoad?: boolean
     }): LoadSaveState => {
         return newLoadSaveState({
-            saveState: isValidValue(saveState) ? saveState : undefined,
-            applicationStartedLoad: getValidValueOrDefault(
-                applicationStartedLoad,
-                false
-            ),
-            applicationErroredWhileLoading: getValidValueOrDefault(
-                applicationErroredWhileLoading,
-                false
-            ),
-            applicationCompletedLoad: getValidValueOrDefault(
-                applicationCompletedLoad,
-                false
-            ),
-            userRequestedLoad: getValidValueOrDefault(userRequestedLoad, false),
-            userCanceledLoad: getValidValueOrDefault(userCanceledLoad, false),
+            saveState: saveState ?? undefined,
+            applicationStartedLoad: applicationStartedLoad ?? false,
+            applicationErroredWhileLoading:
+                applicationErroredWhileLoading ?? false,
+            applicationCompletedLoad: applicationCompletedLoad ?? false,
+            userRequestedLoad: userRequestedLoad ?? false,
+            userCanceledLoad: userCanceledLoad ?? false,
         })
     },
     userRequestsLoad: (loadSaveState: LoadSaveState): void => {
@@ -58,7 +46,7 @@ export const LoadSaveStateService = {
     },
     applicationCompletesLoad: (
         loadSaveState: LoadSaveState,
-        saveSate: BattleSaveState
+        saveSate: BattleSaveState | undefined
     ): void => {
         loadSaveState.applicationCompletedLoad = true
         loadSaveState.applicationStartedLoad = false
@@ -103,7 +91,7 @@ const newLoadSaveState = ({
     userRequestedLoad,
     userCanceledLoad,
 }: {
-    saveState: BattleSaveState
+    saveState: BattleSaveState | undefined
     applicationStartedLoad: boolean
     applicationErroredWhileLoading: boolean
     applicationCompletedLoad: boolean

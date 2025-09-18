@@ -47,7 +47,7 @@ export const MapSearchService = {
     }: {
         missionMap: MissionMap
         originMapCoordinate: HexCoordinate
-        currentMapCoordinate: HexCoordinate
+        currentMapCoordinate: HexCoordinate | undefined
         searchLimit: SearchLimit
         objectRepository: ObjectRepository
     }): SearchResult =>
@@ -69,7 +69,7 @@ export const MapSearchService = {
         missionMap: MissionMap
         searchLimit: SearchLimit
         originMapCoordinate: HexCoordinate
-        currentMapCoordinate: HexCoordinate
+        currentMapCoordinate: HexCoordinate | undefined
         objectRepository: ObjectRepository
         destinationCoordinates: HexCoordinate[]
     }): SearchResult => {
@@ -94,12 +94,12 @@ const calculateAllPossiblePathsFromStartingCoordinate = ({
 }: {
     missionMap: MissionMap
     originMapCoordinate: HexCoordinate
-    currentMapCoordinate: HexCoordinate
+    currentMapCoordinate: HexCoordinate | undefined
     searchLimit: SearchLimit
     objectRepository: ObjectRepository
     destinationCoordinates?: HexCoordinate[]
 }): SearchResult => {
-    const destinationCoordinatesReached: { [p: string]: boolean } =
+    const destinationCoordinatesReached: { [p: string]: boolean } | undefined =
         destinationCoordinates
             ? Object.fromEntries(
                   destinationCoordinates.map((destinationCoordinate) => [
@@ -173,7 +173,7 @@ const convertTerrainTileMapToSearchGraph = ({
 
     const dimensions = TerrainTileMapService.getDimensions(tiles)
 
-    const allHexCoordinates: HexCoordinate[] = []
+    let allHexCoordinates: HexCoordinate[] = []
     for (let q = 0; q < dimensions.numberOfRows; q++) {
         for (let r = 0; r < dimensions.widthOfWidestRow; r++) {
             if (TerrainTileMapService.isCoordinateOnMap(tiles, { q, r })) {
@@ -181,6 +181,7 @@ const convertTerrainTileMapToSearchGraph = ({
             }
         }
     }
+    allHexCoordinates = allHexCoordinates.filter((x) => x != undefined)
 
     const allNodes: {
         data: HexCoordinate
@@ -207,14 +208,26 @@ const convertTerrainTileMapToSearchGraph = ({
                 })
             )
             .forEach((neighborCoordinate: HexCoordinate) => {
-                const movementCost = searchLimit.ignoreTerrainCost
-                    ? 1
-                    : HexGridMovementCostService.movingCostByTerrainType(
-                          TerrainTileMapService.getTileTerrainTypeAtCoordinate(
-                              tiles,
-                              coordinate
-                          )
-                      )
+                if (searchLimit.ignoreTerrainCost) {
+                    allConnections.push({
+                        fromNode: coordinate,
+                        toNode: neighborCoordinate,
+                        cost: 1,
+                    })
+                    return
+                }
+
+                const terrainType =
+                    TerrainTileMapService.getTileTerrainTypeAtCoordinate(
+                        tiles,
+                        coordinate
+                    )
+                if (terrainType == undefined) return
+
+                let movementCost =
+                    HexGridMovementCostService.movingCostByTerrainType(
+                        terrainType
+                    )
 
                 allConnections.push({
                     fromNode: coordinate,
@@ -254,7 +267,9 @@ const addStopCoordinatesAndNoMovementPaths = ({
             : SearchPathAdapterService.getHead(path)
 
     Object.values(allPossiblePaths).forEach((path) => {
-        stopCoordinates.push(getDestinationCoordinate(path))
+        const destinationCoordinate = getDestinationCoordinate(path)
+        if (destinationCoordinate == undefined) return
+        stopCoordinates.push(destinationCoordinate)
     })
 
     if (
@@ -273,7 +288,7 @@ const addStopCoordinatesAndNoMovementPaths = ({
     }
 
     return SearchResultsService.new({
-        id: undefined,
+        id: "",
         shortestPathByCoordinate: allPossiblePaths,
         stopCoordinatesReached: stopCoordinates,
     })
@@ -314,16 +329,18 @@ const filterCoordinatesYouCannotStopOn = ({
     allPossiblePaths: { [_: string]: SearchConnection<HexCoordinate>[] }
     missionMap: MissionMap
     searchLimit: SearchLimit
-    battleSquaddieAtStartCoordinate: BattleSquaddie
+    battleSquaddieAtStartCoordinate: BattleSquaddie | undefined
 }) => {
     const pathsToKeep = Object.values(allPossiblePaths)
         .filter((possiblePath) => possiblePath.length > 0)
-        .filter((possiblePath) =>
-            canStopBecauseThereIsNoWallOrPit({
+        .filter((possiblePath) => {
+            const head = SearchPathAdapterService.getHead(possiblePath)
+            if (head == undefined) return false
+            return canStopBecauseThereIsNoWallOrPit({
                 terrainTileMap: missionMap.terrainTileMap,
-                coordinate: SearchPathAdapterService.getHead(possiblePath),
+                coordinate: head,
             })
-        )
+        })
         .filter((possiblePath) =>
             canStopBecauseItIsMoreThanOrEqualToMinimumDistance({
                 path: possiblePath,
@@ -389,10 +406,10 @@ const canStopBecauseItIsMoreThanOrEqualToMinimumDistance = ({
     path: SearchPathAdapter
 }): boolean => {
     if (searchLimit.minimumDistance == undefined) return true
-    return (
-        SearchPathAdapterService.getNumberOfCoordinates(path) >=
-        searchLimit.minimumDistance + 1
-    )
+    const numberOfCoordinates =
+        SearchPathAdapterService.getNumberOfCoordinates(path)
+    if (numberOfCoordinates == undefined) return false
+    return numberOfCoordinates >= searchLimit.minimumDistance + 1
 }
 
 const canStopBecauseThereIsNoSquaddie = ({
@@ -404,7 +421,7 @@ const canStopBecauseThereIsNoSquaddie = ({
     path: SearchConnection<HexCoordinate>[]
     searchLimit: SearchLimit
     missionMap: MissionMap
-    battleSquaddieAtStartCoordinate: BattleSquaddie
+    battleSquaddieAtStartCoordinate: BattleSquaddie | undefined
 }): boolean => {
     const squaddieAtEndOfPath = MissionMapService.getBattleSquaddieAtCoordinate(
         missionMap,
@@ -430,15 +447,17 @@ const shouldAddNeighborDuringMapSearch = ({
     searchLimit: SearchLimit
     missionMap: MissionMap
     objectRepository: ObjectRepository
-    battleSquaddieAtStartCoordinate: BattleSquaddie
+    battleSquaddieAtStartCoordinate: BattleSquaddie | undefined
 }) => {
     if (
+        nodeRecord.lengthSoFar != undefined &&
         searchLimit.maximumDistance != undefined &&
         nodeRecord.lengthSoFar > searchLimit.maximumDistance
     )
         return false
 
     if (
+        nodeRecord.costSoFar != undefined &&
         searchLimit.maximumMovementCost != undefined &&
         nodeRecord.costSoFar > searchLimit.maximumMovementCost
     )
@@ -449,7 +468,7 @@ const shouldAddNeighborDuringMapSearch = ({
             MissionMapService.getBattleSquaddieAtCoordinate(
                 missionMap,
                 nodeRecord.node
-            ).battleSquaddieId,
+            )?.battleSquaddieId,
         objectRepository,
         battleSquaddieAtStartCoordinate,
         searchLimit,
@@ -462,9 +481,9 @@ const shouldAddNeighborDuringMapSearchWhenThereIsASquaddieAtNeighbor = ({
     battleSquaddieAtStartCoordinate,
     searchLimit,
 }: {
-    battleSquaddieIdAtNeighbor: string
+    battleSquaddieIdAtNeighbor: string | undefined
     objectRepository: ObjectRepository
-    battleSquaddieAtStartCoordinate: BattleSquaddie
+    battleSquaddieAtStartCoordinate: BattleSquaddie | undefined
     searchLimit: SearchLimit
 }) => {
     if (
@@ -502,9 +521,11 @@ const getSquaddieAtStartCoordinate = ({
     objectRepository,
 }: {
     missionMap: MissionMap
-    startCoordinate: HexCoordinate
+    startCoordinate: HexCoordinate | undefined
     objectRepository: ObjectRepository
-}): { squaddieTemplate: SquaddieTemplate; battleSquaddie: BattleSquaddie } => {
+}):
+    | { squaddieTemplate: SquaddieTemplate; battleSquaddie: BattleSquaddie }
+    | undefined => {
     const { battleSquaddieId } =
         MissionMapService.getBattleSquaddieAtCoordinate(
             missionMap,

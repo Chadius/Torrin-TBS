@@ -147,7 +147,7 @@ describe("squaddie phase ends", () => {
             team.battleSquaddieIds.forEach((battleSquaddieId) => {
                 const { battleSquaddie } = getResultOrThrowError(
                     ObjectRepositoryService.getSquaddieByBattleId(
-                        gameEngineState.repository,
+                        gameEngineState.repository!,
                         battleSquaddieId
                     )
                 )

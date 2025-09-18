@@ -26,6 +26,7 @@ import { BattleState } from "../battle/battleState/battleState"
 import { SearchResultsCache } from "../hexMap/pathfinder/searchResults/searchResultsCache"
 import { Glossary } from "../campaign/glossary/glossary"
 import { ChallengeModifierSetting } from "../battle/challengeModifier/challengeModifierSetting"
+import { EnumLike } from "../utils/enum"
 
 export type MessageBoardMessage =
     | MessageBoardMessageBase
@@ -568,8 +569,8 @@ export interface MessageBoardMessagePlayerConsidersAction {
     objectRepository: ObjectRepository
     glossary: Glossary
     useAction: {
-        actionTemplateId: string
-        isEndTurn: boolean
+        actionTemplateId: string | undefined
+        isEndTurn: boolean | undefined
     }
 }
 const isMessageBoardMessagePlayerConsidersAction = (

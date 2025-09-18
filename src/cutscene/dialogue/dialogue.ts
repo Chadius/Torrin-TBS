@@ -59,14 +59,12 @@ export const DialogueService = {
         id,
         speakerPortraitResourceKey,
         animationDuration:
-            isValidValue(animationDuration) || animationDuration === 0
-                ? animationDuration
-                : 0,
+            animationDuration == undefined ? 0 : animationDuration,
         answers: isValidValue(answers) ? answers : [],
         backgroundColor,
         speakerPortraitPosition:
             speakerPortraitPosition || DialoguePosition.CENTER,
-        speakerName: speakerName,
+        speakerName: speakerName ?? "???",
         speakerNamePosition: speakerNamePosition || DialoguePosition.CENTER,
         speakerNameFontStyle: speakerNameFontStyle || DialogueFontStyle.BLACK,
         dialogueText: dialogueText,
@@ -74,7 +72,7 @@ export const DialogueService = {
         dialogueTextFontStyle: dialogueTextFontStyle || DialogueFontStyle.BLACK,
     }),
     getResourceLocators: (state: Dialogue): ResourceLocator[] => {
-        if (!isValidValue(state.speakerPortraitResourceKey)) {
+        if (state.speakerPortraitResourceKey == undefined) {
             return []
         }
 
@@ -86,6 +84,6 @@ export const DialogueService = {
         ]
     },
     asksUserForAnAnswer: (state: Dialogue): boolean => {
-        return state.answers.length > 0
+        return (state.answers ?? []).length > 0
     },
 }

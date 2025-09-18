@@ -27,7 +27,7 @@ describe("ActionTemplate", () => {
         expect(justMovement.id).toEqual("Move it")
         expect(justMovement.name).toEqual("Move")
         expect(justMovement.actionEffectTemplates).toHaveLength(0)
-        expect(justMovement.resourceCost.actionPoints).toEqual(1)
+        expect(justMovement.resourceCost?.actionPoints).toEqual(1)
         expect(justMovement.rank).toEqual(0)
         expect(justMovement.targetConstraints.minimumRange).toEqual(0)
         expect(justMovement.targetConstraints.maximumRange).toEqual(0)
@@ -70,11 +70,11 @@ describe("ActionTemplate", () => {
             "Attack!"
         )
         expect(attackAction.userInformation.customGlossaryTerms).toHaveLength(1)
-        expect(attackAction.userInformation.customGlossaryTerms[0].name).toBe(
+        expect(attackAction.userInformation.customGlossaryTerms[0]!.name).toBe(
             "customGlossaryTerm"
         )
         expect(
-            attackAction.userInformation.customGlossaryTerms[0].definition
+            attackAction.userInformation.customGlossaryTerms[0]!.definition
         ).toBe("glossary definition")
     })
 
@@ -101,6 +101,7 @@ describe("ActionTemplate", () => {
         const throwErrorBecauseOfNoName = () => {
             ActionTemplateService.new({
                 id: "action Id",
+                // @ts-ignore Intentionally throwing an error
                 name: undefined,
             })
         }
@@ -111,6 +112,7 @@ describe("ActionTemplate", () => {
     it("will throw an error if the template has no id", () => {
         const throwErrorBecauseOfNoId = () => {
             ActionTemplateService.new({
+                // @ts-ignore Intentionally throwing an error
                 id: undefined,
                 name: "Wow cool name",
             })

@@ -2,7 +2,7 @@ export const NUMBER_GENERATOR_MINIMUM = 1
 export const NUMBER_GENERATOR_MAXIMUM = 360
 
 export interface NumberGeneratorStrategy {
-    next(): number
+    next(): number | undefined
 
     clone(): NumberGeneratorStrategy
 }

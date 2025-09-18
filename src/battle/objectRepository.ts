@@ -1,10 +1,7 @@
 import { BattleSquaddie, BattleSquaddieService } from "./battleSquaddie"
 import { makeError, makeResult, ResultOrError } from "../utils/resultOrError"
 import { SquaddieTemplate } from "../campaign/squaddieTemplate"
-import {
-    SquaddieAffiliation,
-    TSquaddieAffiliation,
-} from "../squaddie/squaddieAffiliation"
+import { TSquaddieAffiliation } from "../squaddie/squaddieAffiliation"
 import { ActionTemplate } from "../action/template/actionTemplate"
 import { ImageUI } from "../ui/imageUI/imageUI"
 
@@ -191,7 +188,7 @@ export const ObjectRepositoryService = {
         repository: ObjectRepository
         battleSquaddieId: string
         throwErrorIfNotFound?: boolean
-    }): ImageUI => {
+    }): ImageUI | undefined => {
         const imageUI = repository.imageUIByBattleSquaddieId[battleSquaddieId]
         if (imageUI === undefined && throwErrorIfNotFound) {
             throw new Error(

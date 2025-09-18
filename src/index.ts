@@ -34,12 +34,18 @@ export const sketch = (p: p5) => {
                 (process.env.STARTUP_MODE as TGameMode) ||
                 GameModeEnum.TITLE_SCREEN,
         })
+        if (process.env.CAMPAIGN_ID == undefined) {
+            console.error("CAMPAIGN_ID not set")
+        }
+        if (process.env.VERSION == undefined) {
+            console.error("VERSION not set")
+        }
         gameEngine
             .setup({
                 graphicsBuffer: frameBuffer,
-                campaignId: process.env.CAMPAIGN_ID,
+                campaignId: process.env.CAMPAIGN_ID ?? "CAMPAIGN_ID not set",
                 p5Instance: p,
-                version: process.env.VERSION,
+                version: process.env.VERSION ?? "VERSION not set",
             })
             .then(() => {})
     }

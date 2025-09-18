@@ -8,7 +8,7 @@ import { RectArea, RectAreaService } from "../../../ui/rectArea"
 import { ACTION_POINT_METER_FILL_COLOR } from "../../../ui/colors"
 
 export interface ActionResourceCostDisplay {
-    actionResourceCost: ActionResourceCost
+    actionResourceCost: ActionResourceCost | undefined
     drawingArea: RectArea
 }
 
@@ -109,7 +109,11 @@ const drawActionPoints = ({
     actionResourceCostDisplay: ActionResourceCostDisplay
     graphicsContext: GraphicsBuffer
 }) => {
-    if (actionResourceCostDisplay.actionResourceCost.actionPoints <= 0) return
+    if (
+        actionResourceCostDisplay.actionResourceCost == undefined ||
+        actionResourceCostDisplay.actionResourceCost.actionPoints <= 0
+    )
+        return
 
     if (Layout.pip.noStroke) graphicsContext.noStroke()
     graphicsContext.fill(

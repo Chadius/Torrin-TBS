@@ -45,6 +45,7 @@ import {
     ActionValidityByIdCache,
     ActionValidityByIdCacheService,
 } from "../../actionValidity/cache/actionValidityByIdCache"
+import { EnumLike } from "../../../utils/enum"
 
 export const END_TURN_NAME = "END TURN"
 
@@ -58,12 +59,12 @@ export const PlayerCommandSelection = {
 export type TPlayerCommandSelection = EnumLike<typeof PlayerCommandSelection>
 
 export interface PlayerCommandState {
-    consideredActionTemplateId: string
-    playerSelectedSquaddieAction: boolean
-    selectedActionTemplateId: string
+    consideredActionTemplateId: string | undefined
+    playerSelectedSquaddieAction: boolean | undefined
+    selectedActionTemplateId: string | undefined
     playerSelectedEndTurn: boolean
-    battleSquaddieId: string
-    newInvalidPopup: {
+    battleSquaddieId: string | undefined
+    newInvalidPopup?: {
         buttonArea: RectArea
         message: string
     }
@@ -119,7 +120,10 @@ export const PlayerCommandStateService = {
         gameEngineState: GameEngineState
         playerCommandState: PlayerCommandState
     }): TPlayerCommandSelection => {
-        if (!isValidValue(playerCommandState)) {
+        if (
+            !isValidValue(playerCommandState) ||
+            playerCommandState.battleSquaddieId == undefined
+        ) {
             return PlayerCommandSelection.PLAYER_COMMAND_SELECTION_NONE
         }
 
@@ -133,10 +137,13 @@ export const PlayerCommandStateService = {
                 playerCommandState,
             })
         }
+        const repository = gameEngineState.repository
+        if (repository == undefined)
+            return PlayerCommandSelection.PLAYER_COMMAND_SELECTION_NONE
 
         gameEngineState.battleOrchestratorState.cache.actionValidity =
             ActionValidityByIdCacheService.calculateActionValidity({
-                objectRepository: gameEngineState.repository,
+                objectRepository: repository,
                 battleSquaddieId: playerCommandState.battleSquaddieId,
                 missionMap:
                     gameEngineState.battleOrchestratorState.battleState
@@ -150,7 +157,7 @@ export const PlayerCommandStateService = {
             })
 
         if (
-            actionButtonClicked &&
+            actionButtonClicked?.actionTemplate != undefined &&
             gameEngineState.battleOrchestratorState.cache.actionValidity
                 .byActionTemplateId[actionButtonClicked.actionTemplate.id]
                 ?.isValid
@@ -177,13 +184,17 @@ export const PlayerCommandStateService = {
 
         if (playerCommandState.selectedActionTemplateId) return
 
+        const battleSquaddieId = BattleActionDecisionStepService.getActor(
+            gameEngineState.battleOrchestratorState.battleState
+                .battleActionDecisionStep
+        )?.battleSquaddieId
+        if (battleSquaddieId == undefined) return
+        if (gameEngineState.repository == undefined) return
+
         gameEngineState.battleOrchestratorState.cache.actionValidity =
             ActionValidityByIdCacheService.calculateActionValidity({
                 objectRepository: gameEngineState.repository,
-                battleSquaddieId: BattleActionDecisionStepService.getActor(
-                    gameEngineState.battleOrchestratorState.battleState
-                        .battleActionDecisionStep
-                ).battleSquaddieId,
+                battleSquaddieId: battleSquaddieId,
                 missionMap:
                     gameEngineState.battleOrchestratorState.battleState
                         .missionMap,
@@ -211,7 +222,7 @@ export const PlayerCommandStateService = {
                 type: MessageBoardMessageType.PLAYER_CANCELS_PLAYER_ACTION_CONSIDERATIONS,
                 playerCommandState:
                     gameEngineState.battleOrchestratorState.battleHUDState
-                        .summaryHUDState.playerCommandState,
+                        .summaryHUDState?.playerCommandState,
                 battleActionRecorder:
                     gameEngineState.battleOrchestratorState.battleState
                         .battleActionRecorder,
@@ -250,7 +261,9 @@ export const PlayerCommandStateService = {
             !gameEngineState.battleOrchestratorState.cache.actionValidity
                 .byActionTemplateId[
                 playerCommandState.consideredActionTemplateId
-            ]?.isValid
+            ]?.isValid ||
+            gameEngineState.battleOrchestratorState.battleState
+                .playerConsideredActions == undefined
         ) {
             return
         }
@@ -275,7 +288,7 @@ export const PlayerCommandStateService = {
             useAction: {
                 actionTemplateId: isActionButtonEndTurn(consideredActionButton)
                     ? undefined
-                    : consideredActionButton.actionTemplate.id,
+                    : consideredActionButton.actionTemplate?.id,
                 isEndTurn: isActionButtonEndTurn(consideredActionButton),
             },
         })
@@ -307,23 +320,26 @@ export const PlayerCommandStateService = {
         )
             return
 
-        gameEngineState.battleOrchestratorState.cache.actionValidity =
-            ActionValidityByIdCacheService.calculateActionValidity({
-                objectRepository: gameEngineState.repository,
-                battleSquaddieId: BattleActionDecisionStepService.getActor(
-                    gameEngineState.battleOrchestratorState.battleState
-                        .battleActionDecisionStep
-                ).battleSquaddieId,
-                missionMap:
-                    gameEngineState.battleOrchestratorState.battleState
-                        .missionMap,
-                battleActionRecorder:
-                    gameEngineState.battleOrchestratorState.battleState
-                        .battleActionRecorder,
-                actionValidityByIdCache:
-                    gameEngineState.battleOrchestratorState.cache
-                        .actionValidity,
-            })
+        const battleSquaddieId = BattleActionDecisionStepService.getActor(
+            gameEngineState.battleOrchestratorState.battleState
+                .battleActionDecisionStep
+        )?.battleSquaddieId
+        if (battleSquaddieId && gameEngineState.repository) {
+            gameEngineState.battleOrchestratorState.cache.actionValidity =
+                ActionValidityByIdCacheService.calculateActionValidity({
+                    objectRepository: gameEngineState.repository,
+                    battleSquaddieId: battleSquaddieId,
+                    missionMap:
+                        gameEngineState.battleOrchestratorState.battleState
+                            .missionMap,
+                    battleActionRecorder:
+                        gameEngineState.battleOrchestratorState.battleState
+                            .battleActionRecorder,
+                    actionValidityByIdCache:
+                        gameEngineState.battleOrchestratorState.cache
+                            .actionValidity,
+                })
+        }
 
         drawActionButtons({
             actionButtons: playerCommandState.actionButtons,
@@ -377,25 +393,29 @@ export const PlayerCommandStateService = {
             })
         }
 
-        gameEngineState.battleOrchestratorState.cache.actionValidity =
-            ActionValidityByIdCacheService.calculateActionValidity({
-                objectRepository: gameEngineState.repository,
-                battleSquaddieId: BattleActionDecisionStepService.getActor(
-                    gameEngineState.battleOrchestratorState.battleState
-                        .battleActionDecisionStep
-                ).battleSquaddieId,
-                missionMap:
-                    gameEngineState.battleOrchestratorState.battleState
-                        .missionMap,
-                battleActionRecorder:
-                    gameEngineState.battleOrchestratorState.battleState
-                        .battleActionRecorder,
-                actionValidityByIdCache:
-                    gameEngineState.battleOrchestratorState.cache
-                        .actionValidity,
-            })
+        const battleSquaddieId = BattleActionDecisionStepService.getActor(
+            gameEngineState.battleOrchestratorState.battleState
+                .battleActionDecisionStep
+        )?.battleSquaddieId
+        if (battleSquaddieId && gameEngineState.repository) {
+            gameEngineState.battleOrchestratorState.cache.actionValidity =
+                ActionValidityByIdCacheService.calculateActionValidity({
+                    objectRepository: gameEngineState.repository,
+                    battleSquaddieId: battleSquaddieId,
+                    missionMap:
+                        gameEngineState.battleOrchestratorState.battleState
+                            .missionMap,
+                    battleActionRecorder:
+                        gameEngineState.battleOrchestratorState.battleState
+                            .battleActionRecorder,
+                    actionValidityByIdCache:
+                        gameEngineState.battleOrchestratorState.cache
+                            .actionValidity,
+                })
+        }
 
         if (
+            actionButtonClicked?.actionTemplate != undefined &&
             gameEngineState.battleOrchestratorState.cache.actionValidity
                 .byActionTemplateId[actionButtonClicked.actionTemplate.id]
                 ?.isValid
@@ -422,9 +442,10 @@ const createNewInvalidPopupMessageIfNeeded = ({
     actionValidityByIdCache,
 }: {
     playerCommandState: PlayerCommandState
-    actionButton: ActionButton
+    actionButton: ActionButton | undefined
     actionValidityByIdCache: ActionValidityByIdCache
 }) => {
+    if (actionButton == undefined) return
     const actionTemplateId = actionButton.actionTemplate?.id
     if (
         actionTemplateId == undefined ||
@@ -442,7 +463,7 @@ const createNewInvalidPopupMessageIfNeeded = ({
     }
 }
 
-const isActionButtonEndTurn = (actionButtonClicked: ActionButton) =>
+const isActionButtonEndTurn = (actionButtonClicked: ActionButton | undefined) =>
     actionButtonClicked?.actionTemplateOverride?.name === END_TURN_NAME
 
 const playerSelectedEndTurnButton = ({
@@ -610,7 +631,7 @@ const drawActionButtons = ({
     actionButtons.forEach((actionButton, index) => {
         const actionIsSelected: boolean = actionButton.actionTemplate
             ? selectedActionTemplateId === actionButton.actionTemplate.id
-            : actionButton.actionTemplateOverride.name ===
+            : actionButton.actionTemplateOverride?.name ===
               selectedActionTemplateId
 
         if (showOnlySelectedActionButton && !actionIsSelected) return
@@ -658,7 +679,7 @@ const drawActionButtons = ({
 
         const actionIsConsidered: boolean = actionButton.actionTemplate
             ? consideredActionTemplateId === actionButton.actionTemplate.id
-            : actionButton.actionTemplateOverride.name ===
+            : actionButton.actionTemplateOverride?.name ===
               consideredActionTemplateId
 
         const actionHasAWarning: boolean = actionButton.actionTemplate

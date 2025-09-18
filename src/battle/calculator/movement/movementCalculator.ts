@@ -46,6 +46,7 @@ export const MovementCalculatorService = {
             missionMap,
             battleSquaddie.battleSquaddieId
         )
+        if (squaddieDatum.originMapCoordinate == undefined) return false
 
         const movementActionPoints =
             SquaddieTurnService.getActionPointsThatCouldBeSpentOnMovement(
@@ -85,8 +86,8 @@ export const MovementCalculatorService = {
                 missionMap,
                 objectRepository,
             })
-
-        const closestRoute: SearchPathAdapter =
+        if (searchResults == undefined) return false
+        const closestRoute =
             SearchResultAdapterService.getShortestPathToCoordinate({
                 searchResults: searchResults,
                 mapCoordinate: destination,
@@ -143,7 +144,7 @@ export const MovementCalculatorService = {
         objectRepository,
     }: {
         battleSquaddie: BattleSquaddie
-        searchPath: SearchPathAdapter
+        searchPath: SearchPathAdapter | undefined
         objectRepository: ObjectRepository
     }) => {
         return spendActionPointsOnRefundableMovement({
@@ -168,6 +169,7 @@ export const MovementCalculatorService = {
                 missionMap,
                 battleSquaddie.battleSquaddieId
             )
+        if (startLocation == undefined) return
 
         BattleActionRecorderService.addReadyToAnimateBattleAction(
             battleActionRecorder,
@@ -193,9 +195,10 @@ const spendActionPointsOnRefundableMovement = ({
     objectRepository,
 }: {
     battleSquaddie: BattleSquaddie
-    searchPath: SearchPathAdapter
+    searchPath: SearchPathAdapter | undefined
     objectRepository: ObjectRepository
 }) => {
+    if (searchPath == undefined) return
     const coordinatesByMoveActions: {
         [movementActions: number]: HexCoordinate[]
     } = SquaddieService.searchPathCoordinatesByNumberOfMovementActions({

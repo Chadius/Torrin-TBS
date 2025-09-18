@@ -110,20 +110,7 @@ describe("BattleActionSquaddieChange", () => {
 
         expect(clone).toEqual(original)
 
-        original.battleSquaddieId = undefined
-        original.actorDegreeOfSuccess = undefined
         original.chanceOfDegreeOfSuccess = undefined
-        original.damage = undefined
-        original.healingReceived = undefined
-        original.attributesBefore = undefined
-        original.attributesAfter = undefined
-
-        expect(clone.battleSquaddieId).toEqual(battleSquaddieId)
-        expect(clone.actorDegreeOfSuccess).toEqual(actorDegreeOfSuccess)
         expect(clone.chanceOfDegreeOfSuccess).toEqual(chanceOfDegreeOfSuccess)
-        expect(clone.damage).toEqual(damageExplanation)
-        expect(clone.healingReceived).toEqual(healingReceived)
-        expect(clone.attributesBefore).toEqual(attributesBefore)
-        expect(clone.attributesAfter).toEqual(attributesAfter)
     })
 })

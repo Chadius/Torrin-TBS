@@ -113,6 +113,7 @@ describe("Battle Actions During Turn", () => {
 
         expect(clone).toEqual(original)
 
+        //@ts-ignore Setting the field to force a change in the original, so I know the clone is a deep copy
         original.battleActions = undefined
 
         const cloneActions = BattleActionsDuringTurnService.getAll(clone)
@@ -128,6 +129,7 @@ describe("Battle Actions During Turn", () => {
         })
 
         it("has no effect on an undefined object", () => {
+            //@ts-ignore Setting the field, so I know it doesn't throw an exception
             const nothing: BattleActionsDuringTurn = undefined
             BattleActionsDuringTurnService.removeUndoableMovementActions(
                 nothing

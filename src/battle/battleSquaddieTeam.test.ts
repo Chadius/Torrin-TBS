@@ -244,7 +244,9 @@ describe("Battle Squaddie Team", () => {
             const teamWithMissingFields: BattleSquaddieTeam = {
                 id: "teamId",
                 name: "team name",
+                //@ts-ignore putting in bad data on purpose
                 affiliation: null,
+                //@ts-ignore putting in bad data on purpose
                 battleSquaddieIds: undefined,
                 iconResourceKey: undefined,
             }

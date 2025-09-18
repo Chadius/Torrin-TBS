@@ -18,6 +18,7 @@ import p5 from "p5"
 import {
     DIALOGUE_SPEAKER_PORTRAIT_STYLE_CONSTANTS,
     DialogueComponent,
+    DialoguePosition,
     DialogueTextService,
 } from "./constants"
 import { ResourceHandler } from "../../resource/resourceHandler"
@@ -35,14 +36,14 @@ export interface DialoguePlayerState {
     dialogue: Dialogue
 
     dialogFinished: boolean
-    startTime: number
-    answerSelected: number
+    startTime: number | undefined
+    answerSelected: number | undefined
 
     answerButtons: DialogueAnswerButton[]
-    textBox: DialogueTextBox
-    speakerNameBox: DialogueTextBox
-    speakerPortrait: p5.Image
-    speakerImage: DialoguePortraitImage
+    textBox: DialogueTextBox | undefined
+    speakerNameBox: DialogueTextBox | undefined
+    speakerPortrait: p5.Image | undefined
+    speakerImage: DialoguePortraitImage | undefined
 }
 
 export const DialoguePlayerService = {
@@ -70,12 +71,10 @@ export const DialoguePlayerService = {
         return {
             type: CutsceneActionPlayerType.DIALOGUE,
             dialogue: dialogue,
-            dialogFinished: isValidValue(dialogFinished)
-                ? dialogFinished
-                : false,
+            dialogFinished: dialogFinished ?? false,
             startTime: startTime,
             answerSelected: answerSelected,
-            answerButtons: isValidValue(answerButtons) ? answerButtons : [],
+            answerButtons: answerButtons ?? [],
             textBox: textBox,
             speakerNameBox: speakerNameBox,
             speakerPortrait: speakerPortrait,
@@ -201,6 +200,10 @@ const isTimeExpired = (state: DialoguePlayerState): boolean => {
         return true
     }
 
+    if (state.startTime == undefined) {
+        return false
+    }
+
     return Date.now() >= state.startTime + state.dialogue.animationDuration
 }
 
@@ -208,27 +211,43 @@ const createUIObjects = (
     state: DialoguePlayerState,
     context: TextSubstitutionContext
 ) => {
-    state.textBox = new DialogueTextBox({
-        text: SubstituteText(state.dialogue.dialogueText, context),
-        position: state.dialogue.dialogueTextPosition,
-        fontStyle: state.dialogue.dialogueTextFontStyle,
-        dialogueComponent: DialogueComponent.DIALOGUE_BOX,
-    })
-    state.speakerNameBox = new DialogueTextBox({
-        text: state.dialogue.speakerName,
-        position: state.dialogue.speakerNamePosition,
-        fontStyle: state.dialogue.speakerNameFontStyle,
-        dialogueComponent: DialogueComponent.SPEAKER_NAME,
-    })
+    if (
+        state.dialogue.dialogueTextPosition != undefined &&
+        state.dialogue.dialogueTextFontStyle != undefined
+    ) {
+        state.textBox = new DialogueTextBox({
+            text: SubstituteText(state.dialogue.dialogueText, context),
+            position: state.dialogue.dialogueTextPosition,
+            fontStyle: state.dialogue.dialogueTextFontStyle,
+            dialogueComponent: DialogueComponent.DIALOGUE_BOX,
+        })
+    }
 
+    if (
+        state.dialogue.speakerNamePosition != undefined &&
+        state.dialogue.speakerNameFontStyle != undefined
+    ) {
+        state.speakerNameBox = new DialogueTextBox({
+            text: state.dialogue.speakerName,
+            position: state.dialogue.speakerNamePosition,
+            fontStyle: state.dialogue.speakerNameFontStyle,
+            dialogueComponent: DialogueComponent.SPEAKER_NAME,
+        })
+    }
     const answerButtonPositions: RectArea[] = getAnswerButtonPositions(state)
-    state.answerButtons = answerButtonPositions.map(
-        (position, index) =>
-            new DialogueAnswerButton({
-                answer: SubstituteText(state.dialogue.answers[index], context),
-                position: position,
-            })
-    )
+    state.answerButtons = answerButtonPositions
+        .map((position, index) =>
+            state.dialogue.answers
+                ? new DialogueAnswerButton({
+                      answer: SubstituteText(
+                          state.dialogue.answers[index],
+                          context
+                      ),
+                      position: position,
+                  })
+                : undefined
+        )
+        .filter((x) => x != undefined)
 
     setSpeakerUI(state)
 }
@@ -252,12 +271,20 @@ const getAnswerButtonPositions = (state: DialoguePlayerState): RectArea[] => {
 
     const rectStyle =
         DIALOGUE_SPEAKER_PORTRAIT_STYLE_CONSTANTS[
-            state.dialogue.dialogueTextPosition
+            state.dialogue.dialogueTextPosition ?? DialoguePosition.LEFT
         ]
-    const speakerBoxWidth = rectStyle.maxWidth
-        ? Math.min(ScreenDimensions.SCREEN_WIDTH, rectStyle.maxWidth) -
-          rectStyle.horizontalMargin * 2
-        : ScreenDimensions.SCREEN_WIDTH * rectStyle.widthFraction
+
+    let speakerBoxWidth = 0
+    if (rectStyle.maxWidth) {
+        if (rectStyle.horizontalMargin == undefined) return []
+        speakerBoxWidth =
+            Math.min(ScreenDimensions.SCREEN_WIDTH, rectStyle.maxWidth) -
+            rectStyle.horizontalMargin * 2
+    } else {
+        if (rectStyle.widthFraction == undefined) return []
+        speakerBoxWidth =
+            ScreenDimensions.SCREEN_WIDTH * rectStyle.widthFraction
+    }
     let dialogueTextLabelLeft: number =
         DialogueTextService.calculateLeftAlignSide({
             rectStyle,
@@ -265,6 +292,7 @@ const getAnswerButtonPositions = (state: DialoguePlayerState): RectArea[] => {
             horizontalMargin: 0,
         })
 
+    if (state.dialogue.answers == undefined) return []
     if (state.dialogue.answers.length == 1) {
         return [
             RectAreaService.new({
@@ -307,19 +335,21 @@ const drawBackground = (
     state: DialoguePlayerState,
     graphicsContext: GraphicsBuffer
 ) => {
-    if (isValidValue(state.dialogue.backgroundColor)) {
-        graphicsContext.push()
-        graphicsContext.fill(
-            state.dialogue.backgroundColor[0],
-            state.dialogue.backgroundColor[1],
-            state.dialogue.backgroundColor[2]
-        )
-        graphicsContext.rect(
-            0,
-            0,
-            ScreenDimensions.SCREEN_WIDTH,
-            ScreenDimensions.SCREEN_HEIGHT
-        )
-        graphicsContext.pop()
+    if (!state.dialogue.backgroundColor) {
+        return
     }
+
+    graphicsContext.push()
+    graphicsContext.fill(
+        state.dialogue.backgroundColor[0],
+        state.dialogue.backgroundColor[1],
+        state.dialogue.backgroundColor[2]
+    )
+    graphicsContext.rect(
+        0,
+        0,
+        ScreenDimensions.SCREEN_WIDTH,
+        ScreenDimensions.SCREEN_HEIGHT
+    )
+    graphicsContext.pop()
 }

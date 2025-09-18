@@ -35,8 +35,8 @@ export const SquaddieIdService = {
             templateId: squaddieTemplateId,
             name,
             affiliation,
-            resources,
-            traits,
+            resources: resources ?? SquaddieResourceService.new({}),
+            traits: traits ?? TraitStatusStorageService.newUsingTraitValues({}),
         }
         return sanitize(data)
     },

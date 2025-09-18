@@ -1,5 +1,5 @@
 export class UIControlSettings {
-    displayPlayerHUD: boolean
+    displayPlayerHUD: boolean | undefined
 
     constructor({
         scrollCamera,
@@ -20,23 +20,23 @@ export class UIControlSettings {
 
     private _letMouseScrollCamera?: boolean
 
-    get letMouseScrollCamera(): boolean {
+    get letMouseScrollCamera(): boolean | undefined {
         return this._letMouseScrollCamera
     }
 
     private _displayBattleMap?: boolean
 
-    get displayBattleMap(): boolean {
+    get displayBattleMap(): boolean | undefined {
         return this._displayBattleMap
     }
 
     private _pauseTimer?: boolean
 
-    get pauseTimer(): boolean {
+    get pauseTimer(): boolean | undefined {
         return this._pauseTimer
     }
 
-    public update(other: UIControlSettings) {
+    public update(other: UIControlSettings | undefined) {
         if (!other) {
             return
         }

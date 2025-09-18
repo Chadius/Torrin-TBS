@@ -16,6 +16,7 @@ describe("campaign loader", () => {
         })
         it("throws an error if id is missing", () => {
             const throwErrorBecauseOfNoId = () => {
+                // @ts-ignore intentionally deleting a field to throw an error
                 delete validCampaign["id"]
                 CampaignLoaderService.sanitize(validCampaign)
             }
@@ -23,14 +24,18 @@ describe("campaign loader", () => {
             expect(throwErrorBecauseOfNoId).toThrowError("cannot sanitize")
         })
         it("makes empty mission ids if it is missing", () => {
+            // @ts-ignore intentionally deleting a field to throw an error
             delete validCampaign["missionIds"]
-            CampaignLoaderService.sanitize(validCampaign)
-            expect(validCampaign.missionIds).toHaveLength(0)
+            const sanitizedCampaign =
+                CampaignLoaderService.sanitize(validCampaign)
+            expect(sanitizedCampaign.missionIds).toHaveLength(0)
         })
         it("makes default resources fields if it is missing", () => {
+            // @ts-ignore intentionally deleting a field to test a default regenerates
             delete validCampaign["resources"]
-            CampaignLoaderService.sanitize(validCampaign)
-            expect(validCampaign.resources).toEqual(
+            const sanitizedCampaign =
+                CampaignLoaderService.sanitize(validCampaign)
+            expect(sanitizedCampaign.resources).toEqual(
                 CampaignResourcesService.default()
             )
         })
@@ -45,7 +50,9 @@ describe("campaign loader", () => {
             loadFileIntoFormatSpy = vi
                 .spyOn(DataLoader, "LoadFileIntoFormat")
                 .mockImplementation(
-                    async (filename: string): Promise<CampaignFileFormat> => {
+                    async (
+                        filename: string
+                    ): Promise<CampaignFileFormat | undefined> => {
                         if (
                             filename === "assets/campaign/default/campaign.json"
                         ) {
@@ -56,9 +63,10 @@ describe("campaign loader", () => {
         })
 
         it("loads the campaign file when requested", async () => {
-            const actualData: CampaignFileFormat =
+            const actualData =
                 await CampaignLoaderService.loadCampaignFromFile("default")
             expect(loadFileIntoFormatSpy).toBeCalled()
+            expect(actualData).not.toBeUndefined()
             expect(actualData).toEqual(campaignFileData)
         })
     })

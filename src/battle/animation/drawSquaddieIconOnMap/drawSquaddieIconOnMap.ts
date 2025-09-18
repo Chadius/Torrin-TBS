@@ -24,7 +24,6 @@ import { HexCoordinate } from "../../../hexMap/hexCoordinate/hexCoordinate"
 import { MissionMap, MissionMapService } from "../../../missionMap/missionMap"
 import { MapHighlightService } from "../mapHighlight"
 import { DEFAULT_ACTION_POINTS_PER_TURN } from "../../../squaddie/turn"
-import { isValidValue } from "../../../utils/objectValidityCheck"
 import { TerrainTileMapService } from "../../../hexMap/terrainTileMap"
 import {
     MapGraphicsLayerService,
@@ -401,7 +400,7 @@ export const DrawSquaddieIconOnMapUtilities = {
         battleSquaddieId: string
         mapCoordinate: HexCoordinate
         camera: BattleCamera
-        resourceHandler: ResourceHandler
+        resourceHandler: ResourceHandler | undefined
     }) => {
         return drawSquaddieMapIconAtMapCoordinate(
             graphics,
@@ -491,7 +490,7 @@ export const DrawSquaddieIconOnMapUtilities = {
         actionTemplateId,
     }: {
         objectRepository: ObjectRepository
-        actionTemplateId: string
+        actionTemplateId: string | undefined
     }) => {
         if (!actionTemplateId)
             return DRAW_SQUADDIE_ICON_ON_MAP_LAYOUT.targetOtherSquaddie
@@ -550,7 +549,7 @@ const drawSquaddieMapIconAtMapCoordinate = (
     battleSquaddieId: string,
     mapCoordinate: HexCoordinate,
     camera: BattleCamera,
-    resourceHandler: ResourceHandler
+    resourceHandler: ResourceHandler | undefined
 ) => {
     const { x, y } =
         ConvertCoordinateService.convertMapCoordinatesToScreenLocation({
@@ -565,7 +564,8 @@ const drawSquaddieMapIconAtMapCoordinate = (
         mapIcon,
         screenLocation: { x, y },
     })
-    mapIcon.draw({ graphicsContext: graphics, resourceHandler })
+    if (resourceHandler)
+        mapIcon?.draw({ graphicsContext: graphics, resourceHandler })
     const { squaddieTemplate, battleSquaddie } = getResultOrThrowError(
         ObjectRepositoryService.getSquaddieByBattleId(
             squaddieRepository,
@@ -592,9 +592,10 @@ const setImageToLocation = ({
     mapIcon,
     screenLocation,
 }: {
-    mapIcon: ImageUI
+    mapIcon: ImageUI | undefined
     screenLocation: ScreenLocation
 }) => {
+    if (mapIcon == undefined) return
     RectAreaService.move(mapIcon.drawArea, {
         left: screenLocation.x,
         top: screenLocation.y,
@@ -784,12 +785,13 @@ const hasMovementAnimationFinished = (
     timeMovementStarted: number,
     squaddieMovePath: SearchPathAdapter
 ) => {
-    if (!isValidValue(squaddieMovePath)) {
+    if (squaddieMovePath == undefined) {
         return true
     }
 
     if (
-        SearchPathAdapterService.getNumberOfCoordinates(squaddieMovePath) <= 1
+        (SearchPathAdapterService.getNumberOfCoordinates(squaddieMovePath) ??
+            0) <= 1
     ) {
         return true
     }

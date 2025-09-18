@@ -3,8 +3,6 @@ import { SquaddieAffiliation } from "../../squaddie/squaddieAffiliation"
 import { ObjectRepository, ObjectRepositoryService } from "../objectRepository"
 import { TerrainTileMapService } from "../../hexMap/terrainTileMap"
 import { MissionMap, MissionMapService } from "../../missionMap/missionMap"
-import { BattleCamera } from "../battleCamera"
-import { ConvertCoordinateService } from "../../hexMap/convertCoordinates"
 import { OrchestratorUtilities } from "./orchestratorUtils"
 import {
     SquaddieTemplate,
@@ -62,7 +60,6 @@ describe("Orchestration Utils", () => {
     let knightBattleSquaddie: BattleSquaddie
     let squaddieRepository: ObjectRepository
     let map: MissionMap
-    let camera: BattleCamera
 
     beforeEach(() => {
         squaddieRepository = ObjectRepositoryService.new()
@@ -89,28 +86,6 @@ describe("Orchestration Utils", () => {
             battleSquaddieId: knightBattleSquaddie.battleSquaddieId,
             originMapCoordinate: { q: 0, r: 2 },
         })
-
-        camera = new BattleCamera()
-    })
-
-    it("can return the squaddie and information at a given location on the screen", () => {
-        const screenLocation =
-            ConvertCoordinateService.convertMapCoordinatesToScreenLocation({
-                mapCoordinate: { q: 0, r: 2 },
-                cameraLocation: camera.getWorldLocation(),
-            })
-
-        const { squaddieTemplate, battleSquaddie, squaddieMapCoordinate } =
-            OrchestratorUtilities.getSquaddieAtScreenLocation({
-                screenLocation,
-                camera,
-                map,
-                squaddieRepository,
-            })
-
-        expect(squaddieTemplate).toStrictEqual(knightSquaddieTemplate)
-        expect(battleSquaddie).toStrictEqual(knightBattleSquaddie)
-        expect(squaddieMapCoordinate).toStrictEqual({ q: 0, r: 2 })
     })
 
     it("can return the squaddie and information at a given map coordinate", () => {
@@ -124,53 +99,6 @@ describe("Orchestration Utils", () => {
         expect(squaddieTemplate).toStrictEqual(knightSquaddieTemplate)
         expect(battleSquaddie).toStrictEqual(knightBattleSquaddie)
         expect(squaddieMapCoordinate).toStrictEqual({ q: 0, r: 2 })
-    })
-
-    it("returns undefined information if there is no squaddie at the screen location", () => {
-        const screenLocation =
-            ConvertCoordinateService.convertMapCoordinatesToScreenLocation({
-                mapCoordinate: { q: 0, r: 0 },
-                cameraLocation: camera.getWorldLocation(),
-            })
-
-        const { squaddieTemplate, battleSquaddie, squaddieMapCoordinate } =
-            OrchestratorUtilities.getSquaddieAtScreenLocation({
-                screenLocation,
-                camera,
-                map,
-                squaddieRepository,
-            })
-
-        expect(squaddieTemplate).toBeUndefined()
-        expect(battleSquaddie).toBeUndefined()
-        expect(squaddieMapCoordinate).toBeUndefined()
-    })
-
-    it("throws an error if squaddie repository does not have squaddie", () => {
-        MissionMapService.addSquaddie({
-            missionMap: map,
-            squaddieTemplateId: "does not exist",
-            battleSquaddieId: "does not exist",
-            originMapCoordinate: { q: 0, r: 0 },
-        })
-        const screenLocation =
-            ConvertCoordinateService.convertMapCoordinatesToScreenLocation({
-                mapCoordinate: { q: 0, r: 0 },
-                cameraLocation: camera.getWorldLocation(),
-            })
-
-        const shouldThrowError = () => {
-            OrchestratorUtilities.getSquaddieAtScreenLocation({
-                screenLocation,
-                camera,
-                map,
-                squaddieRepository,
-            })
-        }
-
-        expect(() => {
-            shouldThrowError()
-        }).toThrow(Error)
     })
 
     describe("isSquaddieCurrentlyTakingATurn", () => {
@@ -205,8 +133,10 @@ describe("Orchestration Utils", () => {
                         campaignId: "test campaign",
                     }),
                     battleHUD: BattleHUDService.new({}),
+                    // @ts-ignore
                     numberGenerator: undefined,
                 }),
+                // @ts-ignore
                 resourceHandler: undefined,
                 repository: repository,
             })
@@ -736,7 +666,7 @@ describe("Orchestration Utils", () => {
                         missionMap:
                             gameEngineState.battleOrchestratorState.battleState
                                 .missionMap,
-                        objectRepository: gameEngineState.repository,
+                        objectRepository: gameEngineState.repository!,
                         squaddieAllMovementCache:
                             gameEngineState.battleOrchestratorState.cache
                                 .searchResultsCache,
@@ -869,7 +799,7 @@ describe("Orchestration Utils", () => {
                 missionMap:
                     gameEngineState.battleOrchestratorState.battleState
                         .missionMap,
-                objectRepository: gameEngineState.repository,
+                objectRepository: gameEngineState.repository!,
                 squaddieAllMovementCache:
                     gameEngineState.battleOrchestratorState.cache
                         .searchResultsCache,

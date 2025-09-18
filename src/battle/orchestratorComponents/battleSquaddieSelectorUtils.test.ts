@@ -137,13 +137,13 @@ describe("battleSquaddieSelectorUtils", () => {
                     }
                 )
 
-            expect(SearchPathAdapterService.getHead(closestRoute)).toEqual({
+            expect(SearchPathAdapterService.getHead(closestRoute!)).toEqual({
                 q: 0,
                 r: 0,
             })
             expect(
                 SearchPathAdapterService.getNumberOfMoveActions({
-                    path: closestRoute,
+                    path: closestRoute!,
                     movementPerAction:
                         SquaddieService.getSquaddieMovementAttributes({
                             squaddieTemplate: playerSquaddieTemplate,
@@ -167,13 +167,13 @@ describe("battleSquaddieSelectorUtils", () => {
                     }
                 )
 
-            expect(SearchPathAdapterService.getHead(closestRoute)).toEqual({
+            expect(SearchPathAdapterService.getHead(closestRoute!)).toEqual({
                 q: 0,
                 r: 1,
             })
             expect(
                 SearchPathAdapterService.getNumberOfMoveActions({
-                    path: closestRoute,
+                    path: closestRoute!,
                     movementPerAction:
                         SquaddieService.getSquaddieMovementAttributes({
                             squaddieTemplate: playerSquaddieTemplate,
@@ -197,13 +197,13 @@ describe("battleSquaddieSelectorUtils", () => {
                     }
                 )
 
-            expect(SearchPathAdapterService.getHead(closestRoute)).toEqual({
+            expect(SearchPathAdapterService.getHead(closestRoute!)).toEqual({
                 q: 0,
                 r: 6,
             })
             expect(
                 SearchPathAdapterService.getNumberOfMoveActions({
-                    path: closestRoute,
+                    path: closestRoute!,
                     movementPerAction:
                         SquaddieService.getSquaddieMovementAttributes({
                             squaddieTemplate: playerSquaddieTemplate,
@@ -262,13 +262,13 @@ describe("battleSquaddieSelectorUtils", () => {
                     }
                 )
 
-            expect(SearchPathAdapterService.getHead(closestRoute)).toEqual({
+            expect(SearchPathAdapterService.getHead(closestRoute!)).toEqual({
                 q: 0,
                 r: 2,
             })
             expect(
                 SearchPathAdapterService.getNumberOfMoveActions({
-                    path: closestRoute,
+                    path: closestRoute!,
                     movementPerAction:
                         SquaddieService.getSquaddieMovementAttributes({
                             squaddieTemplate: playerSquaddieTemplate,
@@ -306,13 +306,13 @@ describe("battleSquaddieSelectorUtils", () => {
                     }
                 )
 
-            expect(SearchPathAdapterService.getHead(closestRoute)).toEqual({
+            expect(SearchPathAdapterService.getHead(closestRoute!)).toEqual({
                 q: 0,
                 r: 1,
             })
             expect(
                 SearchPathAdapterService.getNumberOfMoveActions({
-                    path: closestRoute,
+                    path: closestRoute!,
                     movementPerAction:
                         SquaddieService.getSquaddieMovementAttributes({
                             squaddieTemplate: playerSquaddieTemplate,

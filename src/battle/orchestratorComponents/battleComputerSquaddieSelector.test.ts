@@ -65,10 +65,7 @@ import {
 import { MockedP5GraphicsBuffer } from "../../utils/test/mocks"
 import { SquaddieRepositoryService } from "../../utils/test/squaddie"
 import { MapGraphicsLayer } from "../../hexMap/mapLayer/mapGraphicsLayer"
-import {
-    BattleAction,
-    BattleActionService,
-} from "../history/battleAction/battleAction"
+import { BattleActionService } from "../history/battleAction/battleAction"
 import { BattleActionRecorderService } from "../history/battleAction/battleActionRecorder"
 import { TargetConstraintsService } from "../../action/targetConstraints"
 import { ArmyAttributesService } from "../../squaddie/armyAttributes"
@@ -293,7 +290,7 @@ describe("BattleComputerSquaddieSelector", () => {
             selector.update({
                 gameEngineState,
                 graphicsContext: mockedP5GraphicsContext,
-                resourceHandler: gameEngineState.resourceHandler,
+                resourceHandler: gameEngineState.resourceHandler!,
             })
             expect(selector.hasCompleted(gameEngineState)).toBeTruthy()
             expect(camera.isPanning()).toBeFalsy()
@@ -318,20 +315,28 @@ describe("BattleComputerSquaddieSelector", () => {
             setupStrategySpy(actionDecisionStep)
             camera.xCoordinate = ScreenDimensions.SCREEN_WIDTH * 2
             camera.yCoordinate = ScreenDimensions.SCREEN_HEIGHT * 2
+            gameEngineState.battleOrchestratorState.battleState.squaddieMovePath =
+                [
+                    {
+                        cost: 0,
+                        fromNode: { q: 0, r: 0 },
+                        toNode: { q: 0, r: 0 },
+                    },
+                ]
 
             camera.moveCamera()
             selector.update({
                 gameEngineState,
                 graphicsContext: mockedP5GraphicsContext,
-                resourceHandler: gameEngineState.resourceHandler,
+                resourceHandler: gameEngineState.resourceHandler!,
             })
 
             expect(selector.hasCompleted(gameEngineState)).toBeFalsy()
             expect(camera.isPanning()).toBeTruthy()
-            const panningInfo: PanningInformation =
+            const panningInfo: PanningInformation | undefined =
                 camera.getPanningInformation()
-            expect(panningInfo.xDestination).toBe(squaddieLocation[0])
-            expect(panningInfo.yDestination).toBe(squaddieLocation[1])
+            expect(panningInfo!.xDestination).toBe(squaddieLocation[0])
+            expect(panningInfo!.yDestination).toBe(squaddieLocation[1])
 
             dateSpy.mockImplementation(() => SQUADDIE_SELECTOR_PANNING_TIME)
             expect(expectCameraDoesNotPanAndComponentIsComplete()).toBeTruthy()
@@ -403,7 +408,7 @@ describe("BattleComputerSquaddieSelector", () => {
             selector.update({
                 gameEngineState,
                 graphicsContext: mockedP5GraphicsContext,
-                resourceHandler: gameEngineState.resourceHandler,
+                resourceHandler: gameEngineState.resourceHandler!,
             })
             expect(resetSpy).toBeCalledWith(
                 gameEngineState.battleOrchestratorState.battleState
@@ -461,13 +466,13 @@ describe("BattleComputerSquaddieSelector", () => {
             selector.update({
                 gameEngineState,
                 graphicsContext: mockedP5GraphicsContext,
-                resourceHandler: gameEngineState.resourceHandler,
+                resourceHandler: gameEngineState.resourceHandler!,
             })
             expect(selector.hasCompleted(gameEngineState)).toBeTruthy()
 
-            const recommendation: BattleOrchestratorChanges =
+            const recommendation: BattleOrchestratorChanges | undefined =
                 selector.recommendStateChanges(gameEngineState)
-            expect(recommendation.nextMode).toBe(
+            expect(recommendation!.nextMode).toBe(
                 BattleOrchestratorMode.SQUADDIE_USES_ACTION_ON_MAP
             )
 
@@ -523,14 +528,14 @@ describe("BattleComputerSquaddieSelector", () => {
                         DetermineNextDecisionService,
                         "determineNextDecision"
                     )
-                    .mockReturnValue(undefined)
+                    .mockReturnValue([])
             })
 
             it("will default to ending its turn if none of the strategies provide instruction", () => {
                 selector.update({
                     gameEngineState,
                     graphicsContext: mockedP5GraphicsContext,
-                    resourceHandler: gameEngineState.resourceHandler,
+                    resourceHandler: gameEngineState.resourceHandler!,
                 })
                 expect(selector.hasCompleted(gameEngineState)).toBeTruthy()
                 expect(determineNextDecisionSpy).toBeCalled()
@@ -538,12 +543,12 @@ describe("BattleComputerSquaddieSelector", () => {
                     BattleActionRecorderService.peekAtAnimationQueue(
                         gameEngineState.battleOrchestratorState.battleState
                             .battleActionRecorder
-                    ).action.isEndTurn
+                    )?.action.isEndTurn
                 ).toBeTruthy()
 
-                const recommendation: BattleOrchestratorChanges =
+                const recommendation =
                     selector.recommendStateChanges(gameEngineState)
-                expect(recommendation.nextMode).toBe(
+                expect(recommendation!.nextMode).toBe(
                     BattleOrchestratorMode.SQUADDIE_USES_ACTION_ON_MAP
                 )
             })
@@ -557,7 +562,7 @@ describe("BattleComputerSquaddieSelector", () => {
                 selector.update({
                     gameEngineState,
                     graphicsContext: mockedP5GraphicsContext,
-                    resourceHandler: gameEngineState.resourceHandler,
+                    resourceHandler: gameEngineState.resourceHandler!,
                 })
                 expect(selector.hasCompleted(gameEngineState)).toBeTruthy()
                 expect(determineNextDecisionSpy).toBeCalled()
@@ -653,13 +658,13 @@ describe("BattleComputerSquaddieSelector", () => {
             selector.update({
                 gameEngineState,
                 graphicsContext: mockedP5GraphicsContext,
-                resourceHandler: gameEngineState.resourceHandler,
+                resourceHandler: gameEngineState.resourceHandler!,
             })
 
             expect(selector.hasCompleted(gameEngineState)).toBeTruthy()
-            const recommendation: BattleOrchestratorChanges =
+            const recommendation =
                 selector.recommendStateChanges(gameEngineState)
-            expect(recommendation.nextMode).toBe(
+            expect(recommendation!.nextMode).toBe(
                 BattleOrchestratorMode.SQUADDIE_MOVER
             )
 
@@ -674,10 +679,10 @@ describe("BattleComputerSquaddieSelector", () => {
                     gameEngineState.battleOrchestratorState.battleState
                         .battleActionRecorder
                 )
-            expect(queuedBattleAction.actor.actorBattleSquaddieId).toEqual(
+            expect(queuedBattleAction!.actor.actorBattleSquaddieId).toEqual(
                 "enemy_demon_0"
             )
-            expect(queuedBattleAction.action.isMovement).toBeTruthy()
+            expect(queuedBattleAction!.action.isMovement).toBeTruthy()
 
             expect(
                 OrchestratorUtilities.isSquaddieCurrentlyTakingATurn({
@@ -689,7 +694,6 @@ describe("BattleComputerSquaddieSelector", () => {
                             .battleActionRecorder,
                 })
             ).toBeTruthy()
-            expect(addGraphicsLayerSpy).toBeCalled()
         })
 
         describe("computer controlled squaddie acts with an action", () => {
@@ -746,7 +750,7 @@ describe("BattleComputerSquaddieSelector", () => {
                 selector.update({
                     gameEngineState,
                     graphicsContext: mockedP5GraphicsContext,
-                    resourceHandler: gameEngineState.resourceHandler,
+                    resourceHandler: gameEngineState.resourceHandler!,
                 })
             })
 
@@ -762,10 +766,10 @@ describe("BattleComputerSquaddieSelector", () => {
                         gameEngineState.battleOrchestratorState.battleState
                             .battleActionRecorder
                     )
-                expect(queuedBattleAction.actor.actorBattleSquaddieId).toEqual(
+                expect(queuedBattleAction!.actor.actorBattleSquaddieId).toEqual(
                     enemyDemonBattleSquaddie.battleSquaddieId
                 )
-                expect(queuedBattleAction.action.actionTemplateId).toEqual(
+                expect(queuedBattleAction!.action.actionTemplateId).toEqual(
                     demonBiteAction.id
                 )
             })
@@ -786,7 +790,7 @@ describe("BattleComputerSquaddieSelector", () => {
                 selector.update({
                     gameEngineState,
                     graphicsContext: mockedP5GraphicsContext,
-                    resourceHandler: gameEngineState.resourceHandler,
+                    resourceHandler: gameEngineState.resourceHandler!,
                 })
 
                 vi.spyOn(Date, "now").mockImplementation(
@@ -795,7 +799,7 @@ describe("BattleComputerSquaddieSelector", () => {
                 selector.update({
                     gameEngineState,
                     graphicsContext: mockedP5GraphicsContext,
-                    resourceHandler: gameEngineState.resourceHandler,
+                    resourceHandler: gameEngineState.resourceHandler!,
                 })
                 expect(selector.hasCompleted(gameEngineState)).toBeTruthy()
             })
@@ -807,11 +811,11 @@ describe("BattleComputerSquaddieSelector", () => {
                 selector.update({
                     gameEngineState,
                     graphicsContext: mockedP5GraphicsContext,
-                    resourceHandler: gameEngineState.resourceHandler,
+                    resourceHandler: gameEngineState.resourceHandler!,
                 })
-                const recommendation: BattleOrchestratorChanges =
+                const recommendation =
                     selector.recommendStateChanges(gameEngineState)
-                expect(recommendation.nextMode).toBe(
+                expect(recommendation!.nextMode).toBe(
                     BattleOrchestratorMode.SQUADDIE_USES_ACTION_ON_SQUADDIE
                 )
 
@@ -837,7 +841,7 @@ describe("BattleComputerSquaddieSelector", () => {
                         gameEngineState.battleOrchestratorState.battleState
                             .battleActionRecorder
                     )
-                expect(queuedBattleAction.action.actionTemplateId).toEqual(
+                expect(queuedBattleAction!.action.actionTemplateId).toEqual(
                     demonBiteAction.id
                 )
             })
@@ -847,7 +851,7 @@ describe("BattleComputerSquaddieSelector", () => {
                 selector.update({
                     gameEngineState,
                     graphicsContext: mockedP5GraphicsContext,
-                    resourceHandler: gameEngineState.resourceHandler,
+                    resourceHandler: gameEngineState.resourceHandler!,
                 })
 
                 const mouseEvent: OrchestratorComponentMouseEvent = {
@@ -863,7 +867,7 @@ describe("BattleComputerSquaddieSelector", () => {
                 selector.update({
                     gameEngineState,
                     graphicsContext: mockedP5GraphicsContext,
-                    resourceHandler: gameEngineState.resourceHandler,
+                    resourceHandler: gameEngineState.resourceHandler!,
                 })
                 expect(selector.hasCompleted(gameEngineState)).toBeTruthy()
             })
@@ -875,21 +879,21 @@ describe("BattleComputerSquaddieSelector", () => {
                     })
                 expect(unSpentActionPoints).toBe(
                     DEFAULT_ACTION_POINTS_PER_TURN -
-                        demonBiteAction.resourceCost.actionPoints
+                        demonBiteAction!.resourceCost!.actionPoints
                 )
             })
 
             it("make sure battle action has the expected fields", () => {
-                const actionToShow: BattleAction =
+                const actionToShow =
                     BattleActionRecorderService.peekAtAnimationQueue(
                         gameEngineState.battleOrchestratorState.battleState
                             .battleActionRecorder
                     )
 
-                expect(actionToShow.actor.actorBattleSquaddieId).toEqual(
+                expect(actionToShow!.actor.actorBattleSquaddieId).toEqual(
                     enemyDemonBattleSquaddie.battleSquaddieId
                 )
-                expect(actionToShow.actor.actorContext).not.toBeUndefined()
+                expect(actionToShow!.actor.actorContext).not.toBeUndefined()
             })
 
             it("should add the results to the history", () => {
@@ -898,17 +902,17 @@ describe("BattleComputerSquaddieSelector", () => {
                         gameEngineState.battleOrchestratorState.battleState
                             .battleActionRecorder
                     )
-                expect(mostRecentAction.action.actionTemplateId).toEqual(
+                expect(mostRecentAction!.action.actionTemplateId).toEqual(
                     demonBiteAction.id
                 )
 
-                const results = mostRecentAction.effect.squaddie
+                const results = mostRecentAction!.effect.squaddie
                 expect(results).toHaveLength(1)
-                expect(results[0].battleSquaddieId).toEqual(
+                expect(results![0].battleSquaddieId).toEqual(
                     enemyDemonBattleSquaddie2.battleSquaddieId
                 )
                 expect(
-                    results.find(
+                    results!.find(
                         (change) =>
                             change.battleSquaddieId ===
                             enemyDemonBattleSquaddie2.battleSquaddieId
@@ -923,12 +927,12 @@ describe("BattleComputerSquaddieSelector", () => {
                             .battleActionRecorder
                     )
                 const demonOneBitesDemonTwoResults =
-                    mostRecentAction.effect.squaddie.find(
+                    mostRecentAction!.effect.squaddie!.find(
                         (change) =>
                             change.battleSquaddieId ===
                             enemyDemonBattleSquaddie2.battleSquaddieId
                     )
-                expect(demonOneBitesDemonTwoResults.damage.net).toBe(
+                expect(demonOneBitesDemonTwoResults!.damage.net).toBe(
                     demonBiteActionDamage
                 )
 

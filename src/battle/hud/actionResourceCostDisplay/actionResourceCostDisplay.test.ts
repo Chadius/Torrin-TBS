@@ -49,6 +49,7 @@ describe("ActionResourceCostDisplay", () => {
             const shouldThrowError = () => {
                 ActionResourceCostDisplayService.new({
                     objectRepository,
+                    // @ts-ignore Intentionally throwing an error by providing invalid arguments
                     actionTemplateId: undefined,
                     drawingArea: RectAreaService.new({
                         top: 0,

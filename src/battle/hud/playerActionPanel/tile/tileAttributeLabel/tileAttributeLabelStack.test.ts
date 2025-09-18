@@ -127,15 +127,15 @@ describe("TileAttributeLabelStack", () => {
         let topTile: TileAttributeLabel
         let dateSpy: MockInstance
         type TileArea = {
-            start: {
-                bottom: number
-                top: number
-                height: number
+            start?: {
+                bottom: number | undefined
+                top: number | undefined
+                height: number | undefined
             }
-            current: {
-                bottom: number
-                top: number
-                height: number
+            current?: {
+                bottom: number | undefined
+                top: number | undefined
+                height: number | undefined
             }
         }
 
@@ -173,14 +173,16 @@ describe("TileAttributeLabelStack", () => {
         })
 
         const expectBottomTileDoesNotChange = (bottomTileArea: TileArea) => {
-            expect(bottomTileArea.current.bottom).toEqual(
-                bottomTileArea.start.bottom
+            expect(bottomTileArea.current!.bottom).toEqual(
+                bottomTileArea.start!.bottom
             )
-            expect(bottomTileArea.current.top).toEqual(bottomTileArea.start.top)
-            expect(bottomTileArea.current.height).toEqual(
-                bottomTileArea.start.height
+            expect(bottomTileArea.current!.top).toEqual(
+                bottomTileArea.start!.top
             )
-            expect(bottomTileArea.current.bottom).toEqual(1000)
+            expect(bottomTileArea.current!.height).toEqual(
+                bottomTileArea.start!.height
+            )
+            expect(bottomTileArea.current!.bottom).toEqual(1000)
             return true
         }
 
@@ -188,8 +190,8 @@ describe("TileAttributeLabelStack", () => {
             middleTileArea: TileArea,
             bottomTileArea: TileArea
         ) => {
-            expect(middleTileArea.current.bottom).toEqual(
-                bottomTileArea.current.top
+            expect(middleTileArea.current!.bottom).toEqual(
+                bottomTileArea.current!.top
             )
             return true
         }
@@ -197,8 +199,8 @@ describe("TileAttributeLabelStack", () => {
             topTileArea: TileArea,
             middleTileArea: TileArea
         ) => {
-            expect(topTileArea.current.bottom).toEqual(
-                middleTileArea.current.top
+            expect(topTileArea.current!.bottom).toEqual(
+                middleTileArea.current!.top
             )
             return true
         }
@@ -232,14 +234,14 @@ describe("TileAttributeLabelStack", () => {
                 })
 
                 it("will change the middle tile height and top as it opens", () => {
-                    expect(middleTileArea.current.bottom).toEqual(
-                        middleTileArea.start.bottom
+                    expect(middleTileArea.current!.bottom).toEqual(
+                        middleTileArea.start!.bottom
                     )
-                    expect(middleTileArea.current.top).toBeLessThan(
-                        middleTileArea.start.top
+                    expect(middleTileArea.current!.top).toBeLessThan(
+                        middleTileArea.start!.top!
                     )
-                    expect(middleTileArea.current.height).toBeGreaterThan(
-                        middleTileArea.start.height
+                    expect(middleTileArea.current!.height).toBeGreaterThan(
+                        middleTileArea.start!.height!
                     )
                 })
 
@@ -252,14 +254,14 @@ describe("TileAttributeLabelStack", () => {
                     ).toBeTruthy()
                 })
                 it("will change the top tile bottom and top as the middle tile pushes it upward", () => {
-                    expect(topTileArea.current.bottom).toBeLessThan(
-                        topTileArea.start.bottom
+                    expect(topTileArea.current!.bottom).toBeLessThan(
+                        topTileArea.start!.bottom!
                     )
-                    expect(topTileArea.current.top).toBeLessThan(
-                        topTileArea.start.top
+                    expect(topTileArea.current!.top).toBeLessThan(
+                        topTileArea.start!.top!
                     )
-                    expect(topTileArea.current.height).toEqual(
-                        topTileArea.start.height
+                    expect(topTileArea.current!.height).toEqual(
+                        topTileArea.start!.height
                     )
                 })
                 it("the top tile bottom will still be on the top of the middle tile", () => {
@@ -283,14 +285,17 @@ describe("TileAttributeLabelStack", () => {
                 resourceHandler,
             })
 
+            // @ts-ignore
             bottomTileArea = {
                 start: undefined,
                 current: undefined,
             }
+            // @ts-ignore
             middleTileArea = {
                 start: undefined,
                 current: undefined,
             }
+            // @ts-ignore
             topTileArea = {
                 start: undefined,
                 current: undefined,
@@ -403,14 +408,14 @@ describe("TileAttributeLabelStack", () => {
                 })
 
                 it("will change the middle tile height and top as it closes", () => {
-                    expect(middleTileArea.current.bottom).toEqual(
-                        middleTileArea.start.bottom
+                    expect(middleTileArea.current!.bottom).toEqual(
+                        middleTileArea.start!.bottom
                     )
-                    expect(middleTileArea.current.top).toBeGreaterThan(
-                        middleTileArea.start.top
+                    expect(middleTileArea.current!.top).toBeGreaterThan(
+                        middleTileArea.start!.top!
                     )
-                    expect(middleTileArea.current.height).toBeLessThan(
-                        middleTileArea.start.height
+                    expect(middleTileArea.current!.height).toBeLessThan(
+                        middleTileArea.start!.height!
                     )
                 })
                 it("the middle tile bottom will still be on the top of the bottom tile", () => {
@@ -422,14 +427,14 @@ describe("TileAttributeLabelStack", () => {
                     ).toBeTruthy()
                 })
                 it("will change the top tile bottom and top as the middle tile closes", () => {
-                    expect(topTileArea.current.bottom).toBeGreaterThan(
-                        topTileArea.start.bottom
+                    expect(topTileArea.current!.bottom).toBeGreaterThan(
+                        topTileArea.start!.bottom!
                     )
-                    expect(topTileArea.current.top).toBeGreaterThan(
-                        topTileArea.start.top
+                    expect(topTileArea.current!.top).toBeGreaterThan(
+                        topTileArea.start!.top!
                     )
-                    expect(topTileArea.current.height).toEqual(
-                        topTileArea.start.height
+                    expect(topTileArea.current!.height).toEqual(
+                        topTileArea.start!.height
                     )
                 })
                 it("the top tile bottom will still be on the top of the middle tile", () => {

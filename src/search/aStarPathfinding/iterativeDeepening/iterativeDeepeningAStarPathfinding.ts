@@ -52,8 +52,8 @@ export const IterativeDeepeningAStarPathfinder = {
             clone: (worldModel: WorldModel) => WorldModel
         }
         goal: {
-            estimateCost: (worldModel: WorldModel) => number
-            isFulfilled: (worldModel: WorldModel) => boolean
+            estimateCost: (worldModel: WorldModel | undefined) => number
+            isFulfilled: (worldModel: WorldModel | undefined) => boolean
         }
         action: {
             getCost: (action: Action) => number
@@ -65,7 +65,9 @@ export const IterativeDeepeningAStarPathfinder = {
         ) => void
         maxDepth: number
     }): Action[] => {
-        let maximumCostCutoff: number = goal.estimateCost(worldModel.initial)
+        let maximumCostCutoff: number | undefined = goal.estimateCost(
+            worldModel.initial
+        )
         let transpositionTable: TranspositionTable<WorldModel> =
             new TranspositionTable<WorldModel>(
                 worldModel.getKey,
@@ -101,8 +103,8 @@ const doDepthSearchFirst = <WorldModel, Action>({
         clone: (worldModel: WorldModel) => WorldModel
     }
     goal: {
-        estimateCost: (worldModel: WorldModel) => number
-        isFulfilled: (worldModel: WorldModel) => boolean
+        estimateCost: (worldModel: WorldModel | undefined) => number
+        isFulfilled: (worldModel: WorldModel | undefined) => boolean
     }
     action: {
         getCost: (action: Action) => number
@@ -112,7 +114,7 @@ const doDepthSearchFirst = <WorldModel, Action>({
     transpositionTable: TranspositionTable<WorldModel>
     maxDepth: number
     maximumCostCutoff: number
-}): { maximumCostCutoff: number; actions: Action[] } => {
+}): { maximumCostCutoff: number | undefined; actions: Action[] } => {
     const {
         models,
         actionsThatShouldBePerformed,
@@ -124,7 +126,7 @@ const doDepthSearchFirst = <WorldModel, Action>({
         createActionGenerator: action.createActionGenerator,
     })
     let currentDepth: number = 0
-    let smallestCostFound: number = undefined
+    let smallestCostFound: number | undefined = undefined
 
     while (currentDepth >= 0) {
         if (goal.isFulfilled(models[currentDepth])) {
@@ -193,22 +195,22 @@ const initializeDepthFirstSearchStorage = <WorldModel, Action>({
     initialWorldModel: WorldModel
     createActionGenerator: (worldModel: WorldModel) => Generator<Action>
 }): {
-    models: WorldModel[]
-    actionsThatShouldBePerformed: Action[]
+    models: (WorldModel | undefined)[]
+    actionsThatShouldBePerformed: (Action | undefined)[]
     costs: number[]
     actionGeneratorsPerWorldModel: Iterator<Action>[]
 } => {
-    const models: WorldModel[] = Array.from(
+    const models: (WorldModel | undefined)[] = Array.from(
         new Array(maxDepth),
-        (): WorldModel => undefined
+        (): WorldModel | undefined => undefined
     )
     const actionGeneratorsPerWorldModel: Iterator<Action>[] = Array.from(
         new Array(maxDepth),
-        (): Iterator<Action> => undefined
+        (): Iterator<Action> => [].values()
     )
-    const actionsThatShouldBePerformed: Action[] = Array.from(
+    const actionsThatShouldBePerformed: (Action | undefined)[] = Array.from(
         new Array(maxDepth),
-        (): Action => undefined
+        (): Action | undefined => undefined
     )
 
     const costs: number[] = Array.from(new Array(maxDepth), () => 0)
@@ -232,8 +234,8 @@ const createModelAtOneLevelDeeper = <WorldModel, Action>({
     currentDepth,
 }: {
     plan: {
-        models: WorldModel[]
-        actionsThatShouldBePerformed: Action[]
+        models: (WorldModel | undefined)[]
+        actionsThatShouldBePerformed: (Action | undefined)[]
         costs: number[]
         nextAction: Action
         actionGeneratorsPerWorldModel: Iterator<Action>[]
@@ -246,12 +248,20 @@ const createModelAtOneLevelDeeper = <WorldModel, Action>({
     applyActionToWorldModel: (worldModel: WorldModel, action: Action) => void
     currentDepth: number
 }): WorldModel => {
+    if (plan.models[currentDepth] == undefined) {
+        throw new Error(`Can't find the model at ${currentDepth}`)
+    }
+
     plan.models[currentDepth + 1] = cloneWorldModel(plan.models[currentDepth])
     plan.actionsThatShouldBePerformed[currentDepth] = plan.nextAction
-    applyActionToWorldModel(plan.models[currentDepth + 1], plan.nextAction)
+    applyActionToWorldModel(plan.models[currentDepth + 1]!, plan.nextAction)
     plan.actionGeneratorsPerWorldModel[currentDepth + 1] =
-        action.createActionGenerator(plan.models[currentDepth + 1])
+        action.createActionGenerator(plan.models[currentDepth + 1]!)
     plan.costs[currentDepth + 1] =
         plan.costs[currentDepth] + action.getCost(plan.nextAction)
-    return plan.models[currentDepth + 1]
+
+    if (plan.models[currentDepth + 1] == undefined) {
+        throw new Error(`Can't find the model at ${currentDepth + 1}`)
+    }
+    return plan.models[currentDepth + 1]!
 }

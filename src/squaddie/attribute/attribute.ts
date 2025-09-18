@@ -1,4 +1,5 @@
 import { TextFormatService } from "../../utils/graphics/textFormatService"
+import { EnumLike } from "../../utils/enum"
 
 export const Attribute = {
     ARMOR: "ARMOR",

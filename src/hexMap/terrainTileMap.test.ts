@@ -115,10 +115,6 @@ describe("Terrain Tile Map", () => {
         expect(
             TerrainTileMapService.isCoordinateOnMap(hexGrid, { q: 4, r: 4 })
         ).toBeFalsy()
-
-        expect(
-            TerrainTileMapService.isCoordinateOnMap(undefined, { q: 0, r: 0 })
-        ).toBeFalsy()
     })
     describe("can create maps using text strings", () => {
         it("a single row", () => {

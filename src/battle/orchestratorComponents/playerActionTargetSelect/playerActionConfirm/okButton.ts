@@ -43,8 +43,7 @@ export class PlayerActionConfirmShouldCreateOKButton
     run(): boolean {
         const uiObjects: PlayerActionTargetStateMachineUIObjects =
             this.dataBlob.getUIObjects()
-        const okButton: Button = uiObjects.confirm.okButton
-        return !okButton
+        return uiObjects.confirm?.okButton == undefined
     }
 }
 
@@ -76,7 +75,7 @@ export class PlayerActionConfirmCreateOKButton implements BehaviorTreeTask {
         const targetCoordinate = BattleActionDecisionStepService.getTarget(
             context.battleActionDecisionStep
         )?.targetCoordinate
-        const camera = uiObjects.camera
+        const camera = uiObjects.camera!
         const targetLocation = targetCoordinate
             ? ConvertCoordinateService.convertMapCoordinatesToScreenLocation({
                   mapCoordinate: targetCoordinate,
@@ -84,21 +83,22 @@ export class PlayerActionConfirmCreateOKButton implements BehaviorTreeTask {
               })
             : undefined
 
-        const okButtonArea: RectArea = targetCoordinate
-            ? RectAreaService.new({
-                  centerX: targetLocation.x,
-                  width: layout.okButton.width,
-                  top: targetLocation.y + layout.okButton.topOffset,
-                  height: layout.okButton.height,
-                  margin: layout.okButton.margin,
-              })
-            : RectAreaService.new({
-                  centerX: ScreenDimensions.SCREEN_WIDTH / 2,
-                  width: layout.okButton.width,
-                  centerY: ScreenDimensions.SCREEN_HEIGHT / 2,
-                  height: layout.okButton.height,
-                  margin: layout.okButton.margin,
-              })
+        const okButtonArea: RectArea =
+            targetCoordinate && targetLocation
+                ? RectAreaService.new({
+                      centerX: targetLocation.x,
+                      width: layout.okButton.width,
+                      top: targetLocation.y + layout.okButton.topOffset,
+                      height: layout.okButton.height,
+                      margin: layout.okButton.margin,
+                  })
+                : RectAreaService.new({
+                      centerX: ScreenDimensions.SCREEN_WIDTH / 2,
+                      width: layout.okButton.width,
+                      centerY: ScreenDimensions.SCREEN_HEIGHT / 2,
+                      height: layout.okButton.height,
+                      margin: layout.okButton.margin,
+                  })
 
         if (RectAreaService.left(okButtonArea) < 0) {
             RectAreaService.setLeft(okButtonArea, WINDOW_SPACING.SPACING1)
@@ -194,7 +194,7 @@ export class PlayerActionConfirmCreateOKButton implements BehaviorTreeTask {
             dataBlob: allLabelButtonDataBlob,
         })
 
-        uiObjects.confirm.okButton = new Button({
+        uiObjects.confirm!.okButton = new Button({
             id: PLAYER_ACTION_CONFIRM_CREATE_OK_BUTTON_ID,
             drawTask,
             buttonLogic,

@@ -38,6 +38,7 @@ describe("Attack Roll Thermometer", () => {
             createAttackRollThermometer({
                 tryToShowCriticalFailure: true,
                 tryToShowCriticalSuccess: false,
+                // @ts-ignore intentionally throwing an error
                 successBonus: undefined,
             })
         }
@@ -249,6 +250,7 @@ describe("Attack Roll Thermometer", () => {
         it("throws an error if thermometer is undefined", () => {
             const shouldThrowErrorUndefined = () => {
                 AttackRollThermometerService.beginRollingAnimation({
+                    // @ts-ignore intentionally throwing an error
                     thermometer: undefined,
                     rolls: [6, 1],
                     degreeOfSuccess: DegreeOfSuccess.SUCCESS,
@@ -264,6 +266,7 @@ describe("Attack Roll Thermometer", () => {
                 AttackRollThermometerService.beginRollingAnimation({
                     thermometer,
                     rolls: [6, 1],
+                    // @ts-ignore intentionally throwing an error
                     degreeOfSuccess: undefined,
                 })
             }
@@ -283,6 +286,7 @@ describe("Attack Roll Thermometer", () => {
             const shouldThrowErrorUndefined = () => {
                 AttackRollThermometerService.beginRollingAnimation({
                     thermometer,
+                    // @ts-ignore intentionally throwing an error
                     rolls: undefined,
                     degreeOfSuccess: DegreeOfSuccess.SUCCESS,
                 })
@@ -364,16 +368,24 @@ describe("Attack Roll Thermometer", () => {
                 })
 
                 segmentRectangles = {
+                    // @ts-ignore It's not undefined
                     [DegreeOfSuccess.CRITICAL_FAILURE]:
+                        // @ts-ignore It's not undefined
                         thermometer.segments[DegreeOfSuccess.CRITICAL_FAILURE]
                             .drawnObjects.meter.area,
+                    // @ts-ignore It's not undefined
                     [DegreeOfSuccess.FAILURE]:
+                        // @ts-ignore It's not undefined
                         thermometer.segments[DegreeOfSuccess.FAILURE]
                             .drawnObjects.meter.area,
+                    // @ts-ignore It's not undefined
                     [DegreeOfSuccess.SUCCESS]:
+                        // @ts-ignore It's not undefined
                         thermometer.segments[DegreeOfSuccess.SUCCESS]
                             .drawnObjects.meter.area,
+                    // @ts-ignore It's not undefined
                     [DegreeOfSuccess.CRITICAL_SUCCESS]:
+                        // @ts-ignore It's not undefined
                         thermometer.segments[DegreeOfSuccess.CRITICAL_SUCCESS]
                             .drawnObjects.meter.area,
                 }

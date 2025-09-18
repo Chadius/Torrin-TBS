@@ -5,7 +5,7 @@ import {
     TitleScreenLayout,
     TitleScreenUIObjects,
 } from "../titleScreen"
-import { Label, LabelService } from "../../ui/label"
+import { LabelService } from "../../ui/label"
 import { RectAreaService } from "../../ui/rectArea"
 import {
     HORIZONTAL_ALIGN,
@@ -60,15 +60,16 @@ export class ShouldCreateContinueGameButtonAction implements BehaviorTreeTask {
 
         let errorMessageTimeoutReached = isErrorMessageTimeoutReached(context)
         if (errorMessageTimeoutReached) {
-            LoadSaveStateService.reset(context.fileState.loadSaveState)
+            if (context.fileState)
+                LoadSaveStateService.reset(context.fileState.loadSaveState)
             context.errorDuringLoadingDisplayStartTimestamp = undefined
         }
 
-        const readyButtonLabel: Label =
-            DataBlobService.get<AllLabelButtonUIObjects>(
-                uiObjects.continueGameButton.buttonStyle.dataBlob,
-                "uiObjects"
-            )?.buttonLabelsByStatus[ButtonStatus.READY]
+        if (uiObjects.continueGameButton == undefined) return true
+        const readyButtonLabel = DataBlobService.get<AllLabelButtonUIObjects>(
+            uiObjects.continueGameButton.buttonStyle.dataBlob,
+            "uiObjects"
+        )?.buttonLabelsByStatus[ButtonStatus.READY]
         if (readyButtonLabel == undefined) return true
 
         return (
@@ -192,38 +193,40 @@ const getContinueGameButtonText = (
         return loadingFailedDueToError || userCanceledLoad
     }
 
-    const wasLoadingEngaged = (fileState: FileState): boolean => {
+    const wasLoadingEngaged = (fileState?: FileState): boolean => {
+        if (fileState == undefined) return false
         const userRequestedLoad: boolean =
-            fileState.loadSaveState.userRequestedLoad === true
+            fileState.loadSaveState.userRequestedLoad
 
         return userRequestedLoad || didLoadingFail(fileState)
     }
 
-    const userIsWaitingForLoadToFinish = (fileState: FileState): boolean => {
+    const userIsWaitingForLoadToFinish = (fileState?: FileState): boolean => {
+        if (fileState == undefined) return false
         const userRequestedLoad: boolean =
-            fileState.loadSaveState.userRequestedLoad === true
+            fileState.loadSaveState.userRequestedLoad
 
         return userRequestedLoad && !didLoadingFail(fileState)
     }
 
     switch (true) {
-        case !wasLoadingEngaged(context.fileState) ||
+        case !wasLoadingEngaged(context?.fileState) ||
             isErrorMessageTimeoutReached(context):
             return {
                 buttonText: "Load file and continue",
                 isError: false,
             }
-        case userIsWaitingForLoadToFinish(context.fileState):
+        case userIsWaitingForLoadToFinish(context?.fileState):
             return {
                 buttonText: "Now loading...",
                 isError: false,
             }
-        case context.fileState.loadSaveState.applicationErroredWhileLoading:
+        case context.fileState?.loadSaveState.applicationErroredWhileLoading:
             return {
                 buttonText: "Loading failed. Check logs.",
                 isError: true,
             }
-        case context.fileState.loadSaveState.userCanceledLoad:
+        case context.fileState?.loadSaveState.userCanceledLoad:
             return {
                 buttonText: `Canceled loading.`,
                 isError: true,

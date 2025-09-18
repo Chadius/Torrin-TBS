@@ -49,7 +49,7 @@ export interface SquaddieNameAndPortraitTile {
     portraitImage?: ImageUI
     squaddieName: string
     squaddieAffiliation: TSquaddieAffiliation
-    squaddiePortraitResourceKey: string
+    squaddiePortraitResourceKey: string | undefined
     horizontalPosition: TActionTilePosition
     battleSquaddieId: string
     glossaryLabelStack: TileAttributeLabelStack
@@ -65,7 +65,7 @@ export const SquaddieNameAndPortraitTileService = {
     }: {
         objectRepository: ObjectRepository
         battleSquaddieId: string
-        team: BattleSquaddieTeam
+        team: BattleSquaddieTeam | undefined
         horizontalPosition: TActionTilePosition
         glossary: Glossary
     }): SquaddieNameAndPortraitTile => {
@@ -102,10 +102,13 @@ export const SquaddieNameAndPortraitTileService = {
         graphicsContext,
         resourceHandler,
     }: {
-        tile: SquaddieNameAndPortraitTile
+        tile: SquaddieNameAndPortraitTile | undefined
         graphicsContext: GraphicsBuffer
-        resourceHandler: ResourceHandler
+        resourceHandler: ResourceHandler | undefined
     }) => {
+        if (tile == undefined) return
+        if (resourceHandler == undefined) return
+
         ActionTilePositionService.drawBackground({
             squaddieAffiliation: tile.squaddieAffiliation,
             horizontalPosition: tile.horizontalPosition,
@@ -244,7 +247,7 @@ const drawPortraitImage = ({
             }),
         })
     }
-    tile.portraitImage.draw({ graphicsContext, resourceHandler })
+    tile.portraitImage?.draw({ graphicsContext, resourceHandler })
 }
 
 const drawPortraitNameTextBox = (

@@ -162,7 +162,7 @@ describe("target a squaddie within reach of actions", () => {
                 gameEngineState.battleOrchestratorState.battleHUD.debugMode
             ).behaviorOverrides,
         })
-        expect(actualInstruction).toBeUndefined()
+        expect(actualInstruction).toHaveLength(0)
     })
 
     it("will raise an error if there is no target squaddie or affiliation with a given id", () => {
@@ -287,7 +287,7 @@ describe("target a squaddie within reach of actions", () => {
             ).behaviorOverrides,
         })
 
-        expect(actualInstruction).toBeUndefined()
+        expect(actualInstruction).toHaveLength(0)
     })
 
     it("will not use an action if there are not enough action points remaining", () => {
@@ -306,7 +306,7 @@ describe("target a squaddie within reach of actions", () => {
 
         SquaddieTurnService.setMovementActionPointsSpentAndCannotBeRefunded({
             squaddieTurn: enemyBattleSquaddie.squaddieTurn,
-            actionPoints: 4 - shortBowAction.resourceCost.actionPoints,
+            actionPoints: 4 - shortBowAction.resourceCost!.actionPoints,
         })
 
         const strategy: TargetSquaddieInRange = new TargetSquaddieInRange({
@@ -321,7 +321,7 @@ describe("target a squaddie within reach of actions", () => {
             ).behaviorOverrides,
         })
 
-        expect(actualInstruction).toBeUndefined()
+        expect(actualInstruction).toHaveLength(0)
     })
 
     it("will not use an action if there is a behavior override preventing action", () => {
@@ -353,7 +353,7 @@ describe("target a squaddie within reach of actions", () => {
             },
         })
 
-        expect(actualInstruction).toBeUndefined()
+        expect(actualInstruction).toHaveLength(0)
     })
 
     it("will add to existing instruction", () => {
@@ -484,7 +484,7 @@ describe("target a squaddie within reach of actions", () => {
                 gameEngineState.battleOrchestratorState.battleHUD.debugMode
             ).behaviorOverrides,
         })
-        expect(actualInstruction).toBeUndefined()
+        expect(actualInstruction).toHaveLength(0)
     })
 })
 

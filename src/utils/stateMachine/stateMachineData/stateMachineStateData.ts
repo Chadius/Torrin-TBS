@@ -1,6 +1,6 @@
 export interface StateMachineStateData<TransitionType, ActionType> {
     transitions: TransitionType[]
-    entryAction: ActionType
+    entryAction: ActionType | undefined
     actions: ActionType[]
-    exitAction: ActionType
+    exitAction: ActionType | undefined
 }

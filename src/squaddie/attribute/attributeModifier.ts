@@ -6,8 +6,10 @@ import {
     AttributeTypeService,
 } from "./attribute"
 import { TextFormatService } from "../../utils/graphics/textFormatService"
+import { EnumLike } from "../../utils/enum"
 
 export const AttributeSource = {
+    UNKNOWN: "UNKNOWN",
     PROFICIENCY: "PROFICIENCY",
     MARTIAL: "MARTIAL",
     ELEMENTAL: "ELEMENTAL",
@@ -60,7 +62,8 @@ export const AttributeModifierService = {
                 return false
             case modifier.amount == 0 && modifier.type == Attribute.MOVEMENT:
                 return false
-            case isValidValue(modifier.numberOfUses) &&
+            case modifier.numberOfUses != undefined &&
+                isValidValue(modifier.numberOfUses) &&
                 modifier.numberOfUses <= 0:
                 return false
             default:
@@ -172,6 +175,17 @@ export const AttributeModifierService = {
                 return
             }
 
+            if (
+                modifierByTypeAndSource?.type == undefined ||
+                combinedModifierAmountByType[modifierByTypeAndSource.type] ==
+                    undefined ||
+                combinedModifierAmountByType[modifierByTypeAndSource.type]
+                    ?.amount == undefined ||
+                modifierByTypeAndSource.amount == undefined
+            )
+                return
+
+            // @ts-ignore It cannot be undefined by the time we get here
             combinedModifierAmountByType[modifierByTypeAndSource.type].amount +=
                 modifierByTypeAndSource.amount
         }
@@ -230,7 +244,8 @@ export const AttributeModifierService = {
 
         let attributeSourceAsString: string =
             attributeModifier.amount != 0 &&
-            attributeModifier.source != undefined
+            attributeModifier.source != undefined &&
+            attributeModifier.source != AttributeSource.UNKNOWN
                 ? ` (${getReadableAttributeSource(attributeModifier.source)})`
                 : ""
 
@@ -275,18 +290,18 @@ const newAttributeModifier = ({
     description,
 }: {
     type: TAttribute
-    source: TAttributeSource
+    source?: TAttributeSource
     amount: number
     duration?: number
     numberOfUses?: number
     description?: string
 }): AttributeModifier => ({
     type,
-    source,
+    source: source ?? AttributeSource.UNKNOWN,
     amount,
     duration,
     numberOfUses,
-    description,
+    description: description ?? "",
 })
 
 const getReadableAttributeSource = (

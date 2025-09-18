@@ -1,3 +1,5 @@
+import { EnumLike } from "../../utils/enum"
+
 export const PlayerInputAction = {
     ACCEPT: "ACCEPT",
     NEXT: "NEXT",
@@ -112,59 +114,59 @@ export const PlayerInputStateService = {
         return newPlayerInputState({
             actions: {
                 [PlayerInputAction.ACCEPT]: JSON.parse(
-                    process.env.PLAYER_INPUT_ACCEPT
+                    process.env.PLAYER_INPUT_ACCEPT!
                 ),
                 [PlayerInputAction.CANCEL]: JSON.parse(
-                    process.env.PLAYER_INPUT_CANCEL
+                    process.env.PLAYER_INPUT_CANCEL!
                 ),
                 [PlayerInputAction.NEXT]: JSON.parse(
-                    process.env.PLAYER_INPUT_NEXT
+                    process.env.PLAYER_INPUT_NEXT!
                 ),
                 [PlayerInputAction.SCROLL_LEFT]: JSON.parse(
-                    process.env.PLAYER_INPUT_SCROLL_LEFT
+                    process.env.PLAYER_INPUT_SCROLL_LEFT!
                 ),
                 [PlayerInputAction.SCROLL_RIGHT]: JSON.parse(
-                    process.env.PLAYER_INPUT_SCROLL_RIGHT
+                    process.env.PLAYER_INPUT_SCROLL_RIGHT!
                 ),
                 [PlayerInputAction.SCROLL_UP]: JSON.parse(
-                    process.env.PLAYER_INPUT_SCROLL_UP
+                    process.env.PLAYER_INPUT_SCROLL_UP!
                 ),
                 [PlayerInputAction.SCROLL_DOWN]: JSON.parse(
-                    process.env.PLAYER_INPUT_SCROLL_DOWN
+                    process.env.PLAYER_INPUT_SCROLL_DOWN!
                 ),
                 [PlayerInputAction.END_TURN]: JSON.parse(
-                    process.env.PLAYER_INPUT_END_TURN
+                    process.env.PLAYER_INPUT_END_TURN!
                 ),
                 [PlayerInputAction.LIST_INDEX_0]: JSON.parse(
-                    process.env.PLAYER_INPUT_LIST_INDEX_0
+                    process.env.PLAYER_INPUT_LIST_INDEX_0!
                 ),
                 [PlayerInputAction.LIST_INDEX_1]: JSON.parse(
-                    process.env.PLAYER_INPUT_LIST_INDEX_1
+                    process.env.PLAYER_INPUT_LIST_INDEX_1!
                 ),
                 [PlayerInputAction.LIST_INDEX_2]: JSON.parse(
-                    process.env.PLAYER_INPUT_LIST_INDEX_2
+                    process.env.PLAYER_INPUT_LIST_INDEX_2!
                 ),
                 [PlayerInputAction.LIST_INDEX_3]: JSON.parse(
-                    process.env.PLAYER_INPUT_LIST_INDEX_3
+                    process.env.PLAYER_INPUT_LIST_INDEX_3!
                 ),
                 [PlayerInputAction.LIST_INDEX_4]: JSON.parse(
-                    process.env.PLAYER_INPUT_LIST_INDEX_4
+                    process.env.PLAYER_INPUT_LIST_INDEX_4!
                 ),
                 [PlayerInputAction.LIST_INDEX_5]: JSON.parse(
-                    process.env.PLAYER_INPUT_LIST_INDEX_5
+                    process.env.PLAYER_INPUT_LIST_INDEX_5!
                 ),
                 [PlayerInputAction.LIST_INDEX_6]: JSON.parse(
-                    process.env.PLAYER_INPUT_LIST_INDEX_6
+                    process.env.PLAYER_INPUT_LIST_INDEX_6!
                 ),
                 [PlayerInputAction.LIST_INDEX_7]: JSON.parse(
-                    process.env.PLAYER_INPUT_LIST_INDEX_7
+                    process.env.PLAYER_INPUT_LIST_INDEX_7!
                 ),
                 [PlayerInputAction.LIST_INDEX_8]: JSON.parse(
-                    process.env.PLAYER_INPUT_LIST_INDEX_8
+                    process.env.PLAYER_INPUT_LIST_INDEX_8!
                 ),
             },
             modifierKeyCodes: JSON.parse(
-                process.env.PLAYER_INPUT_MODIFIER_KEY_CODES
+                process.env.PLAYER_INPUT_MODIFIER_KEY_CODES!
             ),
         })
     },
@@ -175,12 +177,14 @@ export const PlayerInputStateService = {
             .map((inputActionStr) => inputActionStr as TPlayerInputAction)
             .filter(
                 (inputAction) =>
-                    playerInput.heldPlayerInputActions[inputAction] != undefined
-            )
-            .filter((inputAction) =>
-                playerInput.actions[inputAction]
-                    .filter((combination) => combination.hold != undefined)
-                    .some((combination) => {
+                    playerInput.actions[inputAction] != undefined &&
+                    playerInput.actions[inputAction].some((combination) => {
+                        if (
+                            playerInput.heldPlayerInputActions[inputAction] ==
+                                undefined ||
+                            combination.hold == undefined
+                        )
+                            return false
                         const timeHeld =
                             Date.now() -
                             playerInput.heldPlayerInputActions[inputAction]
@@ -212,6 +216,11 @@ export const PlayerInputStateService = {
             [PlayerInputAction.LIST_INDEX_6]: 6,
             [PlayerInputAction.LIST_INDEX_7]: 7,
             [PlayerInputAction.LIST_INDEX_8]: 8,
+        }
+        if (listIndexToNumber[playerInputAction] == undefined) {
+            throw new Error(
+                `[listIndexToNumber] Invalid playerInputAction action "${playerInputAction}"`
+            )
         }
         return listIndexToNumber[playerInputAction]
     },
@@ -283,7 +292,7 @@ const searchInputActions = ({
     Object.keys(playerInput.actions)
         .map((inputActionStr) => inputActionStr as TPlayerInputAction)
         .filter((inputAction) =>
-            playerInput.actions[inputAction].some((combination) => {
+            playerInput.actions[inputAction]?.some((combination) => {
                 if (pressed && combination.press !== keyCode) return false
                 if (held && combination.hold?.key !== keyCode) return false
                 const shiftModifier = combination.modifiers?.shift

@@ -16,9 +16,9 @@ import { PlayerInputState } from "../ui/playerInput/playerInputState"
 export interface SplashScreenPlayerState {
     type: TCutsceneActionPlayerType
     splashScreen: SplashScreen
-    startTime: number
+    startTime: number | undefined
     dialogFinished: boolean
-    screenImage: ImageUI
+    screenImage: ImageUI | undefined
 }
 
 export const SplashScreenPlayerService = {
@@ -37,9 +37,7 @@ export const SplashScreenPlayerService = {
             type: CutsceneActionPlayerType.SPLASH_SCREEN,
             splashScreen,
             startTime,
-            dialogFinished: isValidValue(dialogFinished)
-                ? dialogFinished
-                : false,
+            dialogFinished: dialogFinished ?? false,
             screenImage,
         }
     },
@@ -106,6 +104,8 @@ const isTimeExpired = (state: SplashScreenPlayerState): boolean => {
     if (!isValidValue(state)) {
         return true
     }
+    if (state.startTime == undefined) return false
+    if (state.splashScreen.animationDuration == undefined) return false
     return Date.now() >= state.startTime + state.splashScreen.animationDuration
 }
 
@@ -150,7 +150,7 @@ const drawBackground = (
     state: SplashScreenPlayerState,
     graphicsContext: GraphicsBuffer
 ) => {
-    if (isValidValue(state.splashScreen.backgroundColor)) {
+    if (state.splashScreen.backgroundColor != undefined) {
         graphicsContext.push()
         graphicsContext.fill(
             state.splashScreen.backgroundColor[0],

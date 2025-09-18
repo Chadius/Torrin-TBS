@@ -10,9 +10,13 @@ describe("sanitize", () => {
     it("can be sanitized to fill in missing fields", () => {
         const attributesWithMissingFields: ArmyAttributes = {
             maxHitPoints: NaN,
+            // @ts-ignore adding invalid value intentionally so I can test sanitization
             armor: null,
+            // @ts-ignore adding invalid value intentionally so I can test sanitization
             movement: undefined,
+            // @ts-ignore adding invalid value intentionally so I can test sanitization
             tier: undefined,
+            // @ts-ignore adding invalid value intentionally so I can test sanitization
             versusProficiencyLevels: undefined,
         }
         ArmyAttributesService.sanitize(attributesWithMissingFields)
@@ -39,9 +43,13 @@ describe("sanitize", () => {
     it("will sanitize and give default maximum hit points if maxHitPoints is non positive", () => {
         const attributesWithNoHitPoints: ArmyAttributes = {
             maxHitPoints: 0,
+            // @ts-ignore adding invalid value intentionally so I can test sanitization
             armor: null,
+            // @ts-ignore adding invalid value intentionally so I can test sanitization
             movement: undefined,
+            // @ts-ignore adding invalid value intentionally so I can test sanitization
             tier: undefined,
+            // @ts-ignore adding invalid value intentionally so I can test sanitization
             versusProficiencyLevels: undefined,
         }
         ArmyAttributesService.sanitize(attributesWithNoHitPoints)

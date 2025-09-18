@@ -272,8 +272,11 @@ describe("battleActionRecorder", () => {
 
         expect(clone).toEqual(original)
 
+        //@ts-ignore Setting the field to force a change in the original, so I know the clone is a deep copy
         original.actionsAlreadyAnimatedThisTurn = undefined
+        //@ts-ignore Setting the field to force a change in the original, so I know the clone is a deep copy
         original.readyToAnimateQueue = undefined
+        //@ts-ignore Setting the field to force a change in the original, so I know the clone is a deep copy
         original.previousTurns = undefined
 
         expect(

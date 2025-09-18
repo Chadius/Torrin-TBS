@@ -55,6 +55,8 @@ export class TitleScreenCreateDemonLocustCharacterIntroductionIcon
         layout: TitleScreenLayout,
         uiObjects: TitleScreenUIObjects
     ): RectArea {
+        if (uiObjects.demonSlither.icon == undefined)
+            return RectAreaService.null()
         const demonSlitherIconArea = uiObjects.demonSlither.icon.drawArea
 
         return RectAreaService.new({
@@ -101,7 +103,9 @@ export class TitleScreenCreateDemonLocustCharacterIntroductionDescriptionText
         const layout: TitleScreenLayout = this.dataBlob.getLayout()
         const uiObjects: TitleScreenUIObjects = this.dataBlob.getUIObjects()
 
-        const imageDrawArea = uiObjects.demonLocust.icon.drawArea
+        const imageDrawArea = uiObjects.demonLocust.icon
+            ? uiObjects.demonLocust.icon.drawArea
+            : RectAreaService.null()
 
         return TextBoxService.new({
             area: RectAreaService.new({

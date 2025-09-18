@@ -11,8 +11,8 @@ export type HighlightCoordinateDescription = {
 
 export const HighlightCoordinateDescriptionService = {
     areEqual: (
-        a: HighlightCoordinateDescription,
-        b: HighlightCoordinateDescription
+        a: HighlightCoordinateDescription | undefined,
+        b: HighlightCoordinateDescription | undefined
     ): boolean => {
         if (a == undefined || b == undefined) return false
         if (a.pulseColor != b.pulseColor) return false

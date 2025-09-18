@@ -41,7 +41,7 @@ export const BattleActionRecorderService = {
     },
     peekAtAnimationQueue: (
         battleActionRecorder: BattleActionRecorder
-    ): BattleAction => {
+    ): BattleAction | undefined => {
         if (!battleActionRecorder) {
             return undefined
         }
@@ -95,7 +95,7 @@ export const BattleActionRecorderService = {
     },
     peekAtAlreadyAnimatedQueue: (
         battleActionRecorder: BattleActionRecorder
-    ): BattleAction => {
+    ): BattleAction | undefined => {
         if (!battleActionRecorder) {
             return undefined
         }
@@ -143,7 +143,7 @@ export const BattleActionRecorderService = {
     },
     mostRecentAnimatedActionThisTurn: (
         battleActionRecorder: BattleActionRecorder
-    ): BattleAction => {
+    ): BattleAction | undefined => {
         if (!battleActionRecorder) {
             return undefined
         }
@@ -163,7 +163,7 @@ export const BattleActionRecorderService = {
     },
     mostRecentCompletedTurn: (
         battleActionRecorder: BattleActionRecorder
-    ): BattleActionsDuringTurn => {
+    ): BattleActionsDuringTurn | undefined => {
         if (!battleActionRecorder) {
             return undefined
         }

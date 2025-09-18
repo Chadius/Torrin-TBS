@@ -2,9 +2,9 @@ import { HexCoordinate } from "../../hexMap/hexCoordinate/hexCoordinate"
 import { isValidValue } from "../../utils/objectValidityCheck"
 
 export interface BattleActionDecisionStep {
-    actor: BattleActionDecisionStepActor
-    action: BattleActionDecisionStepAction
-    target: BattleActionDecisionStepTarget
+    actor: BattleActionDecisionStepActor | undefined
+    action: BattleActionDecisionStepAction | undefined
+    target: BattleActionDecisionStepTarget | undefined
 }
 
 export interface BattleActionDecisionStepActor {
@@ -22,12 +22,14 @@ export interface BattleActionDecisionStepTarget {
     confirmed: boolean
 }
 
-const isTargetConsidered = (actionBuilderState: BattleActionDecisionStep) =>
+const isTargetConsidered = (
+    actionBuilderState: BattleActionDecisionStep
+): boolean =>
     isValidValue(actionBuilderState) && isValidValue(actionBuilderState.target)
 
 const setConsideredTarget = (
     actionBuilderState: BattleActionDecisionStep,
-    targetCoordinate: HexCoordinate
+    targetCoordinate: HexCoordinate | undefined
 ) => {
     if (!isValidValue(actionBuilderState)) {
         return
@@ -39,33 +41,35 @@ const setConsideredTarget = (
     }
 }
 
-const isActorSet = (actionBuilderState: BattleActionDecisionStep) =>
-    isValidValue(actionBuilderState) &&
-    isValidValue(actionBuilderState.actor) &&
-    isValidValue(actionBuilderState.actor.battleSquaddieId) &&
-    actionBuilderState.actor.battleSquaddieId !== ""
+const isActorSet = (actionBuilderState: BattleActionDecisionStep): boolean =>
+    (actionBuilderState?.actor &&
+        actionBuilderState?.actor?.battleSquaddieId !== "") ||
+    false
 
-const isTargetConfirmed = (actionBuilderState: BattleActionDecisionStep) =>
-    isTargetConsidered(actionBuilderState) &&
-    actionBuilderState.target.confirmed
+const isTargetConfirmed = (
+    actionBuilderState: BattleActionDecisionStep
+): boolean =>
+    (isTargetConsidered(actionBuilderState) &&
+        actionBuilderState?.target?.confirmed) ||
+    false
 
-const isActionSet = (actionBuilderState: BattleActionDecisionStep) =>
-    isValidValue(actionBuilderState) &&
-    isValidValue(actionBuilderState.action) &&
-    (isValidValue(actionBuilderState.action.actionTemplateId) ||
-        actionBuilderState.action.endTurn ||
-        actionBuilderState.action.movement)
+const isActionSet = (actionBuilderState: BattleActionDecisionStep): boolean =>
+    (actionBuilderState?.action &&
+        (isValidValue(actionBuilderState?.action.actionTemplateId) ||
+            actionBuilderState?.action.endTurn ||
+            actionBuilderState?.action.movement)) ||
+    false
 
 const setConfirmedTarget = (
     actionBuilderState: BattleActionDecisionStep,
-    targetCoordinate: HexCoordinate
+    targetCoordinate: HexCoordinate | undefined
 ) => {
     if (!isValidValue(actionBuilderState)) {
         return
     }
 
     setConsideredTarget(actionBuilderState, targetCoordinate)
-    actionBuilderState.target.confirmed = true
+    if (actionBuilderState.target) actionBuilderState.target.confirmed = true
 }
 
 export const BattleActionDecisionStepService = {
@@ -96,10 +100,11 @@ export const BattleActionDecisionStepService = {
         actionBuilderState: BattleActionDecisionStep
     ): boolean => {
         return (
-            isValidValue(actionBuilderState) &&
-            isActorSet(actionBuilderState) &&
-            isActionSet(actionBuilderState) &&
-            isTargetConfirmed(actionBuilderState)
+            (isValidValue(actionBuilderState) &&
+                isActorSet(actionBuilderState) &&
+                isActionSet(actionBuilderState) &&
+                isTargetConfirmed(actionBuilderState)) ||
+            false
         )
     },
     isActorSet: (actionBuilderState: BattleActionDecisionStep): boolean => {
@@ -107,9 +112,7 @@ export const BattleActionDecisionStepService = {
     },
     isTargetConfirmed: (
         actionBuilderState: BattleActionDecisionStep
-    ): boolean => {
-        return isTargetConfirmed(actionBuilderState)
-    },
+    ): boolean => isTargetConfirmed(actionBuilderState),
     setActor: ({
         actionDecisionStep,
         battleSquaddieId,
@@ -126,9 +129,7 @@ export const BattleActionDecisionStepService = {
     },
     getActor: (
         actionDecisionStep: BattleActionDecisionStep
-    ): BattleActionDecisionStepActor => {
-        return actionDecisionStep?.actor
-    },
+    ): BattleActionDecisionStepActor | undefined => actionDecisionStep?.actor,
     addAction: ({
         actionDecisionStep,
         actionTemplateId,
@@ -144,8 +145,8 @@ export const BattleActionDecisionStepService = {
             return
         }
         const actionTemplateIsSet = isValidValue(actionTemplateId)
-        const movementIsSet = movement === true || movement === false
-        const endTurnIsSet = endTurn === true || endTurn === false
+        const movementIsSet = movement !== undefined
+        const endTurnIsSet = endTurn !== undefined
 
         if (!(actionTemplateIsSet || movementIsSet || endTurnIsSet)) {
             throw new Error(
@@ -174,31 +175,26 @@ export const BattleActionDecisionStepService = {
     },
     getTarget: (
         actionDecisionStep: BattleActionDecisionStep
-    ): BattleActionDecisionStepTarget => {
-        return actionDecisionStep?.target
-    },
+    ): BattleActionDecisionStepTarget | undefined => actionDecisionStep?.target,
     setConfirmedTarget: ({
         actionDecisionStep,
         targetCoordinate,
     }: {
-        targetCoordinate: HexCoordinate
+        targetCoordinate: HexCoordinate | undefined
         actionDecisionStep: BattleActionDecisionStep
     }) => {
         setConfirmedTarget(actionDecisionStep, targetCoordinate)
     },
     getAction: (
         actionDecisionStep: BattleActionDecisionStep
-    ): BattleActionDecisionStepAction => {
-        return actionDecisionStep?.action
-    },
+    ): BattleActionDecisionStepAction | undefined => actionDecisionStep?.action,
     isTargetConsidered: (
         actionDecisionStep: BattleActionDecisionStep
     ): boolean => {
         return isTargetConsidered(actionDecisionStep)
     },
-    isActionSet: (actionDecisionStep: BattleActionDecisionStep): boolean => {
-        return isActionSet(actionDecisionStep)
-    },
+    isActionSet: (actionDecisionStep: BattleActionDecisionStep): boolean =>
+        isActionSet(actionDecisionStep),
     confirmAlreadyConsideredTarget: ({
         actionDecisionStep,
     }: {
@@ -207,7 +203,10 @@ export const BattleActionDecisionStepService = {
         if (!isActionSet(actionDecisionStep)) {
             return false
         }
-        if (isTargetConsidered(actionDecisionStep)) {
+        if (
+            isTargetConsidered(actionDecisionStep) &&
+            actionDecisionStep.target
+        ) {
             actionDecisionStep.target.confirmed = true
             return true
         }

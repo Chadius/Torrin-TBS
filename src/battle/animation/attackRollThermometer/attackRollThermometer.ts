@@ -26,10 +26,10 @@ export interface AttackRollThermometer {
     }
 
     successBonus: number
-    rolls: [number, number]
+    rolls: [number, number] | undefined
     degreeOfSuccess: TDegreeOfSuccess
     drawnObjects: {
-        startAnimationTime: number
+        startAnimationTime: number | undefined
         progressBar: {
             rectangle: Rectangle | undefined
             initialFillWidthFormula: CurveInterpolation | undefined
@@ -191,10 +191,10 @@ export const AttackRollThermometerService = {
         thermometer,
         graphicsBuffer,
     }: {
-        thermometer: AttackRollThermometer
+        thermometer: AttackRollThermometer | undefined
         graphicsBuffer: GraphicsBuffer
     }) => {
-        if (!isValidValue(thermometer)) return
+        if (!isValidValue(thermometer) || thermometer == undefined) return
         drawSegments({ thermometer, graphicsBuffer })
         drawProgressBar({
             thermometer,
@@ -306,7 +306,11 @@ const drawProgressBar = ({
     thermometer: AttackRollThermometer
     graphicsBuffer: GraphicsBuffer
 }) => {
-    if (!isValidValue(thermometer?.drawnObjects?.startAnimationTime)) return
+    if (
+        !isValidValue(thermometer?.drawnObjects?.startAnimationTime) ||
+        thermometer.drawnObjects.startAnimationTime == undefined
+    )
+        return
 
     if (thermometer.drawnObjects.progressBar.rectangle == undefined) {
         thermometer.drawnObjects.progressBar.rectangle = RectangleService.new({
@@ -329,10 +333,13 @@ const drawProgressBar = ({
     }
 
     let timeElapsed = Date.now() - thermometer.drawnObjects.startAnimationTime
-    const initialWidth = CurveInterpolationService.calculate(
-        thermometer.drawnObjects.progressBar.initialFillWidthFormula,
-        timeElapsed
-    )
+    const initialWidth = thermometer.drawnObjects.progressBar
+        .initialFillWidthFormula
+        ? CurveInterpolationService.calculate(
+              thermometer.drawnObjects.progressBar.initialFillWidthFormula,
+              timeElapsed
+          )
+        : 0
 
     let criticalWidth = 0
     if (
@@ -370,7 +377,7 @@ const drawSegments = ({
         thermometer.segments[DegreeOfSuccess.FAILURE],
         thermometer.segments[DegreeOfSuccess.SUCCESS],
         thermometer.segments[DegreeOfSuccess.CRITICAL_SUCCESS],
-    ].filter((x) => x)
+    ].filter((x) => x != undefined)
 
     let left = RectAreaService.left(thermometer.drawArea)
     segmentsToDraw.forEach((segment, index) => {
@@ -386,20 +393,27 @@ const drawSegments = ({
             isLastSegment: index == segmentsToDraw.length - 1,
         })
 
-        left = RectAreaService.right(segment.drawnObjects.meter.area) + 1
+        left =
+            segment.drawnObjects.meter != undefined
+                ? RectAreaService.right(segment.drawnObjects.meter.area) + 1
+                : 0
     })
 }
 
 const getMinimumValue = (thermometer: AttackRollThermometer): number => {
     switch (true) {
         case !!thermometer.segments[DegreeOfSuccess.CRITICAL_FAILURE]:
+            // @ts-ignore
             return thermometer.segments[DegreeOfSuccess.CRITICAL_FAILURE]
                 .minimum
         case !!thermometer.segments[DegreeOfSuccess.FAILURE]:
+            // @ts-ignore
             return thermometer.segments[DegreeOfSuccess.FAILURE].minimum
         case !!thermometer.segments[DegreeOfSuccess.SUCCESS]:
+            // @ts-ignore
             return thermometer.segments[DegreeOfSuccess.SUCCESS].minimum
         case !!thermometer.segments[DegreeOfSuccess.CRITICAL_SUCCESS]:
+            // @ts-ignore
             return thermometer.segments[DegreeOfSuccess.CRITICAL_SUCCESS]
                 .minimum
         default:
@@ -412,13 +426,17 @@ const getMinimumValue = (thermometer: AttackRollThermometer): number => {
 const getMaximumValue = (thermometer: AttackRollThermometer): number => {
     switch (true) {
         case !!thermometer.segments[DegreeOfSuccess.CRITICAL_SUCCESS]:
+            // @ts-ignore
             return thermometer.segments[DegreeOfSuccess.CRITICAL_SUCCESS]
                 .maximum
         case !!thermometer.segments[DegreeOfSuccess.SUCCESS]:
+            // @ts-ignore
             return thermometer.segments[DegreeOfSuccess.SUCCESS].maximum
         case !!thermometer.segments[DegreeOfSuccess.FAILURE]:
+            // @ts-ignore
             return thermometer.segments[DegreeOfSuccess.FAILURE].maximum
         case !!thermometer.segments[DegreeOfSuccess.CRITICAL_FAILURE]:
+            // @ts-ignore
             return thermometer.segments[DegreeOfSuccess.CRITICAL_FAILURE]
                 .maximum
         default:
@@ -451,6 +469,7 @@ const calculateFillFinalWidthOfProgressBarBasedOnValue = (
 const calculateInitialFillFinalWidthOfProgressBar = (
     thermometer: AttackRollThermometer
 ): number => {
+    if (thermometer?.rolls == undefined) return 0
     const valueToDisplay = thermometer.rolls[0] + thermometer.rolls[1]
     return calculateFillFinalWidthOfProgressBarBasedOnValue(
         thermometer,

@@ -397,7 +397,7 @@ describe("BattleSquaddieSelector", () => {
             selector.update({
                 gameEngineState,
                 graphicsContext: mockedP5GraphicsContext,
-                resourceHandler: gameEngineState.resourceHandler,
+                resourceHandler: gameEngineState.resourceHandler!,
             })
 
             expect(messageSpy).toBeCalledWith(
@@ -411,27 +411,27 @@ describe("BattleSquaddieSelector", () => {
         it("if the first squaddie turn ends, select the next squaddie", () => {
             const { battleSquaddie, squaddieTemplate } = getResultOrThrowError(
                 ObjectRepositoryService.getSquaddieByBattleId(
-                    gameEngineState.repository,
+                    gameEngineState.repository!,
                     "battleSquaddieId"
                 )
             )
             SquaddieTurnService.endTurn(battleSquaddie.squaddieTurn)
             ObjectRepositoryService.addBattleSquaddie(
-                gameEngineState.repository,
+                gameEngineState.repository!,
                 BattleSquaddieService.new({
                     squaddieTemplate,
                     battleSquaddieId: "battleSquaddieId2",
                 })
             )
             BattleSquaddieTeamService.addBattleSquaddieIds(
-                gameEngineState.battleOrchestratorState.battleState.teams[0],
+                gameEngineState.battleOrchestratorState.battleState.teams[0]!,
                 ["battleSquaddieId2"]
             )
 
             selector.update({
                 gameEngineState,
                 graphicsContext: mockedP5GraphicsContext,
-                resourceHandler: gameEngineState.resourceHandler,
+                resourceHandler: gameEngineState.resourceHandler!,
             })
 
             expect(messageSpy).toBeCalledWith(
@@ -469,7 +469,7 @@ describe("BattleSquaddieSelector", () => {
                     setup: () => {
                         const { battleSquaddie } = getResultOrThrowError(
                             ObjectRepositoryService.getSquaddieByBattleId(
-                                gameEngineState.repository,
+                                gameEngineState.repository!,
                                 "battleSquaddieId"
                             )
                         )
@@ -502,7 +502,7 @@ describe("BattleSquaddieSelector", () => {
                 selector.update({
                     gameEngineState,
                     graphicsContext: mockedP5GraphicsContext,
-                    resourceHandler: gameEngineState.resourceHandler,
+                    resourceHandler: gameEngineState.resourceHandler!,
                 })
 
                 expect(messageSpy).not.toBeCalledWith(
@@ -591,7 +591,7 @@ describe("BattleSquaddieSelector", () => {
                 summaryHUDState:
                     gameEngineState.battleOrchestratorState.battleHUDState
                         .summaryHUDState,
-                objectRepository: gameEngineState.repository,
+                objectRepository: gameEngineState.repository!,
                 campaignResources: CampaignResourcesService.default(),
                 battleSquaddieSelectedId: "battleSquaddieId",
                 selectionMethod: {
@@ -695,7 +695,7 @@ describe("BattleSquaddieSelector", () => {
                                         gameEngineState.battleOrchestratorState
                                             .battleState.missionMap,
                                     objectRepository:
-                                        gameEngineState.repository,
+                                        gameEngineState.repository!,
                                     messageBoard: gameEngineState.messageBoard,
                                     battleActionDecisionStep:
                                         gameEngineState.battleOrchestratorState
@@ -725,7 +725,7 @@ describe("BattleSquaddieSelector", () => {
                     missionMap:
                         gameEngineState.battleOrchestratorState.battleState
                             .missionMap,
-                    objectRepository: gameEngineState.repository,
+                    objectRepository: gameEngineState.repository!,
                     squaddieMovePath:
                         gameEngineState.battleOrchestratorState.battleState
                             .squaddieMovePath,
@@ -1001,7 +1001,7 @@ describe("BattleSquaddieSelector", () => {
                                 type: MessageBoardMessageType.PLAYER_SELECTS_ACTION_TEMPLATE,
                                 actionTemplateId: rangedActionId,
                                 mapStartingCoordinate: { q: 0, r: 0 },
-                                objectRepository: gameEngineState.repository,
+                                objectRepository: gameEngineState.repository!,
                                 missionMap:
                                     gameEngineState.battleOrchestratorState
                                         .battleState.missionMap,
@@ -1033,7 +1033,7 @@ describe("BattleSquaddieSelector", () => {
                 type: MessageBoardMessageType.PLAYER_SELECTS_ACTION_TEMPLATE,
                 battleSquaddieId: "battleSquaddieId",
                 mapStartingCoordinate: { q: 0, r: 0 },
-                objectRepository: gameEngineState.repository,
+                objectRepository: gameEngineState.repository!,
                 missionMap:
                     gameEngineState.battleOrchestratorState.battleState
                         .missionMap,
@@ -1196,7 +1196,7 @@ describe("BattleSquaddieSelector", () => {
         expect(selector.hasCompleted(gameEngineState)).toBeTruthy()
 
         const stateChanges = selector.recommendStateChanges(gameEngineState)
-        expect(stateChanges.nextMode).toEqual(
+        expect(stateChanges?.nextMode).toEqual(
             BattleOrchestratorMode.PLAYER_HUD_CONTROLLER
         )
     })
@@ -1249,21 +1249,21 @@ const selectActionButton = ({
     SummaryHUDStateService.draw({
         summaryHUDState:
             gameEngineState.battleOrchestratorState.battleHUDState
-                .summaryHUDState,
+                .summaryHUDState!,
         gameEngineState,
         graphicsBuffer,
         resourceHandler: mocks.mockResourceHandler(graphicsBuffer),
     })
 
     const actionButton =
-        gameEngineState.battleOrchestratorState.battleHUDState.summaryHUDState.playerCommandState.actionButtons.find(
+        gameEngineState.battleOrchestratorState.battleHUDState.summaryHUDState!.playerCommandState.actionButtons.find(
             (button) =>
                 ActionButtonService.getActionTemplateId(button) ===
                 actionTemplateId
-        )
+        )!
 
-    let x = RectAreaService.centerX(actionButton.uiObjects.buttonIcon.drawArea)
-    let y = RectAreaService.centerY(actionButton.uiObjects.buttonIcon.drawArea)
+    let x = RectAreaService.centerX(actionButton.uiObjects!.buttonIcon.drawArea)
+    let y = RectAreaService.centerY(actionButton.uiObjects!.buttonIcon.drawArea)
     selector.mousePressed({
         mousePress: {
             x,

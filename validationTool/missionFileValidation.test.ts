@@ -43,6 +43,7 @@ describe("Mission File validation", () => {
             },
         })
 
+        // @ts-ignore Intentionally creating an error
         mission.id = undefined
         expect(() => {
             MissionFileValidationService.validateMissionFileFormat(mission)

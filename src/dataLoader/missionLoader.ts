@@ -10,10 +10,7 @@ import {
     SquaddieDeployment,
     SquaddieDeploymentService,
 } from "../missionMap/squaddieDeployment"
-import {
-    getValidValueOrDefault,
-    isValidValue,
-} from "../utils/objectValidityCheck"
+import { isValidValue } from "../utils/objectValidityCheck"
 import { TSquaddieAffiliation } from "../squaddie/squaddieAffiliation"
 import { Cutscene } from "../cutscene/cutscene"
 import {
@@ -24,7 +21,7 @@ import { BattleEvent } from "../battle/event/battleEvent"
 
 export interface MapPlacement {
     battleSquaddieId: string
-    coordinate: HexCoordinate
+    coordinate: HexCoordinate | undefined
     squaddieTemplateId: string
 }
 
@@ -105,7 +102,7 @@ export const MissionFileFormatService = {
         }
         battleEvents?: BattleEvent[]
     }): MissionFileFormat => {
-        const data: MissionFileFormat = {
+        return sanitize({
             id,
             terrain,
             objectives,
@@ -116,89 +113,127 @@ export const MissionFileFormatService = {
                 cutsceneById: {},
             },
             battleEvents,
-        }
-        sanitize(data)
-        return data
+        })
     },
-    sanitize: (data: MissionFileFormat): MissionFileFormat => {
+    sanitize: (data: Partial<MissionFileFormat>): MissionFileFormat => {
         return sanitize(data)
     },
 }
 
-const sanitize = (data: MissionFileFormat): MissionFileFormat => {
-    if (!isValidValue(data.id)) {
-        throw new Error("cannot sanitize mission file, missing id")
+const sanitize = (data: Partial<MissionFileFormat>): MissionFileFormat => {
+    if (data.id == undefined || !isValidValue(data.id)) {
+        throw new Error(
+            "[MissionFileFormatService.sanitize] cannot sanitize mission file, missing id"
+        )
     }
 
-    sanitizePlayerData(data)
-    sanitizeCutscenes(data)
+    data = sanitizePlayerData(data)
+    data = sanitizeCutscenes(data)
 
-    data.terrain = getValidValueOrDefault(data.terrain, ["1 "])
-    data.objectives = isValidValue(data.objectives)
-        ? data.objectives.map((obj) =>
-              MissionObjectiveService.validateMissionObjective(obj)
-          )
-        : []
+    data.terrain = data.terrain ?? ["1 "]
+    data.objectives =
+        isValidValue(data.objectives) && data.objectives != undefined
+            ? data.objectives.map((obj) =>
+                  MissionObjectiveService.validateMissionObjective(obj)
+              )
+            : []
 
-    data.npcDeployments = getValidValueOrDefault(data.npcDeployments, {})
-    data.npcDeployments.enemy = getValidValueOrDefault(
-        data.npcDeployments?.enemy,
+    data.npcDeployments = data.npcDeployments ?? {}
+    data.npcDeployments.enemy =
+        data.npcDeployments?.enemy ?? NpcTeamMissionDeploymentService.new()
+
+    data.npcDeployments.ally =
+        data.npcDeployments?.ally ?? NpcTeamMissionDeploymentService.new()
+
+    data.npcDeployments.noAffiliation =
+        data.npcDeployments?.noAffiliation ??
         NpcTeamMissionDeploymentService.new()
-    )
-    data.npcDeployments.ally = getValidValueOrDefault(
-        data.npcDeployments?.ally,
-        NpcTeamMissionDeploymentService.new()
-    )
-    data.npcDeployments.noAffiliation = getValidValueOrDefault(
-        data.npcDeployments?.noAffiliation,
-        NpcTeamMissionDeploymentService.new()
-    )
 
-    data.phaseBannersByAffiliation = getValidValueOrDefault(
-        data.phaseBannersByAffiliation,
-        {}
-    )
+    data.phaseBannersByAffiliation = data.phaseBannersByAffiliation ?? {}
 
-    return data
+    if (data.id == undefined) {
+        throw new Error(
+            "[MissionFileFormatService.sanitize] cannot sanitize mission file, missing id"
+        )
+    }
+    if (data.player == undefined) {
+        throw new Error(
+            "[MissionFileFormatService.sanitize] cannot sanitize mission file, missing player"
+        )
+    }
+    if (data.cutscene == undefined) {
+        throw new Error(
+            "[MissionFileFormatService.sanitize] cannot sanitize mission file, missing cutscene"
+        )
+    }
+    if (data.battleEvents == undefined) {
+        throw new Error(
+            "[MissionFileFormatService.sanitize] cannot sanitize mission file, missing battleEvents"
+        )
+    }
+
+    return {
+        id: data.id,
+        terrain: data.terrain,
+        objectives: data.objectives,
+        player: data.player,
+        npcDeployments: data.npcDeployments,
+        phaseBannersByAffiliation: data.phaseBannersByAffiliation,
+        cutscene: data.cutscene,
+        battleEvents: data.battleEvents,
+    }
 }
 
-const sanitizePlayerData = (data: MissionFileFormat) => {
-    if (!isValidValue(data.player)) {
+const sanitizePlayerData = (data: Partial<MissionFileFormat>) => {
+    if (!isValidValue(data.player) || data.player == undefined) {
         throw new Error("cannot sanitize mission file, missing player")
     }
 
-    if (!isValidValue(data.player.teamId)) {
+    if (!isValidValue(data.player.teamId) || data.player.teamId == undefined) {
         throw new Error("cannot sanitize mission file, missing player teamId")
     }
 
-    if (!isValidValue(data.player.teamName)) {
+    if (
+        !isValidValue(data.player.teamName) ||
+        data.player.teamName == undefined
+    ) {
         throw new Error("cannot sanitize mission file, missing player teamName")
     }
 
-    if (!isValidValue(data.player.deployment)) {
+    if (
+        !isValidValue(data.player.deployment) ||
+        data.player.deployment == undefined
+    ) {
         data.player.deployment = SquaddieDeploymentService.default()
     }
+    return data
 }
-const sanitizeCutscenes = (data: MissionFileFormat) => {
-    if (!isValidValue(data.cutscene)) {
+
+const sanitizeCutscenes = (data: Partial<MissionFileFormat>) => {
+    if (!isValidValue(data.cutscene) || data.cutscene == undefined) {
         data.cutscene = {
             cutsceneById: {},
         }
     }
 
-    if (!isValidValue(data.cutscene.cutsceneById)) {
+    if (
+        !isValidValue(data.cutscene.cutsceneById) ||
+        data.cutscene.cutsceneById == undefined
+    ) {
         data.cutscene.cutsceneById = {}
     }
 
-    if (!isValidValue(data.battleEvents)) {
+    if (!isValidValue(data.battleEvents) || data.battleEvents == undefined) {
         data.battleEvents = []
     }
+
+    return data
 }
 
 export const LoadMissionFromFile = async (
     campaignId: string,
     missionId: string
-): Promise<MissionFileFormat> => {
+): Promise<MissionFileFormat | undefined> => {
     try {
         const missionData: MissionFileFormat =
             await LoadFileIntoFormat<MissionFileFormat>(
@@ -212,7 +247,9 @@ export const LoadMissionFromFile = async (
     }
 }
 
-export const LoadPlayerArmyFromFile = async (): Promise<PlayerArmy> => {
+export const LoadPlayerArmyFromFile = async (): Promise<
+    PlayerArmy | undefined
+> => {
     try {
         const army: PlayerArmy = await LoadFileIntoFormat<PlayerArmy>(
             `assets/playerArmy/playerArmy.json`
@@ -227,8 +264,8 @@ export const LoadPlayerArmyFromFile = async (): Promise<PlayerArmy> => {
 
 export const MissionLoaderService = {
     loadBaseSquaddieTemplateBySquaddieTemplateId: async (
-        squaddieTemplateId: string
-    ): Promise<SquaddieTemplate> => {
+        squaddieTemplateId: string | undefined
+    ): Promise<SquaddieTemplate | undefined> => {
         try {
             const template: SquaddieTemplate =
                 await LoadFileIntoFormat<SquaddieTemplate>(

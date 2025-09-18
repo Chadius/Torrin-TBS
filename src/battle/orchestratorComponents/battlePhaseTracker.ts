@@ -11,6 +11,7 @@ import { GameEngineState } from "../../gameEngine/gameEngine"
 import { BattleSquaddie } from "../battleSquaddie"
 import { getResultOrThrowError } from "../../utils/resultOrError"
 import { ObjectRepositoryService } from "../objectRepository"
+import { EnumLike } from "../../utils/enum"
 
 export const BattlePhase = {
     UNKNOWN: "UNKNOWN",
@@ -52,11 +53,13 @@ export const BattlePhaseService = {
             gameEngineState.battleOrchestratorState.battleState.teams.filter(
                 (team) => team.affiliation === squaddieAffiliation
             )
+        const objectRepository = gameEngineState.repository
+        if (objectRepository == undefined) return
         squaddieTeams.forEach((team) => {
             team.battleSquaddieIds.forEach((battleSquaddieId) => {
                 const { battleSquaddie } = getResultOrThrowError(
                     ObjectRepositoryService.getSquaddieByBattleId(
-                        gameEngineState.repository,
+                        objectRepository,
                         battleSquaddieId
                     )
                 )

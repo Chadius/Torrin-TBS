@@ -31,7 +31,7 @@ export const SquaddieTemplateService = {
         return newSquaddieTemplate({
             squaddieId: squaddieId,
             attributes: attributes,
-            actionTemplateIds: actionTemplateIds,
+            actionTemplateIds: actionTemplateIds || [],
         })
     },
     sanitize: (data: SquaddieTemplate): SquaddieTemplate => {
@@ -60,9 +60,13 @@ export const SquaddieTemplateService = {
         resourceKeys.push(
             ...actionTemplates
                 .filter(
-                    (actionTemplate) => !!actionTemplate.buttonIconResourceKey
+                    (actionTemplate) =>
+                        actionTemplate.buttonIconResourceKey != undefined
                 )
-                .map((actionTemplate) => actionTemplate.buttonIconResourceKey)
+                .map(
+                    (actionTemplate: ActionTemplate) =>
+                        actionTemplate.buttonIconResourceKey ?? ""
+                )
         )
         return resourceKeys
     },
@@ -85,14 +89,15 @@ const newSquaddieTemplate = ({
     actionTemplateIds,
 }: {
     squaddieId: SquaddieId
-    attributes: ArmyAttributes
+    attributes?: ArmyAttributes
     actionTemplateIds: string[]
 }) => {
     const data: SquaddieTemplate = {
         squaddieId,
-        attributes: isValidValue(attributes)
-            ? attributes
-            : ArmyAttributesService.default(),
+        attributes:
+            isValidValue(attributes) && attributes != undefined
+                ? attributes
+                : ArmyAttributesService.default(),
         actionTemplateIds: actionTemplateIds || [],
     }
     SquaddieTemplateService.sanitize(data)

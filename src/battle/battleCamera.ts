@@ -19,10 +19,12 @@ export const BattleCameraService = {
             original.xCoordinate,
             original.yCoordinate
         )
-        newCamera.setMapDimensionBoundaries(
-            original.mapDimensionBoundaries.widthOfWidestRow,
-            original.mapDimensionBoundaries.numberOfRows
-        )
+        if (original.mapDimensionBoundaries != undefined) {
+            newCamera.setMapDimensionBoundaries(
+                original.mapDimensionBoundaries.widthOfWidestRow,
+                original.mapDimensionBoundaries.numberOfRows
+            )
+        }
         newCamera.setXVelocity(original.xVelocity)
         newCamera.setYVelocity(original.yVelocity)
         return newCamera
@@ -226,6 +228,7 @@ export class BattleCamera {
     }
 
     panCamera(): void {
+        if (this.panningInformation == undefined) return
         const timePassed: number =
             Date.now() - this.panningInformation.panStartTime
 

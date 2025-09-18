@@ -20,6 +20,7 @@ import {
     ActionResourceCostService,
 } from "../actionResourceCost"
 import { GlossaryTerm } from "../../campaign/glossary/glossary"
+import { EnumLike } from "../../utils/enum"
 
 export const ActionDecision = {
     TARGET_SQUADDIE: "TARGET_SQUADDIE",
@@ -68,10 +69,10 @@ export const ActionTemplateService = {
         return sanitize({
             id,
             name,
-            actionEffectTemplates,
+            actionEffectTemplates: actionEffectTemplates ?? [],
             resourceCost,
             rank: rank ?? 0,
-            buttonIconResourceKey,
+            buttonIconResourceKey: buttonIconResourceKey ?? "",
             targetConstraints:
                 targetConstraints ?? TargetConstraintsService.new({}),
             userInformation: userInformation ?? {
@@ -88,10 +89,10 @@ export const ActionTemplateService = {
             actionEffect: ActionEffectTemplate
         ): number => {
             if (
-                TraitStatusStorageService.getStatus(
+                !TraitStatusStorageService.getStatus(
                     actionEffect.traits,
                     Trait.ATTACK
-                ) !== true
+                )
             ) {
                 return accumulator
             }
@@ -121,15 +122,17 @@ export const ActionTemplateService = {
             ): number => {
                 const damage = Object.values(
                     actionEffectTemplate.damageDescriptions
-                ).reduce(
-                    (
-                        damageAccumulator: number,
-                        currentDamage: number
-                    ): number => {
-                        return damageAccumulator + currentDamage
-                    },
-                    0
                 )
+                    .filter((damage) => damage != undefined)
+                    .reduce(
+                        (
+                            damageAccumulator: number,
+                            currentDamage: number
+                        ): number => {
+                            return damageAccumulator + currentDamage
+                        },
+                        0
+                    )
 
                 return accumulator + damage
             },
@@ -144,15 +147,17 @@ export const ActionTemplateService = {
             ): number => {
                 const healing = Object.values(
                     actionEffectTemplate.healingDescriptions
-                ).reduce(
-                    (
-                        healingAccumulator: number,
-                        currentDamage: number
-                    ): number => {
-                        return healingAccumulator + currentDamage
-                    },
-                    0
                 )
+                    .filter((damage) => damage != undefined)
+                    .reduce(
+                        (
+                            healingAccumulator: number,
+                            currentDamage: number
+                        ): number => {
+                            return healingAccumulator + currentDamage
+                        },
+                        0
+                    )
 
                 return accumulator + healing
             },
@@ -208,29 +213,51 @@ export const ActionTemplateService = {
         ),
 }
 
-const sanitize = (template: ActionTemplate): ActionTemplate => {
-    if (!isValidValue(template.id)) {
-        throw new Error("ActionTemplate cannot sanitize, id required")
+const sanitize = (template: Partial<ActionTemplate>): ActionTemplate => {
+    if (!isValidValue(template.id) || template.id == undefined) {
+        throw new Error(
+            "[ActionTemplate.sanitize] ActionTemplate cannot sanitize, id required"
+        )
     }
 
-    if (!isValidValue(template.name)) {
-        throw new Error("ActionTemplate cannot sanitize, name required")
+    if (!isValidValue(template.name) || template.name == undefined) {
+        throw new Error(
+            "[ActionTemplate.sanitize] ActionTemplate cannot sanitize, name required"
+        )
+    }
+
+    if (template.buttonIconResourceKey == undefined) {
+        throw new Error(
+            "[ActionTemplate.sanitize] ActionTemplate cannot sanitize, buttonIconResourceKey required"
+        )
     }
 
     template.resourceCost = ActionResourceCostService.sanitize(
-        template.resourceCost
+        template.resourceCost ?? ActionResourceCostService.new({})
     )
 
-    template.actionEffectTemplates = getValidValueOrDefault(
-        template.actionEffectTemplates,
-        []
-    )
-    template.actionEffectTemplates.forEach((actionEffectTemplate) => {
+    const actionEffectTemplates: ActionEffectTemplate[] =
+        getValidValueOrDefault(template.actionEffectTemplates, []) ?? []
+    actionEffectTemplates.forEach((actionEffectTemplate) => {
         ActionEffectTemplateService.sanitize(actionEffectTemplate)
     })
 
-    template.userInformation.customGlossaryTerms ||= []
-    return template
+    return {
+        id: template.id,
+        name: template.name,
+        actionEffectTemplates,
+        resourceCost: ActionResourceCostService.sanitize(
+            template.resourceCost ?? ActionResourceCostService.new({})
+        ),
+        rank: template.rank ?? 0,
+        buttonIconResourceKey: template.buttonIconResourceKey,
+        targetConstraints:
+            template.targetConstraints ?? TargetConstraintsService.new({}),
+        userInformation: template.userInformation ?? {
+            userReadableDescription: "Missing Description",
+            customGlossaryTerms: [],
+        },
+    }
 }
 
 const getActionEffectTemplates = (
@@ -246,7 +273,9 @@ const doesActionTemplateHeal = (actionTemplate: ActionTemplate): boolean => {
 
     return actionEffectSquaddieTemplates.some(
         (actionEffectSquaddieTemplate) =>
+            actionEffectSquaddieTemplate.healingDescriptions?.LOST_HIT_POINTS !=
+                undefined &&
             actionEffectSquaddieTemplate.healingDescriptions?.LOST_HIT_POINTS >
-            0
+                0
     )
 }

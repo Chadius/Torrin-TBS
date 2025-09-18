@@ -2,7 +2,6 @@ import {
     FileAccessHUD,
     FileAccessHUDService,
 } from "../fileAccess/fileAccessHUD"
-import { getValidValueOrDefault } from "../../../utils/objectValidityCheck"
 import {
     MessageBoardMessageMoveSquaddieToCoordinate,
     MessageBoardMessagePlayerCancelsTargetConfirmation,
@@ -49,7 +48,6 @@ import { BattleOrchestratorMode } from "../../orchestrator/battleOrchestrator"
 import { SquaddieTemplate } from "../../../campaign/squaddieTemplate"
 import { BattleActionRecorderService } from "../../history/battleAction/battleActionRecorder"
 import { ActionTemplateService } from "../../../action/template/actionTemplate"
-import { CalculatedResult } from "../../history/calculatedResult"
 import { BattleStateService } from "../../battleState/battleState"
 import { SquaddieSelectorPanelService } from "../playerActionPanel/squaddieSelectorPanel/squaddieSelectorPanel"
 import { PlayerConsideredActionsService } from "../../battleState/playerConsideredActions"
@@ -59,19 +57,17 @@ import {
     DebugModeMenu,
     DebugModeMenuService,
 } from "../debugModeMenu/debugModeMenu"
+import { HIGHLIGHT_PULSE_COLOR } from "../../../hexMap/hexDrawingUtils"
 
 export interface BattleHUD {
     fileAccessHUD: FileAccessHUD
-    debugMode: DebugModeMenu
+    debugMode: DebugModeMenu | undefined
 }
 
 export const BattleHUDService = {
     new: ({ fileAccessHUD }: { fileAccessHUD?: FileAccessHUD }): BattleHUD => {
         return {
-            fileAccessHUD: getValidValueOrDefault(
-                fileAccessHUD,
-                FileAccessHUDService.new()
-            ),
+            fileAccessHUD: fileAccessHUD ?? FileAccessHUDService.new(),
             debugMode:
                 process.env.DEBUG === "true"
                     ? DebugModeMenuService.new()
@@ -81,17 +77,19 @@ export const BattleHUDService = {
     cancelTargetSelection: (
         message: MessageBoardMessagePlayerCancelsTargetSelection
     ) => {
-        const battleSquaddieToHighlightId: string =
+        const battleSquaddieToHighlightId =
             BattleActionDecisionStepService.getActor(
                 message.battleActionDecisionStep
-            ).battleSquaddieId
+            )?.battleSquaddieId
 
-        OrchestratorUtilities.highlightSquaddieRange({
-            battleSquaddieToHighlightId: battleSquaddieToHighlightId,
-            missionMap: message.missionMap,
-            objectRepository: message.objectRepository,
-            squaddieAllMovementCache: message.squaddieAllMovementCache,
-        })
+        if (battleSquaddieToHighlightId != undefined) {
+            OrchestratorUtilities.highlightSquaddieRange({
+                battleSquaddieToHighlightId: battleSquaddieToHighlightId,
+                missionMap: message.missionMap,
+                objectRepository: message.objectRepository,
+                squaddieAllMovementCache: message.squaddieAllMovementCache,
+            })
+        }
 
         BattleActionDecisionStepService.removeTarget({
             actionDecisionStep: message.battleActionDecisionStep,
@@ -117,15 +115,19 @@ export const BattleHUDService = {
             battleActionDecisionStep: message.battleActionDecisionStep,
             battleActionRecorder: message.battleActionRecorder,
         })
+        const actionTemplateId = BattleActionDecisionStepService.getAction(
+            message.battleActionDecisionStep
+        )?.actionTemplateId
+
         const highlightedColor =
-            MapGraphicsLayerService.getActionTemplateHighlightedTileDescriptionColor(
-                {
-                    objectRepository: message.objectRepository,
-                    actionTemplateId: BattleActionDecisionStepService.getAction(
-                        message.battleActionDecisionStep
-                    ).actionTemplateId,
-                }
-            )
+            actionTemplateId != undefined
+                ? MapGraphicsLayerService.getActionTemplateHighlightedTileDescriptionColor(
+                      {
+                          objectRepository: message.objectRepository,
+                          actionTemplateId,
+                      }
+                  )
+                : HIGHLIGHT_PULSE_COLOR.RED
 
         MapGraphicsLayerSquaddieTypes.forEach((t) =>
             TerrainTileMapService.removeGraphicsLayerByType(
@@ -135,9 +137,10 @@ export const BattleHUDService = {
         )
 
         const actionRangeOnMap = MapGraphicsLayerService.new({
-            id: BattleActionDecisionStepService.getActor(
-                message.battleActionDecisionStep
-            ).battleSquaddieId,
+            id:
+                BattleActionDecisionStepService.getActor(
+                    message.battleActionDecisionStep
+                )?.battleSquaddieId ?? "unknown",
             highlightedTileDescriptions: [
                 {
                     coordinates: actionRange,
@@ -161,13 +164,17 @@ export const BattleHUDService = {
     ) => {
         const missionMap =
             gameEngineState.battleOrchestratorState.battleState.missionMap
+        const battleSquaddieId = BattleActionDecisionStepService.getActor(
+            gameEngineState.battleOrchestratorState.battleState
+                .battleActionDecisionStep
+        )?.battleSquaddieId
+        if (battleSquaddieId == undefined) return
+        if (gameEngineState.repository == undefined) return
+
         const { battleSquaddie } = getResultOrThrowError(
             ObjectRepositoryService.getSquaddieByBattleId(
                 gameEngineState.repository,
-                BattleActionDecisionStepService.getActor(
-                    gameEngineState.battleOrchestratorState.battleState
-                        .battleActionDecisionStep
-                ).battleSquaddieId
+                battleSquaddieId
             )
         )
 
@@ -214,7 +221,7 @@ export const BattleHUDService = {
     ) => {
         const gameEngineState = message.gameEngineState
         const battleSquaddieId = message.battleSquaddieSelectedId
-
+        if (gameEngineState.repository == undefined) return
         const { squaddieTemplate, battleSquaddie } = getResultOrThrowError(
             ObjectRepositoryService.getSquaddieByBattleId(
                 gameEngineState.repository,
@@ -391,23 +398,27 @@ export const BattleHUDService = {
     playerConfirmsAction: (
         message: MessageBoardMessagePlayerConfirmsAction
     ) => {
+        const battleSquaddieId = BattleActionDecisionStepService.getActor(
+            message.battleActionDecisionStep
+        )?.battleSquaddieId
+        if (battleSquaddieId == undefined) return
         const {
             battleSquaddie: actingBattleSquaddie,
             squaddieTemplate: actingSquaddieTemplate,
         } = getResultOrThrowError(
             ObjectRepositoryService.getSquaddieByBattleId(
                 message.objectRepository,
-                BattleActionDecisionStepService.getActor(
-                    message.battleActionDecisionStep
-                ).battleSquaddieId
+                battleSquaddieId
             )
         )
 
+        const actionTemplateId = BattleActionDecisionStepService.getAction(
+            message.battleActionDecisionStep
+        )?.actionTemplateId
+        if (actionTemplateId == undefined) return
         const actionTemplate = ObjectRepositoryService.getActionTemplateById(
             message.objectRepository,
-            BattleActionDecisionStepService.getAction(
-                message.battleActionDecisionStep
-            ).actionTemplateId
+            actionTemplateId
         )
 
         let actionEffectTemplates =
@@ -424,12 +435,12 @@ export const BattleHUDService = {
         InBattleAttributesService.addActionCooldown({
             inBattleAttributes: actingBattleSquaddie.inBattleAttributes,
             actionTemplateId: actionTemplate.id,
-            numberOfCooldownTurns: actionTemplate.resourceCost.cooldownTurns,
+            numberOfCooldownTurns: actionTemplate.resourceCost?.cooldownTurns,
         })
 
         const targetCoordinate = BattleActionDecisionStepService.getTarget(
             message.battleActionDecisionStep
-        ).targetCoordinate
+        )?.targetCoordinate
 
         BattleActionDecisionStepService.reset(message.battleActionDecisionStep)
         BattleActionDecisionStepService.setActor({
@@ -445,23 +456,22 @@ export const BattleHUDService = {
             targetCoordinate: targetCoordinate,
         })
 
-        let results: CalculatedResult =
-            ActionCalculator.calculateAndApplyResults({
-                battleActionDecisionStep: message.battleActionDecisionStep,
-                missionMap: message.missionMap,
-                objectRepository: message.objectRepository,
-                battleActionRecorder: message.battleActionRecorder,
-                numberGenerator: message.numberGenerator,
-                missionStatistics: message.missionStatistics,
-                challengeModifierSetting: message.challengeModifierSetting,
-            })
+        let results = ActionCalculator.calculateAndApplyResults({
+            battleActionDecisionStep: message.battleActionDecisionStep,
+            missionMap: message.missionMap,
+            objectRepository: message.objectRepository,
+            battleActionRecorder: message.battleActionRecorder,
+            numberGenerator: message.numberGenerator,
+            missionStatistics: message.missionStatistics,
+            challengeModifierSetting: message.challengeModifierSetting,
+        })
 
         BattleActionDecisionStepService.confirmAlreadyConsideredTarget({
             actionDecisionStep: message.battleActionDecisionStep,
         })
 
         const squaddieBattleActions: BattleAction[] =
-            results.changesPerEffect.map((result) => {
+            results?.changesPerEffect.map((result) => {
                 return BattleActionService.new({
                     actor: {
                         actorBattleSquaddieId:
@@ -473,7 +483,7 @@ export const BattleHUDService = {
                         squaddie: result.squaddieChanges,
                     },
                 })
-            })
+            }) ?? []
 
         squaddieBattleActions.forEach((squaddieBattleAction) => {
             BattleActionRecorderService.addReadyToAnimateBattleAction(
@@ -566,7 +576,7 @@ export const BattleHUDService = {
 const processEndTurnAction = (
     gameEngineState: GameEngineState,
     battleSquaddie: BattleSquaddie,
-    mapCoordinate: HexCoordinate
+    mapCoordinate: HexCoordinate | undefined
 ) => {
     const endTurnAction: BattleAction = BattleActionService.new({
         actor: { actorBattleSquaddieId: battleSquaddie.battleSquaddieId },
@@ -598,7 +608,7 @@ const processEndTurnAction = (
         actionDecisionStep:
             gameEngineState.battleOrchestratorState.battleState
                 .battleActionDecisionStep,
-        targetCoordinate: mapCoordinate,
+        targetCoordinate: mapCoordinate ?? { q: 0, r: 0 },
     })
 
     MapGraphicsLayerSquaddieTypes.forEach((t) =>
@@ -708,7 +718,8 @@ const showHUDForControllableSquaddie = (
 
     if (
         gameEngineState.battleOrchestratorState.battleHUDState
-            .squaddieSelectorPanel == undefined
+            .squaddieSelectorPanel == undefined &&
+        gameEngineState.repository != undefined
     ) {
         const currentTeam = BattleStateService.getCurrentTeam(
             gameEngineState.battleOrchestratorState.battleState,
@@ -726,16 +737,27 @@ const showHUDForControllableSquaddie = (
                 })
         }
     }
-    SquaddieSelectorPanelService.selectSquaddie(
+    if (
         gameEngineState.battleOrchestratorState.battleHUDState
-            .squaddieSelectorPanel,
-        battleSquaddie.battleSquaddieId
-    )
+            .squaddieSelectorPanel != undefined
+    ) {
+        SquaddieSelectorPanelService.selectSquaddie(
+            gameEngineState.battleOrchestratorState.battleHUDState
+                .squaddieSelectorPanel,
+            battleSquaddie.battleSquaddieId
+        )
+    }
 }
 
 const createSquaddieStatusTileForNormallyControllableSquaddie = (
     gameEngineState: GameEngineState
 ) => {
+    if (
+        gameEngineState.battleOrchestratorState.battleHUDState
+            .summaryHUDState == undefined
+    )
+        return
+    if (gameEngineState.repository == undefined) return
     SummaryHUDStateService.createActorTiles({
         battleActionDecisionStep:
             gameEngineState.battleOrchestratorState.battleState
@@ -752,6 +774,12 @@ const createSquaddieStatusTileForNormallyUncontrollableSquaddie = (
     gameEngineState: GameEngineState,
     battleSquaddie: BattleSquaddie
 ) => {
+    if (
+        gameEngineState.battleOrchestratorState.battleHUDState
+            .summaryHUDState == undefined
+    )
+        return
+    if (gameEngineState.repository == undefined) return
     SummaryHUDStateService.peekAtSquaddie({
         summaryHUDState:
             gameEngineState.battleOrchestratorState.battleHUDState

@@ -17,9 +17,9 @@ export class WeaponIcon {
         this.reset()
     }
 
-    private _attackingLabel: Label
+    private _attackingLabel: Label | undefined
 
-    get attackingLabel(): Label {
+    get attackingLabel(): Label | undefined {
         return this._attackingLabel
     }
 
@@ -47,6 +47,7 @@ export class WeaponIcon {
             )
         }
 
+        if (this.attackingLabel === undefined) return
         RectAreaService.move(this.attackingLabel.rectangle.area, {
             left:
                 RectAreaService.right(actorImageArea) + WINDOW_SPACING.SPACING1,

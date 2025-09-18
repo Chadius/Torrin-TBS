@@ -145,7 +145,7 @@ describe("GameEngineGameLoader", () => {
                         ),
                     ]
 
-                    expect(loader.loadBlocker.resourceKeysToLoad).toEqual(
+                    expect(loader.loadBlocker!.resourceKeysToLoad).toEqual(
                         expect.arrayContaining(expectedResourceKeys)
                     )
                 })
@@ -170,9 +170,9 @@ describe("GameEngineGameLoader", () => {
                     expect(messageSpy).toBeCalledWith({
                         type: MessageBoardMessageType.LOAD_BLOCKER_FINISHES_LOADING_RESOURCES,
                     })
-                    expect(loader.loadBlocker.startsLoading).toBeTruthy()
-                    expect(loader.loadBlocker.finishesLoading).toBeTruthy()
-                    expect(loader.loadBlocker.resourceKeysToLoad).toHaveLength(
+                    expect(loader.loadBlocker!.startsLoading).toBeTruthy()
+                    expect(loader.loadBlocker!.finishesLoading).toBeTruthy()
+                    expect(loader.loadBlocker!.resourceKeysToLoad).toHaveLength(
                         0
                     )
                 })
@@ -182,7 +182,7 @@ describe("GameEngineGameLoader", () => {
                     beforeEach(async () => {
                         squaddieRepositorySize =
                             ObjectRepositoryService.getBattleSquaddieIterator(
-                                gameEngineState.repository
+                                gameEngineState.repository!
                             ).length
 
                         await loader.update(gameEngineState)
@@ -210,7 +210,7 @@ describe("GameEngineGameLoader", () => {
                                 gameEngineState.battleOrchestratorState
                                     .battleState.missionMap.terrainTileMap
                             ).toEqual(
-                                loader.missionLoaderContext.missionMap
+                                loader.missionLoaderContext.missionMap!
                                     .terrainTileMap
                             )
                         })
@@ -242,13 +242,13 @@ describe("GameEngineGameLoader", () => {
                         it("squaddies", () => {
                             expect(
                                 ObjectRepositoryService.getSquaddieTemplateIterator(
-                                    gameEngineState.repository
+                                    gameEngineState.repository!
                                 ).length
                             ).toBeGreaterThan(0)
 
                             const templateIds =
                                 ObjectRepositoryService.getSquaddieTemplateIterator(
-                                    gameEngineState.repository
+                                    gameEngineState.repository!
                                 ).map((t) => t.squaddieTemplateId)
                             const playerTemplateIds =
                                 missionData.player.deployment.required.map(
@@ -281,29 +281,30 @@ describe("GameEngineGameLoader", () => {
                             expect(
                                 gameEngineState.battleOrchestratorState
                                     .battleState.teamStrategiesById[
-                                    missionData.npcDeployments.enemy.teams[0].id
+                                    missionData.npcDeployments.enemy!.teams[0]!
+                                        .id
                                 ]
                             ).toEqual(
-                                missionData.npcDeployments.enemy.teams[0]
+                                missionData.npcDeployments.enemy!.teams[0]!
                                     .strategies
                             )
 
                             expect(
                                 Object.keys(
-                                    gameEngineState.repository
+                                    gameEngineState.repository!
                                         .imageUIByBattleSquaddieId
                                 )
                             ).toHaveLength(squaddieRepositorySize)
 
                             ObjectRepositoryService.getSquaddieTemplateIterator(
-                                gameEngineState.repository
+                                gameEngineState.repository!
                             ).forEach((entry) => {
                                 const { squaddieTemplate } = entry
                                 expect(
                                     squaddieTemplate.actionTemplateIds.every(
                                         (id) =>
                                             ObjectRepositoryService.getActionTemplateById(
-                                                gameEngineState.repository,
+                                                gameEngineState.repository!,
                                                 id
                                             ) !== undefined
                                     )
@@ -319,7 +320,7 @@ describe("GameEngineGameLoader", () => {
                             expect(
                                 CutsceneService.hasLoaded(
                                     gameEngineState.battleOrchestratorState
-                                        .battleState.cutsceneCollection
+                                        .battleState.cutsceneCollection!
                                         .cutsceneById[
                                         DEFAULT_VICTORY_CUTSCENE_ID
                                     ],
@@ -330,22 +331,22 @@ describe("GameEngineGameLoader", () => {
 
                         it("initializes the camera", () => {
                             expect(
-                                loader.missionLoaderContext.mapSettings.camera
-                                    .mapDimensionBoundaries.widthOfWidestRow
+                                loader.missionLoaderContext.mapSettings.camera!
+                                    .mapDimensionBoundaries!.widthOfWidestRow
                             ).toBe(17)
                             expect(
-                                loader.missionLoaderContext.mapSettings.camera
-                                    .mapDimensionBoundaries.numberOfRows
+                                loader.missionLoaderContext.mapSettings.camera!
+                                    .mapDimensionBoundaries!.numberOfRows
                             ).toBe(18)
 
                             expect(
                                 gameEngineState.battleOrchestratorState
-                                    .battleState.camera.mapDimensionBoundaries
+                                    .battleState.camera.mapDimensionBoundaries!
                                     .widthOfWidestRow
                             ).toBe(17)
                             expect(
                                 gameEngineState.battleOrchestratorState
-                                    .battleState.camera.mapDimensionBoundaries
+                                    .battleState.camera.mapDimensionBoundaries!
                                     .numberOfRows
                             ).toBe(18)
                         })
@@ -353,9 +354,7 @@ describe("GameEngineGameLoader", () => {
 
                     describe("when loading is successful", () => {
                         beforeEach(async () => {
-                            while (
-                                loader.hasCompleted(gameEngineState) != true
-                            ) {
+                            while (!loader.hasCompleted(gameEngineState)) {
                                 await loader.update(gameEngineState)
                             }
                         })
@@ -367,7 +366,7 @@ describe("GameEngineGameLoader", () => {
                         it("will recommend Battle mode next", async () => {
                             const changes =
                                 loader.recommendStateChanges(gameEngineState)
-                            expect(changes.nextMode).toEqual(
+                            expect(changes!.nextMode).toEqual(
                                 GameModeEnum.BATTLE
                             )
                         })
@@ -597,7 +596,7 @@ describe("GameEngineGameLoader", () => {
         })
 
         it("will open a file dialog", async () => {
-            while (loader.hasCompleted(currentState) != true) {
+            while (!loader.hasCompleted(currentState)) {
                 await loader.update(currentState)
             }
             expect(openDialogSpy).toBeCalled()
@@ -605,7 +604,7 @@ describe("GameEngineGameLoader", () => {
 
         it("will retrieve the save data", async () => {
             const retrieveSpy = vi.spyOn(SaveFile, "RetrieveFileContent")
-            while (loader.hasCompleted(currentState) != true) {
+            while (!loader.hasCompleted(currentState)) {
                 await loader.update(currentState)
             }
             expect(retrieveSpy).toBeCalled()
@@ -620,11 +619,11 @@ describe("GameEngineGameLoader", () => {
                     turnCount: 1,
                     currentAffiliation: BattlePhase.PLAYER,
                 }
-            while (loader.hasCompleted(currentState) != true) {
+            while (!loader.hasCompleted(currentState)) {
                 await loader.update(currentState)
             }
 
-            expect(loader.loadBlocker.resourceKeysToLoad).toHaveLength(0)
+            expect(loader.loadBlocker!.resourceKeysToLoad).toHaveLength(0)
             expect(
                 currentState.battleOrchestratorState.battleState.battleEvents
                     .length
@@ -632,7 +631,7 @@ describe("GameEngineGameLoader", () => {
             expect(
                 CutsceneService.hasLoaded(
                     gameEngineState.battleOrchestratorState.battleState
-                        .cutsceneCollection.cutsceneById[
+                        .cutsceneCollection!.cutsceneById[
                         DEFAULT_VICTORY_CUTSCENE_ID
                     ],
                     resourceHandler
@@ -669,7 +668,7 @@ describe("GameEngineGameLoader", () => {
         })
 
         it("will tell the file state to clear loading flags", async () => {
-            while (loader.hasCompleted(currentState) != true) {
+            while (!loader.hasCompleted(currentState)) {
                 await loader.update(currentState)
             }
             expect(
@@ -696,7 +695,7 @@ describe("GameEngineGameLoader", () => {
                 openDialogSpy = vi
                     .spyOn(SaveFile, "RetrieveFileContent")
                     .mockRejectedValue(new Error("File not found"))
-                while (loader.hasCompleted(currentState) != true) {
+                while (!loader.hasCompleted(currentState)) {
                     await loader.update(currentState)
                 }
                 expect(loader.status.error).toBeTruthy()
@@ -714,7 +713,7 @@ describe("GameEngineGameLoader", () => {
                     )
                     .mockReturnValue(false)
 
-                while (loader.hasCompleted(currentState) != true) {
+                while (!loader.hasCompleted(currentState)) {
                     await loader.update(currentState)
                 }
                 expect(loader.status.error).toBeTruthy()
@@ -741,7 +740,7 @@ describe("GameEngineGameLoader", () => {
                     openDialogSpy = vi
                         .spyOn(SaveFile, "RetrieveFileContent")
                         .mockRejectedValue(rejectedValue)
-                    while (loader.hasCompleted(currentState) != true) {
+                    while (!loader.hasCompleted(currentState)) {
                         await loader.update(currentState)
                     }
                 }
@@ -783,7 +782,7 @@ describe("GameEngineGameLoader", () => {
                     ({ rejectedValue }) => {
                         setup(rejectedValue)
                         expect(
-                            loader.recommendStateChanges(currentState).nextMode
+                            loader.recommendStateChanges(currentState)?.nextMode
                         ).toBe(GameModeEnum.BATTLE)
                     }
                 )
@@ -794,7 +793,7 @@ describe("GameEngineGameLoader", () => {
                     openDialogSpy = vi
                         .spyOn(SaveFile, "RetrieveFileContent")
                         .mockRejectedValue(new Error("user canceled"))
-                    while (loader.hasCompleted(currentState) != true) {
+                    while (!loader.hasCompleted(currentState)) {
                         await loader.update(currentState)
                     }
                 })
@@ -825,7 +824,7 @@ describe("GameEngineGameLoader", () => {
 
                 it("recommends battle mode", () => {
                     expect(
-                        loader.recommendStateChanges(currentState).nextMode
+                        loader.recommendStateChanges(currentState)?.nextMode
                     ).toBe(GameModeEnum.BATTLE)
                 })
             })
@@ -834,7 +833,7 @@ describe("GameEngineGameLoader", () => {
         describe("reloading the same campaign while game is in progress", () => {
             let retrieveSpy: MockInstance
             beforeEach(async () => {
-                while (loader.hasCompleted(currentState) != true) {
+                while (!loader.hasCompleted(currentState)) {
                     await loader.update(currentState)
                 }
                 loader.reset(currentState)
@@ -849,7 +848,7 @@ describe("GameEngineGameLoader", () => {
 
             it("will not reload the campaign", async () => {
                 loadFileIntoFormatSpy.mockClear()
-                while (loader.hasCompleted(currentState) != true) {
+                while (!loader.hasCompleted(currentState)) {
                     await loader.update(currentState)
                 }
                 expect(retrieveSpy).toHaveBeenCalled()
@@ -861,12 +860,12 @@ describe("GameEngineGameLoader", () => {
             })
 
             it("will switch to battle mode once resources have finished loading", async () => {
-                while (loader.hasCompleted(currentState) != true) {
+                while (!loader.hasCompleted(currentState)) {
                     await loader.update(currentState)
                 }
                 expect(loader.hasCompleted(currentState)).toBeTruthy()
                 expect(
-                    loader.recommendStateChanges(currentState).nextMode
+                    loader.recommendStateChanges(currentState)?.nextMode
                 ).toBe(GameModeEnum.BATTLE)
             })
         })
@@ -963,14 +962,14 @@ describe("GameEngineGameLoader", () => {
                 loadSaveState: currentState.fileState.loadSaveState,
             })
 
-            while (loader.hasCompleted(currentState) != true) {
+            while (!loader.hasCompleted(currentState)) {
                 await loader.update(currentState)
             }
 
             expect(consoleErrorSpy).toBeCalled()
             expect(openDialogSpy).toBeCalled()
             expect(loader.hasCompleted(currentState)).toBeTruthy()
-            expect(loader.recommendStateChanges(currentState).nextMode).toBe(
+            expect(loader.recommendStateChanges(currentState)?.nextMode).toBe(
                 GameModeEnum.TITLE_SCREEN
             )
             openDialogSpy.mockRestore()
@@ -982,7 +981,7 @@ describe("GameEngineGameLoader", () => {
             let newLoadedBattleSaveState: BattleSaveState
 
             beforeEach(async () => {
-                while (loader.hasCompleted(currentState) != true) {
+                while (!loader.hasCompleted(currentState)) {
                     await loader.update(currentState)
                 }
 
@@ -1049,7 +1048,7 @@ describe("GameEngineGameLoader", () => {
             })
 
             it("will open the dialog", async () => {
-                while (loader.hasCompleted(currentState) != true) {
+                while (!loader.hasCompleted(currentState)) {
                     await loader.update(currentState)
                 }
                 expect(retrieveSpy).toBeCalled()
@@ -1057,7 +1056,7 @@ describe("GameEngineGameLoader", () => {
             })
 
             it("will try to load the new campaign", async () => {
-                while (loader.hasCompleted(currentState) != true) {
+                while (!loader.hasCompleted(currentState)) {
                     await loader.update(currentState)
                 }
                 expect(loadFileIntoFormatSpy).toBeCalledWith(
@@ -1079,9 +1078,12 @@ const createLoaderSpyThatCanThrowError = (
             if (throwErrorIfFileNamesAreLoaded.includes(filename)) {
                 return Promise.reject("Error")
             }
-            return originalLoadFileIntoFormatSpy.getMockImplementation()(
-                filename
-            )
+            expect(originalLoadFileIntoFormatSpy).not.toBeUndefined()
+            if (originalLoadFileIntoFormatSpy != undefined) {
+                return originalLoadFileIntoFormatSpy.getMockImplementation()!(
+                    filename
+                )
+            }
         })
 }
 

@@ -45,28 +45,27 @@ const SCREEN_EDGES = {
     right: [0.9, 0.96, 0.98],
     bottom: [0.9, 0.96, 0.98],
 }
-const HORIZONTAL_SCROLL_SPEED_PER_UPDATE = JSON.parse(
-    process.env.MAP_KEYBOARD_SCROLL_SPEED_PER_UPDATE
-).horizontal
-const VERTICAL_SCROLL_SPEED_PER_UPDATE = JSON.parse(
-    process.env.MAP_KEYBOARD_SCROLL_SPEED_PER_UPDATE
-).vertical
-const PLAYER_INPUT_SCROLL_DIRECTION_HORIZONTAL = JSON.parse(
-    process.env.PLAYER_INPUT_SCROLL_DIRECTION
-).horizontalTracksMouseMovement
-const PLAYER_INPUT_SCROLL_DIRECTION_VERTICAL = JSON.parse(
-    process.env.PLAYER_INPUT_SCROLL_DIRECTION
-).verticalTracksMouseMovement
-const PLAYER_INPUT_DRAG_DIRECTION_HORIZONTAL = JSON.parse(
-    process.env.PLAYER_INPUT_DRAG_DIRECTION
-).horizontalTracksMouseDrag
-const PLAYER_INPUT_DRAG_DIRECTION_VERTICAL = JSON.parse(
-    process.env.PLAYER_INPUT_DRAG_DIRECTION
-).verticalTracksMouseDrag
+const HORIZONTAL_SCROLL_SPEED_PER_UPDATE =
+    JSON.parse(process.env.MAP_KEYBOARD_SCROLL_SPEED_PER_UPDATE!)?.horizontal ??
+    5
+const VERTICAL_SCROLL_SPEED_PER_UPDATE =
+    JSON.parse(process.env.MAP_KEYBOARD_SCROLL_SPEED_PER_UPDATE!)?.vertical ?? 5
+const PLAYER_INPUT_SCROLL_DIRECTION_HORIZONTAL =
+    JSON.parse(process.env.PLAYER_INPUT_SCROLL_DIRECTION!)
+        ?.horizontalTracksMouseMovement ?? true
+const PLAYER_INPUT_SCROLL_DIRECTION_VERTICAL =
+    JSON.parse(process.env.PLAYER_INPUT_SCROLL_DIRECTION!)
+        ?.verticalTracksMouseMovement ?? true
+const PLAYER_INPUT_DRAG_DIRECTION_HORIZONTAL =
+    JSON.parse(process.env.PLAYER_INPUT_DRAG_DIRECTION!)
+        ?.horizontalTracksMouseDrag ?? true
+const PLAYER_INPUT_DRAG_DIRECTION_VERTICAL =
+    JSON.parse(process.env.PLAYER_INPUT_DRAG_DIRECTION!)
+        ?.verticalTracksMouseDrag ?? true
 
 export class BattleMapDisplay implements BattleOrchestratorComponent {
-    public scrollTime: number
-    public mapImage: p5.Image
+    public scrollTime: number | undefined
+    public mapImage: p5.Image | undefined
 
     draw({
         gameEngineState,
@@ -75,7 +74,7 @@ export class BattleMapDisplay implements BattleOrchestratorComponent {
     }: {
         gameEngineState: GameEngineState
         graphics: GraphicsBuffer
-        resourceHandler: ResourceHandler
+        resourceHandler: ResourceHandler | undefined
     }): void {
         graphics.background(50, 10, 20)
 
@@ -88,7 +87,7 @@ export class BattleMapDisplay implements BattleOrchestratorComponent {
                     .terrainTileMap
             )
 
-            if (!this.mapImage) {
+            if (!this.mapImage && resourceHandler != undefined) {
                 this.mapImage = HexDrawingUtils.createMapImage({
                     graphicsBuffer: graphics,
                     resourceHandler,
@@ -325,7 +324,7 @@ export class BattleMapDisplay implements BattleOrchestratorComponent {
     }: {
         gameEngineState: GameEngineState
         graphicsContext: GraphicsBuffer
-        resourceHandler: ResourceHandler
+        resourceHandler: ResourceHandler | undefined
     }): void {
         this.checkForKeyboardHeldKeys(gameEngineState)
         this.draw({
@@ -349,8 +348,9 @@ export class BattleMapDisplay implements BattleOrchestratorComponent {
         gameEngineState: GameEngineState,
         graphicsContext: GraphicsBuffer,
         battleSquaddieIdsToOmit: string[],
-        resourceHandler: ResourceHandler
+        resourceHandler: ResourceHandler | undefined
     ) {
+        if (gameEngineState.repository == undefined) return
         let targetedBattleSquaddieIds: string[] =
             this.getTargetedBattleSquaddieIds(gameEngineState)
 
@@ -368,7 +368,7 @@ export class BattleMapDisplay implements BattleOrchestratorComponent {
             .filter(
                 (info) =>
                     info.battleSquaddieId in
-                    gameEngineState.repository.imageUIByBattleSquaddieId
+                    gameEngineState.repository!.imageUIByBattleSquaddieId
             )
             .filter(
                 (info) =>
@@ -404,7 +404,8 @@ export class BattleMapDisplay implements BattleOrchestratorComponent {
                         .missionMap,
                     battleSquaddieId
                 )
-
+                if (datum.currentMapCoordinate == undefined) return
+                if (gameEngineState.repository == undefined) return
                 if (
                     BattleActionDecisionStepService.getActor(
                         gameEngineState.battleOrchestratorState.battleState
@@ -463,7 +464,7 @@ export class BattleMapDisplay implements BattleOrchestratorComponent {
             ? MapGraphicsLayerService.getCoordinates(targetingLayer)
             : []
         return [targetCoordinate, ...targetedCoordinates]
-            .filter((x) => x)
+            .filter((x) => x != undefined)
             .map(
                 (targetCoordinate) =>
                     MissionMapService.getBattleSquaddieAtCoordinate(
@@ -472,7 +473,7 @@ export class BattleMapDisplay implements BattleOrchestratorComponent {
                         targetCoordinate
                     ).battleSquaddieId
             )
-            .filter((x) => x)
+            .filter((x) => x != undefined)
     }
 
     private checkForKeyboardHeldKeys(gameEngineState: GameEngineState) {
@@ -526,7 +527,7 @@ const getCurrentlyMovingBattleSquaddieIds = (
         gameEngineState.battleOrchestratorState.battleState.battleActionRecorder
     )
 
-    if (!isValidValue(actionToAnimate)) {
+    if (!isValidValue(actionToAnimate) || actionToAnimate == undefined) {
         return []
     }
 

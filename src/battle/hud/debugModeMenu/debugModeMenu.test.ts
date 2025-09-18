@@ -92,7 +92,7 @@ describe("Debug Mode Menu", () => {
 const clickOnDebugModeToggle = (debugModeMenu: DebugModeMenu) => {
     clickOnButton(
         debugModeMenu,
-        debugModeMenu.data.getUIObjects().toggleMenuButton.getArea()
+        debugModeMenu.data.getUIObjects().toggleMenuButton!.getArea()
     )
 }
 
@@ -103,7 +103,7 @@ const clickOnBehaviorOverrideToggleNoActionButton = (
         debugModeMenu,
         debugModeMenu.data
             .getUIObjects()
-            .behaviorOverrideToggleNoActionButton.getArea()
+            .behaviorOverrideToggleNoActionButton!.getArea()
     )
 }
 

@@ -441,7 +441,7 @@ describe("Targeting Service", () => {
                     missionMap:
                         gameEngineState.battleOrchestratorState.battleState
                             .missionMap,
-                    objectRepository: gameEngineState.repository,
+                    objectRepository: gameEngineState.repository!,
                     battleActionDecisionStep:
                         gameEngineState.battleOrchestratorState.battleState
                             .battleActionDecisionStep,

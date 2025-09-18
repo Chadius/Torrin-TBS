@@ -8,10 +8,7 @@ import {
 } from "../../squaddie/squaddieAffiliation"
 import { HexCoordinate } from "../../hexMap/hexCoordinate/hexCoordinate"
 import { SquaddieTemplate } from "../../campaign/squaddieTemplate"
-import {
-    MissionMapSquaddieCoordinate,
-    MissionMapSquaddieCoordinateService,
-} from "../../missionMap/squaddieCoordinate"
+import { MissionMapSquaddieCoordinate } from "../../missionMap/squaddieCoordinate"
 import { SearchResult } from "../../hexMap/pathfinder/searchResults/searchResult"
 import {
     ActionEffectTemplate,
@@ -135,7 +132,7 @@ export const TargetingResultsService = {
             [TargetBySquaddieAffiliationRelation.TARGET_FOE]: boolean
         }
     }): boolean => {
-        return !!shouldAddDueToAffiliationRelation({
+        return shouldAddDueToAffiliationRelation({
             actorAffiliation,
             actorBattleSquaddieId,
             targetBattleSquaddieId,
@@ -166,19 +163,16 @@ const findValidTargets = ({
         map,
         actingBattleSquaddie.battleSquaddieId
     )
-    const invalidSourceTiles = sourceTiles?.length <= 0
-    const invalidSquaddieLocation =
-        squaddieInfo?.currentMapCoordinate === undefined
-    if (invalidSourceTiles && invalidSquaddieLocation) {
-        return new TargetingResults()
-    }
 
     let startCoordinates = sourceTiles
-    if (!sourceTiles || sourceTiles.length <= 0) {
-        startCoordinates = squaddieInfo?.currentMapCoordinate
-            ? [squaddieInfo.currentMapCoordinate]
-            : []
-    }
+    if (
+        (sourceTiles == undefined || sourceTiles.length <= 0) &&
+        squaddieInfo?.currentMapCoordinate != undefined
+    )
+        startCoordinates = [squaddieInfo.currentMapCoordinate]
+
+    if (startCoordinates == undefined || startCoordinates[0] == undefined)
+        return new TargetingResults()
 
     const allLocationsInRange: SearchResult =
         MapSearchService.calculateAllPossiblePathsFromStartingCoordinate({
@@ -250,9 +244,7 @@ const addValidTargetsToResult = ({
         .map((tile) => {
             const mapData: MissionMapSquaddieCoordinate =
                 MissionMapService.getBattleSquaddieAtCoordinate(map, tile)
-            if (!MissionMapSquaddieCoordinateService.isValid(mapData)) {
-                return undefined
-            }
+            if (mapData.battleSquaddieId == undefined) return undefined
             const { squaddieTemplate, battleSquaddie } = getResultOrThrowError(
                 ObjectRepositoryService.getSquaddieByBattleId(
                     objectRepository,
@@ -276,7 +268,7 @@ const addValidTargetsToResult = ({
 
             return undefined
         })
-        .filter((x) => x)
+        .filter((x) => x != undefined)
 
     targetingResults.addBattleSquaddieIdsInRange(validBattleSquaddieIds)
 }
@@ -341,27 +333,29 @@ const highlightTargetRange = ({
     battleActionDecisionStep: BattleActionDecisionStep
     battleActionRecorder: BattleActionRecorder
 }): HexCoordinate[] => {
-    let battleSquaddieId: string
-    let actionTemplateId: string
+    let battleSquaddieId: string | undefined
+    let actionTemplateId: string | undefined
     if (BattleActionDecisionStepService.isActorSet(battleActionDecisionStep)) {
         battleSquaddieId = BattleActionDecisionStepService.getActor(
             battleActionDecisionStep
-        ).battleSquaddieId
+        )?.battleSquaddieId
         actionTemplateId = BattleActionDecisionStepService.getAction(
             battleActionDecisionStep
-        ).actionTemplateId
+        )?.actionTemplateId
     } else if (
         BattleActionRecorderService.peekAtAnimationQueue(battleActionRecorder)
     ) {
         battleSquaddieId =
             BattleActionRecorderService.peekAtAnimationQueue(
                 battleActionRecorder
-            ).actor.actorBattleSquaddieId
+            )?.actor.actorBattleSquaddieId
         actionTemplateId =
             BattleActionRecorderService.peekAtAnimationQueue(
                 battleActionRecorder
-            ).action.actionTemplateId
+            )?.action.actionTemplateId
     }
+    if (battleSquaddieId == undefined) return []
+    if (actionTemplateId == undefined) return []
 
     const { squaddieTemplate, battleSquaddie } = getResultOrThrowError(
         ObjectRepositoryService.getSquaddieByBattleId(

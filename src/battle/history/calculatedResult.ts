@@ -3,8 +3,8 @@ import { BattleActionSquaddieChange } from "./battleAction/battleActionSquaddieC
 import { BattleActionActorContext } from "./battleAction/battleActionActorContext"
 
 export type ActionEffectChange = {
-    actorContext: BattleActionActorContext
-    squaddieChanges: BattleActionSquaddieChange[]
+    actorContext: BattleActionActorContext | undefined
+    squaddieChanges: BattleActionSquaddieChange[] | undefined
 }
 
 export const ActionEffectChangesService = {

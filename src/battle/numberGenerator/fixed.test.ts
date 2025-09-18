@@ -41,6 +41,7 @@ describe("fixed number generator", () => {
         )
 
         const shouldThrowErrorNotANumber = () => {
+            // @ts-ignore
             new FixedNumberGenerator({ result: undefined })
         }
         expect(() => {

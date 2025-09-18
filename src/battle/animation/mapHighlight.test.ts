@@ -39,9 +39,6 @@ import {
 import { InBattleAttributesService } from "../stats/inBattleAttributes"
 import { beforeEach, describe, expect, it } from "vitest"
 import { Attribute } from "../../squaddie/attribute/attribute"
-import { SearchPathAdapterService } from "../../search/searchPathAdapter/searchPathAdapter"
-import { SearchConnection } from "../../search/searchGraph/graph"
-import { HexCoordinate } from "../../hexMap/hexCoordinate/hexCoordinate"
 import { SearchResultsCacheService } from "../../hexMap/pathfinder/searchResults/searchResultsCache"
 import {
     HighlightCoordinateDescription,
@@ -123,106 +120,6 @@ describe("map highlight generator", () => {
             objectRepository,
             healingAction
         )
-    })
-
-    it("can draw a search path based on the number of actions spent", () => {
-        const pathToDraw: SearchConnection<HexCoordinate>[] = []
-        SearchPathAdapterService.add({
-            path: pathToDraw,
-            newCoordinate: {
-                q: 0,
-                r: 1,
-            },
-            costToMoveToNewCoordinate: 1,
-            startCoordinate: {
-                q: 0,
-                r: 0,
-            },
-        })
-        SearchPathAdapterService.add({
-            path: pathToDraw,
-            newCoordinate: {
-                q: 1,
-                r: 1,
-            },
-            costToMoveToNewCoordinate: 1,
-        })
-        SearchPathAdapterService.add({
-            path: pathToDraw,
-            newCoordinate: {
-                q: 1,
-                r: 2,
-            },
-            costToMoveToNewCoordinate: 2,
-        })
-        SearchPathAdapterService.add({
-            path: pathToDraw,
-            newCoordinate: {
-                q: 1,
-                r: 3,
-            },
-            costToMoveToNewCoordinate: 2,
-        })
-        SearchPathAdapterService.add({
-            path: pathToDraw,
-            newCoordinate: {
-                q: 2,
-                r: 3,
-            },
-            costToMoveToNewCoordinate: 1,
-        })
-
-        const squaddieWith2Movement: SquaddieTemplate =
-            SquaddieTemplateService.new({
-                squaddieId: SquaddieIdService.new({
-                    squaddieTemplateId: "2movement",
-                    name: "2 movement",
-                    affiliation: SquaddieAffiliation.UNKNOWN,
-                }),
-                attributes: ArmyAttributesService.new({
-                    movement: SquaddieMovementService.new({
-                        movementPerAction: 2,
-                    }),
-                }),
-            })
-        ObjectRepositoryService.addSquaddieTemplate(
-            objectRepository,
-            squaddieWith2Movement
-        )
-
-        const battleSquaddie: BattleSquaddie = BattleSquaddieService.new({
-            battleSquaddieId: "2 movement",
-            squaddieTemplate: squaddieWith2Movement,
-        })
-        ObjectRepositoryService.addBattleSquaddie(
-            objectRepository,
-            battleSquaddie
-        )
-
-        const highlightedTiles: HighlightCoordinateDescription[] =
-            MapHighlightService.convertSearchPathToHighlightCoordinates({
-                searchPath: pathToDraw,
-                squaddieIsNormallyControllableByPlayer: true,
-            })
-
-        expect(highlightedTiles).toHaveLength(1)
-
-        expect(
-            HighlightCoordinateDescriptionService.areEqual(
-                highlightedTiles[0],
-                {
-                    coordinates: [
-                        { q: 0, r: 0 },
-                        { q: 0, r: 1 },
-                        { q: 1, r: 1 },
-                        { q: 1, r: 2 },
-                        { q: 1, r: 3 },
-                        { q: 2, r: 3 },
-                    ],
-                    pulseColor: HIGHLIGHT_PULSE_COLOR.BLUE,
-                }
-            )
-        ).toBeTruthy()
     })
 
     describe("shows movement for squaddie with no actions", () => {

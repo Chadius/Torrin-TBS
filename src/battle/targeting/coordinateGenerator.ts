@@ -2,6 +2,7 @@ import {
     HexCoordinate,
     HexCoordinateService,
 } from "../../hexMap/hexCoordinate/hexCoordinate"
+import { EnumLike } from "../../utils/enum"
 
 export const CoordinateGeneratorShape = {
     BLOOM: "BLOOM",

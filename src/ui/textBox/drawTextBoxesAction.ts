@@ -24,12 +24,4 @@ export class DrawTextBoxesAction implements BehaviorTreeTask {
         })
         return true
     }
-
-    clone(): BehaviorTreeTask {
-        return new DrawTextBoxesAction(
-            this.dataBlob,
-            this.getTextBoxes,
-            this.getGraphicsContext
-        )
-    }
 }

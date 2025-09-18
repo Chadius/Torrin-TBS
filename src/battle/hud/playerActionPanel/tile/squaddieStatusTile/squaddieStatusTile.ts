@@ -73,7 +73,7 @@ import { ACTION_POINT_METER_FILL_COLOR } from "../../../../../ui/colors"
 
 export interface SquaddieStatusTile {
     data: DataBlob
-    drawBehaviorTree: BehaviorTreeTask
+    drawBehaviorTree: BehaviorTreeTask | undefined
 }
 
 export interface SquaddieStatusTileUILayout {
@@ -208,7 +208,7 @@ export interface SquaddieStatusTileUIObjects {
             [t in TAttribute]?: {
                 icon: ImageUI
                 arrowIcon?: ImageUI
-                textBox: TextBox
+                textBox: TextBox | undefined
             }
         }
     }
@@ -256,6 +256,9 @@ export const SquaddieStatusTileService = {
         horizontalPosition: TActionTilePosition
         gameEngineState: GameEngineState
     }): SquaddieStatusTile => {
+        if (gameEngineState.repository == undefined) {
+            throw new Error("gameEngine repository not found")
+        }
         const dataBlob: DataBlob = DataBlobService.new()
         const context = createContext({
             gameEngineState,
@@ -420,10 +423,13 @@ export const SquaddieStatusTileService = {
         graphicsContext,
         resourceHandler,
     }: {
-        tile: SquaddieStatusTile
+        tile: SquaddieStatusTile | undefined
         graphicsContext: GraphicsBuffer
-        resourceHandler: ResourceHandler
+        resourceHandler: ResourceHandler | undefined
     }) => {
+        if (tile == undefined) return
+        if (resourceHandler == undefined) return
+
         if (tile.drawBehaviorTree == undefined) {
             tile.drawBehaviorTree = createDrawingTree({
                 dataBlob: tile.data,
@@ -459,7 +465,7 @@ export const SquaddieStatusTileService = {
     }: {
         tile: SquaddieStatusTile
         missionMap: MissionMap
-        playerConsideredActions: PlayerConsideredActions
+        playerConsideredActions: PlayerConsideredActions | undefined
         battleActionDecisionStep: BattleActionDecisionStep
         objectRepository: ObjectRepository
     }) => {
@@ -575,7 +581,7 @@ export const SquaddieStatusTileService = {
         objectRepository,
     }: {
         battleSquaddieId: string
-        playerConsideredActions: PlayerConsideredActions
+        playerConsideredActions: PlayerConsideredActions | undefined
         objectRepository: ObjectRepository
     }): { actionPoints: SquaddieStatusTileActionPointsContext } => {
         const { battleSquaddie } = getResultOrThrowError(
@@ -590,14 +596,15 @@ export const SquaddieStatusTileService = {
 
         let actionPointsMarkedForAction = 0
         switch (true) {
-            case !!playerConsideredActions.actionTemplateId:
+            case playerConsideredActions?.actionTemplateId != undefined &&
+                !!playerConsideredActions?.actionTemplateId:
                 actionPointsMarkedForAction =
                     ObjectRepositoryService.getActionTemplateById(
                         objectRepository,
                         playerConsideredActions.actionTemplateId
-                    ).resourceCost.actionPoints
+                    )?.resourceCost?.actionPoints ?? 0
                 break
-            case playerConsideredActions.endTurn:
+            case playerConsideredActions?.endTurn:
                 actionPointsMarkedForAction = actionPointsRemaining
         }
 
@@ -658,6 +665,9 @@ const createContext = ({
     horizontalPosition: TActionTilePosition
     gameEngineState: GameEngineState
 }): SquaddieStatusTileContext => {
+    if (gameEngineState.repository == undefined) {
+        throw new Error("gameEngine.repository not found")
+    }
     const { squaddieTemplate, battleSquaddie } = getResultOrThrowError(
         ObjectRepositoryService.getSquaddieByBattleId(
             gameEngineState.repository,
@@ -785,7 +795,7 @@ const updateContext = ({
     dataBlob: DataBlob
     objectRepository: ObjectRepository
     missionMap: MissionMap
-    playerConsideredActions: PlayerConsideredActions
+    playerConsideredActions: PlayerConsideredActions | undefined
     battleActionDecisionStep: BattleActionDecisionStep
 }) => {
     const updateArmor = new SequenceComposite(dataBlob, [
@@ -932,7 +942,7 @@ const createDrawingTree = ({
 }) => {
     const drawTextBoxTreeAction = new DrawTextBoxesAction(
         dataBlob,
-        (dataBlob: DataBlob) => {
+        (dataBlob: DataBlob): TextBox[] => {
             const uiObjects = DataBlobService.get<SquaddieStatusTileUIObjects>(
                 dataBlob,
                 "uiObjects"
@@ -946,7 +956,7 @@ const createDrawingTree = ({
                 ...Object.values(
                     uiObjects.attributeModifiers.graphicsByAttributeType
                 ).map((a) => a.textBox),
-            ].filter((x) => x)
+            ].filter((x) => x != undefined)
         },
         (_) => {
             return graphicsContext
@@ -967,7 +977,7 @@ const createDrawingTree = ({
                 ...Object.values(
                     uiObjects.attributeModifiers.graphicsByAttributeType
                 ).map((a) => a.arrowIcon),
-            ].filter((x) => x)
+            ].filter((x) => x != undefined)
         },
         (_: DataBlob) => {
             return graphicsContext
@@ -1102,9 +1112,12 @@ class UpdateArmorUIObjectsAction implements BehaviorTreeTask {
             this.dataBlob,
             "uiObjects"
         )
-        let armorText = `Armor ${context.armor.net}`
-        if (context.armor.modifier != 0) {
-            armorText += ` +${context.armor.modifier}`
+        let armorText = `Armor `
+        if (context.armor != undefined) {
+            armorText += `${context.armor.net}`
+            if (context.armor.modifier != 0) {
+                armorText += ` +${context.armor.modifier}`
+            }
         }
         const squaddieAffiliationHue: number =
             HUE_BY_SQUADDIE_AFFILIATION[context.squaddieAffiliation]
@@ -1237,9 +1250,12 @@ class UpdateMovementUIObjectsAction implements BehaviorTreeTask {
             "uiObjects"
         )
 
-        let movementText = `Move ${context.movement.initialMovementPerAction}`
-        if (context.movement.movementChange !== 0) {
-            movementText += ` ${context.movement.movementChange > 0 ? "+" : ""}${context.movement.movementChange}`
+        let movementText = `Move `
+        if (context.movement != undefined) {
+            movementText += `${context.movement.initialMovementPerAction}`
+            if (context.movement.movementChange !== 0) {
+                movementText += ` ${context.movement.movementChange > 0 ? "+" : ""}${context.movement.movementChange}`
+            }
         }
 
         const squaddieAffiliationHue: number =
@@ -1518,7 +1534,7 @@ class UpdateAttributeModifiersUIObjectsAction implements BehaviorTreeTask {
             context,
             uiObjects,
             layout,
-            attributeTypeAndAmounts: context.attributeModifiers.filter(
+            attributeTypeAndAmounts: (context?.attributeModifiers ?? []).filter(
                 (attributeTypeAndAmount) =>
                     !AttributeTypeService.isBinary(attributeTypeAndAmount.type)
             ),
@@ -1527,7 +1543,7 @@ class UpdateAttributeModifiersUIObjectsAction implements BehaviorTreeTask {
             context,
             uiObjects,
             layout,
-            attributeTypeAndAmounts: context.attributeModifiers.filter(
+            attributeTypeAndAmounts: (context.attributeModifiers ?? []).filter(
                 (attributeTypeAndAmount) =>
                     AttributeTypeService.isBinary(attributeTypeAndAmount.type)
             ),
@@ -1535,7 +1551,7 @@ class UpdateAttributeModifiersUIObjectsAction implements BehaviorTreeTask {
 
         this.removeInactiveModifierIcons({
             uiObjects,
-            attributeModifiers: context.attributeModifiers,
+            attributeModifiers: context.attributeModifiers ?? [],
         })
 
         DataBlobService.add<SquaddieStatusTileUIObjects>(

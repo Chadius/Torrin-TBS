@@ -28,8 +28,8 @@ import { GraphicsBuffer } from "../../utils/graphics/graphicsRenderer"
 import { SummaryHUDStateService } from "../hud/summary/summaryHUD"
 import {
     PlayerCommandSelection,
-    TPlayerCommandSelection,
     PlayerCommandStateService,
+    TPlayerCommandSelection,
 } from "../hud/playerCommand/playerCommandHUD"
 import {
     PlayerSelectionContextCalculationArgsService,
@@ -41,8 +41,8 @@ import { MessageBoardListener } from "../../message/messageBoardListener"
 import { ResourceHandler } from "../../resource/resourceHandler"
 import {
     PlayerInputAction,
-    TPlayerInputAction,
     PlayerInputStateService,
+    TPlayerInputAction,
 } from "../../ui/playerInput/playerInputState"
 import { BattleStateService } from "../battleState/battleState"
 import { isValidValue } from "../../utils/objectValidityCheck"
@@ -56,12 +56,12 @@ export class BattlePlayerSquaddieSelector
     implements BattleOrchestratorComponent, MessageBoardListener
 {
     messageBoardListenerId: string
-    componentCompleted: boolean
-    recommendedNextMode: TBattleOrchestratorMode
+    componentCompleted: boolean | undefined
+    recommendedNextMode: TBattleOrchestratorMode | undefined
 
     highlightedSquaddie: {
-        battleSquaddieId: string
-        mapIcon: ImageUI
+        battleSquaddieId: string | undefined
+        mapIcon: ImageUI | undefined
     }
 
     constructor() {
@@ -75,7 +75,7 @@ export class BattlePlayerSquaddieSelector
     hasCompleted(gameEngineState: GameEngineState): boolean {
         const cameraIsNotPanning =
             !gameEngineState.battleOrchestratorState.battleState.camera.isPanning()
-        return this.componentCompleted && cameraIsNotPanning
+        return this.componentCompleted == true && cameraIsNotPanning
     }
 
     mouseEventHappened(
@@ -138,6 +138,7 @@ export class BattlePlayerSquaddieSelector
         const summaryHUDState =
             gameEngineState.battleOrchestratorState.battleHUDState
                 .summaryHUDState
+        if (summaryHUDState == undefined) return
 
         const playerCommandSelection: TPlayerCommandSelection =
             SummaryHUDStateService.mouseReleased({
@@ -253,6 +254,11 @@ export class BattlePlayerSquaddieSelector
         const listIndexActions =
             PlayerInputStateService.filterListIndexActions(actions)
         listIndexActions.forEach((playerInputAction) => {
+            if (
+                gameEngineState.battleOrchestratorState.battleHUDState
+                    .summaryHUDState?.playerCommandState == undefined
+            )
+                return
             const playerCommandSelection = PlayerCommandStateService.keyPressed(
                 {
                     gameEngineState,
@@ -284,7 +290,7 @@ export class BattlePlayerSquaddieSelector
     }: {
         gameEngineState: GameEngineState
         graphicsContext: GraphicsBuffer
-        resourceHandler: ResourceHandler
+        resourceHandler: ResourceHandler | undefined
     }): void {
         if (this.readyToAutomaticallySelectASquaddie(gameEngineState)) {
             this.selectFirstPlayableSquaddie(gameEngineState)
@@ -305,8 +311,10 @@ export class BattlePlayerSquaddieSelector
         const battleSquaddieId = BattleActionDecisionStepService.getActor(
             gameEngineState.battleOrchestratorState.battleState
                 .battleActionDecisionStep
-        ).battleSquaddieId
+        )?.battleSquaddieId
 
+        if (battleSquaddieId == undefined) return
+        if (gameEngineState.repository == undefined) return
         if (this.highlightedSquaddie.battleSquaddieId == battleSquaddieId)
             return
 
@@ -344,12 +352,13 @@ export class BattlePlayerSquaddieSelector
             )
         )
             return false
+        if (gameEngineState.repository == undefined) return false
 
         const currentTeam = BattleStateService.getCurrentTeam(
             gameEngineState.battleOrchestratorState.battleState,
             gameEngineState.repository
         )
-        if (!isValidValue(currentTeam)) {
+        if (!isValidValue(currentTeam) || currentTeam == undefined) {
             return false
         }
 
@@ -360,10 +369,12 @@ export class BattlePlayerSquaddieSelector
     }
 
     private selectFirstPlayableSquaddie(gameEngineState: GameEngineState) {
+        if (gameEngineState.repository == undefined) return
         const currentTeam = BattleStateService.getCurrentTeam(
             gameEngineState.battleOrchestratorState.battleState,
             gameEngineState.repository
         )
+        if (currentTeam == undefined) return
         const battleSquaddieIds =
             BattleSquaddieTeamService.getBattleSquaddiesThatCanAct(
                 currentTeam,
@@ -379,8 +390,7 @@ export class BattlePlayerSquaddieSelector
     recommendStateChanges(
         _gameEngineState: GameEngineState
     ): BattleOrchestratorChanges | undefined {
-        let nextMode: TBattleOrchestratorMode = this.recommendedNextMode
-
+        let nextMode = this.recommendedNextMode
         return {
             nextMode,
         }
@@ -418,9 +428,9 @@ const processPlayerCommandSelection = ({
     playerInputActions: TPlayerInputAction[]
 }): {
     didUserClickOnSummaryHUD: boolean
-    changes: PlayerSelectionChanges
+    changes: PlayerSelectionChanges | undefined
 } => {
-    let changes: PlayerSelectionChanges
+    let changes = undefined
     let context: PlayerSelectionContext
     switch (playerCommandSelection) {
         case PlayerCommandSelection.PLAYER_COMMAND_SELECTION_END_TURN:
@@ -444,7 +454,7 @@ const processPlayerCommandSelection = ({
                     mouseClick,
                     actionTemplateId:
                         gameEngineState.battleOrchestratorState.battleHUDState
-                            .summaryHUDState.playerCommandState
+                            .summaryHUDState?.playerCommandState
                             .selectedActionTemplateId,
                     playerInputActions,
                 })

@@ -42,7 +42,7 @@ export const ActionResultTextService = {
     }: {
         currentActionEffectTemplate: ActionEffectTemplate
         battleActionSquaddieChanges: BattleActionSquaddieChange[]
-        actorContext: BattleActionActorContext
+        actorContext: BattleActionActorContext | undefined
         squaddieRepository: ObjectRepository
         actionTemplateName: string
         actingBattleSquaddieId: string
@@ -308,7 +308,7 @@ const getAttributeModifierChanges = ({
 
     return attributeModifierDifferences.map((attributeModifierDifference) => {
         const afterAttribute =
-            squaddieChange.attributesAfter.attributeModifiers.find(
+            squaddieChange.attributesAfter?.attributeModifiers.find(
                 (attributeModifier) =>
                     attributeModifier.type === attributeModifierDifference.type
             )
@@ -316,7 +316,7 @@ const getAttributeModifierChanges = ({
         const description = AttributeModifierService.readableDescription({
             type: attributeModifierDifference.type,
             amount: attributeModifierDifference.amount,
-            source: afterAttribute.source,
+            source: afterAttribute?.source,
         })
 
         return `${targetSquaddieTemplate.squaddieId.name} ${description}`
@@ -333,7 +333,7 @@ const outputResultForTextOnly = ({
 }: {
     currentActionEffectTemplate: ActionEffectTemplate
     battleActionSquaddieChanges: BattleActionSquaddieChange[]
-    actorContext: BattleActionActorContext
+    actorContext: BattleActionActorContext | undefined
     squaddieRepository: ObjectRepository
     actionTemplateName: string
     actingBattleSquaddieId: string
@@ -366,11 +366,11 @@ const outputResultForTextOnly = ({
             TraitStatusStorageService.getStatus(
                 currentActionEffectTemplate.traits,
                 Trait.ATTACK
-            ) === true &&
-            TraitStatusStorageService.getStatus(
+            ) &&
+            !TraitStatusStorageService.getStatus(
                 currentActionEffectTemplate.traits,
                 Trait.ALWAYS_SUCCEEDS
-            ) !== true
+            )
         ) {
             output.push(
                 ...ActionResultText.getAttackPenaltyDescriptions(
@@ -521,11 +521,11 @@ const outputIntentForTextOnly = ({
         TraitStatusStorageService.getStatus(
             currentActionEffectTemplate.traits,
             Trait.ATTACK
-        ) === true &&
-        TraitStatusStorageService.getStatus(
+        ) &&
+        !TraitStatusStorageService.getStatus(
             currentActionEffectTemplate.traits,
             Trait.ALWAYS_SUCCEEDS
-        ) !== true
+        )
     ) {
         output.push(
             ...ActionResultText.getAttackPenaltyDescriptions(

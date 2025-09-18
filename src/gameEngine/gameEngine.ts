@@ -20,7 +20,7 @@ import {
     ScreenLocation,
 } from "../utils/mouseConfig"
 import { GameModeEnum, TGameMode } from "../utils/startupConfig"
-import { GameEngineChanges, GameEngineComponent } from "./gameEngineComponent"
+import { GameEngineComponent } from "./gameEngineComponent"
 import { TitleScreen } from "../titleScreen/titleScreen"
 import {
     TitleScreenState,
@@ -36,7 +36,7 @@ import {
 } from "../battle/history/battleSaveState"
 import { GameEngineGameLoader } from "./gameEngineGameLoader"
 import { InitializeBattle } from "../battle/orchestrator/initializeBattle"
-import { Campaign } from "../campaign/campaign"
+import { Campaign, CampaignService } from "../campaign/campaign"
 import {
     ObjectRepository,
     ObjectRepositoryService,
@@ -63,11 +63,11 @@ import { BattleEventMessageListener } from "../battle/event/battleEventMessageLi
 export interface GameEngineState {
     modeThatInitiatedLoading: TGameMode
     battleOrchestratorState: BattleOrchestratorState
-    repository: ObjectRepository
-    resourceHandler: ResourceHandler
+    repository: ObjectRepository | undefined
+    resourceHandler: ResourceHandler | undefined
     titleScreenState: TitleScreenState
     campaign: Campaign
-    campaignIdThatWasLoaded: string
+    campaignIdThatWasLoaded: string | undefined
     fileState: FileState
     messageBoard: MessageBoard
     playerInputState: PlayerInputState
@@ -98,10 +98,8 @@ export const GameEngineStateService = {
                 BattleOrchestratorStateService.new({}),
             titleScreenState: titleScreenState ?? TitleScreenStateHelper.new(),
             fileState: FileStateService.new(),
-            campaign,
-            campaignIdThatWasLoaded: isValidValue(campaign)
-                ? campaign.id
-                : undefined,
+            campaign: campaign ?? CampaignService.default(),
+            campaignIdThatWasLoaded: campaign?.id,
             repository,
             resourceHandler,
             messageBoard: new MessageBoard({
@@ -115,10 +113,10 @@ export const GameEngineStateService = {
 }
 
 export class GameEngine {
-    gameEngineState: GameEngineState
-    gameEngineGameLoader: GameEngineGameLoader
+    gameEngineState: GameEngineState | undefined
+    gameEngineGameLoader: GameEngineGameLoader | undefined
     graphicsBuffer: GraphicsBuffer
-    version: string
+    version: string | undefined
 
     constructor({
         graphicsBuffer,
@@ -131,13 +129,13 @@ export class GameEngine {
         this._currentMode = startupMode
     }
 
-    private _titleScreen: TitleScreen
+    private _titleScreen: TitleScreen | undefined
 
-    get titleScreen(): TitleScreen {
+    get titleScreen(): TitleScreen | undefined {
         return this._titleScreen
     }
 
-    get gameEngineComponent(): GameEngineComponent {
+    get gameEngineComponent(): GameEngineComponent | undefined {
         switch (this.currentMode) {
             case GameModeEnum.TITLE_SCREEN:
                 return this.titleScreen
@@ -158,15 +156,15 @@ export class GameEngine {
         return this._currentMode
     }
 
-    private _battleOrchestrator: BattleOrchestrator
+    private _battleOrchestrator: BattleOrchestrator | undefined
 
-    get battleOrchestrator(): BattleOrchestrator {
+    get battleOrchestrator(): BattleOrchestrator | undefined {
         return this._battleOrchestrator
     }
 
-    private _resourceHandler: ResourceHandler
+    private _resourceHandler: ResourceHandler | undefined
 
-    get resourceHandler(): ResourceHandler {
+    get resourceHandler(): ResourceHandler | undefined {
         return this._resourceHandler
     }
 
@@ -210,7 +208,7 @@ export class GameEngine {
             p5Instance,
         })
         this.gameEngineGameLoader = new GameEngineGameLoader(
-            process.env.CAMPAIGN_ID
+            process.env.CAMPAIGN_ID!
         )
         this.version = version
         this.resetComponentStates()
@@ -221,6 +219,7 @@ export class GameEngine {
     }
 
     keyPressed(keyCode: number) {
+        if (this.gameEngineState == undefined) return
         this.gameEngineComponent?.keyPressed(this.gameEngineState, keyCode)
     }
 
@@ -241,10 +240,12 @@ export class GameEngine {
     }
 
     mousePressed(mousePress: MousePress) {
+        if (this.gameEngineState == undefined) return
         this.gameEngineComponent?.mousePressed(this.gameEngineState, mousePress)
     }
 
     mouseReleased(mouseRelease: MouseRelease) {
+        if (this.gameEngineState == undefined) return
         this.gameEngineComponent?.mouseReleased(
             this.gameEngineState,
             mouseRelease
@@ -252,6 +253,7 @@ export class GameEngine {
     }
 
     mouseMoved(mouseLocation: ScreenLocation) {
+        if (this.gameEngineState == undefined) return
         this.gameEngineComponent?.mouseMoved(
             this.gameEngineState,
             mouseLocation
@@ -259,44 +261,51 @@ export class GameEngine {
     }
 
     mouseWheel(mouseWheel: MouseWheel) {
+        if (this.gameEngineState == undefined) return
         this.gameEngineComponent?.mouseWheel(this.gameEngineState, mouseWheel)
     }
 
     mouseDragged(mouseDrag: MouseDrag) {
+        if (this.gameEngineState == undefined) return
         this.gameEngineComponent?.mouseDragged(this.gameEngineState, mouseDrag)
     }
 
     async update({ graphics }: { graphics: GraphicsBuffer }) {
-        if (!isValidValue(this.gameEngineComponent)) {
+        if (
+            !isValidValue(this.gameEngineComponent) ||
+            this.gameEngineState == undefined
+        ) {
             return
         }
-        await this.gameEngineComponent.update(this.gameEngineState, graphics)
+        await this.gameEngineComponent?.update(this.gameEngineState, graphics)
 
         if (this.gameEngineState.fileState.saveSaveState.savingInProgress) {
             this.saveGameAndDownloadFile()
         }
 
-        if (this.gameEngineComponent.hasCompleted(this.gameEngineState)) {
-            const orchestrationChanges: GameEngineChanges =
-                this.gameEngineComponent.recommendStateChanges(
+        if (this.gameEngineComponent?.hasCompleted(this.gameEngineState)) {
+            const orchestrationChanges =
+                this.gameEngineComponent?.recommendStateChanges(
                     this.gameEngineState
                 )
             if (
                 !(
-                    orchestrationChanges.nextMode ===
+                    orchestrationChanges?.nextMode ===
                         GameModeEnum.LOADING_BATTLE &&
                     this.currentMode === GameModeEnum.BATTLE
                 )
             ) {
-                this.gameEngineComponent.reset(this.gameEngineState)
+                this.gameEngineComponent?.reset(this.gameEngineState)
             }
 
-            if (orchestrationChanges.nextMode === GameModeEnum.LOADING_BATTLE) {
+            if (
+                orchestrationChanges?.nextMode === GameModeEnum.LOADING_BATTLE
+            ) {
                 this.gameEngineState.modeThatInitiatedLoading = this.currentMode
             }
 
             this._currentMode =
-                orchestrationChanges.nextMode || GameModeEnum.TITLE_SCREEN
+                orchestrationChanges?.nextMode ?? GameModeEnum.TITLE_SCREEN
             if (this.currentMode === GameModeEnum.TITLE_SCREEN) {
                 this.gameEngineState.titleScreenState =
                     TitleScreenStateHelper.new()
@@ -306,8 +315,8 @@ export class GameEngine {
 
     private resetComponentStates() {
         this.gameEngineState = GameEngineStateService.new({
-            battleOrchestratorState: this.battleOrchestrator.setup(),
-            titleScreenState: this.titleScreen.setup(),
+            battleOrchestratorState: this.battleOrchestrator?.setup(),
+            titleScreenState: this.titleScreen?.setup(),
             repository: ObjectRepositoryService.new(),
             resourceHandler: this.resourceHandler,
             campaign: undefined,
@@ -334,7 +343,7 @@ export class GameEngine {
             MessageBoardMessageType.MOVE_SQUADDIE_TO_COORDINATE,
             MessageBoardMessageType.PLAYER_CONTROLLED_SQUADDIE_NEEDS_NEXT_ACTION,
         ].forEach((messageBoardMessageType) => {
-            this.gameEngineState.messageBoard.addListener(
+            this.gameEngineState?.messageBoard.addListener(
                 battleHUDListener,
                 messageBoardMessageType
             )
@@ -348,7 +357,7 @@ export class GameEngine {
             MessageBoardMessageType.SQUADDIE_PHASE_STARTS,
             MessageBoardMessageType.SQUADDIE_PHASE_ENDS,
         ].forEach((messageBoardMessageType) => {
-            this.gameEngineState.messageBoard.addListener(
+            this.gameEngineState?.messageBoard.addListener(
                 squaddiePhaseListener,
                 messageBoardMessageType
             )
@@ -360,7 +369,7 @@ export class GameEngine {
             MessageBoardMessageType.BATTLE_ACTION_FINISHES_ANIMATION,
             MessageBoardMessageType.SQUADDIE_TURN_ENDS,
         ].forEach((messageBoardMessageType) => {
-            this.gameEngineState.messageBoard.addListener(
+            this.gameEngineState?.messageBoard.addListener(
                 battleStateListener,
                 messageBoardMessageType
             )
@@ -370,16 +379,23 @@ export class GameEngine {
             MessageBoardMessageType.SQUADDIE_IS_DEFEATED,
             MessageBoardMessageType.SQUADDIE_PHASE_STARTS,
         ].forEach((messageBoardMessageType) => {
-            this.gameEngineState.messageBoard.addListener(
-                this._battleOrchestrator.battleEventMessageListener,
+            if (
+                this._battleOrchestrator?.battleEventMessageListener ==
+                undefined
+            )
+                return
+            this.gameEngineState?.messageBoard.addListener(
+                this._battleOrchestrator?.battleEventMessageListener,
                 messageBoardMessageType
             )
         })
 
-        this.gameEngineState.messageBoard.addListener(
-            this._battleOrchestrator.playerSquaddieSelector,
-            MessageBoardMessageType.PLAYER_CONFIRMS_DECISION_STEP_ACTOR
-        )
+        if (this._battleOrchestrator?.playerSquaddieSelector != undefined) {
+            this.gameEngineState?.messageBoard.addListener(
+                this._battleOrchestrator.playerSquaddieSelector,
+                MessageBoardMessageType.PLAYER_CONFIRMS_DECISION_STEP_ACTOR
+            )
+        }
 
         const playerDecisionHUDListener = new PlayerDecisionHUDListener(
             "playerDecisionHUDListener"
@@ -391,7 +407,7 @@ export class GameEngine {
             MessageBoardMessageType.PLAYER_CONSIDERS_MOVEMENT,
             MessageBoardMessageType.PLAYER_SELECTION_IS_INVALID,
         ].forEach((messageBoardMessageType) => {
-            this.gameEngineState.messageBoard.addListener(
+            this.gameEngineState?.messageBoard.addListener(
                 playerDecisionHUDListener,
                 messageBoardMessageType
             )
@@ -408,7 +424,7 @@ export class GameEngine {
             MessageBoardMessageType.PLAYER_DATA_LOAD_FINISH_REQUEST_LOAD,
             MessageBoardMessageType.PLAYER_DATA_LOAD_USER_CANCEL,
         ].forEach((messageBoardMessageType) => {
-            this.gameEngineState.messageBoard.addListener(
+            this.gameEngineState?.messageBoard.addListener(
                 playerDataMessageListener,
                 messageBoardMessageType
             )
@@ -451,13 +467,22 @@ export class GameEngine {
     }
 
     private saveGameAndDownloadFile() {
+        if (
+            this.version == undefined ||
+            this.gameEngineState?.repository == undefined
+        ) {
+            throw new Error(
+                "[GameEngine.saveGameAndDownloadFile]: version or gameEngineState is undefined"
+            )
+        }
         const saveData: BattleSaveState =
             BattleSaveStateService.newUsingBattleOrchestratorState({
                 saveVersion: this.version,
                 missionId:
                     this.gameEngineState.battleOrchestratorState.battleState
                         .missionId,
-                campaignId: this.gameEngineState.campaign.id,
+                campaignId:
+                    this.gameEngineState.campaign.id ?? "Unknown Campaign id",
                 battleOrchestratorState:
                     this.gameEngineState.battleOrchestratorState,
                 repository: this.gameEngineState.repository,

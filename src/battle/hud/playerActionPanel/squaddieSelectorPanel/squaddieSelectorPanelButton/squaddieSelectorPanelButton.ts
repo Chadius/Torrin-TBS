@@ -56,9 +56,9 @@ export interface SquaddieSelectorPanelButtonLayout {
 
 export interface SquaddieSelectorPanelButtonObjects {
     drawingArea: RectArea
-    squaddieName: TextBox
-    background: Rectangle
-    mapIcon: ImageUI
+    squaddieName: TextBox | undefined
+    background: Rectangle | undefined
+    mapIcon: ImageUI | undefined
     graphicsContext?: GraphicsBuffer
     resourceHandler?: ResourceHandler
 }
@@ -70,12 +70,12 @@ export interface SquaddieSelectorPanelButtonContext {
 
 export interface SquaddieSelectorPanelButtonStatus {
     current: {
-        squaddieIsControllable: boolean
-        squaddieIsSelected: boolean
+        squaddieIsControllable: boolean | undefined
+        squaddieIsSelected: boolean | undefined
     }
     previous: {
-        squaddieIsControllable: boolean
-        squaddieIsSelected: boolean
+        squaddieIsControllable: boolean | undefined
+        squaddieIsSelected: boolean | undefined
     }
 }
 
@@ -167,14 +167,14 @@ export const SquaddieSelectorPanelButtonService = {
             button,
             "status"
         )
-        return status.current?.squaddieIsSelected
+        return status.current?.squaddieIsSelected == true
     },
     isControllable: (button: SquaddieSelectorPanelButton): boolean => {
         const status = DataBlobService.get<SquaddieSelectorPanelButtonStatus>(
             button,
             "status"
         )
-        return status.current?.squaddieIsControllable
+        return status.current?.squaddieIsControllable == true
     },
     updateStatus: ({
         button,
@@ -220,7 +220,7 @@ export const SquaddieSelectorPanelButtonService = {
         return context?.battleSquaddieId
     },
     getDrawingArea: (button: SquaddieSelectorPanelButton) =>
-        button.data.uiObjects.drawingArea,
+        button.data.uiObjects?.drawingArea,
     isMouseSelecting: ({
         button,
         mouseClick,
@@ -235,6 +235,7 @@ export const SquaddieSelectorPanelButtonService = {
                 "uiObjects"
             )
         if (uiObjects?.drawingArea == undefined) return false
+        if (button.data.uiObjects?.drawingArea == undefined) return false
 
         return RectAreaService.isInside(
             button.data.uiObjects.drawingArea,
@@ -348,7 +349,7 @@ const createDrawingBehaviorTree = ({
                     data,
                     "uiObjects"
                 )
-            return [uiObjects.background]
+            return [uiObjects.background].filter((x) => x != undefined)
         },
         (_: DataBlob): GraphicsBuffer => {
             return graphicsContext
@@ -363,7 +364,7 @@ const createDrawingBehaviorTree = ({
                     dataBlob,
                     "uiObjects"
                 )
-            return [uiObjects.squaddieName].filter((x) => x)
+            return [uiObjects.squaddieName].filter((x) => x != undefined)
         },
         (_) => {
             return graphicsContext
@@ -379,7 +380,7 @@ const createDrawingBehaviorTree = ({
                     "uiObjects"
                 )
 
-            return [uiObjects.mapIcon].filter((x) => x)
+            return [uiObjects.mapIcon].filter((x) => x != undefined)
         },
         (_: DataBlob) => {
             return graphicsContext

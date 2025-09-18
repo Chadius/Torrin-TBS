@@ -6,6 +6,7 @@ import {
     OrchestratorComponentMouseEvent,
     OrchestratorComponentMouseEventType,
 } from "./battleOrchestratorComponent"
+import { EnumLike } from "../../utils/enum"
 import {
     BattleCache,
     BattleOrchestratorState,
@@ -60,7 +61,6 @@ import { SearchResultsCacheService } from "../../hexMap/pathfinder/searchResults
 import { ActionSelectedTileService } from "../hud/playerActionPanel/tile/actionSelectedTile/actionSelectedTile"
 import { SquaddieNameAndPortraitTileService } from "../hud/playerActionPanel/tile/squaddieNameAndPortraitTile"
 import { DebugModeMenuService } from "../hud/debugModeMenu/debugModeMenu"
-import { isValidValue } from "../../utils/objectValidityCheck"
 import { BattleEventEffect } from "../event/battleEventEffect"
 import { BattleEventMessageListener } from "../event/battleEventMessageListener"
 import { CutsceneEffect } from "../../cutscene/cutsceneEffect"
@@ -83,26 +83,27 @@ export const BattleOrchestratorMode = {
 export type TBattleOrchestratorMode = EnumLike<typeof BattleOrchestratorMode>
 
 export class BattleOrchestrator implements GameEngineComponent {
-    mode: TBattleOrchestratorMode
+    mode: TBattleOrchestratorMode | undefined
 
-    cutscenePlayer: BattleCutscenePlayer
-    playerSquaddieSelector: BattlePlayerSquaddieSelector
-    playerActionTargetSelect: PlayerActionTargetSelect
-    computerSquaddieSelector: BattleComputerSquaddieSelector
-    squaddieUsesActionOnMap: BattleSquaddieUsesActionOnMap
-    squaddieUsesActionOnSquaddie: BattleSquaddieUsesActionOnSquaddie
-    squaddieMover: BattleSquaddieMover
-    defaultBattleOrchestrator: DefaultBattleOrchestrator
-    mapDisplay: BattleMapDisplay
-    phaseController: BattlePhaseController
-    initializeBattle: InitializeBattle
-    playerHudController: PlayerHudController
-    battleEventMessageListener: BattleEventMessageListener
+    cutscenePlayer?: BattleCutscenePlayer
+    playerSquaddieSelector?: BattlePlayerSquaddieSelector
+    playerActionTargetSelect?: PlayerActionTargetSelect
+    computerSquaddieSelector?: BattleComputerSquaddieSelector
+    squaddieUsesActionOnMap?: BattleSquaddieUsesActionOnMap
+    squaddieUsesActionOnSquaddie?: BattleSquaddieUsesActionOnSquaddie
+    squaddieMover?: BattleSquaddieMover
+    defaultBattleOrchestrator: DefaultBattleOrchestrator =
+        new DefaultBattleOrchestrator()
+    mapDisplay?: BattleMapDisplay
+    phaseController?: BattlePhaseController
+    initializeBattle?: InitializeBattle
+    playerHudController?: PlayerHudController
+    battleEventMessageListener?: BattleEventMessageListener
 
     battleOrchestratorModeComponentConstants: {
         [m in TBattleOrchestratorMode]: {
-            getCurrentComponent: () => BattleOrchestratorComponent
-            defaultNextMode: TBattleOrchestratorMode
+            getCurrentComponent: () => BattleOrchestratorComponent | undefined
+            defaultNextMode: TBattleOrchestratorMode | undefined
         }
     } = {
         [BattleOrchestratorMode.INITIALIZED]: {
@@ -183,18 +184,18 @@ export class BattleOrchestrator implements GameEngineComponent {
         initializeBattle,
         battleEventMessageListener,
     }: {
-        cutscenePlayer: BattleCutscenePlayer
-        playerSquaddieSelector: BattlePlayerSquaddieSelector
-        playerActionTargetSelect: PlayerActionTargetSelect
-        computerSquaddieSelector: BattleComputerSquaddieSelector
-        squaddieUsesActionOnMap: BattleSquaddieUsesActionOnMap
-        squaddieUsesActionOnSquaddie: BattleSquaddieUsesActionOnSquaddie
-        squaddieMover: BattleSquaddieMover
-        mapDisplay: BattleMapDisplay
-        phaseController: BattlePhaseController
-        playerHudController: PlayerHudController
-        initializeBattle: InitializeBattle
-        battleEventMessageListener: BattleEventMessageListener
+        cutscenePlayer?: BattleCutscenePlayer
+        playerSquaddieSelector?: BattlePlayerSquaddieSelector
+        playerActionTargetSelect?: PlayerActionTargetSelect
+        computerSquaddieSelector?: BattleComputerSquaddieSelector
+        squaddieUsesActionOnMap?: BattleSquaddieUsesActionOnMap
+        squaddieUsesActionOnSquaddie?: BattleSquaddieUsesActionOnSquaddie
+        squaddieMover?: BattleSquaddieMover
+        mapDisplay?: BattleMapDisplay
+        phaseController?: BattlePhaseController
+        playerHudController?: PlayerHudController
+        initializeBattle?: InitializeBattle
+        battleEventMessageListener?: BattleEventMessageListener
     }) {
         this.cutscenePlayer = cutscenePlayer
         this.playerSquaddieSelector = playerSquaddieSelector
@@ -213,21 +214,21 @@ export class BattleOrchestrator implements GameEngineComponent {
         this.resetInternalState()
     }
 
-    private _previousUpdateTimestamp: number
+    private _previousUpdateTimestamp: number | undefined
 
-    get previousUpdateTimestamp(): number {
+    get previousUpdateTimestamp(): number | undefined {
         return this._previousUpdateTimestamp
     }
 
-    private _battleComplete: boolean
+    private _battleComplete: boolean | undefined
 
-    get battleComplete(): boolean {
+    get battleComplete(): boolean | undefined {
         return this._battleComplete
     }
 
-    private _uiControlSettings: UIControlSettings
+    private _uiControlSettings: UIControlSettings | undefined
 
-    get uiControlSettings(): UIControlSettings {
+    get uiControlSettings(): UIControlSettings | undefined {
         return this._uiControlSettings
     }
 
@@ -247,6 +248,7 @@ export class BattleOrchestrator implements GameEngineComponent {
     }
 
     public getCurrentComponent(): BattleOrchestratorComponent {
+        if (this.mode == undefined) return this.defaultBattleOrchestrator
         return (
             this.battleOrchestratorModeComponentConstants[
                 this.mode
@@ -254,7 +256,7 @@ export class BattleOrchestrator implements GameEngineComponent {
         )
     }
 
-    public getCurrentMode(): TBattleOrchestratorMode {
+    public getCurrentMode(): TBattleOrchestratorMode | undefined {
         return this.mode
     }
 
@@ -280,15 +282,18 @@ export class BattleOrchestrator implements GameEngineComponent {
         this.displayMapAndPlayerHUD(gameEngineState, graphicsContext)
 
         if (this.mode === BattleOrchestratorMode.PLAYER_HUD_CONTROLLER) {
-            const orchestrationChanges: BattleOrchestratorChanges =
-                this.playerHudController.recommendStateChanges(gameEngineState)
+            const orchestrationChanges: BattleOrchestratorChanges | undefined =
+                this.playerHudController?.recommendStateChanges(gameEngineState)
             this.mode =
-                orchestrationChanges.nextMode ||
+                orchestrationChanges?.nextMode ??
                 BattleOrchestratorMode.PLAYER_SQUADDIE_SELECTOR
-            this.playerHudController.reset(gameEngineState)
+            this.playerHudController?.reset(gameEngineState)
         }
 
-        if (this.mode in this.battleOrchestratorModeComponentConstants) {
+        if (
+            this.mode != undefined &&
+            this.mode in this.battleOrchestratorModeComponentConstants
+        ) {
             this.updateComponent(
                 gameEngineState,
                 this.battleOrchestratorModeComponentConstants[
@@ -310,7 +315,7 @@ export class BattleOrchestrator implements GameEngineComponent {
                 gameEngineState.battleOrchestratorState.battleState
                     .missionStatistics
             )
-        } else if (this.uiControlSettings.pauseTimer === false) {
+        } else if (this.uiControlSettings?.pauseTimer === false) {
             if (this.previousUpdateTimestamp != undefined) {
                 MissionStatisticsService.addTimeElapsed(
                     gameEngineState.battleOrchestratorState.battleState
@@ -328,17 +333,19 @@ export class BattleOrchestrator implements GameEngineComponent {
         gameEngineState: GameEngineState,
         graphicsContext: GraphicsBuffer
     ) {
-        if (this.uiControlSettings.displayBattleMap !== true) return
-        this.mapDisplay.update({
+        if (this.uiControlSettings?.displayBattleMap !== true) return
+        this.mapDisplay?.update({
             gameEngineState,
             graphicsContext,
             resourceHandler: gameEngineState.resourceHandler,
         })
+        if (gameEngineState.resourceHandler == undefined) return
 
         if (
-            this.uiControlSettings.displayPlayerHUD === true &&
+            this.uiControlSettings?.displayPlayerHUD === true &&
             gameEngineState.battleOrchestratorState.battleHUDState
-                .squaddieSelectorPanel
+                .squaddieSelectorPanel &&
+            gameEngineState.repository != undefined
         ) {
             SquaddieSelectorPanelService.draw({
                 squaddieSelectorPanel:
@@ -351,7 +358,7 @@ export class BattleOrchestrator implements GameEngineComponent {
         }
 
         if (
-            this.uiControlSettings.displayPlayerHUD === true &&
+            this.uiControlSettings.displayPlayerHUD &&
             gameEngineState.battleOrchestratorState.battleHUDState
                 .summaryHUDState
         ) {
@@ -373,10 +380,11 @@ export class BattleOrchestrator implements GameEngineComponent {
 
     public updateComponent(
         gameEngineState: GameEngineState,
-        currentComponent: BattleOrchestratorComponent,
+        currentComponent: BattleOrchestratorComponent | undefined,
         graphicsContext: GraphicsBuffer,
-        defaultNextMode: TBattleOrchestratorMode
+        defaultNextMode: TBattleOrchestratorMode | undefined
     ) {
+        if (currentComponent == undefined) return
         currentComponent.update({
             gameEngineState,
             graphicsContext,
@@ -384,7 +392,7 @@ export class BattleOrchestrator implements GameEngineComponent {
         })
         const newUIControlSettingsChanges =
             currentComponent.uiControlSettings(gameEngineState)
-        this.uiControlSettings.update(newUIControlSettingsChanges)
+        this.uiControlSettings?.update(newUIControlSettingsChanges)
 
         if (currentComponent.hasCompleted(gameEngineState)) {
             if (
@@ -421,8 +429,8 @@ export class BattleOrchestrator implements GameEngineComponent {
             mouseEvent
         )
 
-        if (this.uiControlSettings.letMouseScrollCamera === true) {
-            this.mapDisplay.mouseEventHappened(gameEngineState, mouseEvent)
+        if (this.uiControlSettings?.letMouseScrollCamera === true) {
+            this.mapDisplay?.mouseEventHappened(gameEngineState, mouseEvent)
         }
 
         if (gameEngineState.battleOrchestratorState.battleHUD.debugMode) {
@@ -448,8 +456,8 @@ export class BattleOrchestrator implements GameEngineComponent {
             mouseEvent
         )
 
-        if (this.uiControlSettings.letMouseScrollCamera === true) {
-            this.mapDisplay.mouseEventHappened(gameEngineState, mouseEvent)
+        if (this.uiControlSettings?.letMouseScrollCamera === true) {
+            this.mapDisplay?.mouseEventHappened(gameEngineState, mouseEvent)
         }
         if (gameEngineState.battleOrchestratorState.battleHUD.debugMode) {
             DebugModeMenuService.mousePressed({
@@ -474,15 +482,15 @@ export class BattleOrchestrator implements GameEngineComponent {
             mouseEvent
         )
 
-        if (this.uiControlSettings.letMouseScrollCamera === true) {
-            this.mapDisplay.mouseEventHappened(gameEngineState, mouseEvent)
+        if (this.uiControlSettings?.letMouseScrollCamera === true) {
+            this.mapDisplay?.mouseEventHappened(gameEngineState, mouseEvent)
         }
-        if (this.uiControlSettings.displayPlayerHUD === true) {
+        if (this.uiControlSettings?.displayPlayerHUD === true) {
             Object.values(
                 gameEngineState.battleOrchestratorState.battleHUDState
                     .summaryHUDState?.squaddieNameTiles ?? []
             )
-                .filter((x) => x)
+                .filter((x) => x != undefined)
                 .forEach((squaddieNameTile) => {
                     SquaddieNameAndPortraitTileService.mouseMoved({
                         tile: squaddieNameTile,
@@ -491,7 +499,7 @@ export class BattleOrchestrator implements GameEngineComponent {
                 })
             if (
                 gameEngineState.battleOrchestratorState.battleHUDState
-                    .summaryHUDState.actionSelectedTile != undefined
+                    .summaryHUDState?.actionSelectedTile != undefined
             ) {
                 ActionSelectedTileService.mouseMoved({
                     tile: gameEngineState.battleOrchestratorState.battleHUDState
@@ -520,8 +528,8 @@ export class BattleOrchestrator implements GameEngineComponent {
             mouseEvent
         )
 
-        if (this.uiControlSettings.letMouseScrollCamera === true) {
-            this.mapDisplay.mouseEventHappened(gameEngineState, mouseEvent)
+        if (this.uiControlSettings?.letMouseScrollCamera === true) {
+            this.mapDisplay?.mouseEventHappened(gameEngineState, mouseEvent)
         }
     }
 
@@ -536,8 +544,8 @@ export class BattleOrchestrator implements GameEngineComponent {
             mouseEvent
         )
 
-        if (this.uiControlSettings.letMouseScrollCamera === true) {
-            this.mapDisplay.mouseEventHappened(gameEngineState, mouseEvent)
+        if (this.uiControlSettings?.letMouseScrollCamera === true) {
+            this.mapDisplay?.mouseEventHappened(gameEngineState, mouseEvent)
         }
     }
 
@@ -548,8 +556,8 @@ export class BattleOrchestrator implements GameEngineComponent {
         }
         this.getCurrentComponent()?.keyEventHappened(gameEngineState, keyEvent)
 
-        if (this.uiControlSettings.displayBattleMap === true) {
-            this.mapDisplay.keyEventHappened(gameEngineState, keyEvent)
+        if (this.uiControlSettings?.displayBattleMap === true) {
+            this.mapDisplay?.keyEventHappened(gameEngineState, keyEvent)
         }
     }
 
@@ -576,8 +584,8 @@ export class BattleOrchestrator implements GameEngineComponent {
             this.squaddieUsesActionOnSquaddie,
         ]
             .filter(
-                (battleOrchestratorComponent: BattleOrchestratorComponent) =>
-                    battleOrchestratorComponent
+                (battleOrchestratorComponent) =>
+                    battleOrchestratorComponent != undefined
             )
             .forEach(
                 (battleOrchestratorComponent: BattleOrchestratorComponent) => {
@@ -595,7 +603,7 @@ export class BattleOrchestrator implements GameEngineComponent {
     private setNextComponentMode(
         gameEngineState: GameEngineState,
         currentComponent: BattleOrchestratorComponent,
-        defaultNextMode: TBattleOrchestratorMode
+        defaultNextMode: TBattleOrchestratorMode | undefined
     ) {
         if (
             !CutsceneQueueService.isEmpty(
@@ -613,11 +621,13 @@ export class BattleOrchestrator implements GameEngineComponent {
             return
         }
 
-        const orchestrationChanges: BattleOrchestratorChanges =
+        const orchestrationChanges =
             currentComponent.recommendStateChanges(gameEngineState)
         this.checkOnMissionCompletion(orchestrationChanges, gameEngineState)
 
-        const checkForBattleEvents = new Set<TBattleOrchestratorMode>([
+        const checkForBattleEvents = new Set<
+            TBattleOrchestratorMode | undefined
+        >([
             BattleOrchestratorMode.INITIALIZED,
             BattleOrchestratorMode.PHASE_CONTROLLER,
             BattleOrchestratorMode.SQUADDIE_MOVER,
@@ -625,14 +635,14 @@ export class BattleOrchestrator implements GameEngineComponent {
             BattleOrchestratorMode.SQUADDIE_USES_ACTION_ON_SQUADDIE,
         ]).has(this.mode)
 
-        this.mode = orchestrationChanges.nextMode || defaultNextMode
+        this.mode = orchestrationChanges?.nextMode || defaultNextMode
 
         if (!checkForBattleEvents) return
 
         const battleEventsToActivate =
             this.getBattleEventsToActivate(gameEngineState)
 
-        this.battleEventMessageListener.applyBattleEventEffects(
+        this.battleEventMessageListener?.applyBattleEventEffects(
             battleEventsToActivate
         )
 
@@ -655,9 +665,10 @@ export class BattleOrchestrator implements GameEngineComponent {
     }
 
     private checkOnMissionCompletion(
-        orchestrationChanges: BattleOrchestratorChanges,
+        orchestrationChanges: BattleOrchestratorChanges | undefined,
         gameEngineState: GameEngineState
     ) {
+        if (orchestrationChanges == undefined) return
         if (orchestrationChanges.checkMissionObjectives === true) {
             let completionStatus: TBattleCompletionStatus =
                 this.checkMissionCompleteStatus(gameEngineState)
@@ -671,28 +682,30 @@ export class BattleOrchestrator implements GameEngineComponent {
     private getBattleEventsToActivate(
         gameEngineState: GameEngineState
     ): BattleEvent[] {
-        return this.battleEventMessageListener.filterQualifyingBattleEvents({
-            allBattleEvents:
-                gameEngineState.battleOrchestratorState.battleState
-                    .battleEvents,
-            objectRepository: gameEngineState.repository,
-            battleCompletionStatus:
-                gameEngineState.battleOrchestratorState.battleState
-                    .battleCompletionStatus,
-            battleActionRecorder:
-                gameEngineState.battleOrchestratorState.battleState
-                    .battleActionRecorder,
-            turn: {
-                turnCount:
+        return (
+            this.battleEventMessageListener?.filterQualifyingBattleEvents({
+                allBattleEvents:
                     gameEngineState.battleOrchestratorState.battleState
-                        .battlePhaseState.turnCount,
-                ignoreTurn0:
-                    gameEngineState.fileState.loadSaveState
-                        .applicationStartedLoad === true &&
+                        .battleEvents,
+                objectRepository: gameEngineState.repository,
+                battleCompletionStatus:
                     gameEngineState.battleOrchestratorState.battleState
-                        .battlePhaseState.turnCount === 0,
-            },
-        })
+                        .battleCompletionStatus,
+                battleActionRecorder:
+                    gameEngineState.battleOrchestratorState.battleState
+                        .battleActionRecorder,
+                turn: {
+                    turnCount:
+                        gameEngineState.battleOrchestratorState.battleState
+                            .battlePhaseState.turnCount,
+                    ignoreTurn0:
+                        gameEngineState.fileState.loadSaveState
+                            .applicationStartedLoad &&
+                        gameEngineState.battleOrchestratorState.battleState
+                            .battlePhaseState.turnCount === 0,
+                },
+            }) ?? []
+        )
     }
 
     private prepareToPlayNextTriggeredCutscene({
@@ -711,7 +724,7 @@ export class BattleOrchestrator implements GameEngineComponent {
             throw new Error("No cutsceneId was found.")
         }
 
-        this.cutscenePlayer.startCutscene(cutsceneIdToPlay, gameEngineState)
+        this.cutscenePlayer?.startCutscene(cutsceneIdToPlay, gameEngineState)
 
         if (!battleEvent) {
             battleEvent =
@@ -767,7 +780,7 @@ export class BattleOrchestrator implements GameEngineComponent {
             return BattleCompletionStatus.VICTORY
         }
 
-        return undefined
+        return BattleCompletionStatus.IN_PROGRESS
     }
 
     private resetInternalState() {
@@ -791,9 +804,8 @@ export class BattleOrchestrator implements GameEngineComponent {
         graphicsContext: GraphicsBuffer
     ) {
         if (
-            !isValidValue(
-                gameEngineState.battleOrchestratorState.battleHUD.debugMode
-            )
+            gameEngineState.battleOrchestratorState.battleHUD.debugMode ==
+            undefined
         )
             return
         DebugModeMenuService.draw({
@@ -810,9 +822,9 @@ export class BattleOrchestrator implements GameEngineComponent {
         challengeModifierSetting: ChallengeModifierSetting
         cutsceneQueue: CutsceneIdQueue
     }) {
-        this.battleEventMessageListener.setChallengeModifierSetting(
+        this.battleEventMessageListener?.setChallengeModifierSetting(
             challengeModifierSetting
         )
-        this.battleEventMessageListener.setCutsceneQueue(cutsceneQueue)
+        this.battleEventMessageListener?.setCutsceneQueue(cutsceneQueue)
     }
 }

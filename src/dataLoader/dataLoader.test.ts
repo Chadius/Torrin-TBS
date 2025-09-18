@@ -15,6 +15,7 @@ const mockFetchError = (error: string) => {
 
 const mockFetchCleanUp = () => {
     vi.clearAllMocks()
+    // @ts-ignore It's a mock used during testing to imitate the loading dialog
     delete global.fetch
 }
 

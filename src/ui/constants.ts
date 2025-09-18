@@ -1,3 +1,5 @@
+import { EnumLike } from "../utils/enum"
+
 export const WINDOW_SPACING = {
     SPACING1: 8,
     SPACING2: 16,

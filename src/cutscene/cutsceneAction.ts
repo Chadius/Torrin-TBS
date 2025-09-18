@@ -1,3 +1,5 @@
+import { EnumLike } from "../utils/enum"
+
 export const CutsceneActionPlayerType = {
     SPLASH_SCREEN: "SPLASH_SCREEN",
     DIALOGUE: "DIALOGUE",

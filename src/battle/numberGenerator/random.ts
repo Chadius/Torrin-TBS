@@ -5,7 +5,7 @@ import {
 } from "./strategy"
 
 export class RandomNumberGenerator implements NumberGeneratorStrategy {
-    next(): number {
+    next(): number | undefined {
         const rngRange = NUMBER_GENERATOR_MAXIMUM - NUMBER_GENERATOR_MINIMUM
         return Math.floor(Math.random() * rngRange) + NUMBER_GENERATOR_MINIMUM
     }

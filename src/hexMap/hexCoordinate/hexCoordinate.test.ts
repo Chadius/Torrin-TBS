@@ -15,7 +15,7 @@ describe("HexCoordinates", () => {
             q: -9001,
             r: 9001,
         })
-        expect(HexCoordinateService.fromString("Invalid")).toBeUndefined()
+        expect(() => HexCoordinateService.fromString("Invalid")).toThrow()
     })
 
     it("knows if a coordinate is included in a list", () => {

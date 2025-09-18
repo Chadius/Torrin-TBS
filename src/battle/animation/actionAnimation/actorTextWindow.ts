@@ -20,26 +20,26 @@ export const ACTOR_TEXT_WINDOW = {
 }
 
 export class ActorTextWindow {
-    results: ActionEffectChange
-    actorTemplate: SquaddieTemplate
-    actorBattle: BattleSquaddie
-    actionTemplateName: string
+    results: ActionEffectChange | undefined
+    actorTemplate: SquaddieTemplate | undefined
+    actorBattle: BattleSquaddie | undefined
+    actionTemplateName: string | undefined
 
-    private _backgroundHue: number
+    private _backgroundHue: number | undefined
 
-    get backgroundHue(): number {
+    get backgroundHue(): number | undefined {
         return this._backgroundHue
     }
 
-    private _actorUsesActionDescriptionText: string
+    private _actorUsesActionDescriptionText: string | undefined
 
-    get actorUsesActionDescriptionText(): string {
+    get actorUsesActionDescriptionText(): string | undefined {
         return this._actorUsesActionDescriptionText
     }
 
-    private _actorLabel: Label
+    private _actorLabel: Label | undefined
 
-    get actorLabel(): Label {
+    get actorLabel(): Label | undefined {
         return this._actorLabel
     }
 
@@ -80,16 +80,22 @@ export class ActorTextWindow {
         this.updateActorLabel({})
     }
 
-    draw(graphicsContext: GraphicsBuffer, timer: ActionTimer) {
+    draw(graphicsContext: GraphicsBuffer, timer: ActionTimer | undefined) {
+        if (timer == undefined) return
         if (timer.currentPhase === ActionAnimationPhase.INITIALIZED) {
             return
         }
 
         this.updateActorLabel({ timer })
-        LabelService.draw(this.actorLabel, graphicsContext)
+        if (this.actorLabel != undefined)
+            LabelService.draw(this.actorLabel, graphicsContext)
     }
 
     private updateActorLabel({ timer }: { timer?: ActionTimer }) {
+        if (this.actionTemplateName == undefined) return
+        if (this.actorTemplate == undefined) return
+        if (this.results == undefined) return
+
         const actorUsesActionDescriptionText =
             ActionResultTextService.calculateActorUsesActionDescriptionText({
                 timer,
@@ -106,7 +112,7 @@ export class ActorTextWindow {
         }
         this._actorUsesActionDescriptionText = actorUsesActionDescriptionText
 
-        const labelBackgroundColor = [this.backgroundHue, 10, 80]
+        const labelBackgroundColor = [this.backgroundHue || 0, 10, 80]
 
         this._actorLabel = LabelService.new({
             textBoxMargin: WINDOW_SPACING.SPACING1,
@@ -123,7 +129,7 @@ export class ActorTextWindow {
                     0,
                 ],
             }),
-            text: this.actorUsesActionDescriptionText,
+            text: this._actorUsesActionDescriptionText,
             fontSize: WINDOW_SPACING.SPACING2,
             fillColor: labelBackgroundColor,
             fontColor: ActionAnimationFontColor,

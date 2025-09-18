@@ -95,7 +95,7 @@ export class CreateNextChancesOfDegreesOfSuccessTextBoxAction
         top,
     }: {
         uiObjects: ActionPreviewTileUIObjects
-        forecastedChange: BattleActionSquaddieChange
+        forecastedChange: BattleActionSquaddieChange | undefined
         degreeOfSuccessToDraw: {
             degreeOfSuccess: TDegreeOfSuccess
             suffix: string
@@ -104,6 +104,7 @@ export class CreateNextChancesOfDegreesOfSuccessTextBoxAction
         }
         top: number
     }) {
+        if (forecastedChange == undefined) return
         const chancesOfDegreesOfSuccessLayoutConstants =
             this.dataBlob.getLayout().chancesOfDegreesOfSuccess
         const degreesOfSuccessLayoutConstants =
@@ -150,7 +151,7 @@ export class CreateNextChancesOfDegreesOfSuccessTextBoxAction
         top,
     }: {
         uiObjects: ActionPreviewTileUIObjects
-        forecastedChange: BattleActionSquaddieChange
+        forecastedChange: BattleActionSquaddieChange | undefined
         degreeOfSuccessToDraw: {
             degreeOfSuccess: TDegreeOfSuccess
             suffix: string
@@ -159,9 +160,11 @@ export class CreateNextChancesOfDegreesOfSuccessTextBoxAction
         }
         top: number
     }) {
+        if (forecastedChange == undefined) return
         uiObjects.chancesOfDegreesOfSuccessRectangles ||= []
         if (forecastedChange.actorDegreeOfSuccess == DegreeOfSuccess.NONE)
             return
+        if (forecastedChange.chanceOfDegreeOfSuccess == undefined) return
         if (forecastedChange.chanceOfDegreeOfSuccess == 0) return
 
         const boundingBox =

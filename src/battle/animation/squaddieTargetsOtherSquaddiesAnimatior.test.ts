@@ -173,13 +173,13 @@ describe("SquaddieTargetsOtherSquaddiesAnimation", () => {
             mockedP5GraphicsContext: mockedP5GraphicsContext,
         })
         expect(animator.actorSprite).not.toBeUndefined()
-        expect(animator.actorSprite.battleSquaddieId).toBe(
+        expect(animator.actorSprite?.battleSquaddieId).toBe(
             knightBattleSquaddieId
         )
 
         expect(animator.targetSprites).not.toBeUndefined()
         expect(animator.targetSprites).toHaveLength(1)
-        expect(animator.targetSprites[0].battleSquaddieId).toBe(thiefDynamicId)
+        expect(animator.targetSprites[0]!.battleSquaddieId).toBe(thiefDynamicId)
     })
 
     it("creates dice roll animation", () => {
@@ -190,11 +190,21 @@ describe("SquaddieTargetsOtherSquaddiesAnimation", () => {
             animator: animator,
             mockedP5GraphicsContext: mockedP5GraphicsContext,
         })
-        expect(animator.diceRollAnimation.degreeOfSuccess).toEqual(
-            knightHitsThiefWithLongswordInstructionBattleAction.effect
-                .squaddie[0].actorDegreeOfSuccess
-        )
-        expect(animator.diceRollAnimation.dice).toHaveLength(2)
+        expect(
+            knightHitsThiefWithLongswordInstructionBattleAction?.effect
+                ?.squaddie
+        ).not.toBeUndefined()
+        if (
+            knightHitsThiefWithLongswordInstructionBattleAction?.effect
+                ?.squaddie != undefined
+        ) {
+            expect(animator.diceRollAnimation?.degreeOfSuccess).toEqual(
+                knightHitsThiefWithLongswordInstructionBattleAction!.effect!
+                    .squaddie[0]!.actorDegreeOfSuccess
+            )
+        }
+
+        expect(animator.diceRollAnimation?.dice).toHaveLength(2)
     })
 
     it("creates modifier display animation", () => {
@@ -250,16 +260,19 @@ describe("SquaddieTargetsOtherSquaddiesAnimation", () => {
         })
 
         expect(
-            animator.modifierDisplayColumns[ModifierDisplayColumnPosition.LEFT]
-                .labels
+            animator.modifierDisplayColumns![
+                ModifierDisplayColumnPosition.LEFT
+            ]!.labels
         ).toHaveLength(2)
         expect(
-            animator.modifierDisplayColumns[ModifierDisplayColumnPosition.LEFT]
-                .labels[0].textBox.text
+            animator.modifierDisplayColumns![
+                ModifierDisplayColumnPosition.LEFT
+            ]!.labels[0]!.textBox!.text
         ).includes(AttributeTypeService.readableName(Attribute.MOVEMENT))
         expect(
-            animator.modifierDisplayColumns[ModifierDisplayColumnPosition.LEFT]
-                .labels[1].textBox.text
+            animator.modifierDisplayColumns![
+                ModifierDisplayColumnPosition.LEFT
+            ]!.labels[1]!.textBox!.text
         ).includes(
             RollModifierTypeService.readableName({
                 type: RollModifierEnum.MULTIPLE_ATTACK_PENALTY,
@@ -268,12 +281,14 @@ describe("SquaddieTargetsOtherSquaddiesAnimation", () => {
         )
 
         expect(
-            animator.modifierDisplayColumns[ModifierDisplayColumnPosition.RIGHT]
-                .labels
+            animator.modifierDisplayColumns![
+                ModifierDisplayColumnPosition.RIGHT
+            ]!.labels
         ).toHaveLength(1)
         expect(
-            animator.modifierDisplayColumns[ModifierDisplayColumnPosition.RIGHT]
-                .labels[0].textBox.text
+            animator.modifierDisplayColumns![
+                ModifierDisplayColumnPosition.RIGHT
+            ]!.labels[0]!.textBox!.text
         ).includes(AttributeTypeService.readableName(Attribute.ARMOR))
     })
 
@@ -320,8 +335,9 @@ describe("SquaddieTargetsOtherSquaddiesAnimation", () => {
         ]
 
         it.each(tests)(`$name `, ({ action }) => {
+            expect(animator.actionAnimationTimer).not.toBeUndefined()
             mockActionTimerPhase(
-                animator.actionAnimationTimer,
+                animator.actionAnimationTimer!,
                 ActionAnimationPhase.INITIALIZED
             )
             const gameEngineState = animateKnightHittingWithLongsword({
@@ -332,15 +348,16 @@ describe("SquaddieTargetsOtherSquaddiesAnimation", () => {
                 animator: animator,
                 mockedP5GraphicsContext: mockedP5GraphicsContext,
             })
+            expect(animator.actionAnimationTimer).not.toBeUndefined()
             mockActionTimerPhase(
-                animator.actionAnimationTimer,
+                animator.actionAnimationTimer!,
                 ActionAnimationPhase.DURING_ACTION
             )
 
             animator.update({
                 gameEngineState,
                 graphicsContext: mockedP5GraphicsContext,
-                resourceHandler: gameEngineState.resourceHandler,
+                resourceHandler: gameEngineState.resourceHandler!,
             })
             expect(animator.hasCompleted(gameEngineState)).toBeFalsy()
 
@@ -348,15 +365,16 @@ describe("SquaddieTargetsOtherSquaddiesAnimation", () => {
             animator.update({
                 gameEngineState,
                 graphicsContext: mockedP5GraphicsContext,
-                resourceHandler: gameEngineState.resourceHandler,
+                resourceHandler: gameEngineState.resourceHandler!,
             })
             expect(animator.hasCompleted(gameEngineState)).toBeTruthy()
         })
     })
 
     it("is complete at the end of the animation time", () => {
+        expect(animator.actionAnimationTimer).not.toBeUndefined()
         mockActionTimerPhase(
-            animator.actionAnimationTimer,
+            animator.actionAnimationTimer!,
             ActionAnimationPhase.INITIALIZED
         )
         const gameEngineState = animateKnightHittingWithLongsword({
@@ -368,14 +386,15 @@ describe("SquaddieTargetsOtherSquaddiesAnimation", () => {
         })
         expect(animator.hasCompleted(gameEngineState)).toBeFalsy()
 
+        expect(animator.actionAnimationTimer).not.toBeUndefined()
         mockActionTimerPhase(
-            animator.actionAnimationTimer,
+            animator.actionAnimationTimer!,
             ActionAnimationPhase.FINISHED_SHOWING_RESULTS
         )
         animator.update({
             gameEngineState,
             graphicsContext: mockedP5GraphicsContext,
-            resourceHandler: gameEngineState.resourceHandler,
+            resourceHandler: gameEngineState.resourceHandler!,
         })
         expect(animator.hasCompleted(gameEngineState)).toBeTruthy()
     })
@@ -400,13 +419,12 @@ describe("SquaddieTargetsOtherSquaddiesAnimation", () => {
 
         animator.reset(gameEngineState)
 
+        const battleAction = BattleActionRecorderService.peekAtAnimationQueue(
+            gameEngineState.battleOrchestratorState.battleState
+                .battleActionRecorder
+        )
         expect(
-            BattleActionService.isAnimationComplete(
-                BattleActionRecorderService.peekAtAnimationQueue(
-                    gameEngineState.battleOrchestratorState.battleState
-                        .battleActionRecorder
-                )
-            )
+            BattleActionService.isAnimationComplete(battleAction!)
         ).toBeTruthy()
     })
 })
@@ -444,7 +462,7 @@ const animateKnightHittingWithLongsword = ({
     animator.update({
         gameEngineState,
         graphicsContext: mockedP5GraphicsContext,
-        resourceHandler: gameEngineState.resourceHandler,
+        resourceHandler: gameEngineState.resourceHandler!,
     })
     return gameEngineState
 }

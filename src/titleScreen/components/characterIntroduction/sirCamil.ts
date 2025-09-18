@@ -55,8 +55,10 @@ export class TitleScreenCreateSirCamilCharacterIntroductionIcon
         layout: TitleScreenLayout,
         uiObjects: TitleScreenUIObjects
     ): RectArea {
-        const nahlaIconArea = uiObjects.nahla.icon.drawArea
-
+        const nahlaIconArea = uiObjects.nahla.icon?.drawArea
+        if (nahlaIconArea == undefined) {
+            throw new Error("NahlaIconArea not found")
+        }
         return RectAreaService.new({
             startColumn: layout.sirCamil.iconArea.startColumn,
             width: layout.sirCamil.iconArea.width,
@@ -99,8 +101,10 @@ export class TitleScreenCreateSirCamilCharacterIntroductionDescriptionText
         const layout: TitleScreenLayout = this.dataBlob.getLayout()
         const uiObjects: TitleScreenUIObjects = this.dataBlob.getUIObjects()
 
-        const imageDrawArea = uiObjects.sirCamil.icon.drawArea
-
+        const imageDrawArea = uiObjects.sirCamil.icon?.drawArea
+        if (imageDrawArea == undefined) {
+            throw new Error("SirCamil icon area not found")
+        }
         return TextBoxService.new({
             area: RectAreaService.new({
                 left:

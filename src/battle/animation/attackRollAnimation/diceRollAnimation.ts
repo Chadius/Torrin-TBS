@@ -46,12 +46,12 @@ export interface DiceRollAnimation {
     dice: IndividualDieAnimation[]
     drawArea: RectArea
     notifications: {
-        extremeRoll: Label
-        degreeOfSuccess: Label
+        extremeRoll: Label | undefined
+        degreeOfSuccess: Label | undefined
     }
     degreeOfSuccess: TDegreeOfSuccess
 
-    animationStartTime: number
+    animationStartTime: number | undefined
 }
 
 export const DiceRollAnimationService = {
@@ -103,8 +103,9 @@ export const DiceRollAnimationService = {
         diceRollAnimation,
     }: {
         graphicsBuffer: GraphicsBuffer
-        diceRollAnimation: DiceRollAnimation
+        diceRollAnimation: DiceRollAnimation | undefined
     }) => {
+        if (diceRollAnimation == undefined) return
         if (diceRollAnimation.animationStartTime == undefined) {
             diceRollAnimation.animationStartTime = Date.now()
         }
@@ -219,8 +220,8 @@ const createDegreeOfSuccessNotification = ({
 }: {
     degreeOfSuccess: TDegreeOfSuccess
     drawArea: RectArea
-    extremeRollNotificationLabel: Label
-}) => {
+    extremeRollNotificationLabel: Label | undefined
+}): Label | undefined => {
     if (degreeOfSuccess == DegreeOfSuccess.NONE) return
 
     const readableDegreeOfSuccess = {

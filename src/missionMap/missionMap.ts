@@ -69,7 +69,7 @@ export const MissionMapService = {
             )
         }
 
-        const battleSquaddieWithId: MissionMapSquaddieCoordinate =
+        const battleSquaddieWithId: MissionMapSquaddieCoordinate | undefined =
             missionMap.squaddieInfoByBattleSquaddieId.get(battleSquaddieId)
         if (battleSquaddieWithId) {
             return new Error(`${battleSquaddieId} already added`)
@@ -118,7 +118,7 @@ export const MissionMapService = {
                 battleSquaddieId: undefined,
             }
         }
-        const foundDatum: MissionMapSquaddieCoordinate =
+        const foundDatum: MissionMapSquaddieCoordinate | undefined =
             missionMap.squaddieInfoByBattleSquaddieId.get(battleSquaddieId)
         return foundDatum
             ? MissionMapSquaddieCoordinateService.clone(foundDatum)
@@ -136,9 +136,9 @@ export const MissionMapService = {
     }: {
         missionMap: MissionMap
         battleSquaddieId: string
-        coordinate: HexCoordinate
+        coordinate: HexCoordinate | undefined
     }): Error | undefined => {
-        const foundDatum: MissionMapSquaddieCoordinate =
+        const foundDatum: MissionMapSquaddieCoordinate | undefined =
             missionMap.squaddieInfoByBattleSquaddieId.get(battleSquaddieId)
         if (!foundDatum) {
             return new Error(
@@ -194,7 +194,7 @@ export const MissionMapService = {
     },
     getBattleSquaddieAtCoordinate: (
         missionMap: MissionMap,
-        coordinate: HexCoordinate
+        coordinate: HexCoordinate | undefined
     ): MissionMapSquaddieCoordinate => {
         return getSquaddieAtCoordinate(missionMap, coordinate)
     },
@@ -229,10 +229,14 @@ export const MissionMapService = {
     ) => {
         if (!missionMap) return
 
-        const foundDatum: MissionMapSquaddieCoordinate =
+        const foundDatum: MissionMapSquaddieCoordinate | undefined =
             missionMap.squaddieInfoByBattleSquaddieId.get(battleSquaddieId)
 
-        if (foundDatum && foundDatum.currentMapCoordinate) {
+        if (
+            foundDatum &&
+            foundDatum.originMapCoordinate &&
+            foundDatum.currentMapCoordinate
+        ) {
             foundDatum.originMapCoordinate.q = foundDatum.currentMapCoordinate.q
             foundDatum.originMapCoordinate.r = foundDatum.currentMapCoordinate.r
         }
@@ -241,7 +245,7 @@ export const MissionMapService = {
 
 const getSquaddieAtCoordinate = (
     missionMap: MissionMap,
-    coordinate: HexCoordinate
+    coordinate: HexCoordinate | undefined
 ): MissionMapSquaddieCoordinate => {
     const noSquaddieFound: MissionMapSquaddieCoordinate = {
         battleSquaddieId: undefined,

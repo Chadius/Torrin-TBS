@@ -7,10 +7,10 @@ describe("Mouse Config", () => {
     let mouseButtonCancelMouseButtonName: string
     beforeEach(() => {
         mouseButtonAcceptMouseButtonName =
-            process.env.MOUSE_BUTTON_BINDINGS_ACCEPT
-        mouseButtonInfoMouseButtonName = process.env.MOUSE_BUTTON_BINDINGS_INFO
+            process.env.MOUSE_BUTTON_BINDINGS_ACCEPT!
+        mouseButtonInfoMouseButtonName = process.env.MOUSE_BUTTON_BINDINGS_INFO!
         mouseButtonCancelMouseButtonName =
-            process.env.MOUSE_BUTTON_BINDINGS_CANCEL
+            process.env.MOUSE_BUTTON_BINDINGS_CANCEL!
     })
 
     it("knows when the mouse button was clicked and what functional button to assign it to", () => {

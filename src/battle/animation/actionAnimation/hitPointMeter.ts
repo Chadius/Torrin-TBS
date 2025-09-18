@@ -11,14 +11,14 @@ const HIT_POINT_TEXT_WIDTH = 80
 const HIT_POINT_TEXT_SIZE = 18
 
 export class HitPointMeter {
-    private currentHitPointsTextBox: TextBox
-    private maxHitPointsTextBox: TextBox
-    private currentHitPointsRectangle: Rectangle
-    private maxHitPointsRectangle: Rectangle
-    private changedHitPointsRectangle: Rectangle
-    private changedHitPointsRectangleStartWidth: number
-    private changedHitPointsRectangleEndWidth: number
-    private changedHitPointsTimestamp: number
+    private currentHitPointsTextBox: TextBox | undefined
+    private maxHitPointsTextBox: TextBox | undefined
+    private currentHitPointsRectangle: Rectangle | undefined
+    private maxHitPointsRectangle: Rectangle | undefined
+    private changedHitPointsRectangle: Rectangle | undefined
+    private changedHitPointsRectangleStartWidth: number | undefined
+    private changedHitPointsRectangleEndWidth: number | undefined
+    private changedHitPointsTimestamp: number | undefined
 
     constructor({
         maxHitPoints,
@@ -96,6 +96,11 @@ export class HitPointMeter {
     }
 
     private drawHitPointRectangle(graphicsContext: GraphicsBuffer) {
+        if (
+            this.currentHitPointsRectangle == undefined ||
+            this.maxHitPointsRectangle == undefined
+        )
+            return
         RectangleService.draw(this.maxHitPointsRectangle, graphicsContext)
         RectangleService.draw(this.currentHitPointsRectangle, graphicsContext)
         this.updateChangedHitPointsRectangle()
@@ -108,6 +113,11 @@ export class HitPointMeter {
     }
 
     private drawHitPointsText(graphicsContext: GraphicsBuffer) {
+        if (
+            this.currentHitPointsTextBox == undefined ||
+            this.maxHitPointsTextBox == undefined
+        )
+            return
         TextBoxService.draw(this.currentHitPointsTextBox, graphicsContext)
         TextBoxService.draw(this.maxHitPointsTextBox, graphicsContext)
     }
@@ -187,6 +197,11 @@ export class HitPointMeter {
                 hitPointChange * HIT_POINT_METER_HP_WIDTH
         }
 
+        if (
+            this.currentHitPointsRectangle == undefined ||
+            this.changedHitPointsRectangleStartWidth == undefined
+        )
+            return
         this.changedHitPointsRectangle = RectangleService.new({
             area: RectAreaService.new({
                 left: RectAreaService.right(
@@ -206,6 +221,13 @@ export class HitPointMeter {
             return
         }
 
+        if (
+            this.currentHitPointsRectangle == undefined ||
+            this.changedHitPointsRectangleStartWidth == undefined ||
+            this.changedHitPointsRectangleEndWidth == undefined ||
+            this.changedHitPointsTimestamp == undefined
+        )
+            return
         const timeElapsed = Date.now() - this.changedHitPointsTimestamp
         if (timeElapsed > ACTION_ANIMATION_TARGET_REACTS_TO_ACTION_TIME) {
             this.changedHitPointsRectangle = RectangleService.new({

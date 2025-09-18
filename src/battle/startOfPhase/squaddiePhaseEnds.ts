@@ -14,6 +14,7 @@ export const SquaddiePhaseEndsService = {
             message.gameEngineState,
             message.phase,
             (battleSquaddie: BattleSquaddie) => {
+                if (message.gameEngineState.repository == undefined) return
                 DrawSquaddieIconOnMapUtilities.unTintSquaddieMapIcon(
                     message.gameEngineState.repository,
                     battleSquaddie

@@ -52,15 +52,7 @@ import { SquaddieRepositoryService } from "../../utils/test/squaddie"
 import { CutsceneQueueService } from "../cutscene/cutsceneIdQueue"
 import { BattleActionRecorderService } from "../history/battleAction/battleActionRecorder"
 import { BattleActionService } from "../history/battleAction/battleAction"
-import {
-    afterEach,
-    beforeEach,
-    describe,
-    expect,
-    it,
-    MockInstance,
-    vi,
-} from "vitest"
+import { beforeEach, describe, expect, it, MockInstance, vi } from "vitest"
 import { MessageBoardMessageType } from "../../message/messageBoardMessage"
 import { PlayerDataMessageListener } from "../../dataLoader/playerData/playerDataMessageListener"
 import { SummaryHUDStateService } from "../hud/summary/summaryHUD"
@@ -249,7 +241,7 @@ describe("Battle Orchestrator", () => {
                     }),
                     missionCompletionStatus: {
                         default: {
-                            isComplete: undefined,
+                            isComplete: false,
                             conditions: {},
                         },
                     },
@@ -415,7 +407,7 @@ describe("Battle Orchestrator", () => {
         expect(orchestrator.getCurrentMode()).toBe(
             BattleOrchestratorMode.CUTSCENE_PLAYER
         )
-        expect(orchestrator.cutscenePlayer.currentCutsceneId).toBe("starting")
+        expect(orchestrator.cutscenePlayer!.currentCutsceneId).toBe("starting")
     })
 
     it("recommends cutscene player until the cutscene player queue is empty", () => {
@@ -448,12 +440,13 @@ describe("Battle Orchestrator", () => {
             repository: ObjectRepositoryService.new(),
         })
 
-        orchestrator.battleEventMessageListener.setCutsceneQueue(
+        orchestrator.battleEventMessageListener!.setCutsceneQueue(
             stateWithCutscene.battleOrchestratorState.cutsceneQueue
         )
+        expect(orchestrator.cutscenePlayer).not.toBeUndefined()
 
         const cutsceneSpy: MockInstance = vi.spyOn(
-            orchestrator.cutscenePlayer,
+            orchestrator.cutscenePlayer!,
             "startCutscene"
         )
 
@@ -560,7 +553,7 @@ describe("Battle Orchestrator", () => {
         })
 
         orchestrator.update(stateWithCutscene, mockedP5GraphicsContext)
-        expect(orchestrator.cutscenePlayer.currentCutsceneId).toBeUndefined()
+        expect(orchestrator.cutscenePlayer!.currentCutsceneId).toBeUndefined()
     })
 
     it("will transition from cutscene playing to phase controller mode", () => {
@@ -1169,16 +1162,16 @@ describe("Battle Orchestrator", () => {
             })
 
             expect(
-                orchestrator1.uiControlSettings.displayBattleMap
+                orchestrator1.uiControlSettings!.displayBattleMap
             ).toBeUndefined()
             orchestrator1.update(nullState, mockedP5GraphicsContext)
-            expect(orchestrator1.uiControlSettings.displayBattleMap).toBe(true)
+            expect(orchestrator1.uiControlSettings?.displayBattleMap).toBe(true)
         })
 
         it("will only draw the map if the settings turn it on", () => {
             const orchestrator1 = createOrchestrator({})
 
-            orchestrator1.uiControlSettings.update(
+            orchestrator1.uiControlSettings?.update(
                 new UIControlSettings({
                     displayMap: false,
                 })
@@ -1186,7 +1179,7 @@ describe("Battle Orchestrator", () => {
             orchestrator1.update(nullState, mockedP5GraphicsContext)
             expect(mockMapDisplay.update).not.toBeCalled()
 
-            orchestrator1.uiControlSettings.update(
+            orchestrator1.uiControlSettings?.update(
                 new UIControlSettings({
                     displayMap: true,
                 })
@@ -1197,7 +1190,6 @@ describe("Battle Orchestrator", () => {
 
         describe("HUD", () => {
             let orchestrator1: BattleOrchestrator
-            let hudSpy: MockInstance
             let graphicsBuffer: GraphicsBuffer
 
             beforeEach(() => {
@@ -1226,18 +1218,12 @@ describe("Battle Orchestrator", () => {
                 nullState.resourceHandler = mockResourceHandler(graphicsBuffer)
             })
 
-            afterEach(() => {
-                if (hudSpy) {
-                    hudSpy.mockRestore()
-                }
-            })
-
             it("will only draw the Summary HUD if the settings turn it on", () => {
                 nullState.battleOrchestratorState.battleHUDState.summaryHUDState =
                     SummaryHUDStateService.new()
                 const hudSpy = vi.spyOn(SummaryHUDStateService, "draw")
 
-                orchestrator1.uiControlSettings.update(
+                orchestrator1.uiControlSettings?.update(
                     new UIControlSettings({
                         displayMap: true,
                         displayPlayerHUD: false,
@@ -1246,24 +1232,25 @@ describe("Battle Orchestrator", () => {
                 orchestrator1.update(nullState, mockedP5GraphicsContext)
                 expect(hudSpy).not.toBeCalled()
 
-                orchestrator1.uiControlSettings.update(
+                orchestrator1.uiControlSettings?.update(
                     new UIControlSettings({
                         displayPlayerHUD: true,
                     })
                 )
                 orchestrator1.update(nullState, mockedP5GraphicsContext)
                 expect(hudSpy).toBeCalled()
+                hudSpy.mockRestore()
             })
 
             it("will not draw the Squaddie Selector Panel HUD if the settings do not draw the HUD", () => {
                 nullState.battleOrchestratorState.battleHUDState.squaddieSelectorPanel =
                     SquaddieSelectorPanelService.new({
                         battleSquaddieIds: ["battleSquaddieId"],
-                        objectRepository: nullState.repository,
+                        objectRepository: nullState.repository!,
                     })
                 const hudSpy = vi.spyOn(SquaddieSelectorPanelService, "draw")
 
-                orchestrator1.uiControlSettings.update(
+                orchestrator1.uiControlSettings?.update(
                     new UIControlSettings({
                         displayMap: true,
                         displayPlayerHUD: false,
@@ -1271,17 +1258,18 @@ describe("Battle Orchestrator", () => {
                 )
                 orchestrator1.update(nullState, mockedP5GraphicsContext)
                 expect(hudSpy).not.toBeCalled()
+                hudSpy.mockRestore()
             })
 
             it("will draw the Squaddie Selector Panel HUD if the settings draw the HUD", () => {
                 nullState.battleOrchestratorState.battleHUDState.squaddieSelectorPanel =
                     SquaddieSelectorPanelService.new({
                         battleSquaddieIds: ["battleSquaddieId"],
-                        objectRepository: nullState.repository,
+                        objectRepository: nullState.repository!,
                     })
                 const hudSpy = vi.spyOn(SquaddieSelectorPanelService, "draw")
 
-                orchestrator1.uiControlSettings.update(
+                orchestrator1.uiControlSettings?.update(
                     new UIControlSettings({
                         displayMap: true,
                         displayPlayerHUD: true,
@@ -1289,6 +1277,7 @@ describe("Battle Orchestrator", () => {
                 )
                 orchestrator1.update(nullState, mockedP5GraphicsContext)
                 expect(hudSpy).toBeCalled()
+                hudSpy.mockRestore()
             })
         })
     })
@@ -1392,7 +1381,7 @@ describe("Battle Orchestrator", () => {
                 playerSquaddieSelector: mockPlayerSquaddieSelector,
                 initialMode: BattleOrchestratorMode.PLAYER_SQUADDIE_SELECTOR,
             })
-            squaddieSelectorOrchestratorShouldDisplayMap.uiControlSettings.update(
+            squaddieSelectorOrchestratorShouldDisplayMap.uiControlSettings?.update(
                 new UIControlSettings({
                     scrollCamera: true,
                 })
@@ -1424,7 +1413,7 @@ describe("Battle Orchestrator", () => {
                 playerSquaddieSelector: mockPlayerSquaddieSelector,
                 initialMode: BattleOrchestratorMode.PLAYER_SQUADDIE_SELECTOR,
             })
-            orchestrator.uiControlSettings.update(
+            orchestrator.uiControlSettings?.update(
                 new UIControlSettings({
                     scrollCamera: true,
                     displayMap: true,
@@ -1530,7 +1519,7 @@ describe("Battle Orchestrator", () => {
             expect(
                 gameEngineState.battleOrchestratorState.battleState
                     .missionStatistics.timeElapsedInMilliseconds
-            ).toBeUndefined()
+            ).toBe(0)
 
             orchestrator.update(gameEngineState, mockedP5GraphicsContext)
 

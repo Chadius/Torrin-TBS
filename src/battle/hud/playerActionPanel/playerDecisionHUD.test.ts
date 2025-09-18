@@ -182,7 +182,7 @@ describe("Player Decision HUD", () => {
             gameEngineState.battleOrchestratorState.playerDecisionHUD
                 .popupWindows[PopupWindowType.PLAYER_INVALID_SELECTION]
         expect(
-            popup.label.textBox.text.includes("Need 2 action points")
+            popup!.label.textBox!.text.includes("Need 2 action points")
         ).toBeTruthy()
     })
 
@@ -371,11 +371,11 @@ describe("Player Decision HUD", () => {
             campaign: CampaignService.default(),
         })
         ObjectRepositoryService.addActionTemplate(
-            gameEngineState.repository,
+            gameEngineState.repository!,
             longswordAction
         )
         ObjectRepositoryService.addActionTemplate(
-            gameEngineState.repository,
+            gameEngineState.repository!,
             healSelfAction
         )
 
@@ -417,12 +417,12 @@ describe("Player Decision HUD", () => {
                 playerSoldierBattleSquaddie,
             } = createGameEngineState({}))
 
-            const repository = gameEngineState.repository
+            const repository = gameEngineState.repository!
 
             SummaryHUDStateService.createActorTiles({
                 summaryHUDState:
                     gameEngineState.battleOrchestratorState.battleHUDState
-                        .summaryHUDState,
+                        .summaryHUDState!,
                 objectRepository: repository,
                 battleActionDecisionStep:
                     gameEngineState.battleOrchestratorState.battleState
@@ -432,9 +432,9 @@ describe("Player Decision HUD", () => {
             SummaryHUDStateService.draw({
                 summaryHUDState:
                     gameEngineState.battleOrchestratorState.battleHUDState
-                        .summaryHUDState,
+                        .summaryHUDState!,
                 gameEngineState,
-                resourceHandler: gameEngineState.resourceHandler,
+                resourceHandler: gameEngineState.resourceHandler!,
                 graphicsBuffer: mockP5GraphicsContext,
             })
             playerDecisionHUDListener = new PlayerDecisionHUDListener(
@@ -463,7 +463,7 @@ describe("Player Decision HUD", () => {
                             .playerConsideredActions,
                     summaryHUDState:
                         gameEngineState.battleOrchestratorState.battleHUDState
-                            .summaryHUDState,
+                            .summaryHUDState!,
                     playerDecisionHUD:
                         gameEngineState.battleOrchestratorState
                             .playerDecisionHUD,
@@ -473,7 +473,7 @@ describe("Player Decision HUD", () => {
                     battleActionDecisionStep:
                         gameEngineState.battleOrchestratorState.battleState
                             .battleActionDecisionStep,
-                    objectRepository: gameEngineState.repository,
+                    objectRepository: gameEngineState.repository!,
                     glossary: gameEngineState.battleOrchestratorState.glossary,
                     useAction: {
                         actionTemplateId: longswordAction.id,
@@ -485,17 +485,17 @@ describe("Player Decision HUD", () => {
             it("notes which action was considered", () => {
                 expect(
                     gameEngineState.battleOrchestratorState.battleState
-                        .playerConsideredActions.actionTemplateId
+                        .playerConsideredActions!.actionTemplateId
                 ).toEqual(longswordAction.id)
             })
             it("creates a tile with the action", () => {
                 expect(
                     gameEngineState.battleOrchestratorState.battleHUDState
-                        .summaryHUDState.actionSelectedTile
+                        .summaryHUDState!.actionSelectedTile
                 ).not.toBeUndefined()
                 expect(
                     gameEngineState.battleOrchestratorState.battleHUDState
-                        .summaryHUDState.actionSelectedTile.actionName
+                        .summaryHUDState!.actionSelectedTile!.actionName
                 ).toEqual(longswordAction.name)
             })
         })
@@ -522,7 +522,7 @@ describe("Player Decision HUD", () => {
                         .playerConsideredActions,
                 summaryHUDState:
                     gameEngineState.battleOrchestratorState.battleHUDState
-                        .summaryHUDState,
+                        .summaryHUDState!,
                 playerDecisionHUD:
                     gameEngineState.battleOrchestratorState.playerDecisionHUD,
                 missionMap:
@@ -531,7 +531,7 @@ describe("Player Decision HUD", () => {
                 battleActionDecisionStep:
                     gameEngineState.battleOrchestratorState.battleState
                         .battleActionDecisionStep,
-                objectRepository: gameEngineState.repository,
+                objectRepository: gameEngineState.repository!,
                 glossary: gameEngineState.battleOrchestratorState.glossary,
                 useAction: {
                     actionTemplateId: longswordAction.id,
@@ -542,9 +542,9 @@ describe("Player Decision HUD", () => {
             SummaryHUDStateService.draw({
                 summaryHUDState:
                     gameEngineState.battleOrchestratorState.battleHUDState
-                        .summaryHUDState,
+                        .summaryHUDState!,
                 gameEngineState,
-                resourceHandler: gameEngineState.resourceHandler,
+                resourceHandler: gameEngineState.resourceHandler!,
                 graphicsBuffer: mockP5GraphicsContext,
             })
 
@@ -563,7 +563,7 @@ describe("Player Decision HUD", () => {
                             .playerConsideredActions,
                     summaryHUDState:
                         gameEngineState.battleOrchestratorState.battleHUDState
-                            .summaryHUDState,
+                            .summaryHUDState!,
                     playerDecisionHUD:
                         gameEngineState.battleOrchestratorState
                             .playerDecisionHUD,
@@ -573,7 +573,7 @@ describe("Player Decision HUD", () => {
                     battleActionDecisionStep:
                         gameEngineState.battleOrchestratorState.battleState
                             .battleActionDecisionStep,
-                    objectRepository: gameEngineState.repository,
+                    objectRepository: gameEngineState.repository!,
                     glossary: gameEngineState.battleOrchestratorState.glossary,
                     useAction: {
                         actionTemplateId: undefined,
@@ -585,20 +585,20 @@ describe("Player Decision HUD", () => {
             it("notes which action was considered", () => {
                 expect(
                     gameEngineState.battleOrchestratorState.battleState
-                        .playerConsideredActions.endTurn
+                        .playerConsideredActions!.endTurn
                 ).toEqual(true)
             })
         })
         describe("cancels consideration", () => {
             beforeEach(() => {
-                gameEngineState.battleOrchestratorState.battleState.playerConsideredActions.actionTemplateId =
+                gameEngineState.battleOrchestratorState.battleState.playerConsideredActions!.actionTemplateId =
                     longswordAction.id
 
                 gameEngineState.messageBoard.sendMessage({
                     type: MessageBoardMessageType.PLAYER_CANCELS_PLAYER_ACTION_CONSIDERATIONS,
                     playerCommandState:
                         gameEngineState.battleOrchestratorState.battleHUDState
-                            .summaryHUDState.playerCommandState,
+                            .summaryHUDState!.playerCommandState,
                     battleActionRecorder:
                         gameEngineState.battleOrchestratorState.battleState
                             .battleActionRecorder,
@@ -607,7 +607,7 @@ describe("Player Decision HUD", () => {
                             .playerConsideredActions,
                     summaryHUDState:
                         gameEngineState.battleOrchestratorState.battleHUDState
-                            .summaryHUDState,
+                            .summaryHUDState!,
                     playerDecisionHUD:
                         gameEngineState.battleOrchestratorState
                             .playerDecisionHUD,
@@ -617,18 +617,18 @@ describe("Player Decision HUD", () => {
                     battleActionDecisionStep:
                         gameEngineState.battleOrchestratorState.battleState
                             .battleActionDecisionStep,
-                    objectRepository: gameEngineState.repository,
+                    objectRepository: gameEngineState.repository!,
                 })
             })
 
             it("clears which action was considered", () => {
                 expect(
                     gameEngineState.battleOrchestratorState.battleState
-                        .playerConsideredActions.actionTemplateId
+                        .playerConsideredActions!.actionTemplateId
                 ).toBeUndefined()
                 expect(
                     gameEngineState.battleOrchestratorState.battleState
-                        .playerConsideredActions.endTurn
+                        .playerConsideredActions!.endTurn
                 ).toBeFalsy()
             })
         })
@@ -650,7 +650,7 @@ describe("Player Decision HUD", () => {
                             .playerConsideredActions,
                     summaryHUDState:
                         gameEngineState.battleOrchestratorState.battleHUDState
-                            .summaryHUDState,
+                            .summaryHUDState!,
                     playerDecisionHUD:
                         gameEngineState.battleOrchestratorState
                             .playerDecisionHUD,
@@ -660,7 +660,7 @@ describe("Player Decision HUD", () => {
                     battleActionDecisionStep:
                         gameEngineState.battleOrchestratorState.battleState
                             .battleActionDecisionStep,
-                    objectRepository: gameEngineState.repository,
+                    objectRepository: gameEngineState.repository!,
                     movementDecision,
                 })
             })
@@ -678,7 +678,7 @@ describe("Player Decision HUD", () => {
                     type: MessageBoardMessageType.PLAYER_CANCELS_PLAYER_ACTION_CONSIDERATIONS,
                     playerCommandState:
                         gameEngineState.battleOrchestratorState.battleHUDState
-                            .summaryHUDState.playerCommandState,
+                            .summaryHUDState!.playerCommandState,
                     battleActionRecorder:
                         gameEngineState.battleOrchestratorState.battleState
                             .battleActionRecorder,
@@ -687,7 +687,7 @@ describe("Player Decision HUD", () => {
                             .playerConsideredActions,
                     summaryHUDState:
                         gameEngineState.battleOrchestratorState.battleHUDState
-                            .summaryHUDState,
+                            .summaryHUDState!,
                     playerDecisionHUD:
                         gameEngineState.battleOrchestratorState
                             .playerDecisionHUD,
@@ -697,7 +697,7 @@ describe("Player Decision HUD", () => {
                     battleActionDecisionStep:
                         gameEngineState.battleOrchestratorState.battleState
                             .battleActionDecisionStep,
-                    objectRepository: gameEngineState.repository,
+                    objectRepository: gameEngineState.repository!,
                 })
 
                 expect(
@@ -736,9 +736,9 @@ describe("Player Decision HUD", () => {
             SummaryHUDStateService.draw({
                 summaryHUDState:
                     gameEngineState.battleOrchestratorState.battleHUDState
-                        .summaryHUDState,
+                        .summaryHUDState!,
                 gameEngineState,
-                resourceHandler: gameEngineState.resourceHandler,
+                resourceHandler: gameEngineState.resourceHandler!,
                 graphicsBuffer: mockP5GraphicsContext,
             })
 
@@ -755,14 +755,14 @@ describe("Player Decision HUD", () => {
                 actionTemplateId: "longsword",
             })
 
-            gameEngineState.battleOrchestratorState.battleHUDState.summaryHUDState.playerCommandState =
+            gameEngineState.battleOrchestratorState.battleHUDState.summaryHUDState!.playerCommandState =
                 PlayerCommandStateService.new()
-            gameEngineState.battleOrchestratorState.battleHUDState.summaryHUDState.playerCommandState.battleSquaddieId =
+            gameEngineState.battleOrchestratorState.battleHUDState.summaryHUDState!.playerCommandState.battleSquaddieId =
                 battleSquaddie.battleSquaddieId
-            gameEngineState.battleOrchestratorState.battleHUDState.summaryHUDState.playerCommandState.squaddieAffiliationHue = 10
-            gameEngineState.battleOrchestratorState.battleHUDState.summaryHUDState.playerCommandState.selectedActionTemplateId =
+            gameEngineState.battleOrchestratorState.battleHUDState.summaryHUDState!.playerCommandState.squaddieAffiliationHue = 10
+            gameEngineState.battleOrchestratorState.battleHUDState.summaryHUDState!.playerCommandState.selectedActionTemplateId =
                 "longsword"
-            gameEngineState.battleOrchestratorState.battleHUDState.summaryHUDState.playerCommandState.playerSelectedSquaddieAction = true
+            gameEngineState.battleOrchestratorState.battleHUDState.summaryHUDState!.playerCommandState.playerSelectedSquaddieAction = true
             gameEngineState.messageBoard.sendMessage({
                 type: MessageBoardMessageType.PLAYER_CANCELS_PLAYER_ACTION_CONSIDERATIONS,
                 missionMap:
@@ -770,7 +770,7 @@ describe("Player Decision HUD", () => {
                         .missionMap,
                 summaryHUDState:
                     gameEngineState.battleOrchestratorState.battleHUDState
-                        .summaryHUDState,
+                        .summaryHUDState!,
                 battleActionDecisionStep:
                     gameEngineState.battleOrchestratorState.battleState
                         .battleActionDecisionStep,
@@ -784,15 +784,15 @@ describe("Player Decision HUD", () => {
                     gameEngineState.battleOrchestratorState.playerDecisionHUD,
                 playerCommandState:
                     gameEngineState.battleOrchestratorState.battleHUDState
-                        .summaryHUDState.playerCommandState,
-                objectRepository: gameEngineState.repository,
+                        .summaryHUDState!.playerCommandState,
+                objectRepository: gameEngineState.repository!,
             })
         })
 
         it("resets the player command state", () => {
             expect(
                 gameEngineState.battleOrchestratorState.battleHUDState
-                    .summaryHUDState.playerCommandState
+                    .summaryHUDState!.playerCommandState
             ).toEqual(
                 expect.objectContaining({
                     consideredActionTemplateId: undefined,
@@ -907,16 +907,16 @@ describe("Player Decision HUD", () => {
                 campaignResources: gameEngineState.campaign.resources,
                 summaryHUDState:
                     gameEngineState.battleOrchestratorState.battleHUDState
-                        .summaryHUDState,
+                        .summaryHUDState!,
                 objectRepository: repository,
             })
 
             SummaryHUDStateService.draw({
                 summaryHUDState:
                     gameEngineState.battleOrchestratorState.battleHUDState
-                        .summaryHUDState,
+                        .summaryHUDState!,
                 gameEngineState,
-                resourceHandler: gameEngineState.resourceHandler,
+                resourceHandler: gameEngineState.resourceHandler!,
                 graphicsBuffer: mockP5GraphicsContext,
             })
         })
@@ -963,7 +963,7 @@ describe("Player Decision HUD", () => {
             expect(
                 SquaddieSelectorPanelService.getSelectedBattleSquaddieId(
                     gameEngineState.battleOrchestratorState.battleHUDState
-                        .squaddieSelectorPanel
+                        .squaddieSelectorPanel!
                 )
             ).toBe("playerSquaddie0")
         })
@@ -980,7 +980,7 @@ describe("Player Decision HUD", () => {
             expect(
                 SquaddieSelectorPanelService.getSelectedBattleSquaddieId(
                     gameEngineState.battleOrchestratorState.battleHUDState
-                        .squaddieSelectorPanel
+                        .squaddieSelectorPanel!
                 )
             ).toBe("playerSquaddie1")
 
@@ -991,7 +991,7 @@ describe("Player Decision HUD", () => {
             expect(
                 SquaddieSelectorPanelService.getSelectedBattleSquaddieId(
                     gameEngineState.battleOrchestratorState.battleHUDState
-                        .squaddieSelectorPanel
+                        .squaddieSelectorPanel!
                 )
             ).toBe("playerSquaddie2")
 
@@ -1002,7 +1002,7 @@ describe("Player Decision HUD", () => {
             expect(
                 SquaddieSelectorPanelService.getSelectedBattleSquaddieId(
                     gameEngineState.battleOrchestratorState.battleHUDState
-                        .squaddieSelectorPanel
+                        .squaddieSelectorPanel!
                 )
             ).toBe("playerSquaddie0")
 
@@ -1022,7 +1022,7 @@ describe("Player Decision HUD", () => {
         it("clears player considerations", () => {
             gameEngineState.battleOrchestratorState.battleState.playerConsideredActions =
                 PlayerConsideredActionsService.new()
-            gameEngineState.battleOrchestratorState.battleState.playerConsideredActions.movement =
+            gameEngineState.battleOrchestratorState.battleState.playerConsideredActions!.movement =
                 {
                     destination: { q: 1, r: 0 },
                     coordinates: [],
@@ -1036,14 +1036,14 @@ describe("Player Decision HUD", () => {
 
             expect(
                 gameEngineState.battleOrchestratorState.battleState
-                    .playerConsideredActions.movement
+                    .playerConsideredActions!.movement
             ).toBeUndefined()
         })
 
         it("if a squaddie is taking a turn, they are always next", () => {
             const { battleSquaddie } = getResultOrThrowError(
                 ObjectRepositoryService.getSquaddieByBattleId(
-                    gameEngineState.repository,
+                    gameEngineState.repository!,
                     "playerSquaddie2"
                 )
             )

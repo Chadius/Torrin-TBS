@@ -11,7 +11,7 @@ export interface AttackRollThermometerSegment {
     minimum: number
     maximum: number
     drawnObjects: {
-        meter: Rectangle
+        meter: Rectangle | undefined
     }
 }
 

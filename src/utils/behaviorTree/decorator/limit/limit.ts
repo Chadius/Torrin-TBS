@@ -35,6 +35,8 @@ export class LimitDecorator implements BehaviorTreeTask {
     run(): boolean {
         if (this.numberOfTimesRun >= this.limit) return false
         this.numberOfTimesRun += 1
+        if (this.children == undefined || this.children.length == 0)
+            return false
         return this.children[0].run()
     }
 }

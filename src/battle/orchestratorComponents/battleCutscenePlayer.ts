@@ -14,15 +14,15 @@ import { GraphicsBuffer } from "../../utils/graphics/graphicsRenderer"
 import { ResourceHandler } from "../../resource/resourceHandler"
 
 export class BattleCutscenePlayer implements BattleOrchestratorComponent {
-    private _currentCutscene: Cutscene
+    private _currentCutscene: Cutscene | undefined
 
-    get currentCutscene(): Cutscene {
+    get currentCutscene(): Cutscene | undefined {
         return this._currentCutscene
     }
 
-    private _currentCutsceneId: string
+    private _currentCutsceneId: string | undefined
 
-    get currentCutsceneId(): string {
+    get currentCutsceneId(): string | undefined {
         return this._currentCutsceneId
     }
 
@@ -72,7 +72,10 @@ export class BattleCutscenePlayer implements BattleOrchestratorComponent {
         gameEngineState: GameEngineState,
         event: OrchestratorComponentKeyEvent
     ): void {
-        if (event.eventType === OrchestratorComponentKeyEventType.PRESSED) {
+        if (
+            event.eventType === OrchestratorComponentKeyEventType.PRESSED &&
+            this.currentCutscene != undefined
+        ) {
             CutsceneService.keyboardPressed({
                 cutscene: this.currentCutscene,
                 event,
@@ -100,13 +103,15 @@ export class BattleCutscenePlayer implements BattleOrchestratorComponent {
     }: {
         gameEngineState: GameEngineState
         graphicsContext: GraphicsBuffer
-        resourceHandler: ResourceHandler
+        resourceHandler: ResourceHandler | undefined
     }): void {
         if (!isValidValue(this.currentCutscene)) {
             return
         }
 
         if (
+            this.currentCutscene != undefined &&
+            gameEngineState.resourceHandler != undefined &&
             CutsceneService.hasLoaded(
                 this.currentCutscene,
                 gameEngineState.resourceHandler
@@ -127,7 +132,10 @@ export class BattleCutscenePlayer implements BattleOrchestratorComponent {
             )
         }
 
-        if (CutsceneService.isInProgress(this.currentCutscene)) {
+        if (
+            this.currentCutscene != undefined &&
+            CutsceneService.isInProgress(this.currentCutscene)
+        ) {
             CutsceneService.draw(
                 this.currentCutscene,
                 graphicsContext,
@@ -151,10 +159,12 @@ export class BattleCutscenePlayer implements BattleOrchestratorComponent {
         this._currentCutscene = undefined
     }
 
-    startCutscene(cutsceneId: string, state: GameEngineState) {
+    startCutscene(cutsceneId: string, gameEngineState: GameEngineState) {
         if (
-            !state.battleOrchestratorState.battleState.cutsceneCollection
-                .cutsceneById[cutsceneId]
+            gameEngineState.battleOrchestratorState.battleState
+                .cutsceneCollection == undefined ||
+            !gameEngineState.battleOrchestratorState.battleState
+                .cutsceneCollection.cutsceneById[cutsceneId]
         ) {
             throw new Error(`No cutscene with Id ${cutsceneId}`)
         }
@@ -168,11 +178,16 @@ export class BattleCutscenePlayer implements BattleOrchestratorComponent {
 
         this._currentCutsceneId = cutsceneId
         this._currentCutscene =
-            state.battleOrchestratorState.battleState.cutsceneCollection.cutsceneById[
+            gameEngineState.battleOrchestratorState.battleState.cutsceneCollection.cutsceneById[
                 cutsceneId
             ]
-        CutsceneService.start(this.currentCutscene, state.resourceHandler, {
-            battleOrchestratorState: state.battleOrchestratorState,
-        })
+        CutsceneService.start(
+            this._currentCutscene,
+            gameEngineState.resourceHandler,
+            {
+                battleOrchestratorState:
+                    gameEngineState.battleOrchestratorState,
+            }
+        )
     }
 }

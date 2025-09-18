@@ -30,7 +30,7 @@ describe("All Label Button Style", () => {
     let labelServiceSpy: MockInstance
     let buttonWithAllLabelDrawTask: AllLabelButtonDrawTask
     let labelByButtonStatus: {
-        [s in TButtonStatus]: Label
+        [s in TButtonStatus]: Label | undefined
     }
 
     beforeEach(() => {
@@ -45,8 +45,8 @@ describe("All Label Button Style", () => {
                     width: 20,
                     height: 10,
                 }),
-                text: "Ready",
                 textBoxMargin: undefined,
+                text: "Ready",
                 fontColor: [0, 0, 0],
                 fontSize: 10,
             }),
@@ -165,6 +165,12 @@ describe("All Label Button Style", () => {
                 "uiObjects"
             )
 
+            expect(
+                uiObjects.buttonLabelsByStatus[buttonStatus]
+            ).not.toBeUndefined()
+            if (uiObjects.buttonLabelsByStatus[buttonStatus] == undefined)
+                return
+
             expect(RectAreaService.left(area)).toEqual(
                 RectAreaService.left(
                     uiObjects.buttonLabelsByStatus[buttonStatus].rectangle.area
@@ -191,10 +197,11 @@ describe("All Label Button Style", () => {
 
 class TestButtonLogic implements ButtonLogic {
     status: TButtonStatus
-    lastStatusChangeTimeStamp: number
+    lastStatusChangeTimeStamp: number | undefined
     buttonStatusChangeEventData: ButtonStatusChangeEventByButtonId
 
     constructor() {
         this.status = ButtonStatus.READY
+        this.buttonStatusChangeEventData = DataBlobService.new()
     }
 }

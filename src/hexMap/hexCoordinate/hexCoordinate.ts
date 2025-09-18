@@ -1,3 +1,5 @@
+import { EnumLike } from "../../utils/enum"
+
 export const CoordinateSystem = {
     UNKNOWN: "UNKNOWN",
     WORLD: "WORLD",
@@ -11,12 +13,16 @@ export interface HexCoordinate {
 }
 
 export const HexCoordinateService = {
-    toString: (coordinate: HexCoordinate): string =>
+    toString: (coordinate: HexCoordinate | undefined): string =>
         hexCoordinateToKey(coordinate),
     fromString: (s: string): HexCoordinate => {
         const regex = /^\(([^d]+),([^d]+)\)/
         const matches = s.match(regex)
-        if (!matches || matches.length < 2) return undefined
+        if (!matches || matches.length < 2) {
+            throw new Error(
+                "[HexCoordinateService.fromString]: Invalid hexCoordinate format for hexCoordinate"
+            )
+        }
         return { q: Number(matches[1]), r: Number(matches[2]) }
     },
     includes: (list: HexCoordinate[], coordinate: HexCoordinate): boolean =>
@@ -25,8 +31,10 @@ export const HexCoordinateService = {
                 listCoordinate.q === coordinate.q &&
                 listCoordinate.r === coordinate.r
         ),
-    areEqual: (a: HexCoordinate, b: HexCoordinate): boolean =>
-        a.q === b.q && a.r === b.r,
+    areEqual: (
+        a: HexCoordinate | undefined,
+        b: HexCoordinate | undefined
+    ): boolean => a?.q === b?.q && a?.r === b?.r,
     getCoordinatesForRingAroundOrigin: (radius: number): HexCoordinate[] => {
         return getCoordinatesForRingAroundOrigin(radius)
     },
@@ -48,9 +56,8 @@ export const HexCoordinateService = {
     ): HexCoordinate[] => createNewNeighboringCoordinates(mapCoordinate),
 }
 
-const hexCoordinateToKey = (coordinate: HexCoordinate): string => {
-    return `(${coordinate.q},${coordinate.r})`
-}
+const hexCoordinateToKey = (coordinate: HexCoordinate | undefined): string =>
+    coordinate != undefined ? `(${coordinate.q},${coordinate.r})` : "undefined"
 
 const getCoordinatesForRingAroundOrigin = (radius: number): HexCoordinate[] => {
     if (radius === 0) {

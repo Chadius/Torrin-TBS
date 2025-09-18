@@ -1,4 +1,5 @@
 import { MousePress, ScreenLocation } from "../../utils/mouseConfig"
+import { EnumLike } from "../../utils/enum"
 import { GameEngineState } from "../../gameEngine/gameEngine"
 import { OrchestratorUtilities } from "../orchestratorComponents/orchestratorUtils"
 import {
@@ -288,7 +289,7 @@ export const PlayerSelectionService = {
                             .playerDecisionHUD,
                     playerCommandState:
                         gameEngineState.battleOrchestratorState.battleHUDState
-                            .summaryHUDState.playerCommandState,
+                            .summaryHUDState?.playerCommandState,
                     objectRepository: gameEngineState.repository,
                 }
                 gameEngineState.messageBoard.sendMessage(messageSent)
@@ -299,6 +300,9 @@ export const PlayerSelectionService = {
                     context,
                 })
             case PlayerIntent.END_SQUADDIE_TURN:
+                if (context.actorBattleSquaddieId == undefined) {
+                    throw new Error("Actor BattleSquaddieId must be specified")
+                }
                 endTurnBattleAction = BattleActionService.new({
                     actor: {
                         actorBattleSquaddieId: context.actorBattleSquaddieId,
@@ -323,10 +327,10 @@ export const PlayerSelectionService = {
                     type: MessageBoardMessageType.PLAYER_SELECTION_IS_INVALID,
                     gameEngineState,
                     popupWindow: PopupWindowService.newWarningWindow({
-                        screenLocation: context.mouseClick,
+                        screenLocation: context?.mouseClick,
                         camera: gameEngineState.battleOrchestratorState
                             .battleState.camera,
-                        text: `${targetSquaddieTemplate.squaddieId.name} is out of range`,
+                        text: `${targetSquaddieTemplate?.squaddieId.name ?? "Unknown"} is out of range`,
                         coordinateSystem: CoordinateSystem.SCREEN,
                     }),
                 }
@@ -357,7 +361,7 @@ export const PlayerSelectionService = {
                         playerCommandState:
                             gameEngineState.battleOrchestratorState
                                 .battleHUDState.summaryHUDState
-                                .playerCommandState,
+                                ?.playerCommandState,
                         objectRepository: gameEngineState.repository,
                     }
                     gameEngineState.messageBoard.sendMessage(messageSent)
@@ -398,11 +402,12 @@ export const PlayerSelectionService = {
 const playerCanControlAtLeastOneSquaddie = (
     gameEngineState: GameEngineState
 ): boolean => {
+    if (gameEngineState.repository == undefined) return false
     const currentTeam = BattleStateService.getCurrentTeam(
         gameEngineState.battleOrchestratorState.battleState,
         gameEngineState.repository
     )
-    if (!isValidValue(currentTeam)) {
+    if (!isValidValue(currentTeam) || currentTeam == undefined) {
         return false
     }
     return BattleSquaddieTeamService.canPlayerControlAnySquaddieOnThisTeamRightNow(
@@ -416,12 +421,12 @@ const getSquaddiePlayerClickedOn = ({
     mouseClick,
 }: {
     gameEngineState: GameEngineState
-    mouseClick: MousePress
+    mouseClick: MousePress | undefined
 }): {
     clickedOnSquaddie: boolean
     squaddieIsNormallyControllableByPlayer: boolean
-    battleSquaddieId: string
-    squaddieTemplate: SquaddieTemplate
+    battleSquaddieId: string | undefined
+    squaddieTemplate: SquaddieTemplate | undefined
 } => {
     if (mouseClick === undefined) {
         return {
@@ -439,7 +444,10 @@ const getSquaddiePlayerClickedOn = ({
         gameEngineState,
     })
 
-    if (battleSquaddieId === undefined) {
+    if (
+        battleSquaddieId === undefined ||
+        gameEngineState.repository == undefined
+    ) {
         return {
             clickedOnSquaddie: false,
             squaddieIsNormallyControllableByPlayer: false,
@@ -476,10 +484,13 @@ const getBattleSquaddieIdAtLocation = ({
     screenLocation?: ScreenLocation
     gameEngineState: GameEngineState
 }) => {
-    const { q, r } = getCoordinateAtLocation({
+    const coordinate = getCoordinateAtLocation({
         screenLocation,
         gameEngineState,
     })
+
+    if (coordinate == undefined) return undefined
+    const { q, r } = coordinate
 
     const { battleSquaddieId } =
         MissionMapService.getBattleSquaddieAtCoordinate(
@@ -493,9 +504,9 @@ const getCoordinateAtLocation = ({
     screenLocation,
     gameEngineState,
 }: {
-    screenLocation: ScreenLocation
+    screenLocation: ScreenLocation | undefined
     gameEngineState: GameEngineState
-}): HexCoordinate => {
+}): HexCoordinate | undefined => {
     if (!screenLocation) {
         return undefined
     }
@@ -523,7 +534,12 @@ const playerSelectsAnAction = ({
     const battleSquaddieId =
         BattleActionDecisionStepService.getActor(
             actionBuilderState
-        ).battleSquaddieId
+        )?.battleSquaddieId
+    if (battleSquaddieId == undefined) {
+        throw new Error(
+            "[playerSelectsAnAction]: battleSquaddieId is undefined"
+        )
+    }
     const { currentMapCoordinate } = MissionMapService.getByBattleSquaddieId(
         gameEngineState.battleOrchestratorState.battleState.missionMap,
         battleSquaddieId
@@ -557,21 +573,16 @@ const playerSelectsAnAction = ({
 const getBattleSquaddieTryingToStartAnAction = (
     gameEngineState: GameEngineState
 ) => {
-    let battleSquaddieIdCurrentlyTakingATurn: string =
+    let battleSquaddieIdCurrentlyTakingATurn =
         OrchestratorUtilities.getBattleSquaddieIdCurrentlyTakingATurn({
             gameEngineState,
         })
 
-    const battleSquaddieIdCurrentlyMakingADecision: string =
-        BattleActionDecisionStepService.isActorSet(
+    const battleSquaddieIdCurrentlyMakingADecision =
+        BattleActionDecisionStepService.getActor(
             gameEngineState.battleOrchestratorState.battleState
                 .battleActionDecisionStep
-        )
-            ? BattleActionDecisionStepService.getActor(
-                  gameEngineState.battleOrchestratorState.battleState
-                      .battleActionDecisionStep
-              ).battleSquaddieId
-            : undefined
+        )?.battleSquaddieId
 
     return (
         battleSquaddieIdCurrentlyMakingADecision ||
@@ -624,11 +635,12 @@ class CollectDataForContext implements BehaviorTreeTask {
 
         this.calculatePlayerActionSelection(contextCalculationArgs)
 
-        const battleSquaddieTryingToStartAnAction: string =
+        const battleSquaddieTryingToStartAnAction =
             getBattleSquaddieTryingToStartAnAction(
                 contextCalculationArgs.gameEngineState
             )
-        DataBlobService.add<string>(
+
+        DataBlobService.add<string | undefined>(
             this.dataBlob,
             "battleSquaddieTryingToStartAnAction",
             battleSquaddieTryingToStartAnAction
@@ -647,7 +659,7 @@ class CollectDataForContext implements BehaviorTreeTask {
             "clickedOnSquaddie",
             clickedOnSquaddie
         )
-        DataBlobService.add<string>(
+        DataBlobService.add<string | undefined>(
             this.dataBlob,
             "clickedBattleSquaddieId",
             clickedBattleSquaddieId
@@ -675,6 +687,7 @@ class CollectDataForContext implements BehaviorTreeTask {
     private calculateHoveredLocation(
         contextCalculationArgs: PlayerSelectionContextCalculationArgs
     ) {
+        if (contextCalculationArgs?.mouseMovement == undefined) return
         const {
             hoveredOverSquaddie,
             battleSquaddieId: hoveredBattleSquaddieId,
@@ -687,7 +700,7 @@ class CollectDataForContext implements BehaviorTreeTask {
             "hoveredOverSquaddie",
             hoveredOverSquaddie
         )
-        DataBlobService.add<string>(
+        DataBlobService.add<string | undefined>(
             this.dataBlob,
             "hoveredBattleSquaddieId",
             hoveredBattleSquaddieId
@@ -703,17 +716,19 @@ class CollectDataForContext implements BehaviorTreeTask {
             hoveredMapCoordinate
         )
 
-        DataBlobService.add<HexCoordinate>(
+        DataBlobService.add<HexCoordinate | undefined>(
             this.dataBlob,
             "hoveredMapLocation",
-            hoveredOnTheMap ? hoveredMapCoordinate : undefined
+            hoveredOnTheMap && hoveredMapCoordinate != undefined
+                ? hoveredMapCoordinate
+                : undefined
         )
     }
 
     private calculateClickedLocation(
         contextCalculationArgs: PlayerSelectionContextCalculationArgs
     ) {
-        const clickedLocation: HexCoordinate = contextCalculationArgs.mouseClick
+        const clickedLocation = contextCalculationArgs.mouseClick
             ? getCoordinateAtLocation({
                   gameEngineState: contextCalculationArgs.gameEngineState,
                   screenLocation: {
@@ -764,7 +779,7 @@ class CollectDataForContext implements BehaviorTreeTask {
         mouseMovement: { x: number; y: number }
     }): {
         hoveredOverSquaddie: boolean
-        battleSquaddieId: string
+        battleSquaddieId: string | undefined
     } {
         if (mouseMovement === undefined) {
             return {
@@ -817,6 +832,9 @@ class PlayerSelectsAnActionBehavior implements BehaviorTreeTask {
             )
         const { gameEngineState, actionTemplateId, mouseClick } =
             playerSelectionContextCalculationArgs
+
+        if (gameEngineState.repository == undefined) return false
+        if (actionTemplateId == undefined) return false
 
         const actionTemplate: ActionTemplate =
             ObjectRepositoryService.getActionTemplateById(
@@ -1026,7 +1044,7 @@ class PlayerClicksOnUncontrollableSquaddieBeforeTurnStartsBehavior
 
         const clickedOnSquaddie = DataBlobService.get<boolean>(
             this.dataBlob,
-            "clickedOnSquaddie"
+            "clickedOnSquaddie" // TODO This is false
         )
 
         const squaddieIsNormallyControllableByPlayer =
@@ -1299,7 +1317,8 @@ class PlayerConsidersMovementForSelectedSquaddie implements BehaviorTreeTask {
         coordinate: HexCoordinate
         gameEngineState: GameEngineState
         battleSquaddieId: string
-    }): MovementDecision {
+    }): MovementDecision | undefined {
+        if (gameEngineState.repository == undefined) return undefined
         const missionMap =
             gameEngineState.battleOrchestratorState.battleState.missionMap
         const { battleSquaddie, squaddieTemplate } = getResultOrThrowError(
@@ -1318,6 +1337,7 @@ class PlayerConsidersMovementForSelectedSquaddie implements BehaviorTreeTask {
                 missionMap,
                 battleSquaddie.battleSquaddieId
             )
+        if (originMapCoordinate == undefined) return undefined
 
         const actionPointsRemaining =
             squaddieTemplate.squaddieId.affiliation ===
@@ -1364,6 +1384,7 @@ class PlayerConsidersMovementForSelectedSquaddie implements BehaviorTreeTask {
                         }).net.passThroughWalls,
                 }),
             })
+        if (allReachableCoordinates == undefined) return undefined
 
         const closestRoute =
             allReachableCoordinates.shortestPathByCoordinate[
@@ -1381,10 +1402,12 @@ class PlayerConsidersMovementForSelectedSquaddie implements BehaviorTreeTask {
                     }).net.movementPerAction,
             }
         )
+        const destination = SearchPathAdapterService.getHead(closestRoute)
+        if (destination == undefined) return undefined
         return {
             actionPointCost,
             coordinates: SearchPathAdapterService.getCoordinates(closestRoute),
-            destination: SearchPathAdapterService.getHead(closestRoute),
+            destination: destination,
         }
     }
 }

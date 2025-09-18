@@ -199,8 +199,9 @@ describe("summaryHUD", () => {
                 ]
             ).not.toBeUndefined()
             expect(
-                summaryHUDState.squaddieNameTiles[ActionTilePosition.ACTOR_NAME]
-                    .squaddieName
+                summaryHUDState?.squaddieNameTiles[
+                    ActionTilePosition.ACTOR_NAME
+                ]?.squaddieName
             ).toEqual("player")
         })
         describe("knows when it is hovering", () => {
@@ -223,7 +224,15 @@ describe("summaryHUD", () => {
                 summaryHUDState = SummaryHUDStateService.new()
 
                 const { left, right, top, bottom } = positions.reduce(
-                    (currentSides, position) => {
+                    (
+                        currentSides: {
+                            left: number | undefined
+                            right: number | undefined
+                            top: number | undefined
+                            bottom: number | undefined
+                        },
+                        position
+                    ) => {
                         const rectArea =
                             SquaddieNameAndPortraitTileService.getBoundingBoxBasedOnActionPanelPosition(
                                 position
@@ -240,11 +249,11 @@ describe("summaryHUD", () => {
                         return {
                             left: Math.min(
                                 RectAreaService.left(rectArea),
-                                currentSides.left
+                                currentSides.left ?? 0
                             ),
                             right: Math.max(
                                 RectAreaService.right(rectArea),
-                                currentSides.right
+                                currentSides.right ?? 0
                             ),
                             top: RectAreaService.top(rectArea),
                             bottom: RectAreaService.bottom(rectArea),
@@ -259,10 +268,10 @@ describe("summaryHUD", () => {
                 )
 
                 const panelWindowRectArea = RectAreaService.new({
-                    left,
-                    right,
-                    top,
-                    bottom,
+                    left: left ?? 0,
+                    right: right ?? 0,
+                    top: top ?? 0,
+                    bottom: bottom ?? 0,
                 })
 
                 expect(
@@ -311,7 +320,7 @@ describe("summaryHUD", () => {
 
             SummaryHUDStateService.peekAtSquaddie({
                 summaryHUDState,
-                objectRepository: gameEngineState.repository,
+                objectRepository: gameEngineState.repository!,
                 battleSquaddieId: "player",
             })
 
@@ -328,9 +337,9 @@ describe("summaryHUD", () => {
                 ]
             ).not.toBeUndefined()
             expect(
-                summaryHUDState.squaddieNameTiles[
+                summaryHUDState?.squaddieNameTiles[
                     ActionTilePosition.PEEK_PLAYABLE_NAME
-                ].squaddieName
+                ]?.squaddieName
             ).toEqual("player")
             expect(
                 summaryHUDState.squaddieStatusTiles[
@@ -359,7 +368,7 @@ describe("summaryHUD", () => {
 
             SummaryHUDStateService.peekAtSquaddie({
                 summaryHUDState,
-                objectRepository: gameEngineState.repository,
+                objectRepository: gameEngineState.repository!,
                 battleSquaddieId: "enemy",
             })
 
@@ -376,9 +385,9 @@ describe("summaryHUD", () => {
                 ]
             ).not.toBeUndefined()
             expect(
-                summaryHUDState.squaddieNameTiles[
+                summaryHUDState?.squaddieNameTiles[
                     ActionTilePosition.PEEK_RIGHT_NAME
-                ].squaddieName
+                ]?.squaddieName
             ).toEqual("enemy")
             expect(
                 summaryHUDState.squaddieStatusTiles[
@@ -401,9 +410,9 @@ describe("summaryHUD", () => {
                 ]
             ).not.toBeUndefined()
             expect(
-                summaryHUDState.squaddieNameTiles[
+                summaryHUDState?.squaddieNameTiles[
                     ActionTilePosition.PEEK_RIGHT_NAME
-                ].squaddieName
+                ]?.squaddieName
             ).toEqual("enemy")
         })
         it("will expire over time", () => {
@@ -419,7 +428,7 @@ describe("summaryHUD", () => {
 
             SummaryHUDStateService.peekAtSquaddie({
                 summaryHUDState,
-                objectRepository: gameEngineState.repository,
+                objectRepository: gameEngineState.repository!,
                 battleSquaddieId: "enemy",
             })
             SummaryHUDStateService.draw({
@@ -477,7 +486,7 @@ describe("summaryHUD", () => {
 
             SummaryHUDStateService.peekAtSquaddie({
                 summaryHUDState,
-                objectRepository: gameEngineState.repository,
+                objectRepository: gameEngineState.repository!,
                 battleSquaddieId: "player",
             })
 
@@ -490,7 +499,7 @@ describe("summaryHUD", () => {
 
             SummaryHUDStateService.peekAtSquaddie({
                 summaryHUDState,
-                objectRepository: gameEngineState.repository,
+                objectRepository: gameEngineState.repository!,
                 battleSquaddieId: "player2",
             })
 
@@ -561,7 +570,7 @@ describe("summaryHUD", () => {
         it("will use the right panel to peek if the actor panel is different from the peeked squaddie", () => {
             SummaryHUDStateService.peekAtSquaddie({
                 summaryHUDState,
-                objectRepository: gameEngineState.repository,
+                objectRepository: gameEngineState.repository!,
                 battleSquaddieId: "player2",
             })
 
@@ -597,7 +606,7 @@ describe("summaryHUD", () => {
         it("will not create peekable tiles if the peeked squaddie is the same as the actor tile", () => {
             SummaryHUDStateService.peekAtSquaddie({
                 summaryHUDState,
-                objectRepository: gameEngineState.repository,
+                objectRepository: gameEngineState.repository!,
                 battleSquaddieId: "player",
             })
 
@@ -689,9 +698,9 @@ describe("summaryHUD", () => {
                 ]
             ).not.toBeUndefined()
             expect(
-                summaryHUDState.squaddieNameTiles[
+                summaryHUDState?.squaddieNameTiles[
                     ActionTilePosition.TARGET_NAME
-                ].squaddieName
+                ]?.squaddieName
             ).toEqual("enemy")
             expect(
                 summaryHUDState.squaddieStatusTiles[
@@ -765,7 +774,7 @@ describe("summaryHUD", () => {
 
             SummaryHUDStateService.peekAtSquaddie({
                 summaryHUDState,
-                objectRepository: gameEngineState.repository,
+                objectRepository: gameEngineState.repository!,
                 battleSquaddieId: "enemy",
             })
 
@@ -820,12 +829,12 @@ describe("summaryHUD", () => {
                 resourceHandler,
             })
 
-            expect(summaryHUDState.squaddieToPeekAt.battleSquaddieId).toEqual(
+            expect(summaryHUDState?.squaddieToPeekAt?.battleSquaddieId).toEqual(
                 expectedBattleSquaddieId
             )
             expect(
-                summaryHUDState.squaddieNameTiles[actionTilePosition]
-                    .battleSquaddieId
+                summaryHUDState?.squaddieNameTiles[actionTilePosition]
+                    ?.battleSquaddieId
             ).toEqual(expectedBattleSquaddieId)
         }
 
@@ -848,7 +857,7 @@ describe("summaryHUD", () => {
         it("will expire the playable tile over time", () => {
             SummaryHUDStateService.peekAtSquaddie({
                 summaryHUDState,
-                objectRepository: gameEngineState.repository,
+                objectRepository: gameEngineState.repository!,
                 battleSquaddieId: "player",
             })
 
@@ -870,7 +879,7 @@ describe("summaryHUD", () => {
         it("will expire the right side tile over time", () => {
             SummaryHUDStateService.peekAtSquaddie({
                 summaryHUDState,
-                objectRepository: gameEngineState.repository,
+                objectRepository: gameEngineState.repository!,
                 battleSquaddieId: "enemy",
             })
 
@@ -892,7 +901,7 @@ describe("summaryHUD", () => {
         it("will never expire the right tile if no date was set", () => {
             SummaryHUDStateService.peekAtSquaddie({
                 summaryHUDState,
-                objectRepository: gameEngineState.repository,
+                objectRepository: gameEngineState.repository!,
                 battleSquaddieId: "enemy",
                 removeExpirationTime: true,
             })
@@ -913,7 +922,7 @@ describe("summaryHUD", () => {
                 "enemy",
                 ActionTilePosition.PEEK_RIGHT_NAME
             )
-            expect(summaryHUDState.squaddieToPeekAt.battleSquaddieId).toEqual(
+            expect(summaryHUDState?.squaddieToPeekAt?.battleSquaddieId).toEqual(
                 "enemy"
             )
         })
@@ -1024,12 +1033,12 @@ describe("summaryHUD", () => {
                 "mouseMoved"
             )
             const mouseX = RectAreaService.centerX(
-                summaryHUDState.playerCommandState.actionButtons[0].uiObjects
-                    .buttonIcon.drawArea
+                summaryHUDState.playerCommandState.actionButtons[0]!.uiObjects
+                    .buttonIcon!.drawArea
             )
             const mouseY = RectAreaService.centerY(
-                summaryHUDState.playerCommandState.actionButtons[0].uiObjects
-                    .buttonIcon.drawArea
+                summaryHUDState.playerCommandState.actionButtons[0]!.uiObjects
+                    .buttonIcon!.drawArea
             )
 
             const showPlayerActionsSpy = vi
@@ -1101,13 +1110,13 @@ describe("summaryHUD", () => {
                                     button: MouseButton.ACCEPT,
                                     x: RectAreaService.centerX(
                                         summaryHUDState.playerCommandState
-                                            .actionButtons[0].uiObjects
-                                            .buttonIcon.drawArea
+                                            .actionButtons[0]!.uiObjects
+                                            .buttonIcon!.drawArea
                                     ),
                                     y: RectAreaService.centerY(
                                         summaryHUDState.playerCommandState
-                                            .actionButtons[0].uiObjects
-                                            .buttonIcon.drawArea
+                                            .actionButtons[0]!.uiObjects
+                                            .buttonIcon!.drawArea
                                     ),
                                 },
                                 gameEngineState,
@@ -1153,8 +1162,8 @@ describe("summaryHUD", () => {
                         summaryHUDState.playerCommandState
                             .selectedActionTemplateId
                     ).toEqual(
-                        summaryHUDState.playerCommandState.actionButtons[0]
-                            .actionTemplate.id
+                        summaryHUDState.playerCommandState.actionButtons![0]!
+                            .actionTemplate!.id
                     )
                     expect(playerCommandSpy).toBeCalled()
                     expect(showPlayerActionsSpy).toBeCalled()
@@ -1172,19 +1181,28 @@ describe("summaryHUD", () => {
             createActorAndActionSelectedTiles(gameEngineState)
 
             expect(summaryHUDState.actionSelectedTile).not.toBeUndefined()
-            expect(summaryHUDState.actionSelectedTile.actionName).toEqual(
+            expect(summaryHUDState.actionSelectedTile?.actionName).toEqual(
                 "NeedsTarget"
             )
         })
 
         describe("Player Considerations will create a tile", () => {
             it("will create tiles when the mouse moves a tile to consider it", () => {
-                gameEngineState.battleOrchestratorState.battleState.playerConsideredActions.actionTemplateId =
-                    "actionTemplate0"
+                expect(
+                    gameEngineState?.battleOrchestratorState?.battleState
+                        ?.playerConsideredActions
+                ).not.toBeUndefined()
+                if (
+                    gameEngineState?.battleOrchestratorState?.battleState
+                        ?.playerConsideredActions != undefined
+                ) {
+                    gameEngineState.battleOrchestratorState.battleState.playerConsideredActions.actionTemplateId =
+                        "actionTemplate0"
+                }
                 createActorAndActionSelectedTiles(gameEngineState)
 
                 expect(summaryHUDState.actionSelectedTile).not.toBeUndefined()
-                expect(summaryHUDState.actionSelectedTile.actionName).toEqual(
+                expect(summaryHUDState.actionSelectedTile?.actionName).toEqual(
                     "NeedsTarget"
                 )
             })

@@ -152,9 +152,11 @@ export const ActionSelectedTileService = {
     }: {
         tile: ActionSelectedTile
         graphicsContext: GraphicsBuffer
-        objectRepository: ObjectRepository
-        resourceHandler: ResourceHandler
+        objectRepository: ObjectRepository | undefined
+        resourceHandler: ResourceHandler | undefined
     }) => {
+        if (objectRepository == undefined) return
+        if (resourceHandler == undefined) return
         ActionTilePositionService.drawBackground({
             squaddieAffiliation: tile.squaddieAffiliation,
             graphicsContext,
@@ -289,7 +291,7 @@ const createActionPointCostTextBoxesAndGetBottom = ({
         graphicsContext,
         top,
         variableName: `AP`,
-        variableAmountDescription: `${actionTemplate.resourceCost.actionPoints}`,
+        variableAmountDescription: `${actionTemplate.resourceCost?.actionPoints ?? "undefined"}`,
     })
     return Math.max(...textBoxAreas.map((area) => RectAreaService.bottom(area)))
 }
@@ -378,7 +380,7 @@ const createActionsPerRoundTextBox = ({
         graphicsContext,
         top,
         variableName: `Per round`,
-        variableAmountDescription: `${actionTemplate.resourceCost.numberOfTimesPerRound}`,
+        variableAmountDescription: `${actionTemplate.resourceCost?.numberOfTimesPerRound ?? "undefined"}`,
     })
     return Math.max(...textBoxAreas.map((area) => RectAreaService.bottom(area)))
 }
@@ -459,7 +461,8 @@ const createCooldownTextBox = ({
     actionTemplate: ActionTemplate
     top: number
 }) => {
-    const cooldownTurns: number = actionTemplate.resourceCost.cooldownTurns
+    const cooldownTurns: number | string =
+        actionTemplate.resourceCost?.cooldownTurns ?? "undefined"
     const textBoxAreas = createNameAndAmountTextBoxes({
         tile,
         graphicsContext,
@@ -586,11 +589,11 @@ const createActionTemplateEffectTextBox = ({
 }
 
 const shouldDrawActionsPerRound = (actionTemplate: ActionTemplate) =>
-    actionTemplate.resourceCost.numberOfTimesPerRound != undefined
+    actionTemplate.resourceCost?.numberOfTimesPerRound != undefined
 
 const shouldDrawCooldown = (actionTemplate: ActionTemplate) =>
-    actionTemplate.resourceCost.cooldownTurns != undefined &&
-    actionTemplate.resourceCost.cooldownTurns > 0
+    actionTemplate.resourceCost?.cooldownTurns != undefined &&
+    actionTemplate.resourceCost?.cooldownTurns > 0
 
 const shouldDrawDamageOrHealing = (actionTemplate: ActionTemplate) => {
     const totalDamage = ActionTemplateService.getTotalDamage(actionTemplate)

@@ -57,10 +57,16 @@ export const RectangleService = {
             cornerRadius: cornerRadius,
         }
     },
-    draw: (rectangle: Rectangle, graphics: GraphicsBuffer): void => {
+    draw: (
+        rectangle: Rectangle | undefined,
+        graphics: GraphicsBuffer
+    ): void => {
         if (!rectangle) return
         graphics.push()
-        if (isValidValue(rectangle.fillColor)) {
+        if (
+            isValidValue(rectangle.fillColor) &&
+            rectangle.fillColor != undefined
+        ) {
             graphics.fill(
                 rectangle.fillColor[0],
                 rectangle.fillColor[1],
@@ -68,14 +74,20 @@ export const RectangleService = {
                 rectangle.fillColor?.[3]
             )
         }
-        if (isValidValue(rectangle.strokeColor)) {
+        if (
+            isValidValue(rectangle.strokeColor) &&
+            rectangle.strokeColor != undefined
+        ) {
             graphics.stroke(
                 rectangle.strokeColor[0],
                 rectangle.strokeColor[1],
                 rectangle.strokeColor[2]
             )
         }
-        if (isValidValue(rectangle.strokeWeight)) {
+        if (
+            isValidValue(rectangle.strokeWeight) &&
+            rectangle.strokeWeight != undefined
+        ) {
             graphics.strokeWeight(rectangle.strokeWeight)
         }
         if (rectangle.noFill) {

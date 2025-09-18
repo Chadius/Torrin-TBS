@@ -375,19 +375,19 @@ describe("calculator", () => {
         })
 
         it("will deal full damage to unarmored foes", () => {
-            const results: CalculatedResult = dealBodyDamage({
+            const results = dealBodyDamage({
                 currentlySelectedAction: actionAlwaysHitsAndDealsBodyDamage,
             })
 
             const enemy1Changes =
-                results.changesPerEffect[0].squaddieChanges.find(
+                results!.changesPerEffect[0]!.squaddieChanges!.find(
                     (change) =>
                         change.battleSquaddieId ===
                         enemy1BattleSquaddie.battleSquaddieId
                 )
-            expect(enemy1Changes.damage.net).toBe(2)
-            expect(enemy1Changes.attributesBefore.currentHitPoints).toEqual(5)
-            expect(enemy1Changes.attributesAfter.currentHitPoints).toEqual(
+            expect(enemy1Changes!.damage.net).toBe(2)
+            expect(enemy1Changes!.attributesBefore!.currentHitPoints).toEqual(5)
+            expect(enemy1Changes!.attributesAfter!.currentHitPoints).toEqual(
                 5 - 2
             )
         })
@@ -397,7 +397,7 @@ describe("calculator", () => {
                 currentlySelectedAction: actionAlwaysHitsAndDealsBodyDamage,
             })
             expect(
-                results.changesPerEffect[0].actorContext.actorRoll.occurred
+                results!.changesPerEffect[0]!.actorContext!.actorRoll.occurred
             ).toBeFalsy()
         })
 
@@ -406,27 +406,27 @@ describe("calculator", () => {
                 currentlySelectedAction: actionAlwaysHitsAndDealsBodyDamage,
             })
             expect(
-                results.changesPerEffect[0].squaddieChanges.find(
+                results!.changesPerEffect[0]!.squaddieChanges!.find(
                     (change) =>
                         change.actorDegreeOfSuccess === DegreeOfSuccess.SUCCESS
-                ).chanceOfDegreeOfSuccess
+                )?.chanceOfDegreeOfSuccess
             ).toBe(36)
             expect(
-                results.changesPerEffect[0].squaddieChanges.find(
+                results!.changesPerEffect[0]!.squaddieChanges!.find(
                     (change) =>
                         change.actorDegreeOfSuccess ===
                         DegreeOfSuccess.CRITICAL_SUCCESS
                 )
             ).toBeUndefined()
             expect(
-                results.changesPerEffect[0].squaddieChanges.find(
+                results!.changesPerEffect[0]!.squaddieChanges!.find(
                     (change) =>
                         change.actorDegreeOfSuccess ===
                         DegreeOfSuccess.CRITICAL_FAILURE
                 )
             ).toBeUndefined()
             expect(
-                results.changesPerEffect[0].squaddieChanges.find(
+                results!.changesPerEffect[0]!.squaddieChanges!.find(
                     (change) =>
                         change.actorDegreeOfSuccess === DegreeOfSuccess.FAILURE
                 )
@@ -439,11 +439,11 @@ describe("calculator", () => {
                     actionNeedsAnAttackRollToDealBodyDamage,
             })
             expect(
-                allDegreesPossible.changesPerEffect[0].squaddieChanges.find(
+                allDegreesPossible!.changesPerEffect[0]!.squaddieChanges!.find(
                     (change) =>
                         change.actorDegreeOfSuccess ===
                         DegreeOfSuccess.CRITICAL_FAILURE
-                ).chanceOfDegreeOfSuccess
+                )?.chanceOfDegreeOfSuccess
             ).toBeGreaterThan(0)
 
             TraitStatusStorageService.setStatus(
@@ -457,27 +457,27 @@ describe("calculator", () => {
                     actionNeedsAnAttackRollToDealBodyDamage,
             })
             expect(
-                cannotCriticallyFail.changesPerEffect[0].squaddieChanges.find(
+                cannotCriticallyFail!.changesPerEffect[0]!.squaddieChanges!.find(
                     (change) =>
                         change.actorDegreeOfSuccess ===
                         DegreeOfSuccess.CRITICAL_FAILURE
                 )
             ).toBeUndefined()
             expect(
-                cannotCriticallyFail.changesPerEffect[0].squaddieChanges.find(
+                cannotCriticallyFail!.changesPerEffect[0]!.squaddieChanges!.find(
                     (change) =>
                         change.actorDegreeOfSuccess === DegreeOfSuccess.FAILURE
-                ).chanceOfDegreeOfSuccess
+                )?.chanceOfDegreeOfSuccess
             ).toEqual(
-                allDegreesPossible.changesPerEffect[0].squaddieChanges.find(
+                (allDegreesPossible!.changesPerEffect[0]!.squaddieChanges!.find(
                     (change) =>
                         change.actorDegreeOfSuccess === DegreeOfSuccess.FAILURE
-                ).chanceOfDegreeOfSuccess +
-                    allDegreesPossible.changesPerEffect[0].squaddieChanges.find(
+                )?.chanceOfDegreeOfSuccess ?? 0) +
+                    (allDegreesPossible!.changesPerEffect[0]!.squaddieChanges!.find(
                         (change) =>
                             change.actorDegreeOfSuccess ===
                             DegreeOfSuccess.CRITICAL_FAILURE
-                    ).chanceOfDegreeOfSuccess
+                    )?.chanceOfDegreeOfSuccess ?? 0)
             )
         })
 
@@ -487,11 +487,11 @@ describe("calculator", () => {
                     actionNeedsAnAttackRollToDealBodyDamage,
             })
             expect(
-                allDegreesPossible.changesPerEffect[0].squaddieChanges.find(
+                allDegreesPossible!.changesPerEffect[0]!.squaddieChanges!.find(
                     (change) =>
                         change.actorDegreeOfSuccess ===
                         DegreeOfSuccess.CRITICAL_SUCCESS
-                ).chanceOfDegreeOfSuccess
+                )?.chanceOfDegreeOfSuccess
             ).toBeGreaterThan(0)
 
             TraitStatusStorageService.setStatus(
@@ -505,27 +505,27 @@ describe("calculator", () => {
                     actionNeedsAnAttackRollToDealBodyDamage,
             })
             expect(
-                cannotCriticallySucceed.changesPerEffect[0].squaddieChanges.find(
+                cannotCriticallySucceed!.changesPerEffect[0]!.squaddieChanges!.find(
                     (change) =>
                         change.actorDegreeOfSuccess ===
                         DegreeOfSuccess.CRITICAL_SUCCESS
                 )
             ).toBeUndefined()
             expect(
-                cannotCriticallySucceed.changesPerEffect[0].squaddieChanges.find(
+                cannotCriticallySucceed!.changesPerEffect[0]!.squaddieChanges!.find(
                     (change) =>
                         change.actorDegreeOfSuccess === DegreeOfSuccess.SUCCESS
-                ).chanceOfDegreeOfSuccess
+                )?.chanceOfDegreeOfSuccess
             ).toEqual(
-                allDegreesPossible.changesPerEffect[0].squaddieChanges.find(
+                (allDegreesPossible!.changesPerEffect[0]!.squaddieChanges!.find(
                     (change) =>
                         change.actorDegreeOfSuccess === DegreeOfSuccess.SUCCESS
-                ).chanceOfDegreeOfSuccess +
-                    allDegreesPossible.changesPerEffect[0].squaddieChanges.find(
+                )?.chanceOfDegreeOfSuccess ?? 0) +
+                    (allDegreesPossible!.changesPerEffect[0]!.squaddieChanges!.find(
                         (change) =>
                             change.actorDegreeOfSuccess ===
                             DegreeOfSuccess.CRITICAL_SUCCESS
-                    ).chanceOfDegreeOfSuccess
+                    )?.chanceOfDegreeOfSuccess ?? 0)
             )
         })
 
@@ -540,10 +540,10 @@ describe("calculator", () => {
                 numberGenerator,
             })
             expect(
-                results.changesPerEffect[0].actorContext.actorRoll.occurred
+                results!.changesPerEffect[0]!.actorContext!.actorRoll.occurred
             ).toBeTruthy()
             expect(
-                results.changesPerEffect[0].actorContext.actorRoll.rolls
+                results!.changesPerEffect[0]!.actorContext!.actorRoll.rolls
             ).toEqual([1, 6])
         })
 
@@ -605,7 +605,7 @@ describe("calculator", () => {
         })
 
         describe("Get forecast", () => {
-            let forecast: CalculatedResult
+            let forecast: CalculatedResult | undefined
             beforeEach(() => {
                 forecast = forecastBodyDamage({
                     currentlySelectedAction:
@@ -624,7 +624,7 @@ describe("calculator", () => {
 
             it("returns the chance for different degrees of success", () => {
                 expect(
-                    forecast.changesPerEffect[0].squaddieChanges.find(
+                    forecast!.changesPerEffect[0]!.squaddieChanges!.find(
                         (change) =>
                             change.actorDegreeOfSuccess ===
                             DegreeOfSuccess.SUCCESS
@@ -639,15 +639,15 @@ describe("calculator", () => {
                         actionNeedsAnAttackRollToDealBodyDamage,
                 })
                 const successForecast =
-                    forecast.changesPerEffect[0].squaddieChanges.find(
+                    forecast!.changesPerEffect[0]!.squaddieChanges!.find(
                         (change) =>
                             change.actorDegreeOfSuccess ===
                             DegreeOfSuccess.SUCCESS
                     )
-                expect(successForecast.damage.net).toBeGreaterThanOrEqual(
+                expect(successForecast!.damage.net).toBeGreaterThanOrEqual(
                     enemy1BattleSquaddie.inBattleAttributes.currentHitPoints
                 )
-                expect(successForecast.damage.willKo).toBeTruthy()
+                expect(successForecast!.damage.willKo).toBeTruthy()
             })
         })
     })
@@ -739,14 +739,14 @@ describe("calculator", () => {
             })
 
             const ally1Changes =
-                results.changesPerEffect[0].squaddieChanges.find(
+                results!.changesPerEffect[0]!.squaddieChanges!.find(
                     (change) =>
                         change.battleSquaddieId ===
                         ally1BattleSquaddie.battleSquaddieId
                 )
-            expect(ally1Changes.healingReceived).toBe(2)
-            expect(ally1Changes.attributesBefore.currentHitPoints).toEqual(1)
-            expect(ally1Changes.attributesAfter.currentHitPoints).toEqual(3)
+            expect(ally1Changes!.healingReceived).toBe(2)
+            expect(ally1Changes!.attributesBefore!.currentHitPoints).toEqual(1)
+            expect(ally1Changes!.attributesAfter!.currentHitPoints).toEqual(3)
         })
 
         it("will forecast a NONE degree of success", () => {
@@ -769,14 +769,14 @@ describe("calculator", () => {
             })
 
             const ally1Changes =
-                results.changesPerEffect[0].squaddieChanges.find(
+                results!.changesPerEffect[0]!.squaddieChanges!.find(
                     (change) =>
                         change.battleSquaddieId ===
                         ally1BattleSquaddie.battleSquaddieId
                 )
-            expect(ally1Changes.healingReceived).toBe(2)
-            expect(ally1Changes.attributesBefore.currentHitPoints).toEqual(1)
-            expect(ally1Changes.attributesAfter.currentHitPoints).toEqual(3)
+            expect(ally1Changes!.healingReceived).toBe(2)
+            expect(ally1Changes!.attributesBefore!.currentHitPoints).toEqual(1)
+            expect(ally1Changes!.attributesAfter!.currentHitPoints).toEqual(3)
         })
 
         it("will record the healing received by a player to mission statistics", () => {
@@ -885,7 +885,7 @@ describe("calculator", () => {
             })
 
             const player1Changes =
-                results.changesPerEffect[0].squaddieChanges.find(
+                results!.changesPerEffect[0]!.squaddieChanges!.find(
                     (change) =>
                         change.battleSquaddieId ===
                         player1BattleSquaddie.battleSquaddieId
@@ -893,13 +893,13 @@ describe("calculator", () => {
 
             const beforeChanges =
                 InBattleAttributesService.calculateCurrentAttributeModifiers(
-                    player1Changes.attributesBefore
+                    player1Changes!.attributesBefore!
                 )
             expect(beforeChanges).toHaveLength(0)
 
             const afterChanges =
                 InBattleAttributesService.calculateCurrentAttributeModifiers(
-                    player1Changes.attributesAfter
+                    player1Changes!.attributesAfter!
                 )
             expect(afterChanges).toEqual([
                 {
@@ -910,7 +910,7 @@ describe("calculator", () => {
 
             expect(
                 InBattleAttributesService.getAllActiveAttributeModifiers(
-                    player1Changes.attributesAfter
+                    player1Changes!.attributesAfter!
                 )
             ).toEqual([armorCircumstanceModifier])
         })
@@ -955,15 +955,15 @@ describe("calculator", () => {
                 numberGenerator,
             })
             const enemy1Changes =
-                results.changesPerEffect[0].squaddieChanges.find(
+                results!.changesPerEffect[0]!.squaddieChanges!.find(
                     (change) =>
                         change.battleSquaddieId ===
                         enemy1BattleSquaddie.battleSquaddieId
                 )
-            expect(enemy1Changes.actorDegreeOfSuccess).toBe(
+            expect(enemy1Changes!.actorDegreeOfSuccess).toBe(
                 DegreeOfSuccess.SUCCESS
             )
-            expect(enemy1Changes.damage.net).toBe(actionBodyDamageAmount)
+            expect(enemy1Changes!.damage.net).toBe(actionBodyDamageAmount)
         })
 
         it("will miss if the roll is less than the defender armor class", () => {
@@ -988,15 +988,15 @@ describe("calculator", () => {
                 numberGenerator,
             })
             const enemy1Changes =
-                results.changesPerEffect[0].squaddieChanges.find(
+                results!.changesPerEffect[0]!.squaddieChanges!.find(
                     (change) =>
                         change.battleSquaddieId ===
                         enemy1BattleSquaddie.battleSquaddieId
                 )
-            expect(enemy1Changes.actorDegreeOfSuccess).toBe(
+            expect(enemy1Changes!.actorDegreeOfSuccess).toBe(
                 DegreeOfSuccess.FAILURE
             )
-            expect(enemy1Changes.damage.net).toBe(0)
+            expect(enemy1Changes!.damage.net).toBe(0)
         })
 
         it("will always hit if the action always hits", () => {
@@ -1021,15 +1021,15 @@ describe("calculator", () => {
             })
 
             const enemy1Changes =
-                results.changesPerEffect[0].squaddieChanges.find(
+                results!.changesPerEffect[0]!.squaddieChanges!.find(
                     (change) =>
                         change.battleSquaddieId ===
                         enemy1BattleSquaddie.battleSquaddieId
                 )
-            expect(enemy1Changes.actorDegreeOfSuccess).toBe(
+            expect(enemy1Changes!.actorDegreeOfSuccess).toBe(
                 DegreeOfSuccess.SUCCESS
             )
-            expect(enemy1Changes.damage.net).toBe(actionBodyDamageAmount)
+            expect(enemy1Changes!.damage.net).toBe(actionBodyDamageAmount)
         })
 
         describe("knows when multiple attack penalties should apply", () => {
@@ -1114,16 +1114,16 @@ describe("calculator", () => {
                 })
 
                 const enemy1Changes =
-                    results.changesPerEffect[0].squaddieChanges.find(
+                    results!.changesPerEffect[0]!.squaddieChanges!.find(
                         (change) =>
                             change.battleSquaddieId ===
                             enemy1BattleSquaddie.battleSquaddieId
                     )
-                expect(enemy1Changes.actorDegreeOfSuccess).toBe(
+                expect(enemy1Changes!.actorDegreeOfSuccess).toBe(
                     DegreeOfSuccess.FAILURE
                 )
                 expect(
-                    results.changesPerEffect[0].actorContext.actorRoll
+                    results!.changesPerEffect[0]!.actorContext!.actorRoll
                         .rollModifiers[RollModifierEnum.MULTIPLE_ATTACK_PENALTY]
                 ).toEqual(-3)
             })
@@ -1166,24 +1166,24 @@ describe("calculator", () => {
                         numberGenerator: new RandomNumberGenerator(),
                     })
                 expect(
-                    forecastForSecondAttack.changesPerEffect[0].actorContext
+                    forecastForSecondAttack!.changesPerEffect[0]!.actorContext!
                         .actorRoll.rollModifiers[
                         RollModifierEnum.MULTIPLE_ATTACK_PENALTY
                     ]
                 ).toBe(-3)
 
                 expect(
-                    forecastForFirstAttack.changesPerEffect[0].squaddieChanges.find(
+                    forecastForFirstAttack!.changesPerEffect[0]!.squaddieChanges!.find(
                         (change) =>
                             change.actorDegreeOfSuccess ===
                             DegreeOfSuccess.SUCCESS
-                    ).chanceOfDegreeOfSuccess
+                    )?.chanceOfDegreeOfSuccess
                 ).toBeGreaterThan(
-                    forecastForSecondAttack.changesPerEffect[0].squaddieChanges.find(
+                    forecastForSecondAttack!.changesPerEffect[0]!.squaddieChanges!.find(
                         (change) =>
                             change.actorDegreeOfSuccess ===
                             DegreeOfSuccess.SUCCESS
-                    ).chanceOfDegreeOfSuccess
+                    )?.chanceOfDegreeOfSuccess ?? 9001
                 )
             })
         })
@@ -1234,15 +1234,15 @@ describe("calculator", () => {
                     numberGenerator,
                 })
                 const enemy1Changes =
-                    results.changesPerEffect[0].squaddieChanges.find(
+                    results!.changesPerEffect[0]!.squaddieChanges!.find(
                         (change) =>
                             change.battleSquaddieId ===
                             enemy1BattleSquaddie.battleSquaddieId
                     )
-                expect(enemy1Changes.actorDegreeOfSuccess).toBe(
+                expect(enemy1Changes!.actorDegreeOfSuccess).toBe(
                     DegreeOfSuccess.SUCCESS
                 )
-                expect(enemy1Changes.damage.net).toBe(actionBodyDamageAmount)
+                expect(enemy1Changes!.damage.net).toBe(actionBodyDamageAmount)
             })
         })
 
@@ -1273,12 +1273,12 @@ describe("calculator", () => {
                 numberGenerator,
             })
             const enemy1Changes =
-                results.changesPerEffect[0].squaddieChanges.find(
+                results!.changesPerEffect[0]!.squaddieChanges!.find(
                     (change) =>
                         change.battleSquaddieId ===
                         enemy1BattleSquaddie.battleSquaddieId
                 )
-            expect(enemy1Changes.actorDegreeOfSuccess).toBe(
+            expect(enemy1Changes!.actorDegreeOfSuccess).toBe(
                 DegreeOfSuccess.FAILURE
             )
         })
@@ -1323,15 +1323,15 @@ describe("calculator", () => {
                 numberGenerator,
             })
             const enemy1Changes =
-                results.changesPerEffect[0].squaddieChanges.find(
+                results!.changesPerEffect[0]!.squaddieChanges!.find(
                     (change) =>
                         change.battleSquaddieId ===
                         enemy1BattleSquaddie.battleSquaddieId
                 )
-            expect(enemy1Changes.actorDegreeOfSuccess).toBe(
+            expect(enemy1Changes!.actorDegreeOfSuccess).toBe(
                 DegreeOfSuccess.CRITICAL_SUCCESS
             )
-            expect(enemy1Changes.damage.net).toBe(actionBodyDamageAmount * 2)
+            expect(enemy1Changes!.damage.net).toBe(actionBodyDamageAmount * 2)
         })
 
         it("will critically hit if the roll is 6 and 6 and the attack would have hit", () => {
@@ -1356,13 +1356,13 @@ describe("calculator", () => {
                 numberGenerator,
             })
             const enemy1Changes = getChangesForBattleSquaddie(
-                results,
+                results!,
                 enemy1BattleSquaddie
             )
-            expect(enemy1Changes.actorDegreeOfSuccess).toBe(
+            expect(enemy1Changes!.actorDegreeOfSuccess).toBe(
                 DegreeOfSuccess.CRITICAL_SUCCESS
             )
-            expect(enemy1Changes.damage.net).toBe(actionBodyDamageAmount * 2)
+            expect(enemy1Changes!.damage.net).toBe(actionBodyDamageAmount * 2)
         })
 
         it("will hit normally if the roll is 6 and 6 and the attack would have missed", () => {
@@ -1446,14 +1446,14 @@ describe("calculator", () => {
             })
 
             const enemy1Changes = getChangesForBattleSquaddie(
-                results,
+                results!,
                 enemy1BattleSquaddie
             )
 
-            expect(enemy1Changes.actorDegreeOfSuccess).toBe(
+            expect(enemy1Changes!.actorDegreeOfSuccess).toBe(
                 DegreeOfSuccess.SUCCESS
             )
-            expect(enemy1Changes.damage.net).toBe(actionBodyDamageAmount)
+            expect(enemy1Changes!.damage.net).toBe(actionBodyDamageAmount)
         })
 
         it("will increment the number of critical hits dealt by the player squaddies in the mission statistics", () => {
@@ -1542,13 +1542,13 @@ describe("calculator", () => {
             })
 
             const enemy1Changes = getChangesForBattleSquaddie(
-                results,
+                results!,
                 enemy1BattleSquaddie
             )
-            expect(enemy1Changes.actorDegreeOfSuccess).toBe(
+            expect(enemy1Changes!.actorDegreeOfSuccess).toBe(
                 DegreeOfSuccess.SUCCESS
             )
-            expect(enemy1Changes.damage.net).toBe(actionBodyDamageAmount)
+            expect(enemy1Changes!.damage.net).toBe(actionBodyDamageAmount)
         })
 
         it("will critically miss if the roll is 6 points or more under the defender armor", () => {
@@ -1573,15 +1573,15 @@ describe("calculator", () => {
                 numberGenerator,
             })
             const enemy1Changes =
-                results.changesPerEffect[0].squaddieChanges.find(
+                results!.changesPerEffect[0]!.squaddieChanges!.find(
                     (change) =>
                         change.battleSquaddieId ===
                         enemy1BattleSquaddie.battleSquaddieId
                 )
-            expect(enemy1Changes.actorDegreeOfSuccess).toBe(
+            expect(enemy1Changes!.actorDegreeOfSuccess).toBe(
                 DegreeOfSuccess.CRITICAL_FAILURE
             )
-            expect(enemy1Changes.damage.net).toBe(0)
+            expect(enemy1Changes!.damage.net).toBe(0)
         })
 
         it("will critically miss if the roll is 1 and 1", () => {
@@ -1606,13 +1606,13 @@ describe("calculator", () => {
                 numberGenerator,
             })
             const enemy1Changes = getChangesForBattleSquaddie(
-                results,
+                results!,
                 enemy1BattleSquaddie
             )
-            expect(enemy1Changes.actorDegreeOfSuccess).toBe(
+            expect(enemy1Changes!.actorDegreeOfSuccess).toBe(
                 DegreeOfSuccess.CRITICAL_FAILURE
             )
-            expect(enemy1Changes.damage.net).toBe(0)
+            expect(enemy1Changes!.damage.net).toBe(0)
         })
 
         it("cannot critically fail if the action is forbidden from critically failing", () => {
@@ -1643,15 +1643,15 @@ describe("calculator", () => {
                 numberGenerator,
             })
             const enemy1Changes =
-                results.changesPerEffect[0].squaddieChanges.find(
+                results!.changesPerEffect[0]!.squaddieChanges!.find(
                     (change) =>
                         change.battleSquaddieId ===
                         enemy1BattleSquaddie.battleSquaddieId
                 )
-            expect(enemy1Changes.actorDegreeOfSuccess).toBe(
+            expect(enemy1Changes!.actorDegreeOfSuccess).toBe(
                 DegreeOfSuccess.FAILURE
             )
-            expect(enemy1Changes.damage.net).toBe(0)
+            expect(enemy1Changes!.damage.net).toBe(0)
         })
     })
 
@@ -1711,33 +1711,34 @@ describe("calculator", () => {
                 currentlySelectedAction: actionHasTwoEffectTemplates,
             })
 
-            expect(results.changesPerEffect).toHaveLength(2)
+            expect(results!.changesPerEffect).toHaveLength(2)
 
             const enemyChangesForFirstTemplate =
-                results.changesPerEffect[0].squaddieChanges.find(
+                results!.changesPerEffect[0]!.squaddieChanges!.find(
                     (change) =>
                         change.battleSquaddieId ===
                         enemy1BattleSquaddie.battleSquaddieId
                 )
-            expect(enemyChangesForFirstTemplate.damage.net).toBe(1)
+            expect(enemyChangesForFirstTemplate!.damage.net).toBe(1)
             expect(
-                enemyChangesForFirstTemplate.attributesBefore.currentHitPoints
+                enemyChangesForFirstTemplate!.attributesBefore!.currentHitPoints
             ).toEqual(5)
             expect(
-                enemyChangesForFirstTemplate.attributesAfter.currentHitPoints
+                enemyChangesForFirstTemplate!.attributesAfter!.currentHitPoints
             ).toEqual(5 - 1)
             const enemyChangesForSecondTemplate =
-                results.changesPerEffect[1].squaddieChanges.find(
+                results!.changesPerEffect[1].squaddieChanges!.find(
                     (change) =>
                         change.battleSquaddieId ===
                         enemy1BattleSquaddie.battleSquaddieId
                 )
-            expect(enemyChangesForSecondTemplate.damage.net).toBe(2)
+            expect(enemyChangesForSecondTemplate!.damage.net).toBe(2)
             expect(
-                enemyChangesForSecondTemplate.attributesBefore.currentHitPoints
+                enemyChangesForSecondTemplate!.attributesBefore!
+                    .currentHitPoints
             ).toEqual(4)
             expect(
-                enemyChangesForSecondTemplate.attributesAfter.currentHitPoints
+                enemyChangesForSecondTemplate!.attributesAfter!.currentHitPoints
             ).toEqual(4 - 2)
         })
     })
@@ -1794,10 +1795,13 @@ describe("calculator", () => {
 
             expect(challengeModifierServiceSpy).toHaveBeenCalled()
 
-            expect(
-                results.changesPerEffect[0].squaddieChanges[0]
-                    .actorDegreeOfSuccess
-            ).toEqual(DegreeOfSuccess.CRITICAL_SUCCESS)
+            const changes = results!.changesPerEffect
+            expect(changes).not.toBeUndefined()
+            if (changes != undefined) {
+                expect(
+                    changes[0].squaddieChanges?.[0]!.actorDegreeOfSuccess
+                ).toEqual(DegreeOfSuccess.CRITICAL_SUCCESS)
+            }
         })
     })
 })
@@ -1826,7 +1830,7 @@ const getChangesForBattleSquaddie = (
     results: CalculatedResult,
     battleSquaddie: BattleSquaddie
 ) => {
-    return results.changesPerEffect[0].squaddieChanges.find(
+    return results!.changesPerEffect[0]!.squaddieChanges!.find(
         (change) => change.battleSquaddieId === battleSquaddie.battleSquaddieId
     )
 }

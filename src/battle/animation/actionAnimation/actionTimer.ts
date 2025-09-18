@@ -53,9 +53,9 @@ export class ActionTimer {
         return ActionAnimationPhase.FINISHED_SHOWING_RESULTS
     }
 
-    private _startTime: number
+    private _startTime: number | undefined
 
-    get startTime(): number {
+    get startTime(): number | undefined {
         return this._startTime
     }
 

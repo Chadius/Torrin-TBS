@@ -180,7 +180,7 @@ describe("dialogue box player", () => {
             ).toBeFalsy()
 
             const buttonLocation =
-                dialoguePlayerState.answerButtons[0].buttonRect
+                dialoguePlayerState.answerButtons[0]!.buttonRect!
 
             DialoguePlayerService.mouseClicked(dialoguePlayerState, {
                 x: RectAreaService.centerX(buttonLocation),
@@ -206,7 +206,7 @@ describe("dialogue box player", () => {
             ).toBeFalsy()
 
             const buttonLocation =
-                dialoguePlayerState.answerButtons[1].buttonRect
+                dialoguePlayerState.answerButtons[1]!.buttonRect!
 
             DialoguePlayerService.mouseClicked(dialoguePlayerState, {
                 x: RectAreaService.centerX(buttonLocation),
@@ -261,13 +261,13 @@ describe("dialogue box player", () => {
         })
 
         it("will set the text to the substituted text", () => {
-            expect(dialoguePlayerState.textBox.dialogueText).toContain(
+            expect(dialoguePlayerState.textBox!.dialogueText).toContain(
                 "Turns: 5"
             )
-            expect(dialoguePlayerState.answerButtons[0].answerText).toContain(
+            expect(dialoguePlayerState.answerButtons[0]!.answerText).toContain(
                 "Yes, 5"
             )
-            expect(dialoguePlayerState.answerButtons[1].answerText).toContain(
+            expect(dialoguePlayerState.answerButtons[1]!.answerText).toContain(
                 "No, 5"
             )
         })

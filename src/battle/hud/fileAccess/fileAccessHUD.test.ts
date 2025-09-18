@@ -108,7 +108,7 @@ describe("File Access HUD", () => {
                 fileAccessHUD.data.getUIObjects().saveButton
             ).not.toBeUndefined()
             expect(
-                fileAccessHUD.data.getUIObjects().saveButton.getStatus()
+                fileAccessHUD.data.getUIObjects().saveButton!.getStatus()
             ).toEqual(ButtonStatus.READY)
         })
         it("Save button changes to hovered state when hovered over", () => {
@@ -116,15 +116,15 @@ describe("File Access HUD", () => {
                 fileAccessHUD,
                 mouseLocation: {
                     x: RectAreaService.centerX(
-                        fileAccessHUD.data.getUIObjects().saveButton.getArea()
+                        fileAccessHUD.data.getUIObjects().saveButton!.getArea()
                     ),
                     y: RectAreaService.centerY(
-                        fileAccessHUD.data.getUIObjects().saveButton.getArea()
+                        fileAccessHUD.data.getUIObjects().saveButton!.getArea()
                     ),
                 },
             })
             expect(
-                fileAccessHUD.data.getUIObjects().saveButton.getStatus()
+                fileAccessHUD.data.getUIObjects().saveButton!.getStatus()
             ).toEqual(ButtonStatus.HOVER)
 
             FileAccessHUDService.mouseMoved({
@@ -134,18 +134,18 @@ describe("File Access HUD", () => {
                         RectAreaService.left(
                             fileAccessHUD.data
                                 .getUIObjects()
-                                .saveButton.getArea()
+                                .saveButton!.getArea()
                         ) - 1,
                     y:
                         RectAreaService.top(
                             fileAccessHUD.data
                                 .getUIObjects()
-                                .saveButton.getArea()
+                                .saveButton!.getArea()
                         ) - 1,
                 },
             })
             expect(
-                fileAccessHUD.data.getUIObjects().saveButton.getStatus()
+                fileAccessHUD.data.getUIObjects().saveButton!.getStatus()
             ).toEqual(ButtonStatus.READY)
         })
         it("Has a load button", () => {
@@ -153,7 +153,7 @@ describe("File Access HUD", () => {
                 fileAccessHUD.data.getUIObjects().loadButton
             ).not.toBeUndefined()
             expect(
-                fileAccessHUD.data.getUIObjects().loadButton.getStatus()
+                fileAccessHUD.data.getUIObjects().loadButton!.getStatus()
             ).toEqual(ButtonStatus.READY)
         })
         it("Load button changes to hovered state when hovered over", () => {
@@ -161,15 +161,15 @@ describe("File Access HUD", () => {
                 fileAccessHUD,
                 mouseLocation: {
                     x: RectAreaService.centerX(
-                        fileAccessHUD.data.getUIObjects().loadButton.getArea()
+                        fileAccessHUD.data.getUIObjects().loadButton!.getArea()
                     ),
                     y: RectAreaService.centerY(
-                        fileAccessHUD.data.getUIObjects().loadButton.getArea()
+                        fileAccessHUD.data.getUIObjects().loadButton!.getArea()
                     ),
                 },
             })
             expect(
-                fileAccessHUD.data.getUIObjects().loadButton.getStatus()
+                fileAccessHUD.data.getUIObjects().loadButton!.getStatus()
             ).toEqual(ButtonStatus.HOVER)
 
             FileAccessHUDService.mouseMoved({
@@ -179,18 +179,18 @@ describe("File Access HUD", () => {
                         RectAreaService.left(
                             fileAccessHUD.data
                                 .getUIObjects()
-                                .loadButton.getArea()
+                                .loadButton!.getArea()
                         ) - 1,
                     y:
                         RectAreaService.top(
                             fileAccessHUD.data
                                 .getUIObjects()
-                                .loadButton.getArea()
+                                .loadButton!.getArea()
                         ) - 1,
                 },
             })
             expect(
-                fileAccessHUD.data.getUIObjects().loadButton.getStatus()
+                fileAccessHUD.data.getUIObjects().loadButton!.getStatus()
             ).toEqual(ButtonStatus.READY)
         })
     })
@@ -208,10 +208,10 @@ describe("File Access HUD", () => {
                 gameEngineState
             )
             expect(
-                fileAccessHUD.data.getUIObjects().loadButton.getStatus()
+                fileAccessHUD.data.getUIObjects().loadButton!.getStatus()
             ).toEqual(ButtonStatus.READY)
             expect(
-                fileAccessHUD.data.getUIObjects().saveButton.getStatus()
+                fileAccessHUD.data.getUIObjects().saveButton!.getStatus()
             ).toEqual(ButtonStatus.READY)
         })
 
@@ -226,10 +226,10 @@ describe("File Access HUD", () => {
                 gameEngineState
             )
             expect(
-                fileAccessHUD.data.getUIObjects().loadButton.getStatus()
+                fileAccessHUD.data.getUIObjects().loadButton!.getStatus()
             ).toEqual(ButtonStatus.DISABLED)
             expect(
-                fileAccessHUD.data.getUIObjects().saveButton.getStatus()
+                fileAccessHUD.data.getUIObjects().saveButton!.getStatus()
             ).toEqual(ButtonStatus.DISABLED)
             expect(takingATurnSpy).toBeCalled()
             takingATurnSpy.mockRestore()
@@ -243,10 +243,10 @@ describe("File Access HUD", () => {
                 gameEngineState
             )
             expect(
-                fileAccessHUD.data.getUIObjects().loadButton.getStatus()
+                fileAccessHUD.data.getUIObjects().loadButton!.getStatus()
             ).toEqual(ButtonStatus.DISABLED)
             expect(
-                fileAccessHUD.data.getUIObjects().saveButton.getStatus()
+                fileAccessHUD.data.getUIObjects().saveButton!.getStatus()
             ).toEqual(ButtonStatus.DISABLED)
         })
     })
@@ -260,10 +260,10 @@ describe("File Access HUD", () => {
                 mousePress: {
                     button: MouseButton.ACCEPT,
                     x: RectAreaService.centerX(
-                        fileAccessHUD.data.getUIObjects().saveButton.getArea()
+                        fileAccessHUD.data.getUIObjects().saveButton!.getArea()
                     ),
                     y: RectAreaService.centerY(
-                        fileAccessHUD.data.getUIObjects().saveButton.getArea()
+                        fileAccessHUD.data.getUIObjects().saveButton!.getArea()
                     ),
                 },
                 fileState,
@@ -274,10 +274,10 @@ describe("File Access HUD", () => {
                 mouseRelease: {
                     button: MouseButton.ACCEPT,
                     x: RectAreaService.centerX(
-                        fileAccessHUD.data.getUIObjects().saveButton.getArea()
+                        fileAccessHUD.data.getUIObjects().saveButton!.getArea()
                     ),
                     y: RectAreaService.centerY(
-                        fileAccessHUD.data.getUIObjects().saveButton.getArea()
+                        fileAccessHUD.data.getUIObjects().saveButton!.getArea()
                     ),
                 },
                 fileState,
@@ -290,10 +290,10 @@ describe("File Access HUD", () => {
         })
         it("changes save and load button to disabled", () => {
             expect(
-                fileAccessHUD.data.getUIObjects().loadButton.getStatus()
+                fileAccessHUD.data.getUIObjects().loadButton!.getStatus()
             ).toEqual(ButtonStatus.DISABLED)
             expect(
-                fileAccessHUD.data.getUIObjects().saveButton.getStatus()
+                fileAccessHUD.data.getUIObjects().saveButton!.getStatus()
             ).toEqual(ButtonStatus.DISABLED)
         })
         describe("save is completed successfully", () => {
@@ -353,7 +353,7 @@ describe("File Access HUD", () => {
                     createGameEngineStateWithBattlePhase(BattlePhase.PLAYER)
                 )
                 expect(
-                    fileAccessHUD.data.getUIObjects().saveButton.getStatus()
+                    fileAccessHUD.data.getUIObjects().saveButton!.getStatus()
                 ).toEqual(ButtonStatus.READY)
             })
         })
@@ -398,7 +398,7 @@ describe("File Access HUD", () => {
                     createGameEngineStateWithBattlePhase(BattlePhase.PLAYER)
                 )
                 expect(
-                    fileAccessHUD.data.getUIObjects().saveButton.getStatus()
+                    fileAccessHUD.data.getUIObjects().saveButton!.getStatus()
                 ).toEqual(ButtonStatus.READY)
             })
         })
@@ -409,10 +409,10 @@ describe("File Access HUD", () => {
         fileAccessHUD.message = "Oh hai"
         FileAccessHUDService.updateButtonStatus(fileAccessHUD)
         expect(
-            fileAccessHUD.data.getUIObjects().loadButton.getStatus()
+            fileAccessHUD.data.getUIObjects().loadButton!.getStatus()
         ).toEqual(ButtonStatus.DISABLED)
         expect(
-            fileAccessHUD.data.getUIObjects().saveButton.getStatus()
+            fileAccessHUD.data.getUIObjects().saveButton!.getStatus()
         ).toEqual(ButtonStatus.DISABLED)
     })
 
@@ -428,10 +428,10 @@ describe("File Access HUD", () => {
                 mousePress: {
                     button: MouseButton.ACCEPT,
                     x: RectAreaService.centerX(
-                        fileAccessHUD.data.getUIObjects().loadButton.getArea()
+                        fileAccessHUD.data.getUIObjects().loadButton!.getArea()
                     ),
                     y: RectAreaService.centerY(
-                        fileAccessHUD.data.getUIObjects().loadButton.getArea()
+                        fileAccessHUD.data.getUIObjects().loadButton!.getArea()
                     ),
                 },
                 fileState,
@@ -442,10 +442,10 @@ describe("File Access HUD", () => {
                 mouseRelease: {
                     button: MouseButton.ACCEPT,
                     x: RectAreaService.centerX(
-                        fileAccessHUD.data.getUIObjects().loadButton.getArea()
+                        fileAccessHUD.data.getUIObjects().loadButton!.getArea()
                     ),
                     y: RectAreaService.centerY(
-                        fileAccessHUD.data.getUIObjects().loadButton.getArea()
+                        fileAccessHUD.data.getUIObjects().loadButton!.getArea()
                     ),
                 },
                 fileState,
@@ -501,18 +501,19 @@ describe("File Access HUD", () => {
                     fileState: fileState,
                     messageBoard,
                 })
-                expectNoMessageAfterDisplayDuration(
-                    dateSpy,
-                    fileState,
-                    fileAccessHUD,
-                    messageBoard
-                )
+                const noMessage: string =
+                    FileAccessHUDService.updateStatusMessage({
+                        fileAccessHUD: fileAccessHUD,
+                        fileState: fileState,
+                        messageBoard,
+                    })
+                expect(noMessage).toBe("")
                 FileAccessHUDService.updateBasedOnGameEngineState(
                     fileAccessHUD,
                     createGameEngineStateWithBattlePhase(BattlePhase.PLAYER)
                 )
                 expect(
-                    fileAccessHUD.data.getUIObjects().loadButton.getStatus()
+                    fileAccessHUD.data.getUIObjects().loadButton!.getStatus()
                 ).not.toEqual(ButtonStatus.DISABLED)
             })
         })
@@ -546,7 +547,7 @@ describe("File Access HUD", () => {
                     createGameEngineStateWithBattlePhase(BattlePhase.PLAYER)
                 )
                 expect(
-                    fileAccessHUD.data.getUIObjects().loadButton.getStatus()
+                    fileAccessHUD.data.getUIObjects().loadButton!.getStatus()
                 ).toEqual(ButtonStatus.READY)
             })
             it("generates a message indicating the Load failed for a period of time", () => {
@@ -584,7 +585,7 @@ const expectNoMessageAfterDisplayDuration = (
         fileState: fileState,
         messageBoard,
     })
-    expect(noMessage).toBeUndefined()
+    expect(noMessage).toBe("")
     expect(fileAccessHUD.messageDisplayStartTime).toBeUndefined()
     expect(dateSpy).toBeCalled()
 }

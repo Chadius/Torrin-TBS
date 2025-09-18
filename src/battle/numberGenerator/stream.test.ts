@@ -22,10 +22,9 @@ describe("stream number generator", () => {
 
     it("will throw an error if it is created with an out of range number", () => {
         const shouldThrowErrorTooHigh = () => {
-            const generator: NumberGeneratorStrategy =
-                new StreamNumberGenerator({
-                    results: [1, 2, 3, 4, 5, 6, 9001],
-                })
+            new StreamNumberGenerator({
+                results: [1, 2, 3, 4, 5, 6, 9001],
+            })
         }
 
         expect(() => {
@@ -38,10 +37,9 @@ describe("stream number generator", () => {
         )
 
         const shouldThrowErrorTooLow = () => {
-            const generator: NumberGeneratorStrategy =
-                new StreamNumberGenerator({
-                    results: [0, 1, 2, 3, 4, 5, 6],
-                })
+            new StreamNumberGenerator({
+                results: [0, 1, 2, 3, 4, 5, 6],
+            })
         }
 
         expect(() => {
@@ -54,10 +52,10 @@ describe("stream number generator", () => {
         )
 
         const shouldThrowErrorNotANumber = () => {
-            const generator: NumberGeneratorStrategy =
-                new StreamNumberGenerator({
-                    results: [1, 2, 3, undefined, 4, 5, null, 6],
-                })
+            new StreamNumberGenerator({
+                // @ts-ignore intentionally adding invalid input to throw an error
+                results: [1, 2, 3, undefined, 4, 5, null, 6],
+            })
         }
         expect(() => {
             shouldThrowErrorNotANumber()

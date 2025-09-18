@@ -51,7 +51,7 @@ export class UpdateSquaddieSelectorPanelButtonDrawingArea
             )
         uiObjects ||= {
             background: undefined,
-            drawingArea: undefined,
+            drawingArea: RectAreaService.null(),
             mapIcon: undefined,
             squaddieName: undefined,
         }

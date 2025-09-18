@@ -1,17 +1,34 @@
 import { TextBox, TextBoxService } from "./textBox"
 import { RectAreaService } from "../rectArea"
-import { MockedP5GraphicsBuffer } from "../../utils/test/mocks"
-import { beforeEach, describe, expect, it, MockInstance, vi } from "vitest"
+import {
+    MockedGraphicsBufferService,
+    MockedP5GraphicsBuffer,
+} from "../../utils/test/mocks"
+import {
+    beforeEach,
+    describe,
+    expect,
+    it,
+    MockInstance,
+    vi,
+    afterEach,
+} from "vitest"
 
 describe("Pop up text", () => {
     let p5TextSpy: MockInstance
     let mockedP5GraphicsContext: MockedP5GraphicsBuffer
+    let graphicsSpies: { [key: string]: MockInstance }
 
     beforeEach(() => {
         mockedP5GraphicsContext = new MockedP5GraphicsBuffer()
-        p5TextSpy = vi
-            .spyOn(mockedP5GraphicsContext.mockedP5, "text")
-            .mockReturnValue(undefined)
+        graphicsSpies = MockedGraphicsBufferService.addSpies(
+            mockedP5GraphicsContext
+        )
+        p5TextSpy = graphicsSpies["text"]
+    })
+
+    afterEach(() => {
+        MockedGraphicsBufferService.resetSpies(graphicsSpies)
     })
 
     it("will try to draw the text for a given amount of time", () => {

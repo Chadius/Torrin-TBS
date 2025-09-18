@@ -253,8 +253,8 @@ describe("ImageUI", () => {
                     "resourceKey"
                 )
 
-                expect(imageUI.graphic.width).toEqual(200)
-                expect(imageUI.graphic.height).toEqual(100)
+                expect(imageUI.graphic!.width).toEqual(200)
+                expect(imageUI.graphic!.height).toEqual(100)
                 expect(RectAreaService.width(imageUI.drawArea)).toEqual(
                     expectedAreaDimensions.width
                 )

@@ -87,6 +87,7 @@ export const BattleActionService = {
         if (!isValidValue(battleAction?.action.actionTemplateId)) {
             return 0
         }
+        if (battleAction.action.actionTemplateId == undefined) return 0
 
         const actionTemplate = ObjectRepositoryService.getActionTemplateById(
             objectRepository,
@@ -126,11 +127,21 @@ export const BattleActionService = {
     },
 }
 
-const sanitize = (battleAction: BattleAction): BattleAction => {
+const sanitize = ({
+    actor,
+    action,
+    effect,
+    animation,
+}: {
+    actor: BattleActionActor
+    action: BattleActionAction
+    effect: BattleActionEffect
+    animation?: BattleActionAnimation
+}): BattleAction => {
     if (
-        !isValidValue(battleAction.action.actionTemplateId) &&
-        !isValidValue(battleAction.action.isMovement) &&
-        !isValidValue(battleAction.action.isEndTurn)
+        !isValidValue(action.actionTemplateId) &&
+        !isValidValue(action.isMovement) &&
+        !isValidValue(action.isEndTurn)
     ) {
         throw new Error(
             `BattleAction cannot sanitize, action must set one of: id, isMovement, isEndTurn`
@@ -138,22 +149,27 @@ const sanitize = (battleAction: BattleAction): BattleAction => {
     }
 
     if (
-        !isValidValue(battleAction.effect.movement) &&
-        !isValidValue(battleAction.effect.squaddie) &&
-        !isValidValue(battleAction.effect.endTurn)
+        !isValidValue(effect.movement) &&
+        !isValidValue(effect.squaddie) &&
+        !isValidValue(effect.endTurn)
     ) {
         throw new Error(
             `BattleAction cannot sanitize, effect must set one of: movement, squaddie, endTurn`
         )
     }
 
-    if (!isValidValue(battleAction.animation)) {
-        battleAction.animation = {
+    if (!isValidValue(animation) || animation == undefined) {
+        animation = {
             completed: false,
         }
     }
 
-    return battleAction
+    return {
+        actor,
+        action,
+        effect,
+        animation,
+    }
 }
 
 const isAnimationComplete = (battleAction: BattleAction) =>

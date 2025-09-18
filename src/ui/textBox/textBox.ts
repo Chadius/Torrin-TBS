@@ -21,7 +21,7 @@ export interface TextBox {
     area: RectArea
     horizAlign: HORIZ_ALIGN
     vertAlign: VERT_ALIGN
-    duration: number
+    duration?: number
     lastTimeDrawn: number
     text: string
 }
@@ -48,7 +48,7 @@ export const TextBoxService = {
             text: text,
         }
     },
-    draw: (textBox: TextBox, graphics: GraphicsBuffer): void => {
+    draw: (textBox: TextBox | undefined, graphics: GraphicsBuffer): void => {
         if (!textBox) return
         if (isDone(textBox)) {
             return
@@ -80,6 +80,7 @@ export const TextBoxService = {
 const isDone = (textBox: TextBox): boolean => {
     return (
         !isValidValue(textBox) ||
-        Date.now() - textBox.lastTimeDrawn >= textBox.duration
+        (textBox.duration != undefined &&
+            Date.now() - textBox.lastTimeDrawn >= textBox.duration)
     )
 }

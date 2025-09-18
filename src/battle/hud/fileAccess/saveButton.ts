@@ -26,8 +26,7 @@ export class FileAccessHUDShouldCreateSaveButton implements BehaviorTreeTask {
 
     run(): boolean {
         const uiObjects: FileAccessHUDUIObjects = this.dataBlob.getUIObjects()
-        const saveButton: Button = uiObjects.saveButton
-        return !saveButton
+        return uiObjects.saveButton == undefined
     }
 }
 

@@ -16,9 +16,9 @@ import {
 } from "../ui/constants"
 import { RectArea, RectAreaService } from "../ui/rectArea"
 import {
+    Resource,
     ResourceHandler,
     ResourceLocator,
-    Resource,
 } from "../resource/resourceHandler"
 import { TextSubstitutionContext } from "../textSubstitution/textSubstitution"
 import { Dialogue, DialogueService } from "./dialogue/dialogue"
@@ -29,13 +29,12 @@ import {
 } from "./splashScreenPlayer"
 import { isValidValue } from "../utils/objectValidityCheck"
 import { ScreenDimensions } from "../utils/graphics/graphicsConfig"
-import p5 from "p5"
 import { GraphicsBuffer } from "../utils/graphics/graphicsRenderer"
 import {
     PlayerInputAction,
-    TPlayerInputAction,
     PlayerInputState,
     PlayerInputStateService,
+    TPlayerInputAction,
 } from "../ui/playerInput/playerInputState"
 import { OrchestratorComponentKeyEvent } from "../battle/orchestrator/battleOrchestratorComponent"
 import { ButtonStatus } from "../ui/button/buttonStatus"
@@ -105,7 +104,7 @@ export interface CutsceneContext {
 }
 
 export interface CutsceneUIObjects {
-    fastForwardButton: Button
+    fastForwardButton?: Button
     graphicsContext?: GraphicsBuffer
 }
 
@@ -114,7 +113,7 @@ export interface Cutscene {
     directionIndex?: number
     currentDirection?: CutsceneDirection
 
-    cutscenePlayerStateById?: {
+    cutscenePlayerStateById: {
         [t: string]: CutsceneDirectionPlayerState
     }
 
@@ -126,10 +125,10 @@ export interface Cutscene {
         CutsceneContext,
         CutsceneUIObjects
     >
-    drawUITask: BehaviorTreeTask
+    drawUITask: BehaviorTreeTask | undefined
 
     allResourceLocators?: ResourceLocator[]
-    allResourceKeys?: string[]
+    allResourceKeys: string[]
 }
 
 export const CutsceneService = {
@@ -141,11 +140,15 @@ export const CutsceneService = {
         directions?: CutsceneDirection[]
     }): Cutscene => {
         const cutscene: Cutscene = {
-            directions: isValidValue(directions) ? [...directions] : [],
+            directions:
+                isValidValue(directions) && directions != undefined
+                    ? [...directions]
+                    : [],
             directionIndex: undefined,
-            decisionTriggers: isValidValue(decisionTriggers)
-                ? [...decisionTriggers]
-                : [],
+            decisionTriggers:
+                isValidValue(decisionTriggers) && decisionTriggers != undefined
+                    ? [...decisionTriggers]
+                    : [],
             cutscenePlayerStateById: {},
             fastForwardPreviousTimeTick: undefined,
             allResourceKeys: [],
@@ -223,9 +226,12 @@ export const CutsceneService = {
     draw: (
         cutscene: Cutscene,
         graphicsContext: GraphicsBuffer,
-        resourceHandler: ResourceHandler
+        resourceHandler: ResourceHandler | undefined
     ) => {
-        if (cutscene.currentDirection !== undefined) {
+        if (
+            cutscene.currentDirection !== undefined &&
+            resourceHandler !== undefined
+        ) {
             switch (cutscene.currentDirection.type) {
                 case CutsceneActionPlayerType.DIALOGUE:
                     DialoguePlayerService.draw(
@@ -252,9 +258,12 @@ export const CutsceneService = {
         uiObjects.graphicsContext = graphicsContext
         cutscene.uiData.setUIObjects(uiObjects)
 
-        cutscene.drawUITask.run()
+        if (cutscene.drawUITask != undefined) cutscene.drawUITask.run()
 
-        if (canFastForward(cutscene)) {
+        if (
+            canFastForward(cutscene) &&
+            uiObjects.fastForwardButton != undefined
+        ) {
             DataBlobService.add<GraphicsBuffer>(
                 uiObjects.fastForwardButton.buttonStyle.dataBlob,
                 "graphicsContext",
@@ -433,9 +442,8 @@ export const CutsceneService = {
                 }
 
                 if (locator.type === Resource.IMAGE) {
-                    let foundImage: p5.Image = resourceHandler.getResource(
-                        locator.key
-                    )
+                    let foundImage = resourceHandler.getResource(locator.key)
+                    if (foundImage == undefined) return
                     switch (
                         cutscene.cutscenePlayerStateById[direction.id].type
                     ) {
@@ -462,7 +470,7 @@ export const CutsceneService = {
     },
     start: (
         cutscene: Cutscene,
-        resourceHandler: ResourceHandler,
+        resourceHandler: ResourceHandler | undefined,
         context: TextSubstitutionContext
     ) => {
         if (!hasLoaded(cutscene, resourceHandler)) {
@@ -488,9 +496,10 @@ export const CutsceneService = {
         }
 
         if (
+            cutscene.fastForwardPreviousTimeTick != undefined &&
             Date.now() >
-            cutscene.fastForwardPreviousTimeTick +
-                FAST_FORWARD_ACTION_WAIT_TIME_MILLISECONDS
+                cutscene.fastForwardPreviousTimeTick +
+                    FAST_FORWARD_ACTION_WAIT_TIME_MILLISECONDS
         ) {
             if (
                 getNextCutsceneDirection(cutscene).nextDirection !== undefined
@@ -511,9 +520,9 @@ export const CutsceneService = {
 
 const hasLoaded = (
     cutscene: Cutscene,
-    resourceHandler: ResourceHandler
+    resourceHandler: ResourceHandler | undefined
 ): boolean => {
-    if (!isValidValue(resourceHandler)) {
+    if (resourceHandler == undefined) {
         return true
     }
     return resourceHandler.areAllResourcesLoaded(cutscene.allResourceKeys)
@@ -563,12 +572,13 @@ const canFastForward = (cutscene: Cutscene): boolean => {
 const getNextCutsceneDirection = (
     cutscene: Cutscene
 ): {
-    nextDirection: CutsceneDirection
+    nextDirection: CutsceneDirection | undefined
     directionIndex: number
 } => {
-    const trigger: CutsceneDecisionTrigger = getTriggeredAction(cutscene)
+    const trigger: CutsceneDecisionTrigger | undefined =
+        getTriggeredAction(cutscene)
     let nextDirection: CutsceneDirection
-    let currentDirectionIndex: number = cutscene.directionIndex
+    let currentDirectionIndex: number | undefined = cutscene.directionIndex
 
     if (trigger !== undefined) {
         return {
@@ -636,9 +646,10 @@ const getResourceLocators = (
 
 const toggleFastForwardAndUpdateFFButton = (cutscene: Cutscene) => {
     toggleFastForwardMode(cutscene)
-    const fastForwardButton: Button = getButtons(cutscene).find(
+    const fastForwardButton = getButtons(cutscene).find(
         (button) => button.id === "CutsceneFastForward"
     )
+    if (fastForwardButton == undefined) return
 
     if (isFastForward(cutscene)) {
         fastForwardButton.changeStatus({
@@ -651,12 +662,14 @@ const toggleFastForwardAndUpdateFFButton = (cutscene: Cutscene) => {
     }
 }
 
-const getTriggeredAction = (cutscene: Cutscene): CutsceneDecisionTrigger => {
+const getTriggeredAction = (
+    cutscene: Cutscene
+): CutsceneDecisionTrigger | undefined => {
     if (cutscene.currentDirection === undefined) {
         return undefined
     }
 
-    let selectedAnswer: number = undefined
+    let selectedAnswer: number | undefined = undefined
 
     if (
         cutscene.cutscenePlayerStateById[cutscene.currentDirection.id].type ===
@@ -669,9 +682,9 @@ const getTriggeredAction = (cutscene: Cutscene): CutsceneDecisionTrigger => {
         ).answerSelected
     }
 
-    return cutscene.decisionTriggers.find(
+    return (cutscene.decisionTriggers ?? []).find(
         (action) =>
-            action.sourceDialogId === cutscene.currentDirection.id &&
+            action.sourceDialogId === cutscene.currentDirection?.id &&
             (!CutsceneDecisionTriggerService.doesThisRequireAMatchingAnswer(
                 action
             ) ||
@@ -719,7 +732,7 @@ const advanceToNextCutsceneDirectionIfFinished = (
     context: TextSubstitutionContext
 ) => {
     let directionIsFinished: boolean = false
-    switch (cutscene.currentDirection.type) {
+    switch (cutscene.currentDirection?.type) {
         case CutsceneActionPlayerType.DIALOGUE:
             directionIsFinished = DialoguePlayerService.isFinished(
                 cutscene.cutscenePlayerStateById[
@@ -754,13 +767,13 @@ const createDrawUITask = (cutscene: Cutscene) => {
 
 const getButtons = (cutscene: Cutscene) => {
     const uiObjects = cutscene.uiData.getUIObjects()
-    return [uiObjects.fastForwardButton].filter((x) => x)
+    return [uiObjects.fastForwardButton].filter((x) => x != undefined)
 }
 
 const reactToFastForwardButtonStatusChangeEvent = (cutscene: Cutscene) => {
     const uiObjects = cutscene.uiData.getUIObjects()
     const fastForwardButton = uiObjects.fastForwardButton
-    const statusChangeEvent = fastForwardButton.getStatusChangeEvent()
+    const statusChangeEvent = fastForwardButton?.getStatusChangeEvent()
     if (!statusChangeEvent) return
 
     const previouslyOff =
@@ -847,13 +860,19 @@ const createLayout = (cutscene: Cutscene) => {
 }
 
 const isDialogue = (
-    cutsceneDirection: CutsceneDirection
+    cutsceneDirection: CutsceneDirection | undefined
 ): cutsceneDirection is Dialogue => {
-    return cutsceneDirection.type === CutsceneActionPlayerType.DIALOGUE
+    return (
+        cutsceneDirection != undefined &&
+        cutsceneDirection.type === CutsceneActionPlayerType.DIALOGUE
+    )
 }
 
 const isSplashScreen = (
-    cutsceneDirection: CutsceneDirection
+    cutsceneDirection: CutsceneDirection | undefined
 ): cutsceneDirection is SplashScreen => {
-    return cutsceneDirection.type === CutsceneActionPlayerType.SPLASH_SCREEN
+    return (
+        cutsceneDirection != undefined &&
+        cutsceneDirection.type === CutsceneActionPlayerType.SPLASH_SCREEN
+    )
 }

@@ -41,9 +41,10 @@ export class PlayerActionConfirmShouldCreateCancelButton
     run(): boolean {
         const uiObjects: PlayerActionTargetStateMachineUIObjects =
             this.dataBlob.getUIObjects()
-        const okButton: Button = uiObjects.confirm.okButton
-        const cancelButton: Button = uiObjects.confirm.cancelButton
-        return !cancelButton && !!okButton
+        return (
+            uiObjects.confirm?.cancelButton == undefined &&
+            uiObjects.confirm?.okButton != undefined
+        )
     }
 }
 
@@ -69,6 +70,8 @@ export class PlayerActionConfirmCreateCancelButton implements BehaviorTreeTask {
     run(): boolean {
         const uiObjects: PlayerActionTargetStateMachineUIObjects =
             this.dataBlob.getUIObjects()
+        if (uiObjects.confirm?.okButton == undefined) return false
+
         const layout: PlayerActionConfirmLayout = this.dataBlob.getLayout()
         const okButtonArea = uiObjects.confirm.okButton.getArea()
 
@@ -162,7 +165,7 @@ export class PlayerActionConfirmCreateCancelButton implements BehaviorTreeTask {
             dataBlob: allLabelButtonDataBlob,
         })
 
-        uiObjects.confirm.cancelButton = new Button({
+        uiObjects.confirm!.cancelButton = new Button({
             id: PLAYER_ACTION_CONFIRM_CREATE_CANCEL_BUTTON_ID,
             drawTask,
             buttonLogic,

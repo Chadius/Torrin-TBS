@@ -82,6 +82,7 @@ import {
 } from "./components/externalLinkButton"
 import { ComponentDataBlob } from "../utils/dataBlob/componentDataBlob"
 import { TitleScreenCreateDebugModeTextBoxAction } from "./components/debugMode"
+import { EnumLike } from "../utils/enum"
 
 const EXTERNAL_LINK_ITCH_IO_IMAGE_PATH =
     "assets/externalLinks/itchIo-app-icon.png"
@@ -219,49 +220,48 @@ export interface TitleScreenLayout {
             target?: string
         }
     }
-    htmlGenerator: p5
+    htmlGenerator: p5 | undefined
 }
 
 export interface TitleScreenContext {
-    errorDuringLoadingDisplayStartTimestamp: number
+    errorDuringLoadingDisplayStartTimestamp: number | undefined
     menuSelection: TTitleScreenMenuSelection
     version: string
-    fileState: FileState
-    messageBoard: MessageBoard
+    fileState: FileState | undefined
+    messageBoard: MessageBoard | undefined
     buttonStatusChangeEventDataBlob: ButtonStatusChangeEventByButtonId
 }
 
 export interface TitleScreenUIObjects {
-    startGameButton: Button
-    continueGameButton: Button
-    byLine: TextBox
-    titleText: TextBox
-    gameDescription: TextBox
-    background: Rectangle
-    titleBanner: ImageUI
-    versionTextBox: TextBox
-    debugModeTextBox: TextBox
+    startGameButton: Button | undefined
+    continueGameButton: Button | undefined
+    byLine: TextBox | undefined
+    titleText: TextBox | undefined
+    gameDescription: TextBox | undefined
+    background: Rectangle | undefined
+    titleBanner: ImageUI | undefined
+    versionTextBox: TextBox | undefined
+    debugModeTextBox: TextBox | undefined
     demonSlither: {
-        icon: ImageUI
-        descriptionText: TextBox
+        icon: ImageUI | undefined
+        descriptionText: TextBox | undefined
     }
     demonLocust: {
-        icon: ImageUI
-        descriptionText: TextBox
+        icon: ImageUI | undefined
+        descriptionText: TextBox | undefined
     }
     sirCamil: {
-        icon: ImageUI
-        descriptionText: TextBox
+        icon: ImageUI | undefined
+        descriptionText: TextBox | undefined
     }
     nahla: {
-        icon: ImageUI
-        descriptionText: TextBox
+        icon: ImageUI | undefined
+        descriptionText: TextBox | undefined
     }
     graphicsContext?: GraphicsBuffer
     resourceHandler?: ResourceHandler
     externalLinks: {
-        [key: string]: p5.Element
-        itchIo: p5.Element
+        [key: string]: p5.Element | undefined
     }
 }
 
@@ -271,7 +271,7 @@ export class TitleScreen implements GameEngineComponent {
         TitleScreenContext,
         TitleScreenUIObjects
     >
-    drawUIObjectsBehaviorTree: BehaviorTreeTask
+    drawUIObjectsBehaviorTree: BehaviorTreeTask | undefined
     p5Instance?: p5
 
     constructor({ version, p5Instance }: { version: string; p5Instance?: p5 }) {
@@ -457,18 +457,22 @@ export class TitleScreen implements GameEngineComponent {
             const uiObjects = this.data.getUIObjects()
             const context = this.data.getContext()
 
-            uiObjects.startGameButton.changeStatus({
+            uiObjects.startGameButton?.changeStatus({
                 newStatus: ButtonStatus.ACTIVE,
             })
 
-            this.reactToStartGameButtonStatusChangeEvent(
-                context,
-                uiObjects.startGameButton
-            )
-            this.reactToContinueGameButtonStatusChangeEvent(
-                context,
-                uiObjects.continueGameButton
-            )
+            if (uiObjects.startGameButton != undefined) {
+                this.reactToStartGameButtonStatusChangeEvent(
+                    context,
+                    uiObjects.startGameButton
+                )
+            }
+            if (uiObjects.continueGameButton != undefined) {
+                this.reactToContinueGameButtonStatusChangeEvent(
+                    context,
+                    uiObjects.continueGameButton
+                )
+            }
         }
     }
 
@@ -536,7 +540,7 @@ export class TitleScreen implements GameEngineComponent {
     private getButtons() {
         const uiObjects: TitleScreenUIObjects = this.data.getUIObjects()
         return [uiObjects.startGameButton, uiObjects.continueGameButton].filter(
-            (x) => x
+            (x) => x != undefined
         )
     }
 
@@ -609,7 +613,7 @@ export class TitleScreen implements GameEngineComponent {
     private draw(
         gameEngineState: GameEngineState,
         graphicsContext: GraphicsBuffer,
-        resourceHandler: ResourceHandler
+        resourceHandler: ResourceHandler | undefined
     ): void {
         const uiObjects: TitleScreenUIObjects = this.data.getUIObjects()
 
@@ -626,9 +630,9 @@ export class TitleScreen implements GameEngineComponent {
         layout.htmlGenerator = this.p5Instance
         this.data.setLayout(layout)
 
-        this.drawUIObjectsBehaviorTree.run()
+        this.drawUIObjectsBehaviorTree?.run()
         ;[uiObjects.startGameButton, uiObjects.continueGameButton]
-            .filter((x) => x)
+            .filter((x) => x != undefined)
             .forEach((button) => {
                 DataBlobService.add<GraphicsBuffer>(
                     button.buttonStyle.dataBlob,
@@ -658,7 +662,7 @@ export class TitleScreen implements GameEngineComponent {
         const uiObjectsToDelete = this.data.getUIObjects()
         if (uiObjectsToDelete?.externalLinks) {
             Object.values(uiObjectsToDelete.externalLinks)
-                .filter((x) => x)
+                .filter((x) => x != undefined)
                 .forEach((link) => {
                     link.remove()
                 })
@@ -690,9 +694,7 @@ export class TitleScreen implements GameEngineComponent {
             background: undefined,
             versionTextBox: undefined,
             debugModeTextBox: undefined,
-            externalLinks: {
-                itchIo: undefined,
-            },
+            externalLinks: {},
         }
         this.data.setUIObjects(uiObjects)
     }
@@ -823,6 +825,7 @@ export class TitleScreen implements GameEngineComponent {
             new ExecuteAllComposite(this.data, [
                 new DrawRectanglesAction(
                     this.data,
+                    // @ts-ignore ComponentDataBlob is a subclass of DataBlob
                     (
                         dataBlob: ComponentDataBlob<
                             TitleScreenLayout,
@@ -838,6 +841,7 @@ export class TitleScreen implements GameEngineComponent {
                 ),
                 new DrawTextBoxesAction(
                     this.data,
+                    // @ts-ignore ComponentDataBlob is a subclass of DataBlob
                     (
                         dataBlob: ComponentDataBlob<
                             TitleScreenLayout,
@@ -857,13 +861,15 @@ export class TitleScreen implements GameEngineComponent {
                             uiObjects.sirCamil.descriptionText,
                             uiObjects.demonSlither.descriptionText,
                             uiObjects.demonLocust.descriptionText,
-                        ].filter((x) => x)
+                        ].filter((x) => x != undefined)
                     },
                     getGraphicsContext
                 ),
                 new DrawImagesAction(
                     this.data,
-                    (_: DataBlob) => this.getAllImages().filter((x) => x),
+                    (_: DataBlob) =>
+                        this.getAllImages().filter((x) => x != undefined),
+                    // @ts-ignore ComponentDataBlob is a subclass of DataBlob
                     getGraphicsContext,
                     getResourceHandler
                 ),
@@ -898,7 +904,11 @@ export class TitleScreen implements GameEngineComponent {
         const messageBoard = context.messageBoard
         const fileState = context.fileState
 
-        if (context.menuSelection === TitleScreenMenuSelection.NONE) {
+        if (
+            context.menuSelection === TitleScreenMenuSelection.NONE &&
+            fileState != undefined &&
+            messageBoard != undefined
+        ) {
             context.menuSelection = TitleScreenMenuSelection.CONTINUE_GAME
 
             LoadSaveStateService.reset(fileState.loadSaveState)
@@ -918,6 +928,9 @@ const getGraphicsContext = (
     >
 ): GraphicsBuffer => {
     const uiObjects: TitleScreenUIObjects = dataBlob.getUIObjects()
+    if (uiObjects.graphicsContext == undefined) {
+        throw new Error("[getGraphicsContext] GraphicsContext not found")
+    }
     return uiObjects.graphicsContext
 }
 
@@ -929,5 +942,8 @@ const getResourceHandler = (
     >
 ): ResourceHandler => {
     const uiObjects: TitleScreenUIObjects = dataBlob.getUIObjects()
+    if (uiObjects.resourceHandler == undefined) {
+        throw new Error("[getResourceHandler] GraphicsContext not found")
+    }
     return uiObjects.resourceHandler
 }

@@ -17,26 +17,7 @@ export const SearchPathAdapterService = {
             cost: connection.cost,
         }))
     },
-    add: ({
-        path,
-        newCoordinate,
-        costToMoveToNewCoordinate,
-        startCoordinate,
-    }: {
-        path: SearchPathAdapter
-        newCoordinate: HexCoordinate
-        costToMoveToNewCoordinate: number
-        startCoordinate?: HexCoordinate
-    }): void => {
-        const fromNode =
-            path.length == 0 ? startCoordinate : path[path.length - 1].toNode
-        path.push({
-            fromNode,
-            toNode: newCoordinate,
-            cost: costToMoveToNewCoordinate,
-        })
-    },
-    getHead: (path: SearchPathAdapter): HexCoordinate => {
+    getHead: (path: SearchPathAdapter): HexCoordinate | undefined => {
         if (path.length == 0) return undefined
 
         return path[path.length - 1].toNode
@@ -81,8 +62,9 @@ export const SearchPathAdapterService = {
             movementPerAction: movementPerAction,
         })
     },
-    getNumberOfCoordinates: (path: SearchPathAdapter): number =>
-        getNumberOfCoordinates(path),
+    getNumberOfCoordinates: (
+        path: SearchPathAdapter | undefined
+    ): number | undefined => getNumberOfCoordinates(path),
 }
 
 const getTotalCostOfConnections = (path: SearchConnection<HexCoordinate>[]) => {
@@ -101,7 +83,9 @@ const getNumberOfMoveActions = ({
     return Math.ceil(getTotalCostOfConnections(path) / movementPerAction)
 }
 
-const getNumberOfCoordinates = (path: SearchPathAdapter): number => {
+const getNumberOfCoordinates = (
+    path: SearchPathAdapter | undefined
+): number | undefined => {
     if (path == undefined) return 0
     if (path.length == 0) return 1
     if (

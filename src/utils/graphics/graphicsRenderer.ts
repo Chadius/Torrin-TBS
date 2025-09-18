@@ -86,7 +86,7 @@ export interface GraphicsBuffer {
 
     vertex(x: number, y: number): void
 
-    endShape(mode: string): void
+    endShape(mode: "close" | undefined): void
 
     noFill(): void
 

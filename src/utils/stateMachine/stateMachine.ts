@@ -63,8 +63,10 @@ export class StateMachine<
         const actions: ActionType[] = [
             this.getExitActionFromCurrentState(),
             this.getActionFromTriggeredTransition(triggeredTransition),
-            this.getEntryActionFromTargetState(targetedState),
-        ].filter((x) => x)
+            targetedState
+                ? this.getEntryActionFromTargetState(targetedState)
+                : undefined,
+        ].filter((x) => x != undefined)
         return {
             stateMachineId,
             transitionFired: triggeredTransition,
@@ -73,7 +75,7 @@ export class StateMachine<
         }
     }
 
-    getTriggeredTransition(): TransitionType {
+    getTriggeredTransition(): TransitionType | undefined {
         return this.getTransitionsForCurrentState().find((transition) =>
             StateMachineDataService.isTransitionTriggered({
                 stateMachineData: this.stateMachineData,
@@ -98,8 +100,8 @@ export class StateMachine<
     }
 
     getTargetedStateFromTransition(transition: TransitionType): {
-        targetedState: StateType
-        stateMachineId: string
+        targetedState: StateType | undefined
+        stateMachineId: string | undefined
     } {
         const targetedState =
             StateMachineDataService.getTargetedStateFromTransition(
@@ -112,11 +114,13 @@ export class StateMachine<
         }
     }
 
-    getExitActionFromCurrentState(): ActionType {
+    getExitActionFromCurrentState(): ActionType | undefined {
         return this.getExitActionFromState(this.currentState)
     }
 
-    getExitActionFromState(stateMachineState: StateType): ActionType {
+    getExitActionFromState(
+        stateMachineState: StateType
+    ): ActionType | undefined {
         return StateMachineDataService.getExitActionFromState(
             this.stateMachineData,
             stateMachineState
@@ -125,14 +129,16 @@ export class StateMachine<
 
     getActionFromTriggeredTransition(
         triggeredTransition: TransitionType
-    ): ActionType {
+    ): ActionType | undefined {
         return StateMachineDataService.getActionFromTriggeredTransition(
             this.stateMachineData,
             triggeredTransition
         )
     }
 
-    getEntryActionFromTargetState(targetState: StateType): ActionType {
+    getEntryActionFromTargetState(
+        targetState: StateType
+    ): ActionType | undefined {
         return StateMachineDataService.getEntryActionFromState(
             this.stateMachineData,
             targetState
@@ -180,7 +186,7 @@ export class StateMachine<
                     actionLogic(this.context)
                 }
             })
-            if (update.transitionFired) {
+            if (update.transitionFired && update.targetedState != undefined) {
                 this.currentState = update.targetedState
             }
         }

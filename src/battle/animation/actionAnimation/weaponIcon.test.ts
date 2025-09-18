@@ -3,7 +3,10 @@ import {
     Trait,
     TraitStatusStorageService,
 } from "../../../trait/traitStatusStorage"
-import { MockedP5GraphicsBuffer } from "../../../utils/test/mocks"
+import {
+    MockedGraphicsBufferService,
+    MockedP5GraphicsBuffer,
+} from "../../../utils/test/mocks"
 import { WeaponIcon } from "./weaponIcon"
 import { RectArea, RectAreaService } from "../../../ui/rectArea"
 import {
@@ -14,7 +17,14 @@ import {
     ActionEffectTemplateService,
     TargetBySquaddieAffiliationRelation,
 } from "../../../action/template/actionEffectTemplate"
-import { beforeEach, describe, expect, it, MockInstance, vi } from "vitest"
+import {
+    afterEach,
+    beforeEach,
+    describe,
+    expect,
+    it,
+    MockInstance,
+} from "vitest"
 
 describe("weapon icon", () => {
     let hinderingAction: ActionTemplate
@@ -22,6 +32,7 @@ describe("weapon icon", () => {
 
     let textSpy: MockInstance
     let mockedGraphicsContext: MockedP5GraphicsBuffer
+    let graphicsSpies: { [key: string]: MockInstance }
 
     beforeEach(() => {
         hinderingAction = ActionTemplateService.new({
@@ -61,9 +72,14 @@ describe("weapon icon", () => {
         })
 
         mockedGraphicsContext = new MockedP5GraphicsBuffer()
-        textSpy = vi
-            .spyOn(mockedGraphicsContext.mockedP5, "text")
-            .mockReturnValue(undefined)
+        graphicsSpies = MockedGraphicsBufferService.addSpies(
+            mockedGraphicsContext
+        )
+        textSpy = graphicsSpies["text"]
+    })
+
+    afterEach(() => {
+        MockedGraphicsBufferService.resetSpies(graphicsSpies)
     })
 
     it("shows the phrase Attacking! when using a hindering ability", () => {

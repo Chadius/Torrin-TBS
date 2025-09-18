@@ -99,7 +99,7 @@ describe("BattleHUDState", () => {
                 ...playerTeam.battleSquaddieIds,
             ])
             expect(battleHUDState.squaddieSelectorPanel).not.toBeUndefined()
-            expect(battleHUDState.squaddieSelectorPanel.buttons).toHaveLength(
+            expect(battleHUDState.squaddieSelectorPanel!.buttons).toHaveLength(
                 playerTeam.battleSquaddieIds.length
             )
         })
@@ -114,7 +114,7 @@ describe("BattleHUDState", () => {
             ).toEqual("playerSquaddie0")
             expect(
                 SquaddieSelectorPanelService.getSelectedBattleSquaddieId(
-                    battleHUDState.squaddieSelectorPanel
+                    battleHUDState.squaddieSelectorPanel!
                 )
             ).toBe("playerSquaddie0")
 
@@ -127,7 +127,7 @@ describe("BattleHUDState", () => {
             ).toEqual("playerSquaddie1")
             expect(
                 SquaddieSelectorPanelService.getSelectedBattleSquaddieId(
-                    battleHUDState.squaddieSelectorPanel
+                    battleHUDState.squaddieSelectorPanel!
                 )
             ).toBe("playerSquaddie1")
 
@@ -140,7 +140,7 @@ describe("BattleHUDState", () => {
             ).toEqual("playerSquaddie2")
             expect(
                 SquaddieSelectorPanelService.getSelectedBattleSquaddieId(
-                    battleHUDState.squaddieSelectorPanel
+                    battleHUDState.squaddieSelectorPanel!
                 )
             ).toBe("playerSquaddie2")
 
@@ -153,7 +153,7 @@ describe("BattleHUDState", () => {
             ).toEqual("playerSquaddie0")
             expect(
                 SquaddieSelectorPanelService.getSelectedBattleSquaddieId(
-                    battleHUDState.squaddieSelectorPanel
+                    battleHUDState.squaddieSelectorPanel!
                 )
             ).toBe("playerSquaddie0")
         })
@@ -252,7 +252,7 @@ describe("BattleHUDState", () => {
             ).toBeUndefined()
             expect(
                 SquaddieSelectorPanelService.getSelectedBattleSquaddieId(
-                    battleHUDState.squaddieSelectorPanel
+                    battleHUDState.squaddieSelectorPanel!
                 )
             ).toBeUndefined()
         })
@@ -267,7 +267,7 @@ describe("BattleHUDState", () => {
             // call again, it should stay on nahla
             // I get it, it skips if the character is already selected
             // So it skips Nahla as she is already selected
-            // and it skips Sir Camil because his turn is over
+            // and, it skips Sir Camil because his turn is over
 
             playerTeam.battleSquaddieIds
                 .slice(0, 2)
@@ -290,7 +290,7 @@ describe("BattleHUDState", () => {
             ).toBe("playerSquaddie2")
             expect(
                 SquaddieSelectorPanelService.getSelectedBattleSquaddieId(
-                    battleHUDState.squaddieSelectorPanel
+                    battleHUDState.squaddieSelectorPanel!
                 )
             ).toBe("playerSquaddie2")
             expect(
@@ -302,7 +302,7 @@ describe("BattleHUDState", () => {
             ).toBe("playerSquaddie2")
             expect(
                 SquaddieSelectorPanelService.getSelectedBattleSquaddieId(
-                    battleHUDState.squaddieSelectorPanel
+                    battleHUDState.squaddieSelectorPanel!
                 )
             ).toBe("playerSquaddie2")
         })

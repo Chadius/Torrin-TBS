@@ -23,7 +23,7 @@ import {
     CutsceneEffectService,
 } from "../../cutscene/cutsceneEffect"
 import { ChallengeModifierEffect } from "./eventEffect/challengeModifierEffect/challengeModifierEffect"
-import { BattleEventEffect, BattleEventEffectBase } from "./battleEventEffect"
+import { BattleEventEffect } from "./battleEventEffect"
 
 export type BattleEventEffect = CutsceneEffect | ChallengeModifierEffect
 
@@ -113,7 +113,7 @@ export const BattleEventService = {
             }
         })
     },
-    getCutsceneId: (battleEvent: BattleEvent): string => {
+    getCutsceneId: (battleEvent: BattleEvent): string | undefined => {
         if (CutsceneEffectService.isCutscene(battleEvent.effect))
             return battleEvent.effect.cutsceneId
         return undefined

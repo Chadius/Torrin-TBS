@@ -23,7 +23,6 @@ import {
     DebugModeMenuShouldCreateToggleModeMenuButton,
 } from "./toggleMenuButton"
 import { ButtonStatus } from "../../../ui/button/buttonStatus"
-import { RectAreaService } from "../../../ui/rectArea"
 import { Rectangle, RectangleService } from "../../../ui/rectangle/rectangle"
 import { DrawRectanglesAction } from "../../../ui/rectangle/drawRectanglesAction"
 import {
@@ -136,16 +135,16 @@ export interface DebugModeMenuLayout {
 
 export interface DebugModeMenuContext {
     isMenuOpen: boolean
-    lastTitleTextUpdate: number
+    lastTitleTextUpdate: number | undefined
     buttonStatusChangeEventDataBlob: ButtonStatusChangeEventByButtonId
     behaviorOverrides: { noAction: boolean }
 }
 
 export interface DebugModeMenuUIObjects {
-    menuBackground: Rectangle
-    debugModeTitle: TextBox
-    toggleMenuButton: Button
-    behaviorOverrideToggleNoActionButton: Button
+    menuBackground: Rectangle | undefined
+    debugModeTitle: TextBox | undefined
+    toggleMenuButton: Button | undefined
+    behaviorOverrideToggleNoActionButton: Button | undefined
 }
 
 export interface DebugModeFlags {
@@ -160,7 +159,7 @@ export interface DebugModeMenu {
         DebugModeMenuContext,
         DebugModeMenuUIObjects
     >
-    drawUITask: BehaviorTreeTask
+    drawUITask: BehaviorTreeTask | undefined
 }
 
 export const DebugModeMenuService = {
@@ -355,8 +354,9 @@ export const DebugModeMenuService = {
         }
 
         Object.values(buttonActions)
-            .filter((buttonInfo) => buttonInfo.uiObject)
+            .filter((buttonInfo) => buttonInfo.uiObject != undefined)
             .forEach((buttonInfo) => {
+                if (buttonInfo.uiObject == undefined) return
                 buttonInfo.wasClicked =
                     buttonInfo.uiObject.getStatusChangeEvent()?.mousePress !=
                     undefined
@@ -382,8 +382,10 @@ export const DebugModeMenuService = {
             })
         })
     },
-    getDebugModeFlags: (debugModeMenu: DebugModeMenu): DebugModeFlags => {
-        if (!debugModeMenu) {
+    getDebugModeFlags: (
+        debugModeMenu: DebugModeMenu | undefined
+    ): DebugModeFlags => {
+        if (debugModeMenu == undefined) {
             return {
                 behaviorOverrides: {
                     noActions: false,
@@ -417,6 +419,7 @@ const createDrawUITask = (
             new DebugModeMenuIsOpenTask(data),
             new DrawRectanglesAction(
                 data,
+                // @ts-ignore ComponentDataBlob is a subclass of DataBlob
                 (
                     data: ComponentDataBlob<
                         DebugModeMenuLayout,
@@ -425,7 +428,9 @@ const createDrawUITask = (
                     >
                 ) => {
                     const uiObjects = data.getUIObjects()
-                    return [uiObjects.menuBackground].filter((x) => x)
+                    return [uiObjects.menuBackground].filter(
+                        (x) => x != undefined
+                    )
                 },
                 (_) => graphicsContext
             ),
@@ -447,6 +452,7 @@ const createDrawUITask = (
         ]),
         new DrawTextBoxesAction(
             data,
+            // @ts-ignore ComponentDataBlob is a subclass of DataBlob
             (
                 data: ComponentDataBlob<
                     DebugModeMenuLayout,
@@ -455,7 +461,7 @@ const createDrawUITask = (
                 >
             ) => {
                 const uiObjects = data.getUIObjects()
-                return [uiObjects.debugModeTitle].filter((x) => x)
+                return [uiObjects.debugModeTitle].filter((x) => x != undefined)
             },
             (_) => graphicsContext
         ),
@@ -473,7 +479,7 @@ const getButtons = (debugModeMenu: DebugModeMenu) => {
                   uiObjects.behaviorOverrideToggleNoActionButton,
               ]
             : []),
-    ].filter((x) => x)
+    ].filter((x) => x != undefined)
 }
 
 const toggleDebugMenu = (debugModeMenu: DebugModeMenu) => {
@@ -484,11 +490,11 @@ const toggleDebugMenu = (debugModeMenu: DebugModeMenu) => {
     const uiObjects: DebugModeMenuUIObjects = debugModeMenu.data.getUIObjects()
     const toggleMenuButton = uiObjects.toggleMenuButton
     if (context.isMenuOpen) {
-        toggleMenuButton.changeStatus({
+        toggleMenuButton?.changeStatus({
             newStatus: ButtonStatus.TOGGLE_ON,
         })
     } else {
-        toggleMenuButton.changeStatus({
+        toggleMenuButton?.changeStatus({
             newStatus: ButtonStatus.TOGGLE_OFF,
         })
     }
@@ -567,9 +573,6 @@ class DebugModeMenuCreateBackgroundPanel implements BehaviorTreeTask {
         const layout: DebugModeMenuLayout = this.dataBlob.getLayout()
         const uiObjects: DebugModeMenuUIObjects = this.dataBlob.getUIObjects()
         uiObjects.menuBackground = RectangleService.new({
-            area: RectAreaService.new({
-                ...layout.menuBackground.area,
-            }),
             ...layout.menuBackground,
         })
         this.dataBlob.setUIObjects(uiObjects)

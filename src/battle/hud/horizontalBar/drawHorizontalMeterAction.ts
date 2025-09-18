@@ -49,7 +49,11 @@ export class DrawHorizontalMeterAction implements BehaviorTreeTask {
     ) {
         this.dataBlob = dataBlob
         this.graphicsContext = graphicsContext
-        this.currentValueSegmentFunction = functions?.currentValueSegment
+        const defaultCurrentValueSegmentFunction = (
+            _: DrawHorizontalMeterActionDataBlob
+        ) => []
+        this.currentValueSegmentFunction =
+            functions?.currentValueSegment ?? defaultCurrentValueSegmentFunction
     }
 
     run(): boolean {

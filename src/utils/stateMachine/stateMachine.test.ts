@@ -135,9 +135,15 @@ describe("StateMachine", () => {
             trashRobotStateMachine.stateMachineData.logicByAction[
                 TrashRobotLookForTrashActionEnum.HEAD_FOR_TRASH
             ] = spy
+
+            expect(
+                trashRobotStateMachine.getActionLogic(
+                    TrashRobotLookForTrashActionEnum.HEAD_FOR_TRASH
+                )
+            ).not.toBeUndefined()
             trashRobotStateMachine.getActionLogic(
                 TrashRobotLookForTrashActionEnum.HEAD_FOR_TRASH
-            )(trashRobotWorld)
+            )!(trashRobotWorld)
             expect(spy).toBeCalled()
             spy.mockRestore()
         })

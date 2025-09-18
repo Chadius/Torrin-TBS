@@ -5,6 +5,7 @@ import { GraphicsBuffer } from "../../../utils/graphics/graphicsRenderer"
 import { ScreenDimensions } from "../../../utils/graphics/graphicsConfig"
 import { GOLDEN_RATIO, VERTICAL_ALIGN } from "../../../ui/constants"
 import { TextFormatService } from "../../../utils/graphics/textFormatService"
+import { EnumLike } from "../../../utils/enum"
 
 export type ModifierDisplayColumnData = {
     amount?: number
@@ -43,7 +44,7 @@ const ModifierDisplayDataLayout = {
 
 export interface ModifierDisplayColumn {
     labels: Label[]
-    animationStartTime: number
+    animationStartTime: number | undefined
 }
 
 const MODIFIER_DISPLAY_TOP =
@@ -66,12 +67,16 @@ export const ModifierDisplayColumnService = {
         const modifiersThatCanBeSorted = modifiers
             .filter(
                 (modifier) =>
-                    isValidValue(modifier.amount) && modifier.amount != 0
+                    isValidValue(modifier.amount) &&
+                    modifier.amount != undefined &&
+                    modifier.amount != 0
             )
             .sort((a, b) =>
                 sortOrderLeastToGreatest
-                    ? a.amount - b.amount
-                    : b.amount - a.amount
+                    ? //@ts-ignore undefined amounts were already filtered out
+                      a.amount - b.amount
+                    : //@ts-ignore undefined amounts were already filtered out
+                      b.amount - a.amount
             )
         const modifiersThatCannotBeSorted = modifiers.filter(
             (modifier) => !isValidValue(modifier.amount)
@@ -93,7 +98,7 @@ export const ModifierDisplayColumnService = {
         modifierDisplay,
         graphicsBuffer,
     }: {
-        modifierDisplay: ModifierDisplayColumn
+        modifierDisplay: ModifierDisplayColumn | undefined
         graphicsBuffer: GraphicsBuffer
     }) => {
         if (!modifierDisplay) return
@@ -128,10 +133,10 @@ const createLabel = ({
 }): Label => {
     let fontColor = ModifierDisplayDataLayout.fontColorBasedOnValue.neutral
     switch (true) {
-        case modifier.amount < 0:
+        case modifier.amount != undefined && modifier.amount < 0:
             fontColor = ModifierDisplayDataLayout.fontColorBasedOnValue.negative
             break
-        case modifier.amount > 0:
+        case modifier.amount != undefined && modifier.amount > 0:
             fontColor = ModifierDisplayDataLayout.fontColorBasedOnValue.positive
             break
     }

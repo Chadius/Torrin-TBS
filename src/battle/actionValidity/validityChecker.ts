@@ -156,7 +156,7 @@ const checkIfTargetsInRangeCouldBeAffectedByAction = ({
     actionTemplate: ActionTemplate
     objectRepository: ObjectRepository
     validTargetResults: TargetingResults
-}): ActionCheckResult[] => {
+}): (ActionCheckResult | undefined)[] => {
     if (
         ActionEffectTemplateService.doesItTargetFoes(
             actionTemplate.actionEffectTemplates[0]
@@ -199,9 +199,9 @@ const checkIfTargetsInRangeCouldBeAffectedByAction = ({
           })
         : undefined
 
-    let actionWillHeal = actionWillTryToHeal && healCheck.isValid
+    let actionWillHeal = actionWillTryToHeal && healCheck?.isValid
     let actionWillModify =
-        actionWillTryToAddModifiers && addAttributeModifiersCheck.isValid
+        actionWillTryToAddModifiers && addAttributeModifiersCheck?.isValid
     if (actionWillHeal || actionWillModify) {
         return [
             {
@@ -215,10 +215,10 @@ const checkIfTargetsInRangeCouldBeAffectedByAction = ({
         ]
     }
 
-    if (actionWillTryToHeal && !healCheck.isValid) {
+    if (actionWillTryToHeal && !healCheck?.isValid) {
         if (
             actionWillTryToAddModifiers &&
-            !addAttributeModifiersCheck.isValid
+            !addAttributeModifiersCheck?.isValid
         ) {
             return [healCheck, addAttributeModifiersCheck]
         }
@@ -230,18 +230,18 @@ const checkIfTargetsInRangeCouldBeAffectedByAction = ({
 
 const updateActionStatus = (
     currentStatus: ActionValidityStatus,
-    actionCheckResult: ActionCheckResult,
+    actionCheckResult: ActionCheckResult | undefined,
     shouldDisableIfInvalid: boolean
 ): ActionValidityStatus => {
-    if (shouldDisableIfInvalid && actionCheckResult.isValid === false) {
+    if (shouldDisableIfInvalid && actionCheckResult?.isValid === false) {
         currentStatus.isValid = false
     }
 
-    if (actionCheckResult.warning) {
+    if (actionCheckResult?.warning) {
         currentStatus.warning = true
     }
 
-    if (actionCheckResult.message) {
+    if (actionCheckResult?.message) {
         currentStatus.messages.push(actionCheckResult.message)
     }
     return currentStatus

@@ -32,7 +32,7 @@ export class MessageBoard {
     }
     getListenerById = (
         messageBoardListenerId: string
-    ): MessageBoardListener => {
+    ): MessageBoardListener | undefined => {
         const listenerInfo = this.listeners.find(
             (listener) => listener.id === messageBoardListenerId
         )
@@ -69,7 +69,7 @@ export class MessageBoard {
         this.listeners.splice(indexToDelete, 1)
     }
     logMessage = ({ message }: { message: string }) => {
-        if (this.logMessages !== true) {
+        if (!this.logMessages) {
             return
         }
         console.log(message)

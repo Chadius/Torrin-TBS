@@ -28,9 +28,11 @@ export const unwrapResultOrError: UnwrapResultOrError = <T, U>({
         )
     }
     if (error !== undefined) {
+        // @ts-ignore This file will get deleted soon anyway
         return error as NonNullable<T>
     }
     if (result !== undefined) {
+        // @ts-ignore This file will get deleted soon anyway
         return result as NonNullable<U>
     }
     throw new Error(

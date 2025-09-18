@@ -1,3 +1,5 @@
+import { EnumLike } from "../../../utils/enum"
+
 export const ACTION_ANIMATION_BEFORE_ACTION_TIME = 500
 export const ACTION_ANIMATION_ACTION_TIME = 500
 export const ACTION_ANIMATION_TARGET_REACTS_TO_ACTION_TIME = 500

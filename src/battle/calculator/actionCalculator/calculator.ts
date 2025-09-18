@@ -88,7 +88,7 @@ export const ActionCalculator = {
         objectRepository: ObjectRepository
         missionStatistics: MissionStatistics
         challengeModifierSetting: ChallengeModifierSetting
-    }): CalculatedResult =>
+    }): CalculatedResult | undefined =>
         calculateResults({
             battleActionRecorder,
             numberGenerator,
@@ -107,6 +107,16 @@ export const ActionCalculator = {
                 targetedBattleSquaddieIds: string[]
                 challengeModifierSetting: ChallengeModifierSetting
             }): ActionEffectChange => {
+                const actionTemplateId =
+                    BattleActionDecisionStepService.getAction(
+                        battleActionDecisionStep
+                    )?.actionTemplateId
+                if (actionTemplateId == undefined) {
+                    throw new Error(
+                        "[Calculator.calculateAndApplyResults]: Invalid actionTemplateId"
+                    )
+                }
+
                 const change: ActionEffectChange =
                     applySquaddieChangesForThisEffectSquaddieTemplate({
                         actorInfo: {
@@ -117,10 +127,7 @@ export const ActionCalculator = {
                             targetedBattleSquaddieIds,
                         },
                         actionInfo: {
-                            actionTemplateId:
-                                BattleActionDecisionStepService.getAction(
-                                    battleActionDecisionStep
-                                ).actionTemplateId,
+                            actionTemplateId,
                             actionEffectTemplate,
                         },
                         battleActionRecorder,
@@ -129,7 +136,7 @@ export const ActionCalculator = {
                         objectRepository,
                     })
 
-                change.squaddieChanges.forEach((squaddieChange) =>
+                change.squaddieChanges?.forEach((squaddieChange) =>
                     maybeUpdateMissionStatistics({
                         result: squaddieChange,
                         objectRepository,
@@ -154,7 +161,7 @@ export const ActionCalculator = {
         battleActionDecisionStep: BattleActionDecisionStep
         missionMap: MissionMap
         objectRepository: ObjectRepository
-    }): CalculatedResult =>
+    }): CalculatedResult | undefined =>
         calculateResults({
             battleActionDecisionStep,
             missionMap,
@@ -344,7 +351,7 @@ const applyCalculatedEffectAndReturnChange = ({
     calculatedEffect: CalculatedEffect
     objectRepository: ObjectRepository
     targetedBattleSquaddieId: string
-    successBonus: number
+    successBonus: number | undefined
 }) => {
     const { battleSquaddie: targetedBattleSquaddie } = getResultOrThrowError(
         ObjectRepositoryService.getSquaddieByBattleId(
@@ -481,8 +488,10 @@ const getBattleSquaddieIdsAtGivenCoordinates = ({
             )
         )
         .filter(MissionMapSquaddieCoordinateService.isValid)
+        .filter((l) => l?.battleSquaddieId != undefined)
         .map(
-            (battleSquaddieLocation) => battleSquaddieLocation.battleSquaddieId
+            (battleSquaddieLocation) =>
+                battleSquaddieLocation.battleSquaddieId ?? ""
         )
 }
 
@@ -490,7 +499,7 @@ const isAnAttack = (actionEffectTemplate: ActionEffectTemplate): boolean =>
     TraitStatusStorageService.getStatus(
         actionEffectTemplate.traits,
         Trait.ATTACK
-    )
+    ) == true
 
 const getBattleActionSquaddieChange = ({
     objectRepository,
@@ -619,18 +628,18 @@ const calculateResults = ({
         objectRepository: ObjectRepository
         challengeModifierSetting: ChallengeModifierSetting
     }) => ActionEffectChange
-}): CalculatedResult => {
+}): CalculatedResult | undefined => {
     const actorBattleSquaddieId = BattleActionDecisionStepService.getActor(
         battleActionDecisionStep
-    ).battleSquaddieId
+    )?.battleSquaddieId
 
     const actionTemplateId = BattleActionDecisionStepService.getAction(
         battleActionDecisionStep
-    ).actionTemplateId
+    )?.actionTemplateId
 
     const targetCoordinate = BattleActionDecisionStepService.getTarget(
         battleActionDecisionStep
-    ).targetCoordinate
+    )?.targetCoordinate
 
     if (actionTemplateId === undefined || actorBattleSquaddieId === undefined) {
         return undefined
@@ -660,11 +669,12 @@ const calculateResults = ({
                 allChanges: ActionEffectChange[],
                 actionEffectTemplate: ActionEffectTemplate
             ) => {
-                const targetedBattleSquaddieIds =
-                    getBattleSquaddieIdsAtGivenCoordinates({
-                        missionMap,
-                        mapCoordinates: [targetCoordinate],
-                    })
+                const targetedBattleSquaddieIds = targetCoordinate
+                    ? getBattleSquaddieIdsAtGivenCoordinates({
+                          missionMap,
+                          mapCoordinates: [targetCoordinate],
+                      })
+                    : []
 
                 let change: ActionEffectChange = actionEffectChangeGenerator({
                     actionEffectTemplate,
@@ -741,8 +751,12 @@ const forecastChangesForSquaddieAndActionEffectTemplate = ({
                 )
 
                 const changesForDegrees: BattleActionSquaddieChange[] =
-                    Object.keys(possibleDegreesOfSuccess).map(
-                        (degreeOfSuccess) => {
+                    Object.keys(possibleDegreesOfSuccess)
+                        .map(
+                            (degreeOfSuccess) =>
+                                degreeOfSuccess as TDegreeOfSuccess
+                        )
+                        .map((degreeOfSuccess: TDegreeOfSuccess) => {
                             const calculatedEffect: CalculatedEffect =
                                 calculateEffectBasedOnDegreeOfSuccess({
                                     actionEffectTemplate,
@@ -752,17 +766,17 @@ const forecastChangesForSquaddieAndActionEffectTemplate = ({
                                     targetSquaddieTemplate,
                                     targetBattleSquaddie,
                                 })
+                            if (targetedBattleSquaddieId == undefined)
+                                return undefined
                             return forecastCalculatedEffectAndReturnChange({
                                 calculatedEffect,
                                 objectRepository,
                                 targetedBattleSquaddieId,
                                 chanceOfDegreeOfSuccess:
-                                    possibleDegreesOfSuccess[
-                                        degreeOfSuccess as TDegreeOfSuccess
-                                    ],
+                                    possibleDegreesOfSuccess[degreeOfSuccess]!,
                             })
-                        }
-                    )
+                        })
+                        .filter((x) => x != undefined)
 
                 changes.push(...changesForDegrees)
                 return changes
@@ -793,7 +807,7 @@ const getAllPossibleDegreesOfSuccess = ({
         TraitStatusStorageService.getStatus(
             actionEffectTemplate.traits,
             Trait.ALWAYS_SUCCEEDS
-        ) === true
+        )
     ) {
         return {
             [DegreeOfSuccess.SUCCESS]: 36,
@@ -824,20 +838,22 @@ const getAllPossibleDegreesOfSuccess = ({
         TraitStatusStorageService.getStatus(
             actionEffectTemplate.traits,
             Trait.CANNOT_CRITICALLY_FAIL
-        ) === true
+        ) &&
+        degreesOfSuccess[DegreeOfSuccess.FAILURE] != undefined
     ) {
-        degreesOfSuccess[DegreeOfSuccess.FAILURE] +=
-            degreesOfSuccess[DegreeOfSuccess.CRITICAL_FAILURE]
+        degreesOfSuccess[DegreeOfSuccess.FAILURE]! +=
+            degreesOfSuccess[DegreeOfSuccess.CRITICAL_FAILURE] ?? 0
         degreesOfSuccess[DegreeOfSuccess.CRITICAL_FAILURE] = undefined
     }
     if (
         TraitStatusStorageService.getStatus(
             actionEffectTemplate.traits,
             Trait.CANNOT_CRITICALLY_SUCCEED
-        ) === true
+        ) &&
+        degreesOfSuccess[DegreeOfSuccess.SUCCESS] != undefined
     ) {
-        degreesOfSuccess[DegreeOfSuccess.SUCCESS] +=
-            degreesOfSuccess[DegreeOfSuccess.CRITICAL_SUCCESS]
+        degreesOfSuccess[DegreeOfSuccess.SUCCESS]! +=
+            degreesOfSuccess[DegreeOfSuccess.CRITICAL_SUCCESS] ?? 0
         degreesOfSuccess[DegreeOfSuccess.CRITICAL_SUCCESS] = undefined
     }
 
@@ -892,7 +908,7 @@ const applySquaddieChangesForThisEffectSquaddieTemplate = ({
             (
                 changes: BattleActionSquaddieChange[],
                 targetedBattleSquaddieId
-            ) => {
+            ): BattleActionSquaddieChange[] => {
                 const {
                     battleSquaddie: targetBattleSquaddie,
                     squaddieTemplate: targetSquaddieTemplate,

@@ -17,10 +17,10 @@ describe("Player Input State", () => {
 
         beforeEach(() => {
             ACCEPT_KEY_NO_MODIFIERS = JSON.parse(
-                process.env.PLAYER_INPUT_ACCEPT
+                process.env.PLAYER_INPUT_ACCEPT!
             )[0]["pressedKey"]
 
-            nextSquaddieInputs = JSON.parse(process.env.PLAYER_INPUT_NEXT)
+            nextSquaddieInputs = JSON.parse(process.env.PLAYER_INPUT_NEXT!)
 
             playerInput = PlayerInputStateService.new({
                 modifierKeyCodes: {
@@ -53,6 +53,8 @@ describe("Player Input State", () => {
         })
 
         it("knows when a keyboard button is pressed", () => {
+            expect(nextSquaddieInputs[0].press).not.toBeUndefined()
+            if (nextSquaddieInputs[0].press == undefined) return
             let actions: TPlayerInputAction[] =
                 PlayerInputStateService.getActionsForPressedKey(
                     playerInput,
@@ -116,71 +118,91 @@ describe("Player Input State", () => {
         const expectedActionCombinations = [
             {
                 action: PlayerInputAction.ACCEPT,
-                combinations: JSON.parse(process.env.PLAYER_INPUT_ACCEPT),
+                combinations: JSON.parse(process.env.PLAYER_INPUT_ACCEPT!),
             },
             {
                 action: PlayerInputAction.CANCEL,
-                combinations: JSON.parse(process.env.PLAYER_INPUT_CANCEL),
+                combinations: JSON.parse(process.env.PLAYER_INPUT_CANCEL!),
             },
             {
                 action: PlayerInputAction.NEXT,
-                combinations: JSON.parse(process.env.PLAYER_INPUT_NEXT),
+                combinations: JSON.parse(process.env.PLAYER_INPUT_NEXT!),
             },
             {
                 action: PlayerInputAction.SCROLL_LEFT,
-                combinations: JSON.parse(process.env.PLAYER_INPUT_SCROLL_LEFT),
+                combinations: JSON.parse(process.env.PLAYER_INPUT_SCROLL_LEFT!),
             },
             {
                 action: PlayerInputAction.SCROLL_RIGHT,
-                combinations: JSON.parse(process.env.PLAYER_INPUT_SCROLL_RIGHT),
+                combinations: JSON.parse(
+                    process.env.PLAYER_INPUT_SCROLL_RIGHT!
+                ),
             },
             {
                 action: PlayerInputAction.SCROLL_UP,
-                combinations: JSON.parse(process.env.PLAYER_INPUT_SCROLL_UP),
+                combinations: JSON.parse(process.env.PLAYER_INPUT_SCROLL_UP!),
             },
             {
                 action: PlayerInputAction.SCROLL_DOWN,
-                combinations: JSON.parse(process.env.PLAYER_INPUT_SCROLL_DOWN),
+                combinations: JSON.parse(process.env.PLAYER_INPUT_SCROLL_DOWN!),
             },
             {
                 action: PlayerInputAction.END_TURN,
-                combinations: JSON.parse(process.env.PLAYER_INPUT_END_TURN),
+                combinations: JSON.parse(process.env.PLAYER_INPUT_END_TURN!),
             },
             {
                 action: PlayerInputAction.LIST_INDEX_0,
-                combinations: JSON.parse(process.env.PLAYER_INPUT_LIST_INDEX_0),
+                combinations: JSON.parse(
+                    process.env.PLAYER_INPUT_LIST_INDEX_0!
+                ),
             },
             {
                 action: PlayerInputAction.LIST_INDEX_1,
-                combinations: JSON.parse(process.env.PLAYER_INPUT_LIST_INDEX_1),
+                combinations: JSON.parse(
+                    process.env.PLAYER_INPUT_LIST_INDEX_1!
+                ),
             },
             {
                 action: PlayerInputAction.LIST_INDEX_2,
-                combinations: JSON.parse(process.env.PLAYER_INPUT_LIST_INDEX_2),
+                combinations: JSON.parse(
+                    process.env.PLAYER_INPUT_LIST_INDEX_2!
+                ),
             },
             {
                 action: PlayerInputAction.LIST_INDEX_3,
-                combinations: JSON.parse(process.env.PLAYER_INPUT_LIST_INDEX_3),
+                combinations: JSON.parse(
+                    process.env.PLAYER_INPUT_LIST_INDEX_3!
+                ),
             },
             {
                 action: PlayerInputAction.LIST_INDEX_4,
-                combinations: JSON.parse(process.env.PLAYER_INPUT_LIST_INDEX_4),
+                combinations: JSON.parse(
+                    process.env.PLAYER_INPUT_LIST_INDEX_4!
+                ),
             },
             {
                 action: PlayerInputAction.LIST_INDEX_5,
-                combinations: JSON.parse(process.env.PLAYER_INPUT_LIST_INDEX_5),
+                combinations: JSON.parse(
+                    process.env.PLAYER_INPUT_LIST_INDEX_5!
+                ),
             },
             {
                 action: PlayerInputAction.LIST_INDEX_6,
-                combinations: JSON.parse(process.env.PLAYER_INPUT_LIST_INDEX_6),
+                combinations: JSON.parse(
+                    process.env.PLAYER_INPUT_LIST_INDEX_6!
+                ),
             },
             {
                 action: PlayerInputAction.LIST_INDEX_7,
-                combinations: JSON.parse(process.env.PLAYER_INPUT_LIST_INDEX_7),
+                combinations: JSON.parse(
+                    process.env.PLAYER_INPUT_LIST_INDEX_7!
+                ),
             },
             {
                 action: PlayerInputAction.LIST_INDEX_8,
-                combinations: JSON.parse(process.env.PLAYER_INPUT_LIST_INDEX_8),
+                combinations: JSON.parse(
+                    process.env.PLAYER_INPUT_LIST_INDEX_8!
+                ),
             },
         ]
 

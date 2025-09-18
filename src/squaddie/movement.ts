@@ -50,18 +50,18 @@ const createNewSquaddieMovementWithTraits = ({
     let ignoreTerrainCost = false
 
     if (traits) {
-        passThroughWalls = TraitStatusStorageService.getStatus(
-            traits,
-            Trait.PASS_THROUGH_WALLS
-        )
-        crossOverPits = TraitStatusStorageService.getStatus(
-            traits,
-            Trait.CROSS_OVER_PITS
-        )
-        ignoreTerrainCost = TraitStatusStorageService.getStatus(
-            traits,
-            Trait.HUSTLE
-        )
+        passThroughWalls =
+            TraitStatusStorageService.getStatus(
+                traits,
+                Trait.PASS_THROUGH_WALLS
+            ) ?? false
+        crossOverPits =
+            TraitStatusStorageService.getStatus(
+                traits,
+                Trait.CROSS_OVER_PITS
+            ) ?? false
+        ignoreTerrainCost =
+            TraitStatusStorageService.getStatus(traits, Trait.HUSTLE) ?? false
     }
 
     return {

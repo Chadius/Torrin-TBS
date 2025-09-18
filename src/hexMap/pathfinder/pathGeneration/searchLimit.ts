@@ -41,30 +41,26 @@ export const SearchLimitService = {
 
         return {
             ...baseValue,
-            ignoreTerrainCost: [
-                ignoreTerrainCost,
-                baseSearchLimit?.ignoreTerrainCost,
-                false,
-            ].find((x) => x != undefined),
-            crossOverPits: [
-                crossOverPits,
-                baseSearchLimit?.crossOverPits,
-                false,
-            ].find((x) => x != undefined),
-            passThroughWalls: [
-                passThroughWalls,
-                baseSearchLimit?.passThroughWalls,
-                false,
-            ].find((x) => x != undefined),
+            ignoreTerrainCost:
+                [ignoreTerrainCost, baseSearchLimit?.ignoreTerrainCost].find(
+                    (x) => x != undefined
+                ) ?? false,
+            crossOverPits:
+                [crossOverPits, baseSearchLimit?.crossOverPits].find(
+                    (x) => x != undefined
+                ) ?? false,
+            passThroughWalls:
+                [passThroughWalls, baseSearchLimit?.passThroughWalls].find(
+                    (x) => x != undefined
+                ) ?? false,
             minimumDistance,
             maximumDistance,
             maximumMovementCost,
             squaddieAffiliation,
-            canStopOnSquaddies: [
-                canStopOnSquaddies,
-                baseSearchLimit?.canStopOnSquaddies,
-                false,
-            ].find((x) => x != undefined),
+            canStopOnSquaddies:
+                [canStopOnSquaddies, baseSearchLimit?.canStopOnSquaddies].find(
+                    (x) => x != undefined
+                ) ?? false,
         }
     },
 }

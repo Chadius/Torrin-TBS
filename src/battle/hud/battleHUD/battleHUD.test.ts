@@ -284,11 +284,11 @@ describe("Battle HUD", () => {
             campaign: CampaignService.default(),
         })
         ObjectRepositoryService.addActionTemplate(
-            gameEngineState.repository,
+            gameEngineState.repository!,
             longswordAction
         )
         ObjectRepositoryService.addActionTemplate(
-            gameEngineState.repository,
+            gameEngineState.repository!,
             healSelfAction
         )
 
@@ -326,10 +326,10 @@ describe("Battle HUD", () => {
             FileAccessHUDService.draw(fileAccessHUD, mockP5GraphicsContext)
             fileAccessHUD.data
                 .getUIObjects()
-                .loadButton.changeStatus({ newStatus: ButtonStatus.DISABLED })
+                .loadButton!.changeStatus({ newStatus: ButtonStatus.DISABLED })
             fileAccessHUD.data
                 .getUIObjects()
-                .saveButton.changeStatus({ newStatus: ButtonStatus.DISABLED })
+                .saveButton!.changeStatus({ newStatus: ButtonStatus.DISABLED })
 
             battleHUDListener = new BattleHUDListener("battleHUDListener")
             listenerSpy = vi.spyOn(battleHUDListener, "receiveMessage")
@@ -367,10 +367,10 @@ describe("Battle HUD", () => {
 
             expect(listenerSpy).toBeCalled()
             expect(
-                fileAccessHUD.data.getUIObjects().loadButton.getStatus()
+                fileAccessHUD.data.getUIObjects().loadButton!.getStatus()
             ).toEqual(ButtonStatus.READY)
             expect(
-                fileAccessHUD.data.getUIObjects().saveButton.getStatus()
+                fileAccessHUD.data.getUIObjects().saveButton!.getStatus()
             ).toEqual(ButtonStatus.READY)
             expect(fileAccessHUDSpy).toBeCalled()
         })
@@ -388,10 +388,10 @@ describe("Battle HUD", () => {
             expect(listenerSpy).toBeCalled()
 
             expect(
-                fileAccessHUD.data.getUIObjects().loadButton.getStatus()
+                fileAccessHUD.data.getUIObjects().loadButton!.getStatus()
             ).toEqual(ButtonStatus.READY)
             expect(
-                fileAccessHUD.data.getUIObjects().saveButton.getStatus()
+                fileAccessHUD.data.getUIObjects().saveButton!.getStatus()
             ).toEqual(ButtonStatus.READY)
 
             expect(fileAccessHUDSpy).toBeCalled()
@@ -507,9 +507,9 @@ describe("Battle HUD", () => {
             SummaryHUDStateService.draw({
                 summaryHUDState:
                     gameEngineState.battleOrchestratorState.battleHUDState
-                        .summaryHUDState,
+                        .summaryHUDState!!,
                 gameEngineState,
-                resourceHandler: gameEngineState.resourceHandler,
+                resourceHandler: gameEngineState.resourceHandler!,
                 graphicsBuffer: mockP5GraphicsContext,
             })
         }
@@ -526,7 +526,7 @@ describe("Battle HUD", () => {
                 BattleActionDecisionStepService.getActor(
                     gameEngineState.battleOrchestratorState.battleState
                         .battleActionDecisionStep
-                ).battleSquaddieId
+                )?.battleSquaddieId
             ).toEqual(battleSquaddie.battleSquaddieId)
         })
 
@@ -535,7 +535,7 @@ describe("Battle HUD", () => {
             expect(
                 SquaddieSelectorPanelService.getSelectedBattleSquaddieId(
                     gameEngineState.battleOrchestratorState.battleHUDState
-                        .squaddieSelectorPanel
+                        .squaddieSelectorPanel!
                 )
             ).toBe(battleSquaddie.battleSquaddieId)
         })
@@ -544,12 +544,12 @@ describe("Battle HUD", () => {
             sendMessageViaMouseClick()
             expect(
                 gameEngineState.battleOrchestratorState.battleHUDState
-                    .summaryHUDState.playerCommandState
+                    .summaryHUDState!!.playerCommandState
                     .playerSelectedSquaddieAction
             ).toBeFalsy()
             expect(
                 gameEngineState.battleOrchestratorState.battleHUDState
-                    .summaryHUDState.playerCommandState.playerSelectedEndTurn
+                    .summaryHUDState!!.playerCommandState.playerSelectedEndTurn
             ).toBeFalsy()
         })
 
@@ -557,7 +557,7 @@ describe("Battle HUD", () => {
             sendMessageViaMouseClick()
             expect(
                 gameEngineState.battleOrchestratorState.battleHUDState
-                    .summaryHUDState.squaddieNameTiles["ACTOR_NAME"]
+                    .summaryHUDState!!.squaddieNameTiles["ACTOR_NAME"]!
                     .battleSquaddieId
             ).toEqual(battleSquaddie.battleSquaddieId)
         })
@@ -566,7 +566,7 @@ describe("Battle HUD", () => {
             sendMessageViaMouseClick()
             let playerCommandState =
                 gameEngineState.battleOrchestratorState.battleHUDState
-                    .summaryHUDState.playerCommandState
+                    .summaryHUDState!!.playerCommandState
             expect(playerCommandState.playerSelectedSquaddieAction).toBeFalsy()
             expect(playerCommandState.playerSelectedEndTurn).toBeFalsy()
             expect(playerCommandState.selectedActionTemplateId).toBeUndefined()
@@ -588,7 +588,7 @@ describe("Battle HUD", () => {
                 BattleActionDecisionStepService.getActor(
                     gameEngineState.battleOrchestratorState.battleState
                         .battleActionDecisionStep
-                ).battleSquaddieId
+                )?.battleSquaddieId
             ).toEqual(battleSquaddie.battleSquaddieId)
         })
 
@@ -635,9 +635,9 @@ describe("Battle HUD", () => {
                 SummaryHUDStateService.draw({
                     summaryHUDState:
                         gameEngineState.battleOrchestratorState.battleHUDState
-                            .summaryHUDState,
+                            .summaryHUDState!!,
                     gameEngineState,
-                    resourceHandler: gameEngineState.resourceHandler,
+                    resourceHandler: gameEngineState.resourceHandler!,
                     graphicsBuffer: mockP5GraphicsContext,
                 })
             })
@@ -645,16 +645,16 @@ describe("Battle HUD", () => {
             it("will show the summary window on the right side", () => {
                 expect(
                     gameEngineState.battleOrchestratorState.battleHUDState
-                        .summaryHUDState.squaddieNameTiles[
+                        .summaryHUDState!!.squaddieNameTiles[
                         ActionTilePosition.PEEK_RIGHT_NAME
-                    ].battleSquaddieId
+                    ]?.battleSquaddieId
                 ).toEqual(enemyBattleSquaddie.battleSquaddieId)
             })
 
             it("the right side will not expire", () => {
                 expect(
                     gameEngineState.battleOrchestratorState.battleHUDState
-                        .summaryHUDState.squaddieToPeekAt.expirationTime
+                        .summaryHUDState!!.squaddieToPeekAt?.expirationTime
                 ).toBeUndefined()
             })
         })
@@ -707,8 +707,8 @@ describe("Battle HUD", () => {
                             .missionMap,
                     summaryHUDState:
                         gameEngineState.battleOrchestratorState.battleHUDState
-                            .summaryHUDState,
-                    objectRepository: gameEngineState.repository,
+                            .summaryHUDState!,
+                    objectRepository: gameEngineState.repository!,
                     campaignResources: CampaignResourcesService.default(),
                     squaddieAllMovementCache:
                         gameEngineState.battleOrchestratorState.cache
@@ -717,7 +717,7 @@ describe("Battle HUD", () => {
 
                 expect(
                     gameEngineState.battleOrchestratorState.battleHUDState
-                        .summaryHUDState.squaddieToPeekAt
+                        .summaryHUDState!?.squaddieToPeekAt
                 ).toEqual({
                     battleSquaddieId: battleSquaddie.battleSquaddieId,
                     actionPanelPositions: {
@@ -737,8 +737,8 @@ describe("Battle HUD", () => {
                         .missionMap,
                 summaryHUDState:
                     gameEngineState.battleOrchestratorState.battleHUDState
-                        .summaryHUDState,
-                objectRepository: gameEngineState.repository,
+                        .summaryHUDState!,
+                objectRepository: gameEngineState.repository!,
                 campaignResources: CampaignResourcesService.default(),
                 battleSquaddieSelectedId: battleSquaddie.battleSquaddieId,
                 selectionMethod: {
@@ -751,11 +751,11 @@ describe("Battle HUD", () => {
 
             expect(
                 gameEngineState.battleOrchestratorState.battleHUDState
-                    .summaryHUDState.squaddieToPeekAt.battleSquaddieId
+                    .summaryHUDState!?.squaddieToPeekAt?.battleSquaddieId
             ).toEqual(battleSquaddie.battleSquaddieId)
             expect(
                 gameEngineState.battleOrchestratorState.battleHUDState
-                    .summaryHUDState.squaddieToPeekAt.expirationTime
+                    .summaryHUDState!?.squaddieToPeekAt?.expirationTime
             ).not.toBeUndefined()
         })
 
@@ -772,9 +772,9 @@ describe("Battle HUD", () => {
             SummaryHUDStateService.draw({
                 summaryHUDState:
                     gameEngineState.battleOrchestratorState.battleHUDState
-                        .summaryHUDState,
+                        .summaryHUDState!!,
                 gameEngineState,
-                resourceHandler: gameEngineState.resourceHandler,
+                resourceHandler: gameEngineState.resourceHandler!,
                 graphicsBuffer: mockP5GraphicsContext,
             })
             gameEngineState.messageBoard.sendMessage({
@@ -784,8 +784,8 @@ describe("Battle HUD", () => {
                         .missionMap,
                 summaryHUDState:
                     gameEngineState.battleOrchestratorState.battleHUDState
-                        .summaryHUDState,
-                objectRepository: gameEngineState.repository,
+                        .summaryHUDState!,
+                objectRepository: gameEngineState.repository!,
                 campaignResources: CampaignResourcesService.default(),
                 battleSquaddieSelectedId: battleSquaddie.battleSquaddieId,
                 selectionMethod: {
@@ -798,23 +798,23 @@ describe("Battle HUD", () => {
             SummaryHUDStateService.draw({
                 summaryHUDState:
                     gameEngineState.battleOrchestratorState.battleHUDState
-                        .summaryHUDState,
+                        .summaryHUDState!!,
                 gameEngineState,
-                resourceHandler: gameEngineState.resourceHandler,
+                resourceHandler: gameEngineState.resourceHandler!,
                 graphicsBuffer: mockP5GraphicsContext,
             })
 
             expect(
                 gameEngineState.battleOrchestratorState.battleHUDState
-                    .summaryHUDState.squaddieNameTiles["ACTOR_NAME"]
+                    .summaryHUDState!.squaddieNameTiles["ACTOR_NAME"]
             ).not.toBeUndefined()
             expect(
                 gameEngineState.battleOrchestratorState.battleHUDState
-                    .summaryHUDState.squaddieNameTiles["PEEK_PLAYABLE_NAME"]
+                    .summaryHUDState!.squaddieNameTiles["PEEK_PLAYABLE_NAME"]
             ).toBeUndefined()
             expect(
                 gameEngineState.battleOrchestratorState.battleHUDState
-                    .summaryHUDState.squaddieNameTiles["PEEK_RIGHT_NAME"]
+                    .summaryHUDState!.squaddieNameTiles["PEEK_RIGHT_NAME"]
             ).toBeUndefined()
         })
 
@@ -826,8 +826,8 @@ describe("Battle HUD", () => {
                         .missionMap,
                 summaryHUDState:
                     gameEngineState.battleOrchestratorState.battleHUDState
-                        .summaryHUDState,
-                objectRepository: gameEngineState.repository,
+                        .summaryHUDState!,
+                objectRepository: gameEngineState.repository!,
                 campaignResources: CampaignResourcesService.default(),
                 battleSquaddieSelectedId: "player_soldier_0",
                 selectionMethod: {
@@ -849,7 +849,7 @@ describe("Battle HUD", () => {
 
         it("highlights ranges for normally uncontrollable squaddies", () => {
             ObjectRepositoryService.addSquaddie({
-                repo: gameEngineState.repository,
+                repo: gameEngineState.repository!,
                 squaddieTemplate: SquaddieTemplateService.new({
                     squaddieId: SquaddieIdService.new({
                         squaddieTemplateId: "enemy",
@@ -879,8 +879,8 @@ describe("Battle HUD", () => {
                         .missionMap,
                 summaryHUDState:
                     gameEngineState.battleOrchestratorState.battleHUDState
-                        .summaryHUDState,
-                objectRepository: gameEngineState.repository,
+                        .summaryHUDState!,
+                objectRepository: gameEngineState.repository!,
                 campaignResources: CampaignResourcesService.default(),
                 battleSquaddieSelectedId: "enemy",
                 selectionMethod: {
@@ -897,7 +897,7 @@ describe("Battle HUD", () => {
                         .missionMap.terrainTileMap,
                 id: "enemy",
             })
-            expect(graphicsLayer.type).toEqual(
+            expect(graphicsLayer?.type).toEqual(
                 MapGraphicsLayerType.HOVERED_OVER_NORMALLY_UNCONTROLLABLE_SQUADDIE
             )
         })
@@ -958,7 +958,7 @@ describe("Battle HUD", () => {
                 missionMap:
                     gameEngineState.battleOrchestratorState.battleState
                         .missionMap,
-                objectRepository: gameEngineState.repository,
+                objectRepository: gameEngineState.repository!,
                 battleActionDecisionStep:
                     gameEngineState.battleOrchestratorState.battleState
                         .battleActionDecisionStep,
@@ -977,7 +977,7 @@ describe("Battle HUD", () => {
                 BattleActionDecisionStepService.getAction(
                     gameEngineState.battleOrchestratorState.battleState
                         .battleActionDecisionStep
-                ).actionTemplateId
+                )?.actionTemplateId
             ).toEqual(longswordAction.id)
         })
 
@@ -1085,7 +1085,7 @@ describe("Battle HUD", () => {
                     BattleActionDecisionStepService.getAction(
                         gameEngineState.battleOrchestratorState.battleState
                             .battleActionDecisionStep
-                    ).endTurn
+                    )?.endTurn
                 ).toBeTruthy()
                 expect(
                     BattleActionDecisionStepService.isTargetConsidered(
@@ -1103,7 +1103,7 @@ describe("Battle HUD", () => {
                     BattleActionDecisionStepService.getTarget(
                         gameEngineState.battleOrchestratorState.battleState
                             .battleActionDecisionStep
-                    ).targetCoordinate
+                    )?.targetCoordinate
                 ).toEqual({
                     q: 0,
                     r: 0,
@@ -1154,8 +1154,8 @@ describe("Battle HUD", () => {
                 campaignResources: gameEngineState.campaign.resources,
                 summaryHUDState:
                     gameEngineState.battleOrchestratorState.battleHUDState
-                        .summaryHUDState,
-                objectRepository: repository,
+                        .summaryHUDState!,
+                objectRepository: repository!,
             })
 
             battleHUDListener = new BattleHUDListener("battleHUDListener")
@@ -1165,13 +1165,13 @@ describe("Battle HUD", () => {
             )
             gameEngineState.messageBoard.sendMessage({
                 type: MessageBoardMessageType.PLAYER_SELECTS_ACTION_TEMPLATE,
-                objectRepository: gameEngineState.repository,
+                objectRepository: gameEngineState.repository!,
                 missionMap:
                     gameEngineState.battleOrchestratorState.battleState
                         .missionMap,
                 summaryHUDState:
                     gameEngineState.battleOrchestratorState.battleHUDState
-                        .summaryHUDState,
+                        .summaryHUDState!,
                 battleActionDecisionStep:
                     gameEngineState.battleOrchestratorState.battleState
                         .battleActionDecisionStep,
@@ -1194,7 +1194,7 @@ describe("Battle HUD", () => {
                 BattleActionDecisionStepService.getActor(
                     gameEngineState.battleOrchestratorState.battleState
                         .battleActionDecisionStep
-                ).battleSquaddieId
+                )?.battleSquaddieId
             ).toEqual(playerSoldierBattleSquaddie.battleSquaddieId)
         })
 
@@ -1209,7 +1209,7 @@ describe("Battle HUD", () => {
                 BattleActionDecisionStepService.getAction(
                     gameEngineState.battleOrchestratorState.battleState
                         .battleActionDecisionStep
-                ).actionTemplateId
+                )?.actionTemplateId
             ).toEqual(longswordAction.id)
         })
 
@@ -1240,7 +1240,7 @@ describe("Battle HUD", () => {
         it("will add a new tile to the HUD", () => {
             expect(
                 gameEngineState.battleOrchestratorState.battleHUDState
-                    .summaryHUDState.actionSelectedTile.actionName
+                    .summaryHUDState!.actionSelectedTile!.actionName
             ).toBe(longswordAction.name)
         })
 
@@ -1283,8 +1283,8 @@ describe("Battle HUD", () => {
                         .battleActionDecisionStep,
                 summaryHUDState:
                     gameEngineState.battleOrchestratorState.battleHUDState
-                        .summaryHUDState,
-                objectRepository: gameEngineState.repository,
+                        .summaryHUDState!,
+                objectRepository: gameEngineState.repository!,
                 targetCoordinate: { q: 0, r: 1 },
                 battleActionRecorder:
                     gameEngineState.battleOrchestratorState.battleState
@@ -1316,15 +1316,15 @@ describe("Battle HUD", () => {
             SummaryHUDStateService.draw({
                 summaryHUDState:
                     gameEngineState.battleOrchestratorState.battleHUDState
-                        .summaryHUDState,
+                        .summaryHUDState!,
                 gameEngineState,
-                resourceHandler: gameEngineState.resourceHandler,
+                resourceHandler: gameEngineState.resourceHandler!,
                 graphicsBuffer: mockP5GraphicsContext,
             })
 
             expect(
                 gameEngineState.battleOrchestratorState.battleHUDState
-                    .summaryHUDState.squaddieNameTiles["TARGET_NAME"]
+                    .summaryHUDState!.squaddieNameTiles["TARGET_NAME"]!
                     .battleSquaddieId
             ).toEqual("player_soldier_1")
         })
@@ -1332,7 +1332,7 @@ describe("Battle HUD", () => {
         it("will add an action preview tile to the HUD", () => {
             expect(
                 gameEngineState.battleOrchestratorState.battleHUDState
-                    .summaryHUDState.actionPreviewTile
+                    .summaryHUDState!.actionPreviewTile
             ).not.toBeUndefined()
         })
     })
@@ -1354,7 +1354,7 @@ describe("Battle HUD", () => {
                     templateId: "Thief",
                     battleId: "Thief 0",
                     affiliation: SquaddieAffiliation.ENEMY,
-                    objectRepository: gameEngineState.repository,
+                    objectRepository: gameEngineState.repository!,
                     actionTemplateIds: [longswordAction.id],
                     attributes: ArmyAttributesService.new({
                         maxHitPoints: 5,
@@ -1404,7 +1404,7 @@ describe("Battle HUD", () => {
                 battleSquaddieId: BattleActionDecisionStepService.getActor(
                     gameEngineState.battleOrchestratorState.battleState
                         .battleActionDecisionStep
-                ).battleSquaddieId,
+                )?.battleSquaddieId!,
                 coordinate: {
                     q: 1,
                     r: 1,
@@ -1419,7 +1419,7 @@ describe("Battle HUD", () => {
                 missionMap:
                     gameEngineState.battleOrchestratorState.battleState
                         .missionMap,
-                objectRepository: gameEngineState.repository,
+                objectRepository: gameEngineState.repository!,
                 battleActionRecorder:
                     gameEngineState.battleOrchestratorState.battleState
                         .battleActionRecorder,
@@ -1438,7 +1438,7 @@ describe("Battle HUD", () => {
                 BattleActionDecisionStepService.getActor(
                     gameEngineState.battleOrchestratorState.battleState
                         .battleActionDecisionStep
-                ).battleSquaddieId
+                )?.battleSquaddieId!
             )
             expect(
                 HexCoordinateService.areEqual(mapInfo.originMapCoordinate, {
@@ -1463,7 +1463,7 @@ describe("Battle HUD", () => {
                 missionMap:
                     gameEngineState.battleOrchestratorState.battleState
                         .missionMap,
-                objectRepository: gameEngineState.repository,
+                objectRepository: gameEngineState.repository!,
                 battleActionRecorder:
                     gameEngineState.battleOrchestratorState.battleState
                         .battleActionRecorder,
@@ -1485,7 +1485,7 @@ describe("Battle HUD", () => {
         })
 
         it("should apply the cooldown", () => {
-            longswordAction.resourceCost.cooldownTurns = 3
+            longswordAction.resourceCost!.cooldownTurns = 3
             gameEngineState.messageBoard.sendMessage({
                 type: MessageBoardMessageType.PLAYER_CONFIRMS_ACTION,
                 battleActionDecisionStep:
@@ -1494,7 +1494,7 @@ describe("Battle HUD", () => {
                 missionMap:
                     gameEngineState.battleOrchestratorState.battleState
                         .missionMap,
-                objectRepository: gameEngineState.repository,
+                objectRepository: gameEngineState.repository!,
                 battleActionRecorder:
                     gameEngineState.battleOrchestratorState.battleState
                         .battleActionRecorder,
@@ -1526,7 +1526,7 @@ describe("Battle HUD", () => {
                 missionMap:
                     gameEngineState.battleOrchestratorState.battleState
                         .missionMap,
-                objectRepository: gameEngineState.repository,
+                objectRepository: gameEngineState.repository!,
                 battleActionRecorder:
                     gameEngineState.battleOrchestratorState.battleState
                         .battleActionRecorder,
@@ -1621,7 +1621,7 @@ describe("Battle HUD", () => {
                 ],
             })
             ObjectRepositoryService.addActionTemplate(
-                gameEngineState.repository,
+                gameEngineState.repository!,
                 attackTwiceWithLongsword
             )
 
@@ -1640,7 +1640,7 @@ describe("Battle HUD", () => {
                 missionMap:
                     gameEngineState.battleOrchestratorState.battleState
                         .missionMap,
-                objectRepository: gameEngineState.repository,
+                objectRepository: gameEngineState.repository!,
                 battleActionRecorder:
                     gameEngineState.battleOrchestratorState.battleState
                         .battleActionRecorder,
@@ -1808,7 +1808,7 @@ describe("Battle HUD", () => {
                     missionMap:
                         gameEngineState.battleOrchestratorState.battleState
                             .missionMap,
-                    objectRepository: gameEngineState.repository,
+                    objectRepository: gameEngineState.repository!,
                     battleActionRecorder:
                         gameEngineState.battleOrchestratorState.battleState
                             .battleActionRecorder,
@@ -1826,13 +1826,13 @@ describe("Battle HUD", () => {
                         gameEngineState.battleOrchestratorState.battleState
                             .battleActionRecorder
                     )
-                expect(mostRecentAction.action.actionTemplateId).toEqual(
+                expect(mostRecentAction!.action.actionTemplateId).toEqual(
                     longswordAction.id
                 )
 
-                const results = mostRecentAction.effect.squaddie
+                const results = mostRecentAction!.effect.squaddie
                 expect(results).toHaveLength(1)
-                expect(results[0].battleSquaddieId).toBe(
+                expect(results![0]!.battleSquaddieId).toBe(
                     thiefBattleSquaddie.battleSquaddieId
                 )
             })
@@ -1846,7 +1846,7 @@ describe("Battle HUD", () => {
                     missionMap:
                         gameEngineState.battleOrchestratorState.battleState
                             .missionMap,
-                    objectRepository: gameEngineState.repository,
+                    objectRepository: gameEngineState.repository!,
                     battleActionRecorder:
                         gameEngineState.battleOrchestratorState.battleState
                             .battleActionRecorder,
@@ -1865,21 +1865,22 @@ describe("Battle HUD", () => {
                             .battleActionRecorder
                     )
                 const knightUsesLongswordOnThiefResults =
-                    mostRecentAction.effect.squaddie.find(
+                    mostRecentAction!.effect!.squaddie!.find(
                         (change) =>
                             change.battleSquaddieId ===
                             thiefBattleSquaddie.battleSquaddieId
-                    )
+                    )!
                 const longswordActionDamage =
-                    longswordAction.actionEffectTemplates[0].damageDescriptions
+                    longswordAction.actionEffectTemplates[0]!.damageDescriptions
                         .BODY
+                expect(longswordActionDamage).not.toBeUndefined()
                 expect(knightUsesLongswordOnThiefResults.damage.net).toBe(
                     longswordActionDamage
                 )
 
                 const { squaddieTemplate } = getResultOrThrowError(
                     ObjectRepositoryService.getSquaddieByBattleId(
-                        gameEngineState.repository,
+                        gameEngineState.repository!,
                         thiefBattleSquaddie.battleSquaddieId
                     )
                 )
@@ -1889,9 +1890,11 @@ describe("Battle HUD", () => {
                         squaddieTemplate: squaddieTemplate,
                         battleSquaddie: thiefBattleSquaddie,
                     })
-                expect(currentHitPoints).toBe(
-                    maxHitPoints - longswordActionDamage
-                )
+                if (longswordActionDamage != undefined) {
+                    expect(currentHitPoints).toBe(
+                        maxHitPoints - longswordActionDamage
+                    )
+                }
             })
         })
     })
@@ -1942,7 +1945,7 @@ describe("Battle HUD", () => {
                 missionMap:
                     gameEngineState.battleOrchestratorState.battleState
                         .missionMap,
-                objectRepository: gameEngineState.repository,
+                objectRepository: gameEngineState.repository!,
                 messageBoard: gameEngineState.messageBoard,
                 battleActionDecisionStep:
                     gameEngineState.battleOrchestratorState.battleState
@@ -1978,7 +1981,7 @@ describe("Battle HUD", () => {
                 missionMap:
                     gameEngineState.battleOrchestratorState.battleState
                         .missionMap,
-                objectRepository: gameEngineState.repository,
+                objectRepository: gameEngineState.repository!,
                 messageBoard: gameEngineState.messageBoard,
                 battleActionDecisionStep:
                     gameEngineState.battleOrchestratorState.battleState
@@ -2015,7 +2018,7 @@ describe("Battle HUD", () => {
                     missionMap:
                         gameEngineState.battleOrchestratorState.battleState
                             .missionMap,
-                    objectRepository: gameEngineState.repository,
+                    objectRepository: gameEngineState.repository!,
                     messageBoard: gameEngineState.messageBoard,
                     battleActionDecisionStep:
                         gameEngineState.battleOrchestratorState.battleState
@@ -2151,7 +2154,7 @@ describe("Battle HUD", () => {
                     missionMap:
                         gameEngineState.battleOrchestratorState.battleState
                             .missionMap,
-                    objectRepository: gameEngineState.repository,
+                    objectRepository: gameEngineState.repository!,
                     messageBoard: gameEngineState.messageBoard,
                     battleActionDecisionStep:
                         gameEngineState.battleOrchestratorState.battleState
@@ -2212,7 +2215,7 @@ describe("Battle HUD", () => {
                     BattleActionRecorderService.peekAtAnimationQueue(
                         gameEngineState.battleOrchestratorState.battleState
                             .battleActionRecorder
-                    ).action.isMovement
+                    )!.action.isMovement
                 ).toBeTruthy()
             })
 
@@ -2284,17 +2287,17 @@ describe("Battle HUD", () => {
 
             gameEngineState.messageBoard.sendMessage({
                 type: MessageBoardMessageType.PLAYER_CONTROLLED_SQUADDIE_NEEDS_NEXT_ACTION,
-                objectRepository: gameEngineState.repository,
+                objectRepository: gameEngineState.repository!,
                 battleSquaddieId: BattleActionDecisionStepService.getActor(
                     gameEngineState.battleOrchestratorState.battleState
                         .battleActionDecisionStep
-                ).battleSquaddieId,
+                )?.battleSquaddieId,
                 missionMap:
                     gameEngineState.battleOrchestratorState.battleState
                         .missionMap,
                 playerCommandState:
                     gameEngineState.battleOrchestratorState.battleHUDState
-                        .summaryHUDState.playerCommandState,
+                        .summaryHUDState!.playerCommandState,
                 campaignResources: gameEngineState.campaign.resources,
                 squaddieAllMovementCache:
                     gameEngineState.battleOrchestratorState.cache
@@ -2315,8 +2318,8 @@ describe("Battle HUD", () => {
         })
         it("invalidates the playerCommandState's player action validity", () => {
             const battleHUDState: BattleHUDState = BattleHUDStateService.new({})
-            battleHUDState.summaryHUDState = SummaryHUDStateService.new()
-            battleHUDState.summaryHUDState.playerCommandState =
+            battleHUDState.summaryHUDState! = SummaryHUDStateService.new()
+            battleHUDState.summaryHUDState!.playerCommandState =
                 PlayerCommandStateService.new()
             gameEngineState.battleOrchestratorState.battleHUDState =
                 battleHUDState
@@ -2334,17 +2337,17 @@ describe("Battle HUD", () => {
             const message: MessageBoardMessagePlayerControlledSquaddieNeedsNextAction =
                 {
                     type: MessageBoardMessageType.PLAYER_CONTROLLED_SQUADDIE_NEEDS_NEXT_ACTION,
-                    objectRepository: gameEngineState.repository,
+                    objectRepository: gameEngineState.repository!,
                     battleSquaddieId: BattleActionDecisionStepService.getActor(
                         gameEngineState.battleOrchestratorState.battleState
                             .battleActionDecisionStep
-                    ).battleSquaddieId,
+                    )!.battleSquaddieId,
                     missionMap:
                         gameEngineState.battleOrchestratorState.battleState
                             .missionMap,
                     playerCommandState:
                         gameEngineState.battleOrchestratorState.battleHUDState
-                            .summaryHUDState.playerCommandState,
+                            .summaryHUDState!.playerCommandState,
                     campaignResources: gameEngineState.campaign.resources,
                     squaddieAllMovementCache:
                         gameEngineState.battleOrchestratorState.cache
@@ -2378,7 +2381,7 @@ const expectSquaddieIsMovingToGivenLocation = (
         BattleActionDecisionStepService.getActor(
             gameEngineState.battleOrchestratorState.battleState
                 .battleActionDecisionStep
-        ).battleSquaddieId
+        )?.battleSquaddieId
     ).toEqual(battleSquaddie.battleSquaddieId)
     expect(
         BattleActionDecisionStepService.isActionSet(
@@ -2390,7 +2393,7 @@ const expectSquaddieIsMovingToGivenLocation = (
         BattleActionDecisionStepService.getAction(
             gameEngineState.battleOrchestratorState.battleState
                 .battleActionDecisionStep
-        ).movement
+        )?.movement
     ).toBeTruthy()
     expect(
         BattleActionDecisionStepService.isTargetConsidered(

@@ -1,4 +1,5 @@
 import { TSquaddieAffiliation } from "../../squaddie/squaddieAffiliation"
+import { EnumLike } from "../../utils/enum"
 
 export const TeamStrategyType = {
     END_TURN: "END_TURN",

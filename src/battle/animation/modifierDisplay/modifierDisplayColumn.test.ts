@@ -69,9 +69,11 @@ describe("Modifier Display", () => {
             })
 
             expect(modifierDisplay.labels).toHaveLength(modifiers.length - 1)
-            expect(modifierDisplay.labels[0].textBox.text).toEqual("Sure Shot")
-            expect(modifierDisplay.labels[1].textBox.text).toEqual("-2 Blinded")
-            expect(modifierDisplay.labels[2].textBox.text).toEqual(
+            expect(modifierDisplay.labels[0]!.textBox.text).toEqual("Sure Shot")
+            expect(modifierDisplay.labels[1]!.textBox.text).toEqual(
+                "-2 Blinded"
+            )
+            expect(modifierDisplay.labels[2]!.textBox.text).toEqual(
                 "+1 Marksman's Aim"
             )
         })
@@ -83,11 +85,13 @@ describe("Modifier Display", () => {
             })
 
             expect(modifierDisplay.labels).toHaveLength(modifiers.length - 1)
-            expect(modifierDisplay.labels[0].textBox.text).toEqual("Sure Shot")
-            expect(modifierDisplay.labels[1].textBox.text).toEqual(
+            expect(modifierDisplay.labels[0]!.textBox.text).toEqual("Sure Shot")
+            expect(modifierDisplay.labels[1]!.textBox.text).toEqual(
                 "+1 Marksman's Aim"
             )
-            expect(modifierDisplay.labels[2].textBox.text).toEqual("-2 Blinded")
+            expect(modifierDisplay.labels[2]!.textBox.text).toEqual(
+                "-2 Blinded"
+            )
         })
     })
 

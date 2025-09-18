@@ -28,7 +28,7 @@ export const TerrainTileMapService = {
     getTileTerrainTypeAtCoordinate: (
         terrainTileMap: TerrainTileMap,
         coordinate: HexCoordinate
-    ): THexGridMovementCost => {
+    ): THexGridMovementCost | undefined => {
         const tile = getTileAtCoordinate(terrainTileMap, coordinate)
         if (tile === undefined) {
             return undefined
@@ -57,9 +57,9 @@ export const TerrainTileMapService = {
     },
     isCoordinateOnMap: (
         terrainTileMap: TerrainTileMap,
-        hexCoordinate: HexCoordinate
+        hexCoordinate: HexCoordinate | undefined
     ): boolean =>
-        hexCoordinate &&
+        hexCoordinate != undefined &&
         getTileAtCoordinate(terrainTileMap, hexCoordinate) !== undefined,
     getDimensions: (
         terrainTileMap: TerrainTileMap
@@ -86,7 +86,7 @@ export const TerrainTileMapService = {
         terrainTileMap: TerrainTileMap
         id: string
         type?: TMapGraphicsLayerType
-    }): MapGraphicsLayer => {
+    }): MapGraphicsLayer | undefined => {
         return terrainTileMap.highlightLayers.find(
             (layer) =>
                 layer.id === id && (type === undefined || layer.type === type)
@@ -172,7 +172,10 @@ export const TerrainTileMapService = {
     ) => getTileAtCoordinate(terrainTileMap, hexCoordinate),
 }
 
-const convertMovementCostToTiles = (movementCost: string[]): HexGridTile[] => {
+const convertMovementCostToTiles = (
+    movementCost: string[] | undefined
+): HexGridTile[] => {
+    if (!movementCost) return []
     const newTiles: HexGridTile[] = []
     movementCost.forEach((costString, qIndex) => {
         let rIndex = 0 - Math.floor(qIndex / 2)
@@ -209,7 +212,7 @@ const convertMovementCostToTiles = (movementCost: string[]): HexGridTile[] => {
 
 const getTileAtCoordinate = (
     terrainTileMap: TerrainTileMap,
-    hexCoordinate: HexCoordinate
+    hexCoordinate: HexCoordinate | undefined
 ): HexGridTile | undefined =>
     terrainTileMap?.coordinates.get(
         HexCoordinateService.toString(hexCoordinate)

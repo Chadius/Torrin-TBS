@@ -115,8 +115,8 @@ export const InBattleAttributesService = {
             getAllActiveAttributeModifiers(attributes)
     },
     calculateAttributeModifiersGainedAfterChanges: (
-        before: InBattleAttributes,
-        after: InBattleAttributes
+        before: InBattleAttributes | undefined,
+        after: InBattleAttributes | undefined
     ): AttributeTypeAndAmount[] => {
         const beforeAttributeTypesAndAmounts: AttributeTypeAndAmount[] = before
             ? AttributeModifierService.calculateCurrentAttributeModifiers(
@@ -132,12 +132,13 @@ export const InBattleAttributesService = {
         const differences: AttributeTypeAndAmount[] = []
         afterAttributeTypesAndAmounts.forEach(
             (afterAttributeTypesAndAmount) => {
-                const beforeAttributeTypesAndAmount: AttributeTypeAndAmount =
-                    beforeAttributeTypesAndAmounts.find(
-                        (beforeAttributeTypesAndAmount) =>
-                            beforeAttributeTypesAndAmount.type ===
-                            afterAttributeTypesAndAmount.type
-                    )
+                const beforeAttributeTypesAndAmount:
+                    | AttributeTypeAndAmount
+                    | undefined = beforeAttributeTypesAndAmounts.find(
+                    (beforeAttributeTypesAndAmount) =>
+                        beforeAttributeTypesAndAmount.type ===
+                        afterAttributeTypesAndAmount.type
+                )
                 if (beforeAttributeTypesAndAmount === undefined) {
                     differences.push(afterAttributeTypesAndAmount)
                     return
@@ -197,9 +198,10 @@ export const InBattleAttributesService = {
     }: {
         inBattleAttributes: InBattleAttributes
         actionTemplateId: string
-        numberOfCooldownTurns: number
+        numberOfCooldownTurns: number | undefined
     }) => {
-        if ((numberOfCooldownTurns ?? 0) < 1) return
+        if (numberOfCooldownTurns == undefined) return
+        if (numberOfCooldownTurns < 1) return
         inBattleAttributes.actionTemplateCooldownById[actionTemplateId] =
             numberOfCooldownTurns
     },

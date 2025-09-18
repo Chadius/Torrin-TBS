@@ -2,10 +2,9 @@ import {
     CampaignResources,
     CampaignResourcesService,
 } from "./campaignResources"
-import { isValidValue } from "../utils/objectValidityCheck"
 
 export interface Campaign {
-    id: string
+    id: string | undefined
     resources: CampaignResources
     missionIds: string[]
 }
@@ -21,11 +20,9 @@ export const CampaignService = {
         missionIds?: string[]
     }): Campaign => {
         return {
-            id: isValidValue(id) ? id : undefined,
-            resources: isValidValue(resources)
-                ? resources
-                : CampaignResourcesService.default(),
-            missionIds: isValidValue(missionIds) ? missionIds : ["0000"],
+            id: id ?? undefined,
+            resources: resources ?? CampaignResourcesService.default(),
+            missionIds: missionIds ?? ["0000"],
         }
     },
     default: (): Campaign => {

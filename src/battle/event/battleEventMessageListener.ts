@@ -32,8 +32,8 @@ import { TBattleCompletionStatus } from "../orchestrator/missionObjectivesAndCut
 
 export class BattleEventMessageListener implements MessageBoardListener {
     messageBoardListenerId: string
-    private cutsceneIdQueue: CutsceneIdQueue
-    private challengeModifierSetting: ChallengeModifierSetting
+    private cutsceneIdQueue: CutsceneIdQueue | undefined
+    private challengeModifierSetting: ChallengeModifierSetting | undefined
 
     constructor(messageBoardListenerId: string) {
         this.messageBoardListenerId = messageBoardListenerId
@@ -51,25 +51,27 @@ export class BattleEventMessageListener implements MessageBoardListener {
 
         let battleEvents = (message as MessageBoardMessageSquaddieIsInjured)
             .gameEngineState.battleOrchestratorState.battleState.battleEvents
-
-        battleEvents = this.filterQualifyingBattleEvents({
-            allBattleEvents: battleEvents,
-            objectRepository: (message as MessageBoardMessageSquaddieIsInjured)
-                .gameEngineState.repository,
-            battleActionRecorder: (
-                message as MessageBoardMessageSquaddieIsInjured
-            ).gameEngineState.battleOrchestratorState.battleState
-                .battleActionRecorder,
-            turn: {
-                turnCount: (message as MessageBoardMessageSquaddieIsInjured)
-                    .gameEngineState.battleOrchestratorState.battleState
-                    ?.battlePhaseState?.turnCount,
-            },
-            battleCompletionStatus: (
-                message as MessageBoardMessageSquaddieIsInjured
-            ).gameEngineState.battleOrchestratorState.battleState
-                .battleCompletionStatus,
-        })
+        let objectRepository = (message as MessageBoardMessageSquaddieIsInjured)
+            .gameEngineState.repository
+        if (objectRepository) {
+            battleEvents = this.filterQualifyingBattleEvents({
+                allBattleEvents: battleEvents,
+                objectRepository,
+                battleActionRecorder: (
+                    message as MessageBoardMessageSquaddieIsInjured
+                ).gameEngineState.battleOrchestratorState.battleState
+                    .battleActionRecorder,
+                turn: {
+                    turnCount: (message as MessageBoardMessageSquaddieIsInjured)
+                        .gameEngineState.battleOrchestratorState.battleState
+                        ?.battlePhaseState?.turnCount,
+                },
+                battleCompletionStatus: (
+                    message as MessageBoardMessageSquaddieIsInjured
+                ).gameEngineState.battleOrchestratorState.battleState
+                    .battleCompletionStatus,
+            })
+        }
 
         this.applyBattleEventEffects(battleEvents)
     }
@@ -82,7 +84,7 @@ export class BattleEventMessageListener implements MessageBoardListener {
         battleCompletionStatus,
     }: {
         allBattleEvents: BattleEvent[]
-        objectRepository: ObjectRepository
+        objectRepository: ObjectRepository | undefined
         battleActionRecorder: BattleActionRecorder
         turn?: {
             turnCount?: number
@@ -164,11 +166,11 @@ const filterBattleEventsByBattleEventEffectType = (
 const filterBattleEventsThatDidNotApplyEffect = (
     battleEvents: BattleEvent[]
 ): BattleEvent[] =>
-    battleEvents.filter((event) => event.effect.alreadyAppliedEffect === false)
+    battleEvents.filter((event) => !event.effect.alreadyAppliedEffect)
 
 const generateTriggerSatisfiedSquaddieContext = (
     battleActionRecorder: BattleActionRecorder,
-    objectRepository: ObjectRepository
+    objectRepository: ObjectRepository | undefined
 ): BattleEventTriggerSquaddiesContext => {
     let squaddieChanges =
         BattleActionRecorderService.peekAtAnimationQueue(battleActionRecorder)
@@ -177,7 +179,11 @@ const generateTriggerSatisfiedSquaddieContext = (
     if (!squaddieChanges || squaddieChanges.length === 0) return {}
 
     return squaddieChanges.reduce(
-        (squaddiesContext, squaddieChange) => {
+        (
+            squaddiesContext: BattleEventTriggerSquaddiesContext,
+            squaddieChange
+        ) => {
+            if (objectRepository == undefined) return squaddiesContext
             const { squaddieTemplate, battleSquaddie } = getResultOrThrowError(
                 ObjectRepositoryService.getSquaddieByBattleId(
                     objectRepository,
@@ -193,17 +199,17 @@ const generateTriggerSatisfiedSquaddieContext = (
                     battleSquaddie,
                 })
             ) {
-                squaddiesContext.injured.battleSquaddieIds.push(
+                squaddiesContext.injured?.battleSquaddieIds.push(
                     battleSquaddie.battleSquaddieId
                 )
-                squaddiesContext.injured.squaddieTemplateIds.push(
+                squaddiesContext.injured?.squaddieTemplateIds.push(
                     squaddieTemplate.squaddieId.templateId
                 )
             } else {
-                squaddiesContext.defeated.battleSquaddieIds.push(
+                squaddiesContext.defeated?.battleSquaddieIds.push(
                     battleSquaddie.battleSquaddieId
                 )
-                squaddiesContext.defeated.squaddieTemplateIds.push(
+                squaddiesContext.defeated?.squaddieTemplateIds.push(
                     squaddieTemplate.squaddieId.templateId
                 )
             }

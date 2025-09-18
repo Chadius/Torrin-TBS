@@ -3,6 +3,7 @@ import { BattleCamera } from "../../battleCamera"
 import { Button } from "../../../ui/button/button"
 import { ImageUI } from "../../../ui/imageUI/imageUI"
 import { Label } from "../../../ui/label"
+import { EnumLike } from "../../../utils/enum"
 
 export const PlayerActionTargetSelectMapHighlight = {
     NONE: "NONE",
@@ -14,16 +15,16 @@ export type TPlayerActionTargetSelectMapHighlight = EnumLike<
 >
 
 export interface PlayerActionTargetStateMachineUIObjects {
-    graphicsContext: GraphicsBuffer
-    camera: BattleCamera
+    graphicsContext: GraphicsBuffer | undefined
+    camera: BattleCamera | undefined
     mapHighlight: TPlayerActionTargetSelectMapHighlight
     confirm: {
-        okButton: Button
-        cancelButton: Button
+        okButton: Button | undefined
+        cancelButton: Button | undefined
     }
     selectTarget: {
-        cancelButton: Button
-        explanationLabel: Label
+        cancelButton: Button | undefined
+        explanationLabel: Label | undefined
     }
     mapIcons: {
         actor: {
@@ -65,8 +66,8 @@ export const PlayerActionTargetStateMachineUIObjectsService = {
         uiObjects: PlayerActionTargetStateMachineUIObjects
     ): Button[] => {
         return [
-            uiObjects.confirm.okButton,
-            uiObjects.confirm.cancelButton,
-        ].filter((x) => x)
+            uiObjects.confirm?.okButton,
+            uiObjects.confirm?.cancelButton,
+        ].filter((x) => x != undefined)
     },
 }

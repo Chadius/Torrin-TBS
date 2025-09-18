@@ -23,7 +23,7 @@ export const MissionFileValidationService = {
     },
     validateMissionFileFormat: (mission: MissionFileFormat) => {
         try {
-            MissionFileFormatService.sanitize(mission)
+            mission = MissionFileFormatService.sanitize(mission)
         } catch (e) {
             console.error("[MapValidationService] ", e)
             throw e
@@ -79,11 +79,13 @@ const consoleErrorValidationFailures = ({
     squaddiesOnMultipleTeams,
 }: MissionFileValidationFailures) => {
     if (invalidOffMapNpcPlacements.length > 0) {
-        invalidOffMapNpcPlacements.forEach((placement) => {
-            console.error(
-                `[MapValidationService] "${placement.battleSquaddieId}" is at coordinate (q: ${placement.coordinate.q}, r: ${placement.coordinate.r}) which is not on the map`
-            )
-        })
+        invalidOffMapNpcPlacements
+            .filter((placement) => placement.coordinate != undefined)
+            .forEach((placement) => {
+                console.error(
+                    `[MapValidationService] "${placement.battleSquaddieId}" is at coordinate (q: ${placement.coordinate!.q}, r: ${placement.coordinate!.r}) which is not on the map`
+                )
+            })
     }
 
     if (npcPlacementsInTheSameLocation.length > 0) {
@@ -166,24 +168,25 @@ const findInvalidOffMapNpcPlacements = (
         movementCost: missionData.terrain,
     })
     const allInvalidPlacements: MapPlacement[] = []
-
     ;[
-        missionData.npcDeployments.enemy.mapPlacements,
-        missionData.npcDeployments.ally.mapPlacements,
-        missionData.npcDeployments.noAffiliation.mapPlacements,
-    ].forEach((mapPlacements) => {
-        mapPlacements.forEach((mapPlacement) => {
-            if (
-                mapPlacement.coordinate &&
-                !TerrainTileMapService.isCoordinateOnMap(
-                    terrainMap,
-                    mapPlacement.coordinate
-                )
-            ) {
-                allInvalidPlacements.push(mapPlacement)
-            }
+        missionData.npcDeployments.enemy?.mapPlacements,
+        missionData.npcDeployments.ally?.mapPlacements,
+        missionData.npcDeployments.noAffiliation?.mapPlacements,
+    ]
+        .filter((x) => x != undefined)
+        .forEach((mapPlacements) => {
+            mapPlacements.forEach((mapPlacement) => {
+                if (
+                    mapPlacement.coordinate &&
+                    !TerrainTileMapService.isCoordinateOnMap(
+                        terrainMap,
+                        mapPlacement.coordinate
+                    )
+                ) {
+                    allInvalidPlacements.push(mapPlacement)
+                }
+            })
         })
-    })
 
     return allInvalidPlacements
 }
@@ -200,32 +203,36 @@ const findNpcPlacementsInTheSameCoordinate = (
     }[] = []
 
     ;[
-        missionData.npcDeployments.enemy.mapPlacements,
-        missionData.npcDeployments.ally.mapPlacements,
-        missionData.npcDeployments.noAffiliation.mapPlacements,
-    ].forEach((mapPlacements) => {
-        mapPlacements.forEach((mapPlacement) => {
-            let existingCoordinate = squaddiesByLocation.find(
-                (c) =>
-                    mapPlacement.coordinate != undefined &&
-                    HexCoordinateService.areEqual(
-                        c.coordinate,
-                        mapPlacement.coordinate
-                    )
-            )
-            if (!existingCoordinate) {
-                existingCoordinate = {
-                    coordinate: mapPlacement.coordinate,
-                    battleSquaddieIds: [],
-                }
-                squaddiesByLocation.push(existingCoordinate)
-            }
+        missionData.npcDeployments.enemy?.mapPlacements,
+        missionData.npcDeployments.ally?.mapPlacements,
+        missionData.npcDeployments.noAffiliation?.mapPlacements,
+    ]
+        .filter((x) => x != undefined)
+        .forEach((mapPlacements) => {
+            mapPlacements.forEach((mapPlacement) => {
+                let existingCoordinate = squaddiesByLocation.find(
+                    (c) =>
+                        mapPlacement.coordinate != undefined &&
+                        HexCoordinateService.areEqual(
+                            c.coordinate,
+                            mapPlacement.coordinate
+                        )
+                )
+                if (mapPlacement.coordinate == undefined) return
 
-            existingCoordinate.battleSquaddieIds.push(
-                mapPlacement.battleSquaddieId
-            )
+                if (!existingCoordinate) {
+                    existingCoordinate = {
+                        coordinate: mapPlacement.coordinate,
+                        battleSquaddieIds: [],
+                    }
+                    squaddiesByLocation.push(existingCoordinate)
+                }
+
+                existingCoordinate.battleSquaddieIds.push(
+                    mapPlacement.battleSquaddieId
+                )
+            })
         })
-    })
 
     return squaddiesByLocation.filter((s) => s.battleSquaddieIds.length > 1)
 }
@@ -244,23 +251,26 @@ const findInvalidTeamBattleSquaddieIds = (
         )
     }
     ;[
-        missionData.npcDeployments.enemy,
-        missionData.npcDeployments.ally,
-        missionData.npcDeployments.noAffiliation,
-    ].forEach((deployment) => {
-        deployment.teams.forEach((team) => {
-            const missingBattleSquaddieIds = team.battleSquaddieIds.filter(
-                (battleSquaddieId) =>
-                    hasBattleSquaddieAlreadyPlaced(
-                        deployment,
-                        battleSquaddieId
-                    ) === false
-            )
-            if (missingBattleSquaddieIds.length > 0) {
-                invalidTeamBattleSquaddieIds[team.id] = missingBattleSquaddieIds
-            }
+        missionData.npcDeployments?.enemy,
+        missionData.npcDeployments?.ally,
+        missionData.npcDeployments?.noAffiliation,
+    ]
+        .filter((x) => x != undefined)
+        .forEach((deployment) => {
+            deployment.teams.forEach((team) => {
+                const missingBattleSquaddieIds = team.battleSquaddieIds.filter(
+                    (battleSquaddieId) =>
+                        hasBattleSquaddieAlreadyPlaced(
+                            deployment,
+                            battleSquaddieId
+                        ) === false
+                )
+                if (missingBattleSquaddieIds.length > 0) {
+                    invalidTeamBattleSquaddieIds[team.id] =
+                        missingBattleSquaddieIds
+                }
+            })
         })
-    })
 
     return invalidTeamBattleSquaddieIds
 }
@@ -268,18 +278,20 @@ const findInvalidTeamBattleSquaddieIds = (
 const findTeamsWithTheSameIds = (missionData: MissionFileFormat) => {
     const teamsWithTheSameIds: { [teamId: string]: string[] } = {}
     ;[
-        missionData.npcDeployments.enemy,
-        missionData.npcDeployments.ally,
-        missionData.npcDeployments.noAffiliation,
-    ].forEach((deployment) => {
-        deployment.teams.forEach((team) => {
-            if (!teamsWithTheSameIds[team.id]) {
-                teamsWithTheSameIds[team.id] = []
-            }
+        missionData.npcDeployments?.enemy,
+        missionData.npcDeployments?.ally,
+        missionData.npcDeployments?.noAffiliation,
+    ]
+        .filter((x) => x != undefined)
+        .forEach((deployment) => {
+            deployment.teams.forEach((team) => {
+                if (!teamsWithTheSameIds[team.id]) {
+                    teamsWithTheSameIds[team.id] = []
+                }
 
-            teamsWithTheSameIds[team.id].push(team.name)
+                teamsWithTheSameIds[team.id].push(team.name)
+            })
         })
-    })
 
     return Object.fromEntries(
         Object.entries(teamsWithTheSameIds).filter(
@@ -294,20 +306,22 @@ const findSquaddiesOnMultipleTeams = (
     const squaddiesOnTeams: { [battleSquaddieId: string]: string[] } = {}
 
     ;[
-        missionData.npcDeployments.enemy,
-        missionData.npcDeployments.ally,
-        missionData.npcDeployments.noAffiliation,
-    ].forEach((deployment) => {
-        deployment.teams.forEach((team) => {
-            team.battleSquaddieIds.forEach((battleSquaddieId) => {
-                if (!squaddiesOnTeams[battleSquaddieId]) {
-                    squaddiesOnTeams[battleSquaddieId] = []
-                }
+        missionData.npcDeployments?.enemy,
+        missionData.npcDeployments?.ally,
+        missionData.npcDeployments?.noAffiliation,
+    ]
+        .filter((x) => x != undefined)
+        .forEach((deployment) => {
+            deployment.teams.forEach((team) => {
+                team.battleSquaddieIds.forEach((battleSquaddieId) => {
+                    if (!squaddiesOnTeams[battleSquaddieId]) {
+                        squaddiesOnTeams[battleSquaddieId] = []
+                    }
 
-                squaddiesOnTeams[battleSquaddieId].push(team.id)
+                    squaddiesOnTeams[battleSquaddieId].push(team.id)
+                })
             })
         })
-    })
 
     return Object.fromEntries(
         Object.entries(squaddiesOnTeams).filter(

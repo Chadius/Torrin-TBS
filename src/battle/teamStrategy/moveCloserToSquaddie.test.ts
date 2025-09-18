@@ -319,7 +319,7 @@ describe("move towards closest squaddie in range", () => {
                 gameEngineState.battleOrchestratorState.battleHUD.debugMode
             ).behaviorOverrides,
         })
-        expect(actualInstruction).toBeUndefined()
+        expect(actualInstruction).toHaveLength(0)
     })
 
     it("will give no instruction if no targets are in range", () => {
@@ -354,7 +354,7 @@ describe("move towards closest squaddie in range", () => {
                 gameEngineState.battleOrchestratorState.battleHUD.debugMode
             ).behaviorOverrides,
         })
-        expect(actualInstruction).toBeUndefined()
+        expect(actualInstruction).toHaveLength(0)
     })
 
     it("will move towards closest squaddie of a given affiliation", () => {
@@ -526,7 +526,7 @@ describe("move towards closest squaddie in range", () => {
                 gameEngineState.battleOrchestratorState.battleHUD.debugMode
             ).behaviorOverrides,
         })
-        expect(actualInstruction).toBeUndefined()
+        expect(actualInstruction).toHaveLength(0)
     })
 
     it("enemy will move towards squaddies it cannot move past", () => {

@@ -331,7 +331,7 @@ describe("Player Selection Service", () => {
                 let battleSquaddie2: BattleSquaddie
                 beforeEach(() => {
                     ;({ battleSquaddie: battleSquaddie2 } = createSquaddie({
-                        objectRepository: gameEngineState.repository,
+                        objectRepository: gameEngineState.repository!,
                         squaddieAffiliation: SquaddieAffiliation.PLAYER,
                     }))
                     MissionMapService.addSquaddie({
@@ -401,19 +401,19 @@ describe("Player Selection Service", () => {
                     gameEngineState.battleOrchestratorState.battleState.teams.find(
                         (team) => team.id == "player_team"
                     )
-                BattleSquaddieTeamService.addBattleSquaddieIds(playerTeam, [
+                BattleSquaddieTeamService.addBattleSquaddieIds(playerTeam!, [
                     playerBattleSquaddie2.battleSquaddieId,
                 ])
 
                 gameEngineState.battleOrchestratorState.battleHUDState.squaddieSelectorPanel =
                     SquaddieSelectorPanelService.new({
-                        objectRepository: gameEngineState.repository,
-                        battleSquaddieIds: [...playerTeam.battleSquaddieIds],
+                        objectRepository: gameEngineState.repository!,
+                        battleSquaddieIds: [...playerTeam!.battleSquaddieIds],
                     })
                 SquaddieSelectorPanelService.draw({
                     graphicsContext: mockedP5GraphicsContext,
-                    resourceHandler: gameEngineState.resourceHandler,
-                    objectRepository: gameEngineState.repository,
+                    resourceHandler: gameEngineState.resourceHandler!,
+                    objectRepository: gameEngineState.repository!,
                     squaddieSelectorPanel:
                         gameEngineState.battleOrchestratorState.battleHUDState
                             .squaddieSelectorPanel,
@@ -424,7 +424,7 @@ describe("Player Selection Service", () => {
                 battleSquaddieId: string
             ) => {
                 const battleSquaddieButton =
-                    gameEngineState.battleOrchestratorState.battleHUDState.squaddieSelectorPanel.buttons.find(
+                    gameEngineState.battleOrchestratorState.battleHUDState.squaddieSelectorPanel!.buttons.find(
                         (button) =>
                             SquaddieSelectorPanelButtonService.getBattleSquaddieId(
                                 button
@@ -438,13 +438,13 @@ describe("Player Selection Service", () => {
                         button: MouseButton.ACCEPT,
                         x: RectAreaService.centerX(
                             SquaddieSelectorPanelButtonService.getDrawingArea(
-                                battleSquaddieButton
-                            )
+                                battleSquaddieButton!
+                            )!
                         ),
                         y: RectAreaService.centerY(
                             SquaddieSelectorPanelButtonService.getDrawingArea(
-                                battleSquaddieButton
-                            )
+                                battleSquaddieButton!
+                            )!
                         ),
                     },
                 })
@@ -593,7 +593,7 @@ describe("Player Selection Service", () => {
                 summaryHUDState:
                     gameEngineState.battleOrchestratorState.battleHUDState
                         .summaryHUDState,
-                objectRepository: gameEngineState.repository,
+                objectRepository: gameEngineState.repository!,
                 campaignResources: CampaignResourcesService.default(),
                 squaddieAllMovementCache:
                     gameEngineState.battleOrchestratorState.cache
@@ -907,7 +907,7 @@ describe("Player Selection Service", () => {
                         .playerConsideredActions,
                 playerDecisionHUD:
                     gameEngineState.battleOrchestratorState.playerDecisionHUD,
-                objectRepository: gameEngineState.repository,
+                objectRepository: gameEngineState.repository!,
                 playerCommandState:
                     gameEngineState.battleOrchestratorState.battleHUDState
                         .summaryHUDState.playerCommandState,
@@ -1629,7 +1629,7 @@ const clickOnScreenAndCalculateChangesAndMessage = ({
         targetCoordinate: targetCoordinate,
         missionMap:
             gameEngineState.battleOrchestratorState.battleState.missionMap,
-        objectRepository: gameEngineState.repository,
+        objectRepository: gameEngineState.repository!,
         messageBoard: gameEngineState.messageBoard,
         battleActionDecisionStep:
             gameEngineState.battleOrchestratorState.battleState

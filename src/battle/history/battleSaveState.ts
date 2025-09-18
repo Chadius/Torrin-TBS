@@ -282,27 +282,32 @@ const applySaveStateToOrchestratorStateSquaddieMapPlacements = (
     battleSaveState: BattleSaveState,
     battleOrchestratorState: BattleOrchestratorState
 ) => {
-    battleSaveState.squaddieMapPlacements.forEach(
-        (coordinateData: MissionMapSquaddieCoordinate) =>
+    battleSaveState.squaddieMapPlacements
+        .filter(
+            (coordinateData) => coordinateData.battleSquaddieId != undefined
+        )
+        .forEach((coordinateData: MissionMapSquaddieCoordinate) =>
             MissionMapService.updateBattleSquaddieCoordinate({
                 missionMap: battleOrchestratorState.battleState.missionMap,
-                battleSquaddieId: coordinateData.battleSquaddieId,
+                battleSquaddieId: coordinateData.battleSquaddieId!,
                 coordinate: undefined,
             })
-    )
-    battleSaveState.squaddieMapPlacements.forEach(
-        (coordinateData: MissionMapSquaddieCoordinate) => {
+        )
+    battleSaveState.squaddieMapPlacements
+        .filter(
+            (coordinateData) => coordinateData.battleSquaddieId != undefined
+        )
+        .forEach((coordinateData: MissionMapSquaddieCoordinate) => {
             MissionMapService.updateBattleSquaddieCoordinate({
                 missionMap: battleOrchestratorState.battleState.missionMap,
-                battleSquaddieId: coordinateData.battleSquaddieId,
+                battleSquaddieId: coordinateData.battleSquaddieId!,
                 coordinate: coordinateData.currentMapCoordinate,
             })
             MissionMapService.setOriginMapCoordinateToCurrentMapCoordinate(
                 battleOrchestratorState.battleState.missionMap,
-                coordinateData.battleSquaddieId
+                coordinateData.battleSquaddieId!
             )
-        }
-    )
+        })
 }
 const applySaveStateToOrchestratorStateInBattleAttributes = (
     battleSaveState: BattleSaveState,

@@ -47,6 +47,7 @@ vi.mock("p5", () => {
 })
 
 export const mockedP5 = () => {
+    // @ts-ignore
     return new p5(undefined, undefined)
 }
 
@@ -107,7 +108,7 @@ export class MockedP5GraphicsBuffer implements GraphicsBuffer {
         return this.mockedP5.createImage(width, height)
     }
 
-    endShape(mode: string): void {
+    endShape(mode: "close" | undefined): void {
         this.mockedP5.endShape(mode as p5.END_MODE)
     }
 

@@ -45,11 +45,11 @@ export const MissionObjectiveService = {
         objective: MissionObjective,
         state: GameEngineState
     ): boolean => {
-        const missionCompletionStatus: MissionCompletionStatus =
+        const missionCompletionStatus: MissionCompletionStatus | undefined =
             state.battleOrchestratorState.battleState.missionCompletionStatus
 
         if (missionCompletionStatus[objective.id].isComplete !== undefined) {
-            return missionCompletionStatus[objective.id].isComplete
+            return missionCompletionStatus[objective.id].isComplete == true
         }
         const completeConditions = objective.conditions.filter(
             (condition: MissionCondition) => {

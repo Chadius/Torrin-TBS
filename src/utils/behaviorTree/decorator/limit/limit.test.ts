@@ -22,6 +22,7 @@ describe("Limit decorator", () => {
 
     it("throws an error when run with without a task", () => {
         expect(() => {
+            // @ts-ignore intentionally adding an invalid field to throw an exception
             new LimitDecorator(blackboard, undefined, { limit: 1 })
         }).toThrow("[LimitDecorator.constructor] must have a child task")
     })

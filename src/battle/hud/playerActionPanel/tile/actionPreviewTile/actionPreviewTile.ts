@@ -50,6 +50,7 @@ import { CreateNextNamesOfDegreesOfSuccessTextBoxAction } from "./uiObjects/name
 import { DrawRectanglesAction } from "../../../../../ui/rectangle/drawRectanglesAction"
 import { ComponentDataBlob } from "../../../../../utils/dataBlob/componentDataBlob"
 import { Rectangle } from "../../../../../ui/rectangle/rectangle"
+import { EnumLike } from "../../../../../utils/enum"
 
 export interface ActionPreviewTile {
     forecast: CalculatedResult
@@ -164,25 +165,33 @@ export interface ActionPreviewTileContext {
 }
 
 export interface ActionPreviewTileUIObjects {
-    graphicsContext: GraphicsBuffer
-    infoTextBox: TextBox
-    namesOfDegreesOfSuccessTextBoxes: {
-        degreeOfSuccess: TDegreeOfSuccess
-        textBox: TextBox
-    }[]
-    chancesOfDegreesOfSuccessTextBoxes: {
-        degreeOfSuccess: TDegreeOfSuccess
-        textBox: TextBox
-    }[]
-    chancesOfDegreesOfSuccessRectangles: {
-        degreeOfSuccess: TDegreeOfSuccess
-        bar: Rectangle
-    }[]
-    effectsOfDegreesOfSuccessTextBoxes: {
-        degreeOfSuccess: TDegreeOfSuccess
-        textBox: TextBox
-    }[]
-    targetNameTextBox: TextBox
+    graphicsContext: GraphicsBuffer | undefined
+    infoTextBox: TextBox | undefined
+    namesOfDegreesOfSuccessTextBoxes:
+        | {
+              degreeOfSuccess: TDegreeOfSuccess
+              textBox: TextBox
+          }[]
+        | undefined
+    chancesOfDegreesOfSuccessTextBoxes:
+        | {
+              degreeOfSuccess: TDegreeOfSuccess
+              textBox: TextBox
+          }[]
+        | undefined
+    chancesOfDegreesOfSuccessRectangles:
+        | {
+              degreeOfSuccess: TDegreeOfSuccess
+              bar: Rectangle
+          }[]
+        | undefined
+    effectsOfDegreesOfSuccessTextBoxes:
+        | {
+              degreeOfSuccess: TDegreeOfSuccess
+              textBox: TextBox
+          }[]
+        | undefined
+    targetNameTextBox: TextBox | undefined
     modifiers: {
         leftSide: TextBox[]
         rightSide: TextBox[]
@@ -205,7 +214,7 @@ export const ActionPreviewTileService = {
     }): ActionPreviewTile => {
         const battleSquaddieId = BattleActionDecisionStepService.getActor(
             battleActionDecisionStep
-        ).battleSquaddieId
+        )!.battleSquaddieId
 
         const { squaddieTemplate } = getResultOrThrowError(
             ObjectRepositoryService.getSquaddieByBattleId(
@@ -378,11 +387,14 @@ export const ActionPreviewTileService = {
             chancesOfDegreesOfSuccessRectangles: undefined,
             effectsOfDegreesOfSuccessTextBoxes: undefined,
             targetNameTextBox: undefined,
-            modifiers: undefined,
+            modifiers: { leftSide: [], rightSide: [] },
         }
         dataBlob.setUIObjects(uiObjects)
         const drawBehaviorTree = createDrawingBehaviorTree(dataBlob)
 
+        if (forecast == undefined) {
+            throw new Error("[ActionPreviewTile: new]: No forecast.")
+        }
         return {
             forecast,
             data: dataBlob,
@@ -498,6 +510,7 @@ const createDrawingBehaviorTree = (
         new DoesUIObjectExistCondition(dataBlob, "graphicsContext"),
         new DrawTextBoxesAction(
             dataBlob,
+            // @ts-ignore ComponentDataBlob is a subclass of DataBlob
             (
                 dataBlob: ComponentDataBlob<
                     ActionPreviewTileLayout,
@@ -507,19 +520,19 @@ const createDrawingBehaviorTree = (
             ) => {
                 const uiObjects = dataBlob.getUIObjects()
                 return [
-                    ...uiObjects.namesOfDegreesOfSuccessTextBoxes.map(
+                    ...(uiObjects.namesOfDegreesOfSuccessTextBoxes ?? []).map(
                         (a) => a.textBox
                     ),
-                    ...uiObjects.chancesOfDegreesOfSuccessTextBoxes.map(
+                    ...(uiObjects.chancesOfDegreesOfSuccessTextBoxes ?? []).map(
                         (a) => a.textBox
                     ),
-                    ...uiObjects.effectsOfDegreesOfSuccessTextBoxes.map(
+                    ...(uiObjects.effectsOfDegreesOfSuccessTextBoxes ?? []).map(
                         (a) => a.textBox
                     ),
                     ...uiObjects.modifiers.leftSide,
                     ...uiObjects.modifiers.rightSide,
                     uiObjects.targetNameTextBox,
-                ].filter((x) => x)
+                ].filter((x) => x != undefined)
             },
             (
                 dataBlob: ComponentDataBlob<
@@ -536,19 +549,20 @@ const createDrawingBehaviorTree = (
 
     const drawRectangles = new DrawRectanglesAction(
         dataBlob,
+        // @ts-ignore ComponentDataBlob is a subclass of DataBlob
         (
             dataBlob: ComponentDataBlob<
                 ActionPreviewTileLayout,
                 ActionPreviewTileContext,
                 ActionPreviewTileUIObjects
             >
-        ) => {
+        ): Rectangle[] => {
             const uiObjects = dataBlob.getUIObjects()
             return [
-                ...uiObjects.chancesOfDegreesOfSuccessRectangles.map(
+                ...(uiObjects.chancesOfDegreesOfSuccessRectangles ?? []).map(
                     (x) => x.bar
                 ),
-            ].filter((x) => x)
+            ].filter((x) => x != undefined)
         },
         (
             dataBlob: ComponentDataBlob<
@@ -585,15 +599,20 @@ const createActionPreviewTileContext = ({
 }: {
     squaddieTemplate: SquaddieTemplate
     objectRepository: ObjectRepository
-    forecast: CalculatedResult
+    forecast: CalculatedResult | undefined
     battleActionDecisionStep: BattleActionDecisionStep
 }) => {
     const squaddieNamesByBattleSquaddieId: {
         [battleSquaddieId: string]: string
     } = {}
-    let focusedBattleSquaddieId: string = undefined
+    if (forecast == undefined) {
+        throw new Error(
+            "[ActionPreviewTile: createActionPreviewTileContext]: No forecast."
+        )
+    }
+    let focusedBattleSquaddieId: string | undefined = undefined
     forecast.changesPerEffect.forEach((effect) => {
-        effect.squaddieChanges.forEach((squaddieChange) => {
+        effect.squaddieChanges?.forEach((squaddieChange) => {
             const { squaddieTemplate } = getResultOrThrowError(
                 ObjectRepositoryService.getSquaddieByBattleId(
                     objectRepository,
@@ -605,15 +624,29 @@ const createActionPreviewTileContext = ({
             focusedBattleSquaddieId ||= squaddieChange.battleSquaddieId
         })
     })
+    if (focusedBattleSquaddieId == undefined) {
+        throw new Error(
+            "[ActionPreviewTile: createActionPreviewTileContext]: No battle squaddie."
+        )
+    }
 
     const actionTemplateId = BattleActionDecisionStepService.getAction(
         battleActionDecisionStep
-    ).actionTemplateId
+    )?.actionTemplateId
+    if (actionTemplateId == undefined) {
+        throw new Error(
+            "[ActionPreviewTile: createActionPreviewTileContext]: No action template id found."
+        )
+    }
     const actionTemplate = ObjectRepositoryService.getActionTemplateById(
         objectRepository,
         actionTemplateId
     )
-
+    if (actionTemplate == undefined) {
+        throw new Error(
+            "[ActionPreviewTile: createActionPreviewTileContext]: No action template id found."
+        )
+    }
     const context: ActionPreviewTileContext = {
         horizontalPosition: ActionTilePosition.ACTION_PREVIEW,
         squaddieAffiliation: squaddieTemplate.squaddieId.affiliation,

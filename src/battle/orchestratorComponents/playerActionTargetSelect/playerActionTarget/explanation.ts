@@ -28,7 +28,7 @@ export class PlayerActionTargetShouldCreateExplanationLabel
     run(): boolean {
         const uiObjects: PlayerActionTargetStateMachineUIObjects =
             this.dataBlob.getUIObjects()
-        const explanationLabel: Label = uiObjects.selectTarget.explanationLabel
+        const explanationLabel = uiObjects.selectTarget?.explanationLabel
         if (!explanationLabel) return true
 
         const context: PlayerActionTargetStateMachineContext =
@@ -62,7 +62,7 @@ export class PlayerActionTargetCreateExplanationLabel
         const layout: PlayerActionTargetLayout = this.dataBlob.getLayout()
         const context: PlayerActionTargetStateMachineContext =
             this.dataBlob.getContext()
-        uiObjects.selectTarget.explanationLabel = this.createExplanationLabel(
+        uiObjects.selectTarget!.explanationLabel = this.createExplanationLabel(
             layout,
             context
         )

@@ -171,7 +171,7 @@ describe("Squaddie Status Tile", () => {
                 battleActionDecisionStep:
                     gameEngineState.battleOrchestratorState.battleState
                         .battleActionDecisionStep,
-                objectRepository: gameEngineState.repository,
+                objectRepository: gameEngineState.repository!,
             })
 
             SquaddieStatusTileService.draw({
@@ -211,7 +211,7 @@ describe("Squaddie Status Tile", () => {
                 battleActionDecisionStep:
                     gameEngineState.battleOrchestratorState.battleState
                         .battleActionDecisionStep,
-                objectRepository: gameEngineState.repository,
+                objectRepository: gameEngineState.repository!,
             })
 
             SquaddieStatusTileService.draw({
@@ -248,7 +248,7 @@ describe("Squaddie Status Tile", () => {
                 battleActionDecisionStep:
                     gameEngineState.battleOrchestratorState.battleState
                         .battleActionDecisionStep,
-                objectRepository: gameEngineState.repository,
+                objectRepository: gameEngineState.repository!,
             })
 
             SquaddieStatusTileService.draw({
@@ -270,15 +270,18 @@ describe("Squaddie Status Tile", () => {
                     )
 
                 const dataBlob = uiObjects.hitPoints.actionPointMeterDataBlob
-                expect(
-                    DataBlobService.get<number>(dataBlob, "currentValue")
-                ).toEqual(1)
-                expect(
-                    DataBlobService.get<number>(dataBlob, "maxValue")
-                ).toEqual(
-                    battleSquaddie.inBattleAttributes.armyAttributes
-                        .maxHitPoints
-                )
+                expect(dataBlob).not.toBeUndefined()
+                if (dataBlob != undefined) {
+                    expect(
+                        DataBlobService.get<number>(dataBlob, "currentValue")
+                    ).toEqual(1)
+                    expect(
+                        DataBlobService.get<number>(dataBlob, "maxValue")
+                    ).toEqual(
+                        battleSquaddie.inBattleAttributes.armyAttributes
+                            .maxHitPoints
+                    )
+                }
             })
 
             it("should not glow when above 50% hit points", () => {
@@ -291,8 +294,10 @@ describe("Squaddie Status Tile", () => {
                         "uiObjects"
                     )
 
-                const currentValueFillAlphaPeriod = DataBlobService.get<number>(
-                    uiObjects.hitPoints.actionPointMeterDataBlob,
+                const currentValueFillAlphaPeriod = DataBlobService.get<
+                    number | undefined
+                >(
+                    uiObjects.hitPoints.actionPointMeterDataBlob!,
                     "currentValueFillAlphaPeriod"
                 )
                 expect(currentValueFillAlphaPeriod).toBeUndefined()
@@ -342,7 +347,7 @@ describe("Squaddie Status Tile", () => {
 
                     const currentValueFillAlphaPeriod =
                         DataBlobService.get<number>(
-                            uiObjects.hitPoints.actionPointMeterDataBlob,
+                            uiObjects.hitPoints.actionPointMeterDataBlob!,
                             "currentValueFillAlphaPeriod"
                         )
 
@@ -372,7 +377,7 @@ describe("Squaddie Status Tile", () => {
 
                     const currentValueFillAlphaPeriod =
                         DataBlobService.get<number>(
-                            uiObjects.hitPoints.actionPointMeterDataBlob,
+                            uiObjects.hitPoints.actionPointMeterDataBlob!,
                             "currentValueFillAlphaPeriod"
                         )
 
@@ -390,7 +395,19 @@ describe("Squaddie Status Tile", () => {
                 )
 
                 const quickerGlowsSlowerThanSlow = glowsQuickly.reduce(
-                    (errors, glowQuick) => {
+                    (
+                        errors: {
+                            shouldBeQuicker: {
+                                name: string
+                                period: number
+                            }
+                            butSlowerThan: {
+                                name: string
+                                period: number
+                            }
+                        }[],
+                        glowQuick
+                    ) => {
                         const slowIsFasterThanQuickly = glowsSlowly.filter(
                             (glowSlow) =>
                                 glowSlow.currentValueFillAlphaPeriod <=
@@ -462,12 +479,12 @@ describe("Squaddie Status Tile", () => {
                         )
 
                     const drawingArea = DataBlobService.get<RectArea>(
-                        uiObjects.hitPoints.actionPointMeterDataBlob,
+                        uiObjects.hitPoints.actionPointMeterDataBlob!,
                         "drawingArea"
                     )
                     const outlineStrokeBorder =
                         DataBlobService.get<number>(
-                            uiObjects.hitPoints.actionPointMeterDataBlob,
+                            uiObjects.hitPoints.actionPointMeterDataBlob!,
                             "outlineStrokeWeight"
                         ) ?? 0
 
@@ -530,8 +547,8 @@ describe("Squaddie Status Tile", () => {
                         tile.data,
                         "uiObjects"
                     )
-                absorbBar = uiObjects.hitPoints.absorbBar
-                hitPointBar = uiObjects.hitPoints.actionPointMeterDataBlob
+                absorbBar = uiObjects.hitPoints.absorbBar!
+                hitPointBar = uiObjects.hitPoints.actionPointMeterDataBlob!
             })
             it("will expect the width to be proportional to the hit point bar", () => {
                 const absorbBarDrawingArea = DataBlobService.get<RectArea>(
@@ -582,7 +599,7 @@ describe("Squaddie Status Tile", () => {
                 battleActionDecisionStep:
                     gameEngineState.battleOrchestratorState.battleState
                         .battleActionDecisionStep,
-                objectRepository: gameEngineState.repository,
+                objectRepository: gameEngineState.repository!,
             })
 
             SquaddieStatusTileService.draw({
@@ -599,11 +616,11 @@ describe("Squaddie Status Tile", () => {
             const dataBlob = uiObjects.actionPoints.actionPointMeterDataBlob
             return {
                 currentValue: DataBlobService.get<number>(
-                    dataBlob,
+                    dataBlob!,
                     "currentValue"
                 ),
                 highlightedValue: DataBlobService.get<number>(
-                    dataBlob,
+                    dataBlob!,
                     "highlightedValue"
                 ),
             }
@@ -623,7 +640,7 @@ describe("Squaddie Status Tile", () => {
             })
 
             ObjectRepositoryService.addSquaddie({
-                repo: gameEngineState.repository,
+                repo: gameEngineState.repository!,
                 squaddieTemplate: squaddieTemplate,
                 battleSquaddie: battleSquaddie,
             })
@@ -637,7 +654,7 @@ describe("Squaddie Status Tile", () => {
             })
 
             ObjectRepositoryService.addActionTemplate(
-                gameEngineState.repository,
+                gameEngineState.repository!,
                 actionCosts1ActionPoint
             )
 
@@ -681,7 +698,7 @@ describe("Squaddie Status Tile", () => {
                 battleActionDecisionStep:
                     gameEngineState.battleOrchestratorState.battleState
                         .battleActionDecisionStep,
-                objectRepository: gameEngineState.repository,
+                objectRepository: gameEngineState.repository!,
             })
 
             SquaddieStatusTileService.draw({
@@ -705,7 +722,7 @@ describe("Squaddie Status Tile", () => {
                     actionPoints: 2,
                 }
             )
-            gameEngineState.battleOrchestratorState.battleState.playerConsideredActions.endTurn = true
+            gameEngineState.battleOrchestratorState.battleState.playerConsideredActions!.endTurn = true
             const { currentValue, highlightedValue } =
                 drawActionPointBarAndGetValues()
             expect(currentValue).toEqual(1)
@@ -719,7 +736,7 @@ describe("Squaddie Status Tile", () => {
                     actionPoints: 1,
                 }
             )
-            gameEngineState.battleOrchestratorState.battleState.playerConsideredActions.actionTemplateId =
+            gameEngineState.battleOrchestratorState.battleState.playerConsideredActions!.actionTemplateId =
                 "action costs 1 action point"
             const tile = SquaddieStatusTileService.new({
                 gameEngineState,
@@ -738,7 +755,7 @@ describe("Squaddie Status Tile", () => {
                 battleActionDecisionStep:
                     gameEngineState.battleOrchestratorState.battleState
                         .battleActionDecisionStep,
-                objectRepository: gameEngineState.repository,
+                objectRepository: gameEngineState.repository!,
             })
 
             SquaddieStatusTileService.draw({
@@ -754,12 +771,14 @@ describe("Squaddie Status Tile", () => {
 
             const dataBlob = uiObjects.actionPoints.actionPointMeterDataBlob
             expect(
-                DataBlobService.get<number>(dataBlob, "currentValue")
+                DataBlobService.get<number>(dataBlob!, "currentValue")
             ).toEqual(2)
             expect(
-                DataBlobService.get<number>(dataBlob, "highlightedValue")
+                DataBlobService.get<number>(dataBlob!, "highlightedValue")
             ).toEqual(1)
-            expect(DataBlobService.get<number>(dataBlob, "maxValue")).toEqual(3)
+            expect(DataBlobService.get<number>(dataBlob!, "maxValue")).toEqual(
+                3
+            )
         })
 
         describe("highlights on the action point meter while moving", () => {
@@ -867,7 +886,7 @@ describe("Squaddie Status Tile", () => {
                 battleActionDecisionStep:
                     gameEngineState.battleOrchestratorState.battleState
                         .battleActionDecisionStep,
-                objectRepository: gameEngineState.repository,
+                objectRepository: gameEngineState.repository!,
             })
 
             SquaddieStatusTileService.draw({
@@ -920,7 +939,7 @@ describe("Squaddie Status Tile", () => {
                 battleActionDecisionStep:
                     gameEngineState.battleOrchestratorState.battleState
                         .battleActionDecisionStep,
-                objectRepository: gameEngineState.repository,
+                objectRepository: gameEngineState.repository!,
             })
 
             SquaddieStatusTileService.draw({
@@ -972,7 +991,7 @@ describe("Squaddie Status Tile", () => {
                 battleActionDecisionStep:
                     gameEngineState.battleOrchestratorState.battleState
                         .battleActionDecisionStep,
-                objectRepository: gameEngineState.repository,
+                objectRepository: gameEngineState.repository!,
             })
 
             SquaddieStatusTileService.draw({
@@ -1036,7 +1055,7 @@ describe("Squaddie Status Tile", () => {
                 battleActionDecisionStep:
                     gameEngineState.battleOrchestratorState.battleState
                         .battleActionDecisionStep,
-                objectRepository: gameEngineState.repository,
+                objectRepository: gameEngineState.repository!,
             })
 
             SquaddieStatusTileService.draw({
@@ -1122,7 +1141,7 @@ describe("Squaddie Status Tile", () => {
                         battleActionDecisionStep:
                             gameEngineState.battleOrchestratorState.battleState
                                 .battleActionDecisionStep,
-                        objectRepository: gameEngineState.repository,
+                        objectRepository: gameEngineState.repository!,
                     })
 
                     SquaddieStatusTileService.draw({
@@ -1210,7 +1229,7 @@ describe("Squaddie Status Tile", () => {
                         battleActionDecisionStep:
                             gameEngineState.battleOrchestratorState.battleState
                                 .battleActionDecisionStep,
-                        objectRepository: gameEngineState.repository,
+                        objectRepository: gameEngineState.repository!,
                     })
 
                     SquaddieStatusTileService.draw({
@@ -1283,7 +1302,7 @@ describe("Squaddie Status Tile", () => {
                 battleActionDecisionStep:
                     gameEngineState.battleOrchestratorState.battleState
                         .battleActionDecisionStep,
-                objectRepository: gameEngineState.repository,
+                objectRepository: gameEngineState.repository!,
             })
 
             SquaddieStatusTileService.draw({
@@ -1351,7 +1370,7 @@ describe("Squaddie Status Tile", () => {
                     battleActionDecisionStep:
                         gameEngineState.battleOrchestratorState.battleState
                             .battleActionDecisionStep,
-                    objectRepository: gameEngineState.repository,
+                    objectRepository: gameEngineState.repository!,
                 })
 
                 SquaddieStatusTileService.draw({
@@ -1378,7 +1397,7 @@ describe("Squaddie Status Tile", () => {
                     battleActionDecisionStep:
                         gameEngineState.battleOrchestratorState.battleState
                             .battleActionDecisionStep,
-                    objectRepository: gameEngineState.repository,
+                    objectRepository: gameEngineState.repository!,
                 })
 
                 SquaddieStatusTileService.draw({
@@ -1420,7 +1439,7 @@ const createSquaddieOfGivenAffiliation = ({
     })
 
     ObjectRepositoryService.addSquaddie({
-        repo: gameEngineState.repository,
+        repo: gameEngineState.repository!,
         squaddieTemplate: squaddieTemplate,
         battleSquaddie: battleSquaddie,
     })

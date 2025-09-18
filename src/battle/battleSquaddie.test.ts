@@ -33,7 +33,7 @@ describe("BattleSquaddie", () => {
         }).toThrow(Error)
         expect(() => {
             shouldThrowError()
-        }).toThrow("Battle Squaddie has no Squaddie Template Id")
+        }).toThrow("[BattleSquaddie.new] Missing SquaddieTemplate")
     })
     it("throws an error if battle squaddie has no battle Id", () => {
         const shouldThrowError = () => {

@@ -54,7 +54,7 @@ export const SquaddieSelectorPanelService = {
                     ) &&
                     BattleActionDecisionStepService.getActor(
                         battleActionDecisionStep
-                    ).battleSquaddieId === battleSquaddieId
+                    )?.battleSquaddieId === battleSquaddieId
 
                 return SquaddieSelectorPanelButtonService.new({
                     battleSquaddieId,
@@ -69,8 +69,10 @@ export const SquaddieSelectorPanelService = {
             buttons,
         }
     },
-    selectSquaddie: (panel: SquaddieSelectorPanel, battleSquaddieId: string) =>
-        selectSquaddie(panel, battleSquaddieId),
+    selectSquaddie: (
+        panel: SquaddieSelectorPanel,
+        battleSquaddieId: string | undefined
+    ) => selectSquaddie(panel, battleSquaddieId),
     draw: ({
         squaddieSelectorPanel,
         objectRepository,
@@ -115,11 +117,11 @@ export const SquaddieSelectorPanelService = {
     getClickedButton: (
         squaddieSelectorPanel: SquaddieSelectorPanel,
         mouseClick: MousePress
-    ): SquaddieSelectorPanelButton =>
+    ): SquaddieSelectorPanelButton | undefined =>
         getClickedButton(squaddieSelectorPanel, mouseClick),
     getSelectedBattleSquaddieId: (
         squaddieSelectorPanel: SquaddieSelectorPanel
-    ): string => {
+    ): string | undefined => {
         const selectedButton = squaddieSelectorPanel.buttons.find(
             (button) =>
                 SquaddieSelectorPanelButtonService.getStatus(button)
@@ -135,7 +137,7 @@ export const SquaddieSelectorPanelService = {
 
 const selectSquaddie = (
     panel: SquaddieSelectorPanel,
-    battleSquaddieId: string
+    battleSquaddieId: string | undefined
 ) => {
     panel.buttons.forEach((button: SquaddieSelectorPanelButton) => {
         SquaddieSelectorPanelButtonService.updateStatus({
@@ -166,7 +168,7 @@ const selectSquaddie = (
 const getClickedButton = (
     squaddieSelectorPanel: SquaddieSelectorPanel,
     mouseClick: MousePress
-): SquaddieSelectorPanelButton => {
+): SquaddieSelectorPanelButton | undefined => {
     const selectedButton = squaddieSelectorPanel.buttons.find(
         (button) =>
             SquaddieSelectorPanelButtonService.getStatus(button)

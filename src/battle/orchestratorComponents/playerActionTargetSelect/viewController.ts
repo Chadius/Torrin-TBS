@@ -62,10 +62,12 @@ export class PlayerActionTargetSelectViewController {
         PlayerActionTargetStateMachineUIObjects
     >
 
-    uiDrawTasks: {
-        confirm: BehaviorTreeTask
-        selectTarget: BehaviorTreeTask
-    }
+    uiDrawTasks:
+        | {
+              confirm: BehaviorTreeTask
+              selectTarget: BehaviorTreeTask
+          }
+        | undefined
 
     constructor(
         componentData: ComponentDataBlob<
@@ -75,10 +77,6 @@ export class PlayerActionTargetSelectViewController {
         >
     ) {
         this.componentData = componentData
-        this.initializeUIComponentData()
-    }
-
-    initializeUIComponentData() {
         this.componentData.setLayout({
             confirm: this.getPlayerActionConfirmLayout(),
             selectTarget: this.getPlayerActionSelectTargetLayout(),
@@ -246,6 +244,7 @@ export class PlayerActionTargetSelectViewController {
         }
 
         const contextInfo = this.componentData.getContext()
+        if (contextInfo.objectRepository == undefined) return
         this.updateUIObjectsDuringDraw({
             graphicsContext: graphicsContext,
             camera: camera,
@@ -254,13 +253,14 @@ export class PlayerActionTargetSelectViewController {
             objectRepository: contextInfo.objectRepository,
         })
 
-        this.getDrawingTask().run()
+        this.getDrawingTask()?.run()
 
         const uiObjects = this.componentData.getUIObjects()
         if (
             !BattleActionDecisionStepService.isTargetConsidered(
                 contextInfo.battleActionDecisionStep
-            )
+            ) &&
+            uiObjects.selectTarget
         )
             LabelService.draw(
                 uiObjects.selectTarget.explanationLabel,
@@ -320,6 +320,8 @@ export class PlayerActionTargetSelectViewController {
         contextInfo: PlayerActionTargetStateMachineContext,
         uiObjects: PlayerActionTargetStateMachineUIObjects
     ) => {
+        if (contextInfo.objectRepository == undefined) return
+
         if (
             !BattleActionDecisionStepService.isActionSet(
                 contextInfo.battleActionDecisionStep
@@ -362,19 +364,22 @@ export class PlayerActionTargetSelectViewController {
                         actionTemplateId:
                             BattleActionDecisionStepService.getAction(
                                 contextInfo.battleActionDecisionStep
-                            ).actionTemplateId,
+                            )?.actionTemplateId ?? "undefined",
                     }
                 )
 
             const actionRangeOnMap = MapGraphicsLayerService.new({
-                id: BattleActionDecisionStepService.getActor(
-                    contextInfo.battleActionDecisionStep
-                ).battleSquaddieId,
+                id:
+                    BattleActionDecisionStepService.getActor(
+                        contextInfo.battleActionDecisionStep
+                    )?.battleSquaddieId ?? "undefined",
                 highlightedTileDescriptions: [
                     {
                         coordinates: Object.values(
                             contextInfo.targetResults.validTargets
-                        ).map((t) => t.currentMapCoordinate),
+                        )
+                            .map((t) => t.currentMapCoordinate)
+                            .filter((x) => x != undefined),
                         pulseColor: highlightedColor,
                     },
                 ],
@@ -396,8 +401,8 @@ export class PlayerActionTargetSelectViewController {
         return BattleActionDecisionStepService.isTargetConsidered(
             contextInfo.battleActionDecisionStep
         )
-            ? this.uiDrawTasks.confirm
-            : this.uiDrawTasks.selectTarget
+            ? this.uiDrawTasks?.confirm
+            : this.uiDrawTasks?.selectTarget
     }
 
     getButtons() {
@@ -409,11 +414,13 @@ export class PlayerActionTargetSelectViewController {
             )
         ) {
             return [
-                uiObjects.confirm.okButton,
-                uiObjects.confirm.cancelButton,
-            ].filter((x) => x)
+                uiObjects.confirm?.okButton,
+                uiObjects.confirm?.cancelButton,
+            ].filter((x) => x != undefined)
         } else {
-            return [uiObjects.selectTarget.cancelButton].filter((x) => x)
+            return [uiObjects.selectTarget?.cancelButton].filter(
+                (x) => x != undefined
+            )
         }
     }
 
@@ -426,6 +433,7 @@ export class PlayerActionTargetSelectViewController {
         objectRepository: ObjectRepository
         uiObjects: PlayerActionTargetStateMachineUIObjects
     }) {
+        if (uiObjects.mapIcons == undefined) return
         if (
             !BattleActionDecisionStepService.isActorSet(
                 battleActionDecisionStep
@@ -437,7 +445,8 @@ export class PlayerActionTargetSelectViewController {
 
         const battleSquaddieId = BattleActionDecisionStepService.getActor(
             battleActionDecisionStep
-        ).battleSquaddieId
+        )?.battleSquaddieId
+        if (battleSquaddieId == undefined) return
 
         const mapIcon = ObjectRepositoryService.getImageUIByBattleSquaddieId({
             repository: objectRepository,
@@ -465,13 +474,16 @@ export class PlayerActionTargetSelectViewController {
         objectRepository: ObjectRepository
         uiObjects: PlayerActionTargetStateMachineUIObjects
     }) {
+        if (uiObjects.mapIcons == undefined) {
+            throw new Error("uiObjects.mapIcons must be defined")
+        }
         if (uiObjects.mapIcons.targets.hasTinted) return
 
         let squaddiesToHighlight = this.getSquaddiesToHighlight({
             battleActionDecisionStep,
             missionMap,
         })
-            .filter((x) => x)
+            .filter((x) => x != undefined)
             .filter(
                 (battleSquaddieId) =>
                     !!ObjectRepositoryService.getImageUIByBattleSquaddieId({
@@ -489,12 +501,14 @@ export class PlayerActionTargetSelectViewController {
         })
 
         squaddiesToHighlight.forEach((battleSquaddieId) => {
+            if (uiObjects.mapIcons == undefined) return
             const mapIcon =
                 ObjectRepositoryService.getImageUIByBattleSquaddieId({
                     repository: objectRepository,
                     battleSquaddieId: battleSquaddieId,
                     throwErrorIfNotFound: false,
                 })
+            if (mapIcon == undefined) return
             uiObjects.mapIcons.targets.mapIcons.push(mapIcon)
             mapIcon.setPulseColor(mapIconLayout.pulseColorForMapIcon)
         })
@@ -533,10 +547,10 @@ export class PlayerActionTargetSelectViewController {
     cleanUp() {
         const oldUiObjects = this.componentData.getUIObjects()
         ;[
-            oldUiObjects?.mapIcons.actor.mapIcon,
-            ...(oldUiObjects?.mapIcons.targets.mapIcons ?? []),
+            oldUiObjects?.mapIcons?.actor.mapIcon,
+            ...(oldUiObjects?.mapIcons?.targets.mapIcons ?? []),
         ]
-            .filter((x) => x)
+            .filter((x) => x != undefined)
             .forEach((mapIcon) => {
                 mapIcon.removePulseColor()
             })

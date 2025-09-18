@@ -246,6 +246,7 @@ describe("Challenge Modifier Setting", () => {
                 expect(
                     ChallengeModifierSettingService.preemptDegreeOfSuccessCalculation(
                         {
+                            // @ts-ignore
                             challengeModifierSetting: undefined,
                             objectRepository,
                             actorBattleSquaddieId: "player",

@@ -22,6 +22,7 @@ describe("missionLoader", () => {
         })
         it("throws an error if id is missing", () => {
             const throwErrorBecauseOfNoId = () => {
+                //@ts-ignore Intentionally deleting a required field to throw an error
                 delete validMission["id"]
                 MissionFileFormatService.sanitize(validMission)
             }
@@ -38,6 +39,7 @@ describe("missionLoader", () => {
         })
         it("throws an error if the player section is missing", () => {
             const throwErrorBecauseOfNoPlayer = () => {
+                //@ts-ignore Intentionally deleting a required field to throw an error
                 delete validMission["player"]
                 MissionFileFormatService.sanitize(validMission)
             }
@@ -46,6 +48,7 @@ describe("missionLoader", () => {
         })
         it("throws an error if the player section is missing team id", () => {
             const throwErrorBecauseOfPlayerIsMissingTeamId = () => {
+                //@ts-ignore Intentionally deleting a required field to throw an error
                 delete validMission.player.teamId
                 MissionFileFormatService.sanitize(validMission)
             }
@@ -56,6 +59,7 @@ describe("missionLoader", () => {
         })
         it("throws an error if the player section is missing team name", () => {
             const throwErrorBecauseOfPlayerIsMissingTeamName = () => {
+                //@ts-ignore Intentionally deleting a required field to throw an error
                 delete validMission.player.teamName
                 MissionFileFormatService.sanitize(validMission)
             }
@@ -65,6 +69,7 @@ describe("missionLoader", () => {
             )
         })
         it("makes empty player deployment if it is missing", () => {
+            //@ts-ignore Intentionally deleting a required field to throw an error
             delete validMission.player.deployment
             MissionFileFormatService.sanitize(validMission)
 

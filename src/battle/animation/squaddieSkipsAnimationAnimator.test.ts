@@ -132,7 +132,7 @@ describe("SquaddieSkipsAnimationAnimator", () => {
         animator.update({
             gameEngineState,
             graphicsContext: mockedP5GraphicsContext,
-            resourceHandler: gameEngineState.resourceHandler,
+            resourceHandler: gameEngineState.resourceHandler!,
         })
 
         expect(animator.outputTextDisplay).not.toBeUndefined()
@@ -160,7 +160,7 @@ describe("SquaddieSkipsAnimationAnimator", () => {
         animator.update({
             gameEngineState,
             graphicsContext: mockedP5GraphicsContext,
-            resourceHandler: gameEngineState.resourceHandler,
+            resourceHandler: gameEngineState.resourceHandler!,
         })
         expect(animator.hasCompleted(gameEngineState)).toBeTruthy()
     })
@@ -187,7 +187,7 @@ describe("SquaddieSkipsAnimationAnimator", () => {
         animator.update({
             gameEngineState,
             graphicsContext: mockedP5GraphicsContext,
-            resourceHandler: gameEngineState.resourceHandler,
+            resourceHandler: gameEngineState.resourceHandler!,
         })
         expect(animator.hasCompleted(gameEngineState)).toBeFalsy()
         return gameEngineState
@@ -209,7 +209,7 @@ describe("SquaddieSkipsAnimationAnimator", () => {
         animator.update({
             gameEngineState,
             graphicsContext: mockedP5GraphicsContext,
-            resourceHandler: gameEngineState.resourceHandler,
+            resourceHandler: gameEngineState.resourceHandler!,
         })
         expect(animator.hasCompleted(gameEngineState)).toBeTruthy()
     })
@@ -233,13 +233,12 @@ describe("SquaddieSkipsAnimationAnimator", () => {
 
         animator.reset(gameEngineState)
 
+        const battleAction = BattleActionRecorderService.peekAtAnimationQueue(
+            gameEngineState.battleOrchestratorState.battleState
+                .battleActionRecorder
+        )
         expect(
-            BattleActionService.isAnimationComplete(
-                BattleActionRecorderService.peekAtAnimationQueue(
-                    gameEngineState.battleOrchestratorState.battleState
-                        .battleActionRecorder
-                )
-            )
+            BattleActionService.isAnimationComplete(battleAction!)
         ).toBeTruthy()
     })
 })

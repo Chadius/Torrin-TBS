@@ -2,6 +2,7 @@ import {
     HexGridMovementCost,
     THexGridMovementCost,
 } from "../hexMap/hexGridMovementCost"
+import { EnumLike } from "../utils/enum"
 
 export const ActionEffectTemplateButtonIconKey = {
     UNKNOWN: "UNKNOWN",

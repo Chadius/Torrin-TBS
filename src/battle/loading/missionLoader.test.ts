@@ -97,7 +97,7 @@ describe("Mission Loader", () => {
         })
 
         it("loaded the mission map", () => {
-            expect(missionLoaderContext.missionMap.terrainTileMap).toEqual(
+            expect(missionLoaderContext.missionMap!.terrainTileMap).toEqual(
                 TerrainTileMapService.new({
                     movementCost: [
                         "x x x x x 2 2 1 1 1 1 1 2 2 x x x ",
@@ -143,19 +143,19 @@ describe("Mission Loader", () => {
 
         it("initializes the camera", () => {
             expect(
-                missionLoaderContext.mapSettings.camera.mapDimensionBoundaries
-                    .widthOfWidestRow
+                missionLoaderContext!.mapSettings!.camera!
+                    .mapDimensionBoundaries!.widthOfWidestRow
             ).toBe(17)
             expect(
-                missionLoaderContext.mapSettings.camera.mapDimensionBoundaries
-                    .numberOfRows
+                missionLoaderContext!.mapSettings!.camera!
+                    .mapDimensionBoundaries!.numberOfRows
             ).toBe(18)
         })
 
         it("gets cutscenes", () => {
             expect(Object.keys(missionData.cutscene.cutsceneById)).toEqual(
                 Object.keys(
-                    missionLoaderContext.cutsceneInfo.cutsceneCollection
+                    missionLoaderContext.cutsceneInfo.cutsceneCollection!
                         .cutsceneById
                 )
             )
@@ -258,9 +258,9 @@ describe("Mission Loader", () => {
             })
             it("adds battle squaddies to the repository", () => {
                 const npcDeployments: NpcTeamMissionDeployment[] = [
-                    missionData.npcDeployments.enemy,
-                    missionData.npcDeployments.ally,
-                    missionData.npcDeployments.noAffiliation,
+                    missionData!.npcDeployments!.enemy!,
+                    missionData!.npcDeployments!.ally!,
+                    missionData!.npcDeployments!.noAffiliation!,
                 ]
 
                 npcDeployments.forEach((deployment) =>
@@ -282,9 +282,9 @@ describe("Mission Loader", () => {
             })
             it("adds squaddies to the map", () => {
                 const npcDeployments: NpcTeamMissionDeployment[] = [
-                    missionData.npcDeployments.enemy,
-                    missionData.npcDeployments.ally,
-                    missionData.npcDeployments.noAffiliation,
+                    missionData!.npcDeployments!.enemy!,
+                    missionData!.npcDeployments!.ally!,
+                    missionData!.npcDeployments!.noAffiliation!,
                 ]
 
                 npcDeployments.forEach((deployment) =>
@@ -294,7 +294,7 @@ describe("Mission Loader", () => {
                             squaddieTemplateId,
                             currentMapCoordinate,
                         } = MissionMapService.getByBattleSquaddieId(
-                            missionLoaderContext.missionMap,
+                            missionLoaderContext!.missionMap!,
                             placement.battleSquaddieId
                         )
                         expect(battleSquaddieId).toEqual(
@@ -312,7 +312,7 @@ describe("Mission Loader", () => {
             describe("creates enemy teams", () => {
                 it("creates enemy teams", () => {
                     const enemyNpcTeam0: NpcTeam =
-                        missionData.npcDeployments.enemy.teams[0]
+                        missionData!.npcDeployments!.enemy!.teams[0]!
                     expect(
                         missionLoaderContext.squaddieData.teams
                     ).toContainEqual({
@@ -326,17 +326,17 @@ describe("Mission Loader", () => {
                         missionLoaderContext.squaddieData.teams.some(
                             (team) =>
                                 team.id ===
-                                missionData.npcDeployments.enemy.teams[1].id
+                                missionData!.npcDeployments!.enemy!.teams[1]!.id
                         )
                     ).toBeTruthy()
                 })
                 it("creates team strategies", () => {
                     expect(
                         missionLoaderContext.squaddieData.teamStrategyById[
-                            missionData.npcDeployments.enemy.teams[0].id
+                            missionData!.npcDeployments!.enemy!.teams[0]!.id
                         ]
                     ).toEqual(
-                        missionData.npcDeployments.enemy.teams[0].strategies
+                        missionData!.npcDeployments!.enemy!.teams[0]!.strategies
                     )
                 })
             })
@@ -360,12 +360,12 @@ describe("Mission Loader", () => {
                 ): NpcTeam => {
                     switch (affiliation) {
                         case SquaddieAffiliation.ALLY:
-                            return missionData.npcDeployments.ally.teams[0]
+                            return missionData!.npcDeployments!.ally!.teams[0]
                         case SquaddieAffiliation.NONE:
-                            return missionData.npcDeployments.noAffiliation
+                            return missionData!.npcDeployments!.noAffiliation!
                                 .teams[0]
                     }
-                    return undefined
+                    throw new Error(`Unknown Affiliation "${affiliation}"`)
                 }
 
                 it.each(affiliations)(
@@ -421,7 +421,7 @@ describe("Mission Loader", () => {
                             ObjectRepositoryService.getActionTemplateById(
                                 objectRepository,
                                 template.id
-                            ) === template
+                            ).toString() === template.toString()
                     )
                 ).toBeTruthy()
             })
@@ -443,7 +443,12 @@ describe("Mission Loader", () => {
             initialPendingResourceListLength =
                 loadBlocker.resourceKeysToLoad.length
 
-            playerArmyData = await LoadPlayerArmyFromFile()
+            const tempPlayerArmyData = await LoadPlayerArmyFromFile()
+            if (tempPlayerArmyData != undefined) {
+                playerArmyData = tempPlayerArmyData
+            } else {
+                throw new Error("Failed to load player army")
+            }
 
             await MissionLoader.loadPlayerSquaddieTemplatesFile({
                 playerArmyData,
@@ -471,7 +476,9 @@ describe("Mission Loader", () => {
             )
 
             const missionLoaderContextSquaddieTemplates: SquaddieTemplate[] =
-                Object.values(missionLoaderContext.squaddieData.templates)
+                Object.values(
+                    missionLoaderContext.squaddieData.templates
+                ).filter((x) => x != undefined)
             missionLoaderContextSquaddieTemplates.forEach((template) => {
                 const playerResourceKeys =
                     SquaddieTemplateService.getResourceKeys(
@@ -500,7 +507,7 @@ describe("Mission Loader", () => {
         })
 
         it("adds player deployment positions to the map", () => {
-            expect(missionLoaderContext.missionMap.playerDeployment).toEqual(
+            expect(missionLoaderContext!.missionMap!.playerDeployment).toEqual(
                 missionData.player.deployment
             )
         })
@@ -515,7 +522,7 @@ describe("Mission Loader", () => {
                 (requiredDeployment) => {
                     const coordinateDescriptor =
                         MissionMapService.getByBattleSquaddieId(
-                            missionLoaderContext.missionMap,
+                            missionLoaderContext!.missionMap!,
                             requiredDeployment.battleSquaddieId
                         )
                     expect(coordinateDescriptor.battleSquaddieId).toEqual(
@@ -569,7 +576,7 @@ describe("Mission Loader", () => {
                         ObjectRepositoryService.getActionTemplateById(
                             objectRepository,
                             template.id
-                        ) === template
+                        ).toString() === template.toString()
                 )
             ).toBeTruthy()
         })
@@ -648,7 +655,7 @@ describe("Mission Loader", () => {
                 missionData.npcDeployments.ally,
                 missionData.npcDeployments.noAffiliation,
             ].forEach((npcDeployment) =>
-                npcDeployment.teams.forEach((team) => {
+                npcDeployment!.teams.forEach((team) => {
                     expectedKeys[team.id] = team.iconResourceKey
                 })
             )

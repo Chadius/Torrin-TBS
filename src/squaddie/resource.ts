@@ -2,7 +2,7 @@ import { TSquaddieEmotion } from "../battle/animation/actionAnimation/actionAnim
 import { isValidValue } from "../utils/objectValidityCheck"
 
 export interface SquaddieResource {
-    mapIconResourceKey: string
+    mapIconResourceKey: string | undefined
     actionSpritesByEmotion: { [key in TSquaddieEmotion]?: string }
 }
 
@@ -16,7 +16,7 @@ export const SquaddieResourceService = {
     }) => {
         return sanitize({
             mapIconResourceKey,
-            actionSpritesByEmotion,
+            actionSpritesByEmotion: actionSpritesByEmotion ?? {},
         })
     },
     sanitize: (data: SquaddieResource): SquaddieResource => {
@@ -24,7 +24,8 @@ export const SquaddieResourceService = {
     },
     getResourceKeys: (resource: SquaddieResource): string[] => {
         let resourceKeys: string[] = []
-        resourceKeys.push(resource.mapIconResourceKey)
+        if (resource.mapIconResourceKey)
+            resourceKeys.push(resource.mapIconResourceKey)
         resourceKeys.push(...Object.values(resource.actionSpritesByEmotion))
         return resourceKeys
     },

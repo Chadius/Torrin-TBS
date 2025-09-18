@@ -36,18 +36,6 @@ describe("search path adapter", () => {
             const clone = SearchPathAdapterService.clone(connections)
             expect(clone).toEqual(connections)
         })
-        it("add", () => {
-            SearchPathAdapterService.add({
-                path: connections,
-                newCoordinate: { q: 1, r: 5 },
-                costToMoveToNewCoordinate: 3,
-            })
-            expect(connections[connections.length - 1]).toEqual({
-                fromNode: { q: 1, r: 4 },
-                toNode: { q: 1, r: 5 },
-                cost: 3,
-            })
-        })
         it("getMostRecentCoordinate", () => {
             expect(SearchPathAdapterService.getHead(connections)).toEqual({
                 q: 1,

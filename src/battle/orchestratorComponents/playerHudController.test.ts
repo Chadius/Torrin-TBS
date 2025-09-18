@@ -190,14 +190,14 @@ describe("PlayerHUDController", () => {
 
             const recommendedChanges =
                 controller.recommendStateChanges(gameEngineState)
-            expect(recommendedChanges.nextMode).toEqual(
+            expect(recommendedChanges!.nextMode).toEqual(
                 BattleOrchestratorMode.COMPUTER_SQUADDIE_SELECTOR
             )
         })
         it("recommends player squaddie selector when the actor is not set", () => {
             const recommendedChanges =
                 controller.recommendStateChanges(gameEngineState)
-            expect(recommendedChanges.nextMode).toEqual(
+            expect(recommendedChanges!.nextMode).toEqual(
                 BattleOrchestratorMode.PLAYER_SQUADDIE_SELECTOR
             )
         })
@@ -211,7 +211,7 @@ describe("PlayerHUDController", () => {
 
             const recommendedChanges =
                 controller.recommendStateChanges(gameEngineState)
-            expect(recommendedChanges.nextMode).toEqual(
+            expect(recommendedChanges!.nextMode).toEqual(
                 BattleOrchestratorMode.PLAYER_SQUADDIE_SELECTOR
             )
         })
@@ -231,7 +231,7 @@ describe("PlayerHUDController", () => {
 
             const recommendedChanges =
                 controller.recommendStateChanges(gameEngineState)
-            expect(recommendedChanges.nextMode).toEqual(
+            expect(recommendedChanges!.nextMode).toEqual(
                 BattleOrchestratorMode.SQUADDIE_USES_ACTION_ON_MAP
             )
         })
@@ -257,7 +257,7 @@ describe("PlayerHUDController", () => {
 
             const recommendedChanges =
                 controller.recommendStateChanges(gameEngineState)
-            expect(recommendedChanges.nextMode).toEqual(
+            expect(recommendedChanges!.nextMode).toEqual(
                 BattleOrchestratorMode.SQUADDIE_MOVER
             )
         })
@@ -277,7 +277,7 @@ describe("PlayerHUDController", () => {
 
             const recommendedChanges =
                 controller.recommendStateChanges(gameEngineState)
-            expect(recommendedChanges.nextMode).toEqual(
+            expect(recommendedChanges!.nextMode).toEqual(
                 BattleOrchestratorMode.PLAYER_ACTION_TARGET_SELECT
             )
         })
@@ -316,7 +316,7 @@ describe("PlayerHUDController", () => {
 
             const recommendedChanges =
                 controller.recommendStateChanges(gameEngineState)
-            expect(recommendedChanges.nextMode).toEqual(
+            expect(recommendedChanges!.nextMode).toEqual(
                 BattleOrchestratorMode.SQUADDIE_USES_ACTION_ON_SQUADDIE
             )
         })

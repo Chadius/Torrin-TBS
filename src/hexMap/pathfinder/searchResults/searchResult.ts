@@ -12,7 +12,7 @@ export interface SearchResult {
 }
 
 export type SearchPathByCoordinate = {
-    [key: string]: SearchPathAdapter
+    [key: string]: SearchPathAdapter | undefined
 }
 
 export const SearchResultsService = {
@@ -28,16 +28,14 @@ export const SearchResultsService = {
         return {
             id,
             shortestPathByCoordinate,
-            stopCoordinatesReached: getValidValueOrDefault(
-                stopCoordinatesReached,
-                []
-            ),
+            stopCoordinatesReached:
+                getValidValueOrDefault(stopCoordinatesReached, []) ?? [],
         }
     },
     getShortestPathToCoordinate: (
         searchResults: SearchResult,
         mapCoordinate: HexCoordinate
-    ): SearchPathAdapter => {
+    ): SearchPathAdapter | undefined => {
         return isCoordinateReachable(searchResults, mapCoordinate)
             ? searchResults.shortestPathByCoordinate[
                   HexCoordinateService.toString(mapCoordinate)
@@ -62,10 +60,13 @@ export const SearchResultsService = {
                 ]
         )
     },
-    getStoppableCoordinates: (searchResult: SearchResult): HexCoordinate[] => {
+    getStoppableCoordinates: (
+        searchResult: SearchResult | undefined
+    ): HexCoordinate[] => {
+        if (searchResult == undefined) return []
         return Object.entries(searchResult.shortestPathByCoordinate).reduce(
-            (stoppableCoordinates, [coordinateKey, path]) => {
-                if (path) {
+            (stoppableCoordinates: HexCoordinate[], [coordinateKey, path]) => {
+                if (path && coordinateKey != undefined) {
                     stoppableCoordinates.push(
                         HexCoordinateService.fromString(coordinateKey)
                     )

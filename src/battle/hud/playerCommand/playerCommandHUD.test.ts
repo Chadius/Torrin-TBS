@@ -263,8 +263,9 @@ describe("playerCommandHUD", () => {
     const pressKeyBoardToSelectActionButton = ({
         index,
     }: {
-        index: number
+        index: number | undefined | null
     }) => {
+        if (index == undefined) return
         return PlayerCommandStateService.keyPressed({
             playerInputAction: PlayerInputStateService.numberToListIndex(index),
             gameEngineState,
@@ -309,7 +310,8 @@ describe("playerCommandHUD", () => {
                 actionNeedsTarget.id
             )
             clickActionButton({
-                buttonArea: selectedActionButton.uiObjects.buttonIcon.drawArea,
+                buttonArea:
+                    selectedActionButton!.uiObjects!.buttonIcon.drawArea,
             })
             const actionButtonSpy = vi.spyOn(ActionButtonService, "draw")
             SummaryHUDStateService.draw({
@@ -345,13 +347,15 @@ describe("playerCommandHUD", () => {
             const selectedActionButton =
                 findActionButtonByActionTemplateId("actionNeedsTarget")
             clickActionButton({
-                buttonArea: selectedActionButton.uiObjects.buttonIcon.drawArea,
+                buttonArea:
+                    selectedActionButton!.uiObjects!.buttonIcon.drawArea,
             })
             const disabledActionButton = findActionButtonByActionTemplateId(
                 "WillAlwaysBeDisabled"
             )
             hoverOverActionButton({
-                buttonArea: disabledActionButton.uiObjects.buttonIcon.drawArea,
+                buttonArea:
+                    disabledActionButton!.uiObjects!.buttonIcon.drawArea,
             })
             const actionButtonSpy = vi.spyOn(ActionButtonService, "draw")
             SummaryHUDStateService.draw({
@@ -402,7 +406,7 @@ describe("playerCommandHUD", () => {
                 )
                 hoverOverActionButton({
                     buttonArea:
-                        disabledActionButton.uiObjects.buttonIcon.drawArea,
+                        disabledActionButton!.uiObjects!.buttonIcon.drawArea,
                 })
                 expect(playerCommandState.consideredActionTemplateId).toEqual(
                     "WillAlwaysBeDisabled"
@@ -420,7 +424,7 @@ describe("playerCommandHUD", () => {
                 )
                 hoverOverActionButton({
                     buttonArea:
-                        disabledActionButton.uiObjects.buttonIcon.drawArea,
+                        disabledActionButton!.uiObjects!.buttonIcon.drawArea,
                 })
                 PlayerCommandStateService.mouseMoved({
                     mouseLocation: {
@@ -445,7 +449,7 @@ describe("playerCommandHUD", () => {
                     findActionButtonByActionTemplateId(actionNeedsTarget.id)
                 hoverOverActionButton({
                     buttonArea:
-                        actionNeedsTargetButton.uiObjects.buttonIcon.drawArea,
+                        actionNeedsTargetButton!.uiObjects!.buttonIcon.drawArea,
                 })
                 expect(messageSpy).toBeCalledWith(
                     expect.objectContaining({
@@ -464,7 +468,7 @@ describe("playerCommandHUD", () => {
                 )
                 hoverOverActionButton({
                     buttonArea:
-                        disabledActionButton.uiObjects.buttonIcon.drawArea,
+                        disabledActionButton!.uiObjects!.buttonIcon.drawArea,
                 })
                 expect(messageSpy).not.toBeCalledWith(
                     expect.objectContaining({
@@ -478,7 +482,7 @@ describe("playerCommandHUD", () => {
                     findActionButtonByActionTemplateId(actionNeedsTarget.id)
                 hoverOverActionButton({
                     buttonArea:
-                        actionNeedsTargetButton.uiObjects.buttonIcon.drawArea,
+                        actionNeedsTargetButton!.uiObjects!.buttonIcon.drawArea,
                 })
                 PlayerCommandStateService.mouseMoved({
                     mouseLocation: {
@@ -519,13 +523,13 @@ describe("playerCommandHUD", () => {
                 )
                 clickActionButton({
                     buttonArea:
-                        selectedActionButton.uiObjects.buttonIcon.drawArea,
+                        selectedActionButton!.uiObjects!.buttonIcon.drawArea,
                 })
                 expect(
                     playerCommandState.playerSelectedSquaddieAction
                 ).toBeTruthy()
                 expect(playerCommandState.selectedActionTemplateId).toEqual(
-                    selectedActionButton.actionTemplate.id
+                    selectedActionButton!.actionTemplate!.id
                 )
             })
             it("will not select a disabled button", () => {
@@ -535,7 +539,7 @@ describe("playerCommandHUD", () => {
                 )
                 clickActionButton({
                     buttonArea:
-                        disabledActionButton.uiObjects.buttonIcon.drawArea,
+                        disabledActionButton!.uiObjects!.buttonIcon.drawArea,
                 })
                 expect(
                     playerCommandState.playerSelectedSquaddieAction
@@ -599,7 +603,7 @@ describe("playerCommandHUD", () => {
                         hoverOverActionButton({
                             buttonArea: findActionButtonByActionTemplateId(
                                 actionWillAlwaysBeDisabled.id
-                            ).uiObjects.buttonIcon.drawArea,
+                            )!.uiObjects!.buttonIcon.drawArea,
                         })
                     },
                 },
@@ -631,7 +635,7 @@ describe("playerCommandHUD", () => {
                 PlayerCommandStateService.createQueuedPopupIfNeeded({
                     playerCommandState,
                     gameEngineState,
-                    graphicsBuffer: undefined,
+                    graphicsBuffer: new MockedP5GraphicsBuffer(),
                 })
 
                 expect(messageSpy).toBeCalledWith(
@@ -648,7 +652,7 @@ describe("playerCommandHUD", () => {
                 expect(popupWindow.coordinateSystem).toBe(
                     CoordinateSystem.SCREEN
                 )
-                expect(popupWindow.label.textBox.text).toBe(
+                expect(popupWindow.label.textBox!.text).toBe(
                     `blocked by test\nalso blocked by test`
                 )
             })
@@ -661,7 +665,7 @@ describe("playerCommandHUD", () => {
                     findActionButtonByActionTemplateId(END_TURN_NAME)
                 hoverOverActionButton({
                     buttonArea:
-                        endTurnActionButton.uiObjects.buttonIcon.drawArea,
+                        endTurnActionButton!.uiObjects!.buttonIcon.drawArea,
                 })
                 expect(playerCommandState.consideredActionTemplateId).toEqual(
                     END_TURN_NAME
@@ -678,7 +682,7 @@ describe("playerCommandHUD", () => {
                     findActionButtonByActionTemplateId(END_TURN_NAME)
                 clickActionButton({
                     buttonArea:
-                        endTurnActionButton.uiObjects.buttonIcon.drawArea,
+                        endTurnActionButton!.uiObjects!.buttonIcon.drawArea,
                 })
                 expect(playerCommandState.playerSelectedEndTurn).toBeTruthy()
             })
@@ -687,7 +691,7 @@ describe("playerCommandHUD", () => {
 
     const findActionButtonByActionTemplateId = (
         actionTemplateId: string
-    ): ActionButton => {
+    ): ActionButton | undefined => {
         return playerCommandState.actionButtons.find(
             (actionButton) =>
                 actionButton.actionTemplate?.id === actionTemplateId ||
@@ -696,7 +700,7 @@ describe("playerCommandHUD", () => {
     }
     const getIndexForActionButtonByActionTemplateId = (
         actionTemplateId: string
-    ): number => {
+    ): number | null => {
         const index = playerCommandState.actionButtons.findIndex(
             (actionButton) =>
                 actionButton.actionTemplate?.id === actionTemplateId ||
@@ -707,7 +711,7 @@ describe("playerCommandHUD", () => {
     }
     const getAllDrawCallsForActionButton = (
         actionButtonDrawSpy: MockInstance,
-        actionTemplateId: string
+        actionTemplateId: string | undefined
     ) => {
         return actionButtonDrawSpy.mock.calls.filter(
             (args) =>

@@ -14,6 +14,7 @@ export type TextBoxMargin = {
         | [number, number, number]
         | [number, number, number, number]
         | number[]
+        | undefined
 }
 
 export interface Label {
@@ -29,7 +30,7 @@ export const LabelService = {
 
         const innerTextRect = RectAreaService.new({
             baseRectangle: options.area,
-            margin: options.textBoxMargin,
+            margin: options.textBoxMargin ?? 0,
         })
 
         let textBox = TextBoxService.new({
@@ -44,7 +45,7 @@ export const LabelService = {
             rectangle,
         }
     },
-    draw: (label: Label, graphics: GraphicsBuffer): void => {
+    draw: (label: Label | undefined, graphics: GraphicsBuffer): void => {
         if (!label) return
         RectangleService.draw(label.rectangle, graphics)
         TextBoxService.draw(label.textBox, graphics)

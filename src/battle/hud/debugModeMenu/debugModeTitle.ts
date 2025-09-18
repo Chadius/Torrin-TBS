@@ -68,12 +68,23 @@ export class DebugModeCreateDebugModeTitle implements BehaviorTreeTask {
         const animationFrame =
             Math.floor(Date.now() / layout.titleText.period) % 4
 
-        let layoutAnimationInfo: {
-            left?: number
-            top?: number
-            right?: number
-            bottom?: number
-        }
+        let layoutAnimationInfo:
+            | {
+                  top: number
+                  right: number
+              }
+            | {
+                  right: number
+                  bottom: number
+              }
+            | {
+                  left: number
+                  bottom: number
+              }
+            | {
+                  left: number
+                  top: number
+              }
         switch (animationFrame) {
             case 1:
                 layoutAnimationInfo = {
@@ -104,10 +115,7 @@ export class DebugModeCreateDebugModeTitle implements BehaviorTreeTask {
             text: "DEBUG MODE",
             ...layout.titleText,
             area: RectAreaService.new({
-                left: layoutAnimationInfo.left,
-                right: layoutAnimationInfo.right,
-                bottom: layoutAnimationInfo.bottom,
-                top: layoutAnimationInfo.top,
+                ...layoutAnimationInfo,
                 width: 300,
                 height: 100,
             }),

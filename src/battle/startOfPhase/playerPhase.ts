@@ -17,6 +17,7 @@ export const PlayerPhaseService = {
         message: MessageBoardMessageStartedPlayerPhase
     ) => {
         const gameEngineState: GameEngineState = message.gameEngineState
+        const repository = gameEngineState.repository
         const playerTeam: BattleSquaddieTeam =
             BattlePhaseService.findTeamsOfAffiliation(
                 gameEngineState.battleOrchestratorState.battleState.teams,
@@ -24,10 +25,11 @@ export const PlayerPhaseService = {
             )[0]
         let squaddieToPanToBattleId = playerTeam.battleSquaddieIds.find(
             (id) => {
+                if (repository == undefined) return false
                 const { squaddieTemplate, battleSquaddie } =
                     getResultOrThrowError(
                         ObjectRepositoryService.getSquaddieByBattleId(
-                            gameEngineState.repository,
+                            repository,
                             id
                         )
                     )
@@ -49,7 +51,10 @@ export const PlayerPhaseService = {
             gameEngineState.battleOrchestratorState.battleState.missionMap,
             squaddieToPanToBattleId
         )
-        if (MissionMapSquaddieCoordinateService.isValid(mapDatum)) {
+        if (
+            MissionMapSquaddieCoordinateService.isValid(mapDatum) &&
+            mapDatum.currentMapCoordinate != undefined
+        ) {
             const squaddieScreenLocation =
                 ConvertCoordinateService.convertMapCoordinatesToScreenLocation({
                     mapCoordinate: mapDatum.currentMapCoordinate,

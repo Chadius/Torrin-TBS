@@ -251,7 +251,7 @@ describe("Object Repository", () => {
             })
         )
 
-        const { squaddieTemplate, battleSquaddie } = getResultOrThrowError(
+        const { squaddieTemplate } = getResultOrThrowError(
             ObjectRepositoryService.getSquaddieByBattleId(
                 objectRepository,
                 "young_nahla_0"

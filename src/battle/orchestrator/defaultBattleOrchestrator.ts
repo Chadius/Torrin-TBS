@@ -38,18 +38,14 @@ export class DefaultBattleOrchestrator implements BattleOrchestratorComponent {
         // Required by inheritance
     }
 
-    uiControlSettings(state: GameEngineState): UIControlSettings {
-        return undefined
+    uiControlSettings(_: GameEngineState): UIControlSettings {
+        return new UIControlSettings({})
     }
 
-    update({
-        gameEngineState,
-        graphicsContext,
-        resourceHandler,
-    }: {
+    update({}: {
         gameEngineState: GameEngineState
         graphicsContext: GraphicsBuffer
-        resourceHandler: ResourceHandler
+        resourceHandler: ResourceHandler | undefined
     }): void {
         // Required by inheritance
     }

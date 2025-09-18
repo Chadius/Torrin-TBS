@@ -20,7 +20,7 @@ export const GraphicsConfig = {
         mapCoordinate,
     }: {
         camera: BattleCamera
-        mapCoordinate: HexCoordinate
+        mapCoordinate: HexCoordinate | undefined
     }): boolean => {
         if (mapCoordinate == undefined) return false
 

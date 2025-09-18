@@ -30,7 +30,7 @@ import {
 export class IsActionPointsCorrectCondition implements BehaviorTreeTask {
     dataBlob: DataBlob
     objectRepository: ObjectRepository
-    playerConsideredActions: PlayerConsideredActions
+    playerConsideredActions: PlayerConsideredActions | undefined
     battleActionDecisionStep: BattleActionDecisionStep
     numberOfIncorrectFrames: number
 
@@ -42,7 +42,7 @@ export class IsActionPointsCorrectCondition implements BehaviorTreeTask {
     }: {
         dataBlob: DataBlob
         objectRepository: ObjectRepository
-        playerConsideredActions: PlayerConsideredActions
+        playerConsideredActions: PlayerConsideredActions | undefined
         battleActionDecisionStep: BattleActionDecisionStep
     }) {
         this.dataBlob = dataBlob
@@ -68,7 +68,7 @@ export class IsActionPointsCorrectCondition implements BehaviorTreeTask {
         }
 
         uiObjects.actionPoints.actionPointMeterDataBlob
-
+        if (this.playerConsideredActions == undefined) return false
         const calculatedActionPoints: SquaddieStatusTileActionPointsContext =
             calculateActionPointsContext({
                 battleSquaddieId: context.battleSquaddieId,
@@ -108,7 +108,7 @@ export class UpdateActionPointsContextAction implements BehaviorTreeTask {
     dataBlob: DataBlob
     objectRepository: ObjectRepository
     battleActionDecisionStep: BattleActionDecisionStep
-    playerConsideredActions: PlayerConsideredActions
+    playerConsideredActions: PlayerConsideredActions | undefined
 
     constructor({
         dataBlob,
@@ -119,7 +119,7 @@ export class UpdateActionPointsContextAction implements BehaviorTreeTask {
         dataBlob: DataBlob
         objectRepository: ObjectRepository
         battleActionDecisionStep: BattleActionDecisionStep
-        playerConsideredActions: PlayerConsideredActions
+        playerConsideredActions: PlayerConsideredActions | undefined
     }) {
         this.dataBlob = dataBlob
         this.objectRepository = objectRepository
@@ -194,7 +194,10 @@ export class UpdateActionPointsUIObjectsAction implements BehaviorTreeTask {
             "uiObjects"
         )
 
-        let actionPointText = `AP ${context.actionPoints.actionPointsRemaining + context.actionPoints.movementPointsSpentButCanBeRefunded}`
+        let actionPointText =
+            context.actionPoints != undefined
+                ? `AP ${context.actionPoints.actionPointsRemaining + context.actionPoints.movementPointsSpentButCanBeRefunded}`
+                : `AP undefined`
 
         const squaddieAffiliationHue: number =
             HUE_BY_SQUADDIE_AFFILIATION[context.squaddieAffiliation]
@@ -257,7 +260,7 @@ export class UpdateActionPointsUIObjectsAction implements BehaviorTreeTask {
                 "highlightedValue"
             ) < 1
         ) {
-            DataBlobService.add<number>(
+            DataBlobService.add<number | undefined>(
                 actionPointMeterDataBlob,
                 "highlightedValueFillStartTime",
                 undefined
@@ -283,7 +286,10 @@ export class UpdateActionPointsUIObjectsAction implements BehaviorTreeTask {
         actionPointMeterDataBlob: DrawHorizontalMeterActionDataBlob,
         context: SquaddieStatusTileContext
     ) => {
-        let currentValue = calculateCurrentValue(context.actionPoints)
+        let currentValue =
+            context?.actionPoints != undefined
+                ? calculateCurrentValue(context.actionPoints)
+                : 0
 
         DataBlobService.add<number>(
             actionPointMeterDataBlob,
@@ -299,7 +305,10 @@ export class UpdateActionPointsUIObjectsAction implements BehaviorTreeTask {
         actionPointMeterDataBlob: DrawHorizontalMeterActionDataBlob
         context: SquaddieStatusTileContext
     }) {
-        let highlightedValue = calculateHighlightedValue(context.actionPoints)
+        let highlightedValue =
+            context?.actionPoints != undefined
+                ? calculateHighlightedValue(context.actionPoints)
+                : 0
 
         DataBlobService.add<number>(
             actionPointMeterDataBlob,
@@ -328,25 +337,27 @@ export class UpdateActionPointsUIObjectsAction implements BehaviorTreeTask {
 
         const actionPointMeterDataBlob: DrawHorizontalMeterActionDataBlob =
             DataBlobService.new() as DrawHorizontalMeterActionDataBlob
-        DataBlobService.add<RectArea>(
-            actionPointMeterDataBlob,
-            "drawingArea",
-            RectAreaService.new(
-                RectAreaService.new({
-                    left:
-                        RectAreaService.right(
+        if (uiObjects.actionPoints.textBox != undefined) {
+            DataBlobService.add<RectArea>(
+                actionPointMeterDataBlob,
+                "drawingArea",
+                RectAreaService.new(
+                    RectAreaService.new({
+                        left:
+                            RectAreaService.right(
+                                uiObjects.actionPoints.textBox.area
+                            ) + WINDOW_SPACING.SPACING1,
+                        top: RectAreaService.top(
                             uiObjects.actionPoints.textBox.area
-                        ) + WINDOW_SPACING.SPACING1,
-                    top: RectAreaService.top(
-                        uiObjects.actionPoints.textBox.area
-                    ),
-                    width:
-                        RectAreaService.width(overallBoundingBox) *
-                        (GOLDEN_RATIO - 1),
-                    height: layout.actionPoints.fontSize * 0.8,
-                })
+                        ),
+                        width:
+                            RectAreaService.width(overallBoundingBox) *
+                            (GOLDEN_RATIO - 1),
+                        height: layout.actionPoints.fontSize * 0.8,
+                    })
+                )
             )
-        )
+        }
         DataBlobService.add<number>(
             actionPointMeterDataBlob,
             "maxValue",
@@ -440,14 +451,17 @@ export class DrawActionPointsMeterAction implements BehaviorTreeTask {
             "uiObjects"
         )
 
-        const meterDataBlob: DrawHorizontalMeterActionDataBlob =
+        const meterDataBlob: DrawHorizontalMeterActionDataBlob | undefined =
             uiObjects.actionPoints.actionPointMeterDataBlob
 
-        const drawAction = new DrawHorizontalMeterAction(
-            meterDataBlob,
-            this.graphicsContext
-        )
-        return drawAction.run()
+        if (meterDataBlob) {
+            const drawAction = new DrawHorizontalMeterAction(
+                meterDataBlob,
+                this.graphicsContext
+            )
+            return drawAction.run()
+        }
+        return false
     }
 }
 
@@ -497,7 +511,7 @@ const calculateActionPointsContext = ({
     battleSquaddieId: string
     battleActionDecisionStep: BattleActionDecisionStep
     objectRepository: ObjectRepository
-    playerConsideredActions: PlayerConsideredActions
+    playerConsideredActions: PlayerConsideredActions | undefined
 }): SquaddieStatusTileActionPointsContext => {
     const actorBattleSquaddieId = BattleActionDecisionStepService.getActor(
         battleActionDecisionStep

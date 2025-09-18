@@ -26,12 +26,15 @@ import {
 import { beforeEach, describe, expect, it, vi } from "vitest"
 import { ActionEffectChangesService } from "../../history/calculatedResult"
 import { CoordinateGeneratorShape } from "../../targeting/coordinateGenerator"
+import { SquaddieResourceService } from "../../../squaddie/resource"
+import { BattleSquaddie, BattleSquaddieService } from "../../battleSquaddie"
 
 describe("ActorTextWindow", () => {
     let mockedP5GraphicsContext: MockedP5GraphicsBuffer
     let mockedActionTimer: ActionTimer
 
     let actorTemplate: SquaddieTemplate
+    let battleSquaddie: BattleSquaddie
     let attackThatUsesAttackRoll: ActionTemplate
 
     beforeEach(() => {
@@ -42,11 +45,15 @@ describe("ActorTextWindow", () => {
             squaddieId: {
                 templateId: "actor id",
                 name: "Actor",
-                resources: undefined,
+                resources: SquaddieResourceService.new({}),
                 traits: TraitStatusStorageService.newUsingTraitValues({}),
                 affiliation: SquaddieAffiliation.PLAYER,
             },
             attributes: DefaultArmyAttributes(),
+        })
+        battleSquaddie = BattleSquaddieService.new({
+            squaddieTemplate: actorTemplate,
+            battleSquaddieId: "battleSquaddie",
         })
         attackThatUsesAttackRoll = ActionTemplateService.new({
             id: "action Id",
@@ -73,9 +80,17 @@ describe("ActorTextWindow", () => {
 
         window.start({
             actorTemplate: actorTemplate,
-            actorBattle: undefined,
+            actorBattle: battleSquaddie,
             actionTemplateName: attackThatUsesAttackRoll.name,
-            results: undefined,
+            results: ActionEffectChangesService.new({
+                actorContext: BattleActionActorContextService.new({
+                    actingSquaddieRoll: RollResultService.new({
+                        rolls: [1, 6],
+                        occurred: true,
+                    }),
+                }),
+                squaddieChanges: [],
+            }),
         })
 
         expect(window.actorUsesActionDescriptionText).toBe("Actor uses\nAction")
@@ -86,7 +101,7 @@ describe("ActorTextWindow", () => {
 
         window.start({
             actorTemplate: actorTemplate,
-            actorBattle: undefined,
+            actorBattle: battleSquaddie,
             actionTemplateName: attackThatUsesAttackRoll.name,
             results: ActionEffectChangesService.new({
                 actorContext: BattleActionActorContextService.new({
@@ -117,7 +132,7 @@ describe("ActorTextWindow", () => {
 
         window.start({
             actorTemplate: actorTemplate,
-            actorBattle: undefined,
+            actorBattle: battleSquaddie,
             actionTemplateName: attackThatUsesAttackRoll.name,
             results: ActionEffectChangesService.new({
                 actorContext: BattleActionActorContextService.new({
@@ -147,7 +162,7 @@ describe("ActorTextWindow", () => {
 
             window.start({
                 actorTemplate: actorTemplate,
-                actorBattle: undefined,
+                actorBattle: battleSquaddie,
                 actionTemplateName: attackThatUsesAttackRoll.name,
                 results: ActionEffectChangesService.new({
                     actorContext: BattleActionActorContextService.new({
@@ -181,7 +196,7 @@ describe("ActorTextWindow", () => {
 
             window.start({
                 actorTemplate: actorTemplate,
-                actorBattle: undefined,
+                actorBattle: battleSquaddie,
                 actionTemplateName: attackThatUsesAttackRoll.name,
                 results: ActionEffectChangesService.new({
                     actorContext: BattleActionActorContextService.new({

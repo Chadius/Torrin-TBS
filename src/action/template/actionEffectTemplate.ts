@@ -10,6 +10,7 @@ import {
 } from "../../utils/objectValidityCheck"
 import { AttributeModifier } from "../../squaddie/attribute/attributeModifier"
 import { ActionDecision, TActionDecision } from "./actionTemplate"
+import { EnumLike } from "../../utils/enum"
 
 export const TargetBySquaddieAffiliationRelation = {
     TARGET_SELF: "TARGET_SELF",
@@ -77,11 +78,11 @@ export const ActionEffectTemplateService = {
         versusSquaddieResistance?: TVersusSquaddieResistance
     }): ActionEffectTemplate => {
         const data: ActionEffectTemplate = {
-            traits: traits,
-            damageDescriptions: damageDescriptions,
-            healingDescriptions: healingDescriptions,
+            traits: traits ?? { booleanTraits: {} },
+            damageDescriptions: damageDescriptions ?? {},
+            healingDescriptions: healingDescriptions ?? {},
             attributeModifiers: attributeModifiers || [],
-            buttonIconResourceKey,
+            buttonIconResourceKey: buttonIconResourceKey ?? "",
             actionDecisions: actionDecisions || [
                 ActionDecision.TARGET_SQUADDIE,
             ],
@@ -91,23 +92,23 @@ export const ActionEffectTemplateService = {
                 squaddieAffiliationRelation: {
                     [TargetBySquaddieAffiliationRelation.TARGET_SELF]:
                         squaddieAffiliationRelation
-                            ? squaddieAffiliationRelation[
+                            ? (squaddieAffiliationRelation[
                                   TargetBySquaddieAffiliationRelation
                                       .TARGET_SELF
-                              ]
+                              ] ?? false)
                             : false,
                     [TargetBySquaddieAffiliationRelation.TARGET_ALLY]:
                         squaddieAffiliationRelation
-                            ? squaddieAffiliationRelation[
+                            ? (squaddieAffiliationRelation[
                                   TargetBySquaddieAffiliationRelation
                                       .TARGET_ALLY
-                              ]
+                              ] ?? false)
                             : false,
                     [TargetBySquaddieAffiliationRelation.TARGET_FOE]:
                         squaddieAffiliationRelation
-                            ? squaddieAffiliationRelation[
+                            ? (squaddieAffiliationRelation[
                                   TargetBySquaddieAffiliationRelation.TARGET_FOE
-                              ]
+                              ] ?? false)
                             : false,
                 },
             },
@@ -147,10 +148,7 @@ export const ActionEffectTemplateService = {
         ],
     getMultipleAttackPenalty: (template: ActionEffectTemplate): number => {
         if (
-            TraitStatusStorageService.getStatus(
-                template.traits,
-                Trait.ATTACK
-            ) !== true
+            !TraitStatusStorageService.getStatus(template.traits, Trait.ATTACK)
         ) {
             return 0
         }

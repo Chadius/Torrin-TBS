@@ -25,29 +25,29 @@ import { BattleActionSquaddieChange } from "../../history/battleAction/battleAct
 import { DegreeOfSuccess } from "../../calculator/actionCalculator/degreeOfSuccess"
 
 export class ActorSprite {
-    squaddieChanges: BattleActionSquaddieChange
+    squaddieChanges: BattleActionSquaddieChange | undefined
 
-    private _squaddieRepository: ObjectRepository
+    private _squaddieRepository: ObjectRepository | undefined
 
-    get squaddieRepository(): ObjectRepository {
+    get squaddieRepository(): ObjectRepository | undefined {
         return this._squaddieRepository
     }
 
-    private _battleSquaddieId: string
+    private _battleSquaddieId: string | undefined
 
-    get battleSquaddieId(): string {
+    get battleSquaddieId(): string | undefined {
         return this._battleSquaddieId
     }
 
-    private _sprite: SquaddieSprite
+    private _sprite: SquaddieSprite | undefined
 
-    get sprite(): SquaddieSprite {
+    get sprite(): SquaddieSprite | undefined {
         return this._sprite
     }
 
-    private _startingPosition: number
+    private _startingPosition: number | undefined
 
-    get startingPosition(): number {
+    get startingPosition(): number | undefined {
         return this._startingPosition
     }
 
@@ -68,7 +68,7 @@ export class ActorSprite {
         actorBattleSquaddieId: string
         squaddieRepository: ObjectRepository
         startingPosition: number
-        resourceHandler: ResourceHandler
+        resourceHandler: ResourceHandler | undefined
         squaddieChanges: BattleActionSquaddieChange
     }) {
         this.reset()
@@ -77,6 +77,12 @@ export class ActorSprite {
         this._squaddieRepository = squaddieRepository
         this._battleSquaddieId = actorBattleSquaddieId
         this.squaddieChanges = squaddieChanges
+
+        if (
+            this.squaddieRepository == undefined ||
+            this.battleSquaddieId == undefined
+        )
+            return
 
         const { squaddieTemplate } = getResultOrThrowError(
             ObjectRepositoryService.getSquaddieByBattleId(
@@ -98,11 +104,12 @@ export class ActorSprite {
         actionEffectSquaddieTemplate,
         resourceHandler,
     }: {
-        timer: ActionTimer
+        timer: ActionTimer | undefined
         graphicsContext: GraphicsBuffer
         actionEffectSquaddieTemplate: ActionEffectTemplate
         resourceHandler: ResourceHandler
     }) {
+        if (timer == undefined) return
         if (timer.currentPhase === ActionAnimationPhase.INITIALIZED) {
             return
         }
@@ -116,10 +123,18 @@ export class ActorSprite {
     }
 
     getSquaddieImageBasedOnTimer(
-        timer: ActionTimer,
+        timer: ActionTimer | undefined,
         graphicsContext: GraphicsBuffer,
         action: ActionEffectTemplate
     ) {
+        if (
+            this.squaddieRepository == undefined ||
+            this.battleSquaddieId == undefined ||
+            this.sprite == undefined ||
+            timer == undefined
+        )
+            return
+
         let emotion: TSquaddieEmotion = this.getSquaddieEmotion({
             timer,
             battleSquaddieId: this.battleSquaddieId,
@@ -173,6 +188,8 @@ export class ActorSprite {
             graphicsContext,
             action
         )
+        if (spriteToDraw == undefined || this.startingPosition == undefined)
+            return
         let { horizontalDistance, verticalDistance } =
             this.getDistanceBasedOnTimer(timer)
         spriteToDraw.load(resourceHandler)
@@ -188,10 +205,17 @@ export class ActorSprite {
     }
 
     private getDistanceBasedOnTimer(timer: ActionTimer) {
-        const timeElapsed = TimeElapsedSinceAnimationStarted(timer.startTime)
+        if (
+            timer?.startTime == undefined ||
+            this.sprite == undefined ||
+            this._startingPosition == undefined ||
+            this.squaddieChanges == undefined
+        )
+            return { horizontalDistance: 0, verticalDistance: 0 }
 
         let horizontalDistance: number = 0
         let verticalDistance: number = 0
+        const timeElapsed = TimeElapsedSinceAnimationStarted(timer.startTime)
         let maximumHorizontalDistance: number =
             (5 * ScreenDimensions.SCREEN_WIDTH) / 12 - this._startingPosition
         let maximumVerticalDistance: number = this.sprite.actionSpritesByEmotion

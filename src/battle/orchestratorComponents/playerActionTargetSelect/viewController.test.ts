@@ -272,7 +272,7 @@ describe("Player Action Target Select View Controller", () => {
             actionDecisionStep:
                 playerActionTargetSelectViewController.componentData.getContext()
                     .battleActionDecisionStep,
-            targetCoordinate: currentMapCoordinate,
+            targetCoordinate: currentMapCoordinate!,
         })
         playerActionTargetSelectViewController.componentData.setContext({
             ...playerActionTargetSelectViewController.componentData.getContext(),
@@ -320,7 +320,7 @@ describe("Player Action Target Select View Controller", () => {
             playerActionTargetSelectViewController.getButtons()
         ).toHaveLength(1)
         expect(
-            playerActionTargetSelectViewController.getButtons()[0].id
+            playerActionTargetSelectViewController.getButtons()[0]!.id
         ).toEqual(PLAYER_ACTION_SELECT_TARGET_CREATE_CANCEL_BUTTON_ID)
     })
 
@@ -523,6 +523,7 @@ describe("Player Action Target Select View Controller", () => {
             BattleActionDecisionStepService.setConsideredTarget({
                 actionDecisionStep:
                     componentData.getContext().battleActionDecisionStep,
+                // @ts-ignore
                 targetCoordinate: undefined,
             })
 
@@ -564,8 +565,8 @@ describe("Player Action Target Select View Controller", () => {
 
             const uiObjects =
                 playerActionTargetSelectViewController.getUIObjects().confirm
-            const okButtonArea = uiObjects.okButton.getArea()
-            const cancelButtonArea = uiObjects.cancelButton.getArea()
+            const okButtonArea = uiObjects!.okButton!.getArea()
+            const cancelButtonArea = uiObjects!.cancelButton!.getArea()
 
             return {
                 okButtonArea,
@@ -584,8 +585,9 @@ describe("Player Action Target Select View Controller", () => {
             const uiObjects =
                 playerActionTargetSelectViewController.getUIObjects()
                     .selectTarget
-            const cancelButtonArea = uiObjects.cancelButton.getArea()
-            const explanationLabelText = uiObjects.explanationLabel.textBox.text
+            const cancelButtonArea = uiObjects!.cancelButton!.getArea()
+            const explanationLabelText =
+                uiObjects!.explanationLabel!.textBox!.text
 
             return {
                 cancelButtonArea,
@@ -651,7 +653,7 @@ describe("Player Action Target Select View Controller", () => {
                     .currentMapCoordinate
             const expectedScreenLocation =
                 ConvertCoordinateService.convertMapCoordinatesToScreenLocation({
-                    mapCoordinate: expectedCoordinateToDrawUnder,
+                    mapCoordinate: expectedCoordinateToDrawUnder!,
                     cameraLocation:
                         playerActionTargetSelectViewController.componentData
                             .getContext()
@@ -864,8 +866,8 @@ describe("Player Action Target Select View Controller", () => {
         const expectActorSquaddieToBeHighlighted = () => {
             const uiObjects =
                 playerActionTargetSelectViewController.componentData.getUIObjects()
-            expect(uiObjects.mapIcons.actor.mapIcon).toBe(knightMapIcon)
-            expect(uiObjects.mapIcons.actor.hasTinted).toBeTruthy()
+            expect(uiObjects.mapIcons!.actor.mapIcon).toBe(knightMapIcon)
+            expect(uiObjects.mapIcons!.actor.hasTinted).toBeTruthy()
             expect(knightMapIcon.pulseColor).not.toBeUndefined()
             return true
         }
@@ -894,10 +896,10 @@ describe("Player Action Target Select View Controller", () => {
                 }
                 playerActionTargetSelectViewController.componentData
                     .getContext()
-                    .targetResults.validCoordinates.push(thiefMapCoordinate)
+                    .targetResults.validCoordinates.push(thiefMapCoordinate!)
                 playerActionTargetSelectViewController.componentData
                     .getContext()
-                    .targetResults.validCoordinates.push(thief2MapCoordinate)
+                    .targetResults.validCoordinates.push(thief2MapCoordinate!)
                 playerActionTargetSelectViewController.draw({
                     camera: new BattleCamera(),
                     graphicsContext: graphicsBuffer,
@@ -914,11 +916,11 @@ describe("Player Action Target Select View Controller", () => {
             it("will highlight the potential targets", () => {
                 const uiObjects =
                     playerActionTargetSelectViewController.componentData.getUIObjects()
-                expect(uiObjects.mapIcons.targets.mapIcons).toHaveLength(2)
-                expect(uiObjects.mapIcons.targets.mapIcons).toEqual(
+                expect(uiObjects.mapIcons!.targets.mapIcons).toHaveLength(2)
+                expect(uiObjects.mapIcons!.targets.mapIcons).toEqual(
                     expect.arrayContaining([thiefMapIcon, thief2MapIcon])
                 )
-                expect(uiObjects.mapIcons.targets.hasTinted).toBeTruthy()
+                expect(uiObjects.mapIcons!.targets.hasTinted).toBeTruthy()
                 expect(thiefMapIcon.pulseColor).not.toBeUndefined()
                 expect(thief2MapIcon.pulseColor).not.toBeUndefined()
                 expect(citizenMapIcon.pulseColor).toBeUndefined()
@@ -946,11 +948,11 @@ describe("Player Action Target Select View Controller", () => {
             it("will highlight the targets", () => {
                 const uiObjects =
                     playerActionTargetSelectViewController.componentData.getUIObjects()
-                expect(uiObjects.mapIcons.targets.mapIcons).toHaveLength(1)
-                expect(uiObjects.mapIcons.targets.mapIcons[0]).toBe(
+                expect(uiObjects.mapIcons!.targets.mapIcons).toHaveLength(1)
+                expect(uiObjects.mapIcons!.targets.mapIcons[0]!).toBe(
                     thiefMapIcon
                 )
-                expect(uiObjects.mapIcons.targets.hasTinted).toBeTruthy()
+                expect(uiObjects.mapIcons!.targets.hasTinted).toBeTruthy()
                 expect(thiefMapIcon.pulseColor).not.toBeUndefined()
                 expect(thief2MapIcon.pulseColor).toBeUndefined()
                 expect(citizenMapIcon.pulseColor).toBeUndefined()

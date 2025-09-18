@@ -51,6 +51,7 @@ export class CreateNextEffectsOfDegreesOfSuccessTextBoxAction
 
     run(): boolean {
         const uiObjects = this.dataBlob.getUIObjects()
+        if (uiObjects.graphicsContext == undefined) return false
         let context: ActionPreviewTileContext = this.dataBlob.getContext()
         const degreesOfSuccessLayoutConstants =
             this.dataBlob.getLayout().degreesOfSuccess
@@ -77,6 +78,7 @@ export class CreateNextEffectsOfDegreesOfSuccessTextBoxAction
             )
 
         if (!degreeOfSuccessToDraw) return false
+        if (!forecastedChange) return false
 
         let messageToShow: string
         if (
@@ -151,10 +153,9 @@ const generateEffectMessageForFoe = (
         BattleActionSquaddieChangeService.isSquaddieHindered(forecastedChange)
     const triesToDealDamage = actionTemplate.actionEffectTemplates.some(
         (template) =>
-            Object.values(template.damageDescriptions).reduce(
-                (sum, currentValue) => sum + currentValue,
-                0
-            ) > 0
+            Object.values(template.damageDescriptions)
+                .filter((d) => d != undefined)
+                .reduce((sum, currentValue) => sum + currentValue, 0) > 0
     )
 
     const attributeModifierDifferences: AttributeTypeAndAmount[] =

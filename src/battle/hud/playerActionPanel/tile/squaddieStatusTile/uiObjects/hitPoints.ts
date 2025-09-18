@@ -62,13 +62,6 @@ export class SquaddieStatusTileIsHitPointsCorrectCondition
             context.hitPoints?.maxHitPoints === maxHitPoints
         )
     }
-
-    clone(): BehaviorTreeTask {
-        return new SquaddieStatusTileIsHitPointsCorrectCondition(
-            this.dataBlob,
-            this.objectRepository
-        )
-    }
 }
 
 export class SquaddieStatusTileUpdateHitPointsContextAction
@@ -117,13 +110,6 @@ export class SquaddieStatusTileUpdateHitPointsContextAction
         )
         return true
     }
-
-    clone(): BehaviorTreeTask {
-        return new SquaddieStatusTileUpdateHitPointsContextAction(
-            this.dataBlob,
-            this.objectRepository
-        )
-    }
 }
 
 export class SquaddieStatusTileUpdateHitPointsUIObjectsAction
@@ -155,11 +141,14 @@ export class SquaddieStatusTileUpdateHitPointsUIObjectsAction
             "uiObjects"
         )
 
-        let hitPointText = `HP ${context.hitPoints.currentHitPoints}`
-        if (context.hitPoints.currentAbsorb) {
-            hitPointText += ` + ${context.hitPoints.currentAbsorb}`
+        let hitPointText = `HP `
+        if (context.hitPoints != undefined) {
+            hitPointText += `${context.hitPoints.currentHitPoints}`
+            if (context.hitPoints.currentAbsorb) {
+                hitPointText += ` + ${context.hitPoints.currentAbsorb}`
+            }
+            hitPointText += `/${context.hitPoints.maxHitPoints}`
         }
-        hitPointText += `/${context.hitPoints.maxHitPoints}`
 
         const squaddieAffiliationHue: number =
             HUE_BY_SQUADDIE_AFFILIATION[context.squaddieAffiliation]
@@ -210,7 +199,7 @@ export class SquaddieStatusTileUpdateHitPointsUIObjectsAction
         DataBlobService.add<number>(
             hitPointMeterDataBlob,
             "currentValue",
-            context.hitPoints.currentHitPoints
+            context?.hitPoints?.currentHitPoints ?? 0
         )
 
         uiObjects.hitPoints.actionPointMeterDataBlob = hitPointMeterDataBlob
@@ -222,16 +211,16 @@ export class SquaddieStatusTileUpdateHitPointsUIObjectsAction
 
         const { currentValueFillAlphaRange, currentValueFillAlphaPeriod } =
             this.calculateCurrentHitPointsFillAlpha(
-                context.hitPoints.currentHitPoints,
-                context.hitPoints.maxHitPoints,
+                context?.hitPoints?.currentHitPoints,
+                context?.hitPoints?.maxHitPoints,
                 layout
             )
-        DataBlobService.add<number[]>(
+        DataBlobService.add<number[] | undefined>(
             uiObjects.hitPoints.actionPointMeterDataBlob,
             "currentValueFillAlphaRange",
             currentValueFillAlphaRange
         )
-        DataBlobService.add<number>(
+        DataBlobService.add<number | undefined>(
             uiObjects.hitPoints.actionPointMeterDataBlob,
             "currentValueFillAlphaPeriod",
             currentValueFillAlphaPeriod
@@ -264,28 +253,34 @@ export class SquaddieStatusTileUpdateHitPointsUIObjectsAction
 
         const hitPointMeterDataBlob: DrawHorizontalMeterActionDataBlob =
             DataBlobService.new() as DrawHorizontalMeterActionDataBlob
-        DataBlobService.add<RectArea>(
-            hitPointMeterDataBlob,
-            "drawingArea",
-            RectAreaService.new(
-                RectAreaService.new({
-                    left:
-                        RectAreaService.right(
+        if (uiObjects.hitPoints.textBox != undefined) {
+            DataBlobService.add<RectArea>(
+                hitPointMeterDataBlob,
+                "drawingArea",
+                RectAreaService.new(
+                    RectAreaService.new({
+                        left:
+                            RectAreaService.right(
+                                uiObjects.hitPoints.textBox.area
+                            ) + WINDOW_SPACING.SPACING1,
+                        top: RectAreaService.top(
                             uiObjects.hitPoints.textBox.area
-                        ) + WINDOW_SPACING.SPACING1,
-                    top: RectAreaService.top(uiObjects.hitPoints.textBox.area),
-                    right:
-                        RectAreaService.right(overallBoundingBox) -
-                        WINDOW_SPACING.SPACING1,
-                    height: layout.hitPoints.fontSize,
-                })
+                        ),
+                        right:
+                            RectAreaService.right(overallBoundingBox) -
+                            WINDOW_SPACING.SPACING1,
+                        height: layout.hitPoints.fontSize,
+                    })
+                )
             )
-        )
-        DataBlobService.add<number>(
-            hitPointMeterDataBlob,
-            "maxValue",
-            context.hitPoints.maxHitPoints
-        )
+        }
+        if (context.hitPoints != undefined) {
+            DataBlobService.add<number>(
+                hitPointMeterDataBlob,
+                "maxValue",
+                context.hitPoints.maxHitPoints
+            )
+        }
         DataBlobService.add<number[]>(
             hitPointMeterDataBlob,
             "emptyColor",
@@ -333,11 +328,13 @@ export class SquaddieStatusTileUpdateHitPointsUIObjectsAction
             layout.hitPoints.hitPointMeter.outlineStrokeColor
         )
 
-        DataBlobService.add<number>(
-            hitPointMeterDataBlob,
-            "currentValue",
-            context.hitPoints.currentHitPoints
-        )
+        if (context.hitPoints != undefined) {
+            DataBlobService.add<number>(
+                hitPointMeterDataBlob,
+                "currentValue",
+                context.hitPoints.currentHitPoints
+            )
+        }
 
         DataBlobService.add<number>(
             hitPointMeterDataBlob,
@@ -365,21 +362,29 @@ export class SquaddieStatusTileUpdateHitPointsUIObjectsAction
             "uiObjects"
         )
 
+        if (uiObjects.hitPoints.actionPointMeterDataBlob == undefined) {
+            return
+        }
+
         let absorbMeterDataBlob =
             uiObjects.hitPoints.absorbBar ??
-            this.createDrawingAbsorbPointsHorizontalMeterData()
+            this.createDrawingAbsorbPointsHorizontalMeterData(
+                uiObjects.hitPoints.actionPointMeterDataBlob
+            )
 
-        DataBlobService.add<number>(
-            absorbMeterDataBlob,
-            "currentValue",
-            context.hitPoints.currentAbsorb
-        )
+        if (context.hitPoints != undefined) {
+            DataBlobService.add<number>(
+                absorbMeterDataBlob,
+                "currentValue",
+                context.hitPoints.currentAbsorb
+            )
 
-        DataBlobService.add<number>(
-            absorbMeterDataBlob,
-            "maxValue",
-            context.hitPoints.currentAbsorb
-        )
+            DataBlobService.add<number>(
+                absorbMeterDataBlob,
+                "maxValue",
+                context.hitPoints.currentAbsorb
+            )
+        }
 
         uiObjects.hitPoints.absorbBar = absorbMeterDataBlob
 
@@ -405,7 +410,9 @@ export class SquaddieStatusTileUpdateHitPointsUIObjectsAction
         )
     }
 
-    private createDrawingAbsorbPointsHorizontalMeterData(): DrawHorizontalMeterActionDataBlob {
+    private createDrawingAbsorbPointsHorizontalMeterData(
+        actionPointMeterDataBlob: DrawHorizontalMeterActionDataBlob
+    ): DrawHorizontalMeterActionDataBlob {
         const context = DataBlobService.get<SquaddieStatusTileContext>(
             this.dataBlob,
             "context"
@@ -420,36 +427,38 @@ export class SquaddieStatusTileUpdateHitPointsUIObjectsAction
         )
 
         const overallBoundingBox = DataBlobService.get<RectArea>(
-            uiObjects.hitPoints.actionPointMeterDataBlob,
+            actionPointMeterDataBlob,
             "drawingArea"
         )
 
         const absorbMeterDataBlob: DrawHorizontalMeterActionDataBlob =
             DataBlobService.new() as DrawHorizontalMeterActionDataBlob
-        DataBlobService.add<RectArea>(
-            absorbMeterDataBlob,
-            "drawingArea",
-            RectAreaService.new(
-                RectAreaService.new({
-                    width:
-                        (RectAreaService.width(overallBoundingBox) *
-                            context.hitPoints.currentAbsorb) /
-                        context.hitPoints.maxHitPoints,
-                    top:
-                        RectAreaService.top(overallBoundingBox) +
-                        WINDOW_SPACING.SPACING1,
-                    right:
-                        RectAreaService.right(overallBoundingBox) +
-                        WINDOW_SPACING.SPACING1 / 2,
-                    height: layout.hitPoints.fontSize * (GOLDEN_RATIO - 1),
-                })
+        if (context.hitPoints != undefined) {
+            DataBlobService.add<RectArea>(
+                absorbMeterDataBlob,
+                "drawingArea",
+                RectAreaService.new(
+                    RectAreaService.new({
+                        width:
+                            (RectAreaService.width(overallBoundingBox) *
+                                context.hitPoints.currentAbsorb) /
+                            context.hitPoints.maxHitPoints,
+                        top:
+                            RectAreaService.top(overallBoundingBox) +
+                            WINDOW_SPACING.SPACING1,
+                        right:
+                            RectAreaService.right(overallBoundingBox) +
+                            WINDOW_SPACING.SPACING1 / 2,
+                        height: layout.hitPoints.fontSize * (GOLDEN_RATIO - 1),
+                    })
+                )
             )
-        )
-        DataBlobService.add<number>(
-            absorbMeterDataBlob,
-            "maxValue",
-            context.hitPoints.currentAbsorb
-        )
+            DataBlobService.add<number>(
+                absorbMeterDataBlob,
+                "maxValue",
+                context.hitPoints.currentAbsorb
+            )
+        }
         DataBlobService.add<number[]>(
             absorbMeterDataBlob,
             "emptyColor",
@@ -483,11 +492,13 @@ export class SquaddieStatusTileUpdateHitPointsUIObjectsAction
             layout.hitPoints.hitPointMeter.absorbBar.outlineStrokeColor
         )
 
-        DataBlobService.add<number>(
-            absorbMeterDataBlob,
-            "currentValue",
-            context.hitPoints.currentAbsorb
-        )
+        if (context.hitPoints != undefined) {
+            DataBlobService.add<number>(
+                absorbMeterDataBlob,
+                "currentValue",
+                context.hitPoints.currentAbsorb
+            )
+        }
 
         DataBlobService.add<number>(
             absorbMeterDataBlob,
@@ -504,21 +515,21 @@ export class SquaddieStatusTileUpdateHitPointsUIObjectsAction
         return absorbMeterDataBlob
     }
 
-    clone(): BehaviorTreeTask {
-        return new SquaddieStatusTileUpdateHitPointsUIObjectsAction(
-            this.dataBlob,
-            this.graphicsContext
-        )
-    }
-
     private calculateCurrentHitPointsFillAlpha(
-        currentHitPoints: number,
-        maxHitPoints: number,
+        currentHitPoints: number | undefined,
+        maxHitPoints: number | undefined,
         layout: SquaddieStatusTileUILayout
     ): {
-        currentValueFillAlphaRange: number[]
-        currentValueFillAlphaPeriod: number
+        currentValueFillAlphaRange: number[] | undefined
+        currentValueFillAlphaPeriod: number | undefined
     } {
+        const noFillAlpha = {
+            currentValueFillAlphaRange: undefined,
+            currentValueFillAlphaPeriod: undefined,
+        }
+        if (currentHitPoints == undefined || maxHitPoints == undefined) {
+            return noFillAlpha
+        }
         const maxHitPointsAreLow: boolean = maxHitPoints <= 5
         const hitPointsAreAtDangerLevel = maxHitPointsAreLow
             ? currentHitPoints < maxHitPoints
@@ -533,10 +544,7 @@ export class SquaddieStatusTileUpdateHitPointsUIObjectsAction
             case hitPointsAreAtDangerLevel:
                 return layout.hitPoints.hitPointMeter.dangerLevelHitPoints
             default:
-                return {
-                    currentValueFillAlphaRange: undefined,
-                    currentValueFillAlphaPeriod: undefined,
-                }
+                return noFillAlpha
         }
     }
 }
@@ -558,9 +566,10 @@ export class SquaddieStatusTileDrawHitPointsPointsMeterAction
             "uiObjects"
         )
 
-        const hitPointsMeterData: DrawHorizontalMeterActionDataBlob =
-            uiObjects.hitPoints.actionPointMeterDataBlob
-        const absorbMeterData: DrawHorizontalMeterActionDataBlob =
+        const hitPointsMeterData:
+            | DrawHorizontalMeterActionDataBlob
+            | undefined = uiObjects.hitPoints.actionPointMeterDataBlob
+        const absorbMeterData: DrawHorizontalMeterActionDataBlob | undefined =
             uiObjects.hitPoints.absorbBar
 
         const currentValueSegmentFunction = (
@@ -610,6 +619,9 @@ export class SquaddieStatusTileDrawHitPointsPointsMeterAction
             return values
         }
 
+        if (hitPointsMeterData == undefined || absorbMeterData == undefined)
+            return false
+
         const drawAction = new SequenceComposite(hitPointsMeterData, [
             new DrawHorizontalMeterAction(
                 hitPointsMeterData,
@@ -626,13 +638,6 @@ export class SquaddieStatusTileDrawHitPointsPointsMeterAction
         ])
         return drawAction.run()
     }
-
-    clone(): SquaddieStatusTileDrawHitPointsPointsMeterAction {
-        return new SquaddieStatusTileDrawHitPointsPointsMeterAction(
-            this.dataBlob,
-            this.graphicsContext
-        )
-    }
 }
 
 class ShouldDrawAbsorbMeter implements BehaviorTreeTask {
@@ -648,10 +653,9 @@ class ShouldDrawAbsorbMeter implements BehaviorTreeTask {
             "context"
         )
 
-        return context.hitPoints.currentAbsorb > 0
-    }
-
-    clone(): ShouldDrawAbsorbMeter {
-        return new ShouldDrawAbsorbMeter(this.dataBlob)
+        return (
+            context?.hitPoints != undefined &&
+            context.hitPoints.currentAbsorb > 0
+        )
     }
 }

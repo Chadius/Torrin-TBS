@@ -2,10 +2,7 @@ import { expect } from "vitest"
 import { HexCoordinate } from "../../../hexCoordinate/hexCoordinate"
 import { SearchResult } from "../../searchResults/searchResult"
 import { SearchResultAdapterService } from "../../searchResults/searchResultAdapter"
-import {
-    SearchPathAdapter,
-    SearchPathAdapterService,
-} from "../../../../search/searchPathAdapter/searchPathAdapter"
+import { SearchPathAdapterService } from "../../../../search/searchPathAdapter/searchPathAdapter"
 import { MissionMapService } from "../../../../missionMap/missionMap"
 import { TerrainTileMapService } from "../../../terrainTileMap"
 
@@ -39,12 +36,11 @@ export const MapSearchTestUtils = {
         expectedTotalMovementCost: number
         searchResults: SearchResult
     }): boolean => {
-        const path: SearchPathAdapter =
-            SearchResultAdapterService.getShortestPathToCoordinate({
-                searchResults: searchResults,
-                mapCoordinate,
-            })
-        expect(SearchPathAdapterService.getTotalMovementCost(path)).toEqual(
+        const path = SearchResultAdapterService.getShortestPathToCoordinate({
+            searchResults: searchResults,
+            mapCoordinate,
+        })
+        expect(SearchPathAdapterService.getTotalMovementCost(path!)).toEqual(
             expectedTotalMovementCost
         )
         expect(SearchPathAdapterService.getNumberOfCoordinates(path)).toEqual(

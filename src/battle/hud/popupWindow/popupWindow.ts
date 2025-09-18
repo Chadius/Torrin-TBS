@@ -16,6 +16,7 @@ import {
 import { HEX_TILE_WIDTH } from "../../../graphicsConstants"
 import { ScreenLocation } from "../../../utils/mouseConfig"
 import { TextFormatService } from "../../../utils/graphics/textFormatService"
+import { EnumLike } from "../../../utils/enum"
 
 export interface PopupWindow {
     status: TPopupWindowStatus
@@ -56,9 +57,14 @@ export const PopupWindowService = {
     }: {
         text: string
         camera: BattleCamera
-        screenLocation: ScreenLocation
+        screenLocation: ScreenLocation | undefined
         coordinateSystem: TCoordinateSystem
     }): PopupWindow => {
+        if (screenLocation == undefined) {
+            throw new Error(
+                "[PopupWindowService.newWarningWindow] ScreenLocation is not defined"
+            )
+        }
         const worldCoordinates =
             ConvertCoordinateService.convertScreenLocationToWorldLocation({
                 screenLocation,
@@ -107,6 +113,7 @@ export const PopupWindowService = {
     draw: (popup: PopupWindow, graphicsContext: GraphicsBuffer) => {
         if (
             isValidValue(popup.setStatusInactiveTimestamp) &&
+            popup.setStatusInactiveTimestamp != undefined &&
             Date.now() >= popup.setStatusInactiveTimestamp
         ) {
             popup.status = PopupWindowStatus.INACTIVE
@@ -118,7 +125,8 @@ export const PopupWindowService = {
 
         if (
             popup.coordinateSystem === CoordinateSystem.WORLD &&
-            isValidValue(popup.camera)
+            isValidValue(popup.camera) &&
+            popup.camera != undefined
         ) {
             movePopupOnScreen(popup, popup.camera)
         }
@@ -214,9 +222,8 @@ const newPopupWindow = ({
             textBoxMargin: 0,
         })
 
-    const fallbackCoordinateSystem: TCoordinateSystem = isValidValue(camera)
-        ? CoordinateSystem.WORLD
-        : CoordinateSystem.SCREEN
+    const fallbackCoordinateSystem: TCoordinateSystem =
+        camera != undefined ? CoordinateSystem.WORLD : CoordinateSystem.SCREEN
 
     return {
         status: status ?? PopupWindowStatus.INACTIVE,
@@ -227,7 +234,8 @@ const newPopupWindow = ({
         },
         camera,
         coordinateSystem:
-            coordinateSystem !== CoordinateSystem.UNKNOWN
+            coordinateSystem !== CoordinateSystem.UNKNOWN &&
+            coordinateSystem != undefined
                 ? coordinateSystem
                 : fallbackCoordinateSystem,
     }

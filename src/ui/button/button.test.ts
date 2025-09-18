@@ -13,7 +13,6 @@ import { ButtonStatus } from "./buttonStatus"
 import { RectArea, RectAreaService } from "../rectArea"
 import { MouseButton } from "../../utils/mouseConfig"
 import { DataBlob, DataBlobService } from "../../utils/dataBlob/dataBlob"
-import { BehaviorTreeTask } from "../../utils/behaviorTree/task"
 import { ButtonStyle } from "./style/buttonStyle"
 
 describe("button", () => {
@@ -165,6 +164,4 @@ export class TestButtonStyle implements ButtonStyle {
     run(): boolean {
         return true
     }
-
-    clone: () => BehaviorTreeTask
 }

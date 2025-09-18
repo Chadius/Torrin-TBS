@@ -50,16 +50,16 @@ describe("Mission Map", () => {
             "dynamic_squaddie_0"
         )
         expect(squaddieTemplateId).toBe(nahlaSquaddie.templateId)
-        expect(squaddieMapCoordinate.q).toBe(0)
-        expect(squaddieMapCoordinate.r).toBe(2)
+        expect(squaddieMapCoordinate?.q).toBe(0)
+        expect(squaddieMapCoordinate?.r).toBe(2)
         ;({ originMapCoordinate: squaddieMapCoordinate, squaddieTemplateId } =
             MissionMapService.getByBattleSquaddieId(
                 missionMap,
                 "dynamic_squaddie_0"
             ))
         expect(squaddieTemplateId).toBe(nahlaSquaddie.templateId)
-        expect(squaddieMapCoordinate.q).toBe(0)
-        expect(squaddieMapCoordinate.r).toBe(2)
+        expect(squaddieMapCoordinate?.q).toBe(0)
+        expect(squaddieMapCoordinate?.r).toBe(2)
     })
 
     it("can add a squaddie without a coordinate", () => {
@@ -104,7 +104,7 @@ describe("Mission Map", () => {
             terrainTileMap: map,
         })
 
-        let error: Error
+        let error: Error | undefined
         error = MissionMapService.addSquaddie({
             missionMap,
             battleSquaddieId: "dynamic_squaddie_0",
@@ -139,7 +139,7 @@ describe("Mission Map", () => {
             terrainTileMap: map,
         })
 
-        let error: Error
+        let error: Error | undefined
         error = MissionMapService.addSquaddie({
             missionMap,
             battleSquaddieId: "dynamic_squaddie_0",
@@ -169,7 +169,7 @@ describe("Mission Map", () => {
             terrainTileMap: map,
         })
 
-        let error: Error
+        let error: Error | undefined
         error = MissionMapService.addSquaddie({
             missionMap,
             battleSquaddieId: "dynamic_squaddie_0",
@@ -203,8 +203,8 @@ describe("Mission Map", () => {
 
         expect(squaddieTemplateId).toBe(nahlaSquaddie.templateId)
         expect(battleSquaddieId).toBe("dynamic_squaddie_0")
-        expect(squaddieMapCoordinate.q).toBe(0)
-        expect(squaddieMapCoordinate.r).toBe(2)
+        expect(squaddieMapCoordinate?.q).toBe(0)
+        expect(squaddieMapCoordinate?.r).toBe(2)
 
         const noDatumFound = MissionMapService.getBattleSquaddieAtCoordinate(
             missionMap,
@@ -303,7 +303,7 @@ describe("Mission Map", () => {
         expect(
             missionMap.squaddieInfoByCoordinate.has(
                 HexCoordinateService.toString(
-                    offMapSquaddieInfo.originMapCoordinate
+                    offMapSquaddieInfo?.originMapCoordinate
                 )
             )
         ).toBeFalsy()
@@ -323,7 +323,7 @@ describe("Mission Map", () => {
             terrainTileMap: map,
         })
 
-        let error: Error
+        let error: Error | undefined
         error = MissionMapService.updateBattleSquaddieCoordinate({
             missionMap: missionMap,
             battleSquaddieId: "does not exist",
@@ -346,7 +346,7 @@ describe("Mission Map", () => {
             originMapCoordinate: { q: 0, r: 1 },
         })
 
-        let error: Error
+        let error: Error | undefined
         error = MissionMapService.updateBattleSquaddieCoordinate({
             missionMap: missionMap,
             battleSquaddieId: "dynamic_squaddie_0",
@@ -380,7 +380,7 @@ describe("Mission Map", () => {
         })
         expect(e).toBeUndefined()
 
-        let error: Error
+        let error: Error | undefined
         error = MissionMapService.updateBattleSquaddieCoordinate({
             missionMap: missionMap,
             battleSquaddieId: "dynamic_squaddie_1",
@@ -408,7 +408,7 @@ describe("Mission Map", () => {
             originMapCoordinate: { q: 0, r: 1 },
         })
 
-        let error: Error
+        let error: Error | undefined
         error = MissionMapService.updateBattleSquaddieCoordinate({
             missionMap: missionMap,
             battleSquaddieId: "dynamic_squaddie_0",

@@ -162,14 +162,17 @@ describe("die roll animation", () => {
                 const secondDieDraw = graphicsBufferSpies[
                     "text"
                 ].mock.calls.find((call) => call[0] == "2")
-
-                expect(secondDieDraw[1]).toBeGreaterThan(firstDieDraw[1])
+                expect(firstDieDraw?.length).toBeGreaterThan(0)
+                expect(secondDieDraw?.length).toBeGreaterThan(0)
+                if (firstDieDraw && secondDieDraw) {
+                    expect(secondDieDraw[1]).toBeGreaterThan(firstDieDraw[1])
+                }
             })
         })
 
         describe("Degree of Success and Text notifications", () => {
             type TestType = {
-                expectedExtremeRollText: string
+                expectedExtremeRollText: string | undefined
                 degreeOfSuccessText: string
                 degreeOfSuccess: TDegreeOfSuccess
                 rolls: [number, number]
@@ -324,9 +327,13 @@ describe("die roll animation", () => {
                         "text"
                     ].mock.calls.find((call) => call[0] == degreeOfSuccessText)
 
-                    expect(extremeRollTextCall[1]).toBeLessThan(
-                        degreeOfSuccessTextCall[1]
-                    )
+                    expect(extremeRollTextCall?.length).toBeGreaterThan(0)
+                    expect(degreeOfSuccessTextCall?.length).toBeGreaterThan(0)
+                    if (extremeRollTextCall && degreeOfSuccessTextCall) {
+                        expect(extremeRollTextCall[1]).toBeLessThan(
+                            degreeOfSuccessTextCall[1]
+                        )
+                    }
                 }
             )
         })

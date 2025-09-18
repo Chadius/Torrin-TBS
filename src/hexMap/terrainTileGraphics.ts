@@ -74,6 +74,7 @@ const isCoordinateOnScreen = ({
         terrainTileMap,
         coordinate
     )
+    if (hexGridTile == undefined) return false
     const tileScreenCoordinates =
         ConvertCoordinateService.convertMapCoordinatesToScreenLocation({
             mapCoordinate: hexGridTile,

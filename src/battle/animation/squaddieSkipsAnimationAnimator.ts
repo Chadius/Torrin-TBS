@@ -12,27 +12,24 @@ import { GameEngineState } from "../../gameEngine/gameEngine"
 import { ActionResultTextService } from "./actionResultTextService"
 import { GraphicsBuffer } from "../../utils/graphics/graphicsRenderer"
 import { ObjectRepositoryService } from "../objectRepository"
-import {
-    BattleAction,
-    BattleActionService,
-} from "../history/battleAction/battleAction"
+import { BattleActionService } from "../history/battleAction/battleAction"
 import { BattleActionRecorderService } from "../history/battleAction/battleActionRecorder"
 import { ResourceHandler } from "../../resource/resourceHandler"
 
 export const ANIMATE_TEXT_WINDOW_WAIT_TIME = 5000
 
 export class SquaddieSkipsAnimationAnimator implements SquaddieActionAnimator {
-    outputTextDisplay: Label
-    outputTextStrings: string[]
-    private animationCompleteStartTime: number
-    private userCanceledAction: boolean
+    outputTextDisplay: Label | undefined
+    outputTextStrings: string[] | undefined
+    private animationCompleteStartTime: number | undefined
+    private userCanceledAction: boolean | undefined
 
-    hasCompleted(state: GameEngineState): boolean {
+    hasCompleted(_: GameEngineState): boolean {
         const userWaited: boolean =
             this.animationCompleteStartTime !== undefined &&
             Date.now() - this.animationCompleteStartTime >=
                 ANIMATE_TEXT_WINDOW_WAIT_TIME
-        return userWaited || this.userCanceledAction
+        return userWaited || (this.userCanceledAction ?? false)
     }
 
     mouseEventHappened(
@@ -57,11 +54,13 @@ export class SquaddieSkipsAnimationAnimator implements SquaddieActionAnimator {
 
     reset(gameEngineState: GameEngineState): void {
         this.resetInternalState()
+        const battleAction = BattleActionRecorderService.peekAtAnimationQueue(
+            gameEngineState.battleOrchestratorState.battleState
+                .battleActionRecorder
+        )
+        if (battleAction == undefined) return
         BattleActionService.setAnimationCompleted({
-            battleAction: BattleActionRecorderService.peekAtAnimationQueue(
-                gameEngineState.battleOrchestratorState.battleState
-                    .battleActionRecorder
-            ),
+            battleAction: battleAction,
             animationCompleted: true,
         })
     }
@@ -104,16 +103,15 @@ export class SquaddieSkipsAnimationAnimator implements SquaddieActionAnimator {
             return
         }
 
-        const actionToShow: BattleAction =
-            BattleActionRecorderService.peekAtAnimationQueue(
-                gameEngineState.battleOrchestratorState.battleState
-                    .battleActionRecorder
-            )
+        const actionToShow = BattleActionRecorderService.peekAtAnimationQueue(
+            gameEngineState.battleOrchestratorState.battleState
+                .battleActionRecorder
+        )
 
         if (actionToShow?.action.actionTemplateId === undefined) {
             return
         }
-
+        if (gameEngineState.repository == undefined) return
         const actionTemplate = ObjectRepositoryService.getActionTemplateById(
             gameEngineState.repository,
             actionToShow.action.actionTemplateId
@@ -129,7 +127,7 @@ export class SquaddieSkipsAnimationAnimator implements SquaddieActionAnimator {
                 actingBattleSquaddieId:
                     actionToShow.actor.actorBattleSquaddieId,
                 actorContext: actionToShow.actor.actorContext,
-                battleActionSquaddieChanges: actionToShow.effect.squaddie,
+                battleActionSquaddieChanges: actionToShow.effect.squaddie || [],
             })
 
         const textToDraw = this.outputTextStrings.join("\n")

@@ -23,7 +23,7 @@ export class MissionConditionDefeatAffiliation
         state: GameEngineState,
         missionObjectiveId: string
     ): boolean {
-        const isComplete: boolean =
+        const isComplete: boolean | undefined =
             state.battleOrchestratorState.battleState.missionCompletionStatus[
                 missionObjectiveId
             ].conditions[missionCondition.id]
@@ -47,6 +47,8 @@ export class MissionConditionDefeatAffiliation
         const livingSquaddie = MissionMapService.getAllSquaddieData(
             state.battleOrchestratorState.battleState.missionMap
         ).find((livingSquaddieDatum: MissionMapSquaddieCoordinate) => {
+            if (livingSquaddieDatum.battleSquaddieId == undefined) return false
+            if (state.repository == undefined) return false
             const { squaddieTemplate, battleSquaddie } = getResultOrThrowError(
                 ObjectRepositoryService.getSquaddieByBattleId(
                     state.repository,

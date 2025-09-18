@@ -40,17 +40,23 @@ export class PlayerMovesOffMapToCancelConsideredActions
                 .battleActionDecisionStep
         const objectRepository = gameEngineState.repository
 
-        let movementActionPointsPreviewedByPlayer: number = undefined
+        let movementActionPointsPreviewedByPlayer: number | undefined =
+            undefined
+        const battleSquaddieId = BattleActionDecisionStepService.getActor(
+            battleActionDecisionStep
+        )?.battleSquaddieId
         if (
             battleActionDecisionStep &&
-            BattleActionDecisionStepService.isActorSet(battleActionDecisionStep)
+            BattleActionDecisionStepService.isActorSet(
+                battleActionDecisionStep
+            ) &&
+            objectRepository != undefined &&
+            battleSquaddieId != undefined
         ) {
             const { battleSquaddie } = getResultOrThrowError(
                 ObjectRepositoryService.getSquaddieByBattleId(
                     objectRepository,
-                    BattleActionDecisionStepService.getActor(
-                        battleActionDecisionStep
-                    ).battleSquaddieId
+                    battleSquaddieId
                 )
             )
             movementActionPointsPreviewedByPlayer =

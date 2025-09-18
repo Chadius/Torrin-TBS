@@ -1,6 +1,7 @@
 import p5 from "p5"
 import { LoadFileIntoFormat } from "../dataLoader/dataLoader"
 import { GraphicsBuffer } from "../utils/graphics/graphicsRenderer"
+import { EnumLike } from "../utils/enum"
 
 export const Resource = {
     IMAGE: "IMAGE",
@@ -41,17 +42,19 @@ export interface ResourceTypeLoader {
 }
 
 class P5ImageLoader implements ResourceTypeLoader {
-    graphicsBuffer: GraphicsBuffer
+    graphicsBuffer: GraphicsBuffer | undefined
     successCallback: (
         resourceKey: string,
         handler: ResourceHandler,
         image: p5.Image
-    ) => {}
-    failureCallback: (key: string, handler: ResourceHandler, p1: Event) => any
+    ) => void = (_s: string, _h: ResourceHandler, _i: p5.Image) => {}
+    failureCallback:
+        | ((key: string, handler: ResourceHandler, p1: Event) => any)
+        | undefined
     p5Instance: p5
     resourceKeysAttemptedToLoad: string[]
 
-    constructor(graphicsBuffer: GraphicsBuffer, p5Instance: p5) {
+    constructor(graphicsBuffer: GraphicsBuffer | undefined, p5Instance: p5) {
         this.graphicsBuffer = graphicsBuffer
         this.p5Instance = p5Instance
         this.resourceKeysAttemptedToLoad = []
@@ -67,7 +70,7 @@ class P5ImageLoader implements ResourceTypeLoader {
             key: string,
             handler: ResourceHandler,
             p1: Event
-        ) => any
+        ) => any | undefined
     ) {
         this.successCallback = successCallback
         this.failureCallback = failureCallback
@@ -89,6 +92,7 @@ class P5ImageLoader implements ResourceTypeLoader {
         }
 
         const path = resourceLocator.path
+        if (path == undefined) return
         const loader = this
         if (this.p5Instance) {
             this.p5Instance.loadImage(
@@ -97,18 +101,22 @@ class P5ImageLoader implements ResourceTypeLoader {
                     loader.successCallback(resourceKey, handler, loadedImage)
                 },
                 (p1: Event) => {
-                    loader.failureCallback(resourceKey, handler, p1)
+                    if (loader.failureCallback) {
+                        loader.failureCallback(resourceKey, handler, p1)
+                    }
                 }
             )
             return
         }
-        this.graphicsBuffer.loadImage(
+        this.graphicsBuffer?.loadImage(
             path,
             (loadedImage: p5.Image) => {
                 loader.successCallback(resourceKey, handler, loadedImage)
             },
             (p1: Event) => {
-                loader.failureCallback(resourceKey, handler, p1)
+                if (loader.failureCallback) {
+                    loader.failureCallback(resourceKey, handler, p1)
+                }
             }
         )
     }
@@ -123,7 +131,7 @@ export class ResourceHandler {
     imagesByKey: {
         [key: string]: ImageResource
     }
-    graphicsContext: GraphicsBuffer
+    graphicsContext: GraphicsBuffer | undefined
     unknownKeys: string[]
 
     constructor({
@@ -182,7 +190,7 @@ export class ResourceHandler {
         resourceLoader.loadResource(resourceKey, this)
     }
 
-    getResource(resourceKey: string): p5.Image {
+    getResource(resourceKey: string): p5.Image | undefined {
         if (this.resourcesByKey[resourceKey] === undefined) {
             this.warnTheFirstTimeAnUnknownResourceKeyIsUsed(
                 resourceKey,
@@ -198,7 +206,9 @@ export class ResourceHandler {
                     `getResource: "${resourceKey}" was not loaded, will retry and return placeholder image`
                 )
                 this.loadResource(resourceKey)
-                return createPlaceholderImage(this.graphicsContext)
+                if (this.graphicsContext)
+                    return createPlaceholderImage(this.graphicsContext)
+                return undefined
             }
             return this.imagesByKey[resourceKey].image
         }
@@ -263,7 +273,7 @@ export const ResourceHandlerService = {
         graphics,
         p5Instance,
     }: {
-        imageLoader: ResourceTypeLoader
+        imageLoader?: ResourceTypeLoader
         resourceLocators?: ResourceLocator[]
         graphics: GraphicsBuffer
         p5Instance?: any
@@ -294,7 +304,7 @@ export const ResourceHandlerService = {
     getResource: (
         resourceHandler: ResourceHandler,
         resourceKey: string
-    ): p5.Image => {
+    ): p5.Image | undefined => {
         return resourceHandler.getResource(resourceKey)
     },
 }

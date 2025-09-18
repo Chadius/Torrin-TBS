@@ -73,15 +73,15 @@ export interface SummaryHUDState {
     squaddieStatusTiles: {
         [q in TActionTilePosition]?: SquaddieStatusTile
     }
-    actionSelectedTile: ActionSelectedTile
-    actionPreviewTile: ActionPreviewTile
+    actionSelectedTile: ActionSelectedTile | undefined
+    actionPreviewTile: ActionPreviewTile | undefined
     squaddieToPeekAt?: {
         battleSquaddieId: string
         actionPanelPositions: {
             nameAndPortrait: TActionTilePosition
             status: TActionTilePosition
         }
-        expirationTime: number
+        expirationTime: number | undefined
     }
 }
 
@@ -157,6 +157,7 @@ export const SummaryHUDStateService = {
     }): TPlayerCommandSelection => {
         if (
             !summaryHUDState ||
+            gameEngineState.repository == undefined ||
             !SummaryHUDStateService.shouldShowAllPlayerActions({
                 summaryHUDState,
                 objectRepository: gameEngineState.repository,
@@ -235,6 +236,7 @@ export const SummaryHUDStateService = {
         gameEngineState: GameEngineState
     }) => {
         if (
+            gameEngineState.repository == undefined ||
             !SummaryHUDStateService.shouldShowAllPlayerActions({
                 summaryHUDState,
                 objectRepository: gameEngineState.repository,
@@ -270,14 +272,16 @@ export const SummaryHUDStateService = {
         ) {
             return
         }
+        const battleSquaddieId = BattleActionDecisionStepService.getActor(
+            battleActionDecisionStep
+        )?.battleSquaddieId
+        if (battleSquaddieId == undefined) return
 
         PlayerCommandStateService.createCommandWindow({
             campaignResources,
             summaryHUDState,
             objectRepository,
-            battleSquaddieId: BattleActionDecisionStepService.getActor(
-                battleActionDecisionStep
-            ).battleSquaddieId,
+            battleSquaddieId,
         })
     },
     createActionTiles: ({
@@ -305,11 +309,14 @@ export const SummaryHUDStateService = {
         )
         if (!actionTemplate) return
 
+        const battleSquaddieId = BattleActionDecisionStepService.getActor(
+            battleActionDecisionStep
+        )?.battleSquaddieId
+        if (battleSquaddieId == undefined) return
+
         summaryHUDState.actionSelectedTile = ActionSelectedTileService.new({
             objectRepository,
-            battleSquaddieId: BattleActionDecisionStepService.getActor(
-                battleActionDecisionStep
-            ).battleSquaddieId,
+            battleSquaddieId,
             actionTemplateId: actionTemplate.id,
             horizontalPosition: ActionTilePosition.SELECTED_ACTION,
             glossary,
@@ -406,16 +413,24 @@ export const SummaryHUDStateService = {
         battleActionDecisionStep,
         objectRepository,
     }: {
-        summaryHUDState: SummaryHUDState
+        summaryHUDState: SummaryHUDState | undefined
         battleActionDecisionStep: BattleActionDecisionStep
         objectRepository: ObjectRepository
     }) => {
-        if (!isValidValue(summaryHUDState)) return false
-        if (!isValidValue(battleActionDecisionStep)) return false
+        if (!isValidValue(summaryHUDState) || summaryHUDState == undefined)
+            return false
+        if (
+            !isValidValue(battleActionDecisionStep) ||
+            battleActionDecisionStep == undefined
+        )
+            return false
         if (
             !BattleActionDecisionStepService.isActorSet(
                 battleActionDecisionStep
-            )
+            ) ||
+            BattleActionDecisionStepService.getActor(
+                battleActionDecisionStep
+            ) == undefined
         )
             return false
         if (
@@ -424,12 +439,16 @@ export const SummaryHUDStateService = {
             )
         )
             return false
+
+        const battleSquaddieId = BattleActionDecisionStepService.getActor(
+            battleActionDecisionStep
+        )?.battleSquaddieId
+        if (battleSquaddieId == undefined) return
+
         const { battleSquaddie, squaddieTemplate } = getResultOrThrowError(
             ObjectRepositoryService.getSquaddieByBattleId(
                 objectRepository,
-                BattleActionDecisionStepService.getActor(
-                    battleActionDecisionStep
-                ).battleSquaddieId
+                battleSquaddieId
             )
         )
         return SquaddieService.canPlayerControlSquaddieRightNow({
@@ -447,6 +466,7 @@ export const SummaryHUDStateService = {
         gameEngineState: GameEngineState
     }): TPlayerCommandSelection => {
         if (
+            gameEngineState.repository == undefined ||
             !SummaryHUDStateService.shouldShowAllPlayerActions({
                 summaryHUDState,
                 objectRepository: gameEngineState.repository,
@@ -479,7 +499,11 @@ const drawActorTiles = ({
         !BattleActionDecisionStepService.isActorSet(
             gameEngineState.battleOrchestratorState.battleState
                 .battleActionDecisionStep
-        )
+        ) ||
+        BattleActionDecisionStepService.getActor(
+            gameEngineState.battleOrchestratorState.battleState
+                .battleActionDecisionStep
+        ) == undefined
     ) {
         summaryHUDState.squaddieNameTiles[ActionTilePosition.ACTOR_NAME] =
             undefined
@@ -491,7 +515,8 @@ const drawActorTiles = ({
     const battleSquaddieId = BattleActionDecisionStepService.getActor(
         gameEngineState.battleOrchestratorState.battleState
             .battleActionDecisionStep
-    ).battleSquaddieId
+    )?.battleSquaddieId
+    if (battleSquaddieId == undefined) return
 
     if (
         summaryHUDState.squaddieNameTiles[ActionTilePosition.ACTOR_NAME] ===
@@ -558,7 +583,7 @@ const drawTargetTiles = ({
     const targetCoordinate = BattleActionDecisionStepService.getTarget(
         gameEngineState.battleOrchestratorState.battleState
             .battleActionDecisionStep
-    ).targetCoordinate
+    )?.targetCoordinate
 
     const battleSquaddieId = MissionMapService.getBattleSquaddieAtCoordinate(
         gameEngineState.battleOrchestratorState.battleState.missionMap,
@@ -753,6 +778,7 @@ const didPeekableTileExpire = (
     nameTilePosition: TActionTilePosition
 ): boolean =>
     isValidValue(summaryHUDState.squaddieToPeekAt?.expirationTime) &&
+    summaryHUDState.squaddieToPeekAt?.expirationTime != undefined &&
     Date.now() > summaryHUDState.squaddieToPeekAt?.expirationTime &&
     !!summaryHUDState.squaddieNameTiles[nameTilePosition]
 
@@ -762,7 +788,7 @@ const shouldCreateNewPeekableTiles = (
 ): boolean =>
     summaryHUDState.squaddieNameTiles[nameTilePosition] === undefined ||
     summaryHUDState.squaddieNameTiles[nameTilePosition].battleSquaddieId !==
-        summaryHUDState.squaddieToPeekAt.battleSquaddieId
+        summaryHUDState.squaddieToPeekAt?.battleSquaddieId
 
 const createNewPeekableTiles = ({
     gameEngineState,
@@ -775,6 +801,8 @@ const createNewPeekableTiles = ({
     nameTilePosition: TActionTilePosition
     statusTilePosition: TActionTilePosition
 }) => {
+    if (summaryHUDState.squaddieToPeekAt?.battleSquaddieId == undefined) return
+
     createSquaddieNameAndPortraitTile({
         gameEngineState,
         battleSquaddieId: summaryHUDState.squaddieToPeekAt.battleSquaddieId,
@@ -898,6 +926,7 @@ const createSquaddieNameAndPortraitTile = ({
     actionPanelPosition: TActionTilePosition
     glossary: Glossary
 }) => {
+    if (gameEngineState.repository == undefined) return
     const team = gameEngineState.battleOrchestratorState.battleState.teams.find(
         (t) => t.battleSquaddieIds.includes(battleSquaddieId)
     )
@@ -929,6 +958,7 @@ const createSquaddieStatusTile = ({
             horizontalPosition: actionPanelPosition,
         })
 
+    if (gameEngineState.repository == undefined) return
     SquaddieStatusTileService.updateTileUsingSquaddie({
         tile: summaryHUDState.squaddieStatusTiles[actionPanelPosition],
         missionMap:

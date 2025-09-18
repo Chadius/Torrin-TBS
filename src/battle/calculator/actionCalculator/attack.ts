@@ -148,12 +148,14 @@ export const CalculatorAttack = {
     },
     calculateMultipleAttackPenaltyForActionsThisTurn: (
         gameEngineState: GameEngineState
-    ): number =>
-        calculateMultipleAttackPenaltyForActionsThisTurn(
+    ): number => {
+        if (gameEngineState.repository == undefined) return 0
+        return calculateMultipleAttackPenaltyForActionsThisTurn(
             gameEngineState.battleOrchestratorState.battleState
                 .battleActionRecorder,
             gameEngineState.repository
-        ),
+        )
+    },
 }
 
 const calculateMultipleAttackPenaltyForActionsThisTurn = (
@@ -174,11 +176,13 @@ const calculateMultipleAttackPenaltyForActionsThisTurn = (
 }
 
 const getActingSquaddieModifiersForAttack = (): AttributeTypeAndAmount[] => {
-    return [].filter((attribute) => attribute.amount !== 0)
+    return []
 }
 
-const conformToSixSidedDieRoll = (numberGeneratorResult: number): number => {
-    const inRangeNumber = numberGeneratorResult % DIE_SIZE
+const conformToSixSidedDieRoll = (
+    numberGeneratorResult: number | undefined
+): number => {
+    const inRangeNumber = (numberGeneratorResult ?? 0) % DIE_SIZE
     return inRangeNumber === 0 ? DIE_SIZE : inRangeNumber
 }
 
@@ -230,10 +234,7 @@ const maybeMakeAttackRoll = ({
 }
 
 const doesActionNeedAnAttackRoll = (action: ActionEffectTemplate): boolean =>
-    TraitStatusStorageService.getStatus(
-        action.traits,
-        Trait.ALWAYS_SUCCEEDS
-    ) !== true
+    !TraitStatusStorageService.getStatus(action.traits, Trait.ALWAYS_SUCCEEDS)
 
 const isActionAgainstArmor = (
     actionEffectTemplate: ActionEffectTemplate
@@ -493,10 +494,11 @@ const calculateEffectBasedOnDegreeOfSuccess = ({
 }): CalculatedEffect => {
     let damageExplanation: DamageExplanation = DamageExplanationService.new({})
 
-    Object.keys(actionEffectTemplate.damageDescriptions).forEach(
-        (damageType: TDamage) => {
+    Object.keys(actionEffectTemplate.damageDescriptions)
+        .map((k) => k as TDamage)
+        .forEach((damageType: TDamage) => {
             let rawDamageFromAction =
-                actionEffectTemplate.damageDescriptions[damageType]
+                actionEffectTemplate.damageDescriptions[damageType] ?? 0
             if (degreeOfSuccess === DegreeOfSuccess.CRITICAL_SUCCESS) {
                 rawDamageFromAction *= 2
             }
@@ -514,8 +516,7 @@ const calculateEffectBasedOnDegreeOfSuccess = ({
             damageExplanation.raw += damageExplanationForThisEffect.raw
             damageExplanation.absorbed +=
                 damageExplanationForThisEffect.absorbed
-        }
-    )
+        })
 
     let attributeModifiersToAddToTarget: AttributeModifier[] =
         calculateAttributeModifiers({

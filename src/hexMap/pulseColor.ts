@@ -1,3 +1,5 @@
+import { EnumLike } from "../utils/enum"
+
 export type BlendColor = [number, number, number, number]
 
 export const PULSE_COLOR_FORMULA = {

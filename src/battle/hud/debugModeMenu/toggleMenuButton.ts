@@ -37,8 +37,7 @@ export class DebugModeMenuShouldCreateToggleModeMenuButton
 
     run(): boolean {
         const uiObjects: DebugModeMenuUIObjects = this.dataBlob.getUIObjects()
-        const toggleMenuButton: Button = uiObjects.toggleMenuButton
-        return !toggleMenuButton
+        return uiObjects.toggleMenuButton == undefined
     }
 }
 

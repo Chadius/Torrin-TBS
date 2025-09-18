@@ -50,7 +50,7 @@ export class PlayerClicksOnSquaddieSelectorPanel implements BehaviorTreeTask {
         )
             return false
 
-        let clickedButton: SquaddieSelectorPanelButton = undefined
+        let clickedButton: SquaddieSelectorPanelButton | undefined = undefined
 
         if (mouseClick) {
             clickedButton = SquaddieSelectorPanelService.getClickedButton(
@@ -58,7 +58,6 @@ export class PlayerClicksOnSquaddieSelectorPanel implements BehaviorTreeTask {
                     .squaddieSelectorPanel,
                 mouseClick
             )
-        } else {
         }
 
         if (!clickedButton) return false

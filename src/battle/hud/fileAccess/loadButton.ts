@@ -26,8 +26,7 @@ export class FileAccessHUDShouldCreateLoadButton implements BehaviorTreeTask {
 
     run(): boolean {
         const uiObjects: FileAccessHUDUIObjects = this.dataBlob.getUIObjects()
-        const loadButton: Button = uiObjects.loadButton
-        return !loadButton
+        return uiObjects.loadButton == undefined
     }
 }
 

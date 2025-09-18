@@ -124,22 +124,22 @@ describe("Squaddie Selector Panel Button", () => {
         it("should draw the first button on screen", () => {
             let button0 = drawButtonAtIndex(0)
             expect(
-                RectAreaService.left(button0.data.uiObjects.drawingArea)
+                RectAreaService.left(button0.data.uiObjects!.drawingArea)
             ).toBeGreaterThanOrEqual(0)
             expect(
-                RectAreaService.right(button0.data.uiObjects.drawingArea)
+                RectAreaService.right(button0.data.uiObjects!.drawingArea)
             ).toBeLessThanOrEqual(ScreenDimensions.SCREEN_WIDTH)
             expect(
-                RectAreaService.width(button0.data.uiObjects.drawingArea)
+                RectAreaService.width(button0.data.uiObjects!.drawingArea)
             ).toBeGreaterThan(0)
             expect(
-                RectAreaService.top(button0.data.uiObjects.drawingArea)
+                RectAreaService.top(button0.data.uiObjects!.drawingArea)
             ).toBeGreaterThanOrEqual(0)
             expect(
-                RectAreaService.bottom(button0.data.uiObjects.drawingArea)
+                RectAreaService.bottom(button0.data.uiObjects!.drawingArea)
             ).toBeLessThanOrEqual(ScreenDimensions.SCREEN_HEIGHT)
             expect(
-                RectAreaService.height(button0.data.uiObjects.drawingArea)
+                RectAreaService.height(button0.data.uiObjects!.drawingArea)
             ).toBeGreaterThan(0)
         })
 
@@ -148,13 +148,13 @@ describe("Squaddie Selector Panel Button", () => {
             let button1 = drawButtonAtIndex(1)
 
             expect(
-                RectAreaService.top(button0.data.uiObjects.drawingArea)
-            ).toEqual(RectAreaService.top(button1.data.uiObjects.drawingArea))
+                RectAreaService.top(button0.data.uiObjects!.drawingArea)
+            ).toEqual(RectAreaService.top(button1.data.uiObjects!.drawingArea))
 
             expect(
-                RectAreaService.right(button0.data.uiObjects.drawingArea)
+                RectAreaService.right(button0.data.uiObjects!.drawingArea)
             ).toBeLessThanOrEqual(
-                RectAreaService.left(button1.data.uiObjects.drawingArea)
+                RectAreaService.left(button1.data.uiObjects!.drawingArea)
             )
         })
 
@@ -163,13 +163,13 @@ describe("Squaddie Selector Panel Button", () => {
             let button2 = drawButtonAtIndex(2)
 
             expect(
-                RectAreaService.left(button0.data.uiObjects.drawingArea)
-            ).toEqual(RectAreaService.left(button2.data.uiObjects.drawingArea))
+                RectAreaService.left(button0.data.uiObjects!.drawingArea)
+            ).toEqual(RectAreaService.left(button2.data.uiObjects!.drawingArea))
 
             expect(
-                RectAreaService.top(button0.data.uiObjects.drawingArea)
+                RectAreaService.top(button0.data.uiObjects!.drawingArea)
             ).toBeGreaterThanOrEqual(
-                RectAreaService.bottom(button2.data.uiObjects.drawingArea)
+                RectAreaService.bottom(button2.data.uiObjects!.drawingArea)
             )
         })
     })
@@ -352,7 +352,7 @@ describe("Squaddie Selector Panel Button", () => {
                 objectRepository,
             })
             let fillColorWhenNotSelected: number[] = [
-                ...button.data.uiObjects.background.fillColor,
+                ...(button.data.uiObjects!.background!.fillColor || []),
             ]
 
             SquaddieSelectorPanelButtonService.updateStatus({
@@ -367,7 +367,7 @@ describe("Squaddie Selector Panel Button", () => {
                 objectRepository,
             })
             let fillColorWhenSelected: number[] = [
-                ...button.data.uiObjects.background.fillColor,
+                ...(button.data.uiObjects!.background!.fillColor || []),
             ]
 
             expect(fillColorWhenNotSelected).not.toEqual(fillColorWhenSelected)
@@ -390,7 +390,7 @@ describe("Squaddie Selector Panel Button", () => {
                 objectRepository,
             })
             let fillColorWhenControllable: number[] = [
-                ...button.data.uiObjects.background.fillColor,
+                ...(button.data.uiObjects!.background!.fillColor || []),
             ]
 
             SquaddieSelectorPanelButtonService.updateStatus({
@@ -406,7 +406,7 @@ describe("Squaddie Selector Panel Button", () => {
                 objectRepository,
             })
             let fillColorWhenUncontrollable: number[] = [
-                ...button.data.uiObjects.background.fillColor,
+                ...(button.data.uiObjects!.background!.fillColor || []),
             ]
 
             expect(fillColorWhenControllable).not.toEqual(
@@ -432,8 +432,8 @@ describe("Squaddie Selector Panel Button", () => {
 
             const selectingMouseClick: MousePress = {
                 button: MouseButton.ACCEPT,
-                x: RectAreaService.centerX(button.data.uiObjects.drawingArea),
-                y: RectAreaService.centerY(button.data.uiObjects.drawingArea),
+                x: RectAreaService.centerX(button.data.uiObjects!.drawingArea),
+                y: RectAreaService.centerY(button.data.uiObjects!.drawingArea),
             }
 
             expect(
@@ -526,7 +526,7 @@ describe("Squaddie Selector Panel Button", () => {
 
                     const selectingMouseClick: MousePress = {
                         button: mouseButton,
-                        ...getMouseLocation(button.data.uiObjects.drawingArea),
+                        ...getMouseLocation(button.data.uiObjects!.drawingArea),
                     }
 
                     expect(

@@ -69,7 +69,7 @@ const DIALOGUE_SPEAKER_NAME_BOX_STYLE_CONSTANTS: {
 
 export class DialogueTextBox {
     dialogueText: string
-    dialogueTextLabel: Label
+    dialogueTextLabel: Label | undefined
     position: TDialoguePosition
     fontStyle: TDialogueFontStyle
     dialogueComponent: TDialogueComponent
@@ -104,12 +104,13 @@ export class DialogueTextBox {
         dialogueComponent: TDialogueComponent,
         graphicsContext: GraphicsBuffer
     ) {
-        let rectStyle: DialogTextBoxLayout
+        let rectStyle: DialogTextBoxLayout | undefined = undefined
         if (dialogueComponent === DialogueComponent.DIALOGUE_BOX) {
             rectStyle = DIALOGUE_TEXT_BOX_STYLE_CONSTANTS[this.position]
         } else if (dialogueComponent === DialogueComponent.SPEAKER_NAME) {
             rectStyle = DIALOGUE_SPEAKER_NAME_BOX_STYLE_CONSTANTS[this.position]
         }
+        if (rectStyle == undefined) return
 
         const fontStyle = DIALOGUE_FONT_STYLE_CONSTANTS[this.fontStyle]
         const textFit = TextGraphicalHandlingService.fitTextWithinSpace({

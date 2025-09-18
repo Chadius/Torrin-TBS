@@ -1,4 +1,5 @@
 import { isValidValue } from "../utils/objectValidityCheck"
+import { EnumLike } from "../utils/enum"
 
 export const Trait = {
     UNKNOWN: "UNKNOWN",
@@ -144,7 +145,10 @@ export const TraitStatusStorageService = {
     clone: (original: TraitStatusStorage): TraitStatusStorage => {
         return clone(original)
     },
-    getStatus: (data: TraitStatusStorage, trait: TTrait): boolean => {
+    getStatus: (
+        data: TraitStatusStorage,
+        trait: TTrait
+    ): boolean | undefined => {
         return data.booleanTraits[trait]
     },
     setStatus: (
@@ -162,6 +166,7 @@ export const TraitStatusStorageService = {
             ...data,
             booleanTraits: Object.fromEntries(
                 Object.keys(data.booleanTraits)
+                    .map((str) => str as TTrait)
                     .filter((traitName: TTrait) =>
                         traitInformation[traitName].categories.includes(
                             category

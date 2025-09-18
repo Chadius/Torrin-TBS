@@ -2,8 +2,8 @@ import { getValidValueOrDefault } from "../utils/objectValidityCheck"
 
 export interface ActionResourceCost {
     actionPoints: number
-    numberOfTimesPerRound: number
-    cooldownTurns: number
+    numberOfTimesPerRound: number | undefined
+    cooldownTurns: number | undefined
 }
 
 export const ActionResourceCostService = {
@@ -17,7 +17,7 @@ export const ActionResourceCostService = {
         cooldownTurns?: number
     }): ActionResourceCost =>
         sanitize({
-            actionPoints,
+            actionPoints: actionPoints ?? 1,
             numberOfTimesPerRound,
             cooldownTurns,
         }),

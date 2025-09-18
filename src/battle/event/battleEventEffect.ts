@@ -1,3 +1,5 @@
+import { EnumLike } from "../../utils/enum"
+
 export const BattleEventEffect = {
     CUTSCENE: "CUTSCENE",
     CHALLENGE_MODIFIER: "CHALLENGE_MODIFIER",

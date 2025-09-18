@@ -4,10 +4,7 @@ import {
     TeamStrategyService,
 } from "./teamStrategyCalculator"
 import { getResultOrThrowError } from "../../utils/resultOrError"
-import {
-    SquaddieAffiliation,
-    TSquaddieAffiliation,
-} from "../../squaddie/squaddieAffiliation"
+import { TSquaddieAffiliation } from "../../squaddie/squaddieAffiliation"
 import { ObjectRepository, ObjectRepositoryService } from "../objectRepository"
 import { BattleSquaddieTeam } from "../battleSquaddieTeam"
 import { TeamStrategyOptions } from "./teamStrategy"
@@ -37,8 +34,8 @@ import { MapSearchService } from "../../hexMap/pathfinder/pathGeneration/mapSear
 import { SearchLimitService } from "../../hexMap/pathfinder/pathGeneration/searchLimit"
 
 export class MoveCloserToSquaddie implements TeamStrategyCalculator {
-    desiredBattleSquaddieId: string
-    desiredAffiliation: TSquaddieAffiliation
+    desiredBattleSquaddieId: string | undefined
+    desiredAffiliation: TSquaddieAffiliation | undefined
 
     constructor(options: TeamStrategyOptions) {
         this.desiredBattleSquaddieId = options.desiredBattleSquaddieId
@@ -61,8 +58,11 @@ export class MoveCloserToSquaddie implements TeamStrategyCalculator {
             team: team,
         })
 
-        if (!isValidValue(battleSquaddieIdToAct)) {
-            return undefined
+        if (
+            battleSquaddieIdToAct == undefined ||
+            !isValidValue(battleSquaddieIdToAct)
+        ) {
+            return []
         }
 
         const {
@@ -76,6 +76,13 @@ export class MoveCloserToSquaddie implements TeamStrategyCalculator {
             gameEngineState: gameEngineState,
             battleSquaddieIdToAct: battleSquaddieIdToAct,
         })
+        if (
+            originMapCoordinate == undefined ||
+            currentMapCoordinate == undefined ||
+            gameEngineState.repository == undefined
+        ) {
+            return []
+        }
 
         const possibleMovementsForThisSquaddie: SearchResult =
             getPossibleMovementsForThisSquaddie({
@@ -111,12 +118,16 @@ export class MoveCloserToSquaddie implements TeamStrategyCalculator {
         })
 
         if (closestSquaddieInfo === undefined) {
-            return undefined
+            return []
         }
 
         const { shortestRoute, distanceFromActor } = closestSquaddieInfo
-        if (distanceFromActor < 2) {
-            return undefined
+        if (
+            distanceFromActor == undefined ||
+            distanceFromActor < 2 ||
+            shortestRoute == undefined
+        ) {
+            return []
         }
 
         const movementStep: BattleActionDecisionStep =
@@ -159,10 +170,12 @@ const getClosestSquaddieAndLocationToFollow = ({
     objectRepository: ObjectRepository
     desiredBattleSquaddieId?: string
     desiredAffiliation?: TSquaddieAffiliation
-}): {
-    distanceFromActor: number
-    shortestRoute: SearchPathAdapter
-} => {
+}):
+    | {
+          distanceFromActor: number | undefined
+          shortestRoute: SearchPathAdapter | undefined
+      }
+    | undefined => {
     const desiredBattleSquaddies = selectDesiredBattleSquaddies(
         objectRepository,
         actor.battleSquaddieId,
@@ -179,10 +192,21 @@ const getClosestSquaddieAndLocationToFollow = ({
                   .widthOfWidestRow
 
     const squaddieToFollowAndRoute: {
-        distanceFromActor: number
-        shortestRoute: SearchPathAdapter
+        distanceFromActor: number | undefined
+        shortestRoute: SearchPathAdapter | undefined
     } = desiredBattleSquaddies.reduce(
-        (currentDistanceAndRoute, targetBattleSquaddieInfo) => {
+        (
+            currentDistanceAndRoute: {
+                distanceFromActor: number | undefined
+                shortestRoute: SearchPathAdapter | undefined
+            },
+            targetBattleSquaddieInfo: {
+                battleSquaddieId: string
+            }
+        ): {
+            distanceFromActor: number | undefined
+            shortestRoute: SearchPathAdapter | undefined
+        } => {
             if (currentDistanceAndRoute.shortestRoute) {
                 return currentDistanceAndRoute
             }
@@ -213,8 +237,8 @@ const getClosestSquaddieAndLocationToFollow = ({
 const selectDesiredBattleSquaddies = (
     repository: ObjectRepository,
     actingSquaddieBattleId: string,
-    desiredBattleSquaddieId: string,
-    desiredAffiliation: TSquaddieAffiliation
+    desiredBattleSquaddieId: string | undefined,
+    desiredAffiliation: TSquaddieAffiliation | undefined
 ) =>
     ObjectRepositoryService.getBattleSquaddieIterator(repository).filter(
         (battleSquaddieIter) => {
@@ -264,7 +288,7 @@ const getPossibleMovementsForThisSquaddie = ({
     objectRepository,
 }: {
     originMapCoordinate: HexCoordinate
-    currentMapCoordinate: HexCoordinate
+    currentMapCoordinate: HexCoordinate | undefined
     squaddieTemplate: SquaddieTemplate
     battleSquaddie: BattleSquaddie
     movementPerActionThisRound: number
@@ -316,7 +340,7 @@ const getPathsThatLeadToDistanceFromLocation = (
                 mapCoordinate: potentialStopLocation,
             })
         )
-        .filter((x) => x)
+        .filter((x) => x != undefined)
         .filter(
             (path) =>
                 SearchPathAdapterService.getNumberOfMoveActions({
@@ -380,6 +404,9 @@ const getBattleSquaddieIdToAct = ({
     gameEngineState: GameEngineState
     team: BattleSquaddieTeam
 }) => {
+    if (gameEngineState.repository == undefined) {
+        throw new Error("getBattleSquaddieIdToAct: gameEngineState.repository")
+    }
     const previousActionsThisTurn =
         BattleActionRecorderService.peekAtAlreadyAnimatedQueue(
             gameEngineState.battleOrchestratorState.battleState
@@ -400,6 +427,10 @@ const getMovementInformationAboutBattleSquaddie = ({
     gameEngineState: GameEngineState
     battleSquaddieIdToAct: string
 }) => {
+    if (gameEngineState.repository == undefined) {
+        throw new Error("gameEngineState.repository")
+    }
+
     const { battleSquaddie, squaddieTemplate } = getResultOrThrowError(
         ObjectRepositoryService.getSquaddieByBattleId(
             gameEngineState.repository,
@@ -444,7 +475,12 @@ const getClosestRouteToThisSquaddieThatSpendsTheLeastNumberOfActionPoints = ({
         movementPerAction: number
         possibleMovementsForThisSquaddie: SearchResult
     }
-}) => {
+}):
+    | {
+          distanceFromActor: number | undefined
+          shortestRoute: SearchPathAdapter | undefined
+      }
+    | undefined => {
     const { currentMapCoordinate: targetMapCoordinate } =
         MissionMapService.getByBattleSquaddieId(
             missionMap,
@@ -457,8 +493,11 @@ const getClosestRouteToThisSquaddieThatSpendsTheLeastNumberOfActionPoints = ({
         (_, i) => i
     ).reduce(
         (
-            squaddieToFollowAndRouteAtThisRadius,
-            radiusFromTargetMapCoordinate
+            squaddieToFollowAndRouteAtThisRadius: {
+                distanceFromActor: number | undefined
+                shortestRoute: SearchPathAdapter | undefined
+            },
+            radiusFromTargetMapCoordinate: number
         ) => {
             if (squaddieToFollowAndRouteAtThisRadius.shortestRoute)
                 return squaddieToFollowAndRouteAtThisRadius

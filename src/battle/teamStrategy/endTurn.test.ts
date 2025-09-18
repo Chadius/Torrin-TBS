@@ -146,7 +146,7 @@ describe("end turn team strategy", () => {
             ).behaviorOverrides,
         })
 
-        expect(actualInstruction).toBeUndefined()
+        expect(actualInstruction).toHaveLength(0)
     })
 
     it("is undefined when squaddies have no actions", () => {
@@ -161,6 +161,6 @@ describe("end turn team strategy", () => {
             ).behaviorOverrides,
         })
 
-        expect(actualInstruction).toBeUndefined()
+        expect(actualInstruction).toHaveLength(0)
     })
 })

@@ -26,22 +26,22 @@ export const MissionStatisticsService = {
         criticalHitsDealtByPlayerTeam?: number
         criticalHitsTakenByPlayerTeam?: number
     }): MissionStatistics => ({
-        timeElapsedInMilliseconds,
-        damageDealtByPlayerTeam,
-        damageTakenByPlayerTeam,
-        healingReceivedByPlayerTeam,
-        damageAbsorbedByPlayerTeam,
-        criticalHitsDealtByPlayerTeam,
-        criticalHitsTakenByPlayerTeam,
+        timeElapsedInMilliseconds: timeElapsedInMilliseconds ?? 0,
+        damageDealtByPlayerTeam: damageDealtByPlayerTeam ?? 0,
+        damageTakenByPlayerTeam: damageTakenByPlayerTeam ?? 0,
+        healingReceivedByPlayerTeam: healingReceivedByPlayerTeam ?? 0,
+        damageAbsorbedByPlayerTeam: damageAbsorbedByPlayerTeam ?? 0,
+        criticalHitsDealtByPlayerTeam: criticalHitsDealtByPlayerTeam ?? 0,
+        criticalHitsTakenByPlayerTeam: criticalHitsTakenByPlayerTeam ?? 0,
     }),
     reset: (data: MissionStatistics) => {
-        data.timeElapsedInMilliseconds = undefined
-        data.damageDealtByPlayerTeam = undefined
-        data.damageTakenByPlayerTeam = undefined
-        data.healingReceivedByPlayerTeam = undefined
-        data.damageAbsorbedByPlayerTeam = undefined
-        data.criticalHitsDealtByPlayerTeam = undefined
-        data.criticalHitsTakenByPlayerTeam = undefined
+        data.timeElapsedInMilliseconds = 0
+        data.damageDealtByPlayerTeam = 0
+        data.damageTakenByPlayerTeam = 0
+        data.healingReceivedByPlayerTeam = 0
+        data.damageAbsorbedByPlayerTeam = 0
+        data.criticalHitsDealtByPlayerTeam = 0
+        data.criticalHitsTakenByPlayerTeam = 0
     },
     startRecording: (data: MissionStatistics) => {
         data.timeElapsedInMilliseconds = data.timeElapsedInMilliseconds || 0

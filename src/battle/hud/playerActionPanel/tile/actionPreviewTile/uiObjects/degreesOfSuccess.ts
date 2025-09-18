@@ -68,9 +68,10 @@ const findNextDegreeOfSuccessToDraw = (
     targetForecast: ActionEffectChange,
     actionTemplate: ActionTemplate
 ) => {
-    let forecastedChange: BattleActionSquaddieChange = undefined
+    let forecastedChange: BattleActionSquaddieChange | undefined = undefined
     const degreeOfSuccessToDraw = potentialDegreesOfSuccessToDraw.find(
         (degreeOfSuccessInfo) => {
+            if (targetForecast.squaddieChanges == undefined) return false
             forecastedChange = targetForecast.squaddieChanges.find(
                 (change) =>
                     change.actorDegreeOfSuccess ===
@@ -94,7 +95,7 @@ const findNextDegreeOfSuccessToDraw = (
                 targetForecast.squaddieChanges.filter(
                     (change) =>
                         change.battleSquaddieId ===
-                        forecastedChange.battleSquaddieId
+                        forecastedChange?.battleSquaddieId
                 ).length === 1
 
             switch (true) {

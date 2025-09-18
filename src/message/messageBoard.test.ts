@@ -9,7 +9,7 @@ import { afterEach, describe, expect, it, MockInstance, vi } from "vitest"
 
 class TestMessageListener implements MessageBoardListener {
     messageBoardListenerId: string
-    message: string
+    message: string | undefined
 
     constructor(listenerId: string) {
         this.messageBoardListenerId = listenerId

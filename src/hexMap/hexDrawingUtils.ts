@@ -26,6 +26,7 @@ import { GraphicsBuffer } from "../utils/graphics/graphicsRenderer"
 import p5 from "p5"
 import { TerrainTileGraphicsService } from "./terrainTileGraphics"
 import { ScreenLocation } from "../utils/mouseConfig"
+import { EnumLike } from "../utils/enum"
 
 export const HighlightPulseColorNames = {
     PURPLE: "PURPLE",
@@ -296,6 +297,7 @@ const drawMapTilesOntoImage = ({
             resourceHandler,
             imageResourceKey
         )
+        if (terrainImage == undefined) return
         let { x, y } =
             ConvertCoordinateService.convertMapCoordinatesToWorldLocation({
                 mapCoordinate: { ...hexGridTile },

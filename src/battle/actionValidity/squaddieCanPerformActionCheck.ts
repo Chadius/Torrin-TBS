@@ -27,7 +27,7 @@ export const SquaddieCanPerformActionCheck = {
             return {
                 isValid: false,
                 reason,
-                message: `Need ${actionTemplate.resourceCost.actionPoints} action point${actionTemplate.resourceCost.actionPoints !== 1 ? "s" : ""}`,
+                message: `Need ${actionTemplate.resourceCost?.actionPoints ?? 0} action point${actionTemplate.resourceCost?.actionPoints !== 1 ? "s" : ""}`,
             }
         }
 

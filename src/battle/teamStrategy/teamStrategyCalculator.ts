@@ -8,7 +8,6 @@ import { getResultOrThrowError } from "../../utils/resultOrError"
 import { SquaddieService } from "../../squaddie/squaddieService"
 import { BattleActionDecisionStep } from "../actionDecision/battleActionDecisionStep"
 import { GameEngineState } from "../../gameEngine/gameEngine"
-import { DebugModeFlags } from "../hud/debugModeMenu/debugModeMenu"
 
 export type TeamStrategyBehaviorOverride = {
     noActions: boolean
@@ -32,11 +31,11 @@ export const TeamStrategyService = {
         battleSquaddieId,
         objectRepository,
     }: {
-        team: BattleSquaddieTeam
+        team: BattleSquaddieTeam | undefined
         battleSquaddieId?: string
         objectRepository: ObjectRepository
-    }): string => {
-        if (!isValidValue(team)) {
+    }): string | undefined => {
+        if (team == undefined) {
             return undefined
         }
 
@@ -69,7 +68,7 @@ export const TeamStrategyService = {
     getBattleSquaddieWhoCanAct: (
         team: BattleSquaddieTeam,
         repository: ObjectRepository
-    ): string => {
+    ): string | undefined => {
         return getBattleSquaddieWhoCanAct(team, repository)
     },
 }
@@ -77,7 +76,7 @@ export const TeamStrategyService = {
 const getBattleSquaddieWhoCanAct = (
     team: BattleSquaddieTeam,
     repository: ObjectRepository
-): string => {
+): string | undefined => {
     const squaddiesWhoCanAct: string[] =
         BattleSquaddieTeamService.getBattleSquaddiesThatCanAct(team, repository)
     if (squaddiesWhoCanAct.length === 0) {

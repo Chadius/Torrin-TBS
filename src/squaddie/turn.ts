@@ -2,6 +2,7 @@ import { ActionTemplate } from "../action/template/actionTemplate"
 import { BattleSquaddie } from "../battle/battleSquaddie"
 import { InBattleAttributesService } from "../battle/stats/inBattleAttributes"
 import { SquaddieActionPointsExplanation } from "./squaddieService"
+import { EnumLike } from "../utils/enum"
 
 export const DEFAULT_ACTION_POINTS_PER_TURN = 3
 
@@ -65,7 +66,7 @@ export const SquaddieTurnService = {
         }
         if (actionTemplate) {
             squaddieTurn.actionTemplatePoints +=
-                actionTemplate.resourceCost.actionPoints
+                actionTemplate.resourceCost?.actionPoints ?? 0
         }
         squaddieTurn.movementActionPoints.spentAndCannotBeRefunded +=
             squaddieTurn.movementActionPoints.spentButCanBeRefunded
@@ -98,8 +99,9 @@ export const SquaddieTurnService = {
         )
 
         if (
-            actionPointsToSpend < actionTemplate.resourceCost.actionPoints ||
-            battleSquaddie.squaddieTurn.endTurn
+            battleSquaddie.squaddieTurn.endTurn ||
+            (actionTemplate.resourceCost &&
+                actionPointsToSpend < actionTemplate.resourceCost.actionPoints)
         ) {
             return {
                 canPerform: false,

@@ -47,8 +47,7 @@ export class PlayerActionTargetShouldCreateCancelButton
     run(): boolean {
         const uiObjects: PlayerActionTargetStateMachineUIObjects =
             this.dataBlob.getUIObjects()
-        const cancelButton: Button = uiObjects.selectTarget.cancelButton
-        return !cancelButton
+        return uiObjects.selectTarget?.cancelButton == undefined
     }
 }
 
@@ -175,7 +174,7 @@ export class PlayerActionTargetCreateCancelButton implements BehaviorTreeTask {
             dataBlob: allLabelButtonDataBlob,
         })
 
-        uiObjects.selectTarget.cancelButton = new Button({
+        uiObjects.selectTarget!.cancelButton = new Button({
             id: PLAYER_ACTION_SELECT_TARGET_CREATE_CANCEL_BUTTON_ID,
             drawTask,
             buttonLogic,
@@ -190,15 +189,6 @@ export class PlayerActionTargetCreateCancelButton implements BehaviorTreeTask {
         const context: PlayerActionTargetStateMachineContext =
             this.dataBlob.getContext()
 
-        const actorBattleSquaddieId = BattleActionDecisionStepService.getActor(
-            context.battleActionDecisionStep
-        ).battleSquaddieId
-
-        const actorMapCoordinate = MissionMapService.getByBattleSquaddieId(
-            context.missionMap,
-            actorBattleSquaddieId
-        ).currentMapCoordinate
-
         const centerOfScreenRectArea = RectAreaService.new({
             centerX: ScreenDimensions.SCREEN_WIDTH / 2,
             width: layout.cancelButton.width,
@@ -207,7 +197,20 @@ export class PlayerActionTargetCreateCancelButton implements BehaviorTreeTask {
             margin: layout.cancelButton.margin,
         })
 
-        if (!actorMapCoordinate) {
+        const actorBattleSquaddieId = BattleActionDecisionStepService.getActor(
+            context.battleActionDecisionStep
+        )?.battleSquaddieId
+
+        if (actorBattleSquaddieId == undefined) {
+            return centerOfScreenRectArea
+        }
+
+        const actorMapCoordinate = MissionMapService.getByBattleSquaddieId(
+            context.missionMap,
+            actorBattleSquaddieId
+        )?.currentMapCoordinate
+
+        if (actorMapCoordinate == undefined) {
             return centerOfScreenRectArea
         }
 
@@ -226,7 +229,7 @@ export class PlayerActionTargetCreateCancelButton implements BehaviorTreeTask {
             this.targetMapCoordinatesDirectlyBelowActor(
                 actorMapCoordinate,
                 context
-            )
+            ).filter((m) => m != undefined)
 
         if (mapCoordinatesDirectlyBelowActor.length > 0) {
             candidateScreenLocation.y =
@@ -271,8 +274,8 @@ export class PlayerActionTargetCreateCancelButton implements BehaviorTreeTask {
             })
 
         return Object.values(context.targetResults.validTargets)
-            .filter((targetResult) => !!targetResult.currentMapCoordinate)
             .filter((targetResult) => {
+                if (targetResult.currentMapCoordinate == undefined) return false
                 const targetScreenLocation =
                     ConvertCoordinateService.convertMapCoordinatesToScreenLocation(
                         {
@@ -288,6 +291,7 @@ export class PlayerActionTargetCreateCancelButton implements BehaviorTreeTask {
                 return targetIsBelowActor && targetIsLinedUpWithActor
             })
             .map((targetResult) => targetResult.currentMapCoordinate)
+            .filter((hexCoordinate) => hexCoordinate != undefined)
             .sort((a, b) => b.q - a.q)
     }
 }

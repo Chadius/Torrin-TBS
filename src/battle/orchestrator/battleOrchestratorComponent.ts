@@ -10,6 +10,7 @@ import {
 } from "../../utils/mouseConfig"
 import { GraphicsBuffer } from "../../utils/graphics/graphicsRenderer"
 import { ResourceHandler } from "../../resource/resourceHandler"
+import { EnumLike } from "../../utils/enum"
 
 export const OrchestratorComponentMouseEventType = {
     UNKNOWN: "UNKNOWN",
@@ -78,7 +79,7 @@ export const OrchestratorComponentKeyEventService = {
 }
 
 export type BattleOrchestratorChanges = {
-    nextMode?: TBattleOrchestratorMode
+    nextMode?: TBattleOrchestratorMode | undefined
     checkMissionObjectives?: boolean
 }
 
@@ -90,10 +91,12 @@ export interface BattleOrchestratorComponent {
     }: {
         gameEngineState: GameEngineState
         graphicsContext: GraphicsBuffer
-        resourceHandler: ResourceHandler
+        resourceHandler: ResourceHandler | undefined
     }): void
 
-    uiControlSettings(gameEngineState: GameEngineState): UIControlSettings
+    uiControlSettings(
+        gameEngineState: GameEngineState
+    ): UIControlSettings | undefined
 
     mouseEventHappened(
         gameEngineState: GameEngineState,

@@ -16,6 +16,9 @@ export class InverterDecorator implements BehaviorTreeTask {
     }
 
     run(): boolean {
+        if (this.children == undefined || this.children.length == 0) {
+            throw new Error("[InverterDecorator.run] must have a child task")
+        }
         return !this.children[0].run()
     }
 }

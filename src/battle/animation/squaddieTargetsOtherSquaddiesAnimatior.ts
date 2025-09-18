@@ -27,10 +27,7 @@ import { GameEngineState } from "../../gameEngine/gameEngine"
 import { ActionEffectTemplate } from "../../action/template/actionEffectTemplate"
 import { GraphicsBuffer } from "../../utils/graphics/graphicsRenderer"
 import { BattleActionSquaddieChange } from "../history/battleAction/battleActionSquaddieChange"
-import {
-    BattleAction,
-    BattleActionService,
-} from "../history/battleAction/battleAction"
+import { BattleActionService } from "../history/battleAction/battleAction"
 import { BattleActionRecorderService } from "../history/battleAction/battleActionRecorder"
 import { ResourceHandler } from "../../resource/resourceHandler"
 import { ActionEffectChange } from "../history/calculatedResult"
@@ -43,16 +40,16 @@ import {
     ModifierDisplayColumn,
     ModifierDisplayColumnData,
     ModifierDisplayColumnPosition,
-    TModifierDisplayColumnPosition,
     ModifierDisplayColumnService,
+    TModifierDisplayColumnPosition,
 } from "./modifierDisplay/modifierDisplayColumn"
 import {
     AttributeTypeAndAmount,
     AttributeTypeService,
 } from "../../squaddie/attribute/attribute"
 import {
-    TRollModifier,
     RollModifierTypeService,
+    TRollModifier,
 } from "../calculator/actionCalculator/rollResult"
 import {
     AttackRollThermometer,
@@ -86,50 +83,54 @@ const Layout = {
 export class SquaddieTargetsOtherSquaddiesAnimator
     implements SquaddieActionAnimator
 {
-    sawResultAftermath: boolean
-    private startedShowingResults: boolean
-    private _userRequestedAnimationSkip: boolean
-    diceRollAnimation: DiceRollAnimation
-    modifierDisplayColumns: {
-        [p in TModifierDisplayColumnPosition]: ModifierDisplayColumn
-    }
-    attackRollThermometer: AttackRollThermometer
+    sawResultAftermath: boolean | undefined
+    private startedShowingResults: boolean | undefined
+    private _userRequestedAnimationSkip: boolean | undefined
+    diceRollAnimation: DiceRollAnimation | undefined
+    modifierDisplayColumns:
+        | {
+              [p in TModifierDisplayColumnPosition]:
+                  | ModifierDisplayColumn
+                  | undefined
+          }
+        | undefined
+    attackRollThermometer: AttackRollThermometer | undefined
 
     constructor() {
         this.resetInternalState()
     }
 
-    private _actionAnimationTimer: ActionTimer
+    private _actionAnimationTimer: ActionTimer | undefined
 
-    get actionAnimationTimer(): ActionTimer {
+    get actionAnimationTimer(): ActionTimer | undefined {
         return this._actionAnimationTimer
     }
 
-    private _weaponIcon: WeaponIcon
+    private _weaponIcon: WeaponIcon | undefined
 
-    get weaponIcon(): WeaponIcon {
+    get weaponIcon(): WeaponIcon | undefined {
         return this._weaponIcon
     }
 
-    private _actorTextWindow: ActorTextWindow
+    private _actorTextWindow: ActorTextWindow | undefined
 
-    get actorTextWindow(): ActorTextWindow {
+    get actorTextWindow(): ActorTextWindow | undefined {
         return this._actorTextWindow
     }
 
-    private _actorSprite: ActorSprite
+    private _actorSprite: ActorSprite | undefined
 
-    get actorSprite(): ActorSprite {
+    get actorSprite(): ActorSprite | undefined {
         return this._actorSprite
     }
 
-    private _targetSprites: TargetSprite[]
+    private _targetSprites: TargetSprite[] = []
 
     get targetSprites(): TargetSprite[] {
         return this._targetSprites
     }
 
-    private _targetTextWindows: TargetTextWindow[]
+    private _targetTextWindows: TargetTextWindow[] = []
 
     get targetTextWindows(): TargetTextWindow[] {
         return this._targetTextWindows
@@ -137,7 +138,7 @@ export class SquaddieTargetsOtherSquaddiesAnimator
 
     private _targetHitPointMeters: {
         [battleId: string]: HitPointMeter
-    }
+    } = {}
 
     get targetHitPointMeters(): {
         [battleId: string]: HitPointMeter
@@ -200,7 +201,7 @@ export class SquaddieTargetsOtherSquaddiesAnimator
         resourceHandler: ResourceHandler
     }): void {
         if (
-            this.actionAnimationTimer.currentPhase ===
+            this.actionAnimationTimer?.currentPhase ===
             ActionAnimationPhase.INITIALIZED
         ) {
             this.setupActionAnimation(gameEngineState)
@@ -210,7 +211,8 @@ export class SquaddieTargetsOtherSquaddiesAnimator
         const phaseToShow: TActionAnimationPhase = this
             ._userRequestedAnimationSkip
             ? ActionAnimationPhase.FINISHED_SHOWING_RESULTS
-            : this.actionAnimationTimer.currentPhase
+            : (this.actionAnimationTimer?.currentPhase ??
+              ActionAnimationPhase.INITIALIZED)
 
         switch (phaseToShow) {
             case ActionAnimationPhase.INITIALIZED:
@@ -252,6 +254,7 @@ export class SquaddieTargetsOtherSquaddiesAnimator
             graphicsBuffer: graphicsContext,
             thermometer: this.attackRollThermometer,
         })
+        if (this.modifierDisplayColumns == undefined) return
         if (this.modifierDisplayColumns[ModifierDisplayColumnPosition.LEFT]) {
             ModifierDisplayColumnService.draw({
                 modifierDisplay:
@@ -274,11 +277,13 @@ export class SquaddieTargetsOtherSquaddiesAnimator
 
     reset(gameEngineState: GameEngineState) {
         this.resetInternalState()
+        const battleAction = BattleActionRecorderService.peekAtAnimationQueue(
+            gameEngineState.battleOrchestratorState.battleState
+                .battleActionRecorder
+        )
+        if (battleAction == undefined) return
         BattleActionService.setAnimationCompleted({
-            battleAction: BattleActionRecorderService.peekAtAnimationQueue(
-                gameEngineState.battleOrchestratorState.battleState
-                    .battleActionRecorder
-            ),
+            battleAction: battleAction,
             animationCompleted: true,
         })
     }
@@ -288,11 +293,16 @@ export class SquaddieTargetsOtherSquaddiesAnimator
         this._weaponIcon = new WeaponIcon()
         this._actorSprite = new ActorSprite()
 
-        const actionToShow: BattleAction =
-            BattleActionRecorderService.peekAtAnimationQueue(
-                gameEngineState.battleOrchestratorState.battleState
-                    .battleActionRecorder
-            )
+        const actionToShow = BattleActionRecorderService.peekAtAnimationQueue(
+            gameEngineState.battleOrchestratorState.battleState
+                .battleActionRecorder
+        )
+
+        if (
+            actionToShow == undefined ||
+            gameEngineState.repository == undefined
+        )
+            return
 
         const { battleSquaddie: actorBattle, squaddieTemplate: actorTemplate } =
             getResultOrThrowError(
@@ -310,28 +320,32 @@ export class SquaddieTargetsOtherSquaddiesAnimator
             gameEngineState.repository,
             actionToShow.action.actionTemplateId
         )
+        if (actionToShow.actor.actorContext == undefined) return
+        if (actionToShow.effect.squaddie == undefined) return
+
         const results: ActionEffectChange = {
             actorContext: actionToShow.actor.actorContext,
             squaddieChanges: actionToShow.effect.squaddie,
         }
 
-        this.actorTextWindow.start({
+        this.actorTextWindow?.start({
             actorTemplate: actorTemplate,
             actorBattle: actorBattle,
             actionTemplateName: actionTemplate.name,
             results,
         })
 
-        this.actorSprite.start({
+        this.actorSprite?.start({
             actorBattleSquaddieId: actorBattle.battleSquaddieId,
             squaddieRepository: gameEngineState.repository,
             resourceHandler: gameEngineState.resourceHandler,
             startingPosition:
                 (2 * ScreenDimensions.SCREEN_WIDTH) / 12 +
                 WINDOW_SPACING.SPACING1,
+            // @ts-ignore Can't be undefined
             squaddieChanges: results.squaddieChanges[0],
         })
-        this.weaponIcon.start()
+        this.weaponIcon?.start()
 
         const resultPerTarget = actionToShow.effect.squaddie
         this.setupAnimationForTargetTextWindows(
@@ -358,15 +372,22 @@ export class SquaddieTargetsOtherSquaddiesAnimator
         actionEffectSquaddieTemplate: ActionEffectTemplate,
         resultPerTarget: BattleActionSquaddieChange[]
     ) {
-        const actionToShow: BattleAction =
-            BattleActionRecorderService.peekAtAnimationQueue(
-                gameEngineState.battleOrchestratorState.battleState
-                    .battleActionRecorder
-            )
+        const actionToShow = BattleActionRecorderService.peekAtAnimationQueue(
+            gameEngineState.battleOrchestratorState.battleState
+                .battleActionRecorder
+        )
+
+        if (actionToShow?.effect.squaddie == undefined) {
+            this._targetSprites = []
+            return
+        }
+
+        if (gameEngineState.repository == undefined) return
 
         this._targetSprites = actionToShow.effect.squaddie
             .map((s) => s.battleSquaddieId)
             .map((battleId: string, index: number) => {
+                if (gameEngineState.repository == undefined) return undefined
                 const targetSprite = new TargetSprite()
                 targetSprite.start({
                     targetBattleSquaddieId: battleId,
@@ -376,28 +397,34 @@ export class SquaddieTargetsOtherSquaddiesAnimator
                         (change) => change.battleSquaddieId === battleId
                     ),
                     resourceHandler: gameEngineState.resourceHandler,
-                    startingPosition: RectAreaService.right(
-                        this.targetTextWindows[index].targetLabel.rectangle.area
-                    ),
+                    startingPosition:
+                        this.targetTextWindows[index].targetLabel != undefined
+                            ? RectAreaService.right(
+                                  this.targetTextWindows[index].targetLabel
+                                      .rectangle.area
+                              )
+                            : 0,
                 })
                 return targetSprite
             })
+            .filter((x) => x != undefined)
     }
 
     private setupAnimationForTargetTextWindows(
         gameEngineState: GameEngineState,
         resultPerTarget: BattleActionSquaddieChange[]
     ) {
-        const actionToShow: BattleAction =
-            BattleActionRecorderService.peekAtAnimationQueue(
-                gameEngineState.battleOrchestratorState.battleState
-                    .battleActionRecorder
-            )
+        const actionToShow = BattleActionRecorderService.peekAtAnimationQueue(
+            gameEngineState.battleOrchestratorState.battleState
+                .battleActionRecorder
+        )
 
         if (actionToShow?.action.actionTemplateId === undefined) {
             this._targetTextWindows = []
             return
         }
+
+        if (gameEngineState.repository == undefined) return
 
         const actionTemplate = ObjectRepositoryService.getActionTemplateById(
             gameEngineState.repository,
@@ -407,6 +434,8 @@ export class SquaddieTargetsOtherSquaddiesAnimator
         this._targetTextWindows = resultPerTarget
             .map((r) => r.battleSquaddieId)
             .map((battleId: string) => {
+                if (gameEngineState.repository == undefined) return undefined
+
                 const {
                     battleSquaddie: targetBattle,
                     squaddieTemplate: targetTemplate,
@@ -431,25 +460,29 @@ export class SquaddieTargetsOtherSquaddiesAnimator
                 })
                 return targetTextWindow
             })
-            .filter((x) => x)
+            .filter((x) => x != undefined)
     }
 
     private setupAnimationForTargetHitPointMeters(
         gameEngineState: GameEngineState
     ) {
-        const actionToShow: BattleAction =
-            BattleActionRecorderService.peekAtAnimationQueue(
-                gameEngineState.battleOrchestratorState.battleState
-                    .battleActionRecorder
-            )
+        const actionToShow = BattleActionRecorderService.peekAtAnimationQueue(
+            gameEngineState.battleOrchestratorState.battleState
+                .battleActionRecorder
+        )
 
-        if (actionToShow?.action.actionTemplateId === undefined) {
+        if (
+            actionToShow?.action.actionTemplateId === undefined ||
+            actionToShow.effect.squaddie == undefined
+        ) {
             this._targetTextWindows = []
             return
         }
 
         actionToShow.effect.squaddie.forEach(
             (change: BattleActionSquaddieChange, index: number) => {
+                if (gameEngineState.repository == undefined) return
+
                 const battleSquaddieId = change.battleSquaddieId
                 const {
                     battleSquaddie: targetBattle,
@@ -476,12 +509,14 @@ export class SquaddieTargetsOtherSquaddiesAnimator
                     new HitPointMeter({
                         currentHitPoints: displayedHitPointsBeforeChange,
                         maxHitPoints,
-                        left:
-                            this._targetTextWindows[index].targetLabel.rectangle
-                                .area.left + WINDOW_SPACING.SPACING1,
-                        top:
-                            this._targetTextWindows[index].targetLabel.rectangle
-                                .area.top + 100,
+                        left: this._targetTextWindows[index].targetLabel
+                            ? this._targetTextWindows[index].targetLabel
+                                  .rectangle.area.left + WINDOW_SPACING.SPACING1
+                            : 0,
+                        top: this._targetTextWindows[index].targetLabel
+                            ? this._targetTextWindows[index].targetLabel
+                                  .rectangle.area.top + 100
+                            : 0,
                         hue: HUE_BY_SQUADDIE_AFFILIATION[
                             targetTemplate.squaddieId.affiliation
                         ],
@@ -495,17 +530,22 @@ export class SquaddieTargetsOtherSquaddiesAnimator
         graphicsContext: GraphicsBuffer,
         resourceHandler: ResourceHandler
     ) {
-        this.actorTextWindow.draw(graphicsContext, this.actionAnimationTimer)
+        this.actorTextWindow?.draw(graphicsContext, this.actionAnimationTimer)
 
-        const actionToShow: BattleAction =
-            BattleActionRecorderService.peekAtAnimationQueue(
-                gameEngineState.battleOrchestratorState.battleState
-                    .battleActionRecorder
-            )
+        const actionToShow = BattleActionRecorderService.peekAtAnimationQueue(
+            gameEngineState.battleOrchestratorState.battleState
+                .battleActionRecorder
+        )
 
         if (actionToShow?.action.actionTemplateId === undefined) {
             return
         }
+
+        if (
+            actionToShow == undefined ||
+            gameEngineState.repository == undefined
+        )
+            return
 
         const actionTemplate = ObjectRepositoryService.getActionTemplateById(
             gameEngineState.repository,
@@ -515,31 +555,37 @@ export class SquaddieTargetsOtherSquaddiesAnimator
         const actionEffectSquaddieTemplate =
             actionTemplate.actionEffectTemplates[0]
 
-        this.actorSprite.draw({
+        this.actorSprite?.draw({
             timer: this.actionAnimationTimer,
             graphicsContext,
             actionEffectSquaddieTemplate,
             resourceHandler,
         })
-        this.weaponIcon.draw({
-            graphicsContext,
-            actorImageArea: this.actorSprite.getSquaddieImageBasedOnTimer(
-                this.actionAnimationTimer,
+        if (
+            this.actorSprite != undefined &&
+            this.actionAnimationTimer != undefined
+        ) {
+            this.weaponIcon?.draw({
                 graphicsContext,
-                actionEffectSquaddieTemplate
-            ).drawArea,
-            actionEffectSquaddieTemplate,
-        })
-        this.targetTextWindows.forEach((t) =>
-            t.draw(graphicsContext, this.actionAnimationTimer)
-        )
+                actorImageArea:
+                    this.actorSprite.getSquaddieImageBasedOnTimer(
+                        this.actionAnimationTimer,
+                        graphicsContext,
+                        actionEffectSquaddieTemplate
+                    )?.drawArea || RectAreaService.null(),
+                actionEffectSquaddieTemplate,
+            })
+            this.targetTextWindows.forEach((t) =>
+                t.draw(graphicsContext, this.actionAnimationTimer)
+            )
+        }
 
         this.targetSprites.forEach((t) => {
             t.draw(
                 this.actionAnimationTimer,
                 graphicsContext,
                 actionEffectSquaddieTemplate,
-                actionToShow.effect.squaddie.find(
+                actionToShow.effect.squaddie?.find(
                     (change) => change.battleSquaddieId === t.battleSquaddieId
                 ),
                 resourceHandler
@@ -551,13 +597,12 @@ export class SquaddieTargetsOtherSquaddiesAnimator
     }
 
     private updateHitPointMeters(gameEngineState: GameEngineState) {
-        const actionToShow: BattleAction =
-            BattleActionRecorderService.peekAtAnimationQueue(
-                gameEngineState.battleOrchestratorState.battleState
-                    .battleActionRecorder
-            )
+        const actionToShow = BattleActionRecorderService.peekAtAnimationQueue(
+            gameEngineState.battleOrchestratorState.battleState
+                .battleActionRecorder
+        )
 
-        actionToShow.effect.squaddie.forEach((change) => {
+        actionToShow?.effect.squaddie?.forEach((change) => {
             const battleSquaddieId = change.battleSquaddieId
             const hitPointMeter = this.targetHitPointMeters[battleSquaddieId]
             const hitPointChange: number =
@@ -567,6 +612,9 @@ export class SquaddieTargetsOtherSquaddiesAnimator
     }
 
     private setupDiceRollAnimation(results: ActionEffectChange) {
+        if (results.squaddieChanges == undefined) return
+        if (results.actorContext == undefined) return
+
         const degreeOfSuccess =
             results?.squaddieChanges[0]?.actorDegreeOfSuccess ??
             DegreeOfSuccess.NONE
@@ -594,6 +642,9 @@ export class SquaddieTargetsOtherSquaddiesAnimator
         objectRepository: ObjectRepository
         results: ActionEffectChange
     }) {
+        if (results.squaddieChanges == undefined) return
+        if (results.actorContext == undefined) return
+
         if (!isValidValue(results?.squaddieChanges[0])) {
             return
         }
@@ -616,17 +667,15 @@ export class SquaddieTargetsOtherSquaddiesAnimator
         if (!actionEffectTemplate) return
 
         this.attackRollThermometer = AttackRollThermometerService.new({
-            successBonus: results.squaddieChanges[0].successBonus,
-            tryToShowCriticalSuccess:
-                !TraitStatusStorageService.getStatus(
-                    actionEffectTemplate.traits,
-                    Trait.CANNOT_CRITICALLY_SUCCEED
-                ) === true,
-            tryToShowCriticalFailure:
-                !TraitStatusStorageService.getStatus(
-                    actionEffectTemplate.traits,
-                    Trait.CANNOT_CRITICALLY_FAIL
-                ) === true,
+            successBonus: results.squaddieChanges[0].successBonus ?? 0,
+            tryToShowCriticalSuccess: !TraitStatusStorageService.getStatus(
+                actionEffectTemplate.traits,
+                Trait.CANNOT_CRITICALLY_SUCCEED
+            ),
+            tryToShowCriticalFailure: !TraitStatusStorageService.getStatus(
+                actionEffectTemplate.traits,
+                Trait.CANNOT_CRITICALLY_FAIL
+            ),
             drawArea: RectAreaService.new({
                 screenWidth: ScreenDimensions.SCREEN_WIDTH,
                 startColumn:
@@ -683,17 +732,18 @@ export class SquaddieTargetsOtherSquaddiesAnimator
         }
 
         const leftColumnRollModifierDisplayColumnData =
-            Object.keys(results.actorContext.actorRoll?.rollModifiers || {})
+            Object.keys(results.actorContext?.actorRoll?.rollModifiers || {})
                 .length > 0
                 ? convertRollModifiersToModifierDisplayColumnData(
-                      results.actorContext.actorRoll?.rollModifiers
+                      results.actorContext?.actorRoll?.rollModifiers || {}
                   )
                 : []
 
         const leftColumnAttributeModifierDisplayColumnData =
-            results.actorContext.actorAttributeModifiers.length > 0
+            results.actorContext?.actorAttributeModifiers != undefined &&
+            results.actorContext?.actorAttributeModifiers.length > 0
                 ? convertAttributeTypesAndAmountsToModifierDisplayColumnData(
-                      results.actorContext.actorAttributeModifiers
+                      results.actorContext?.actorAttributeModifiers || {}
                   )
                 : []
 
@@ -713,14 +763,15 @@ export class SquaddieTargetsOtherSquaddiesAnimator
         }
 
         const rightColumnAttributeModifierDisplayColumnData =
-            Object.values(results.actorContext.targetAttributeModifiers)
+            Object.values(results.actorContext?.targetAttributeModifiers ?? {})
                 .length > 0 &&
-            Object.values(results.actorContext.targetAttributeModifiers)[0]
-                .length > 0
+            Object.values(
+                results.actorContext?.targetAttributeModifiers ?? {}
+            )[0].length > 0
                 ? convertAttributeTypesAndAmountsToModifierDisplayColumnData(
-                      results.actorContext.targetAttributeModifiers
+                      results.actorContext?.targetAttributeModifiers
                           ? Object.values(
-                                results.actorContext.targetAttributeModifiers
+                                results.actorContext?.targetAttributeModifiers
                             )[0]
                           : []
                   )

@@ -21,6 +21,7 @@ import {
 import {
     ActionDecision,
     ActionTemplate,
+    ActionTemplateService,
 } from "../../action/template/actionTemplate"
 import { ArmyAttributesService } from "../../squaddie/armyAttributes"
 import { CoordinateGeneratorShape } from "../../battle/targeting/coordinateGenerator"
@@ -30,6 +31,7 @@ import { CutsceneEffectService } from "../../cutscene/cutsceneEffect"
 import { EventTriggerTurnRangeService } from "../../battle/event/eventTrigger/eventTriggerTurnRange"
 import { EventTriggerBattleCompletionStatusService } from "../../battle/event/eventTrigger/eventTriggerBattleCompletionStatus"
 import { BattleCompletionStatus } from "../../battle/orchestrator/missionObjectivesAndCutscenes"
+import { CutsceneService } from "../../cutscene/cutscene"
 
 export const TestMissionData = () => {
     const missionData: MissionFileFormat = {
@@ -408,7 +410,7 @@ export const TestMissionData = () => {
         ],
         cutscene: {
             cutsceneById: {
-                [DEFAULT_VICTORY_CUTSCENE_ID]: {
+                [DEFAULT_VICTORY_CUTSCENE_ID]: CutsceneService.new({
                     directions: [
                         {
                             type: CutsceneActionPlayerType.DIALOGUE,
@@ -460,10 +462,8 @@ export const TestMissionData = () => {
                             backgroundColor: [10, 11, 12],
                         },
                     ],
-                    uiData: undefined,
-                    drawUITask: undefined,
-                },
-                [DEFAULT_DEFEAT_CUTSCENE_ID]: {
+                }),
+                [DEFAULT_DEFEAT_CUTSCENE_ID]: CutsceneService.new({
                     directions: [
                         {
                             type: CutsceneActionPlayerType.DIALOGUE,
@@ -490,10 +490,8 @@ export const TestMissionData = () => {
                             screenImageResourceKey: "splash defeat",
                         },
                     ],
-                    uiData: undefined,
-                    drawUITask: undefined,
-                },
-                introduction: {
+                }),
+                introduction: CutsceneService.new({
                     directions: [
                         {
                             type: CutsceneActionPlayerType.DIALOGUE,
@@ -547,10 +545,8 @@ export const TestMissionData = () => {
                             animationDuration: 0,
                         },
                     ],
-                    uiData: undefined,
-                    drawUITask: undefined,
-                },
-                turn1: {
+                }),
+                turn1: CutsceneService.new({
                     directions: [
                         {
                             type: CutsceneActionPlayerType.DIALOGUE,
@@ -573,12 +569,8 @@ export const TestMissionData = () => {
                             animationDuration: 0,
                         },
                     ],
-                    uiData: undefined,
-                    drawUITask: undefined,
-                },
-                turn2: {
-                    uiData: undefined,
-                    drawUITask: undefined,
+                }),
+                turn2: CutsceneService.new({
                     directions: [
                         {
                             type: CutsceneActionPlayerType.DIALOGUE,
@@ -601,8 +593,8 @@ export const TestMissionData = () => {
                             animationDuration: 0,
                         },
                     ],
-                },
-                turn4: {
+                }),
+                turn4: CutsceneService.new({
                     directions: [
                         {
                             type: CutsceneActionPlayerType.DIALOGUE,
@@ -625,10 +617,8 @@ export const TestMissionData = () => {
                             animationDuration: 0,
                         },
                     ],
-                    uiData: undefined,
-                    drawUITask: undefined,
-                },
-                turn5: {
+                }),
+                turn5: CutsceneService.new({
                     directions: [
                         {
                             type: CutsceneActionPlayerType.DIALOGUE,
@@ -661,10 +651,8 @@ export const TestMissionData = () => {
                             animationDuration: 0,
                         },
                     ],
-                    uiData: undefined,
-                    drawUITask: undefined,
-                },
-                turn7: {
+                }),
+                turn7: CutsceneService.new({
                     directions: [
                         {
                             type: CutsceneActionPlayerType.DIALOGUE,
@@ -696,9 +684,7 @@ export const TestMissionData = () => {
                             animationDuration: 0,
                         },
                     ],
-                    uiData: undefined,
-                    drawUITask: undefined,
-                },
+                }),
             },
         },
     }
@@ -807,7 +793,7 @@ export const TestMissionData = () => {
             actionTemplateIds: ["ignition"],
         })
     const npcActionTemplates: ActionTemplate[] = [
-        {
+        ActionTemplateService.new({
             id: "demon_slither_bite",
             name: "Bite",
             userInformation: {
@@ -835,8 +821,8 @@ export const TestMissionData = () => {
                 }),
             ],
             buttonIconResourceKey: "decision-button-sword",
-        },
-        {
+        }),
+        ActionTemplateService.new({
             id: "short_sword",
             name: "Short sword",
             userInformation: {
@@ -863,8 +849,8 @@ export const TestMissionData = () => {
                 }),
             ],
             buttonIconResourceKey: "decision-button-sword",
-        },
-        {
+        }),
+        ActionTemplateService.new({
             id: "ignition",
             name: "Ignition",
             userInformation: {
@@ -891,7 +877,7 @@ export const TestMissionData = () => {
                 }),
             ],
             buttonIconResourceKey: "decision-button-sword",
-        },
+        }),
     ]
 
     return {

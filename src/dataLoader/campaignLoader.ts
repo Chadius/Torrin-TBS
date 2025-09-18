@@ -1,13 +1,12 @@
 import { LoadFileIntoFormat } from "./dataLoader"
 import { CampaignFileFormat } from "../campaign/campaignFileFormat"
-import { isValidValue } from "../utils/objectValidityCheck"
 import {
     CampaignResources,
     CampaignResourcesService,
 } from "../campaign/campaignResources"
 
 export interface CampaignLoaderContext {
-    campaignIdToLoad: string
+    campaignIdToLoad: string | undefined
 }
 
 export const CampaignLoaderService = {
@@ -20,16 +19,15 @@ export const CampaignLoaderService = {
         missionIds?: string[]
         resources?: CampaignResources
     }): CampaignFileFormat => {
-        const campaignFile: CampaignFileFormat = {
+        return sanitize({
             id,
             missionIds,
             resources,
-        }
-        return sanitize(campaignFile)
+        })
     },
     loadCampaignFromFile: async (
         campaignId: string
-    ): Promise<CampaignFileFormat> => {
+    ): Promise<CampaignFileFormat | undefined> => {
         const filename = `assets/campaign/${campaignId}/campaign.json`
         try {
             return await LoadFileIntoFormat<CampaignFileFormat>(filename)
@@ -49,18 +47,14 @@ export const CampaignLoaderService = {
     },
 }
 
-const sanitize = (data: CampaignFileFormat): CampaignFileFormat => {
-    if (!isValidValue(data.id)) {
+const sanitize = (data: Partial<CampaignFileFormat>): CampaignFileFormat => {
+    if (data.id == undefined) {
         throw new Error("CampaignLoader cannot sanitize")
     }
 
-    if (!isValidValue(data.missionIds)) {
-        data.missionIds = []
+    return {
+        id: data.id,
+        missionIds: data.missionIds ?? [],
+        resources: data.resources ?? CampaignResourcesService.default(),
     }
-
-    if (!isValidValue(data.resources)) {
-        data.resources = CampaignResourcesService.default()
-    }
-
-    return data
 }

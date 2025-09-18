@@ -37,7 +37,6 @@ import { LoadFileIntoFormat } from "../../dataLoader/dataLoader"
 import { PlayerArmy } from "../../campaign/playerArmy"
 import { InBattleAttributesService } from "../stats/inBattleAttributes"
 import { isValidValue } from "../../utils/objectValidityCheck"
-import p5 from "p5"
 import {
     ActionTemplate,
     ActionTemplateService,
@@ -60,14 +59,14 @@ export interface MissionLoaderContext {
     squaddieData: {
         teams: BattleSquaddieTeam[]
         teamStrategyById: { [key: string]: TeamStrategy[] }
-        templates: { [id: string]: SquaddieTemplate }
+        templates: { [id: string]: SquaddieTemplate | undefined }
     }
     cutsceneInfo: {
-        cutsceneCollection: MissionCutsceneCollection
+        cutsceneCollection: MissionCutsceneCollection | undefined
     }
     battleEvents: BattleEvent[]
     mapSettings: {
-        camera: BattleCamera
+        camera: BattleCamera | undefined
     }
     phaseBannersByAffiliation: {
         [affiliation in TSquaddieAffiliation]?: string
@@ -131,15 +130,15 @@ export const MissionLoader = {
         missionLoaderContext.completionProgress.loadedFileData = true
 
         missionLoaderContext.squaddieData.templates = {}
-        missionData.npcDeployments.enemy.templateIds.forEach(
+        missionData.npcDeployments.enemy?.templateIds.forEach(
             (id) =>
                 (missionLoaderContext.squaddieData.templates[id] = undefined)
         )
-        missionData.npcDeployments.ally.templateIds.forEach(
+        missionData.npcDeployments.ally?.templateIds.forEach(
             (id) =>
                 (missionLoaderContext.squaddieData.templates[id] = undefined)
         )
-        missionData.npcDeployments.noAffiliation.templateIds.forEach(
+        missionData.npcDeployments.noAffiliation?.templateIds.forEach(
             (id) =>
                 (missionLoaderContext.squaddieData.templates[id] = undefined)
         )
@@ -207,11 +206,12 @@ export const MissionLoader = {
     }) => {
         const baseSquaddieTemplates: SquaddieTemplate[] = []
         for (const build of playerArmyData.squaddieBuilds) {
-            baseSquaddieTemplates.push(
+            const loadedTemplate =
                 await MissionLoaderService.loadBaseSquaddieTemplateBySquaddieTemplateId(
                     build.squaddieTemplateId
                 )
-            )
+            if (loadedTemplate == undefined) continue
+            baseSquaddieTemplates.push(loadedTemplate)
         }
 
         baseSquaddieTemplates.forEach((squaddieTemplate) => {
@@ -252,11 +252,12 @@ export const MissionLoader = {
     }) => {
         const baseSquaddieTemplates: SquaddieTemplate[] = []
         for (const build of playerArmyData.squaddieBuilds) {
-            baseSquaddieTemplates.push(
+            const loadedTemplate =
                 await MissionLoaderService.loadBaseSquaddieTemplateBySquaddieTemplateId(
                     build.squaddieTemplateId
                 )
-            )
+            if (loadedTemplate == undefined) continue
+            baseSquaddieTemplates.push(loadedTemplate)
         }
 
         baseSquaddieTemplates.forEach((squaddieTemplate) => {
@@ -302,6 +303,7 @@ const initializeCameraPosition = ({
 }: {
     missionLoaderContext: MissionLoaderContext
 }) => {
+    if (missionLoaderContext.missionMap == undefined) return
     const mapDimensions = TerrainTileMapService.getDimensions(
         missionLoaderContext.missionMap.terrainTileMap
     )
@@ -331,9 +333,17 @@ const initializeSquaddieResources = ({
                 )
             )
 
-            let image: p5.Image = resourceHandler.getResource(
+            if (
+                squaddieTemplate.squaddieId.resources.mapIconResourceKey ==
+                undefined
+            )
+                return
+            if (missionLoaderContext.missionMap == undefined) return
+            if (missionLoaderContext.mapSettings.camera == undefined) return
+            let image = resourceHandler.getResource(
                 squaddieTemplate.squaddieId.resources.mapIconResourceKey
             )
+            if (image == undefined) return
 
             const datum = MissionMapService.getByBattleSquaddieId(
                 missionLoaderContext.missionMap,
@@ -385,7 +395,7 @@ const initializeCutscenes = ({
     resourceHandler: ResourceHandler
 }) => {
     Object.entries(
-        missionLoaderContext.cutsceneInfo.cutsceneCollection.cutsceneById
+        missionLoaderContext.cutsceneInfo.cutsceneCollection?.cutsceneById ?? {}
     ).forEach(([_, cutscene]) => {
         CutsceneService.setResources(cutscene, resourceHandler)
     })
@@ -498,7 +508,7 @@ const spawnNPCSquaddiesAndAddToMap = ({
         missionData.npcDeployments.enemy,
         missionData.npcDeployments.ally,
         missionData.npcDeployments.noAffiliation,
-    ]
+    ].filter((x) => x != undefined)
 
     deployments.forEach((deployment) =>
         deployment.mapPlacements.forEach((mapPlacement) => {
@@ -519,6 +529,7 @@ const spawnNPCSquaddiesAndAddToMap = ({
                     })
                 )
             }
+            if (missionLoaderContext.missionMap == undefined) return
             MissionMapService.addSquaddie({
                 missionMap: missionLoaderContext.missionMap,
                 squaddieTemplateId,
@@ -538,7 +549,7 @@ const createSquaddieTeams = ({
 }) => {
     const deploymentInfo: {
         affiliation: TSquaddieAffiliation
-        deployment: NpcTeamMissionDeployment
+        deployment: NpcTeamMissionDeployment | undefined
     }[] = [
         {
             affiliation: SquaddieAffiliation.ENEMY,
@@ -555,7 +566,7 @@ const createSquaddieTeams = ({
     ]
 
     deploymentInfo.forEach((info) =>
-        info.deployment.teams.forEach((npcTeam) => {
+        info.deployment?.teams.forEach((npcTeam) => {
             const team: BattleSquaddieTeam = {
                 id: npcTeam.id,
                 name: npcTeam.name,
@@ -577,11 +588,13 @@ const deployRequiredPlayerSquaddies = (
     missionLoaderContext: MissionLoaderContext,
     missionData: MissionFileFormat
 ) => {
+    if (missionLoaderContext.missionMap == undefined) return
     missionLoaderContext.missionMap.playerDeployment = {
         ...missionData.player.deployment,
     }
     missionLoaderContext.missionMap.playerDeployment.required.forEach(
         (requiredDeployment) => {
+            if (missionLoaderContext.missionMap == undefined) return
             MissionMapService.addSquaddie({
                 missionMap: missionLoaderContext.missionMap,
                 squaddieTemplateId: requiredDeployment.squaddieTemplateId,
@@ -654,7 +667,7 @@ const loadTeamIcons = (
         missionData.npcDeployments.enemy,
         missionData.npcDeployments.ally,
         missionData.npcDeployments.noAffiliation,
-    ]
+    ].filter((x) => x != undefined)
 
     deployments.forEach((deployment) =>
         deployment.teams

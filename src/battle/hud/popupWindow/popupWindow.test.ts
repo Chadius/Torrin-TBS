@@ -60,10 +60,10 @@ describe("PopUp", () => {
         PopupWindowService.changeStatus(popup, PopupWindowStatus.ACTIVE)
         PopupWindowService.draw(popup, graphicsContext)
         expect(drawRectSpy).toHaveBeenCalledWith(
-            RectAreaService.left(popup.label.textBox.area),
-            RectAreaService.top(popup.label.textBox.area),
-            RectAreaService.width(popup.label.textBox.area),
-            RectAreaService.height(popup.label.textBox.area)
+            RectAreaService.left(popup.label.textBox!.area),
+            RectAreaService.top(popup.label.textBox!.area),
+            RectAreaService.width(popup.label.textBox!.area),
+            RectAreaService.height(popup.label.textBox!.area)
         )
     })
     it("Can be drawn at the same location if a camera is used but it is on screen", () => {
@@ -72,10 +72,10 @@ describe("PopUp", () => {
         PopupWindowService.setCoordinateSystem(popup, CoordinateSystem.WORLD)
         PopupWindowService.draw(popup, graphicsContext)
         expect(drawRectSpy).toHaveBeenCalledWith(
-            RectAreaService.left(popup.label.textBox.area),
-            RectAreaService.top(popup.label.textBox.area),
-            RectAreaService.width(popup.label.textBox.area),
-            RectAreaService.height(popup.label.textBox.area)
+            RectAreaService.left(popup.label.textBox!.area),
+            RectAreaService.top(popup.label.textBox!.area),
+            RectAreaService.width(popup.label.textBox!.area),
+            RectAreaService.height(popup.label.textBox!.area)
         )
     })
     describe("drawn using offscreen coordinates", () => {
@@ -87,7 +87,7 @@ describe("PopUp", () => {
                 expectation: (popupWindow: PopupWindow) =>
                     RectAreaService.top(popupWindow.label.rectangle.area) ===
                         0 &&
-                    RectAreaService.top(popupWindow.label.textBox.area) === 0,
+                    RectAreaService.top(popupWindow.label.textBox!.area) === 0,
             },
             {
                 name: "below screen",
@@ -96,7 +96,7 @@ describe("PopUp", () => {
                 expectation: (popupWindow: PopupWindow) =>
                     RectAreaService.bottom(popupWindow.label.rectangle.area) ===
                         ScreenDimensions.SCREEN_HEIGHT &&
-                    RectAreaService.bottom(popupWindow.label.textBox.area) ===
+                    RectAreaService.bottom(popupWindow.label.textBox!.area) ===
                         ScreenDimensions.SCREEN_HEIGHT,
             },
             {
@@ -106,7 +106,7 @@ describe("PopUp", () => {
                 expectation: (popupWindow: PopupWindow) =>
                     RectAreaService.left(popupWindow.label.rectangle.area) ===
                         0 &&
-                    RectAreaService.left(popupWindow.label.textBox.area) === 0,
+                    RectAreaService.left(popupWindow.label.textBox!.area) === 0,
             },
             {
                 name: "right of screen",
@@ -115,7 +115,7 @@ describe("PopUp", () => {
                 expectation: (popupWindow: PopupWindow) =>
                     RectAreaService.right(popupWindow.label.rectangle.area) ===
                         ScreenDimensions.SCREEN_WIDTH &&
-                    RectAreaService.right(popupWindow.label.textBox.area) ===
+                    RectAreaService.right(popupWindow.label.textBox!.area) ===
                         ScreenDimensions.SCREEN_WIDTH,
             },
         ]

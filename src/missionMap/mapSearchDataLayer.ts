@@ -30,6 +30,11 @@ export const MapSearchDataLayerService = {
         if (map) {
             terrainTileMap = map.terrainTileMap
         }
+        if (terrainTileMap == undefined) {
+            throw new Error(
+                "[MapSearchDataLayerService] terrainTileMap is not defined and no map was provided"
+            )
+        }
 
         const newMapLayer: MapSearchDataLayer = {
             numberOfRows:
@@ -51,7 +56,6 @@ export const MapSearchDataLayerService = {
                     newMapLayer.valueByCoordinate[q][r] = initialValue as
                         | number
                         | boolean
-                        | undefined
                 } else {
                     const initialValueFunction =
                         initialValue as MapCoordinateValueGenerator
@@ -64,23 +68,6 @@ export const MapSearchDataLayerService = {
         }
 
         return newMapLayer
-    },
-    setValueOfCoordinate: ({
-        mapLayer,
-        mapCoordinate,
-        value,
-    }: {
-        mapLayer: MapSearchDataLayer
-        mapCoordinate: HexCoordinate
-        value: boolean | number | undefined
-    }) => {
-        if (outOfBounds({ mapLayer, mapCoordinate })) {
-            throw new Error(
-                `(${mapCoordinate.q}, ${mapCoordinate.r}) is out of bounds, must be within (${mapLayer.numberOfRows}, ${mapLayer.widthOfWidestRow})`
-            )
-        }
-
-        mapLayer.valueByCoordinate[mapCoordinate.q][mapCoordinate.r] = value
     },
     outOfBounds: ({
         mapLayer,

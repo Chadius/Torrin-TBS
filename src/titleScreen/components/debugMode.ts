@@ -29,7 +29,7 @@ export class TitleScreenCreateDebugModeTextBoxAction
     }
 
     run() {
-        if (process.env.DEBUG !== "true") return
+        if (process.env.DEBUG !== "true") return false
 
         const uiObjects: TitleScreenUIObjects = this.dataBlob.getUIObjects()
         const layout: TitleScreenLayout = this.dataBlob.getLayout()

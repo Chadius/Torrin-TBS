@@ -12,7 +12,7 @@ export const SearchResultAdapterService = {
     }: {
         searchResults: SearchResult
         mapCoordinate: HexCoordinate
-    }): SearchPathAdapter => {
+    }): SearchPathAdapter | undefined => {
         return getShortestPathToCoordinate(searchResults, mapCoordinate)
     },
     getCoordinatesByNumberOfMoveActions: ({
@@ -29,16 +29,19 @@ export const SearchResultAdapterService = {
                 },
                 coordinate
             ) => {
-                const moveActions =
-                    SearchPathAdapterService.getNumberOfMoveActions({
-                        path: getShortestPathToCoordinate(
-                            searchResults,
-                            coordinate
-                        ),
-                        movementPerAction,
-                    })
-                coordinatesByMoveActions[moveActions] ||= []
-                coordinatesByMoveActions[moveActions].push(coordinate)
+                const shortestPathToCoordinate = getShortestPathToCoordinate(
+                    searchResults,
+                    coordinate
+                )
+                if (shortestPathToCoordinate) {
+                    const moveActions =
+                        SearchPathAdapterService.getNumberOfMoveActions({
+                            path: shortestPathToCoordinate,
+                            movementPerAction,
+                        })
+                    coordinatesByMoveActions[moveActions] ||= []
+                    coordinatesByMoveActions[moveActions].push(coordinate)
+                }
                 return coordinatesByMoveActions
             },
             {}
@@ -71,7 +74,7 @@ const getCoordinatesWithPaths = (searchResult: SearchResult) => {
 const getShortestPathToCoordinate = (
     searchResults: SearchResult,
     mapCoordinate: HexCoordinate
-): SearchPathAdapter => {
+): SearchPathAdapter | undefined => {
     return SearchResultsService.getShortestPathToCoordinate(
         searchResults,
         mapCoordinate

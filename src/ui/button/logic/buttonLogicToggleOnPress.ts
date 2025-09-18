@@ -26,7 +26,7 @@ export class ButtonLogicToggleOnPress
 {
     buttonStatusChangeEventData: ButtonStatusChangeEventByButtonId
     status: TButtonStatus
-    lastStatusChangeTimeStamp: number
+    lastStatusChangeTimeStamp: number | undefined
 
     constructor({ dataBlob }: { dataBlob: ButtonStatusChangeEventByButtonId }) {
         this.status = ButtonStatus.TOGGLE_OFF
@@ -42,12 +42,13 @@ export class ButtonLogicToggleOnPress
         mouseRelease,
     }: {
         buttonId: string
-        newStatus: TButtonStatus
+        newStatus: TButtonStatus | undefined
         mouseLocation?: ScreenLocation
         mousePress?: MousePress
         mouseRelease?: MouseRelease
     }) {
-        if (!VALID_STATUSES.includes(newStatus)) return
+        if (newStatus == undefined || !VALID_STATUSES.includes(newStatus))
+            return
         const previousStatus = this.status
         this.status = newStatus
         this.lastStatusChangeTimeStamp = Date.now()

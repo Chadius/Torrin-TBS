@@ -3,7 +3,7 @@ import { Label, LabelService } from "../../../label"
 import { GraphicsBuffer } from "../../../../utils/graphics/graphicsRenderer"
 import { ButtonStatus, TButtonStatus } from "../../buttonStatus"
 import { ButtonStyle } from "../buttonStyle"
-import { RectArea } from "../../../rectArea"
+import { RectArea, RectAreaService } from "../../../rectArea"
 import { ButtonLogic } from "../../logic/base"
 
 /***
@@ -20,13 +20,13 @@ export interface AllLabelButtonDataBlob extends DataBlob {
 
 export interface AllLabelButtonLayout {
     labelByButtonStatus: {
-        [status in TButtonStatus]?: Label
+        [status in TButtonStatus]?: Label | undefined
     }
 }
 
 export interface AllLabelButtonUIObjects {
     buttonLabelsByStatus: {
-        [status in TButtonStatus]?: Label
+        [status in TButtonStatus]?: Label | undefined
     }
 }
 
@@ -65,10 +65,14 @@ export class AllLabelButtonDrawTask implements ButtonStyle {
             this.dataBlob,
             "context"
         )
-        if (uiObjects == undefined || context == undefined) return undefined
+        if (uiObjects == undefined || context == undefined)
+            return RectAreaService.new({ left: 0, top: 0, width: 0, height: 0 })
 
-        return uiObjects.buttonLabelsByStatus[context.buttonLogic.status]
-            ?.rectangle.area
+        return (
+            uiObjects.buttonLabelsByStatus[context.buttonLogic.status]
+                ?.rectangle.area ??
+            RectAreaService.new({ left: 0, top: 0, width: 0, height: 0 })
+        )
     }
 
     run(): boolean {
@@ -104,7 +108,7 @@ export class AllLabelButtonDrawTask implements ButtonStyle {
                     buttonLabelsByStatus: Object.fromEntries(
                         Object.keys(ButtonStatus)
                             .map((keyStr) => keyStr as TButtonStatus)
-                            .map((key): [TButtonStatus, Label] => {
+                            .map((key): [TButtonStatus, Label | undefined] => {
                                 return [key, undefined]
                             })
                     ),

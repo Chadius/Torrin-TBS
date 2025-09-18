@@ -4,6 +4,7 @@ import {
     getValidValueOrDefault,
     isValidValue,
 } from "../utils/objectValidityCheck"
+import { EnumLike } from "../utils/enum"
 
 export const HorizontalAnchor = {
     NONE: 0,
@@ -247,7 +248,15 @@ export const RectAreaService = {
     },
     newRectangleBasedOnMultipleRectAreas: (rectAreas: RectArea[]): RectArea => {
         const { left, right, top, bottom } = rectAreas.reduce(
-            (currentSides, rectArea) => {
+            (
+                currentSides: {
+                    left: number | undefined
+                    right: number | undefined
+                    top: number | undefined
+                    bottom: number | undefined
+                },
+                rectArea
+            ) => {
                 if (currentSides.left === undefined) {
                     currentSides.left = RectAreaService.left(rectArea)
                     currentSides.right = RectAreaService.right(rectArea)
@@ -258,19 +267,19 @@ export const RectAreaService = {
                 return {
                     left: Math.min(
                         RectAreaService.left(rectArea),
-                        currentSides.left
+                        currentSides.left ?? 0
                     ),
                     right: Math.max(
                         RectAreaService.right(rectArea),
-                        currentSides.right
+                        currentSides.right ?? 0
                     ),
                     top: Math.min(
                         RectAreaService.top(rectArea),
-                        currentSides.top
+                        currentSides.top ?? 0
                     ),
                     bottom: Math.max(
                         RectAreaService.bottom(rectArea),
-                        currentSides.bottom
+                        currentSides.bottom ?? 0
                     ),
                 }
             },
@@ -283,10 +292,10 @@ export const RectAreaService = {
         )
 
         return RectAreaService.new({
-            left,
-            right,
-            top,
-            bottom,
+            left: left ?? 0,
+            right: right ?? 0,
+            top: top ?? 0,
+            bottom: bottom ?? 0,
         })
     },
     withLeft: (area: RectArea, newLeft: number): RectArea => {
@@ -305,6 +314,12 @@ export const RectAreaService = {
             width: newWidth,
         })
     },
+    null: (): RectArea => ({
+        left: 0,
+        top: 0,
+        width: 1,
+        height: 1,
+    }),
 }
 
 const getBaseRectangleFromParams = (
@@ -316,10 +331,10 @@ const getBaseRectangleFromParams = (
 const getPositionParams = (
     params: RectTop | RectLeft | RectHeight | RectWidth
 ): {
-    top: number
-    left: number
-    height: number
-    width: number
+    top: number | undefined
+    left: number | undefined
+    height: number | undefined
+    width: number | undefined
 } => {
     return {
         top:
@@ -344,10 +359,10 @@ const getPositionParams = (
 const getPercentageParams = (
     params: RectTop | RectLeft | RectHeight | RectWidth
 ): {
-    screenHeight: number
-    screenWidth: number
-    percentTop: number
-    percentLeft: number
+    screenHeight: number | undefined
+    screenWidth: number | undefined
+    percentTop: number | undefined
+    percentLeft: number | undefined
 } => {
     return {
         percentTop:
@@ -373,7 +388,7 @@ const setRectTop = (rectArea: RectArea, params: RectTop): void => {
     const baseRectangleTop: number = getBaseRectangleFromParams(params)?.top
     const baseRectangleHeight: number =
         getBaseRectangleFromParams(params)?.height
-    const positionTop: number = getPositionParams(params)?.top
+    const positionTop: number | undefined = getPositionParams(params)?.top
     const { screenHeight, percentTop } = getValidValueOrDefault(
         getPercentageParams(params),
         {
@@ -415,11 +430,16 @@ const setRectTop = (rectArea: RectArea, params: RectTop): void => {
     }
 
     let top = getValidValueOrDefault(baseRectangleTop, 0)
-    top += positionTop || 0
+    top += positionTop ?? 0
     top += paramValue.bottomAndHeight
     top += paramValue.centerYAndHeight
 
-    if (isValidValue(percentTop) && isValidValue(screenHeight)) {
+    if (
+        isValidValue(percentTop) &&
+        isValidValue(screenHeight) &&
+        screenHeight != undefined &&
+        percentTop != undefined
+    ) {
         top += (screenHeight * percentTop) / 100
     }
 
@@ -444,7 +464,7 @@ const setRectTop = (rectArea: RectArea, params: RectTop): void => {
 const setRectLeft = (rectArea: RectArea, params: RectLeft): void => {
     const baseRectangleLeft: number = getBaseRectangleFromParams(params)?.left
     const baseRectangleWidth: number = getBaseRectangleFromParams(params)?.width
-    const positionLeft: number = getPositionParams(params).left
+    const positionLeft: number | undefined = getPositionParams(params).left
     const { screenWidth, percentLeft } = getValidValueOrDefault(
         getPercentageParams(params),
         {
@@ -500,7 +520,12 @@ const setRectLeft = (rectArea: RectArea, params: RectLeft): void => {
     left += paramValue.rightAndWidth
     left += calculateRectLeftBasedOnCenterXWidthOffset(params)
 
-    if (isValidValue(percentLeft) && isValidValue(screenWidth)) {
+    if (
+        isValidValue(percentLeft) &&
+        isValidValue(screenWidth) &&
+        percentLeft != undefined &&
+        screenWidth != undefined
+    ) {
         left += (screenWidth * percentLeft) / 100
     }
 
@@ -532,7 +557,7 @@ const setRectLeft = (rectArea: RectArea, params: RectLeft): void => {
 const setRectHeight = (rectArea: RectArea, params: RectHeight): void => {
     const baseRectangleHeight: number =
         getBaseRectangleFromParams(params)?.height
-    const positionHeight: number = getPositionParams(params).height
+    const positionHeight: number | undefined = getPositionParams(params).height
     const paramIsValid = {
         topBottom:
             (params as RectHeightTopBottom) &&
@@ -583,7 +608,7 @@ const setRectHeight = (rectArea: RectArea, params: RectHeight): void => {
         rectArea.height = baseRectangleHeight
     }
 
-    if (isValidValue(positionHeight)) {
+    if (isValidValue(positionHeight) && positionHeight != undefined) {
         rectArea.height = positionHeight
     } else if (paramIsValid.topBottom) {
         rectArea.height = paramValue.topBottom - rectArea.top
@@ -614,7 +639,7 @@ const setRectHeight = (rectArea: RectArea, params: RectHeight): void => {
 
 const setRectWidth = (rectArea: RectArea, params: RectWidth): void => {
     const baseRectangleWidth: number = getBaseRectangleFromParams(params)?.width
-    const positionWidth: number = getPositionParams(params).width
+    const positionWidth: number | undefined = getPositionParams(params).width
 
     const paramIsValid = {
         leftRight:
@@ -676,7 +701,7 @@ const setRectWidth = (rectArea: RectArea, params: RectWidth): void => {
         rectArea.width = baseRectangleWidth
     }
 
-    if (isValidValue(positionWidth)) {
+    if (isValidValue(positionWidth) && positionWidth != undefined) {
         rectArea.width = positionWidth
     } else if (paramIsValid.leftRight) {
         rectArea.width = paramValue.leftRight - rectArea.left
@@ -767,8 +792,8 @@ const marginValues = (
         return [
             marginsAll.margin[0],
             marginsAll.margin[1],
-            marginsAll.margin[2],
-            marginsAll.margin[3],
+            marginsAll.margin[2] ?? 0,
+            marginsAll.margin[3] ?? 0,
         ]
     }
 

@@ -60,15 +60,19 @@ export const StateMachineDataService = {
         const logicByAction: {
             [a in ActionType]?: StateMachineActionLogic<WorldType>
         } = {}
-        Object.values(infoByState).forEach(
-            (state: StateMachineStateData<TransitionType, ActionType>) => {
-                ;[state.entryAction, state.exitAction, ...state.actions]
-                    .filter((action) => action)
-                    .forEach((action) => {
-                        logicByAction[action] = (_) => {}
-                    })
-            }
-        )
+        infoByState ||= {}
+        ;(
+            Object.values(infoByState) as StateMachineStateData<
+                TransitionType,
+                ActionType
+            >[]
+        ).forEach((state) => {
+            ;[state.entryAction, state.exitAction, ...state.actions]
+                .filter((action) => action != undefined)
+                .forEach((action) => {
+                    logicByAction[action] = (_) => {}
+                })
+        })
 
         return {
             initialState,
@@ -162,7 +166,7 @@ export const StateMachineDataService = {
             WorldType
         >,
         transition: TransitionType
-    ): StateType => {
+    ): StateType | undefined => {
         return data.infoByTransition[transition]?.targetedState
     },
     getEntryActionFromState: <
@@ -178,7 +182,7 @@ export const StateMachineDataService = {
             WorldType
         >,
         stateType: StateType
-    ): ActionType => {
+    ): ActionType | undefined => {
         return data.infoByState[stateType]?.entryAction
     },
     getExitActionFromState: <
@@ -194,7 +198,7 @@ export const StateMachineDataService = {
             WorldType
         >,
         stateType: StateType
-    ): ActionType => {
+    ): ActionType | undefined => {
         return data.infoByState[stateType]?.exitAction
     },
     getActionFromTriggeredTransition: <
@@ -210,7 +214,7 @@ export const StateMachineDataService = {
             WorldType
         >,
         triggeredTransition: TransitionType
-    ): ActionType => {
+    ): ActionType | undefined => {
         return data.infoByTransition[triggeredTransition]?.action
     },
     setActionLogic: <
@@ -245,5 +249,5 @@ export const StateMachineDataService = {
         >,
         action: ActionType
     ): StateMachineActionLogic<WorldType> =>
-        stateMachineData.logicByAction[action],
+        stateMachineData.logicByAction[action] ?? (() => {}),
 }

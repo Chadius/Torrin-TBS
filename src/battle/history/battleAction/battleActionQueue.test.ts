@@ -115,6 +115,7 @@ describe("BattleActionQueue", () => {
 
         expect(clone).toEqual(original)
 
+        //@ts-ignore Setting the field to force a change in the original, so I know the clone is a deep copy
         original.actions = undefined
 
         expect(clone.actions).toHaveLength(2)

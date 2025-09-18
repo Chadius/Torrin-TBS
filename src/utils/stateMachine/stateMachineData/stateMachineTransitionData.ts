@@ -1,4 +1,4 @@
 export interface StateMachineTransitionData<StateType, ActionType> {
-    targetedState: StateType
-    action: ActionType
+    targetedState: StateType | undefined
+    action: ActionType | undefined
 }

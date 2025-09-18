@@ -206,13 +206,30 @@ describe("Armor Attribute affects Armor Attacks", () => {
         })
 
         expect(
-            results.changesPerEffect[0].actorContext.targetAttributeModifiers[
-                targetSquaddie.battleSquaddieId
-            ].find((t) => t.type === Attribute.ARMOR).amount
-        ).toEqual(8)
+            results!.changesPerEffect[0]!.actorContext!
+                .targetAttributeModifiers[targetSquaddie.battleSquaddieId]
+        ).not.toBeUndefined()
+        if (
+            results!.changesPerEffect[0]!.actorContext!
+                .targetAttributeModifiers[targetSquaddie.battleSquaddieId] !=
+            undefined
+        ) {
+            expect(
+                results!.changesPerEffect[0]!.actorContext!.targetAttributeModifiers[
+                    targetSquaddie.battleSquaddieId
+                ].find((t) => t.type === Attribute.ARMOR)!.amount
+            ).toEqual(8)
+        }
+
         expect(
-            results.changesPerEffect[0].squaddieChanges[0].actorDegreeOfSuccess
-        ).toEqual(DegreeOfSuccess.FAILURE)
+            results!.changesPerEffect[0]!.squaddieChanges
+        ).not.toBeUndefined()
+        if (results!.changesPerEffect[0]!.squaddieChanges != undefined) {
+            expect(
+                results!.changesPerEffect[0]!.squaddieChanges[0]!
+                    .actorDegreeOfSuccess
+            ).toEqual(DegreeOfSuccess.FAILURE)
+        }
     })
 
     it("attacks that do not aim at armor ignore target armor", () => {
@@ -286,13 +303,30 @@ describe("Armor Attribute affects Armor Attacks", () => {
             challengeModifierSetting: ChallengeModifierSettingService.new(),
         })
 
+        const actorContext = results!.changesPerEffect[0].actorContext
         expect(
-            results.changesPerEffect[0].actorContext.targetAttributeModifiers[
+            actorContext?.targetAttributeModifiers[
                 targetSquaddie.battleSquaddieId
-            ].find((t) => t.type === Attribute.ARMOR)
-        ).toBeUndefined()
-        expect(
-            results.changesPerEffect[0].squaddieChanges[0].actorDegreeOfSuccess
-        ).toEqual(DegreeOfSuccess.CRITICAL_SUCCESS)
+            ]
+        ).not.toBeUndefined()
+        if (
+            actorContext?.targetAttributeModifiers[
+                targetSquaddie.battleSquaddieId
+            ] != undefined
+        ) {
+            expect(
+                actorContext?.targetAttributeModifiers[
+                    targetSquaddie.battleSquaddieId
+                ].find((t) => t.type === Attribute.ARMOR)
+            ).toBeUndefined()
+        }
+
+        const squaddieChanges = results!.changesPerEffect[0].squaddieChanges
+        expect(squaddieChanges).not.toBeUndefined()
+        if (squaddieChanges != undefined) {
+            expect(squaddieChanges[0]!.actorDegreeOfSuccess).toEqual(
+                DegreeOfSuccess.CRITICAL_SUCCESS
+            )
+        }
     })
 })

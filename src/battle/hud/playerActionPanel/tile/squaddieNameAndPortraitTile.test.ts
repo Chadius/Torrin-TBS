@@ -282,11 +282,15 @@ describe("Squaddie Name and Portrait Tile", () => {
 
             it("positions the image against the bottom of the screen", () => {
                 expect(
-                    RectAreaService.centerX(tile.portraitImage.drawArea)
+                    tile.portraitImage
+                        ? RectAreaService.centerX(tile.portraitImage.drawArea)
+                        : undefined
                 ).toBeCloseTo(ScreenDimensions.SCREEN_WIDTH / 24)
 
                 expect(
-                    RectAreaService.bottom(tile.portraitImage.drawArea)
+                    tile.portraitImage
+                        ? RectAreaService.bottom(tile.portraitImage.drawArea)
+                        : undefined
                 ).toBeCloseTo(ScreenDimensions.SCREEN_HEIGHT)
             })
 
@@ -347,7 +351,9 @@ describe("Squaddie Name and Portrait Tile", () => {
             })
 
             expect(
-                RectAreaService.top(tile.squaddieNameTextBox.area)
+                tile.squaddieNameTextBox
+                    ? RectAreaService.top(tile.squaddieNameTextBox.area)
+                    : undefined
             ).toBeCloseTo(
                 ScreenDimensions.SCREEN_HEIGHT -
                     RectAreaService.height(boundingBox) +
@@ -355,7 +361,9 @@ describe("Squaddie Name and Portrait Tile", () => {
             )
 
             expect(
-                RectAreaService.left(tile.squaddieNameTextBox.area)
+                tile.squaddieNameTextBox
+                    ? RectAreaService.left(tile.squaddieNameTextBox.area)
+                    : undefined
             ).toBeCloseTo(
                 RectAreaService.left(boundingBox) + WINDOW_SPACING.SPACING1
             )
@@ -427,10 +435,10 @@ describe("Squaddie Name and Portrait Tile", () => {
                 })
 
             expect(updatedTile.glossaryLabelStack.labels).toHaveLength(2)
-            expect(updatedTile.glossaryLabelStack.labels[0].title).toEqual(
+            expect(updatedTile.glossaryLabelStack.labels[0]!.title).toEqual(
                 "Armor +2"
             )
-            expect(updatedTile.glossaryLabelStack.labels[1].title).toEqual(
+            expect(updatedTile.glossaryLabelStack.labels[1]!.title).toEqual(
                 "Hustle"
             )
         })
@@ -515,10 +523,10 @@ describe("Squaddie Name and Portrait Tile", () => {
                 })
 
             expect(updatedTile.glossaryLabelStack.labels).toHaveLength(2)
-            expect(updatedTile.glossaryLabelStack.labels[0].title).toEqual(
+            expect(updatedTile.glossaryLabelStack.labels[0]!.title).toEqual(
                 "Hustle"
             )
-            expect(updatedTile.glossaryLabelStack.labels[1].title).toEqual(
+            expect(updatedTile.glossaryLabelStack.labels[1]!.title).toEqual(
                 "Elusive"
             )
         })
@@ -556,10 +564,10 @@ describe("Squaddie Name and Portrait Tile", () => {
                 })
 
             expect(updatedTile.glossaryLabelStack.labels).toHaveLength(2)
-            expect(updatedTile.glossaryLabelStack.labels[0].title).toEqual(
+            expect(updatedTile.glossaryLabelStack.labels[0]!.title).toEqual(
                 "Armor -2"
             )
-            expect(updatedTile.glossaryLabelStack.labels[1].title).toEqual(
+            expect(updatedTile.glossaryLabelStack.labels[1]!.title).toEqual(
                 "Movement -1"
             )
         })
@@ -577,12 +585,12 @@ describe("Squaddie Name and Portrait Tile", () => {
             const armorLabel = updatedTile.glossaryLabelStack.labels.find(
                 (label) => label.title.includes("Armor")
             )
+            expect(armorLabel?.description.text).toContain("Circumstance")
+
             const hustleLabel = updatedTile.glossaryLabelStack.labels.find(
                 (label) => label.title.includes("Hustle")
             )
-
-            expect(armorLabel.description.text).toContain("Circumstance")
-            expect(hustleLabel.description.text).toContain("Spiritual")
+            expect(hustleLabel?.description.text).toContain("Spiritual")
         })
     })
 

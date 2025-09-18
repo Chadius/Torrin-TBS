@@ -16,7 +16,6 @@ import {
 } from "../../hexMap/mapLayer/mapGraphicsLayer"
 import { ObjectRepository, ObjectRepositoryService } from "../objectRepository"
 import { MissionMap, MissionMapService } from "../../missionMap/missionMap"
-import { isValidValue } from "../../utils/objectValidityCheck"
 import {
     Trait,
     TraitStatusStorageService,
@@ -74,7 +73,8 @@ export const BattleSquaddieSelectorService = {
             maximum: number
         }
         actionPointsRemaining?: number
-    }): SearchPathAdapter => {
+    }): SearchPathAdapter | undefined => {
+        if (gameEngineState.repository == undefined) return undefined
         const searchResults = getAllTilesSquaddieCanReach({
             missionMap:
                 gameEngineState.battleOrchestratorState.battleState.missionMap,
@@ -84,7 +84,7 @@ export const BattleSquaddieSelectorService = {
             stopCoordinate,
             actionPointsRemaining,
         })
-
+        if (searchResults == undefined) return undefined
         if (
             isAlreadyAtTheLocation({
                 gameEngineState,
@@ -146,6 +146,7 @@ export const BattleSquaddieSelectorService = {
                     searchResults,
                     mapCoordinate: a,
                 })
+            if (searchPathA == undefined) return -1
             const numberOfMoveActionsA =
                 SearchPathAdapterService.getNumberOfMoveActions({
                     path: searchPathA,
@@ -161,6 +162,7 @@ export const BattleSquaddieSelectorService = {
                     searchResults,
                     mapCoordinate: b,
                 })
+            if (searchPathB == undefined) return -1
             const numberOfMoveActionsB =
                 SearchPathAdapterService.getNumberOfMoveActions({
                     path: searchPathB,
@@ -249,21 +251,22 @@ const createSearchPath = ({
         stopCoordinate: clickedHexCoordinate,
     })
 
-    const closestRoute: SearchPathAdapter =
-        SearchResultAdapterService.getShortestPathToCoordinate({
+    if (searchResults == undefined) return
+    const closestRoute = SearchResultAdapterService.getShortestPathToCoordinate(
+        {
             searchResults: searchResults,
             mapCoordinate: clickedHexCoordinate,
-        })
+        }
+    )
 
-    const noDirectRouteToDestination = !isValidValue(closestRoute)
-    if (noDirectRouteToDestination) {
+    if (closestRoute == undefined) {
         return
     }
 
     battleState.squaddieMovePath ||= []
     battleState.squaddieMovePath.length = 0
     closestRoute.forEach((connection) => {
-        battleState.squaddieMovePath.push(connection)
+        battleState.squaddieMovePath!.push(connection)
     })
 
     const { squaddieIsNormallyControllableByPlayer } =
@@ -303,13 +306,13 @@ const getAllTilesSquaddieCanReach = ({
     objectRepository: ObjectRepository
     stopCoordinate?: HexCoordinate
     actionPointsRemaining?: number
-}): SearchResult => {
+}): SearchResult | undefined => {
     const { currentMapCoordinate, originMapCoordinate } =
         MissionMapService.getByBattleSquaddieId(
             missionMap,
             battleSquaddie.battleSquaddieId
         )
-
+    if (originMapCoordinate == undefined) return undefined
     if (actionPointsRemaining === undefined) {
         actionPointsRemaining =
             SquaddieTurnService.getActionPointsThatCouldBeSpentOnMovement(
@@ -403,14 +406,14 @@ const getSquaddieAttackCoordinates = ({
         .forEach((actionTemplate) => {
             allCoordinatesSquaddieCanMoveTo
                 .filter((coordinate) => {
-                    const path: SearchPathAdapter =
+                    const path =
                         SearchResultAdapterService.getShortestPathToCoordinate({
                             searchResults: reachableCoordinateSearch,
                             mapCoordinate: coordinate,
                         })
 
                     const numberOfMoveActionsToReachEndOfPath: number =
-                        isValidValue(path)
+                        path != undefined
                             ? SearchPathAdapterService.getNumberOfMoveActions({
                                   path,
                                   movementPerAction:
@@ -425,7 +428,7 @@ const getSquaddieAttackCoordinates = ({
 
                     return (
                         numberOfMoveActionsToReachEndOfPath +
-                            actionTemplate.resourceCost.actionPoints <=
+                            (actionTemplate.resourceCost?.actionPoints ?? 0) <=
                         actionPointsRemaining
                     )
                 })
@@ -552,26 +555,24 @@ const getReachableCoordinatesByDistanceFromStopCoordinate = ({
                         coordinate
                     )
                 )
-                .filter(
-                    (mapCoordinate) =>
+                .filter((mapCoordinate) => {
+                    const shortestPathToCoordinate =
                         SearchResultAdapterService.getShortestPathToCoordinate({
                             searchResults,
                             mapCoordinate,
-                        }) &&
+                        })
+                    return (
+                        shortestPathToCoordinate != undefined &&
                         SearchPathAdapterService.getNumberOfMoveActions({
-                            path: SearchResultAdapterService.getShortestPathToCoordinate(
-                                {
-                                    searchResults,
-                                    mapCoordinate,
-                                }
-                            ),
+                            path: shortestPathToCoordinate,
                             movementPerAction:
                                 SquaddieService.getSquaddieMovementAttributes({
                                     squaddieTemplate,
                                     battleSquaddie,
                                 }).net.movementPerAction,
                         }) > 0
-                )
+                    )
+                })
         if (coordinatesAtThisDistanceFromStopCoordinate.length > 0) {
             coordinateInfo.coordinatesByDistanceFromStopCoordinate[
                 radiusFromStopCoordinate

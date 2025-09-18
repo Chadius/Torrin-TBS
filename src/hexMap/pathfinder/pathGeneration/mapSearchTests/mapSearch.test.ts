@@ -26,10 +26,7 @@ import { Attribute } from "../../../../squaddie/attribute/attribute"
 import { ArmyAttributesService } from "../../../../squaddie/armyAttributes"
 import { SquaddieMovementService } from "../../../../squaddie/movement"
 import { SearchResultAdapterService } from "../../searchResults/searchResultAdapter"
-import {
-    SearchPathAdapter,
-    SearchPathAdapterService,
-} from "../../../../search/searchPathAdapter/searchPathAdapter"
+import { SearchPathAdapterService } from "../../../../search/searchPathAdapter/searchPathAdapter"
 
 describe("mapSearch", () => {
     describe("calculateAllPossiblePathsFromStartingCoordinate", () => {
@@ -178,19 +175,24 @@ describe("mapSearch", () => {
                 it.each(reachablePathTests)(
                     `$mapCoordinate costs $expectedMovementActions`,
                     ({ mapCoordinate, expectedMovementActions }) => {
-                        const path: SearchPathAdapter =
+                        const path =
                             SearchResultAdapterService.getShortestPathToCoordinate(
                                 {
                                     searchResults: searchResults,
                                     mapCoordinate,
                                 }
                             )
-                        expect(
-                            SearchPathAdapterService.getNumberOfMoveActions({
-                                path,
-                                movementPerAction: 2,
-                            })
-                        ).toEqual(expectedMovementActions)
+                        expect(path).not.toBeUndefined()
+                        if (path) {
+                            expect(
+                                SearchPathAdapterService.getNumberOfMoveActions(
+                                    {
+                                        path,
+                                        movementPerAction: 2,
+                                    }
+                                )
+                            ).toEqual(expectedMovementActions)
+                        }
                     }
                 )
             })

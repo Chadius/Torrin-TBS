@@ -12,7 +12,7 @@ export const PerRoundCheck = {
         actionTemplate: ActionTemplate
         battleActionRecorder: BattleActionRecorder
     }): ActionCheckResult => {
-        if (actionTemplate.resourceCost.numberOfTimesPerRound == undefined) {
+        if (actionTemplate.resourceCost?.numberOfTimesPerRound == undefined) {
             return {
                 isValid: true,
             }

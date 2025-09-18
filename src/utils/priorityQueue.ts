@@ -24,7 +24,7 @@ export class PriorityQueue<T> {
     }
 
     dequeue(): T | undefined {
-        const next: T = this.peek()
+        const next: T | undefined = this.peek()
         if (this.items.length > 0) {
             this.items.shift()
         }

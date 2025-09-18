@@ -6,6 +6,7 @@ describe("resource", () => {
     it("can be sanitized for missing values", () => {
         const resource: SquaddieResource = {
             mapIconResourceKey: "key",
+            // @ts-ignore intentionally adding an invalid field to test sanitization
             actionSpritesByEmotion: undefined,
         }
 

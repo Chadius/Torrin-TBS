@@ -106,7 +106,7 @@ describe("BattleSquaddieUsesActionOnMap", () => {
         mapAction.update({
             gameEngineState,
             graphicsContext: mockedP5GraphicsContext,
-            resourceHandler: gameEngineState.resourceHandler,
+            resourceHandler: gameEngineState.resourceHandler!,
         })
         expect(mapAction.animationCompleteStartTime).not.toBeUndefined()
         expect(mapAction.hasCompleted(gameEngineState)).toBeFalsy()
@@ -115,7 +115,7 @@ describe("BattleSquaddieUsesActionOnMap", () => {
         mapAction.update({
             gameEngineState,
             graphicsContext: mockedP5GraphicsContext,
-            resourceHandler: gameEngineState.resourceHandler,
+            resourceHandler: gameEngineState.resourceHandler!,
         })
         expect(mapAction.hasCompleted(gameEngineState)).toBeTruthy()
     })
@@ -125,7 +125,7 @@ describe("BattleSquaddieUsesActionOnMap", () => {
         mapAction.update({
             gameEngineState,
             graphicsContext: mockedP5GraphicsContext,
-            resourceHandler: gameEngineState.resourceHandler,
+            resourceHandler: gameEngineState.resourceHandler!,
         })
         expect(mapAction.hasCompleted(gameEngineState)).toBeTruthy()
     })
@@ -135,7 +135,7 @@ describe("BattleSquaddieUsesActionOnMap", () => {
         gameEngineState.battleOrchestratorState.battleState.battleActionRecorder =
             BattleActionRecorderService.new()
         const stateChanges = mapAction.recommendStateChanges(gameEngineState)
-        expect(stateChanges.nextMode).toEqual(
+        expect(stateChanges!.nextMode).toEqual(
             BattleOrchestratorMode.PLAYER_HUD_CONTROLLER
         )
 
@@ -158,19 +158,19 @@ describe("BattleSquaddieUsesActionOnMap", () => {
         mapAction.update({
             gameEngineState,
             graphicsContext: mockedP5GraphicsContext,
-            resourceHandler: gameEngineState.resourceHandler,
+            resourceHandler: gameEngineState.resourceHandler!,
         })
         dateSpy.mockImplementation(() => ACTION_COMPLETED_WAIT_TIME_MS)
         mapAction.update({
             gameEngineState,
             graphicsContext: mockedP5GraphicsContext,
-            resourceHandler: gameEngineState.resourceHandler,
+            resourceHandler: gameEngineState.resourceHandler!,
         })
         expect(messageSpy).toBeCalledWith({
             type: MessageBoardMessageType.BATTLE_ACTION_FINISHES_ANIMATION,
             gameEngineState,
             graphicsContext: mockedP5GraphicsContext,
-            resourceHandler: gameEngineState.resourceHandler,
+            resourceHandler: gameEngineState.resourceHandler!,
         })
     })
 
@@ -193,13 +193,13 @@ describe("BattleSquaddieUsesActionOnMap", () => {
             mapAction.update({
                 gameEngineState,
                 graphicsContext: mockedP5GraphicsContext,
-                resourceHandler: gameEngineState.resourceHandler,
+                resourceHandler: gameEngineState.resourceHandler!,
             })
             dateSpy.mockImplementation(() => ACTION_COMPLETED_WAIT_TIME_MS)
             mapAction.update({
                 gameEngineState,
                 graphicsContext: mockedP5GraphicsContext,
-                resourceHandler: gameEngineState.resourceHandler,
+                resourceHandler: gameEngineState.resourceHandler!,
             })
             mapAction.recommendStateChanges(gameEngineState)
             mapAction.reset(gameEngineState)
@@ -218,7 +218,7 @@ describe("BattleSquaddieUsesActionOnMap", () => {
                 type: MessageBoardMessageType.BATTLE_ACTION_FINISHES_ANIMATION,
                 gameEngineState,
                 graphicsContext: mockedP5GraphicsContext,
-                resourceHandler: gameEngineState.resourceHandler,
+                resourceHandler: gameEngineState.resourceHandler!,
             })
         })
 

@@ -37,9 +37,7 @@ export class DebugModeMenuShouldCreateToggleBehaviorOverrideNoActionButton
 
     run(): boolean {
         const uiObjects: DebugModeMenuUIObjects = this.dataBlob.getUIObjects()
-        const behaviorOverrideToggleNoActionButton: Button =
-            uiObjects.behaviorOverrideToggleNoActionButton
-        return !behaviorOverrideToggleNoActionButton
+        return uiObjects.behaviorOverrideToggleNoActionButton == undefined
     }
 }
 
@@ -66,6 +64,7 @@ export class DebugModeMenuCreateToggleBehaviorOverrideNoActionButton
         const uiObjects: DebugModeMenuUIObjects = this.dataBlob.getUIObjects()
         const layout: DebugModeMenuLayout = this.dataBlob.getLayout()
         const context: DebugModeMenuContext = this.dataBlob.getContext()
+        if (uiObjects.menuBackground == undefined) return false
 
         const toggleButtonArea: RectArea = RectAreaService.new({
             ...layout.behaviorOverride.noAction.drawingArea,

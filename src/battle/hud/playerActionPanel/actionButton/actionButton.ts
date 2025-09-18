@@ -59,15 +59,15 @@ interface ActionButtonLayout {
 
 interface ActionButtonUIObjects {
     buttonIcon: ImageUI
-    actionName: TextBox
-    decorator: Rectangle
+    actionName: TextBox | undefined
+    decorator: Rectangle | undefined
     actionResourceCostDisplay?: ActionResourceCostDisplay
 }
 
 export interface ActionButton {
     layout: ActionButtonLayout
     uiObjects: ActionButtonUIObjects
-    actionTemplate: ActionTemplate
+    actionTemplate: ActionTemplate | undefined
     actionTemplateOverride?: {
         name: string
         buttonIconResourceKey: string
@@ -82,7 +82,7 @@ export const ActionButtonService = {
         defaultButtonIconResourceKey,
         actionTemplateOverride,
     }: {
-        actionTemplateId: string
+        actionTemplateId: string | undefined
         objectRepository: ObjectRepository
         buttonArea: RectArea
         defaultButtonIconResourceKey?: string
@@ -98,14 +98,20 @@ export const ActionButtonService = {
             bottomMargin: WINDOW_SPACING.SPACING1 / 4,
         }
 
-        let actionTemplate: ActionTemplate = undefined
-        let actionResourceCostDisplay: ActionResourceCostDisplay = undefined
-        let buttonIconResourceKey: string
+        let actionTemplate: ActionTemplate | undefined = undefined
+        let actionResourceCostDisplay: ActionResourceCostDisplay | undefined =
+            undefined
+        let buttonIconResourceKey: string | undefined
         if (actionTemplateId) {
             actionTemplate = ObjectRepositoryService.getActionTemplateById(
                 objectRepository,
                 actionTemplateId
             )
+            if (actionTemplate == undefined) {
+                throw new Error(
+                    `[ActionButtonService.new]: no ActionTemplate with the id ${actionTemplateId}`
+                )
+            }
             buttonIconResourceKey = actionTemplate.buttonIconResourceKey
             actionResourceCostDisplay = ActionResourceCostDisplayService.new({
                 objectRepository,
@@ -125,7 +131,8 @@ export const ActionButtonService = {
                 }),
             })
         } else {
-            buttonIconResourceKey = actionTemplateOverride.buttonIconResourceKey
+            buttonIconResourceKey =
+                actionTemplateOverride?.buttonIconResourceKey
         }
 
         return {
@@ -227,9 +234,9 @@ export const ActionButtonService = {
             drawDecorator({
                 actionButton: actionButton,
                 graphicsBuffer: graphicsBuffer,
-                selected: selected,
-                disabled: disabled,
-                warning,
+                selected: selected ?? false,
+                disabled: disabled ?? false,
+                warning: warning ?? false,
             })
         }
         if (actionButton.uiObjects.actionResourceCostDisplay) {
@@ -381,7 +388,7 @@ const drawDecorator = ({
         formula: PULSE_COLOR_FORMULA.SINE,
     })
 
-    let fillColor: number[]
+    let fillColor: number[] | undefined
     switch (true) {
         case disabled:
             fillColor = [...actionButton.layout.disabled.fillColor, fillAlpha]
@@ -414,7 +421,10 @@ const drawDecorator = ({
 
 const getActionName = (actionButton: ActionButton): string =>
     actionButton.actionTemplateOverride?.name ??
-    actionButton.actionTemplate.name
+    actionButton.actionTemplate?.name ??
+    "undefined"
 
 const getActionTemplateId = (actionButton: ActionButton): string =>
-    actionButton.actionTemplateOverride?.name ?? actionButton.actionTemplate.id
+    actionButton.actionTemplateOverride?.name ??
+    actionButton.actionTemplate?.id ??
+    "undefined"

@@ -1,5 +1,3 @@
-import { getValidValueOrDefault } from "../utils/objectValidityCheck"
-
 export interface SaveSaveState {
     errorDuringSaving: boolean
     savingInProgress: boolean
@@ -65,14 +63,10 @@ const newSaveSaveState = ({
     })
 }
 
-const sanitize = (saveSaveState: SaveSaveState): SaveSaveState => {
-    saveSaveState.errorDuringSaving = getValidValueOrDefault(
-        saveSaveState.errorDuringSaving,
-        false
-    )
-    saveSaveState.savingInProgress = getValidValueOrDefault(
-        saveSaveState.savingInProgress,
-        false
-    )
-    return saveSaveState
+const sanitize = (saveSaveState: Partial<SaveSaveState>): SaveSaveState => {
+    return {
+        errorDuringSaving: saveSaveState.errorDuringSaving ?? false,
+        savingInProgress: saveSaveState.savingInProgress ?? false,
+        userRequestedSave: saveSaveState.userRequestedSave ?? false,
+    }
 }

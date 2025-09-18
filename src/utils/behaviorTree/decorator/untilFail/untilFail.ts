@@ -16,6 +16,8 @@ export class UntilFailDecorator implements BehaviorTreeTask {
     }
 
     run(): boolean {
+        if (this.children == undefined || this.children[0] == undefined)
+            return false
         let childReturnedTrue = this.children[0].run()
         while (childReturnedTrue) {
             childReturnedTrue = this.children[0].run()

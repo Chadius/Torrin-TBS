@@ -926,14 +926,14 @@ describe("BattleSaveState", () => {
             battleEvents.find(
                 (battleEvent) =>
                     BattleEventService.getCutsceneId(battleEvent) === "victory"
-            ).effect.alreadyAppliedEffect
+            )!.effect.alreadyAppliedEffect
         ).toBeFalsy()
         expect(
             battleEvents.find(
                 (battleEvent) =>
                     BattleEventService.getCutsceneId(battleEvent) ===
                     "introduction"
-            ).effect.alreadyAppliedEffect
+            )!.effect.alreadyAppliedEffect
         ).toBeTruthy()
     })
 
@@ -1283,8 +1283,10 @@ describe("BattleSaveState", () => {
     it("throws an error if you try to apply an invalid save state", () => {
         const shouldThrowErrorNoSaveStateFound = () => {
             BattleSaveStateService.applySaveStateToOrchestratorState({
+                //@ts-ignore Purposely trying to throw an error
                 battleOrchestratorState: undefined,
                 squaddieRepository: ObjectRepositoryService.new(),
+                //@ts-ignore Purposely trying to throw an error
                 battleSaveState: undefined,
             })
         }
@@ -1297,6 +1299,7 @@ describe("BattleSaveState", () => {
     it("throws an error if you try to apply an invalid orchestrator state", () => {
         const shouldThrowErrorNoOrchestratorStateFound = () => {
             BattleSaveStateService.applySaveStateToOrchestratorState({
+                //@ts-ignore Purposely trying to throw an error
                 battleOrchestratorState: undefined,
                 squaddieRepository: ObjectRepositoryService.new(),
                 battleSaveState:

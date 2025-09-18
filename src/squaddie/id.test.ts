@@ -9,8 +9,11 @@ describe("Squaddie Id", () => {
         const squaddieIdWithMissingFields: SquaddieId = {
             templateId: "templateId",
             name: "name",
+            // @ts-ignore intentionally adding an invalid field
             resources: undefined,
+            // @ts-ignore intentionally adding an invalid field
             traits: null,
+            // @ts-ignore intentionally adding an invalid field
             affiliation: undefined,
         }
 
@@ -29,10 +32,15 @@ describe("Squaddie Id", () => {
     })
     it("throws an error during sanitization if there is no name or id", () => {
         const invalidSquaddie: SquaddieId = {
+            // @ts-ignore intentionally adding an invalid field to throw an error
             templateId: null,
+            // @ts-ignore intentionally adding an invalid field to throw an error
             name: undefined,
+            // @ts-ignore intentionally adding an invalid field to throw an error
             resources: undefined,
+            // @ts-ignore intentionally adding an invalid field to throw an error
             traits: null,
+            // @ts-ignore intentionally adding an invalid field to throw an error
             affiliation: undefined,
         }
 
@@ -52,8 +60,11 @@ describe("Squaddie Id", () => {
             invalidSquaddieBase = {
                 templateId: "templateId",
                 name: "name",
+                // @ts-ignore intentionally adding an invalid field
                 resources: undefined,
+                // @ts-ignore intentionally adding an invalid field
                 traits: null,
+                // @ts-ignore intentionally adding an invalid field
                 affiliation: undefined,
             }
         })

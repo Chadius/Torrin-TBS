@@ -42,7 +42,6 @@ import { GraphicsConfig } from "../../utils/graphics/graphicsConfig"
 import { SearchResultAdapterService } from "../../hexMap/pathfinder/searchResults/searchResultAdapter"
 import { MapSearchService } from "../../hexMap/pathfinder/pathGeneration/mapSearch"
 import { SearchLimitService } from "../../hexMap/pathfinder/pathGeneration/searchLimit"
-import { SearchPathAdapter } from "../../search/searchPathAdapter/searchPathAdapter"
 import { SquaddieTurnService } from "../../squaddie/turn"
 
 describe("BattleSquaddieMover", () => {
@@ -109,7 +108,7 @@ describe("BattleSquaddieMover", () => {
         mover.update({
             gameEngineState,
             graphicsContext: mockedP5GraphicsContext,
-            resourceHandler: gameEngineState.resourceHandler,
+            resourceHandler: gameEngineState.resourceHandler!,
         })
         expect(mover.hasCompleted(gameEngineState)).toBeFalsy()
 
@@ -117,7 +116,7 @@ describe("BattleSquaddieMover", () => {
         mover.update({
             gameEngineState,
             graphicsContext: mockedP5GraphicsContext,
-            resourceHandler: gameEngineState.resourceHandler,
+            resourceHandler: gameEngineState.resourceHandler!,
         })
         expect(mover.hasCompleted(gameEngineState)).toBeTruthy()
         mover.reset(gameEngineState)
@@ -142,7 +141,7 @@ describe("BattleSquaddieMover", () => {
         mover.update({
             gameEngineState,
             graphicsContext: mockedP5GraphicsContext,
-            resourceHandler: gameEngineState.resourceHandler,
+            resourceHandler: gameEngineState.resourceHandler!,
         })
         expect(mover.hasCompleted(gameEngineState)).toBeTruthy()
         expect(onScreenSpy).toHaveBeenCalled()
@@ -169,14 +168,14 @@ describe("BattleSquaddieMover", () => {
         mover.update({
             gameEngineState,
             graphicsContext: mockedP5GraphicsContext,
-            resourceHandler: gameEngineState.resourceHandler,
+            resourceHandler: gameEngineState.resourceHandler!,
         })
 
         vi.spyOn(Date, "now").mockImplementation(() => 1 + TIME_TO_MOVE)
         mover.update({
             gameEngineState,
             graphicsContext: mockedP5GraphicsContext,
-            resourceHandler: gameEngineState.resourceHandler,
+            resourceHandler: gameEngineState.resourceHandler!,
         })
         mover.reset(gameEngineState)
 
@@ -184,7 +183,7 @@ describe("BattleSquaddieMover", () => {
             type: MessageBoardMessageType.BATTLE_ACTION_FINISHES_ANIMATION,
             gameEngineState,
             graphicsContext: mockedP5GraphicsContext,
-            resourceHandler: gameEngineState.resourceHandler,
+            resourceHandler: gameEngineState.resourceHandler!,
         })
     })
 
@@ -212,7 +211,7 @@ describe("BattleSquaddieMover", () => {
                     }),
                 })
 
-            const movePath: SearchPathAdapter =
+            const movePath =
                 SearchResultAdapterService.getShortestPathToCoordinate({
                     searchResults: searchResults,
                     mapCoordinate: {
@@ -288,13 +287,13 @@ describe("BattleSquaddieMover", () => {
                 mover.update({
                     gameEngineState,
                     graphicsContext: mockedP5GraphicsContext,
-                    resourceHandler: gameEngineState.resourceHandler,
+                    resourceHandler: gameEngineState.resourceHandler!,
                 })
                 vi.spyOn(Date, "now").mockImplementation(() => 1 + TIME_TO_MOVE)
                 mover.update({
                     gameEngineState,
                     graphicsContext: mockedP5GraphicsContext,
-                    resourceHandler: gameEngineState.resourceHandler,
+                    resourceHandler: gameEngineState.resourceHandler!,
                 })
             })
 
@@ -349,11 +348,10 @@ const moveSquaddieAndGetGameEngineState = ({
             }),
         })
 
-    const movePath: SearchPathAdapter =
-        SearchResultAdapterService.getShortestPathToCoordinate({
-            searchResults: searchResults,
-            mapCoordinate: endCoordinate,
-        })
+    const movePath = SearchResultAdapterService.getShortestPathToCoordinate({
+        searchResults: searchResults,
+        mapCoordinate: endCoordinate,
+    })
 
     const gameEngineState: GameEngineState = GameEngineStateService.new({
         repository: objectRepository,

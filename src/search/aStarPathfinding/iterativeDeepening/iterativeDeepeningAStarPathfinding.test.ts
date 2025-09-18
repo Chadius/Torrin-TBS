@@ -84,9 +84,12 @@ const cloneSafeCrackerCombination = (
 ): SafeCrackerCombination => [worldModel[0], worldModel[1], worldModel[2]]
 
 const isSafeCombinationCorrect = (
-    worldModel: SafeCrackerCombination,
+    worldModel: SafeCrackerCombination | undefined,
     correctSafeCombination: SafeCrackerCombination
 ): boolean => {
+    if (worldModel == undefined) {
+        throw new Error("worldModel cannot be undefined")
+    }
     return (
         worldModel[0] === correctSafeCombination[0] &&
         worldModel[1] === correctSafeCombination[1] &&
@@ -95,9 +98,12 @@ const isSafeCombinationCorrect = (
 }
 
 const estimateCostToCorrectCombination = (
-    worldModel: SafeCrackerCombination,
+    worldModel: SafeCrackerCombination | undefined,
     correctSafeCombination: SafeCrackerCombination
 ) => {
+    if (worldModel == undefined) {
+        throw new Error("worldModel cannot be undefined")
+    }
     let cost: number = 0
     if (worldModel[0] != correctSafeCombination[0]) {
         cost += 1
@@ -193,12 +199,12 @@ const calculateActionsNeededToCrackSafe = (
                 cloneSafeCrackerCombination(worldModel),
         },
         goal: {
-            estimateCost: (worldModel: SafeCrackerCombination) =>
+            estimateCost: (worldModel: SafeCrackerCombination | undefined) =>
                 estimateCostToCorrectCombination(
                     worldModel,
                     correctSafeCombination
                 ),
-            isFulfilled: (worldModel: SafeCrackerCombination) =>
+            isFulfilled: (worldModel: SafeCrackerCombination | undefined) =>
                 isSafeCombinationCorrect(worldModel, correctSafeCombination),
         },
         action: {

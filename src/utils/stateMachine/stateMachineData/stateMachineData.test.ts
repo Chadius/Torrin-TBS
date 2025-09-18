@@ -115,7 +115,7 @@ describe("State Machine Data", () => {
                     TrashRobotLookForTrashStateEnum.SEARCH_FOR_TRASH
                 )
             ).toEqual(
-                infoByState[TrashRobotLookForTrashStateEnum.SEARCH_FOR_TRASH]
+                infoByState[TrashRobotLookForTrashStateEnum.SEARCH_FOR_TRASH]!
                     .transitions
             )
         })
@@ -137,7 +137,7 @@ describe("State Machine Data", () => {
                     TrashRobotLookForTrashStateEnum.SEARCH_FOR_TRASH
                 )
             ).toEqual(
-                infoByState[TrashRobotLookForTrashStateEnum.SEARCH_FOR_TRASH]
+                infoByState[TrashRobotLookForTrashStateEnum.SEARCH_FOR_TRASH]!
                     .actions
             )
         })
@@ -159,7 +159,7 @@ describe("State Machine Data", () => {
                     TrashRobotLookForTrashStateEnum.HEAD_FOR_COMPACTOR
                 )
             ).toEqual(
-                infoByState[TrashRobotLookForTrashStateEnum.HEAD_FOR_COMPACTOR]
+                infoByState[TrashRobotLookForTrashStateEnum.HEAD_FOR_COMPACTOR]!
                     .entryAction
             )
         })
@@ -181,7 +181,7 @@ describe("State Machine Data", () => {
                     TrashRobotLookForTrashStateEnum.HEAD_FOR_COMPACTOR
                 )
             ).toEqual(
-                infoByState[TrashRobotLookForTrashStateEnum.HEAD_FOR_COMPACTOR]
+                infoByState[TrashRobotLookForTrashStateEnum.HEAD_FOR_COMPACTOR]!
                     .exitAction
             )
         })
@@ -205,7 +205,7 @@ describe("State Machine Data", () => {
             ).toEqual(
                 infoByTransition[
                     TrashRobotLookForTrashTransitionEnum.SEEN_TRASH
-                ].targetedState
+                ]!.targetedState
             )
         })
 
@@ -228,7 +228,7 @@ describe("State Machine Data", () => {
             ).toEqual(
                 infoByTransition[
                     TrashRobotLookForTrashTransitionEnum.PICKED_UP_TRASH
-                ].action
+                ]!.action
             )
         })
 
@@ -321,7 +321,7 @@ describe("State Machine Data", () => {
             StateMachineDataService.getActionLogic(
                 data,
                 TrashRobotLookForTrashActionEnum.SEARCH_FOR_TRASH
-            )(TrashRobotWorldService.new())
+            )!(TrashRobotWorldService.new())
             expect(testFunctionWasRun).toBe(true)
         })
 

@@ -33,7 +33,7 @@ export const AStarSearchService = {
                     nodeRecordStorage.getNodeRecordByKey(b)
                 )
         )
-        let currentRecord: SearchNodeRecord<T> = undefined
+        let currentRecord: SearchNodeRecord<T> | undefined = undefined
         const startingNodeRecords: SearchNodeRecord<T>[] =
             createStartingNodeRecords({
                 startingNodes: getStartNodes(),
@@ -47,17 +47,20 @@ export const AStarSearchService = {
         startingNodeRecords.forEach(nodeRecordStorage.addNodeRecord)
 
         while (!priorityQueue.isEmpty()) {
-            currentRecord = nodeRecordStorage.getNodeRecordByKey(
-                priorityQueue.dequeue()
-            )
-            if (earlyStopSearchingCondition(currentRecord)) {
+            const nextKey = priorityQueue.dequeue()
+            if (nextKey == undefined) break
+            currentRecord = nodeRecordStorage.getNodeRecordByKey(nextKey)
+            if (
+                currentRecord == undefined ||
+                earlyStopSearchingCondition(currentRecord)
+            ) {
                 break
             }
 
             const connections = graph.getConnections(currentRecord)
             connections.forEach((connection) => {
                 const endNode = connection.toNode
-                const endNodeCost = currentRecord.costSoFar + connection.cost
+                const endNodeCost = currentRecord!.costSoFar! + connection.cost
 
                 const endNodeRecord =
                     nodeRecordStorage.getNodeRecordByNode(endNode)
@@ -65,7 +68,7 @@ export const AStarSearchService = {
                 if (
                     !shouldUpdateEndNodeCostAndOpenToContinueSearching({
                         endNodeRecord,
-                        startNodeCost: currentRecord.costSoFar,
+                        startNodeCost: currentRecord!.costSoFar!,
                         connectionCost: connection.cost,
                     })
                 )
@@ -77,7 +80,7 @@ export const AStarSearchService = {
                 )
 
                 endNodeRecord.costSoFar = endNodeCost
-                endNodeRecord.lengthSoFar = currentRecord.lengthSoFar + 1
+                endNodeRecord.lengthSoFar = currentRecord!.lengthSoFar! + 1
                 endNodeRecord.connection = connection
                 endNodeRecord.estimatedTotalCost =
                     endNodeCost + endNodeHeuristic
@@ -176,7 +179,7 @@ const shouldUpdateEndNodeCostAndOpenToContinueSearching = <T>({
         return true
     }
 
-    return endNodeRecord.costSoFar > startNodeCost + connectionCost
+    return endNodeRecord.costSoFar! > startNodeCost + connectionCost
 }
 
 const calculateEndNodeEstimatedCost = <T>(
@@ -187,7 +190,7 @@ const calculateEndNodeEstimatedCost = <T>(
         return estimateCostBetweenNodes(nodeRecord.node)
     }
 
-    return nodeRecord.estimatedTotalCost - nodeRecord.costSoFar
+    return nodeRecord.estimatedTotalCost - nodeRecord.costSoFar!
 }
 
 const constructPathFromNodeRecord = <T>({
@@ -206,9 +209,9 @@ const constructPathFromNodeRecord = <T>({
     const isInStartNodes = (node: T) =>
         startNodes.some((startNode) => nodesAreEqual(startNode, node))
     while (!isInStartNodes(endNodeRecord.node)) {
-        path.push(endNodeRecord.connection)
+        path.push(endNodeRecord.connection!)
         endNodeRecord = nodeRecordStorage.getNodeRecordByNode(
-            endNodeRecord.connection.fromNode
+            endNodeRecord.connection!.fromNode
         )
     }
     return path.reverse()

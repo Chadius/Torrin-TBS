@@ -26,7 +26,7 @@ export class ButtonLogicChangeOnRelease
 {
     buttonStatusChangeEventData: ButtonStatusChangeEventByButtonId
     status: TButtonStatus
-    lastStatusChangeTimeStamp: number
+    lastStatusChangeTimeStamp: number | undefined
 
     constructor({ dataBlob }: { dataBlob: ButtonStatusChangeEventByButtonId }) {
         this.status = ButtonStatus.READY

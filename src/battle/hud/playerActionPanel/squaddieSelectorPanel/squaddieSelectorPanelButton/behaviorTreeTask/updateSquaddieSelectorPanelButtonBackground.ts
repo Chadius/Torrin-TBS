@@ -17,10 +17,6 @@ export class UpdateSquaddieSelectorPanelButtonBackground
         this.dataBlob = dataBlob
     }
 
-    clone(): UpdateSquaddieSelectorPanelButtonBackground {
-        return new UpdateSquaddieSelectorPanelButtonBackground(this.dataBlob)
-    }
-
     run(): boolean {
         const layout: SquaddieSelectorPanelButtonLayout =
             DataBlobService.get<SquaddieSelectorPanelButtonLayout>(

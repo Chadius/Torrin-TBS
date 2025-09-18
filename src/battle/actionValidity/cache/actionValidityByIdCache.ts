@@ -34,7 +34,7 @@ export const ActionValidityByIdCacheService = {
         battleSquaddieId: string
         battleActionRecorder: BattleActionRecorder
         missionMap: MissionMap
-        actionValidityByIdCache: ActionValidityByIdCache
+        actionValidityByIdCache: ActionValidityByIdCache | undefined
     }): ActionValidityByIdCache => {
         const cacheKey = calculateCacheKey({
             battleSquaddieId: battleSquaddieId,
@@ -46,7 +46,8 @@ export const ActionValidityByIdCacheService = {
             areCacheKeysEqual({
                 cacheKey: cacheKey,
                 actionValidityByIdCache: actionValidityByIdCache,
-            })
+            }) &&
+            actionValidityByIdCache
         ) {
             return actionValidityByIdCache
         }
@@ -91,8 +92,8 @@ const areCacheKeysEqual = ({
     cacheKey,
     actionValidityByIdCache,
 }: {
-    cacheKey: CacheKey
-    actionValidityByIdCache: ActionValidityByIdCache
+    cacheKey: CacheKey | undefined
+    actionValidityByIdCache: ActionValidityByIdCache | undefined
 }) =>
     actionValidityByIdCache?.key?.coordinate &&
     cacheKey?.coordinate &&

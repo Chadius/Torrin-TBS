@@ -14,7 +14,7 @@ export interface BattleSquaddieTeam {
     name: string
     affiliation: TSquaddieAffiliation
     battleSquaddieIds: string[]
-    iconResourceKey: string
+    iconResourceKey: string | undefined
 }
 
 export const BattleSquaddieTeamService = {
@@ -101,7 +101,7 @@ export const BattleSquaddieTeamService = {
     getBattleSquaddieIdThatCanActButNotPlayerControlled: (
         team: BattleSquaddieTeam,
         squaddieRepository: ObjectRepository
-    ): string => {
+    ): string | undefined => {
         return team.battleSquaddieIds.find((battleSquaddieId) => {
             const { squaddieTemplate, battleSquaddie } = getResultOrThrowError(
                 ObjectRepositoryService.getSquaddieByBattleId(

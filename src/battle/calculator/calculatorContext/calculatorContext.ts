@@ -2,9 +2,9 @@ import { ChallengeModifierSetting } from "../../challengeModifier/challengeModif
 import { ObjectRepository } from "../../objectRepository"
 
 export interface CalculatorContext {
-    challengeModifierSetting: ChallengeModifierSetting
-    actorBattleSquaddieId: string
-    objectRepository: ObjectRepository
+    challengeModifierSetting?: ChallengeModifierSetting
+    actorBattleSquaddieId?: string
+    objectRepository?: ObjectRepository
 }
 
 export const CalculatorContextService = {
@@ -27,11 +27,15 @@ export const CalculatorContextService = {
         sanitize(context),
 }
 
-const sanitize = (context: CalculatorContext): CalculatorContext => {
+const sanitize = (context: Partial<CalculatorContext>): CalculatorContext => {
     if (context.actorBattleSquaddieId && !context.objectRepository) {
         throw new Error(
             "CalculatorContextService.sanitize needs an objectRepository if an actorBattleSquaddie is provided"
         )
     }
-    return context
+    return {
+        actorBattleSquaddieId: context.actorBattleSquaddieId,
+        objectRepository: context.objectRepository,
+        challengeModifierSetting: context.challengeModifierSetting,
+    }
 }

@@ -1,4 +1,5 @@
 import { HexCoordinate } from "./hexCoordinate/hexCoordinate"
+import { EnumLike } from "../utils/enum"
 
 export const HexGridMovementCost = {
     singleMovement: "singleMovement",
@@ -29,18 +30,24 @@ const convertStringToMovementCost = (text: string): THexGridMovementCost => {
 }
 
 export const HexGridMovementCostService = {
-    movingCostByTerrainType: (cost: THexGridMovementCost) =>
-        MovingCostByTerrainType[cost],
+    movingCostByTerrainType: (cost: THexGridMovementCost): number => {
+        const movingCost = movingCostByTerrainType[cost]
+        if (!movingCost) {
+            throw new Error(
+                `[HexGridMovementCostService.movingCost] Could not find moving cost: ${cost}`
+            )
+        }
+        return movingCost
+    },
     convertStringToMovementCost,
 }
 
-export const MovingCostByTerrainType: { [t in THexGridMovementCost]: number } =
-    {
-        [HexGridMovementCost.singleMovement]: 1,
-        [HexGridMovementCost.doubleMovement]: 2,
-        [HexGridMovementCost.pit]: 1,
-        [HexGridMovementCost.wall]: 1,
-    }
+const movingCostByTerrainType: { [t in THexGridMovementCost]: number } = {
+    [HexGridMovementCost.singleMovement]: 1,
+    [HexGridMovementCost.doubleMovement]: 2,
+    [HexGridMovementCost.pit]: 1,
+    [HexGridMovementCost.wall]: 1,
+}
 
 export interface HexGridTile extends HexCoordinate {
     terrainType: THexGridMovementCost

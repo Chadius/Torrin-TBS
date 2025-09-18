@@ -3,6 +3,7 @@ import p5 from "p5"
 import { GraphicsBuffer } from "../../utils/graphics/graphicsRenderer"
 import { ResourceHandler } from "../../resource/resourceHandler"
 import { PulseColor, PulseColorService } from "../../hexMap/pulseColor"
+import { EnumLike } from "../../utils/enum"
 
 export const ImageUILoadingBehavior = {
     USE_IMAGE_SIZE: "USE_IMAGE_SIZE",
@@ -67,11 +68,11 @@ const scaleImageHeight = ({
 }
 
 export class ImageUI {
-    graphic: p5.Image
+    graphic: p5.Image | undefined
     drawArea: RectArea
     tintColor: number[]
-    pulseColor: PulseColor
-    resourceKey: string
+    pulseColor: PulseColor | undefined
+    resourceKey: string | undefined
     loadingBehavior: TImageUILoadingBehavior
     customAreaCallback?: ({
         imageSize,
@@ -89,7 +90,7 @@ export class ImageUI {
         graphic?: p5.Image
         area: RectArea
         imageLoadingBehavior: {
-            resourceKey: string
+            resourceKey: string | undefined
             loadingBehavior: TImageUILoadingBehavior
             customAreaCallback?: ({
                 imageSize,
@@ -153,6 +154,7 @@ export class ImageUI {
     }
 
     private resizeDrawAreaBasedOnLoadingBehavior() {
+        if (this.graphic == undefined) return
         switch (true) {
             case this.loadingBehavior === ImageUILoadingBehavior.USE_IMAGE_SIZE:
                 this.drawArea.width = this.graphic.width
@@ -209,6 +211,7 @@ export class ImageUI {
 
     load(resourceHandler: ResourceHandler) {
         if (this.graphic) return
+        if (this.resourceKey == undefined) return
         if (resourceHandler.isResourceLoaded(this.resourceKey)) {
             this.graphic = resourceHandler.getResource(this.resourceKey)
             this.resizeDrawAreaBasedOnLoadingBehavior()

@@ -109,7 +109,7 @@ export class Glossary {
             ...modifiers.map((modifier) =>
                 getGlossaryTermFromAttributeModifier(this, modifier)
             ),
-            ...actionTemplate.userInformation.customGlossaryTerms,
+            ...(actionTemplate.userInformation.customGlossaryTerms ?? []),
         ]
     }
     getGlossaryTermFromAttributeModifier(

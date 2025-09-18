@@ -95,12 +95,12 @@ describe("TileAttributeLabel", () => {
                 expect(label.uiElements.backgroundRectangle).not.toBeUndefined()
                 expect(
                     RectAreaService.bottom(
-                        label.uiElements.backgroundRectangle.area
+                        label.uiElements.backgroundRectangle!.area
                     )
                 ).toBe(100)
                 expect(
                     RectAreaService.centerX(
-                        label.uiElements.backgroundRectangle.area
+                        label.uiElements.backgroundRectangle!.area
                     )
                 ).toBe(RectAreaService.centerX(tileBoundingBox))
             })
@@ -113,7 +113,7 @@ describe("TileAttributeLabel", () => {
                 })
                 expect(
                     RectAreaService.bottom(
-                        label.uiElements.backgroundRectangle.area
+                        label.uiElements.backgroundRectangle!.area
                     )
                 ).toBe(250)
             })
@@ -125,16 +125,16 @@ describe("TileAttributeLabel", () => {
                 })
                 expect(graphicsBufferSpies["rect"]).toHaveBeenCalledWith(
                     RectAreaService.left(
-                        label.uiElements.backgroundRectangle.area
+                        label.uiElements.backgroundRectangle!.area
                     ),
                     RectAreaService.top(
-                        label.uiElements.backgroundRectangle.area
+                        label.uiElements.backgroundRectangle!.area
                     ),
                     RectAreaService.width(
-                        label.uiElements.backgroundRectangle.area
+                        label.uiElements.backgroundRectangle!.area
                     ),
                     RectAreaService.height(
-                        label.uiElements.backgroundRectangle.area
+                        label.uiElements.backgroundRectangle!.area
                     )
                 )
             })
@@ -150,10 +150,10 @@ describe("TileAttributeLabel", () => {
             it("will create title text near the top of the rectangle.", () => {
                 expect(label.uiElements.titleTextBox).not.toBeUndefined()
                 expect(
-                    RectAreaService.top(label.uiElements.titleTextBox.area)
+                    RectAreaService.top(label.uiElements.titleTextBox!.area)
                 ).toBeLessThan(
                     RectAreaService.top(
-                        label.uiElements.backgroundRectangle.area
+                        label.uiElements.backgroundRectangle!.area
                     ) + WINDOW_SPACING.SPACING1
                 )
             })
@@ -169,8 +169,8 @@ describe("TileAttributeLabel", () => {
             it("will move the icon if the location is changed", () => {
                 const firstDistanceFromTheTop =
                     RectAreaService.top(
-                        label.uiElements.backgroundRectangle.area
-                    ) - RectAreaService.top(label.uiElements.titleTextBox.area)
+                        label.uiElements.backgroundRectangle!.area
+                    ) - RectAreaService.top(label.uiElements.titleTextBox!.area)
                 TileAttributeLabelService.setLocation({
                     label,
                     bottom: 250,
@@ -178,8 +178,8 @@ describe("TileAttributeLabel", () => {
                 })
                 const secondDistanceFromTheTop =
                     RectAreaService.top(
-                        label.uiElements.backgroundRectangle.area
-                    ) - RectAreaService.top(label.uiElements.titleTextBox.area)
+                        label.uiElements.backgroundRectangle!.area
+                    ) - RectAreaService.top(label.uiElements.titleTextBox!.area)
                 expect(secondDistanceFromTheTop).toBe(firstDistanceFromTheTop)
             })
         })
@@ -194,14 +194,14 @@ describe("TileAttributeLabel", () => {
             })
             it("will create an icon near the top of the rectangle.", () => {
                 expect(label.uiElements.icon).not.toBeUndefined()
-                expect(label.uiElements.icon.resourceKey).toEqual(
+                expect(label.uiElements.icon!.resourceKey).toEqual(
                     "armor-resource-key"
                 )
 
                 expect(
-                    RectAreaService.top(label.uiElements.icon.drawArea)
+                    RectAreaService.top(label.uiElements.icon!.drawArea)
                 ).toBeLessThan(
-                    RectAreaService.top(label.uiElements.icon.drawArea) +
+                    RectAreaService.top(label.uiElements.icon!.drawArea) +
                         WINDOW_SPACING.SPACING1
                 )
             })
@@ -211,8 +211,8 @@ describe("TileAttributeLabel", () => {
             it("will move the icon if the location is changed", () => {
                 const firstDistanceFromTheTop =
                     RectAreaService.top(
-                        label.uiElements.backgroundRectangle.area
-                    ) - RectAreaService.top(label.uiElements.icon.drawArea)
+                        label.uiElements.backgroundRectangle!.area
+                    ) - RectAreaService.top(label.uiElements.icon!.drawArea)
                 TileAttributeLabelService.setLocation({
                     label,
                     bottom: 250,
@@ -220,8 +220,8 @@ describe("TileAttributeLabel", () => {
                 })
                 const secondDistanceFromTheTop =
                     RectAreaService.top(
-                        label.uiElements.backgroundRectangle.area
-                    ) - RectAreaService.top(label.uiElements.icon.drawArea)
+                        label.uiElements.backgroundRectangle!.area
+                    ) - RectAreaService.top(label.uiElements.icon!.drawArea)
                 expect(secondDistanceFromTheTop).toBe(firstDistanceFromTheTop)
             })
         })

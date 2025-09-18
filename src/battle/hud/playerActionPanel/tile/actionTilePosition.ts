@@ -4,6 +4,7 @@ import { GOLDEN_RATIO } from "../../../../ui/constants"
 import { GraphicsBuffer } from "../../../../utils/graphics/graphicsRenderer"
 import { HUE_BY_SQUADDIE_AFFILIATION } from "../../../../graphicsConstants"
 import { TSquaddieAffiliation } from "../../../../squaddie/squaddieAffiliation"
+import { EnumLike } from "../../../../utils/enum"
 
 export const ActionTilePosition = {
     ACTOR_NAME: "ACTOR_NAME",

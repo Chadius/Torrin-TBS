@@ -41,13 +41,18 @@ export const SquaddieSpriteService = {
         graphicsContext: GraphicsBuffer
     }): ImageUI => {
         if (emotion in squaddieSprite.actionSpritesByEmotion) {
-            return squaddieSprite.actionSpritesByEmotion[emotion]
+            return (
+                squaddieSprite.actionSpritesByEmotion[emotion] ??
+                getDefaultEmptyImage(graphicsContext)
+            )
         }
 
         if (SquaddieEmotion.NEUTRAL in squaddieSprite.actionSpritesByEmotion) {
-            return squaddieSprite.actionSpritesByEmotion[
-                SquaddieEmotion.NEUTRAL
-            ]
+            return (
+                squaddieSprite.actionSpritesByEmotion[
+                    SquaddieEmotion.NEUTRAL
+                ] ?? getDefaultEmptyImage(graphicsContext)
+            )
         }
 
         return getDefaultEmptyImage(graphicsContext)
@@ -58,6 +63,12 @@ const createActorImagesWithLoadedData = (squaddieSprite: SquaddieSprite) => {
     Object.keys(squaddieSprite.actionSpritesResourceKeysByEmotion)
         .map((emotionStr) => emotionStr as TSquaddieEmotion)
         .forEach((emotion) => {
+            if (
+                squaddieSprite.actionSpritesResourceKeysByEmotion[emotion] ==
+                undefined
+            )
+                return
+
             squaddieSprite.actionSpritesByEmotion[emotion] = new ImageUI({
                 imageLoadingBehavior: {
                     resourceKey:

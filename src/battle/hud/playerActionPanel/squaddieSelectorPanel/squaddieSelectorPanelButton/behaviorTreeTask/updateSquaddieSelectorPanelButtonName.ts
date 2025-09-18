@@ -39,12 +39,13 @@ export class UpdateSquaddieSelectorPanelButtonName implements BehaviorTreeTask {
                 this.dataBlob,
                 "layout"
             )
-
         const uiObjects: SquaddieSelectorPanelButtonObjects =
             DataBlobService.get<SquaddieSelectorPanelButtonObjects>(
                 this.dataBlob,
                 "uiObjects"
             )
+
+        if (uiObjects.mapIcon == undefined) return false
 
         const context: SquaddieSelectorPanelButtonContext =
             DataBlobService.get<SquaddieSelectorPanelButtonContext>(

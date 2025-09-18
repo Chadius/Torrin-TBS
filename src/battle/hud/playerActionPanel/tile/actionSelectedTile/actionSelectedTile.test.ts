@@ -135,12 +135,12 @@ describe("Action Selected Tile", () => {
         })
         it("creates a stack for labels", () => {
             expect(tile.glossaryLabelStack.labels).toHaveLength(2)
-            expect(tile.glossaryLabelStack.labels[0].iconResourceKey).toEqual(
+            expect(tile.glossaryLabelStack.labels[0]!.iconResourceKey).toEqual(
                 AttributeTypeService.getAttributeIconResourceKeyForAttributeType(
                     Attribute.MOVEMENT
                 )
             )
-            expect(tile.glossaryLabelStack.labels[1].description.text).toEqual(
+            expect(tile.glossaryLabelStack.labels[1]!.description.text).toEqual(
                 "customGlossaryTerm0"
             )
         })

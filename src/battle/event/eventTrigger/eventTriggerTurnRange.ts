@@ -26,7 +26,7 @@ export const EventTriggerTurnRangeService = {
         ignoreTurn0,
     }: {
         eventTrigger: EventTriggerTurnRange
-        turnCount: number
+        turnCount?: number
         ignoreTurn0?: boolean
     }): boolean =>
         isValidTrigger(eventTrigger) &&
@@ -70,25 +70,28 @@ const isAfterMinimumTurnsPassed = ({
     turnCount,
 }: {
     trigger: EventTriggerTurnRange
-    turnCount: number
+    turnCount?: number
 }): boolean =>
-    trigger.minimumTurns == undefined || turnCount >= trigger.minimumTurns
+    turnCount != undefined &&
+    (trigger.minimumTurns == undefined || turnCount >= trigger.minimumTurns)
 const isBeforeMaximumTurnsPassed = ({
     trigger,
     turnCount,
 }: {
     trigger: EventTriggerTurnRange
-    turnCount: number
+    turnCount?: number
 }): boolean =>
-    trigger.maximumTurns == undefined || turnCount <= trigger.maximumTurns
+    turnCount != undefined &&
+    (trigger.maximumTurns == undefined || turnCount <= trigger.maximumTurns)
 const isOnExactTurn = ({
     trigger,
     turnCount,
     ignoreTurn0,
 }: {
     trigger: EventTriggerTurnRange
-    turnCount: number
+    turnCount?: number
     ignoreTurn0?: boolean
 }): boolean =>
-    trigger.exactTurn == undefined ||
-    (trigger.exactTurn == turnCount && (!ignoreTurn0 || turnCount != 0))
+    turnCount != undefined &&
+    (trigger.exactTurn == undefined ||
+        (trigger.exactTurn == turnCount && (!ignoreTurn0 || turnCount != 0)))

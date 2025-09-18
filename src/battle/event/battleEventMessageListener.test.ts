@@ -119,7 +119,7 @@ describe("Event Message Listener", () => {
                     type: MessageBoardMessageType.SQUADDIE_IS_INJURED,
                     gameEngineState,
                     battleSquaddieIds: [],
-                    objectRepository: gameEngineState.repository,
+                    objectRepository: gameEngineState.repository!,
                 }),
             },
             {
@@ -128,7 +128,7 @@ describe("Event Message Listener", () => {
                     type: MessageBoardMessageType.SQUADDIE_IS_DEFEATED,
                     gameEngineState,
                     battleSquaddieIds: [],
-                    objectRepository: gameEngineState.repository,
+                    objectRepository: gameEngineState.repository!,
                 }),
             },
         ]
@@ -187,7 +187,7 @@ describe("Event Message Listener", () => {
                     battleActionRecorder:
                         gameEngineState.battleOrchestratorState.battleState
                             .battleActionRecorder,
-                    objectRepository: gameEngineState.repository,
+                    objectRepository: gameEngineState.repository!!,
                 })
             ).toEqual([])
         })
@@ -257,7 +257,7 @@ describe("Event Message Listener", () => {
                         battleActionRecorder:
                             gameEngineState.battleOrchestratorState.battleState
                                 .battleActionRecorder,
-                        objectRepository: gameEngineState.repository,
+                        objectRepository: gameEngineState.repository!!,
                     })
                 ).toEqual([injuryBattleEvent])
             })
@@ -272,7 +272,7 @@ describe("Event Message Listener", () => {
                         battleActionRecorder:
                             gameEngineState.battleOrchestratorState.battleState
                                 .battleActionRecorder,
-                        objectRepository: gameEngineState.repository,
+                        objectRepository: gameEngineState.repository!,
                     })
                 ).toEqual([defeatBattleEvent])
             })
@@ -299,7 +299,7 @@ describe("Event Message Listener", () => {
                             templateId,
                             affiliation,
                             actionTemplateIds: [],
-                            objectRepository: gameEngineState.repository,
+                            objectRepository: gameEngineState.repository!,
                         }
                     )
                 })
@@ -309,7 +309,7 @@ describe("Event Message Listener", () => {
                 const { battleSquaddie: targetBattleSquaddie } =
                     getResultOrThrowError(
                         ObjectRepositoryService.getSquaddieByBattleId(
-                            gameEngineState.repository,
+                            gameEngineState.repository!,
                             targetBattleSquaddieId
                         )
                     )
@@ -369,7 +369,7 @@ describe("Event Message Listener", () => {
                     battleActionRecorder:
                         gameEngineState.battleOrchestratorState.battleState
                             .battleActionRecorder,
-                    objectRepository: gameEngineState.repository,
+                    objectRepository: gameEngineState.repository!,
                 })
             ).toEqual([turnBattleEvent])
         })
@@ -413,7 +413,7 @@ describe("Event Message Listener", () => {
             it("Check for Victory", () => {
                 const battleEvents = listener.filterQualifyingBattleEvents({
                     allBattleEvents: [victoryBattleEvent, defeatBattleEvent],
-                    objectRepository: gameEngineState.repository,
+                    objectRepository: gameEngineState.repository!,
                     battleActionRecorder:
                         gameEngineState.battleOrchestratorState.battleState
                             .battleActionRecorder,
@@ -430,7 +430,7 @@ describe("Event Message Listener", () => {
             it("Check for Defeat", () => {
                 const battleEvents = listener.filterQualifyingBattleEvents({
                     allBattleEvents: [victoryBattleEvent, defeatBattleEvent],
-                    objectRepository: gameEngineState.repository,
+                    objectRepository: gameEngineState.repository!,
                     battleActionRecorder:
                         gameEngineState.battleOrchestratorState.battleState
                             .battleActionRecorder,

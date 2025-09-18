@@ -46,7 +46,6 @@ import { SquaddieService } from "../../squaddie/squaddieService"
 import { ActionCalculator } from "../calculator/actionCalculator/calculator"
 import { MissionMapService } from "../../missionMap/missionMap"
 import { BattleActionRecorderService } from "../history/battleAction/battleActionRecorder"
-import { isValidValue } from "../../utils/objectValidityCheck"
 import { BattleSquaddie } from "../battleSquaddie"
 import { ResourceHandler } from "../../resource/resourceHandler"
 import { SearchResultAdapterService } from "../../hexMap/pathfinder/searchResults/searchResultAdapter"
@@ -61,10 +60,10 @@ export const SHOW_SELECTED_ACTION_TIME = 500
 export class BattleComputerSquaddieSelector
     implements BattleOrchestratorComponent
 {
-    mostRecentDecisionSteps: BattleActionDecisionStep[]
+    mostRecentDecisionSteps: BattleActionDecisionStep[] | undefined = undefined
     private showSelectedActionWaitTime?: number
-    private clickedToSkipActionDescription: boolean
-    shouldPanToSquaddie: boolean
+    private clickedToSkipActionDescription: boolean = false
+    shouldPanToSquaddie: boolean = false
 
     constructor() {
         this.resetInternalState()
@@ -122,9 +121,10 @@ export class BattleComputerSquaddieSelector
     }: {
         gameEngineState: GameEngineState
         graphicsContext: GraphicsBuffer
-        resourceHandler: ResourceHandler
+        resourceHandler: ResourceHandler | undefined
     }): void {
-        const currentTeam: BattleSquaddieTeam =
+        if (gameEngineState.repository == undefined) return
+        const currentTeam: BattleSquaddieTeam | undefined =
             BattleStateService.getCurrentTeam(
                 gameEngineState.battleOrchestratorState.battleState,
                 gameEngineState.repository
@@ -159,7 +159,7 @@ export class BattleComputerSquaddieSelector
     recommendStateChanges(
         gameEngineState: GameEngineState
     ): BattleOrchestratorChanges | undefined {
-        let nextMode: TBattleOrchestratorMode
+        let nextMode: TBattleOrchestratorMode | undefined = undefined
         if (this.mostRecentDecisionSteps !== undefined) {
             nextMode =
                 ActionComponentCalculator.getNextModeBasedOnBattleActionRecorder(
@@ -181,18 +181,17 @@ export class BattleComputerSquaddieSelector
     }
 
     private atLeastOneSquaddieOnCurrentTeamCanAct(
-        state: GameEngineState
+        gameEngineState: GameEngineState
     ): boolean {
+        if (gameEngineState.repository == undefined) return false
         const currentTeam = BattleStateService.getCurrentTeam(
-            state.battleOrchestratorState.battleState,
-            state.repository
+            gameEngineState.battleOrchestratorState.battleState,
+            gameEngineState.repository
         )
-        return (
-            currentTeam &&
-            BattleSquaddieTeamService.hasAnActingSquaddie(
-                currentTeam,
-                state.repository
-            )
+        if (currentTeam == undefined) return false
+        return BattleSquaddieTeamService.hasAnActingSquaddie(
+            currentTeam,
+            gameEngineState.repository
         )
     }
 
@@ -209,7 +208,7 @@ export class BattleComputerSquaddieSelector
         return (
             this.mostRecentDecisionSteps[
                 this.mostRecentDecisionSteps.length - 1
-            ].action.actionTemplateId !== undefined
+            ]?.action?.actionTemplateId !== undefined
         )
     }
 
@@ -233,7 +232,8 @@ export class BattleComputerSquaddieSelector
         actionTemplateId: string
         targetCoordinate: HexCoordinate
         battleSquaddieId: string
-    }) {
+    }): void {
+        if (gameEngineState.repository == undefined) return
         const searchResult: SearchResult =
             MapSearchService.calculateAllPossiblePathsFromStartingCoordinate({
                 missionMap:
@@ -288,23 +288,27 @@ export class BattleComputerSquaddieSelector
         if (this.mostRecentDecisionSteps !== undefined) {
             return
         }
+        if (gameEngineState.repository == undefined) return
         BattleActionDecisionStepService.reset(
             gameEngineState.battleOrchestratorState.battleState
                 .battleActionDecisionStep
         )
 
-        const currentTeam: BattleSquaddieTeam =
+        const currentTeam: BattleSquaddieTeam | undefined =
             BattleStateService.getCurrentTeam(
                 gameEngineState.battleOrchestratorState.battleState,
                 gameEngineState.repository
             )
+        if (currentTeam == undefined) {
+            return
+        }
         const currentTeamStrategies: TeamStrategy[] =
             gameEngineState.battleOrchestratorState.battleState
                 .teamStrategiesById[currentTeam.id] || []
         let strategyIndex = 0
-        let battleActionDecisionSteps: BattleActionDecisionStep[] = undefined
+        let battleActionDecisionSteps: BattleActionDecisionStep[] = []
         while (
-            !battleActionDecisionSteps &&
+            battleActionDecisionSteps.length < 1 &&
             strategyIndex < currentTeamStrategies.length
         ) {
             const nextStrategy: TeamStrategy =
@@ -316,7 +320,7 @@ export class BattleComputerSquaddieSelector
             )
             strategyIndex++
         }
-        if (battleActionDecisionSteps) {
+        if (battleActionDecisionSteps.length > 0) {
             this.reactToComputerSelectedAction(
                 gameEngineState,
                 battleActionDecisionSteps
@@ -332,14 +336,16 @@ export class BattleComputerSquaddieSelector
     }
 
     private defaultSquaddieToEndTurn(
-        state: GameEngineState,
+        gameEngineState: GameEngineState,
         currentTeam: BattleSquaddieTeam
     ) {
-        const battleSquaddieId: string =
+        if (gameEngineState.repository == undefined) return
+        const battleSquaddieId: string | undefined =
             BattleSquaddieTeamService.getBattleSquaddieIdThatCanActButNotPlayerControlled(
                 currentTeam,
-                state.repository
+                gameEngineState.repository
             )
+        if (battleSquaddieId == undefined) return
 
         const endTurnStep: BattleActionDecisionStep =
             BattleActionDecisionStepService.new()
@@ -352,7 +358,7 @@ export class BattleComputerSquaddieSelector
             endTurn: true,
         })
 
-        this.reactToComputerSelectedAction(state, [endTurnStep])
+        this.reactToComputerSelectedAction(gameEngineState, [endTurnStep])
     }
 
     private askTeamStrategyToInstructSquaddie(
@@ -373,12 +379,15 @@ export class BattleComputerSquaddieSelector
                 .battleActionRecorder
         )
 
-        const battleSquaddieId: string =
-            battleAction.actor.actorBattleSquaddieId
+        const battleSquaddieId = battleAction?.actor.actorBattleSquaddieId
+        if (battleSquaddieId == undefined) return
+
         const datum = MissionMapService.getByBattleSquaddieId(
             gameEngineState.battleOrchestratorState.battleState.missionMap,
             battleSquaddieId
         )
+        if (datum == undefined) return
+        if (datum.currentMapCoordinate == undefined) return
 
         const { x: squaddieScreenLocationX, y: squaddieScreenLocationY } =
             ConvertCoordinateService.convertMapCoordinatesToScreenLocation({
@@ -413,10 +422,13 @@ export class BattleComputerSquaddieSelector
     ) {
         const battleActionDecisionStep: BattleActionDecisionStep =
             battleActionDecisionSteps[0]
+        if (battleActionDecisionStep?.actor?.battleSquaddieId == undefined)
+            return
+        if (gameEngineState.repository == undefined) return
         const { battleSquaddie } = getResultOrThrowError(
             ObjectRepositoryService.getSquaddieByBattleId(
                 gameEngineState.repository,
-                battleActionDecisionStep.actor.battleSquaddieId
+                battleActionDecisionStep?.actor?.battleSquaddieId
             )
         )
 
@@ -486,9 +498,16 @@ export class BattleComputerSquaddieSelector
             (battleActionDecisionStep) =>
                 BattleActionDecisionStepService.getAction(
                     battleActionDecisionStep
-                ).actionTemplateId != undefined
+                )?.actionTemplateId != undefined
         )
-        if (!firstActionTemplateDecisionStep) {
+        if (
+            firstActionTemplateDecisionStep == undefined ||
+            BattleActionDecisionStepService.getAction(
+                firstActionTemplateDecisionStep
+            )?.actionTemplateId == undefined ||
+            firstActionTemplateDecisionStep.target?.targetCoordinate ==
+                undefined
+        ) {
             return
         }
 
@@ -497,7 +516,7 @@ export class BattleComputerSquaddieSelector
             gameEngineState,
             actionTemplateId: BattleActionDecisionStepService.getAction(
                 firstActionTemplateDecisionStep
-            ).actionTemplateId,
+            )!.actionTemplateId!,
             targetCoordinate:
                 firstActionTemplateDecisionStep.target.targetCoordinate,
             battleSquaddieId: battleSquaddie.battleSquaddieId,
@@ -512,7 +531,9 @@ export class BattleComputerSquaddieSelector
         battleActionDecisionSteps
             .filter(
                 (battleActionDecisionStep) =>
-                    battleActionDecisionStep.action.movement
+                    battleActionDecisionStep.action?.movement != undefined &&
+                    battleActionDecisionStep.target?.targetCoordinate !=
+                        undefined
             )
             .forEach((battleActionDecisionStep) => {
                 MissionMapService.updateBattleSquaddieCoordinate({
@@ -521,7 +542,7 @@ export class BattleComputerSquaddieSelector
                             .missionMap,
                     battleSquaddieId: battleSquaddie.battleSquaddieId,
                     coordinate:
-                        battleActionDecisionStep.target.targetCoordinate,
+                        battleActionDecisionStep!.target!.targetCoordinate,
                 })
                 MissionMapService.setOriginMapCoordinateToCurrentMapCoordinate(
                     gameEngineState.battleOrchestratorState.battleState
@@ -540,15 +561,20 @@ export class BattleComputerSquaddieSelector
                 battleActions: BattleAction[],
                 battleActionDecisionStep: BattleActionDecisionStep
             ) => {
+                if (battleActionDecisionStep.actor == undefined)
+                    return battleActions
+
                 const { currentMapCoordinate: startLocation } =
                     MissionMapService.getByBattleSquaddieId(
                         gameEngineState.battleOrchestratorState.battleState
                             .missionMap,
-                        battleActionDecisionStep.actor.battleSquaddieId
+                        battleActionDecisionStep.actor!.battleSquaddieId
                     )
-
+                if (startLocation == undefined)
+                    throw new Error("start location was undefined")
+                if (gameEngineState.repository == undefined) return []
                 switch (true) {
-                    case battleActionDecisionStep.action.endTurn:
+                    case battleActionDecisionStep.action?.endTurn:
                         battleActions.push(
                             BattleActionService.new({
                                 actor: {
@@ -561,7 +587,10 @@ export class BattleComputerSquaddieSelector
                             })
                         )
                         break
-                    case battleActionDecisionStep.action.movement:
+                    case battleActionDecisionStep.action != undefined &&
+                        battleActionDecisionStep.target?.targetCoordinate !=
+                            undefined &&
+                        battleActionDecisionStep.action?.movement:
                         battleActions.push(
                             BattleActionService.new({
                                 actor: {
@@ -581,9 +610,10 @@ export class BattleComputerSquaddieSelector
                             })
                         )
                         break
-                    case isValidValue(
-                        battleActionDecisionStep.action.actionTemplateId
-                    ):
+                    case battleActionDecisionStep.action?.actionTemplateId !=
+                        undefined &&
+                        battleActionDecisionStep.actor != undefined &&
+                        battleActionDecisionStep.target != undefined:
                         BattleActionDecisionStepService.copy(
                             battleActionDecisionStep,
                             gameEngineState.battleOrchestratorState.battleState
@@ -609,22 +639,24 @@ export class BattleComputerSquaddieSelector
                             challengeModifierSetting:
                                 gameEngineState.battleOrchestratorState
                                     .battleState.challengeModifierSetting,
-                        }).changesPerEffect.forEach((result) => {
+                        })?.changesPerEffect.forEach((result) => {
                             battleActions.push(
                                 BattleActionService.new({
                                     actor: {
                                         actorBattleSquaddieId:
-                                            battleActionDecisionStep.actor
+                                            battleActionDecisionStep!.actor!
                                                 .battleSquaddieId,
                                         actorContext: result.actorContext,
                                     },
                                     action: {
                                         actionTemplateId:
-                                            battleActionDecisionStep.action
+                                            battleActionDecisionStep!.action!
                                                 .actionTemplateId,
                                     },
                                     effect: {
-                                        squaddie: [...result.squaddieChanges],
+                                        squaddie: result.squaddieChanges
+                                            ? [...result.squaddieChanges]
+                                            : [],
                                     },
                                 })
                             )
@@ -645,12 +677,13 @@ export class BattleComputerSquaddieSelector
         actionTemplate?: ActionTemplate
         movement?: number
     } {
-        if (battleActionDecisionSteps.some((step) => step.action.endTurn)) {
+        if (battleActionDecisionSteps.some((step) => step?.action?.endTurn)) {
             return {
                 endTurn: true,
             }
         }
-
+        if (battleActionDecisionSteps[0].actor == undefined) return {}
+        if (gameEngineState.repository == undefined) return {}
         const { squaddieTemplate, battleSquaddie } = getResultOrThrowError(
             ObjectRepositoryService.getSquaddieByBattleId(
                 gameEngineState.repository,
@@ -658,9 +691,10 @@ export class BattleComputerSquaddieSelector
             )
         )
 
-        let actionTemplateIdUsed: string = battleActionDecisionSteps.find(
-            (step) => step.action.actionTemplateId !== undefined
-        )?.action.actionTemplateId
+        let actionTemplateIdUsed: string | undefined =
+            battleActionDecisionSteps.find(
+                (step) => step.action?.actionTemplateId !== undefined
+            )?.action?.actionTemplateId
         if (actionTemplateIdUsed !== undefined) {
             const actionTemplate =
                 ObjectRepositoryService.getActionTemplateById(
@@ -674,16 +708,20 @@ export class BattleComputerSquaddieSelector
 
         let movementActionPointCost = 0
         battleActionDecisionSteps
-            .filter((step) => step.action.movement === true)
+            .filter(
+                (step) =>
+                    step.action?.movement === true &&
+                    step.target?.targetCoordinate != undefined
+            )
             .forEach((movementStep) => {
                 let numberOfActionPointsSpentMoving: number
-
+                if (gameEngineState.repository == undefined) return
                 BattleSquaddieSelectorService.createSearchPathAndHighlightMovementPath(
                     {
                         squaddieTemplate,
                         battleSquaddie,
                         clickedHexCoordinate:
-                            movementStep.target.targetCoordinate,
+                            movementStep.target!.targetCoordinate!,
                         missionMap:
                             gameEngineState.battleOrchestratorState.battleState
                                 .missionMap,
@@ -700,7 +738,7 @@ export class BattleComputerSquaddieSelector
                         {
                             searchPath:
                                 gameEngineState.battleOrchestratorState
-                                    .battleState.squaddieMovePath,
+                                    .battleState.squaddieMovePath!,
                             battleSquaddieId: battleSquaddie.battleSquaddieId,
                             repository: gameEngineState.repository,
                         }
@@ -722,34 +760,44 @@ export class BattleComputerSquaddieSelector
     private isSquaddieActionWorthShowingToPlayer(
         gameEngineState: GameEngineState
     ): boolean {
-        return this.mostRecentDecisionSteps.some((step) => {
-            if (step.action.actionTemplateId != undefined) return true
-            if (step.action.endTurn) return false
-            if (!step.action.movement) return true
+        if (
+            gameEngineState.battleOrchestratorState.battleState
+                .squaddieMovePath == undefined
+        )
+            return false
+        return (
+            this.mostRecentDecisionSteps != undefined &&
+            this.mostRecentDecisionSteps.some((step) => {
+                if (step.action == undefined) return false
+                if (step.action.actionTemplateId != undefined) return true
+                if (step.action.endTurn) return false
+                if (!step.action.movement) return true
 
-            return SearchPathAdapterService.getCoordinates(
-                gameEngineState.battleOrchestratorState.battleState
-                    .squaddieMovePath
-            ).some((coordinate) =>
-                GraphicsConfig.isMapCoordinateOnScreen({
-                    mapCoordinate: coordinate,
-                    camera: gameEngineState.battleOrchestratorState.battleState
-                        .camera,
-                })
-            )
-        })
+                return SearchPathAdapterService.getCoordinates(
+                    gameEngineState.battleOrchestratorState.battleState
+                        .squaddieMovePath!
+                ).some((coordinate) =>
+                    GraphicsConfig.isMapCoordinateOnScreen({
+                        mapCoordinate: coordinate,
+                        camera: gameEngineState.battleOrchestratorState
+                            .battleState.camera,
+                    })
+                )
+            })
+        )
     }
 }
 
 const drawSquaddieAtInitialPositionAsCameraPans = (
     gameEngineState: GameEngineState,
     graphicsContext: GraphicsBuffer,
-    resourceHandler: ResourceHandler
+    resourceHandler: ResourceHandler | undefined
 ) => {
     const battleAction = BattleActionRecorderService.peekAtAnimationQueue(
         gameEngineState.battleOrchestratorState.battleState.battleActionRecorder
     )
-    const battleSquaddieId: string = battleAction.actor.actorBattleSquaddieId
+    if (battleAction == undefined) return
+    const battleSquaddieId = battleAction.actor.actorBattleSquaddieId
     const startLocation =
         battleAction.effect?.movement?.startCoordinate ??
         MissionMapService.getByBattleSquaddieId(
@@ -757,6 +805,9 @@ const drawSquaddieAtInitialPositionAsCameraPans = (
             battleSquaddieId
         ).currentMapCoordinate
 
+    if (startLocation == undefined) return
+    if (gameEngineState.repository == undefined) return
+    if (resourceHandler == undefined) return
     DrawSquaddieIconOnMapUtilities.drawSquaddieMapIconAtMapCoordinate({
         graphics: graphicsContext,
         squaddieRepository: gameEngineState.repository,

@@ -212,7 +212,6 @@ describe("PlayerActionTargetSelect State Machine", () => {
                 })
             ),
         })
-        stateMachine.uiObjects.confirm.okButton = confirmOKButton
         confirmCancelButton = new Button({
             id: PLAYER_ACTION_CONFIRM_CREATE_CANCEL_BUTTON_ID,
             buttonLogic: new ButtonLogicChangeOnRelease({
@@ -230,7 +229,10 @@ describe("PlayerActionTargetSelect State Machine", () => {
                 })
             ),
         })
-        stateMachine.uiObjects.confirm.cancelButton = confirmCancelButton
+        stateMachine.uiObjects.confirm = {
+            okButton: confirmOKButton,
+            cancelButton: confirmCancelButton,
+        }
         selectTargetCancelButton = new Button({
             id: PLAYER_ACTION_SELECT_TARGET_CREATE_CANCEL_BUTTON_ID,
             buttonLogic: new ButtonLogicChangeOnRelease({
@@ -248,8 +250,7 @@ describe("PlayerActionTargetSelect State Machine", () => {
                 })
             ),
         })
-        stateMachine.uiObjects.selectTarget.cancelButton =
-            selectTargetCancelButton
+
         selectTargetExplanationLabel = LabelService.new({
             text: "test",
             area: RectAreaService.new({
@@ -262,8 +263,11 @@ describe("PlayerActionTargetSelect State Machine", () => {
             fontColor: [10, 20, 30],
             textBoxMargin: [],
         })
-        stateMachine.uiObjects.selectTarget.explanationLabel =
-            selectTargetExplanationLabel
+        // TODO: I need to instantiate in runtime. Draw? The create tasks?
+        stateMachine.uiObjects.selectTarget = {
+            cancelButton: selectTargetCancelButton,
+            explanationLabel: selectTargetExplanationLabel,
+        }
     })
 
     afterEach(() => {
@@ -320,7 +324,7 @@ describe("PlayerActionTargetSelect State Machine", () => {
         it("tries to calculate the valid targets", () => {
             stateMachine.getActionLogic(
                 PlayerActionTargetActionEnum.COUNT_TARGETS_ENTRY
-            )(context)
+            )!(context)
 
             expect(findValidTargetsSpy).toBeCalled()
         })
@@ -328,7 +332,7 @@ describe("PlayerActionTargetSelect State Machine", () => {
         it("maps the valid squaddies to their map coordinate", () => {
             stateMachine.getActionLogic(
                 PlayerActionTargetActionEnum.COUNT_TARGETS_ENTRY
-            )(context)
+            )!(context)
 
             expect(context.targetResults.validTargets).toEqual(
                 expect.objectContaining({
@@ -342,7 +346,7 @@ describe("PlayerActionTargetSelect State Machine", () => {
         it("stores the coordinates that are in range", () => {
             stateMachine.getActionLogic(
                 PlayerActionTargetActionEnum.COUNT_TARGETS_ENTRY
-            )(context)
+            )!(context)
 
             expect(context.targetResults.validCoordinates).toEqual(
                 expect.arrayContaining([
@@ -357,12 +361,13 @@ describe("PlayerActionTargetSelect State Machine", () => {
             it("throws an error if there is no actor", () => {
                 BattleActionDecisionStepService.setActor({
                     actionDecisionStep: context.battleActionDecisionStep,
+                    // @ts-ignore Purposely using invalid parameters to throw an error
                     battleSquaddieId: undefined,
                 })
                 expect(() => {
                     stateMachine.getActionLogic(
                         PlayerActionTargetActionEnum.COUNT_TARGETS_ENTRY
-                    )(context)
+                    )!(context)
                 }).toThrow("no actor found")
             })
             it("throws an error if no action is set", () => {
@@ -370,7 +375,7 @@ describe("PlayerActionTargetSelect State Machine", () => {
                 expect(() => {
                     stateMachine.getActionLogic(
                         PlayerActionTargetActionEnum.COUNT_TARGETS_ENTRY
-                    )(context)
+                    )!(context)
                 }).toThrow("no action found")
             })
         })
@@ -501,7 +506,7 @@ describe("PlayerActionTargetSelect State Machine", () => {
             })
 
             it("if the action only targets foes it does not check", () => {
-                context.battleActionDecisionStep.action.actionTemplateId =
+                context.battleActionDecisionStep.action!.actionTemplateId =
                     undefined
                 BattleActionDecisionStepService.addAction({
                     actionDecisionStep: context.battleActionDecisionStep,
@@ -509,7 +514,7 @@ describe("PlayerActionTargetSelect State Machine", () => {
                 })
                 stateMachine.getActionLogic(
                     PlayerActionTargetActionEnum.COUNT_TARGETS_ENTRY
-                )(context)
+                )!(context)
                 expect(healCheckSpy).not.toBeCalled()
                 expect(addModifierCheckSpy).not.toBeCalled()
             })
@@ -517,7 +522,7 @@ describe("PlayerActionTargetSelect State Machine", () => {
             const useActionCountTargetsAndUpdateStateMachine = (
                 actionTemplate: ActionTemplate
             ) => {
-                context.battleActionDecisionStep.action.actionTemplateId =
+                context.battleActionDecisionStep.action!.actionTemplateId =
                     undefined
                 BattleActionDecisionStepService.addAction({
                     actionDecisionStep: context.battleActionDecisionStep,
@@ -525,7 +530,7 @@ describe("PlayerActionTargetSelect State Machine", () => {
                 })
                 stateMachine.getActionLogic(
                     PlayerActionTargetActionEnum.COUNT_TARGETS_ENTRY
-                )(context)
+                )!(context)
                 stateMachine.currentState =
                     PlayerActionTargetStateEnum.COUNT_TARGETS
                 return stateMachine.update()
@@ -688,7 +693,7 @@ describe("PlayerActionTargetSelect State Machine", () => {
         })
         const update = stateMachine.update()
         update.actions.forEach((action) => {
-            stateMachine.getActionLogic(action)(context)
+            stateMachine.getActionLogic(action)!(context)
         })
     }
 
@@ -710,7 +715,7 @@ describe("PlayerActionTargetSelect State Machine", () => {
             )
             stateMachine.getActionLogic(
                 PlayerActionTargetActionEnum.COUNT_TARGETS_ENTRY
-            )(context)
+            )!(context)
             stateMachine.currentState =
                 PlayerActionTargetStateEnum.COUNT_TARGETS
         })
@@ -737,7 +742,7 @@ describe("PlayerActionTargetSelect State Machine", () => {
             }
             stateMachine.getActionLogic(
                 PlayerActionTargetActionEnum.WAITING_FOR_PLAYER_TO_SELECT_TARGET
-            )(context)
+            )!(context)
             messageSpy = vi.spyOn(context.messageBoard, "sendMessage")
             stateMachine.update()
             return messageSpy
@@ -747,7 +752,7 @@ describe("PlayerActionTargetSelect State Machine", () => {
             beforeEach(() => {
                 stateMachine.getActionLogic(
                     PlayerActionTargetActionEnum.WAITING_FOR_PLAYER_TO_SELECT_TARGET
-                )(context)
+                )!(context)
                 stateMachine.currentState =
                     PlayerActionTargetStateEnum.WAITING_FOR_PLAYER_TO_SELECT_TARGET
             })
@@ -826,7 +831,7 @@ describe("PlayerActionTargetSelect State Machine", () => {
                         hoverMouseOverCoordinate(mapCoordinate)
                         let update = stateMachine.update()
                         update.actions.forEach((action) => {
-                            stateMachine.getActionLogic(action)(context)
+                            stateMachine.getActionLogic(action)!(context)
                         })
                         expect(messageSpy).toHaveBeenCalledWith({
                             type: MessageBoardMessageType.PLAYER_PEEKS_AT_SQUADDIE,
@@ -902,7 +907,7 @@ describe("PlayerActionTargetSelect State Machine", () => {
                         action()
                         let update = stateMachine.update()
                         update.actions.forEach((action) => {
-                            stateMachine.getActionLogic(action)(context)
+                            stateMachine.getActionLogic(action)!(context)
                         })
 
                         update = stateMachine.update()
@@ -944,7 +949,7 @@ describe("PlayerActionTargetSelect State Machine", () => {
                         action()
                         let update = stateMachine.update()
                         update.actions.forEach((action) => {
-                            stateMachine.getActionLogic(action)(context)
+                            stateMachine.getActionLogic(action)!(context)
                         })
 
                         update = stateMachine.update()
@@ -960,7 +965,7 @@ describe("PlayerActionTargetSelect State Machine", () => {
                         action()
                         let update = stateMachine.update()
                         update.actions.forEach((action) => {
-                            stateMachine.getActionLogic(action)(context)
+                            stateMachine.getActionLogic(action)!(context)
                         })
 
                         stateMachine.update()
@@ -983,11 +988,11 @@ describe("PlayerActionTargetSelect State Machine", () => {
                         clickOnTarget()
                         update = stateMachine.update()
                         update.actions.forEach((action) => {
-                            stateMachine.getActionLogic(action)(context)
+                            stateMachine.getActionLogic(action)!(context)
                         })
                         stateMachine.getActionLogic(
                             PlayerActionTargetActionEnum.TRIGGER_PLAYER_CONSIDERS_TARGET_SELECTION
-                        )(context)
+                        )!(context)
                     })
 
                     it("sends a message to select the target", () => {
@@ -1016,7 +1021,7 @@ describe("PlayerActionTargetSelect State Machine", () => {
                             eventType:
                                 OrchestratorComponentKeyEventType.PRESSED,
                             keyCode: JSON.parse(
-                                process.env.PLAYER_INPUT_CANCEL
+                                process.env.PLAYER_INPUT_CANCEL!
                             )[0]["press"],
                         })
                     },
@@ -1084,11 +1089,11 @@ describe("PlayerActionTargetSelect State Machine", () => {
                         cancelTests[0].acceptPlayerInput()
                         const update = stateMachine.update()
                         update.actions.forEach((action) => {
-                            stateMachine.getActionLogic(action)(context)
+                            stateMachine.getActionLogic(action)!(context)
                         })
                         stateMachine.getActionLogic(
                             PlayerActionTargetActionEnum.TRIGGER_PLAYER_CANCELS_ACTION_SELECTION
-                        )(context)
+                        )!(context)
                     })
 
                     it("sends a message indicating the player cancels the action", () => {
@@ -1211,7 +1216,7 @@ describe("PlayerActionTargetSelect State Machine", () => {
             acceptPlayerInput: () => {
                 stateMachine.acceptPlayerInput({
                     eventType: OrchestratorComponentKeyEventType.PRESSED,
-                    keyCode: JSON.parse(process.env.PLAYER_INPUT_CANCEL)[0][
+                    keyCode: JSON.parse(process.env.PLAYER_INPUT_CANCEL!)[0][
                         "press"
                     ],
                 })
@@ -1311,7 +1316,7 @@ describe("PlayerActionTargetSelect State Machine", () => {
                             eventType:
                                 OrchestratorComponentKeyEventType.PRESSED,
                             keyCode: JSON.parse(
-                                process.env.PLAYER_INPUT_ACCEPT
+                                process.env.PLAYER_INPUT_ACCEPT!
                             )[0]["press"],
                         })
                     },
@@ -1504,7 +1509,10 @@ describe("PlayerActionTargetSelect State Machine", () => {
             update.actions.forEach((action) => {
                 stateMachine.getActionLogic(action)(context)
             })
-            stateMachine.currentState = update.targetedState
+            expect(update.targetedState).not.toBeUndefined()
+            if (update.targetedState != undefined) {
+                stateMachine.currentState = update.targetedState
+            }
             expect(stateMachine.currentState).toEqual(
                 PlayerActionTargetActionEnum.WAITING_FOR_PLAYER_CONFIRM
             )

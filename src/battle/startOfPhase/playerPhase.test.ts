@@ -179,17 +179,17 @@ describe("player phase listener", () => {
             const playerSquaddieLocation =
                 ConvertCoordinateService.convertMapCoordinatesToWorldLocation({
                     mapCoordinate: {
-                        q: datum.currentMapCoordinate.q,
-                        r: datum.currentMapCoordinate.r,
+                        q: datum.currentMapCoordinate!.q,
+                        r: datum.currentMapCoordinate!.r,
                     },
                 })
             expect(
                 gameEngineState.battleOrchestratorState.battleState.camera
-                    .panningInformation.xDestination
+                    .panningInformation!.xDestination
             ).toBe(playerSquaddieLocation.x)
             expect(
                 gameEngineState.battleOrchestratorState.battleState.camera
-                    .panningInformation.yDestination
+                    .panningInformation!.yDestination
             ).toBe(playerSquaddieLocation.y)
         })
 
@@ -212,8 +212,8 @@ describe("player phase listener", () => {
             const playerSquaddieLocation =
                 ConvertCoordinateService.convertMapCoordinatesToWorldLocation({
                     mapCoordinate: {
-                        q: datum.currentMapCoordinate.q,
-                        r: datum.currentMapCoordinate.r,
+                        q: datum.currentMapCoordinate!.q,
+                        r: datum.currentMapCoordinate!.r,
                     },
                 })
             gameEngineState.battleOrchestratorState.battleState.camera.xCoordinate =

@@ -36,8 +36,8 @@ export const DamageExplanationService = {
 
 export interface BattleActionSquaddieChange {
     battleSquaddieId: string
-    attributesBefore: InBattleAttributes
-    attributesAfter: InBattleAttributes
+    attributesBefore: InBattleAttributes | undefined
+    attributesAfter: InBattleAttributes | undefined
     damage: DamageExplanation
     healingReceived: number
     actorDegreeOfSuccess: TDegreeOfSuccess
@@ -84,12 +84,12 @@ export const BattleActionSquaddieChangeService = {
     clone: (original: BattleActionSquaddieChange): BattleActionSquaddieChange =>
         newBattleActionSquaddieChange({
             battleSquaddieId: original.battleSquaddieId,
-            attributesBefore: InBattleAttributesService.clone(
-                original.attributesBefore
-            ),
-            attributesAfter: InBattleAttributesService.clone(
-                original.attributesAfter
-            ),
+            attributesBefore: original.attributesBefore
+                ? InBattleAttributesService.clone(original.attributesBefore)
+                : undefined,
+            attributesAfter: original.attributesAfter
+                ? InBattleAttributesService.clone(original.attributesAfter)
+                : undefined,
             damageExplanation: original.damage,
             healingReceived: original.healingReceived,
             actorDegreeOfSuccess: original.actorDegreeOfSuccess,
@@ -118,12 +118,14 @@ const newBattleActionSquaddieChange = ({
     successBonus?: number
 }): BattleActionSquaddieChange => ({
     battleSquaddieId,
-    attributesBefore: isValidValue(attributesBefore)
-        ? attributesBefore
-        : undefined,
-    attributesAfter: isValidValue(attributesAfter)
-        ? attributesAfter
-        : undefined,
+    attributesBefore:
+        isValidValue(attributesBefore) && attributesBefore != undefined
+            ? attributesBefore
+            : undefined,
+    attributesAfter:
+        isValidValue(attributesAfter) && attributesAfter != undefined
+            ? attributesAfter
+            : undefined,
     damage: damageExplanation ?? DamageExplanationService.new({}),
     healingReceived: healingReceived ?? 0,
     actorDegreeOfSuccess: actorDegreeOfSuccess ?? DegreeOfSuccess.NONE,

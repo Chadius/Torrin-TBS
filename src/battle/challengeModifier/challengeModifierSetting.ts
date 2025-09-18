@@ -1,4 +1,5 @@
 import { ObjectRepository, ObjectRepositoryService } from "../objectRepository"
+import { EnumLike } from "../../utils/enum"
 import {
     DegreeOfSuccess,
     TDegreeOfSuccess,
@@ -32,8 +33,8 @@ export const ChallengeModifierSettingService = {
     getSetting: (
         challengeModifierSetting: ChallengeModifierSetting,
         type: TChallengeModifier
-    ): ChallengeModifierValue => {
-        if (!challengeModifierSetting) return undefined
+    ): ChallengeModifierValue | undefined => {
+        if (challengeModifierSetting == undefined) return undefined
         return challengeModifierSetting[type]
     },
     setSetting: ({
@@ -91,14 +92,11 @@ export const ChallengeModifierSettingService = {
     ): ChallengeModifierSetting => {
         const clone = newChallengeModifierSetting()
         Object.entries(challengeModifierSetting).forEach(
-            ([challengeModifierType, value]: [
-                TChallengeModifier,
-                ChallengeModifierValue,
-            ]) => {
+            ([challengeModifierType, value]) => {
                 setSetting({
                     challengeModifierSetting: clone,
-                    type: challengeModifierType,
-                    value,
+                    type: challengeModifierType as TChallengeModifier,
+                    value: value as ChallengeModifierValue,
                 })
             }
         )

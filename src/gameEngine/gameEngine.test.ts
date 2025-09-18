@@ -66,12 +66,12 @@ describe("Game Engine", () => {
         })
 
         const nextComponent = newGameEngine.gameEngineComponent
-        const updateSpy = vi.spyOn(nextComponent, "update").mockResolvedValue()
+        const updateSpy = vi.spyOn(nextComponent!, "update").mockResolvedValue()
         const hasCompletedSpy = vi
-            .spyOn(nextComponent, "hasCompleted")
+            .spyOn(nextComponent!, "hasCompleted")
             .mockReturnValue(true)
         const recommendedSpy = vi
-            .spyOn(nextComponent, "recommendStateChanges")
+            .spyOn(nextComponent!, "recommendStateChanges")
             .mockReturnValue({ nextMode: GameModeEnum.BATTLE })
 
         await newGameEngine.update({ graphics: mockedP5GraphicsBuffer })
@@ -89,7 +89,7 @@ describe("Game Engine", () => {
     describe("Game Engine component hooks ", () => {
         const expectUpdate = async (newGameEngine: GameEngine) => {
             const updateSpy = vi
-                .spyOn(newGameEngine.gameEngineComponent, "update")
+                .spyOn(newGameEngine.gameEngineComponent!, "update")
                 .mockResolvedValue()
             await newGameEngine.update({ graphics: mockedP5GraphicsBuffer })
             expect(updateSpy).toBeCalled()
@@ -98,7 +98,7 @@ describe("Game Engine", () => {
 
         const expectKeyPressed = (newGameEngine: GameEngine) => {
             const eventSpy = vi
-                .spyOn(newGameEngine.gameEngineComponent, "keyPressed")
+                .spyOn(newGameEngine.gameEngineComponent!, "keyPressed")
                 .mockImplementation(() => {})
             newGameEngine.keyPressed(10)
             expect(eventSpy).toBeCalled()
@@ -108,7 +108,7 @@ describe("Game Engine", () => {
 
         const expectMousePressed = (newGameEngine: GameEngine) => {
             const eventSpy = vi
-                .spyOn(newGameEngine.gameEngineComponent, "mousePressed")
+                .spyOn(newGameEngine.gameEngineComponent!, "mousePressed")
                 .mockImplementation(() => {})
             newGameEngine.mousePressed({
                 button: MouseButton.ACCEPT,
@@ -126,7 +126,7 @@ describe("Game Engine", () => {
 
         const expectMouseDragged = (newGameEngine: GameEngine) => {
             const eventSpy = vi
-                .spyOn(newGameEngine.gameEngineComponent, "mouseDragged")
+                .spyOn(newGameEngine.gameEngineComponent!, "mouseDragged")
                 .mockImplementation(() => {})
             newGameEngine.mouseDragged({
                 button: MouseButton.ACCEPT,
@@ -148,7 +148,7 @@ describe("Game Engine", () => {
 
         const expectMouseMoved = (newGameEngine: GameEngine) => {
             const eventSpy = vi
-                .spyOn(newGameEngine.gameEngineComponent, "mouseMoved")
+                .spyOn(newGameEngine.gameEngineComponent!, "mouseMoved")
                 .mockImplementation(() => {})
             newGameEngine.mouseMoved({ x: 100, y: 200 })
             expect(eventSpy).toBeCalled()
@@ -158,7 +158,7 @@ describe("Game Engine", () => {
 
         const expectMouseWheel = (newGameEngine: GameEngine) => {
             const eventSpy = vi
-                .spyOn(newGameEngine.gameEngineComponent, "mouseWheel")
+                .spyOn(newGameEngine.gameEngineComponent!, "mouseWheel")
                 .mockImplementation(() => {})
             newGameEngine.mouseWheel({
                 x: ScreenDimensions.SCREEN_WIDTH / 2,
@@ -239,7 +239,7 @@ describe("Game Engine", () => {
             })
 
             expect(
-                newGameEngine.gameEngineState.messageBoard.getListenersByMessageType(
+                newGameEngine.gameEngineState!.messageBoard.getListenersByMessageType(
                     MessageBoardMessageType.STARTED_PLAYER_PHASE
                 ).length
             ).toBeGreaterThan(0)
@@ -273,33 +273,33 @@ describe("Game Engine", () => {
                 version: "TEST",
             })
             expect(loadFileIntoFormatSpy).toBeCalled()
-            newGameEngine.gameEngineState.battleOrchestratorState.battleState.missionMap =
+            newGameEngine.gameEngineState!.battleOrchestratorState.battleState.missionMap =
                 NullMissionMap()
-            newGameEngine.gameEngineState.campaign = CampaignService.new({
+            newGameEngine.gameEngineState!.campaign = CampaignService.new({
                 id: "default",
             })
             SaveSaveStateService.userRequestsSave(
-                newGameEngine.gameEngineState.fileState.saveSaveState
+                newGameEngine.gameEngineState!.fileState.saveSaveState
             )
-            newGameEngine.gameEngineState.battleOrchestratorState.battleState.missionId =
+            newGameEngine.gameEngineState!.battleOrchestratorState.battleState.missionId =
                 "save with this mission id"
-            newGameEngine.gameEngineState.repository =
+            newGameEngine.gameEngineState!.repository =
                 ObjectRepositoryService.new()
             const saveSpy = vi
                 .spyOn(BattleSaveStateService, "SaveToFile")
-                .mockReturnValue(null)
+                .mockImplementation(() => {})
 
             await newGameEngine.update({ graphics: mockedP5GraphicsBuffer })
 
             expect(saveSpy).toBeCalled()
             expect(
-                newGameEngine.gameEngineState.fileState.saveSaveState
+                newGameEngine.gameEngineState!.fileState.saveSaveState
                     .savingInProgress
             ).toBeFalsy()
             const battleSaveStateSaved: BattleSaveState =
                 saveSpy.mock.calls[0][0]
             expect(battleSaveStateSaved.missionId).toBe(
-                newGameEngine.gameEngineState.battleOrchestratorState
+                newGameEngine.gameEngineState!.battleOrchestratorState
                     .battleState.missionId
             )
         })
@@ -316,13 +316,13 @@ describe("Game Engine", () => {
                 campaignId: "default",
                 version: "TEST",
             })
-            newGameEngine.gameEngineState.battleOrchestratorState.battleState.missionMap =
+            newGameEngine.gameEngineState!.battleOrchestratorState.battleState.missionMap =
                 NullMissionMap()
-            newGameEngine.gameEngineState.campaign = CampaignService.new({
+            newGameEngine.gameEngineState!.campaign = CampaignService.new({
                 id: "default",
             })
             SaveSaveStateService.userRequestsSave(
-                newGameEngine.gameEngineState.fileState.saveSaveState
+                newGameEngine.gameEngineState!.fileState.saveSaveState
             )
             const saveSpy = vi
                 .spyOn(BattleSaveStateService, "SaveToFile")
@@ -334,11 +334,11 @@ describe("Game Engine", () => {
 
             expect(saveSpy).toBeCalled()
             expect(
-                newGameEngine.gameEngineState.fileState.saveSaveState
+                newGameEngine.gameEngineState!.fileState.saveSaveState
                     .savingInProgress
             ).toBeFalsy()
             expect(
-                newGameEngine.gameEngineState.fileState.saveSaveState
+                newGameEngine.gameEngineState!.fileState.saveSaveState
                     .errorDuringSaving
             ).toBeTruthy()
 
@@ -363,14 +363,14 @@ describe("Game Engine", () => {
                 campaignId: "default",
                 version: "TEST",
             })
-            newGameEngine.gameEngineState.battleOrchestratorState.battleState.missionMap =
+            newGameEngine.gameEngineState!.battleOrchestratorState.battleState.missionMap =
                 NullMissionMap()
-            newGameEngine.gameEngineState.messageBoard.sendMessage({
+            newGameEngine.gameEngineState!.messageBoard.sendMessage({
                 type: MessageBoardMessageType.PLAYER_DATA_LOAD_USER_REQUEST,
                 loadSaveState:
-                    newGameEngine.gameEngineState.fileState.loadSaveState,
+                    newGameEngine.gameEngineState!.fileState.loadSaveState,
             })
-            newGameEngine.gameEngineState.battleOrchestratorState.battleState.objectives =
+            newGameEngine.gameEngineState!.battleOrchestratorState.battleState.objectives =
                 [
                     MissionObjectiveService.validateMissionObjective({
                         id: "test",
@@ -385,10 +385,13 @@ describe("Game Engine", () => {
                         ],
                     }),
                 ]
-            vi.spyOn(
-                newGameEngine.battleOrchestrator,
-                "hasCompleted"
-            ).mockReturnValue(true)
+            expect(newGameEngine.battleOrchestrator).not.toBeUndefined()
+            if (newGameEngine.battleOrchestrator != undefined) {
+                vi.spyOn(
+                    newGameEngine.battleOrchestrator,
+                    "hasCompleted"
+                ).mockReturnValue(true)
+            }
             expect(loadFileIntoFormatSpy).toBeCalled()
         })
         afterEach(() => {
@@ -401,23 +404,23 @@ describe("Game Engine", () => {
         it("will not reset the battle orchestrator state", async () => {
             await newGameEngine.update({ graphics: mockedP5GraphicsBuffer })
             expect(
-                newGameEngine.gameEngineState.battleOrchestratorState
-                    .battleState.objectives[0].id
+                newGameEngine.gameEngineState!.battleOrchestratorState
+                    .battleState.objectives[0]!.id
             ).toBe("test")
         })
         it("loader will go to the previous mode upon completion", async () => {
             const loaderUpdateSpy = vi
-                .spyOn(newGameEngine.gameEngineComponent, "update")
+                .spyOn(newGameEngine.gameEngineComponent!, "update")
                 .mockResolvedValue()
             const loaderCompletedSpy = vi
-                .spyOn(newGameEngine.gameEngineComponent, "hasCompleted")
+                .spyOn(newGameEngine.gameEngineComponent!, "hasCompleted")
                 .mockReturnValue(true)
             await newGameEngine.update({ graphics: mockedP5GraphicsBuffer })
             expect(loaderUpdateSpy).toBeCalled()
             expect(loaderCompletedSpy).toBeCalled()
-            expect(newGameEngine.gameEngineState.modeThatInitiatedLoading).toBe(
-                GameModeEnum.BATTLE
-            )
+            expect(
+                newGameEngine.gameEngineState!.modeThatInitiatedLoading
+            ).toBe(GameModeEnum.BATTLE)
         })
     })
 
@@ -432,20 +435,20 @@ describe("Game Engine", () => {
             version: "TEST",
         })
         expect(
-            gameEngine.gameEngineState.playerInputState.modifierKeyCodes.shift
+            gameEngine.gameEngineState!.playerInputState.modifierKeyCodes.shift
                 .active
         ).toBeFalsy()
 
         const SHIFT_KEY_CODE = 16
         gameEngine.keyIsDown(SHIFT_KEY_CODE)
         expect(
-            gameEngine.gameEngineState.playerInputState.modifierKeyCodes.shift
+            gameEngine.gameEngineState!.playerInputState.modifierKeyCodes.shift
                 .active
         ).toBeTruthy()
 
         gameEngine.keyIsUp(SHIFT_KEY_CODE)
         expect(
-            gameEngine.gameEngineState.playerInputState.modifierKeyCodes.shift
+            gameEngine.gameEngineState!.playerInputState.modifierKeyCodes.shift
                 .active
         ).toBeFalsy()
     })

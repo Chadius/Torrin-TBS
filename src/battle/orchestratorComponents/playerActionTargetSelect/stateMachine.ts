@@ -49,6 +49,7 @@ import {
 } from "../../../hexMap/hexCoordinate/hexCoordinate"
 import { Label } from "../../../ui/label"
 import { MissionMapSquaddieCoordinateService } from "../../../missionMap/squaddieCoordinate"
+import { EnumLike } from "../../../utils/enum"
 
 export const PlayerActionTargetStateEnum = {
     UNKNOWN: "UNKNOWN",
@@ -209,7 +210,7 @@ export class PlayerActionTargetStateMachine extends StateMachine<
     PlayerActionTargetActionType,
     PlayerActionTargetStateMachineContext
 > {
-    uiObjects: PlayerActionTargetStateMachineUIObjects
+    uiObjects: PlayerActionTargetStateMachineUIObjects | undefined
 
     constructor({
         id,
@@ -426,17 +427,21 @@ export class PlayerActionTargetStateMachine extends StateMachine<
 
     getConfirmButtons(): Button[] {
         return [
-            this.uiObjects?.confirm.okButton,
-            this.uiObjects?.confirm.cancelButton,
-        ].filter((x) => x)
+            this.uiObjects?.confirm?.okButton,
+            this.uiObjects?.confirm?.cancelButton,
+        ].filter((x) => x != undefined)
     }
 
     getSelectTargetButtons(): Button[] {
-        return [this.uiObjects?.selectTarget.cancelButton].filter((x) => x)
+        return [this.uiObjects?.selectTarget?.cancelButton].filter(
+            (x) => x != undefined
+        )
     }
 
     getSelectTargetExplanationText(): Label[] {
-        return [this.uiObjects?.selectTarget.explanationLabel].filter((x) => x)
+        return [this.uiObjects?.selectTarget?.explanationLabel].filter(
+            (x) => x != undefined
+        )
     }
 }
 
@@ -448,6 +453,12 @@ const countTargetsEntry = (context: PlayerActionTargetStateMachineContext) => {
     if (battleSquaddieId == undefined) {
         throw new Error(
             "[PlayerActionTargetStateMachine.countTargetsEntry] no actor found"
+        )
+    }
+
+    if (context.objectRepository == undefined) {
+        throw new Error(
+            "[PlayerActionTargetStateMachine.countTargetsEntry] no objectRepository"
         )
     }
 
@@ -521,6 +532,12 @@ const countTargetsFromResultsBasedOnActionTemplate = (
                     actionEffectTemplate
                 )
         )
+    const objectRepository = context.objectRepository
+    if (objectRepository == undefined) {
+        throw new Error(
+            "[PlayerActionTargetStateMachine.countTargetsFromResultsBasedOnActionTemplate] no objectRepository"
+        )
+    }
 
     return targetingResults.battleSquaddieIdsInRange.filter(
         (battleSquaddieId) => {
@@ -531,7 +548,7 @@ const countTargetsFromResultsBasedOnActionTemplate = (
                 squaddieTemplate: targetSquaddieTemplate,
             } = getResultOrThrowError(
                 ObjectRepositoryService.getSquaddieByBattleId(
-                    context.objectRepository,
+                    objectRepository,
                     battleSquaddieId
                 )
             )
@@ -612,7 +629,7 @@ const parseMouseEventsWhenPlayerCanConfirm = (
     const confirmOKButton = buttons.find(
         (button) => button.id === PLAYER_ACTION_CONFIRM_CREATE_OK_BUTTON_ID
     )
-    if (didButtonSwitchFromActiveToHover(confirmOKButton)) {
+    if (confirmOKButton && didButtonSwitchFromActiveToHover(confirmOKButton)) {
         confirmOKButton.clearStatus()
         context.playerIntent.targetConfirmed = true
     }
@@ -621,8 +638,9 @@ const parseMouseEventsWhenPlayerCanConfirm = (
         (button) => button.id === PLAYER_ACTION_CONFIRM_CREATE_CANCEL_BUTTON_ID
     )
     if (
-        didButtonSwitchFromActiveToHover(cancelButton) ||
-        didPlayerClickOnMouseCancelButton(context)
+        cancelButton &&
+        (didButtonSwitchFromActiveToHover(cancelButton) ||
+            didPlayerClickOnMouseCancelButton(context))
     ) {
         cancelButton.clearStatus()
         if (context.playerIntent.targetSelection.automaticallySelected)
@@ -641,8 +659,9 @@ const parseMouseEventsWhenPlayerCanSelectTarget = (
             button.id === PLAYER_ACTION_SELECT_TARGET_CREATE_CANCEL_BUTTON_ID
     )
     if (
-        didButtonSwitchFromActiveToHover(cancelButton) ||
-        didPlayerClickOnMouseCancelButton(context)
+        cancelButton &&
+        (didButtonSwitchFromActiveToHover(cancelButton) ||
+            didPlayerClickOnMouseCancelButton(context))
     ) {
         cancelButton.clearStatus()
         context.playerIntent.actionCancelled = true
@@ -659,6 +678,7 @@ const parseMouseEventsWhenPlayerCanSelectTarget = (
             )
             .map(([battleSquaddieId, _]) => battleSquaddieId)
     }
+
     context.playerInput
         .filter((event) =>
             new Set<TOrchestratorComponentMouseEventType>([
@@ -666,6 +686,7 @@ const parseMouseEventsWhenPlayerCanSelectTarget = (
                 OrchestratorComponentMouseEventType.LOCATION,
             ]).has(event.eventType as TOrchestratorComponentMouseEventType)
         )
+        .map((event) => event as OrchestratorComponentMouseEvent)
         .forEach((mouseEvent: OrchestratorComponentMouseEvent) => {
             let battleSquaddieIds: string[] = []
             switch (mouseEvent.eventType) {
@@ -756,10 +777,15 @@ const updateSelectTargetExplanationText = (
         context.missionMap,
         mapCoordinateClickedOn
     )
-    if (MissionMapSquaddieCoordinateService.isValid(info)) {
+    const objectRepository = context.objectRepository
+    if (
+        MissionMapSquaddieCoordinateService.isValid(info) &&
+        info?.battleSquaddieId != undefined &&
+        objectRepository != undefined
+    ) {
         const { squaddieTemplate } = getResultOrThrowError(
             ObjectRepositoryService.getSquaddieByBattleId(
-                context.objectRepository,
+                objectRepository,
                 info.battleSquaddieId
             )
         )
@@ -808,6 +834,7 @@ const applyMouseEventsToButtons = (
                 OrchestratorComponentMouseEventType.LOCATION,
             ]).has(event.eventType as TOrchestratorComponentMouseEventType)
         )
+        .map((event) => event as OrchestratorComponentMouseEvent)
         .forEach((mouseEvent: OrchestratorComponentMouseEvent) => {
             switch (mouseEvent.eventType) {
                 case OrchestratorComponentMouseEventType.PRESS:

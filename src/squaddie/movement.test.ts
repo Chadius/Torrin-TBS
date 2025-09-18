@@ -37,8 +37,11 @@ describe("movement for squaddies", () => {
         it("can be sanitized to fill in missing fields", () => {
             const movementWithMissingFields: SquaddieMovement = {
                 movementPerAction: NaN,
+                // @ts-ignore adding invalid value intentionally so I can test sanitization
                 passThroughWalls: undefined,
+                // @ts-ignore adding invalid value intentionally so I can test sanitization
                 crossOverPits: null,
+                // @ts-ignore adding invalid value intentionally so I can test sanitization
                 ignoreTerrainCost: undefined,
             }
             SquaddieMovementService.sanitize(movementWithMissingFields)

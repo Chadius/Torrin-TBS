@@ -1,3 +1,5 @@
+import { EnumLike } from "../../../utils/enum"
+
 export const TriggeringEvent = {
     MISSION_VICTORY: "MISSION_VICTORY",
     MISSION_DEFEAT: "MISSION_DEFEAT",

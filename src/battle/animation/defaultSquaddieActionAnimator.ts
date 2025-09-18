@@ -10,30 +10,32 @@ import { BattleActionRecorderService } from "../history/battleAction/battleActio
 import { ResourceHandler } from "../../resource/resourceHandler"
 
 export class DefaultSquaddieActionAnimator implements SquaddieActionAnimator {
-    hasCompleted(state: GameEngineState): boolean {
+    hasCompleted(_: GameEngineState): boolean {
         return true
     }
 
     mouseEventHappened(
-        state: GameEngineState,
-        mouseEvent: OrchestratorComponentMouseEvent
+        _state: GameEngineState,
+        _mouseEvent: OrchestratorComponentMouseEvent
     ): void {
         // Required by inheritance
     }
 
     keyEventHappened(
-        gameEngineState: GameEngineState,
-        keyEvent: OrchestratorComponentKeyEvent
+        _gameEngineState: GameEngineState,
+        _keyEvent: OrchestratorComponentKeyEvent
     ): void {
         // Required by inheritance
     }
 
     reset(gameEngineState: GameEngineState): void {
+        const battleAction = BattleActionRecorderService.peekAtAnimationQueue(
+            gameEngineState.battleOrchestratorState.battleState
+                .battleActionRecorder
+        )
+        if (battleAction == undefined) return
         BattleActionService.setAnimationCompleted({
-            battleAction: BattleActionRecorderService.peekAtAnimationQueue(
-                gameEngineState.battleOrchestratorState.battleState
-                    .battleActionRecorder
-            ),
+            battleAction: battleAction,
             animationCompleted: true,
         })
     }
@@ -42,11 +44,7 @@ export class DefaultSquaddieActionAnimator implements SquaddieActionAnimator {
         // Required by inheritance
     }
 
-    update({
-        gameEngineState,
-        graphicsContext,
-        resourceHandler,
-    }: {
+    update({}: {
         gameEngineState: GameEngineState
         graphicsContext: GraphicsBuffer
         resourceHandler: ResourceHandler

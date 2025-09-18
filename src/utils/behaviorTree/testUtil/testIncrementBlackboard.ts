@@ -8,10 +8,6 @@ export class IncrementBlackboard implements BehaviorTreeTask {
         this.dataBlob = blackboard
     }
 
-    clone(): BehaviorTreeTask {
-        return undefined
-    }
-
     run(): boolean {
         let currentValue: number =
             DataBlobService.get<number>(this.dataBlob, "increment") ?? 0

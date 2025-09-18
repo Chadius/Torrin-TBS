@@ -148,7 +148,7 @@ const calculateEffectBasedOnDegreeOfSuccess = ({
         })
 
     return {
-        degreeOfSuccess: undefined,
+        degreeOfSuccess: DegreeOfSuccess.NONE,
         attributeModifiersToAddToTarget,
         damage: DamageExplanationService.new({}),
         healingReceived,

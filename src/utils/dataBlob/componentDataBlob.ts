@@ -3,9 +3,9 @@ import { DataBlob, DataBlobService } from "./dataBlob"
 export class ComponentDataBlob<Layout, Context, UIObjects> implements DataBlob {
     data: {
         data: {
-            layout: Layout
-            context: Context
-            uiObjects: UIObjects
+            layout: Layout | undefined
+            context: Context | undefined
+            uiObjects: UIObjects | undefined
             [key: string]: any
         }
     }

@@ -29,6 +29,7 @@ import {
     ActionValidityByIdCache,
     ActionValidityByIdCacheService,
 } from "../actionValidity/cache/actionValidityByIdCache"
+import { EnumLike } from "../../utils/enum"
 
 export type BattleCache = {
     searchResultsCache: SearchResultsCache
@@ -60,15 +61,10 @@ export class BattleOrchestratorState {
         challengeModifierSetting?: ChallengeModifierSetting
     }) {
         this.battleState = battleState
-        this.battleHUD = getValidValueOrDefault(
-            battleHUD,
-            BattleHUDService.new({})
-        )
+        this.battleHUD = battleHUD ?? BattleHUDService.new({})
+
         this.numberGenerator = numberGenerator
-        this.battleHUDState = getValidValueOrDefault(
-            battleHUDState,
-            BattleHUDStateService.new({})
-        )
+        this.battleHUDState = battleHUDState ?? BattleHUDStateService.new({})
         this.cutsceneQueue = CutsceneQueueService.new()
         CutsceneQueueService.addList(
             this.cutsceneQueue,
@@ -101,10 +97,9 @@ export class BattleOrchestratorState {
         return Object.keys(expectedComponents)
             .map((str) => str as TBattleOrchestratorStateValidityReason)
             .filter(
-                (battleOrchestratorStateValidityReason) =>
-                    expectedComponents[
-                        battleOrchestratorStateValidityReason
-                    ] === false
+                (
+                    battleOrchestratorStateValidityReason: TBattleOrchestratorStateValidityReason
+                ) => !expectedComponents[battleOrchestratorStateValidityReason]
             )
     }
 

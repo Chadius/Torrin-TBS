@@ -46,11 +46,11 @@ export class CreateLeftModifiersTextBoxAction implements BehaviorTreeTask {
         const modifiersLayoutConstants = this.dataBlob.getLayout().modifiers
 
         const leftSideRollModifiers =
-            context.forecast.changesPerEffect[0].actorContext.actorRoll
-                .rollModifiers || {}
+            context.forecast.changesPerEffect[0].actorContext?.actorRoll
+                .rollModifiers ?? {}
         const leftSideActorAttributeModifiers =
             context.forecast.changesPerEffect[0].actorContext
-                .actorAttributeModifiers || []
+                ?.actorAttributeModifiers ?? []
         const leftSideModifiers: {
             name: string
             amount: number | undefined
@@ -97,6 +97,7 @@ export class CreateLeftModifiersTextBoxAction implements BehaviorTreeTask {
             boundingBox
         )
 
+        if (uiObjects.graphicsContext == undefined) return false
         const textInfo = TextGraphicalHandlingService.fitTextWithinSpace({
             text: messageToShow,
             maximumWidth: modifiersLayoutConstants.leftColumn.width,
@@ -153,7 +154,8 @@ export class CreateRightModifiersTextBoxAction implements BehaviorTreeTask {
 
         const rightSideTargetAttributeModifiers =
             context.forecast.changesPerEffect[0].actorContext
-                .targetAttributeModifiers[context.focusedBattleSquaddieId] || []
+                ?.targetAttributeModifiers[context.focusedBattleSquaddieId] ??
+            []
         const rightSideModifiers: {
             name: string
             amount: number | undefined
@@ -189,7 +191,7 @@ export class CreateRightModifiersTextBoxAction implements BehaviorTreeTask {
             uiObjects.modifiers.rightSide,
             boundingBox
         )
-
+        if (uiObjects.graphicsContext == undefined) return false
         const textInfo = TextGraphicalHandlingService.fitTextWithinSpace({
             text: messageToShow,
             maximumWidth: modifiersLayoutConstants.rightColumn.width,

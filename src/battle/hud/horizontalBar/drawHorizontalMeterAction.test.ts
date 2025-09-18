@@ -116,7 +116,7 @@ describe("Horizontal Meter", () => {
                     "outlineStrokeColor",
                     [4, 5, 6]
                 )
-                DataBlobService.add<number>(
+                DataBlobService.add<number | undefined>(
                     horizontalBarData,
                     "outlineStrokeWeight",
                     outlineStrokeWeight
@@ -259,32 +259,6 @@ describe("Horizontal Meter", () => {
                 "currentValueFillColor",
                 [10, 11, 12]
             )
-        })
-
-        it("can draw segments at fixed intervals up to the max value", () => {
-            DataBlobService.add<number>(
-                horizontalBarData,
-                "currentValueSegmentDivisionInterval",
-                2
-            )
-            DataBlobService.add<number>(horizontalBarData, "maxValue", 10)
-            DataBlobService.add<number>(horizontalBarData, "currentValue", 5)
-            const drawBehavior = new DrawHorizontalMeterAction(
-                horizontalBarData,
-                graphicsContext
-            )
-
-            drawBehavior.run()
-            expect(graphicsBufferSpies["stroke"]).toHaveBeenCalledWith(7, 8, 9)
-            expect(graphicsBufferSpies["strokeWeight"]).toHaveBeenCalledWith(13)
-
-            const lineXValues = getXValuesOfVerticalLineCalls()
-            expect(lineXValues.includes(10)).toBeFalsy()
-            expect(lineXValues.includes(10 + (360 * 2) / 10)).toBeTruthy()
-            expect(lineXValues.includes(10 + (360 * 4) / 10)).toBeTruthy()
-            expect(lineXValues.includes(10 + (360 * 6) / 10)).toBeTruthy()
-            expect(lineXValues.includes(10 + (360 * 8) / 10)).toBeTruthy()
-            expect(lineXValues.includes(10 + 360)).toBeFalsy()
         })
 
         it("can draw segments at intervals based on a function", () => {

@@ -14,14 +14,14 @@ export const CutsceneQueueService = {
     add: (cutsceneQueue: CutsceneIdQueue, cutscene: string) => {
         cutsceneQueue.cutsceneIds.push(cutscene)
     },
-    peek: (cutsceneQueue: CutsceneIdQueue): string => {
+    peek: (cutsceneQueue: CutsceneIdQueue): string | undefined => {
         if (cutsceneQueue.cutsceneIds.length === 0) {
             return undefined
         }
 
         return cutsceneQueue.cutsceneIds[0]
     },
-    dequeue: (cutsceneQueue: CutsceneIdQueue): string => {
+    dequeue: (cutsceneQueue: CutsceneIdQueue): string | undefined => {
         if (cutsceneQueue.cutsceneIds.length === 0) {
             return undefined
         }

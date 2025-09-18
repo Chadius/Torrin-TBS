@@ -21,7 +21,6 @@ import {
 import { BattleStateService } from "../battleState/battleState"
 import { GameEngineState } from "../../gameEngine/gameEngine"
 import { ObjectRepository } from "../objectRepository"
-import { isValidValue } from "../../utils/objectValidityCheck"
 import { MessageBoardMessageType } from "../../message/messageBoardMessage"
 import p5 from "p5"
 import { GraphicsBuffer } from "../../utils/graphics/graphicsRenderer"
@@ -47,16 +46,16 @@ export const BattlePhaseStateService = {
         return {
             currentAffiliation,
             turnCount:
-                isValidValue(turnCount) || turnCount === 0 ? turnCount : 0,
+                turnCount != undefined || turnCount === 0 ? turnCount : 0,
         }
     },
 }
 
 export class BattlePhaseController implements BattleOrchestratorComponent {
-    bannerImage: p5.Image
-    bannerImageUI: ImageUI
-    affiliationImage: p5.Image
-    affiliationImageUI: ImageUI
+    bannerImage: p5.Image | undefined
+    bannerImageUI: ImageUI | undefined
+    affiliationImage: p5.Image | undefined
+    affiliationImageUI: ImageUI | undefined
     bannerDisplayAnimationStartTime?: number
     newBannerShown: boolean
 
@@ -64,12 +63,13 @@ export class BattlePhaseController implements BattleOrchestratorComponent {
         this.newBannerShown = false
     }
 
-    hasCompleted(state: GameEngineState): boolean {
+    hasCompleted(gameEngineState: GameEngineState): boolean {
+        if (gameEngineState.repository == undefined) return true
         if (
             !this.newBannerShown &&
             BattleStateService.getCurrentTeam(
-                state.battleOrchestratorState.battleState,
-                state.repository
+                gameEngineState.battleOrchestratorState.battleState,
+                gameEngineState.repository
             ) !== undefined
         ) {
             return true
@@ -114,7 +114,7 @@ export class BattlePhaseController implements BattleOrchestratorComponent {
     }: {
         gameEngineState: GameEngineState
         graphicsContext: GraphicsBuffer
-        resourceHandler: ResourceHandler
+        resourceHandler: ResourceHandler | undefined
     }): void {
         if (this.isTeamStillActingAndNoBannerToShow(gameEngineState)) {
             return
@@ -146,6 +146,7 @@ export class BattlePhaseController implements BattleOrchestratorComponent {
     private selectFirstControllablePlayerSquaddie(
         gameEngineState: GameEngineState
     ) {
+        if (gameEngineState.repository == undefined) return
         gameEngineState.messageBoard.sendMessage({
             type: MessageBoardMessageType.STARTED_PLAYER_PHASE,
             gameEngineState,
@@ -155,7 +156,7 @@ export class BattlePhaseController implements BattleOrchestratorComponent {
             gameEngineState.battleOrchestratorState.battleState,
             gameEngineState.repository
         )
-
+        if (playerTeam == undefined) return
         gameEngineState.messageBoard.sendMessage({
             type: MessageBoardMessageType.PLAYER_SELECTS_AND_LOCKS_SQUADDIE,
             gameEngineState,
@@ -201,6 +202,7 @@ export class BattlePhaseController implements BattleOrchestratorComponent {
                 .currentAffiliation === BattlePhase.UNKNOWN
         )
             return true
+        if (gameEngineState.repository == undefined) return true
 
         return (
             findFirstTeamOfAffiliationThatCanAct(
@@ -225,6 +227,7 @@ export class BattlePhaseController implements BattleOrchestratorComponent {
     private isTeamStillActingAndNoBannerToShow(
         gameEngineState: GameEngineState
     ) {
+        if (gameEngineState.repository == undefined) return false
         return (
             !this.newBannerShown &&
             gameEngineState.battleOrchestratorState.battleState.battlePhaseState
@@ -254,23 +257,22 @@ export class BattlePhaseController implements BattleOrchestratorComponent {
         if (teams.length > 0) {
             const teamIconResourceKey = teams[0].iconResourceKey
             if (
-                isValidValue(teamIconResourceKey) &&
+                teamIconResourceKey != undefined &&
                 teamIconResourceKey !== ""
             ) {
                 this.affiliationImage =
-                    state.resourceHandler.getResource(teamIconResourceKey)
+                    state.resourceHandler?.getResource(teamIconResourceKey)
             }
         }
 
         if (
-            isValidValue(
-                state.repository.uiElements.phaseBannersByAffiliation[
-                    currentSquaddieAffiliation
-                ]
-            ) &&
-            state.repository.uiElements.phaseBannersByAffiliation[
+            state.repository?.uiElements.phaseBannersByAffiliation[
                 currentSquaddieAffiliation
-            ] !== ""
+            ] != undefined &&
+            state.repository?.uiElements.phaseBannersByAffiliation[
+                currentSquaddieAffiliation
+            ] !== "" &&
+            state.resourceHandler != undefined
         ) {
             this.bannerImage = state.resourceHandler.getResource(
                 state.repository.uiElements.phaseBannersByAffiliation[
@@ -300,6 +302,7 @@ export class BattlePhaseController implements BattleOrchestratorComponent {
             }),
         })
 
+        if (this.affiliationImage == undefined) return
         this.affiliationImageUI = new ImageUI({
             imageLoadingBehavior: {
                 resourceKey: undefined,
@@ -322,11 +325,15 @@ export class BattlePhaseController implements BattleOrchestratorComponent {
     draw(
         _: BattleOrchestratorState,
         graphicsContext: GraphicsBuffer,
-        resourceHandler: ResourceHandler
+        resourceHandler: ResourceHandler | undefined
     ): void {
-        if (this.bannerImageUI) {
+        if (this.bannerImageUI && resourceHandler) {
             this.bannerImageUI.draw({ graphicsContext, resourceHandler })
-            this.affiliationImageUI.draw({ graphicsContext, resourceHandler })
+            if (this.affiliationImageUI)
+                this.affiliationImageUI.draw({
+                    graphicsContext,
+                    resourceHandler,
+                })
         }
     }
 
@@ -350,7 +357,7 @@ const findFirstTeamOfAffiliationThatCanAct = (
     teams: BattleSquaddieTeam[],
     affiliation: TSquaddieAffiliation,
     squaddieRepository: ObjectRepository
-): BattleSquaddieTeam => {
+): BattleSquaddieTeam | undefined => {
     const teamsOfAffiliation: BattleSquaddieTeam[] = teams.filter(
         (team) => team.affiliation === affiliation
     )

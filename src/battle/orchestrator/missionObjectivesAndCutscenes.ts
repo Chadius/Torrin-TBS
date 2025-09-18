@@ -9,6 +9,7 @@ import {
 } from "./missionCutsceneCollection"
 import { BattleEvent, BattleEventService } from "../event/battleEvent"
 import { MissionCompletionStatus } from "../missionResult/missionCompletionStatus"
+import { EnumLike } from "../../utils/enum"
 
 export const BattleCompletionStatus = {
     IN_PROGRESS: "IN_PROGRESS",
@@ -22,7 +23,7 @@ export interface MissionObjectivesAndCutscenes {
     battleCompletionStatus: TBattleCompletionStatus
     battleEvents: BattleEvent[]
     objectives: MissionObjective[]
-    cutsceneCollection: MissionCutsceneCollection
+    cutsceneCollection: MissionCutsceneCollection | undefined
 }
 
 export const MissionObjectivesAndCutscenesHelper = {
@@ -33,16 +34,17 @@ export const MissionObjectivesAndCutscenesHelper = {
         missionCompletionStatus,
         battleCompletionStatus,
     }: {
-        objectives: MissionObjective[]
-        cutsceneCollection: MissionCutsceneCollection
-        battleEvents: BattleEvent[]
-        missionCompletionStatus: MissionCompletionStatus
-        battleCompletionStatus: TBattleCompletionStatus
+        objectives?: MissionObjective[]
+        cutsceneCollection?: MissionCutsceneCollection
+        battleEvents?: BattleEvent[]
+        missionCompletionStatus?: MissionCompletionStatus
+        battleCompletionStatus?: TBattleCompletionStatus
     }): MissionObjectivesAndCutscenes => {
         return sanitize({
-            missionCompletionStatus: missionCompletionStatus,
+            missionCompletionStatus: missionCompletionStatus ?? {},
             battleEvents: battleEvents || [],
-            battleCompletionStatus: battleCompletionStatus,
+            battleCompletionStatus:
+                battleCompletionStatus ?? BattleCompletionStatus.IN_PROGRESS,
             cutsceneCollection:
                 cutsceneCollection ||
                 MissionCutsceneCollectionHelper.new({

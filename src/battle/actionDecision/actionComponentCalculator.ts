@@ -11,7 +11,6 @@ import {
     ActionDecision,
     TActionDecision,
 } from "../../action/template/actionTemplate"
-import { BattleAction } from "../history/battleAction/battleAction"
 import {
     BattleActionRecorder,
     BattleActionRecorderService,
@@ -29,10 +28,12 @@ export const ActionComponentCalculator = {
             return BattleOrchestratorMode.PLAYER_HUD_CONTROLLER
         }
 
-        const nextBattleAction: BattleAction =
+        const nextBattleAction =
             BattleActionRecorderService.peekAtAnimationQueue(
                 battleActionRecorder
             )
+        if (nextBattleAction == undefined)
+            return BattleOrchestratorMode.PLAYER_HUD_CONTROLLER
 
         switch (true) {
             case !!nextBattleAction.action.actionTemplateId:
@@ -46,9 +47,12 @@ export const ActionComponentCalculator = {
         }
     },
     getPendingActionDecisions: (
-        actionBuilderState: BattleActionDecisionStep
+        actionBuilderState?: BattleActionDecisionStep
     ): TActionDecision[] => {
-        if (!isValidValue(actionBuilderState)) {
+        if (
+            !isValidValue(actionBuilderState) ||
+            actionBuilderState == undefined
+        ) {
             return [
                 ActionDecision.ACTOR_SELECTION,
                 ActionDecision.ACTION_SELECTION,

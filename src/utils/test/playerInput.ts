@@ -10,19 +10,19 @@ import {
 export const PlayerInputTestService = {
     pressAcceptKey: (): OrchestratorComponentKeyEvent =>
         OrchestratorComponentKeyEventService.createPressedKeyEvent(
-            JSON.parse(process.env.PLAYER_INPUT_ACCEPT)[0]["press"]
+            JSON.parse(process.env.PLAYER_INPUT_ACCEPT!)[0]["press"]
         ),
     pressCancelKey: (): OrchestratorComponentKeyEvent =>
         OrchestratorComponentKeyEventService.createPressedKeyEvent(
-            JSON.parse(process.env.PLAYER_INPUT_CANCEL)[0]["press"]
+            JSON.parse(process.env.PLAYER_INPUT_CANCEL!)[0]["press"]
         ),
     pressNextKey: (): OrchestratorComponentKeyEvent =>
         OrchestratorComponentKeyEventService.createPressedKeyEvent(
-            JSON.parse(process.env.PLAYER_INPUT_NEXT)[0]["press"]
+            JSON.parse(process.env.PLAYER_INPUT_NEXT!)[0]["press"]
         ),
     pressEndTurn: (): OrchestratorComponentKeyEvent =>
         OrchestratorComponentKeyEventService.createPressedKeyEvent(
-            JSON.parse(process.env.PLAYER_INPUT_END_TURN)[0]["press"]
+            JSON.parse(process.env.PLAYER_INPUT_END_TURN!)[0]["press"]
         ),
     pressActionTemplateButton: (
         actionTemplateIndex: number
@@ -41,7 +41,8 @@ export const PlayerInputTestService = {
 
         if (
             actionTemplateIndex < 0 ||
-            actionTemplateIndex >= processEnvToParseByIndex.length
+            actionTemplateIndex >= processEnvToParseByIndex.length ||
+            processEnvToParseByIndex[actionTemplateIndex] == undefined
         ) {
             throw new Error(
                 "[PlayerInputTestService.pressActionTemplateButton]: Invalid action template index"
@@ -57,13 +58,13 @@ export const PlayerInputTestService = {
     holdScrollRightKey: (playerInputState: PlayerInputState) => {
         holdModifierKeys({
             playerInputState,
-            shift: JSON.parse(process.env.PLAYER_INPUT_SCROLL_RIGHT)[0][
+            shift: JSON.parse(process.env.PLAYER_INPUT_SCROLL_RIGHT!)[0][
                 "modifiers"
             ].shift,
         })
         holdKey({
             playerInputState,
-            keyCode: JSON.parse(process.env.PLAYER_INPUT_SCROLL_RIGHT)[0][
+            keyCode: JSON.parse(process.env.PLAYER_INPUT_SCROLL_RIGHT!)[0][
                 "hold"
             ].key,
         })
@@ -71,40 +72,42 @@ export const PlayerInputTestService = {
     holdScrollLeftKey: (playerInputState: PlayerInputState) => {
         holdModifierKeys({
             playerInputState,
-            shift: JSON.parse(process.env.PLAYER_INPUT_SCROLL_LEFT)[0][
+            shift: JSON.parse(process.env.PLAYER_INPUT_SCROLL_LEFT!)[0][
                 "modifiers"
             ].shift,
         })
         holdKey({
             playerInputState,
-            keyCode: JSON.parse(process.env.PLAYER_INPUT_SCROLL_LEFT)[0]["hold"]
-                .key,
+            keyCode: JSON.parse(process.env.PLAYER_INPUT_SCROLL_LEFT!)[0][
+                "hold"
+            ].key,
         })
     },
     holdScrollUpKey: (playerInputState: PlayerInputState) => {
         holdModifierKeys({
             playerInputState,
-            shift: JSON.parse(process.env.PLAYER_INPUT_SCROLL_UP)[0][
+            shift: JSON.parse(process.env.PLAYER_INPUT_SCROLL_UP!)[0][
                 "modifiers"
             ].shift,
         })
         holdKey({
             playerInputState,
-            keyCode: JSON.parse(process.env.PLAYER_INPUT_SCROLL_UP)[0]["hold"]
+            keyCode: JSON.parse(process.env.PLAYER_INPUT_SCROLL_UP!)[0]["hold"]
                 .key,
         })
     },
     holdScrollDownKey: (playerInputState: PlayerInputState) => {
         holdModifierKeys({
             playerInputState,
-            shift: JSON.parse(process.env.PLAYER_INPUT_SCROLL_DOWN)[0][
+            shift: JSON.parse(process.env.PLAYER_INPUT_SCROLL_DOWN!)[0][
                 "modifiers"
             ].shift,
         })
         holdKey({
             playerInputState,
-            keyCode: JSON.parse(process.env.PLAYER_INPUT_SCROLL_DOWN)[0]["hold"]
-                .key,
+            keyCode: JSON.parse(process.env.PLAYER_INPUT_SCROLL_DOWN!)[0][
+                "hold"
+            ].key,
         })
     },
 }

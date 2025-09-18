@@ -1,3 +1,5 @@
+import { EnumLike } from "./enum"
+
 export const MouseButton = {
     NONE: "NONE",
     ACCEPT: "ACCEPT",
@@ -9,9 +11,11 @@ export type TMouseButton = EnumLike<typeof MouseButton>
 const convertButtonsToHighestPriorityMouseButton = (
     buttons?: number
 ): TMouseButton => {
+    if (buttons == undefined) {
+        return MouseButton.NONE
+    }
+
     switch (true) {
-        case buttons == undefined:
-            return MouseButton.NONE
         case buttons == 0:
             return MouseButton.NONE
         case buttons == 1:
@@ -86,9 +90,8 @@ export const MouseConfigService = {
         )
 
         let getSign = (input?: number) => {
+            if (input == undefined) return 0
             switch (true) {
-                case input == undefined:
-                    return 0
                 case input < 0:
                     return -1
                 case input > 0:

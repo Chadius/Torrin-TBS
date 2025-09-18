@@ -29,8 +29,7 @@ export class CutsceneShouldCreateFastForwardButton implements BehaviorTreeTask {
 
     run(): boolean {
         const uiObjects: CutsceneUIObjects = this.dataBlob.getUIObjects()
-        const fastForwardButton: Button = uiObjects.fastForwardButton
-        return !fastForwardButton
+        return uiObjects.fastForwardButton == undefined
     }
 }
 

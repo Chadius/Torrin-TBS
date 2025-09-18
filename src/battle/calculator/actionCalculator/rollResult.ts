@@ -1,6 +1,7 @@
 import { DegreeOfSuccessExplanation } from "./calculator"
 import { DegreeOfSuccess, TDegreeOfSuccess } from "./degreeOfSuccess"
 import { TextFormatService } from "../../../utils/graphics/textFormatService"
+import { EnumLike } from "../../../utils/enum"
 
 export const DIE_SIZE = 6
 
@@ -84,11 +85,24 @@ export const RollResultService = {
         getSumOfRollModifiers(rollResult),
 }
 
-const sanitize = (rollResult: RollResult): RollResult => {
-    rollResult.occurred = rollResult.rolls && rollResult.rolls.length > 0
-    rollResult.rolls =
-        rollResult.rolls && rollResult.rolls.length > 0 ? rollResult.rolls : []
-    return rollResult
+const sanitize = ({
+    rolls,
+    occurred,
+    rollModifiers,
+}: {
+    rolls?: number[]
+    occurred?: boolean
+    rollModifiers?: {
+        [t in TRollModifier]?: number
+    }
+}): RollResult => {
+    occurred = rolls != undefined && rolls?.length > 0
+    rolls = rolls != undefined && rolls?.length > 0 ? rolls : []
+    return {
+        rolls,
+        rollModifiers: rollModifiers ?? {},
+        occurred,
+    }
 }
 
 const getSumOfRollModifiers = (rollResult: RollResult) => {

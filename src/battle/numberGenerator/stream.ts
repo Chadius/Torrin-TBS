@@ -20,7 +20,7 @@ export class StreamNumberGenerator implements NumberGeneratorStrategy {
         this.results = [...results]
     }
 
-    next(): number {
+    next(): number | undefined {
         if (this.results.length <= 1) {
             return this.results[0]
         }

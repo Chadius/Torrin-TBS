@@ -11,6 +11,7 @@ import {
 } from "../../battle/objectRepository"
 import { ActionTemplateService } from "../../action/template/actionTemplate"
 import { HIGHLIGHT_PULSE_COLOR } from "../hexDrawingUtils"
+import { EnumLike } from "../../utils/enum"
 
 export interface MapGraphicsLayerHighlight {
     coordinate: HexCoordinate

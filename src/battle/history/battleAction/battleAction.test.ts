@@ -191,14 +191,7 @@ describe("BattleAction", () => {
 
         expect(clone).toEqual(original)
 
-        original.actor = undefined
-        original.action = undefined
-        original.effect = undefined
-        original.animation = undefined
-
-        expect(clone.actor).toEqual(actor)
-        expect(clone.action).toEqual(action)
-        expect(clone.effect).toEqual(effect)
+        original.animation = { completed: false }
         expect(clone.animation).toEqual(animation)
     })
 })

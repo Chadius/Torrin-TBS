@@ -10,11 +10,11 @@ export interface MovementDecision {
 }
 
 export interface PlayerSelectionContext {
-    actionTemplateId: string
+    actionTemplateId?: string
     playerInputActions: TPlayerInputAction[]
-    mouseClick: MousePress
-    mouseMovement: { x: number; y: number }
-    actorBattleSquaddieId: string
+    mouseClick?: MousePress
+    mouseMovement?: { x: number; y: number }
+    actorBattleSquaddieId?: string
     playerIntent: TPlayerIntent
     targetBattleSquaddieIds: string[]
     movement?: MovementDecision
@@ -46,7 +46,7 @@ export const PlayerSelectionContextService = {
             mouseClick,
             mouseMovement,
             actionTemplateId,
-            playerInputActions,
+            playerInputActions: playerInputActions ?? [],
             movement,
             targetBattleSquaddieIds: targetBattleSquaddieIds ?? [],
         }

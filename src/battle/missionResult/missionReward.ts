@@ -1,3 +1,5 @@
+import { EnumLike } from "../../utils/enum"
+
 export const MissionRewardType = {
     VICTORY: "VICTORY",
     DEFEAT: "DEFEAT",

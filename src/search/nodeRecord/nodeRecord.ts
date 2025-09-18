@@ -1,4 +1,5 @@
 import { SearchConnection } from "../searchGraph/graph"
+import { EnumLike } from "../../utils/enum"
 
 export interface NodeRecordStorage<T> {
     getNodeRecordByNode: (node: T) => SearchNodeRecord<T>
@@ -15,9 +16,9 @@ export type TSearchNodeRecordStatus = EnumLike<typeof SearchNodeRecordStatus>
 
 export interface SearchNodeRecord<T> {
     node: T
-    connection: SearchConnection<T>
-    lengthSoFar: number
-    costSoFar: number
+    connection: SearchConnection<T> | undefined
+    lengthSoFar: number | undefined
+    costSoFar: number | undefined
     estimatedTotalCost: number
     status: TSearchNodeRecordStatus
 }

@@ -1,10 +1,8 @@
 import { getResultOrThrowError } from "../../utils/resultOrError"
 import { ObjectRepository, ObjectRepositoryService } from "../objectRepository"
-import { BattleCamera } from "../battleCamera"
 import { MissionMap, MissionMapService } from "../../missionMap/missionMap"
 import { BattleSquaddie } from "../battleSquaddie"
 import { HexCoordinate } from "../../hexMap/hexCoordinate/hexCoordinate"
-import { ConvertCoordinateService } from "../../hexMap/convertCoordinates"
 import { SquaddieService } from "../../squaddie/squaddieService"
 import { SquaddieTemplate } from "../../campaign/squaddieTemplate"
 import { MissionMapSquaddieCoordinateService } from "../../missionMap/squaddieCoordinate"
@@ -29,7 +27,6 @@ import {
     BattleActionDecisionStep,
     BattleActionDecisionStepService,
 } from "../actionDecision/battleActionDecisionStep"
-import { ScreenLocation } from "../../utils/mouseConfig"
 import { SearchResultsCache } from "../../hexMap/pathfinder/searchResults/searchResultsCache"
 
 export const OrchestratorUtilities = {
@@ -65,28 +62,6 @@ export const OrchestratorUtilities = {
             objectRepository: objectRepository,
             squaddieAllMovementCache,
         }),
-    getSquaddieAtScreenLocation: ({
-        screenLocation,
-        squaddieRepository,
-        camera,
-        map,
-    }: {
-        screenLocation: ScreenLocation
-        squaddieRepository: ObjectRepository
-        camera: BattleCamera
-        map: MissionMap
-    }): {
-        squaddieTemplate: SquaddieTemplate
-        battleSquaddie: BattleSquaddie
-        squaddieMapCoordinate: HexCoordinate
-    } => {
-        return getSquaddieAtScreenLocation({
-            screenLocation,
-            squaddieRepository,
-            camera,
-            map,
-        })
-    },
     getSquaddieAtMapCoordinate: ({
         mapCoordinate,
         squaddieRepository,
@@ -121,6 +96,11 @@ export const OrchestratorUtilities = {
             return
         }
 
+        const repository = gameEngineState.repository
+        if (repository == undefined) {
+            return
+        }
+
         if (
             isSquaddieCurrentlyTakingATurn({
                 battleActionDecisionStep:
@@ -135,40 +115,41 @@ export const OrchestratorUtilities = {
         }
 
         const didFindAnotherPlayerSquaddieToControl =
-            ObjectRepositoryService.getBattleSquaddieIterator(
-                gameEngineState.repository
-            ).some((battleSquaddieInfo) => {
-                const { battleSquaddieId } = battleSquaddieInfo
-                const { battleSquaddie, squaddieTemplate } =
-                    getResultOrThrowError(
-                        ObjectRepositoryService.getSquaddieByBattleId(
-                            gameEngineState.repository,
-                            battleSquaddieId
+            ObjectRepositoryService.getBattleSquaddieIterator(repository).some(
+                (battleSquaddieInfo) => {
+                    const { battleSquaddieId } = battleSquaddieInfo
+                    const { battleSquaddie, squaddieTemplate } =
+                        getResultOrThrowError(
+                            ObjectRepositoryService.getSquaddieByBattleId(
+                                repository,
+                                battleSquaddieId
+                            )
                         )
-                    )
-                const { playerCanControlThisSquaddieRightNow } =
-                    SquaddieService.canPlayerControlSquaddieRightNow({
-                        squaddieTemplate,
-                        battleSquaddie,
-                    })
+                    const { playerCanControlThisSquaddieRightNow } =
+                        SquaddieService.canPlayerControlSquaddieRightNow({
+                            squaddieTemplate,
+                            battleSquaddie,
+                        })
 
-                const datum = MissionMapService.getByBattleSquaddieId(
-                    gameEngineState.battleOrchestratorState.battleState
-                        .missionMap,
-                    battleSquaddieId
-                )
-                const squaddieIsOnTheMap: boolean =
-                    MissionMapSquaddieCoordinateService.isValid(datum) &&
-                    TerrainTileMapService.isCoordinateOnMap(
+                    const datum = MissionMapService.getByBattleSquaddieId(
                         gameEngineState.battleOrchestratorState.battleState
-                            .missionMap.terrainTileMap,
-                        datum.currentMapCoordinate
+                            .missionMap,
+                        battleSquaddieId
                     )
+                    const squaddieIsOnTheMap: boolean =
+                        MissionMapSquaddieCoordinateService.isValid(datum) &&
+                        TerrainTileMapService.isCoordinateOnMap(
+                            gameEngineState.battleOrchestratorState.battleState
+                                .missionMap.terrainTileMap,
+                            datum.currentMapCoordinate
+                        )
 
-                return (
-                    playerCanControlThisSquaddieRightNow && squaddieIsOnTheMap
-                )
-            })
+                    return (
+                        playerCanControlThisSquaddieRightNow &&
+                        squaddieIsOnTheMap
+                    )
+                }
+            )
 
         if (!didFindAnotherPlayerSquaddieToControl) {
             return
@@ -183,7 +164,8 @@ export const OrchestratorUtilities = {
         gameEngineState,
     }: {
         gameEngineState: GameEngineState
-    }): string => getBattleSquaddieIdCurrentlyTakingATurn({ gameEngineState }),
+    }): string | undefined =>
+        getBattleSquaddieIdCurrentlyTakingATurn({ gameEngineState }),
     messageAndHighlightPlayableSquaddieTakingATurn: ({
         gameEngineState,
     }: {
@@ -192,10 +174,14 @@ export const OrchestratorUtilities = {
 }
 
 const canTheCurrentSquaddieAct = (gameEngineState: GameEngineState) => {
+    if (gameEngineState.repository == undefined) return false
+    const battleSquaddieIdCurrentlyTakingATurn =
+        getBattleSquaddieIdCurrentlyTakingATurn({ gameEngineState })
+    if (battleSquaddieIdCurrentlyTakingATurn == undefined) return false
     const { battleSquaddie, squaddieTemplate } = getResultOrThrowError(
         ObjectRepositoryService.getSquaddieByBattleId(
             gameEngineState.repository,
-            getBattleSquaddieIdCurrentlyTakingATurn({ gameEngineState })
+            battleSquaddieIdCurrentlyTakingATurn
         )
     )
 
@@ -251,6 +237,9 @@ const messageAndHighlightPlayableSquaddieTakingATurn = ({
         return
     }
 
+    if (gameEngineState.repository == undefined) return
+    if (currentlyActingBattleSquaddieId == undefined) return
+
     const { battleSquaddie, squaddieTemplate } = getResultOrThrowError(
         ObjectRepositoryService.getSquaddieByBattleId(
             gameEngineState.repository,
@@ -274,12 +263,12 @@ const messageAndHighlightPlayableSquaddieTakingATurn = ({
         battleSquaddieId: BattleActionDecisionStepService.getActor(
             gameEngineState.battleOrchestratorState.battleState
                 .battleActionDecisionStep
-        ).battleSquaddieId,
+        )?.battleSquaddieId,
         missionMap:
             gameEngineState.battleOrchestratorState.battleState.missionMap,
         playerCommandState:
             gameEngineState.battleOrchestratorState.battleHUDState
-                .summaryHUDState.playerCommandState,
+                .summaryHUDState?.playerCommandState,
         campaignResources: gameEngineState.campaign.resources,
         squaddieAllMovementCache:
             gameEngineState.battleOrchestratorState.cache.searchResultsCache,
@@ -292,42 +281,14 @@ const messageAndHighlightPlayableSquaddieTakingATurn = ({
     })
 }
 
-const getSquaddieAtScreenLocation = ({
-    screenLocation,
-    squaddieRepository,
-    camera,
-    map,
-}: {
-    screenLocation: ScreenLocation
-    squaddieRepository: ObjectRepository
-    camera: BattleCamera
-    map: MissionMap
-}): {
-    squaddieTemplate: SquaddieTemplate
-    battleSquaddie: BattleSquaddie
-    squaddieMapCoordinate: HexCoordinate
-} => {
-    const clickedCoordinate =
-        ConvertCoordinateService.convertScreenLocationToMapCoordinates({
-            screenLocation: screenLocation,
-            cameraLocation: camera.getWorldLocation(),
-        })
-
-    return getSquaddieAtMapCoordinate({
-        mapCoordinate: clickedCoordinate,
-        squaddieRepository,
-        map,
-    })
-}
-
 const getSquaddieAtMapCoordinate = (param: {
     mapCoordinate: HexCoordinate
     squaddieRepository: ObjectRepository
     map: MissionMap
 }): {
-    squaddieTemplate: SquaddieTemplate
-    battleSquaddie: BattleSquaddie
-    squaddieMapCoordinate: HexCoordinate
+    squaddieTemplate: SquaddieTemplate | undefined
+    battleSquaddie: BattleSquaddie | undefined
+    squaddieMapCoordinate: HexCoordinate | undefined
 } => {
     const { mapCoordinate, squaddieRepository, map } = param
 
@@ -337,7 +298,8 @@ const getSquaddieAtMapCoordinate = (param: {
     if (
         !MissionMapSquaddieCoordinateService.isValid(
             squaddieAndLocationIdentifier
-        )
+        ) ||
+        squaddieAndLocationIdentifier.battleSquaddieId == undefined
     ) {
         return {
             squaddieTemplate: undefined,
@@ -426,7 +388,7 @@ const getBattleSquaddieIdCurrentlyTakingATurn = ({
     gameEngineState,
 }: {
     gameEngineState: GameEngineState
-}): string => {
+}): string | undefined => {
     switch (true) {
         case !isSquaddieCurrentlyTakingATurn({
             battleActionDecisionStep:
@@ -444,7 +406,7 @@ const getBattleSquaddieIdCurrentlyTakingATurn = ({
             return BattleActionDecisionStepService.getActor(
                 gameEngineState.battleOrchestratorState.battleState
                     .battleActionDecisionStep
-            ).battleSquaddieId
+            )?.battleSquaddieId
         case !BattleActionRecorderService.isAnimationQueueEmpty(
             gameEngineState.battleOrchestratorState.battleState
                 .battleActionRecorder
@@ -452,7 +414,7 @@ const getBattleSquaddieIdCurrentlyTakingATurn = ({
             return BattleActionRecorderService.peekAtAnimationQueue(
                 gameEngineState.battleOrchestratorState.battleState
                     .battleActionRecorder
-            ).actor.actorBattleSquaddieId
+            )?.actor?.actorBattleSquaddieId
         case !BattleActionRecorderService.isAlreadyAnimatedQueueEmpty(
             gameEngineState.battleOrchestratorState.battleState
                 .battleActionRecorder
@@ -460,7 +422,7 @@ const getBattleSquaddieIdCurrentlyTakingATurn = ({
             return BattleActionRecorderService.peekAtAlreadyAnimatedQueue(
                 gameEngineState.battleOrchestratorState.battleState
                     .battleActionRecorder
-            ).actor.actorBattleSquaddieId
+            )?.actor?.actorBattleSquaddieId
         default:
             return undefined
     }

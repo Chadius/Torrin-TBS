@@ -1,3 +1,5 @@
+import { EnumLike } from "./enum"
+
 export const GameModeEnum = {
     UNKNOWN: "UNKNOWN",
     TITLE_SCREEN: "TITLE_SCREEN",

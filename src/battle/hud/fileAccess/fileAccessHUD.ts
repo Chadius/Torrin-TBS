@@ -37,6 +37,7 @@ import {
     FileAccessHUDCreateSaveButton,
     FileAccessHUDShouldCreateSaveButton,
 } from "./saveButton"
+import { EnumLike } from "../../../utils/enum"
 
 export const FileAccessHUDMessage = {
     SAVE_SUCCESS: "Saved!",
@@ -112,9 +113,9 @@ export interface FileAccessHUDContext {
 export class FileAccessHUDData implements DataBlob {
     data: {
         data: {
-            uiObjects: FileAccessHUDUIObjects
-            layout: FileAccessHUDLayout
-            context: FileAccessHUDContext
+            uiObjects: FileAccessHUDUIObjects | undefined
+            layout: FileAccessHUDLayout | undefined
+            context: FileAccessHUDContext | undefined
             [key: string]: any
         }
     }
@@ -171,15 +172,15 @@ export class FileAccessHUDData implements DataBlob {
 
 export interface FileAccessHUD {
     data: FileAccessHUDData
-    drawUITask: BehaviorTreeTask
-    messageLabel: Label
-    messageDisplayStartTime: number
-    message: string
+    drawUITask: BehaviorTreeTask | undefined
+    messageLabel: Label | undefined
+    messageDisplayStartTime: number | undefined
+    message: string | undefined
 }
 
 export interface FileAccessHUDUIObjects {
-    saveButton: Button
-    loadButton: Button
+    saveButton: Button | undefined
+    loadButton: Button | undefined
     graphicsContext?: GraphicsBuffer
     resourceHandler?: ResourceHandler
 }
@@ -339,7 +340,7 @@ export const FileAccessHUDService = {
         })
     },
     draw: (fileAccessHUD: FileAccessHUD, graphicsContext: GraphicsBuffer) => {
-        if (isValidValue(fileAccessHUD.messageLabel.textBox.text)) {
+        if (isValidValue(fileAccessHUD.messageLabel?.textBox.text)) {
             LabelService.draw(fileAccessHUD.messageLabel, graphicsContext)
         }
         const uiObjects: FileAccessHUDUIObjects =
@@ -347,7 +348,7 @@ export const FileAccessHUDService = {
         uiObjects.graphicsContext = graphicsContext
         fileAccessHUD.data.setUIObjects(uiObjects)
 
-        fileAccessHUD.drawUITask.run()
+        fileAccessHUD.drawUITask?.run()
         getButtons(fileAccessHUD).forEach((button) => {
             DataBlobService.add<GraphicsBuffer>(
                 button.buttonStyle.dataBlob,
@@ -374,7 +375,7 @@ const updateStatusMessage = ({
     if (!didCurrentMessageExpire(fileAccessHUD)) {
         const messageToShow = calculateMessageToShow(fileState, fileAccessHUD)
         updateMessageLabel(fileAccessHUD, messageToShow)
-        return fileAccessHUD.message
+        return fileAccessHUD.message ?? ""
     }
 
     if (
@@ -396,7 +397,7 @@ const updateStatusMessage = ({
     }
     clearMessage(fileAccessHUD)
     enableButtons(fileAccessHUD)
-    return fileAccessHUD.message
+    return fileAccessHUD.message ?? ""
 }
 
 const battleIsCurrentlySavingOrLoading = (caller: {
@@ -417,7 +418,7 @@ const createMessageLabel = (fileAccessHUD: FileAccessHUD) => {
         noFill: layout.messageLabel.rectangleStyle.noFill,
         noStroke: layout.messageLabel.rectangleStyle.noStroke,
         textBoxMargin: layout.messageLabel.padding,
-        text: fileAccessHUD.message,
+        text: fileAccessHUD.message ?? "",
         horizAlign: HORIZONTAL_ALIGN.CENTER,
         vertAlign: VERTICAL_ALIGN.CENTER,
         fontSize: layout.messageLabel.fontSize,
@@ -427,7 +428,7 @@ const createMessageLabel = (fileAccessHUD: FileAccessHUD) => {
 
 const disableButtons = (fileAccessHUD: FileAccessHUD) => {
     getButtons(fileAccessHUD)
-        .filter((x) => x)
+        .filter((x) => x != undefined)
         .forEach((button) => {
             button.changeStatus({
                 newStatus: ButtonStatus.DISABLED,
@@ -437,7 +438,7 @@ const disableButtons = (fileAccessHUD: FileAccessHUD) => {
 
 const enableButtons = (fileAccessHUD: FileAccessHUD) => {
     getButtons(fileAccessHUD)
-        .filter((x) => x)
+        .filter((x) => x != undefined)
         .forEach((button) => {
             button.changeStatus({
                 newStatus: ButtonStatus.READY,
@@ -458,8 +459,10 @@ const didCurrentMessageExpire = (fileAccessHUD: FileAccessHUD) => {
     )
     const layout = fileAccessHUD.data.getLayout()
     const messageExpired =
+        fileAccessHUD.messageDisplayStartTime != undefined &&
         Date.now() >
-        fileAccessHUD.messageDisplayStartTime + layout.MESSAGE_DISPLAY_DURATION
+            fileAccessHUD.messageDisplayStartTime +
+                layout.MESSAGE_DISPLAY_DURATION
     return messageIsCurrentlySet && messageTimerIsSet && messageExpired
 }
 
@@ -489,7 +492,7 @@ const calculateMessageToShow = (
         FileAccessHUDMessage.LOAD_FAILED,
     ]
 
-    return messagePriority.find((message) => messageChecks[message])
+    return messagePriority.find((message) => messageChecks[message]) ?? ""
 }
 
 const resetMessageTimer = (fileAccessHUD: FileAccessHUD) => {
@@ -499,7 +502,7 @@ const updateMessageLabel = (
     fileAccessHUD: FileAccessHUD,
     messageToShow: string
 ) => {
-    if (!isValidValue(messageToShow)) {
+    if (messageToShow == "") {
         return
     }
 
@@ -648,7 +651,7 @@ const reactToLoadGameButtonStatusChangeEvent = (
 ) => {
     const uiObjects: FileAccessHUDUIObjects = fileAccessHUD.data.getUIObjects()
     const loadButton = uiObjects.loadButton
-    const statusChangeEvent = loadButton.getStatusChangeEvent()
+    const statusChangeEvent = loadButton?.getStatusChangeEvent()
     if (statusChangeEvent?.newStatus != ButtonStatus.ACTIVE) return
 
     if (
@@ -671,7 +674,7 @@ const reactToSaveGameButtonStatusChangeEvent = (
 ) => {
     const uiObjects: FileAccessHUDUIObjects = fileAccessHUD.data.getUIObjects()
     const saveButton = uiObjects.saveButton
-    const statusChangeEvent = saveButton.getStatusChangeEvent()
+    const statusChangeEvent = saveButton?.getStatusChangeEvent()
     if (statusChangeEvent?.newStatus != ButtonStatus.ACTIVE) return
 
     if (
@@ -688,5 +691,7 @@ const reactToSaveGameButtonStatusChangeEvent = (
 
 const getButtons = (fileAccessHUD: FileAccessHUD) => {
     const uiObjects: FileAccessHUDUIObjects = fileAccessHUD.data.getUIObjects()
-    return [uiObjects.loadButton, uiObjects.saveButton].filter((x) => x)
+    return [uiObjects.loadButton, uiObjects.saveButton].filter(
+        (x) => x != undefined
+    )
 }

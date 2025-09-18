@@ -7,7 +7,7 @@ import {
     TitleScreenLayout,
     TitleScreenUIObjects,
 } from "../titleScreen"
-import { Label, LabelService } from "../../ui/label"
+import { LabelService } from "../../ui/label"
 import { RectAreaService } from "../../ui/rectArea"
 import {
     HORIZONTAL_ALIGN,
@@ -62,11 +62,11 @@ export class ShouldCreateStartGameButtonAction implements BehaviorTreeTask {
         const playButtonHasBeenClicked: boolean =
             startGameButton?.getStatus() === ButtonStatus.ACTIVE
 
-        const readyButtonLabel: Label =
-            DataBlobService.get<AllLabelButtonUIObjects>(
-                uiObjects.startGameButton.buttonStyle.dataBlob,
-                "uiObjects"
-            )?.buttonLabelsByStatus[ButtonStatus.READY]
+        if (uiObjects.startGameButton == undefined) return true
+        const readyButtonLabel = DataBlobService.get<AllLabelButtonUIObjects>(
+            uiObjects.startGameButton.buttonStyle.dataBlob,
+            "uiObjects"
+        )?.buttonLabelsByStatus[ButtonStatus.READY]
         if (readyButtonLabel == undefined) return true
 
         return (

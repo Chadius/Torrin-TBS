@@ -7,6 +7,7 @@ import {
     VersusSquaddieResistance,
     TVersusSquaddieResistance,
 } from "../action/template/actionEffectTemplate"
+import { EnumLike } from "../utils/enum"
 
 export const ProficiencyLevel = {
     UNTRAINED: "UNTRAINED",
@@ -98,41 +99,48 @@ export const DefaultArmyAttributes = (): ArmyAttributes => {
     }
 }
 
-const sanitize = (data: ArmyAttributes): ArmyAttributes => {
+const sanitize = (data: Partial<ArmyAttributes>): ArmyAttributes => {
     const defaultAttributes = DefaultArmyAttributes()
     data.movement = getValidValueOrDefault(
         data.movement,
         defaultAttributes.movement
     )
-    SquaddieMovementService.sanitize(data.movement)
+    const movement = SquaddieMovementService.sanitize(
+        data?.movement ?? defaultAttributes.movement
+    )
 
-    if (!isValidValue(data.maxHitPoints) || data.maxHitPoints <= 0) {
+    if (
+        !isValidValue(data.maxHitPoints) ||
+        data.maxHitPoints == undefined ||
+        data.maxHitPoints <= 0
+    ) {
         data.maxHitPoints = defaultAttributes.maxHitPoints
     }
 
-    data.armor = getValidValueOrDefault(data.armor, defaultAttributes.armor)
-    data.tier = getValidValueOrDefault(data.tier, defaultAttributes.tier)
+    data.armor = data.armor ?? defaultAttributes.armor
+    data.tier = data.tier ?? defaultAttributes.tier
     data.versusProficiencyLevels = {
-        [VersusSquaddieResistance.ARMOR]: getValidValueOrDefault(
-            data?.versusProficiencyLevels?.[VersusSquaddieResistance.ARMOR],
-            ProficiencyLevel.UNTRAINED
-        ),
-        [VersusSquaddieResistance.BODY]: getValidValueOrDefault(
-            data?.versusProficiencyLevels?.[VersusSquaddieResistance.BODY],
-            ProficiencyLevel.UNTRAINED
-        ),
-        [VersusSquaddieResistance.MIND]: getValidValueOrDefault(
-            data?.versusProficiencyLevels?.[VersusSquaddieResistance.MIND],
-            ProficiencyLevel.UNTRAINED
-        ),
-        [VersusSquaddieResistance.SOUL]: getValidValueOrDefault(
-            data?.versusProficiencyLevels?.[VersusSquaddieResistance.SOUL],
-            ProficiencyLevel.UNTRAINED
-        ),
-        [VersusSquaddieResistance.OTHER]: getValidValueOrDefault(
-            data?.versusProficiencyLevels?.[VersusSquaddieResistance.OTHER],
-            ProficiencyLevel.UNTRAINED
-        ),
+        [VersusSquaddieResistance.ARMOR]:
+            data?.versusProficiencyLevels?.[VersusSquaddieResistance.ARMOR] ??
+            ProficiencyLevel.UNTRAINED,
+        [VersusSquaddieResistance.BODY]:
+            data?.versusProficiencyLevels?.[VersusSquaddieResistance.BODY] ??
+            ProficiencyLevel.UNTRAINED,
+        [VersusSquaddieResistance.MIND]:
+            data?.versusProficiencyLevels?.[VersusSquaddieResistance.MIND] ??
+            ProficiencyLevel.UNTRAINED,
+        [VersusSquaddieResistance.SOUL]:
+            data?.versusProficiencyLevels?.[VersusSquaddieResistance.SOUL] ??
+            ProficiencyLevel.UNTRAINED,
+        [VersusSquaddieResistance.OTHER]:
+            data?.versusProficiencyLevels?.[VersusSquaddieResistance.OTHER] ??
+            ProficiencyLevel.UNTRAINED,
     }
-    return data
+    return {
+        maxHitPoints: data.maxHitPoints,
+        armor: data.armor,
+        versusProficiencyLevels: data.versusProficiencyLevels,
+        movement,
+        tier: data.tier,
+    }
 }

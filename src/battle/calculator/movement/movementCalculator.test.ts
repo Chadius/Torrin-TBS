@@ -105,7 +105,7 @@ describe("movement calculator", () => {
                     battleSquaddie,
                     squaddieTemplate,
                     destination: { q: 9001, r: -9001 },
-                    objectRepository: gameEngineState.repository,
+                    objectRepository: gameEngineState.repository!,
                 })
 
             expect(isMovementPossible).toBeFalsy()
@@ -129,7 +129,7 @@ describe("movement calculator", () => {
                     battleSquaddie,
                     squaddieTemplate,
                     destination: { q: 0, r: 1 },
-                    objectRepository: gameEngineState.repository,
+                    objectRepository: gameEngineState.repository!,
                 })
 
             expect(isMovementPossible).toBeTruthy()
@@ -172,7 +172,7 @@ describe("movement calculator", () => {
                 battleSquaddie,
                 squaddieTemplate,
                 destination: { q: 0, r: 1 },
-                objectRepository: gameEngineState.repository,
+                objectRepository: gameEngineState.repository!,
             })
 
             expect(pathfinderSpy).toHaveBeenCalled()
@@ -202,7 +202,7 @@ describe("movement calculator", () => {
                             .missionMap,
                     battleState:
                         gameEngineState.battleOrchestratorState.battleState,
-                    objectRepository: gameEngineState.repository,
+                    objectRepository: gameEngineState.repository!,
                     battleSquaddie,
                     squaddieTemplate,
                     destination: { q: 0, r: 1 },
@@ -215,19 +215,19 @@ describe("movement calculator", () => {
                     .battleActionDecisionStep
             expect(
                 BattleActionDecisionStepService.getActor(actionBuilderState)
-                    .battleSquaddieId
+                    ?.battleSquaddieId
             ).toEqual(battleSquaddie.battleSquaddieId)
             expect(
                 BattleActionDecisionStepService.getAction(actionBuilderState)
-                    .movement
+                    ?.movement
             ).toBeTruthy()
             expect(
                 BattleActionDecisionStepService.getTarget(actionBuilderState)
-                    .confirmed
+                    ?.confirmed
             ).toBeTruthy()
             expect(
                 BattleActionDecisionStepService.getTarget(actionBuilderState)
-                    .targetCoordinate
+                    ?.targetCoordinate
             ).toEqual({ q: 0, r: 1 })
         })
         it("only highlights the moving path", () => {
@@ -264,15 +264,15 @@ describe("movement calculator", () => {
                 .battleActionRecorder
         )
 
-        expect(movementAction.actor.actorBattleSquaddieId).toEqual(
+        expect(movementAction?.actor.actorBattleSquaddieId).toEqual(
             battleSquaddie.battleSquaddieId
         )
-        expect(movementAction.action.isMovement).toBeTruthy()
-        expect(movementAction.effect.movement.startCoordinate).toEqual({
+        expect(movementAction?.action.isMovement).toBeTruthy()
+        expect(movementAction?.effect?.movement?.startCoordinate).toEqual({
             q: 0,
             r: 0,
         })
-        expect(movementAction.effect.movement.endCoordinate).toEqual({
+        expect(movementAction?.effect?.movement?.endCoordinate).toEqual({
             q: 0,
             r: 1,
         })
@@ -373,7 +373,7 @@ describe("movement calculator", () => {
                             .missionMap,
                     battleState:
                         gameEngineState.battleOrchestratorState.battleState,
-                    objectRepository: gameEngineState.repository,
+                    objectRepository: gameEngineState.repository!,
                     battleSquaddie: player0,
                     squaddieTemplate,
                     destination: { q: 0, r: 2 },
@@ -382,8 +382,10 @@ describe("movement calculator", () => {
             const squaddieMovePath =
                 gameEngineState.battleOrchestratorState.battleState
                     .squaddieMovePath
-            const coordinatesTraveled =
-                SearchPathAdapterService.getCoordinates(squaddieMovePath)
+            expect(squaddieTemplate).not.toBeUndefined()
+            const coordinatesTraveled = SearchPathAdapterService.getCoordinates(
+                squaddieMovePath!
+            )
             expect(coordinatesTraveled).toHaveLength(3)
             expect(coordinatesTraveled).toEqual([
                 { q: 0, r: 0 },
@@ -402,7 +404,7 @@ describe("movement calculator", () => {
                             .missionMap,
                     battleState:
                         gameEngineState.battleOrchestratorState.battleState,
-                    objectRepository: gameEngineState.repository,
+                    objectRepository: gameEngineState.repository!,
                     battleSquaddie: player1,
                     squaddieTemplate,
                     destination: { q: 0, r: 4 },
@@ -411,8 +413,10 @@ describe("movement calculator", () => {
             const squaddieMovePath =
                 gameEngineState.battleOrchestratorState.battleState
                     .squaddieMovePath
-            const coordinatesTraveled =
-                SearchPathAdapterService.getCoordinates(squaddieMovePath)
+            expect(squaddieMovePath).not.toBeUndefined()
+            const coordinatesTraveled = SearchPathAdapterService.getCoordinates(
+                squaddieMovePath!
+            )
             expect(coordinatesTraveled).toHaveLength(5)
             expect(coordinatesTraveled).toEqual([
                 { q: 0, r: 1 },

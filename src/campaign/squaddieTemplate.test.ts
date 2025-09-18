@@ -43,14 +43,13 @@ describe("Squaddie Template", () => {
     it("will sanitize the template with empty fields", () => {
         const templateWithInvalidFields: SquaddieTemplate =
             SquaddieTemplateService.new({
-                squaddieId: {
-                    templateId: "templateId",
+                squaddieId: SquaddieIdService.new({
+                    squaddieTemplateId: "templateId",
                     name: "name",
+                    affiliation: SquaddieAffiliation.PLAYER,
                     resources: undefined,
-                    traits: null,
-                    affiliation: undefined,
-                },
-                attributes: null,
+                }),
+                attributes: undefined,
             })
 
         SquaddieTemplateService.sanitize(templateWithInvalidFields)
@@ -59,18 +58,13 @@ describe("Squaddie Template", () => {
         expect(templateWithInvalidFields.attributes).toEqual(
             DefaultArmyAttributes()
         )
-        expect(
-            templateWithInvalidFields.squaddieId.resources
-        ).not.toBeUndefined()
-        expect(
-            templateWithInvalidFields.squaddieId.affiliation
-        ).not.toBeUndefined()
-        expect(templateWithInvalidFields.squaddieId.traits).not.toBeNull()
     })
     it("will throw an error if there is no squaddie id", () => {
         const throwErrorBecauseOfNoSquaddieId = () => {
             SquaddieTemplateService.new({
+                // @ts-ignore Purposely putting in bad arguments to trigger an error
                 squaddieId: undefined,
+                // @ts-ignore Purposely putting in bad arguments to trigger an error
                 attributes: null,
             })
         }

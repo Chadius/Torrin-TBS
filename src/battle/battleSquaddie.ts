@@ -59,10 +59,16 @@ const newBattleSquaddie = ({
     squaddieTemplateId,
     inBattleAttributes,
 }: BattleSquaddieConstructorParams): BattleSquaddie => {
+    if (
+        squaddieTemplateId == undefined &&
+        squaddieTemplate?.squaddieId.templateId == undefined
+    )
+        throw new Error("[BattleSquaddie.new] Missing SquaddieTemplate")
     let newBattleSquaddie: BattleSquaddie = {
         battleSquaddieId,
         squaddieTurn: squaddieTurn || SquaddieTurnService.new(),
-        squaddieTemplateId,
+        squaddieTemplateId:
+            squaddieTemplateId ?? squaddieTemplate?.squaddieId.templateId ?? "",
         inBattleAttributes: InBattleAttributesService.new({}),
     }
 

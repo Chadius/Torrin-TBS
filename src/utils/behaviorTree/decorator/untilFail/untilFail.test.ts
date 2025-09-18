@@ -28,6 +28,7 @@ describe("Until Fail decorator", () => {
 
     it("throws an error when run with without a task", () => {
         expect(() => {
+            // @ts-ignore intentionally adding an invalid field to force an error
             new UntilFailDecorator(blackboard, undefined)
         }).toThrow("[UntilFailDecorator.constructor] must have a child task")
     })

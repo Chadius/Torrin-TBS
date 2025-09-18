@@ -18,7 +18,7 @@ export class FixedNumberGenerator implements NumberGeneratorStrategy {
         this.result = result
     }
 
-    next(): number {
+    next(): number | undefined {
         return this.result
     }
 

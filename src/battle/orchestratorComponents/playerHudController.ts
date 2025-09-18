@@ -48,14 +48,15 @@ export class PlayerHudController implements BattleOrchestratorComponent {
                     .battleActionRecorder
             )
 
+        const peek = BattleActionRecorderService.peekAtAnimationQueue(
+            gameEngineState.battleOrchestratorState.battleState
+                .battleActionRecorder
+        )
+
         const battleActionHasAnimated =
             !battleActionAnimationQueueIsEmpty &&
-            BattleActionService.isAnimationComplete(
-                BattleActionRecorderService.peekAtAnimationQueue(
-                    gameEngineState.battleOrchestratorState.battleState
-                        .battleActionRecorder
-                )
-            )
+            peek != undefined &&
+            BattleActionService.isAnimationComplete(peek)
 
         if (
             !playerCanControlAtLeastOneSquaddie(gameEngineState) &&
@@ -79,13 +80,13 @@ export class PlayerHudController implements BattleOrchestratorComponent {
             }
         }
 
-        if (actionBuilderState.action.endTurn) {
+        if (actionBuilderState.action?.endTurn) {
             return {
                 nextMode: BattleOrchestratorMode.SQUADDIE_USES_ACTION_ON_MAP,
             }
         }
 
-        if (actionBuilderState.action.movement) {
+        if (actionBuilderState.action?.movement) {
             return {
                 nextMode: BattleOrchestratorMode.SQUADDIE_MOVER,
             }
@@ -118,13 +119,13 @@ export class PlayerHudController implements BattleOrchestratorComponent {
     }
 
     uiControlSettings(_gameEngineState: GameEngineState): UIControlSettings {
-        return undefined
+        return new UIControlSettings({})
     }
 
     update(_param: {
         gameEngineState: GameEngineState
         graphicsContext: GraphicsBuffer
-        resourceHandler: ResourceHandler
+        resourceHandler: ResourceHandler | undefined
     }): void {
         // Required by inheritance
     }
@@ -133,11 +134,12 @@ export class PlayerHudController implements BattleOrchestratorComponent {
 const playerCanControlAtLeastOneSquaddie = (
     gameEngineState: GameEngineState
 ): boolean => {
+    if (gameEngineState.repository == undefined) return false
     const currentTeam = BattleStateService.getCurrentTeam(
         gameEngineState.battleOrchestratorState.battleState,
         gameEngineState.repository
     )
-    if (!isValidValue(currentTeam)) {
+    if (!isValidValue(currentTeam) || currentTeam == undefined) {
         return false
     }
     return BattleSquaddieTeamService.canPlayerControlAnySquaddieOnThisTeamRightNow(

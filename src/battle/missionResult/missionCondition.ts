@@ -1,5 +1,6 @@
 import { MissionConditionDefeatAffiliation } from "./missionConditionDefeatAffiliation"
 import { GameEngineState } from "../../gameEngine/gameEngine"
+import { EnumLike } from "../../utils/enum"
 
 export const MissionConditionType = {
     DEFEAT_ALL_ENEMIES: "DEFEAT_ALL_ENEMIES",
@@ -37,7 +38,7 @@ export const MissionShouldBeComplete = (
         ].includes(missionCondition.type)
     ) {
         calculator = new MissionConditionDefeatAffiliation()
-    }
+    } else return false
 
     return calculator.shouldBeComplete(
         missionCondition,

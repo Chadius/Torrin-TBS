@@ -4,7 +4,6 @@ import {
     TeamStrategyService,
 } from "./teamStrategyCalculator"
 import { BattleSquaddieTeam } from "../battleSquaddieTeam"
-import { isValidValue } from "../../utils/objectValidityCheck"
 import {
     BattleActionDecisionStep,
     BattleActionDecisionStepService,
@@ -20,13 +19,14 @@ export class EndTurnTeamStrategy implements TeamStrategyCalculator {
         gameEngineState: GameEngineState
         behaviorOverrides: TeamStrategyBehaviorOverride
     }): BattleActionDecisionStep[] {
+        if (gameEngineState.repository == undefined) return []
         const battleSquaddieIdToAct =
             TeamStrategyService.getBattleSquaddieWhoCanAct(
                 team,
                 gameEngineState.repository
             )
-        if (!isValidValue(battleSquaddieIdToAct)) {
-            return undefined
+        if (battleSquaddieIdToAct == undefined) {
+            return []
         }
 
         const endTurnStep: BattleActionDecisionStep =

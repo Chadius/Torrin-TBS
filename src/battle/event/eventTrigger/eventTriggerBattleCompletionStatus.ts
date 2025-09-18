@@ -26,7 +26,7 @@ export const EventTriggerBattleCompletionStatusService = {
         battleCompletionStatus,
     }: {
         eventTrigger: EventTriggerBattleCompletionStatus
-        battleCompletionStatus: TBattleCompletionStatus
+        battleCompletionStatus?: TBattleCompletionStatus
     }): boolean => {
         switch (eventTrigger.battleCompletionStatus) {
             case BattleCompletionStatus.VICTORY:

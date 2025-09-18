@@ -25,6 +25,7 @@ import { ResourceHandler } from "../../../../../resource/resourceHandler"
 import { ScreenLocation } from "../../../../../utils/mouseConfig"
 import { SquaddieAffiliation } from "../../../../../squaddie/squaddieAffiliation"
 import { ScreenDimensions } from "../../../../../utils/graphics/graphicsConfig"
+import { EnumLike } from "../../../../../utils/enum"
 
 export interface TileAttributeLabel {
     id: string
@@ -36,7 +37,7 @@ export interface TileAttributeLabel {
     iconResourceKey?: string
 
     animationStatus: TTileAttributeLabelStatus
-    animationStartTime: number
+    animationStartTime: number | undefined
     isRightAligned?: boolean
     uiElements: {
         tileBoundingBox?: RectArea
@@ -180,7 +181,7 @@ export const TileAttributeLabelService = {
                 label.uiElements.tileBoundingBox
             )
         }
-        if (isValidValue(label.uiElements.backgroundRectangle)) {
+        if (label.uiElements.backgroundRectangle) {
             RectAreaService.setBottom(
                 label.uiElements.backgroundRectangle.area,
                 bottom
@@ -212,7 +213,10 @@ export const TileAttributeLabelService = {
         graphicsBuffer: GraphicsBuffer
         resourceHandler: ResourceHandler
     }) => {
-        if (!isValidValue(label.uiElements.descriptionTextBox)) {
+        if (
+            !label.uiElements.descriptionTextBox &&
+            label.uiElements.backgroundRectangle
+        ) {
             label.uiElements.descriptionTextBox = createDescriptionTextBox({
                 label,
                 graphicsBuffer,
@@ -231,7 +235,10 @@ export const TileAttributeLabelService = {
             )
         }
 
-        if (!isValidValue(label.uiElements.titleTextBox)) {
+        if (
+            label.uiElements.backgroundRectangle &&
+            !isValidValue(label.uiElements.titleTextBox)
+        ) {
             label.uiElements.titleTextBox = createTitleTextBox({
                 title: label.title,
                 graphicsBuffer,
@@ -248,24 +255,26 @@ export const TileAttributeLabelService = {
 
         if (
             label.animationStatus === TileAttributeLabelStatus.FULLY_OPEN &&
-            isValidValue(label.uiElements.descriptionTextBox)
+            isValidValue(label.uiElements.descriptionTextBox) &&
+            (label.uiElements.titleTextBox || label.uiElements.icon)
         ) {
             let headerBottom: number = Math.max(
-                isValidValue(label.uiElements.titleTextBox)
+                label.uiElements.titleTextBox
                     ? RectAreaService.bottom(label.uiElements.titleTextBox.area)
                     : 0,
-                isValidValue(label.uiElements.icon)
+                label.uiElements.icon
                     ? RectAreaService.bottom(label.uiElements.icon.drawArea)
                     : 0
             )
 
-            setDescriptionTextBoxRelativeToTitleAndBackground({
-                label,
-                headerBottom,
-                left: RectAreaService.left(
-                    label.uiElements.backgroundRectangle.area
-                ),
-            })
+            if (label.uiElements.backgroundRectangle)
+                setDescriptionTextBoxRelativeToTitleAndBackground({
+                    label,
+                    headerBottom,
+                    left: RectAreaService.left(
+                        label.uiElements.backgroundRectangle.area
+                    ),
+                })
 
             TextBoxService.draw(
                 label.uiElements.descriptionTextBox,
@@ -273,7 +282,11 @@ export const TileAttributeLabelService = {
             )
         }
 
-        if (!isValidValue(label.uiElements.icon) && label.iconResourceKey) {
+        if (
+            !isValidValue(label.uiElements.icon) &&
+            label.iconResourceKey &&
+            label.uiElements.backgroundRectangle
+        ) {
             label.uiElements.icon = createIcon({
                 iconResourceKey: label.iconResourceKey,
                 backgroundRectArea: label.uiElements.backgroundRectangle.area,
@@ -283,7 +296,7 @@ export const TileAttributeLabelService = {
                 backgroundRectArea: label.uiElements.backgroundRectangle.area,
             })
         }
-        if (isValidValue(label.uiElements.icon)) {
+        if (label.uiElements.icon) {
             label.uiElements.icon.draw({
                 graphicsContext: graphicsBuffer,
                 resourceHandler,
@@ -399,6 +412,9 @@ const createDescriptionTextBox = ({
     backgroundRectArea: RectArea
     graphicsBuffer: GraphicsBuffer
 }): TextBox => {
+    if (label.uiElements.tileBoundingBox == undefined) {
+        throw new Error("label.uiElements.tileBoundingBox")
+    }
     const widthAvailableForText =
         RectAreaService.width(label.uiElements.tileBoundingBox) *
             layout.tileWidthRatioByAnimationStatus[
@@ -474,6 +490,7 @@ const setIconRelativeToBackground = ({
     label: TileAttributeLabel
     backgroundRectArea: RectArea
 }) => {
+    if (!label.uiElements.icon) return
     RectAreaService.setTop(
         label.uiElements.icon.drawArea,
         RectAreaService.top(backgroundRectArea) +
@@ -488,6 +505,7 @@ const setTitleTextBoxRelativeToBackground = ({
     label: TileAttributeLabel
     backgroundRectArea: RectArea
 }) => {
+    if (!label.uiElements.titleTextBox) return
     RectAreaService.setTop(
         label.uiElements.titleTextBox.area,
         RectAreaService.top(backgroundRectArea) +
@@ -504,6 +522,7 @@ const setDescriptionTextBoxRelativeToTitleAndBackground = ({
     headerBottom: number
     left: number
 }) => {
+    if (!label.uiElements.descriptionTextBox) return
     RectAreaService.setTop(
         label.uiElements.descriptionTextBox.area,
         headerBottom + layout.description.topMargin
@@ -515,7 +534,7 @@ const setDescriptionTextBoxRelativeToTitleAndBackground = ({
 }
 
 const getArea = (label: TileAttributeLabel): RectArea => {
-    return label.uiElements.backgroundRectangle.area
+    return label.uiElements.backgroundRectangle?.area ?? RectAreaService.null()
 }
 
 const updateAnimationTimeBasedOnAnimationStatus = (
@@ -537,6 +556,8 @@ const updateAnimationTimeBasedOnAnimationStatus = (
 const updateRectangleHeightBasedOnAnimationStatus = (
     label: TileAttributeLabel
 ) => {
+    if (!label.uiElements.backgroundRectangle) return
+    if (!label.description.renderHeight) return
     let bottom = RectAreaService.bottom(
         label.uiElements.backgroundRectangle.area
     )
@@ -560,41 +581,46 @@ const updateRectangleHeightBasedOnAnimationStatus = (
             return
     }
 
-    let timeElapsed = Date.now() - label.animationStartTime
+    let timeElapsed =
+        label.animationStartTime != undefined
+            ? Date.now() - label.animationStartTime
+            : undefined
     let heightDifference: number
-    let newHeight: number
+    let newHeight: number = layout.fullyClosed.height
 
-    switch (label.animationStatus) {
-        case TileAttributeLabelStatus.CLOSING:
-            if (timeElapsed >= layout.closing.animationDuration) {
-                newHeight = layout.fullyClosed.height
-                break
-            }
-            heightDifference = label.description.renderHeight
-                ? -label.description.renderHeight
-                : 0
-            newHeight =
-                (heightDifference / layout.opening.animationDuration) *
-                    timeElapsed +
-                layout.fullyClosed.height +
-                (label.description.renderHeight ?? 0)
-            break
-        case TileAttributeLabelStatus.OPENING:
-            if (timeElapsed >= layout.opening.animationDuration) {
+    if (timeElapsed != undefined) {
+        switch (label.animationStatus) {
+            case TileAttributeLabelStatus.CLOSING:
+                if (timeElapsed >= layout.closing.animationDuration) {
+                    newHeight = layout.fullyClosed.height
+                    break
+                }
+                heightDifference = label.description.renderHeight
+                    ? -label.description.renderHeight
+                    : 0
                 newHeight =
+                    (heightDifference / layout.opening.animationDuration) *
+                        timeElapsed +
                     layout.fullyClosed.height +
                     (label.description.renderHeight ?? 0)
                 break
-            }
-            heightDifference = label.description.renderHeight ?? 0
-            newHeight =
-                (heightDifference / layout.closing.animationDuration) *
-                    timeElapsed +
-                layout.fullyClosed.height
-            break
-        default:
-            newHeight = layout.fullyClosed.height
-            break
+            case TileAttributeLabelStatus.OPENING:
+                if (timeElapsed >= layout.opening.animationDuration) {
+                    newHeight =
+                        layout.fullyClosed.height +
+                        (label.description.renderHeight ?? 0)
+                    break
+                }
+                heightDifference = label.description.renderHeight ?? 0
+                newHeight =
+                    (heightDifference / layout.closing.animationDuration) *
+                        timeElapsed +
+                    layout.fullyClosed.height
+                break
+            default:
+                newHeight = layout.fullyClosed.height
+                break
+        }
     }
     label.uiElements.backgroundRectangle.area.top = bottom - newHeight
     label.uiElements.backgroundRectangle.area.height = newHeight
@@ -603,6 +629,8 @@ const updateRectangleHeightBasedOnAnimationStatus = (
 const updateRectangleWidthBasedOnAnimationStatus = (
     label: TileAttributeLabel
 ) => {
+    if (!label.uiElements.backgroundRectangle) return
+    if (!label.uiElements.tileBoundingBox) return
     let left = RectAreaService.left(label.uiElements.backgroundRectangle.area)
 
     switch (label.animationStatus) {
@@ -630,68 +658,81 @@ const updateRectangleWidthBasedOnAnimationStatus = (
             return
     }
 
-    let timeElapsed = Date.now() - label.animationStartTime
+    let timeElapsed =
+        label.animationStartTime != undefined
+            ? Date.now() - label.animationStartTime
+            : undefined
     let widthDifference: number
-    let newWidth: number
+    let newWidth: number =
+        RectAreaService.width(label.uiElements.tileBoundingBox) *
+        layout.tileWidthRatioByAnimationStatus[
+            TileAttributeLabelStatus.FULLY_CLOSED
+        ]
 
-    switch (label.animationStatus) {
-        case TileAttributeLabelStatus.CLOSING:
-            if (timeElapsed >= layout.closing.animationDuration) {
+    if (timeElapsed != undefined) {
+        switch (label.animationStatus) {
+            case TileAttributeLabelStatus.CLOSING:
+                if (timeElapsed >= layout.closing.animationDuration) {
+                    newWidth =
+                        RectAreaService.width(
+                            label.uiElements.tileBoundingBox
+                        ) *
+                        layout.tileWidthRatioByAnimationStatus[
+                            TileAttributeLabelStatus.FULLY_CLOSED
+                        ]
+                    break
+                }
+                widthDifference =
+                    RectAreaService.width(label.uiElements.tileBoundingBox) *
+                    (layout.tileWidthRatioByAnimationStatus[
+                        TileAttributeLabelStatus.FULLY_CLOSED
+                    ] -
+                        layout.tileWidthRatioByAnimationStatus[
+                            TileAttributeLabelStatus.FULLY_OPEN
+                        ])
+                newWidth =
+                    (widthDifference / layout.opening.animationDuration) *
+                        timeElapsed +
+                    RectAreaService.width(label.uiElements.tileBoundingBox) *
+                        layout.tileWidthRatioByAnimationStatus[
+                            TileAttributeLabelStatus.FULLY_OPEN
+                        ]
+                break
+            case TileAttributeLabelStatus.OPENING:
+                if (timeElapsed >= layout.opening.animationDuration) {
+                    newWidth =
+                        RectAreaService.width(
+                            label.uiElements.tileBoundingBox
+                        ) *
+                        layout.tileWidthRatioByAnimationStatus[
+                            TileAttributeLabelStatus.FULLY_OPEN
+                        ]
+                    break
+                }
+                widthDifference =
+                    RectAreaService.width(label.uiElements.tileBoundingBox) *
+                    (layout.tileWidthRatioByAnimationStatus[
+                        TileAttributeLabelStatus.FULLY_OPEN
+                    ] -
+                        layout.tileWidthRatioByAnimationStatus[
+                            TileAttributeLabelStatus.FULLY_CLOSED
+                        ])
+                newWidth =
+                    (widthDifference / layout.opening.animationDuration) *
+                        timeElapsed +
+                    RectAreaService.width(label.uiElements.tileBoundingBox) *
+                        layout.tileWidthRatioByAnimationStatus[
+                            TileAttributeLabelStatus.FULLY_CLOSED
+                        ]
+                break
+            default:
                 newWidth =
                     RectAreaService.width(label.uiElements.tileBoundingBox) *
                     layout.tileWidthRatioByAnimationStatus[
                         TileAttributeLabelStatus.FULLY_CLOSED
                     ]
                 break
-            }
-            widthDifference =
-                RectAreaService.width(label.uiElements.tileBoundingBox) *
-                (layout.tileWidthRatioByAnimationStatus[
-                    TileAttributeLabelStatus.FULLY_CLOSED
-                ] -
-                    layout.tileWidthRatioByAnimationStatus[
-                        TileAttributeLabelStatus.FULLY_OPEN
-                    ])
-            newWidth =
-                (widthDifference / layout.opening.animationDuration) *
-                    timeElapsed +
-                RectAreaService.width(label.uiElements.tileBoundingBox) *
-                    layout.tileWidthRatioByAnimationStatus[
-                        TileAttributeLabelStatus.FULLY_OPEN
-                    ]
-            break
-        case TileAttributeLabelStatus.OPENING:
-            if (timeElapsed >= layout.opening.animationDuration) {
-                newWidth =
-                    RectAreaService.width(label.uiElements.tileBoundingBox) *
-                    layout.tileWidthRatioByAnimationStatus[
-                        TileAttributeLabelStatus.FULLY_OPEN
-                    ]
-                break
-            }
-            widthDifference =
-                RectAreaService.width(label.uiElements.tileBoundingBox) *
-                (layout.tileWidthRatioByAnimationStatus[
-                    TileAttributeLabelStatus.FULLY_OPEN
-                ] -
-                    layout.tileWidthRatioByAnimationStatus[
-                        TileAttributeLabelStatus.FULLY_CLOSED
-                    ])
-            newWidth =
-                (widthDifference / layout.opening.animationDuration) *
-                    timeElapsed +
-                RectAreaService.width(label.uiElements.tileBoundingBox) *
-                    layout.tileWidthRatioByAnimationStatus[
-                        TileAttributeLabelStatus.FULLY_CLOSED
-                    ]
-            break
-        default:
-            newWidth =
-                RectAreaService.width(label.uiElements.tileBoundingBox) *
-                layout.tileWidthRatioByAnimationStatus[
-                    TileAttributeLabelStatus.FULLY_CLOSED
-                ]
-            break
+        }
     }
     label.uiElements.backgroundRectangle.area.width = newWidth
     if (label.isRightAligned) {
@@ -711,6 +752,7 @@ const updateAnimationStatusBasedOnAnimationTime = (
         case TileAttributeLabelStatus.UNKNOWN:
             return
     }
+    if (label.animationStartTime == undefined) return
 
     let timeElapsed = Date.now() - label.animationStartTime
 

@@ -1,3 +1,5 @@
+import { EnumLike } from "../../../utils/enum"
+
 export const DegreeOfSuccess = {
     NONE: "NONE",
     CRITICAL_SUCCESS: "CRITICAL_SUCCESS",
@@ -10,7 +12,7 @@ export type TDegreeOfSuccess = EnumLike<typeof DegreeOfSuccess>
 
 export type DegreeOfSuccessAndSuccessBonus = {
     degreeOfSuccess: TDegreeOfSuccess
-    successBonus: number
+    successBonus: number | undefined
 }
 
 export const DegreeOfSuccessService = {

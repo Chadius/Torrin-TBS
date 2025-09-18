@@ -12,8 +12,8 @@ import { ImageUI, ImageUILoadingBehavior } from "../../ui/imageUI/imageUI"
 import { ResourceHandler } from "../../resource/resourceHandler"
 
 export class DialoguePortraitImage {
-    speakerPortrait: p5.Image
-    speakerImage: ImageUI
+    speakerPortrait: p5.Image | undefined
+    speakerImage: ImageUI | undefined
     position: TDialoguePosition
 
     constructor({
@@ -29,17 +29,27 @@ export class DialoguePortraitImage {
     }
 
     draw(graphicsContext: GraphicsBuffer, resourceHandler: ResourceHandler) {
-        this.speakerImage.draw({ graphicsContext, resourceHandler })
+        this.speakerImage?.draw({ graphicsContext, resourceHandler })
     }
 
     private createUIObjects() {
+        if (this.speakerPortrait == undefined) return
         const rectStyle =
             DIALOGUE_SPEAKER_PORTRAIT_STYLE_CONSTANTS[this.position]
+        if (rectStyle.horizontalMargin == undefined) return
+        if (rectStyle.bottomFraction == undefined) return
+        if (rectStyle.bottomOffset == undefined) return
 
-        const speakerBoxWidth = rectStyle.maxWidth
-            ? Math.min(ScreenDimensions.SCREEN_WIDTH, rectStyle.maxWidth) -
-              rectStyle.horizontalMargin * 2
-            : ScreenDimensions.SCREEN_WIDTH * rectStyle.widthFraction
+        let speakerBoxWidth = 0
+        if (rectStyle.maxWidth) {
+            speakerBoxWidth =
+                Math.min(ScreenDimensions.SCREEN_WIDTH, rectStyle.maxWidth) -
+                rectStyle.horizontalMargin * 2
+        } else {
+            if (rectStyle.widthFraction == undefined) return
+            speakerBoxWidth =
+                ScreenDimensions.SCREEN_WIDTH * rectStyle.widthFraction
+        }
 
         let speakerBoxLeft: number = DialogueTextService.calculateLeftAlignSide(
             {

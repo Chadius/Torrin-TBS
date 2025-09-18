@@ -243,13 +243,13 @@ describe("Action Button", () => {
         })
         it("will use the override to set the icon resource key", () => {
             expect(
-                actionButtonWithOverrides.uiObjects.buttonIcon.resourceKey
+                actionButtonWithOverrides.uiObjects!.buttonIcon!.resourceKey
             ).toEqual("custom-icon-resource-key")
         })
         it("will use the override to set the action name", () => {
-            expect(actionButtonWithOverrides.uiObjects.actionName.text).toEqual(
-                "Custom Action Name"
-            )
+            expect(
+                actionButtonWithOverrides.uiObjects!.actionName!.text
+            ).toEqual("Custom Action Name")
         })
     })
 })

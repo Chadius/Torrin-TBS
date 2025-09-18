@@ -177,7 +177,7 @@ describe("Squaddie Selector Panel", () => {
             })
 
             expect(
-                SquaddieSelectorPanelButtonService.getStatus(panel.buttons[0])
+                SquaddieSelectorPanelButtonService.getStatus(panel.buttons[0]!)
                     .squaddieIsControllable
             ).toBe(false)
             expect(
@@ -205,7 +205,7 @@ describe("Squaddie Selector Panel", () => {
             })
 
             expect(
-                SquaddieSelectorPanelButtonService.getStatus(panel.buttons[0])
+                SquaddieSelectorPanelButtonService.getStatus(panel.buttons[0]!)
                     .squaddieIsSelected
             ).toBe(true)
             expect(
@@ -224,7 +224,7 @@ describe("Squaddie Selector Panel", () => {
                 "playerBattleSquaddieId0"
             )
             expect(
-                SquaddieSelectorPanelButtonService.getStatus(panel.buttons[0])
+                SquaddieSelectorPanelButtonService.getStatus(panel.buttons[0]!)
                     .squaddieIsSelected
             ).toBe(true)
             expect(
@@ -237,7 +237,7 @@ describe("Squaddie Selector Panel", () => {
                 "playerBattleSquaddieId1"
             )
             expect(
-                SquaddieSelectorPanelButtonService.getStatus(panel.buttons[0])
+                SquaddieSelectorPanelButtonService.getStatus(panel.buttons[0]!)
                     .squaddieIsSelected
             ).toBe(false)
             expect(
@@ -250,7 +250,7 @@ describe("Squaddie Selector Panel", () => {
                 "squaddieIsNotOnThisTeam"
             )
             expect(
-                SquaddieSelectorPanelButtonService.getStatus(panel.buttons[0])
+                SquaddieSelectorPanelButtonService.getStatus(panel.buttons[0]!)
                     .squaddieIsSelected
             ).toBe(false)
             expect(
@@ -305,11 +305,11 @@ describe("Squaddie Selector Panel", () => {
                 graphicsContext,
                 resourceHandler,
             })
-            expect(panel.buttons[0].data.context.battleSquaddieId).toBe(
+            expect(panel.buttons[0]!.data.context!.battleSquaddieId).toBe(
                 "playerBattleSquaddieId0"
             )
             expect(
-                SquaddieSelectorPanelButtonService.getStatus(panel.buttons[0])
+                SquaddieSelectorPanelButtonService.getStatus(panel.buttons[0]!)
                     .squaddieIsControllable
             ).toBeTruthy()
             const { battleSquaddie: battleSquaddieWithoutActions } =
@@ -331,7 +331,7 @@ describe("Squaddie Selector Panel", () => {
                 resourceHandler,
             })
             expect(
-                SquaddieSelectorPanelButtonService.getStatus(panel.buttons[0])
+                SquaddieSelectorPanelButtonService.getStatus(panel.buttons[0]!)
                     .squaddieIsControllable
             ).toBeFalsy()
         })
@@ -348,10 +348,11 @@ describe("Squaddie Selector Panel", () => {
             squaddieIndex: number
         ): RectArea => {
             const button = panel.buttons.find(
-                (button) => button.data.context.squaddieIndex === squaddieIndex
+                (button) => button.data.context!.squaddieIndex === squaddieIndex
             )
-
-            return button?.data.uiObjects.drawingArea
+            expect(button).not.toBeUndefined()
+            if (button != undefined) return button?.data.uiObjects!.drawingArea
+            throw new Error("button is undefined")
         }
 
         beforeEach(() => {

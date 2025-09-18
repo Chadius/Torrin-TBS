@@ -33,6 +33,7 @@ async function OpenFileDialogToSelectAFile() {
         input.type = "file"
 
         input.onchange = (e) => {
+            // @ts-ignore File handling conversion doesn't really work in TS
             const file = (e.target as HTMLInputElement).files[0]
             const reader = new FileReader()
             reader.onload = (event: any) => {

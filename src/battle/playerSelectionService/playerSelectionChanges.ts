@@ -5,7 +5,7 @@ import {
 import { MessageBoardMessage } from "../../message/messageBoardMessage"
 
 export interface PlayerSelectionChanges {
-    messageSent: MessageBoardMessage
+    messageSent: MessageBoardMessage | undefined
     battleOrchestratorMode: TBattleOrchestratorMode
 }
 

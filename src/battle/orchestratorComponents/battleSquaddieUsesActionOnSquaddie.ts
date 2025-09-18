@@ -32,7 +32,7 @@ import { DrawSquaddieIconOnMapUtilities } from "../animation/drawSquaddieIconOnM
 export class BattleSquaddieUsesActionOnSquaddie
     implements BattleOrchestratorComponent
 {
-    private sawResultAftermath: boolean
+    private sawResultAftermath: boolean | undefined
     private readonly _squaddieTargetsOtherSquaddiesAnimator: SquaddieTargetsOtherSquaddiesAnimator
     private readonly _squaddieSkipsAnimationAnimator: SquaddieSkipsAnimationAnimator
 
@@ -48,7 +48,7 @@ export class BattleSquaddieUsesActionOnSquaddie
         return this._squaddieSkipsAnimationAnimator
     }
 
-    private _squaddieActionAnimator: SquaddieActionAnimator
+    private _squaddieActionAnimator: SquaddieActionAnimator | undefined
 
     get squaddieActionAnimator(): SquaddieActionAnimator {
         if (this._squaddieActionAnimator === undefined) {
@@ -62,7 +62,7 @@ export class BattleSquaddieUsesActionOnSquaddie
     }
 
     hasCompleted(_state: GameEngineState): boolean {
-        return this.sawResultAftermath
+        return this.sawResultAftermath ?? false
     }
 
     mouseEventHappened(
@@ -156,34 +156,37 @@ export class BattleSquaddieUsesActionOnSquaddie
         gameEngineState: GameEngineState,
         graphicsContext: GraphicsBuffer
     ) {
+        const repository = gameEngineState.repository
         this.hideDeadSquaddies(gameEngineState)
         const actorBattleSquaddieId =
             BattleActionRecorderService.peekAtAnimationQueue(
                 gameEngineState.battleOrchestratorState.battleState
                     .battleActionRecorder
-            ).actor.actorBattleSquaddieId
+            )?.actor.actorBattleSquaddieId
 
         const targetBattleSquaddieIds =
             BattleActionRecorderService.peekAtAnimationQueue(
                 gameEngineState.battleOrchestratorState.battleState
                     .battleActionRecorder
-            )?.effect?.squaddie.map((change) => change.battleSquaddieId)
+            )?.effect?.squaddie?.map((change) => change.battleSquaddieId) ?? []
 
-        ;[actorBattleSquaddieId, ...targetBattleSquaddieIds]
-            .filter((x) => x)
-            .forEach((battleSquaddieId) => {
-                const { battleSquaddie } = getResultOrThrowError(
-                    ObjectRepositoryService.getSquaddieByBattleId(
-                        gameEngineState.repository,
-                        battleSquaddieId
+        if (repository != undefined) {
+            ;[actorBattleSquaddieId, ...targetBattleSquaddieIds]
+                .filter((x) => x != undefined)
+                .forEach((battleSquaddieId) => {
+                    const { battleSquaddie } = getResultOrThrowError(
+                        ObjectRepositoryService.getSquaddieByBattleId(
+                            repository,
+                            battleSquaddieId
+                        )
                     )
-                )
 
-                DrawSquaddieIconOnMapUtilities.unTintSquaddieMapIcon(
-                    gameEngineState.repository,
-                    battleSquaddie
-                )
-            })
+                    DrawSquaddieIconOnMapUtilities.unTintSquaddieMapIcon(
+                        repository,
+                        battleSquaddie
+                    )
+                })
+        }
 
         if (!actorBattleSquaddieId) {
             this.sawResultAftermath = true
@@ -207,16 +210,18 @@ export class BattleSquaddieUsesActionOnSquaddie
     }
 
     private hideDeadSquaddies(gameEngineState: GameEngineState) {
+        const repository = gameEngineState.repository
+        if (repository == undefined) return
         const recentBattleAction =
             BattleActionRecorderService.peekAtAnimationQueue(
                 gameEngineState.battleOrchestratorState.battleState
                     .battleActionRecorder
             )
-        const mostRecentResults = recentBattleAction.effect.squaddie
+        const mostRecentResults = recentBattleAction?.effect.squaddie ?? []
         mostRecentResults.forEach((result) => {
             const { battleSquaddie, squaddieTemplate } = getResultOrThrowError(
                 ObjectRepositoryService.getSquaddieByBattleId(
-                    gameEngineState.repository,
+                    repository,
                     result.battleSquaddieId
                 )
             )
@@ -259,6 +264,7 @@ export class BattleSquaddieUsesActionOnSquaddie
             return
         }
 
+        if (gameEngineState.repository == undefined) return
         const actionTemplate = ObjectRepositoryService.getActionTemplateById(
             gameEngineState.repository,
             battleActionReadyToAnimate.action.actionTemplateId
@@ -272,7 +278,7 @@ export class BattleSquaddieUsesActionOnSquaddie
             TraitStatusStorageService.getStatus(
                 actionTemplate.actionEffectTemplates[0].traits,
                 Trait.SKIP_ANIMATION
-            ) === true
+            )
         ) {
             this._squaddieActionAnimator = this.squaddieSkipsAnimationAnimator
             return
@@ -287,6 +293,7 @@ const generateMessagesBasedOnAnimationFinishedBattleAction = (
     gameEngineState: GameEngineState
 ) => {
     const objectRepository = gameEngineState.repository
+    if (objectRepository == undefined) return
 
     const recentBattleAction = BattleActionRecorderService.peekAtAnimationQueue(
         gameEngineState.battleOrchestratorState.battleState.battleActionRecorder
@@ -294,20 +301,20 @@ const generateMessagesBasedOnAnimationFinishedBattleAction = (
     if (!isValidValue(recentBattleAction?.effect?.squaddie)) return
 
     const damagedBattleSquaddieIds: string[] =
-        recentBattleAction.effect.squaddie
-            .filter((change) => change.damage.net > 0)
-            .map((change) => change.battleSquaddieId)
+        recentBattleAction?.effect?.squaddie
+            ?.filter((change) => change.damage.net > 0)
+            .map((change) => change.battleSquaddieId) ?? []
 
     gameEngineState.messageBoard.sendMessage({
         gameEngineState,
         type: MessageBoardMessageType.SQUADDIE_IS_INJURED,
         battleSquaddieIds: damagedBattleSquaddieIds,
-        objectRepository: gameEngineState.repository,
+        objectRepository: objectRepository,
     })
 
     const defeatedBattleSquaddieIds: string[] =
-        recentBattleAction.effect.squaddie
-            .filter((change) => {
+        recentBattleAction?.effect?.squaddie
+            ?.filter((change) => {
                 const { battleSquaddie, squaddieTemplate } =
                     getResultOrThrowError(
                         ObjectRepositoryService.getSquaddieByBattleId(
@@ -320,7 +327,7 @@ const generateMessagesBasedOnAnimationFinishedBattleAction = (
                     squaddieTemplate,
                 })
             })
-            .map((change) => change.battleSquaddieId)
+            .map((change) => change.battleSquaddieId) ?? []
 
     gameEngineState.messageBoard.sendMessage({
         gameEngineState,

@@ -20,7 +20,7 @@ describe("Mission Objective", () => {
                 state: GameEngineState,
                 _: string
             ): boolean => {
-                return stubReturnValues[missionCondition.id]
+                return stubReturnValues[missionCondition.id] ?? false
             }
         )
     }

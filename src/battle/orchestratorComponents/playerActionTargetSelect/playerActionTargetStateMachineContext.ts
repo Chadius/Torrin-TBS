@@ -27,10 +27,10 @@ import { ChallengeModifierSetting } from "../../challengeModifier/challengeModif
 
 export interface PlayerActionTargetStateMachineContext {
     camera: BattleCamera
-    playerCommandState: PlayerCommandState
+    playerCommandState?: PlayerCommandState
     battleActionDecisionStep: BattleActionDecisionStep
     missionMap: MissionMap
-    objectRepository: ObjectRepository
+    objectRepository?: ObjectRepository
     messageBoard: MessageBoard
     battleActionRecorder: BattleActionRecorder
     explanationLabelText: string
@@ -38,14 +38,14 @@ export interface PlayerActionTargetStateMachineContext {
 
     messageParameters: {
         numberGenerator: NumberGeneratorStrategy
-        summaryHUDState: SummaryHUDState
+        summaryHUDState?: SummaryHUDState
         playerInputState: PlayerInputState
         campaignResources: CampaignResources
         squaddieAllMovementCache: SearchResultsCache
         challengeModifierSetting: ChallengeModifierSetting
 
         playerCancelsPlayerActionConsiderationsParameters: {
-            playerConsideredActions: PlayerConsideredActions
+            playerConsideredActions: PlayerConsideredActions | undefined
             playerDecisionHUD: PlayerDecisionHUD
         }
 
@@ -71,13 +71,15 @@ export interface PlayerActionTargetStateMachineContext {
     targetResults: {
         validCoordinates: HexCoordinate[]
         validTargets: {
-            [battleSquaddieId: string]: { currentMapCoordinate: HexCoordinate }
+            [battleSquaddieId: string]: {
+                currentMapCoordinate: HexCoordinate | undefined
+            }
         }
     }
 
     externalFlags: {
-        cancelActionSelection: boolean
-        actionConfirmed: boolean
+        cancelActionSelection: boolean | undefined
+        actionConfirmed: boolean | undefined
     }
 }
 
@@ -103,16 +105,16 @@ export const PlayerActionTargetContextService = {
         missionStatistics: MissionStatistics
         battleActionDecisionStep: BattleActionDecisionStep
         missionMap: MissionMap
-        objectRepository: ObjectRepository
+        objectRepository?: ObjectRepository
         campaignResources: CampaignResources
         messageBoard: MessageBoard
-        summaryHUDState: SummaryHUDState
+        summaryHUDState?: SummaryHUDState
         battleActionRecorder: BattleActionRecorder
         numberGenerator: NumberGeneratorStrategy
         playerInputState: PlayerInputState
-        playerConsideredActions: PlayerConsideredActions
+        playerConsideredActions?: PlayerConsideredActions
         playerDecisionHUD: PlayerDecisionHUD
-        playerCommandState: PlayerCommandState
+        playerCommandState?: PlayerCommandState
         camera: BattleCamera
         squaddieAllMovementCache: SearchResultsCache
         challengeModifierSetting: ChallengeModifierSetting

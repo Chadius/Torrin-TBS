@@ -23,6 +23,7 @@ import {
 import { SearchPathAdapter } from "../search/searchPathAdapter/searchPathAdapter"
 import { HexCoordinate } from "../hexMap/hexCoordinate/hexCoordinate"
 import { SquaddieTurnService } from "./turn"
+import { EnumLike } from "../utils/enum"
 
 export interface SquaddieActionPointsExplanation {
     unSpentActionPoints: number

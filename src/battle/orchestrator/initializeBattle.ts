@@ -35,15 +35,17 @@ export class InitializeBattle implements BattleOrchestratorComponent {
     }
 
     recommendStateChanges(
-        state: GameEngineState
+        _: GameEngineState
     ): BattleOrchestratorChanges | undefined {
         return {}
     }
 
-    reset(state: GameEngineState): void {
+    reset(gameEngineState: GameEngineState): void {
+        const repository = gameEngineState.repository
+        if (!repository) return
         const playerTeams: BattleSquaddieTeam[] =
             BattlePhaseService.findTeamsOfAffiliation(
-                state.battleOrchestratorState.battleState.teams,
+                gameEngineState.battleOrchestratorState.battleState.teams,
                 SquaddieAffiliation.PLAYER
             )
         playerTeams.forEach((playerTeam) => {
@@ -51,31 +53,27 @@ export class InitializeBattle implements BattleOrchestratorComponent {
                 const { battleSquaddie, squaddieTemplate } =
                     getResultOrThrowError(
                         ObjectRepositoryService.getSquaddieByBattleId(
-                            state.repository,
+                            repository,
                             battleId
                         )
                     )
                 DrawSquaddieIconOnMapUtilities.tintSquaddieMapIconIfTheyCannotAct(
                     battleSquaddie,
                     squaddieTemplate,
-                    state.repository
+                    repository
                 )
             })
         })
     }
 
-    uiControlSettings(state: GameEngineState): UIControlSettings {
-        return undefined
+    uiControlSettings(_: GameEngineState): UIControlSettings {
+        return new UIControlSettings({})
     }
 
-    update({
-        gameEngineState,
-        graphicsContext,
-        resourceHandler,
-    }: {
+    update({}: {
         gameEngineState: GameEngineState
         graphicsContext: GraphicsBuffer
-        resourceHandler: ResourceHandler
+        resourceHandler: ResourceHandler | undefined
     }): void {
         // Required by inheritance
     }

@@ -1,7 +1,4 @@
-import {
-    BattleActionDecisionStep,
-    BattleActionDecisionStepService,
-} from "./battleActionDecisionStep"
+import { BattleActionDecisionStepService } from "./battleActionDecisionStep"
 import { BattleOrchestratorMode } from "../orchestrator/battleOrchestrator"
 import {
     ActionDecision,
@@ -22,7 +19,6 @@ import {
 import { beforeEach, describe, expect, it } from "vitest"
 
 describe("ActionComponentCalculator", () => {
-    let actionBuilderState: BattleActionDecisionStep
     let singleTargetAction: ActionTemplate
     beforeEach(() => {
         singleTargetAction = ActionTemplateService.new({
@@ -37,7 +33,6 @@ describe("ActionComponentCalculator", () => {
                 }),
             ],
         })
-        actionBuilderState = BattleActionDecisionStepService.new()
     })
 
     describe("getNextModeBasedOnBattleActionRecorder", () => {

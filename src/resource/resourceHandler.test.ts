@@ -1,13 +1,12 @@
 import {
+    Resource,
     ResourceHandler,
     ResourceHandlerService,
     ResourceLocator,
-    Resource,
 } from "./resourceHandler"
 import { StubImmediateLoader } from "./resourceHandlerTestUtils"
 import { MockedP5GraphicsBuffer } from "../utils/test/mocks"
 import * as DataLoader from "../dataLoader/dataLoader"
-import p5 from "p5"
 import {
     afterEach,
     beforeEach,
@@ -148,10 +147,10 @@ describe("Resource Handler", () => {
         })
 
         it("returns a default image and attempts a reload if the image has not been loaded yet", () => {
-            const defaultGraphicImage: p5.Image =
-                loader.getResource("some_image_key")
-            expect(defaultGraphicImage.height).toEqual(1)
-            expect(defaultGraphicImage.width).toEqual(1)
+            const defaultGraphicImage = loader.getResource("some_image_key")
+            expect(defaultGraphicImage).not.toBeUndefined()
+            expect(defaultGraphicImage!.height).toEqual(1)
+            expect(defaultGraphicImage!.width).toEqual(1)
             expect(imageLoaderSpy).toBeCalledWith("some_image_key", loader)
             expect(consoleWarnSpy).toBeCalledWith(
                 `getResource: "some_image_key" was not loaded, will retry and return placeholder image`

@@ -5,11 +5,13 @@ import { GraphicsBuffer } from "../utils/graphics/graphicsRenderer"
 export class StubImmediateLoader implements ResourceTypeLoader {
     loadedResource: boolean
     successCallback: (
-        key: string,
+        resourceKey: string,
         handler: ResourceHandler,
         image: p5.Image
-    ) => {}
-    failureCallback: (key: string, handler: ResourceHandler, p1: Event) => any
+    ) => void = (_s: string, _h: ResourceHandler, _i: p5.Image) => {}
+    failureCallback:
+        | ((key: string, handler: ResourceHandler, p1: Event) => any)
+        | undefined
     graphics: GraphicsBuffer
 
     constructor(graphics: GraphicsBuffer) {
@@ -19,7 +21,7 @@ export class StubImmediateLoader implements ResourceTypeLoader {
 
     setCallbacks(
         successCallback: (
-            key: string,
+            resourceKey: string,
             handler: ResourceHandler,
             image: p5.Image
         ) => {},
@@ -27,8 +29,8 @@ export class StubImmediateLoader implements ResourceTypeLoader {
             key: string,
             handler: ResourceHandler,
             p1: Event
-        ) => any
-    ): void {
+        ) => any | undefined
+    ) {
         this.successCallback = successCallback
         this.failureCallback = failureCallback
     }

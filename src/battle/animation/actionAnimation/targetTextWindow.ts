@@ -21,33 +21,33 @@ const TargetTextWindowLayout = {
 }
 
 export class TargetTextWindow {
-    private _result: BattleActionSquaddieChange
+    private _result: BattleActionSquaddieChange | undefined
 
-    get result(): BattleActionSquaddieChange {
+    get result(): BattleActionSquaddieChange | undefined {
         return this._result
     }
 
-    private _backgroundHue: number
+    private _backgroundHue: number | undefined
 
-    get backgroundHue(): number {
+    get backgroundHue(): number | undefined {
         return this._backgroundHue
     }
 
-    private _targetBeforeActionText: string
+    private _targetBeforeActionText: string | undefined
 
-    get targetBeforeActionText(): string {
+    get targetBeforeActionText(): string | undefined {
         return this._targetBeforeActionText
     }
 
-    private _targetAfterActionText: string
+    private _targetAfterActionText: string | undefined
 
-    get targetAfterActionText(): string {
+    get targetAfterActionText(): string | undefined {
         return this._targetAfterActionText
     }
 
-    private _targetLabel: Label
+    private _targetLabel: Label | undefined
 
-    get targetLabel(): Label {
+    get targetLabel(): Label | undefined {
         return this._targetLabel
     }
 
@@ -65,7 +65,7 @@ export class TargetTextWindow {
     }: {
         targetTemplate: SquaddieTemplate
         targetBattle: BattleSquaddie
-        result: BattleActionSquaddieChange
+        result: BattleActionSquaddieChange | undefined
         actionEffectSquaddieTemplate: ActionEffectTemplate
     }) {
         this.reset()
@@ -82,7 +82,8 @@ export class TargetTextWindow {
         this.createActorTextBox()
     }
 
-    draw(graphicsContext: GraphicsBuffer, timer: ActionTimer) {
+    draw(graphicsContext: GraphicsBuffer, timer: ActionTimer | undefined) {
+        if (timer == undefined) return
         if (timer.currentPhase === ActionAnimationPhase.INITIALIZED) {
             return
         }
@@ -94,7 +95,8 @@ export class TargetTextWindow {
             this.updateCreateActorTextBox()
         }
 
-        LabelService.draw(this.targetLabel, graphicsContext)
+        if (this.targetLabel)
+            LabelService.draw(this.targetLabel, graphicsContext)
     }
 
     private createBeforeActionText({
@@ -115,6 +117,11 @@ export class TargetTextWindow {
     }
 
     private createActorTextBox() {
+        if (
+            this.targetBeforeActionText == undefined ||
+            this.backgroundHue == undefined
+        )
+            return
         const labelBackgroundColor = [this.backgroundHue, 10, 80]
 
         this._targetLabel = LabelService.new({
@@ -140,6 +147,7 @@ export class TargetTextWindow {
     }
 
     private updateCreateActorTextBox() {
+        if (this._result == undefined || this.targetLabel == undefined) return
         this._targetAfterActionText =
             ActionResultTextService.getAfterActionText({
                 result: this._result,

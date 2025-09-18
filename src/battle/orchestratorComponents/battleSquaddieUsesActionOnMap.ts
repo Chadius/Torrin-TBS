@@ -7,7 +7,10 @@ import {
 import { OrchestratorUtilities } from "./orchestratorUtils"
 import { UIControlSettings } from "../orchestrator/uiControlSettings"
 import { GraphicsBuffer } from "../../utils/graphics/graphicsRenderer"
-import { GameEngineState } from "../../gameEngine/gameEngine"
+import {
+    GameEngineState,
+    GameEngineStateService,
+} from "../../gameEngine/gameEngine"
 import { ActionComponentCalculator } from "../actionDecision/actionComponentCalculator"
 import { MessageBoardMessageType } from "../../message/messageBoardMessage"
 import { BattleActionRecorderService } from "../history/battleAction/battleActionRecorder"
@@ -22,14 +25,14 @@ export class BattleSquaddieUsesActionOnMap
     implements BattleOrchestratorComponent
 {
     animationCompleteStartTime?: number
-    completed: boolean
+    completed: boolean | undefined
 
     constructor() {
-        this.reset(undefined)
+        this.reset(GameEngineStateService.new({}))
     }
 
     hasCompleted(_gameEngineState: GameEngineState): boolean {
-        return this.completed
+        return this.completed ?? false
     }
 
     mouseEventHappened(
@@ -88,7 +91,7 @@ export class BattleSquaddieUsesActionOnMap
     }: {
         gameEngineState: GameEngineState
         graphicsContext: GraphicsBuffer
-        resourceHandler: ResourceHandler
+        resourceHandler: ResourceHandler | undefined
     }): void {
         if (this.animationCompleteStartTime === undefined) {
             this.animationCompleteStartTime = Date.now()
@@ -118,6 +121,11 @@ const shouldWaitBeforeFinishing = (
     const battleAction = BattleActionRecorderService.peekAtAnimationQueue(
         gameEngineState.battleOrchestratorState.battleState.battleActionRecorder
     )
+    if (
+        gameEngineState.repository == undefined ||
+        battleAction?.actor.actorBattleSquaddieId == undefined
+    )
+        return false
     const { battleSquaddie, squaddieTemplate } = getResultOrThrowError(
         ObjectRepositoryService.getSquaddieByBattleId(
             gameEngineState.repository,

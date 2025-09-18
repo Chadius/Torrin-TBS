@@ -107,7 +107,7 @@ export const TextGraphicalHandlingService = {
 
             if (!Object.values(violatedConstraints).includes(true)) break
 
-            if (violatedConstraints.tooWide) {
+            if (violatedConstraints.tooWide && linesOfTextRange != undefined) {
                 reduceTextWidthByAddingLineBreaks({
                     inProgressTextFit,
                     linesOfTextRange,
@@ -140,8 +140,6 @@ export const TextGraphicalHandlingService = {
         })
         return inProgressTextFit
     },
-    titleCase: (input: string): string =>
-        input.charAt(0).toUpperCase() + input.slice(1).toLowerCase(),
     calculateMaximumHeightOfFont: ({
         fontSize,
         graphicsContext,
@@ -261,6 +259,8 @@ const updateTextFitViolateFontSizeConstraint = ({
     graphicsContext: GraphicsBuffer
     font: FontDescription
 }) => {
+    if (font.fontSizeRange == undefined) return
+
     graphicsContext.push()
 
     let low = font.fontSizeRange.minimum
@@ -347,7 +347,11 @@ const reduceTextWidthByAddingLineBreaks = ({
     font: FontDescription
 }) => {
     let splitText = splitTextAgainstLineBreaks(inProgressTextFit)
-    if (splitText.length >= linesOfTextRange?.maximum) return
+    if (
+        linesOfTextRange?.maximum != undefined &&
+        splitText.length >= linesOfTextRange?.maximum
+    )
+        return
 
     let linePixelWidths = getWidthOfEachLineOfText({
         inProgressTextFit: inProgressTextFit,
@@ -409,17 +413,18 @@ const findIndexToBreakLineWithANewLine = ({
     maximumPixelWidth: number
     whitespaceIndexes: number[]
     graphicsContext: GraphicsBuffer
-}): number => {
+}): number | undefined => {
     let guessIndex =
         (maximumPixelWidth / linePixelWidths[indexOfLongLine]) *
         lineToBreak.length
     const whitespacesReversed = [...whitespaceIndexes].reverse()
-    const getMaxWordBreakIndexThatIsLessThan = (maximum: number): number =>
+    const getMaxWordBreakIndexThatIsLessThan = (
+        maximum: number
+    ): number | undefined =>
         whitespacesReversed.find((wordBreakIndex) => wordBreakIndex < maximum)
 
     let wordBreakIndex = getMaxWordBreakIndexThatIsLessThan(guessIndex)
-
-    while (wordBreakIndex > 0) {
+    while (wordBreakIndex != undefined && wordBreakIndex > 0) {
         const isSubStringShorterThanMaximumWidth = (
             endOfSubStringIndex: number
         ): boolean => {
@@ -429,7 +434,7 @@ const findIndexToBreakLineWithANewLine = ({
         if (isSubStringShorterThanMaximumWidth(wordBreakIndex)) break
         wordBreakIndex = getMaxWordBreakIndexThatIsLessThan(wordBreakIndex)
     }
-    if (wordBreakIndex > 0) return wordBreakIndex
+    if (wordBreakIndex != undefined && wordBreakIndex > 0) return wordBreakIndex
 
     if (whitespaceIndexes.length > 0) return whitespaceIndexes[0]
     return undefined

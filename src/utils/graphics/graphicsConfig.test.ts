@@ -162,7 +162,7 @@ describe("graphics config", () => {
             },
             {
                 name: "is off screen if it is vertically off screen",
-                mapCoordinate: (): HexCoordinate => undefined,
+                mapCoordinate: (): HexCoordinate | undefined => undefined,
                 expected: false,
             },
         ]

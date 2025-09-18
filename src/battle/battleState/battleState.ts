@@ -14,7 +14,10 @@ import {
     BattleSquaddieTeamService,
 } from "../battleSquaddieTeam"
 import { TeamStrategy } from "../teamStrategy/teamStrategy"
-import { BattlePhaseState } from "../orchestratorComponents/battlePhaseController"
+import {
+    BattlePhaseState,
+    BattlePhaseStateService,
+} from "../orchestratorComponents/battlePhaseController"
 import { BattleCamera } from "../battleCamera"
 import { MissionCompletionStatus } from "../missionResult/missionCompletionStatus"
 import {
@@ -66,6 +69,8 @@ import {
     ChallengeModifierSettingService,
 } from "../challengeModifier/challengeModifierSetting"
 import { ActionValidityByIdCacheService } from "../actionValidity/cache/actionValidityByIdCache"
+import { TBattleOrchestratorStateValidityReason } from "../orchestrator/battleOrchestratorState"
+import { EnumLike } from "../../utils/enum"
 
 export const BattleStateValidityMissingComponent = {
     MISSION_MAP: "MISSION_MAP",
@@ -125,7 +130,7 @@ export const BattleStateService = {
     getCurrentTeam: (
         battleState: BattleState,
         squaddieRepository: ObjectRepository
-    ): BattleSquaddieTeam => {
+    ): BattleSquaddieTeam | undefined => {
         if (
             !isValidValue(battleState) ||
             !isValidValue(battleState.battlePhaseState)
@@ -259,12 +264,17 @@ const newBattleState = ({
     return {
         ...missionObjectivesAndCutscenes,
         missionId: missionId,
-        missionMap: missionMap,
-        teams: isValidValue(teams) ? [...teams] : [],
+        missionMap: missionMap ?? MissionMapService.default(),
+        teams: isValidValue(teams) && teams != undefined ? [...teams] : [],
         teamStrategiesById: isValidValue(teamStrategiesById)
             ? { ...teamStrategiesById }
             : {},
-        battlePhaseState: battlePhaseState,
+        battlePhaseState:
+            battlePhaseState ??
+            BattlePhaseStateService.new({
+                currentAffiliation: BattlePhase.PLAYER,
+                turnCount: 0,
+            }),
         squaddieMovePath: searchPath || undefined,
         camera: camera || new BattleCamera(),
         battleActionRecorder:
@@ -301,9 +311,9 @@ const getMissingComponents = (
     return Object.keys(expectedComponents)
         .map((str) => str as TBattleStateValidityMissingComponent)
         .filter(
-            (battleStateValidityMissingComponent) =>
-                expectedComponents[battleStateValidityMissingComponent] ===
-                false
+            (
+                battleStateValidityMissingComponent: TBattleStateValidityMissingComponent
+            ) => !expectedComponents[battleStateValidityMissingComponent]
         )
 }
 
@@ -337,6 +347,8 @@ const battleActionFinishesAnimation = (
     const battleAction = BattleActionRecorderService.peekAtAnimationQueue(
         gameEngineState.battleOrchestratorState.battleState.battleActionRecorder
     )
+    if (battleAction == undefined) return
+    if (gameEngineState.repository == undefined) return
     const { battleSquaddie, squaddieTemplate } = getResultOrThrowError(
         ObjectRepositoryService.getSquaddieByBattleId(
             gameEngineState.repository,
@@ -384,6 +396,7 @@ const battleActionFinishesAnimation = (
         )
 
         const squaddieUndidMovementWithoutActing =
+            battleAction.effect.movement != undefined &&
             HexCoordinateService.areEqual(
                 originMapCoordinate,
                 battleAction.effect.movement.endCoordinate
@@ -467,19 +480,20 @@ const updateSummaryHUDAfterFinishingAnimation = (
     ) {
         return
     }
-
+    if (gameEngineState.repository == undefined) return
     ;[ActionTilePosition.ACTOR_STATUS, ActionTilePosition.TARGET_STATUS]
         .filter((tilePosition) =>
             isValidValue(
                 gameEngineState.battleOrchestratorState.battleHUDState
-                    .summaryHUDState.squaddieStatusTiles[tilePosition]
+                    .summaryHUDState?.squaddieStatusTiles[tilePosition]
             )
         )
         .map(
             (tilePosition) =>
                 gameEngineState.battleOrchestratorState.battleHUDState
-                    .summaryHUDState.squaddieStatusTiles[tilePosition]
+                    .summaryHUDState?.squaddieStatusTiles[tilePosition]
         )
+        .filter((tile) => tile != undefined)
         .forEach((tile) =>
             SquaddieStatusTileService.updateTileUsingSquaddie({
                 tile,
@@ -492,7 +506,7 @@ const updateSummaryHUDAfterFinishingAnimation = (
                 battleActionDecisionStep:
                     gameEngineState.battleOrchestratorState.battleState
                         .battleActionDecisionStep,
-                objectRepository: gameEngineState.repository,
+                objectRepository: gameEngineState.repository!,
             })
         )
 }

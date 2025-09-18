@@ -667,12 +667,12 @@ describe("inBattleAttributes", () => {
             expect(
                 InBattleAttributesService.calculateCurrentAttributeModifiers(
                     attributes
-                ).find((a) => a.type === Attribute.ABSORB).amount
+                ).find((a) => a.type === Attribute.ABSORB)?.amount
             ).toEqual(2)
             expect(
                 InBattleAttributesService.calculateCurrentAttributeModifiers(
                     attributes
-                ).find((a) => a.type === Attribute.ARMOR).amount
+                ).find((a) => a.type === Attribute.ARMOR)?.amount
             ).toEqual(1)
             expect(
                 InBattleAttributesService.getAllActiveAttributeModifiers(
@@ -931,7 +931,7 @@ describe("inBattleAttributes", () => {
                 InBattleAttributesService.calculateCurrentAttributeModifiers(
                     attributesWithAbsorb
                 ).find((a) => a.type === Attribute.ABSORB)
-            expect(absorbAttribute.amount).toEqual(2)
+            expect(absorbAttribute?.amount).toEqual(2)
         })
         it("Will reduce absorb then hit points if damage is greater than absorb", () => {
             const damageExplanation: DamageExplanation =

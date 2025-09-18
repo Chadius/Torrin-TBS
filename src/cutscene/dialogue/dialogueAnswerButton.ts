@@ -5,9 +5,9 @@ import { GraphicsBuffer } from "../../utils/graphics/graphicsRenderer"
 import { MousePress } from "../../utils/mouseConfig"
 
 export class DialogueAnswerButton {
-    answerText: string
-    buttonRect: RectArea
-    answerLabel: Label
+    answerText: string | undefined
+    buttonRect: RectArea | undefined
+    answerLabel: Label | undefined
 
     constructor({
         answer,
@@ -28,6 +28,7 @@ export class DialogueAnswerButton {
 
     buttonWasClicked(mousePress: MousePress): boolean {
         return (
+            this.buttonRect != undefined &&
             mousePress.x >= this.buttonRect.left &&
             mousePress.x <= this.buttonRect.left + this.buttonRect.width &&
             mousePress.y >= this.buttonRect.top &&
@@ -36,11 +37,12 @@ export class DialogueAnswerButton {
     }
 
     private createUIObjects() {
+        if (this.buttonRect == undefined || this.answerText == undefined) return
+
         const dialogueBoxBackgroundColor: [number, number, number] = [
             200, 10, 50,
         ]
         const dialogueBoxTextColor: [number, number, number] = [0, 0, 0]
-
         this.answerLabel = LabelService.new({
             textBoxMargin: [
                 this.buttonRect.height * 0.1,

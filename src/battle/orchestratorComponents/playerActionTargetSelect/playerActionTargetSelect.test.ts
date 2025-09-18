@@ -168,9 +168,12 @@ describe("Player Action Target Select", () => {
         gameEngineState.battleOrchestratorState.battleState.battleActionDecisionStep =
             BattleActionDecisionStepService.new()
         initializePlayerActionTargetSelect(gameEngineState)
-        stateMachineSpy = vi
-            .spyOn(playerActionTargetSelect.stateMachine, "updateUntil")
-            .mockReturnValue()
+        expect(playerActionTargetSelect.stateMachine).not.toBeUndefined()
+        if (playerActionTargetSelect.stateMachine) {
+            stateMachineSpy = vi
+                .spyOn(playerActionTargetSelect.stateMachine, "updateUntil")
+                .mockReturnValue()
+        }
         viewControllerSpy = vi
             .spyOn(playerActionTargetSelect, "updateViewController")
             .mockReturnValue()
@@ -214,7 +217,7 @@ describe("Player Action Target Select", () => {
             ],
         })
         ObjectRepositoryService.addActionTemplate(
-            gameEngineState.repository,
+            gameEngineState.repository!,
             hitEverything
         )
 
@@ -222,7 +225,7 @@ describe("Player Action Target Select", () => {
             name: "player",
             battleId: "player",
             templateId: "player",
-            objectRepository: gameEngineState.repository,
+            objectRepository: gameEngineState.repository!,
             affiliation: SquaddieAffiliation.PLAYER,
             actionTemplateIds: ["hitEverything"],
         })
@@ -237,7 +240,7 @@ describe("Player Action Target Select", () => {
             name: "enemy",
             battleId: "enemy",
             templateId: "enemy",
-            objectRepository: gameEngineState.repository,
+            objectRepository: gameEngineState.repository!,
             affiliation: SquaddieAffiliation.ENEMY,
             actionTemplateIds: [],
         })
@@ -272,21 +275,21 @@ describe("Player Action Target Select", () => {
             graphicsContext,
             resourceHandler,
         })
-        expect(playerActionTargetSelect.stateMachine.uiObjects.camera).toBe(
-            playerActionTargetSelect.viewController.getUIObjects().camera
+        expect(playerActionTargetSelect.stateMachine!.uiObjects!.camera).toBe(
+            playerActionTargetSelect.viewController!.getUIObjects().camera
         )
-        expect(playerActionTargetSelect.stateMachine.uiObjects.confirm).toBe(
-            playerActionTargetSelect.viewController.getUIObjects().confirm
-        )
-        expect(
-            playerActionTargetSelect.stateMachine.uiObjects.selectTarget
-        ).toBe(
-            playerActionTargetSelect.viewController.getUIObjects().selectTarget
+        expect(playerActionTargetSelect.stateMachine!.uiObjects!.confirm).toBe(
+            playerActionTargetSelect.viewController!.getUIObjects().confirm
         )
         expect(
-            playerActionTargetSelect.stateMachine.uiObjects.graphicsContext
+            playerActionTargetSelect.stateMachine!.uiObjects!.selectTarget
         ).toBe(
-            playerActionTargetSelect.viewController.getUIObjects()
+            playerActionTargetSelect.viewController!.getUIObjects().selectTarget
+        )
+        expect(
+            playerActionTargetSelect.stateMachine!.uiObjects!.graphicsContext
+        ).toBe(
+            playerActionTargetSelect.viewController!.getUIObjects()
                 .graphicsContext
         )
     })
@@ -296,7 +299,7 @@ describe("Player Action Target Select", () => {
             {
                 name: "finished",
                 setupTest: () => {
-                    playerActionTargetSelect.stateMachine.context.externalFlags.actionConfirmed = true
+                    playerActionTargetSelect.stateMachine!.context.externalFlags.actionConfirmed = true
                 },
                 expectedRecommendedMode:
                     BattleOrchestratorMode.PLAYER_HUD_CONTROLLER,
@@ -304,7 +307,7 @@ describe("Player Action Target Select", () => {
             {
                 name: "cancel action",
                 setupTest: () => {
-                    playerActionTargetSelect.stateMachine.context.externalFlags.cancelActionSelection = true
+                    playerActionTargetSelect.stateMachine!.context.externalFlags.cancelActionSelection = true
                 },
                 expectedRecommendedMode:
                     BattleOrchestratorMode.PLAYER_HUD_CONTROLLER,
@@ -371,7 +374,7 @@ describe("Player Action Target Select", () => {
                 mockPostTransition: () => {
                     BattleActionDecisionStepService.setConfirmedTarget({
                         actionDecisionStep:
-                            playerActionTargetSelect.context
+                            playerActionTargetSelect.context!
                                 .battleActionDecisionStep,
                         targetCoordinate: { q: 0, r: 1 },
                     })
@@ -399,12 +402,15 @@ describe("Player Action Target Select", () => {
             gameEngineState.battleOrchestratorState.battleState.battleActionDecisionStep =
                 BattleActionDecisionStepService.new()
             initializePlayerActionTargetSelect(gameEngineState)
-            stateMachineSpy = vi
-                .spyOn(
-                    playerActionTargetSelect.stateMachine,
-                    "getTriggeredTransition"
-                )
-                .mockReturnValueOnce(triggeredTransition)
+            expect(playerActionTargetSelect.stateMachine).not.toBeUndefined()
+            if (playerActionTargetSelect.stateMachine) {
+                stateMachineSpy = vi
+                    .spyOn(
+                        playerActionTargetSelect.stateMachine,
+                        "getTriggeredTransition"
+                    )
+                    .mockReturnValueOnce(triggeredTransition)
+            }
             viewControllerSpy = vi
                 .spyOn(playerActionTargetSelect, "updateViewController")
                 .mockReturnValue()
@@ -504,10 +510,13 @@ describe("Player Action Target Select", () => {
 
         beforeEach(() => {
             initializePlayerActionTargetSelect(gameEngineState)
-            acceptPlayerInputSpy = vi.spyOn(
-                playerActionTargetSelect.stateMachine,
-                "acceptPlayerInput"
-            )
+            expect(playerActionTargetSelect.stateMachine).not.toBeUndefined()
+            if (playerActionTargetSelect.stateMachine) {
+                acceptPlayerInputSpy = vi.spyOn(
+                    playerActionTargetSelect.stateMachine,
+                    "acceptPlayerInput"
+                )
+            }
         })
 
         afterEach(() => {

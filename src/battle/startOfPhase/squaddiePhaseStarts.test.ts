@@ -140,7 +140,7 @@ describe("squaddie phase starts", () => {
             team.battleSquaddieIds.forEach((battleSquaddieId) => {
                 const { battleSquaddie } = getResultOrThrowError(
                     ObjectRepositoryService.getSquaddieByBattleId(
-                        gameEngineState.repository,
+                        gameEngineState.repository!,
                         battleSquaddieId
                     )
                 )
@@ -158,7 +158,7 @@ describe("squaddie phase starts", () => {
                     const { battleSquaddie, squaddieTemplate } =
                         getResultOrThrowError(
                             ObjectRepositoryService.getSquaddieByBattleId(
-                                gameEngineState.repository,
+                                gameEngineState.repository!,
                                 battleSquaddieId
                             )
                         )
@@ -196,7 +196,7 @@ describe("squaddie phase starts", () => {
             team.battleSquaddieIds.forEach((battleSquaddieId) => {
                 const { battleSquaddie } = getResultOrThrowError(
                     ObjectRepositoryService.getSquaddieByBattleId(
-                        gameEngineState.repository,
+                        gameEngineState.repository!,
                         battleSquaddieId
                     )
                 )
@@ -217,7 +217,7 @@ describe("squaddie phase starts", () => {
                 team.battleSquaddieIds.every((battleSquaddieId) => {
                     const { battleSquaddie } = getResultOrThrowError(
                         ObjectRepositoryService.getSquaddieByBattleId(
-                            gameEngineState.repository,
+                            gameEngineState.repository!,
                             battleSquaddieId
                         )
                     )
@@ -250,7 +250,7 @@ describe("squaddie phase starts", () => {
         team.battleSquaddieIds.forEach((battleSquaddieId, index) => {
             const { battleSquaddie } = getResultOrThrowError(
                 ObjectRepositoryService.getSquaddieByBattleId(
-                    gameEngineState.repository,
+                    gameEngineState.repository!,
                     battleSquaddieId
                 )
             )
@@ -280,14 +280,14 @@ describe("squaddie phase starts", () => {
         const { battleSquaddie: squaddieWithExpiredArmorModifier } =
             getResultOrThrowError(
                 ObjectRepositoryService.getSquaddieByBattleId(
-                    gameEngineState.repository,
+                    gameEngineState.repository!,
                     team.battleSquaddieIds[0]
                 )
             )
         const { battleSquaddie: squaddieWithActiveArmorModifier } =
             getResultOrThrowError(
                 ObjectRepositoryService.getSquaddieByBattleId(
-                    gameEngineState.repository,
+                    gameEngineState.repository!,
                     team.battleSquaddieIds[1]
                 )
             )

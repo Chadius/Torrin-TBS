@@ -83,56 +83,6 @@ describe("MapSearchDataLayer", () => {
         })
     })
 
-    it("can set the value of an individual tile on the layer", () => {
-        const missionMap: MissionMap = MissionMapService.new({
-            terrainTileMap: TerrainTileMapService.new({
-                movementCost: ["1 1 2 1 2 ", " 1 x - 2 1 "],
-            }),
-        })
-        const mapLayerFilledWithFalse: MapSearchDataLayer =
-            MapSearchDataLayerService.new({
-                map: missionMap,
-                initialValue: false,
-            })
-        MapSearchDataLayerService.setValueOfCoordinate({
-            mapLayer: mapLayerFilledWithFalse,
-            mapCoordinate: {
-                q: 1,
-                r: 2,
-            },
-            value: true,
-        })
-        expect(mapLayerFilledWithFalse.valueByCoordinate[1][2]).toBe(true)
-    })
-
-    it("throws an error if setting a coordinate that is out of bounds", () => {
-        const missionMap: MissionMap = MissionMapService.new({
-            terrainTileMap: TerrainTileMapService.new({
-                movementCost: ["1 1 2 1 2 ", " 1 x - 2 1 "],
-            }),
-        })
-        const mapLayerFilledWithFalse: MapSearchDataLayer =
-            MapSearchDataLayerService.new({
-                map: missionMap,
-                initialValue: false,
-            })
-
-        const shouldThrowError = () => {
-            MapSearchDataLayerService.setValueOfCoordinate({
-                mapLayer: mapLayerFilledWithFalse,
-                mapCoordinate: {
-                    q: 9001,
-                    r: -3,
-                },
-                value: true,
-            })
-        }
-
-        expect(() => {
-            shouldThrowError()
-        }).toThrow("out of bounds")
-    })
-
     it("knows when a coordinate is out of bounds", () => {
         const missionMap: MissionMap = MissionMapService.new({
             terrainTileMap: TerrainTileMapService.new({

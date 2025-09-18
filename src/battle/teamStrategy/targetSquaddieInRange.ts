@@ -31,8 +31,8 @@ import { GameEngineState } from "../../gameEngine/gameEngine"
 import { BattleActionRecorderService } from "../history/battleAction/battleActionRecorder"
 
 export class TargetSquaddieInRange implements TeamStrategyCalculator {
-    desiredBattleSquaddieId: string
-    desiredAffiliation: TSquaddieAffiliation
+    desiredBattleSquaddieId: string | undefined
+    desiredAffiliation: TSquaddieAffiliation | undefined
 
     constructor(options: TeamStrategyOptions) {
         this.desiredBattleSquaddieId = options.desiredBattleSquaddieId
@@ -49,7 +49,7 @@ export class TargetSquaddieInRange implements TeamStrategyCalculator {
         behaviorOverrides: TeamStrategyBehaviorOverride
     }): BattleActionDecisionStep[] {
         if (behaviorOverrides.noActions) {
-            return undefined
+            return []
         }
 
         if (
@@ -65,7 +65,7 @@ export class TargetSquaddieInRange implements TeamStrategyCalculator {
                 gameEngineState.battleOrchestratorState.battleState
                     .battleActionRecorder
             )
-
+        if (gameEngineState.repository == undefined) return []
         let battleSquaddieIdToAct =
             TeamStrategyService.getCurrentlyActingSquaddieWhoCanAct({
                 team,
@@ -73,8 +73,8 @@ export class TargetSquaddieInRange implements TeamStrategyCalculator {
                     previousActionsThisTurn?.actor.actorBattleSquaddieId,
                 objectRepository: gameEngineState.repository,
             })
-        if (!isValidValue(battleSquaddieIdToAct)) {
-            return undefined
+        if (battleSquaddieIdToAct == undefined) {
+            return []
         }
         const { battleSquaddie, squaddieTemplate } = getResultOrThrowError(
             ObjectRepositoryService.getSquaddieByBattleId(
@@ -84,18 +84,19 @@ export class TargetSquaddieInRange implements TeamStrategyCalculator {
         )
         const validActionTemplates = squaddieTemplate.actionTemplateIds
             .map((id) =>
-                ObjectRepositoryService.getActionTemplateById(
-                    gameEngineState.repository,
-                    id
-                )
+                gameEngineState.repository != undefined
+                    ? ObjectRepositoryService.getActionTemplateById(
+                          gameEngineState.repository,
+                          id
+                      )
+                    : undefined
             )
+            .filter((x) => x != undefined)
             .filter((actionTemplate) => {
-                return (
-                    SquaddieTurnService.canPerformAction({
-                        actionTemplate: actionTemplate,
-                        battleSquaddie,
-                    }).canPerform === true
-                )
+                return SquaddieTurnService.canPerformAction({
+                    actionTemplate: actionTemplate,
+                    battleSquaddie,
+                }).canPerform
             })
 
         const firstActionTemplateWithTarget =
@@ -110,44 +111,45 @@ export class TargetSquaddieInRange implements TeamStrategyCalculator {
             })
 
         if (firstActionTemplateWithTarget === undefined) {
-            return undefined
+            return []
         }
 
         const desiredBattleSquaddieIsInRange =
             isValidValue(this.desiredBattleSquaddieId) &&
             this.desiredBattleSquaddieId !== "" &&
+            this.desiredBattleSquaddieId != undefined &&
             firstActionTemplateWithTarget.targetingResults.battleSquaddieIdsInRange.includes(
-                this.desiredBattleSquaddieId
+                this.desiredBattleSquaddieId!
             )
 
         const actionTemplate = ObjectRepositoryService.getActionTemplateById(
             gameEngineState.repository,
             firstActionTemplateWithTarget.actionTemplateId
         )
-        if (desiredBattleSquaddieIsInRange) {
+        if (desiredBattleSquaddieIsInRange && this.desiredBattleSquaddieId) {
             const { currentMapCoordinate } =
                 MissionMapService.getByBattleSquaddieId(
                     gameEngineState.battleOrchestratorState.battleState
                         .missionMap,
                     this.desiredBattleSquaddieId
                 )
-            return createBattleActionDecisionSteps(
-                actionTemplate,
-                currentMapCoordinate,
-                battleSquaddieIdToAct
-            )
+            if (currentMapCoordinate != undefined) {
+                return createBattleActionDecisionSteps(
+                    actionTemplate,
+                    currentMapCoordinate,
+                    battleSquaddieIdToAct
+                )
+            }
         }
 
-        if (
-            !isValidValue(this.desiredAffiliation) ||
-            this.desiredAffiliation === SquaddieAffiliation.UNKNOWN
-        ) {
-            return undefined
+        if (this.desiredAffiliation === SquaddieAffiliation.UNKNOWN) {
+            return []
         }
 
         const battleSquaddieIdsOfDesiredAffiliation =
             firstActionTemplateWithTarget.targetingResults.battleSquaddieIdsInRange.filter(
                 (battleSquaddieId) => {
+                    if (gameEngineState.repository == undefined) return false
                     const { squaddieTemplate: targetSquaddieTemplate } =
                         getResultOrThrowError(
                             ObjectRepositoryService.getSquaddieByBattleId(
@@ -163,7 +165,7 @@ export class TargetSquaddieInRange implements TeamStrategyCalculator {
             )
 
         if (battleSquaddieIdsOfDesiredAffiliation.length === 0) {
-            return undefined
+            return []
         }
 
         const battleSquaddieIdToTarget =
@@ -173,6 +175,7 @@ export class TargetSquaddieInRange implements TeamStrategyCalculator {
                 gameEngineState.battleOrchestratorState.battleState.missionMap,
                 battleSquaddieIdToTarget
             )
+        if (currentMapCoordinate == undefined) return []
         return createBattleActionDecisionSteps(
             actionTemplate,
             currentMapCoordinate,

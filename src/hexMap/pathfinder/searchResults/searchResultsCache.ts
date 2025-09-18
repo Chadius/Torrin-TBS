@@ -35,14 +35,15 @@ export const SearchResultsCacheService = {
         missionMap,
         objectRepository,
     }: {
-        searchResultsCache: SearchResultsCache
+        searchResultsCache: SearchResultsCache | undefined
         battleSquaddieId: string
         originMapCoordinate: HexCoordinate
-        currentMapCoordinate: HexCoordinate
+        currentMapCoordinate: HexCoordinate | undefined
         searchLimit: SearchLimit
         missionMap: MissionMap
         objectRepository: ObjectRepository
     }) => {
+        if (searchResultsCache == undefined) return
         const secondaryKey = HexCoordinateService.toString(currentMapCoordinate)
         if (
             hasSearchResultInCache({
@@ -102,7 +103,7 @@ export const SearchResultsCacheService = {
         searchResultsCache: SearchResultsCache
         battleSquaddieId: string
         currentMapCoordinate?: HexCoordinate
-    }): SearchResult => {
+    }): SearchResult | undefined => {
         return findSearchResultInCache({
             searchResultsCache,
             type: SearchResultsCacheType.SQUADDIE_ALL_MOVEMENT,
@@ -181,7 +182,7 @@ const findSearchResultInCache = ({
     type: SearchResultsCacheType
     primaryKey: string
     secondaryKey?: string
-}): SearchResult => {
+}): SearchResult | undefined => {
     if (
         !hasSearchResultInCache({
             searchResultsCache,

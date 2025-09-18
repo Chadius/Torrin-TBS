@@ -7,7 +7,7 @@ import { describe, expect, it } from "vitest"
 describe("MissionStatistics", () => {
     it("can track time elapsed", () => {
         const stats: MissionStatistics = MissionStatisticsService.new({})
-        expect(stats.timeElapsedInMilliseconds).toBeUndefined()
+        expect(stats.timeElapsedInMilliseconds).toBe(0)
         MissionStatisticsService.reset(stats)
         MissionStatisticsService.startRecording(stats)
         expect(stats.timeElapsedInMilliseconds).toBe(0)
@@ -17,7 +17,7 @@ describe("MissionStatistics", () => {
 
     it("can track damage dealt by player controlled squaddies", () => {
         const stats: MissionStatistics = MissionStatisticsService.new({})
-        expect(stats.damageDealtByPlayerTeam).toBeUndefined()
+        expect(stats.damageDealtByPlayerTeam).toBe(0)
         MissionStatisticsService.reset(stats)
         MissionStatisticsService.startRecording(stats)
         expect(stats.damageDealtByPlayerTeam).toBe(0)
@@ -26,7 +26,7 @@ describe("MissionStatistics", () => {
     })
     it("can track damage absorbed by player controlled squaddies", () => {
         const stats: MissionStatistics = MissionStatisticsService.new({})
-        expect(stats.damageAbsorbedByPlayerTeam).toBeUndefined()
+        expect(stats.damageAbsorbedByPlayerTeam).toBe(0)
         MissionStatisticsService.reset(stats)
         MissionStatisticsService.startRecording(stats)
         expect(stats.damageAbsorbedByPlayerTeam).toBe(0)
@@ -35,7 +35,7 @@ describe("MissionStatistics", () => {
     })
     it("can track damage received by player controlled squaddies", () => {
         const stats: MissionStatistics = MissionStatisticsService.new({})
-        expect(stats.damageTakenByPlayerTeam).toBeUndefined()
+        expect(stats.damageTakenByPlayerTeam).toBe(0)
         MissionStatisticsService.reset(stats)
         MissionStatisticsService.startRecording(stats)
         expect(stats.damageTakenByPlayerTeam).toBe(0)
@@ -44,7 +44,7 @@ describe("MissionStatistics", () => {
     })
     it("can track healing received by player controlled squaddies", () => {
         const stats: MissionStatistics = MissionStatisticsService.new({})
-        expect(stats.healingReceivedByPlayerTeam).toBeUndefined()
+        expect(stats.healingReceivedByPlayerTeam).toBe(0)
         MissionStatisticsService.reset(stats)
         MissionStatisticsService.startRecording(stats)
         expect(stats.healingReceivedByPlayerTeam).toBe(0)
@@ -53,7 +53,7 @@ describe("MissionStatistics", () => {
     })
     it("can track when the player controlled squaddie deals a critical hit", () => {
         const stats: MissionStatistics = MissionStatisticsService.new({})
-        expect(stats.damageDealtByPlayerTeam).toBeUndefined()
+        expect(stats.damageDealtByPlayerTeam).toBe(0)
         MissionStatisticsService.reset(stats)
         MissionStatisticsService.startRecording(stats)
         expect(stats.criticalHitsDealtByPlayerTeam).toBe(0)
@@ -62,7 +62,7 @@ describe("MissionStatistics", () => {
     })
     it("can track when the player controlled squaddie takes a critical hit", () => {
         const stats: MissionStatistics = MissionStatisticsService.new({})
-        expect(stats.damageDealtByPlayerTeam).toBeUndefined()
+        expect(stats.damageDealtByPlayerTeam).toBe(0)
         MissionStatisticsService.reset(stats)
         MissionStatisticsService.startRecording(stats)
         expect(stats.criticalHitsTakenByPlayerTeam).toBe(0)

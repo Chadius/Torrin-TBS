@@ -1,3 +1,5 @@
+import { EnumLike } from "../../enum"
+
 export const TrashRobotLookForTrashStateEnum = {
     UNKNOWN: "UNKNOWN",
     INITIALIZED: "INITIALIZED",

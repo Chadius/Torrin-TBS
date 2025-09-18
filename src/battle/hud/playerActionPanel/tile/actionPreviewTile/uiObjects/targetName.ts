@@ -35,8 +35,11 @@ export class CreateTargetNameTextBoxesAction implements BehaviorTreeTask {
         let context: ActionPreviewTileContext = this.dataBlob.getContext()
 
         const targetBattleSquaddieId =
-            context.forecast.changesPerEffect[0].squaddieChanges[0]
-                .battleSquaddieId
+            context.forecast.changesPerEffect[0].squaddieChanges?.[0]
+                ?.battleSquaddieId
+
+        if (targetBattleSquaddieId == undefined) return false
+        if (uiObjects.graphicsContext == undefined) return false
 
         const targetName =
             context.squaddieNamesByBattleSquaddieId[targetBattleSquaddieId]

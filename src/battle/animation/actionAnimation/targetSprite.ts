@@ -34,33 +34,33 @@ import {
 } from "../../history/battleAction/battleActionSquaddieChange"
 
 export class TargetSprite {
-    private _startingPosition: number
+    private _startingPosition: number | undefined
 
-    get startingPosition(): number {
+    get startingPosition(): number | undefined {
         return this._startingPosition
     }
 
-    private _sprite: SquaddieSprite
+    private _sprite: SquaddieSprite | undefined
 
-    get sprite(): SquaddieSprite {
+    get sprite(): SquaddieSprite | undefined {
         return this._sprite
     }
 
-    private _battleSquaddieId: string
+    private _battleSquaddieId: string | undefined
 
-    get battleSquaddieId(): string {
+    get battleSquaddieId(): string | undefined {
         return this._battleSquaddieId
     }
 
-    private _squaddieRepository: ObjectRepository
+    private _squaddieRepository: ObjectRepository | undefined
 
-    get squaddieRepository(): ObjectRepository {
+    get squaddieRepository(): ObjectRepository | undefined {
         return this._squaddieRepository
     }
 
-    private _actionResult: BattleActionSquaddieChange
+    private _actionResult: BattleActionSquaddieChange | undefined
 
-    get actionResult(): BattleActionSquaddieChange {
+    get actionResult(): BattleActionSquaddieChange | undefined {
         return this._actionResult
     }
 
@@ -79,10 +79,10 @@ export class TargetSprite {
     }: {
         targetBattleSquaddieId: string
         squaddieRepository: ObjectRepository
-        actionEffectSquaddieTemplate: ActionEffectTemplate
-        result: BattleActionSquaddieChange
+        actionEffectSquaddieTemplate: ActionEffectTemplate | undefined
+        result: BattleActionSquaddieChange | undefined
         startingPosition: number
-        resourceHandler: ResourceHandler
+        resourceHandler: ResourceHandler | undefined
     }) {
         this.reset()
 
@@ -90,6 +90,12 @@ export class TargetSprite {
         this._squaddieRepository = squaddieRepository
         this._battleSquaddieId = targetBattleSquaddieId
         this._actionResult = result
+
+        if (
+            this.squaddieRepository == undefined ||
+            this.battleSquaddieId == undefined
+        )
+            return
 
         const { squaddieTemplate } = getResultOrThrowError(
             ObjectRepositoryService.getSquaddieByBattleId(
@@ -106,12 +112,14 @@ export class TargetSprite {
     }
 
     draw(
-        timer: ActionTimer,
+        timer: ActionTimer | undefined,
         graphicsContext: GraphicsBuffer,
         actionEffectSquaddieTemplate: ActionEffectTemplate,
-        result: BattleActionSquaddieChange,
+        result: BattleActionSquaddieChange | undefined,
         resourceHandler: ResourceHandler
     ) {
+        if (timer == undefined) return
+        if (result == undefined) return
         if (timer.currentPhase === ActionAnimationPhase.INITIALIZED) {
             return
         }
@@ -172,6 +180,14 @@ export class TargetSprite {
         graphicsContext: GraphicsBuffer,
         actionEffectSquaddieTemplate: ActionEffectTemplate
     ) {
+        if (
+            this.actionResult == undefined ||
+            this.squaddieRepository == undefined ||
+            this.battleSquaddieId == undefined ||
+            this.sprite == undefined
+        )
+            return
+
         let emotion: TSquaddieEmotion = this.getSquaddieEmotion({
             timer,
             result: this.actionResult,
@@ -200,6 +216,13 @@ export class TargetSprite {
         )
         let horizontalDistance: number = 0
         let verticalDistance: number = 0
+
+        if (
+            this.squaddieRepository == undefined ||
+            this.battleSquaddieId == undefined ||
+            spriteToDraw == undefined
+        )
+            return { horizontalDistance, verticalDistance }
 
         const emotion = this.getSquaddieEmotion({
             timer,
@@ -249,7 +272,8 @@ export class TargetSprite {
             }
         }
         spriteToDraw.load(resourceHandler)
-        if (!spriteToDraw.isImageLoaded()) return
+        if (!spriteToDraw.isImageLoaded() || this.startingPosition == undefined)
+            return
         RectAreaService.move(spriteToDraw.drawArea, {
             left:
                 this.startingPosition +
@@ -280,9 +304,11 @@ export class TargetSprite {
         horizontalDistance: number
         verticalDistance: number
     } {
-        const timeElapsed = TimeElapsedSinceAnimationStarted(timer.startTime)
         let horizontalDistance: number = 0
         let verticalDistance: number = 0
+        if (timer?.startTime == undefined || this.sprite == undefined)
+            return { horizontalDistance, verticalDistance }
+        const timeElapsed = TimeElapsedSinceAnimationStarted(timer.startTime)
         let maximumHorizontalDistance: number =
             ScreenDimensions.SCREEN_WIDTH / 12
         let maximumVerticalDistance: number = this.sprite.actionSpritesByEmotion
@@ -332,11 +358,12 @@ export class TargetSprite {
         horizontalDistance: number
         verticalDistance: number
     } {
-        const timeElapsed = TimeElapsedSinceAnimationStarted(timer.startTime)
-
         let horizontalDistance: number = 0
         let maximumHorizontalDistance: number =
             ScreenDimensions.SCREEN_WIDTH / 24
+        if (timer?.startTime == undefined || this.sprite == undefined)
+            return { horizontalDistance, verticalDistance: 0 }
+        const timeElapsed = TimeElapsedSinceAnimationStarted(timer.startTime)
         const attackTime = getAttackTime(timeElapsed)
         switch (timer.currentPhase) {
             case ActionAnimationPhase.TARGET_REACTS:
@@ -369,11 +396,13 @@ export class TargetSprite {
         horizontalDistance: number
         verticalDistance: number
     } {
-        const timeElapsed = TimeElapsedSinceAnimationStarted(timer.startTime)
-
         let horizontalDistance: number = 0
         let maximumHorizontalDistance: number =
             ScreenDimensions.SCREEN_WIDTH / 24
+        if (timer?.startTime == undefined)
+            return { horizontalDistance, verticalDistance: 0 }
+        const timeElapsed = TimeElapsedSinceAnimationStarted(timer.startTime)
+
         const attackTime = getAttackTime(timeElapsed)
         switch (timer.currentPhase) {
             case ActionAnimationPhase.TARGET_REACTS:

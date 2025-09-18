@@ -8,6 +8,7 @@ import { ScreenDimensions } from "../../utils/graphics/graphicsConfig"
 import { TextBoxMargin } from "../../ui/label"
 import { DialogTextBoxLayout } from "./dialogueTextBox"
 import { FontSizeRange } from "../../utils/graphics/textGraphicalHandlingService"
+import { EnumLike } from "../../utils/enum"
 
 export const DialoguePosition = {
     CENTER: "CENTER",

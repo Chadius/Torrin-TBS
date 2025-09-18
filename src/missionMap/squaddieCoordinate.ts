@@ -1,10 +1,10 @@
 import { HexCoordinate } from "../hexMap/hexCoordinate/hexCoordinate"
 
 export interface MissionMapSquaddieCoordinate {
-    battleSquaddieId: string
-    squaddieTemplateId: string
-    currentMapCoordinate: HexCoordinate
-    originMapCoordinate: HexCoordinate
+    battleSquaddieId: string | undefined
+    squaddieTemplateId: string | undefined
+    currentMapCoordinate: HexCoordinate | undefined
+    originMapCoordinate: HexCoordinate | undefined
 }
 
 export const MissionMapSquaddieCoordinateService = {

@@ -17,13 +17,13 @@ export interface ButtonStatusChangeEvent {
 
 export interface ButtonLogic {
     status: TButtonStatus
-    lastStatusChangeTimeStamp: number
+    lastStatusChangeTimeStamp: number | undefined
     buttonStatusChangeEventData: ButtonStatusChangeEventByButtonId
 }
 
 export interface ButtonStatusChangeEventByButtonId extends DataBlob {
     data: {
-        [buttonId: string]: ButtonStatusChangeEvent
+        [buttonId: string]: ButtonStatusChangeEvent | undefined
     }
 }
 
@@ -173,7 +173,7 @@ const clearButtonStatusChangeEvent = ({
     buttonId: string
     buttonLogic: ButtonLogic
 }) => {
-    DataBlobService.add<ButtonStatusChangeEvent>(
+    DataBlobService.add<ButtonStatusChangeEvent | undefined>(
         buttonLogic.buttonStatusChangeEventData,
         buttonId,
         undefined
