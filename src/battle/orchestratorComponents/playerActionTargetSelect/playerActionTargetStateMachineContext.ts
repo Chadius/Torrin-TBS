@@ -24,6 +24,17 @@ import { PlayerCommandState } from "../../hud/playerCommand/playerCommandHUD"
 import { BattleCamera } from "../../battleCamera"
 import { SearchResultsCache } from "../../../hexMap/pathfinder/searchResults/searchResultsCache"
 import { ChallengeModifierSetting } from "../../challengeModifier/challengeModifierSetting"
+import { EnumLike } from "../../../utils/enum"
+
+export const PlayerActionTargetStateInvalidTargetReason = {
+    UNKNOWN: "UNKNOWN",
+    NOT_A_FOE: "NOT_A_FOE",
+    NOT_AN_ALLY: "NOT_AN_ALLY",
+} as const satisfies Record<string, string>
+
+export type TPlayerActionTargetStateInvalidTargetReason = EnumLike<
+    typeof PlayerActionTargetStateInvalidTargetReason
+>
 
 export interface PlayerActionTargetStateMachineContext {
     camera: BattleCamera
@@ -69,6 +80,12 @@ export interface PlayerActionTargetStateMachineContext {
     }
 
     targetResults: {
+        invalidTargets: {
+            [battleSquaddieId: string]: {
+                currentMapCoordinate: HexCoordinate | undefined
+                reason: TPlayerActionTargetStateInvalidTargetReason
+            }
+        }
         validCoordinates: HexCoordinate[]
         validTargets: {
             [battleSquaddieId: string]: {
@@ -151,6 +168,7 @@ export const PlayerActionTargetContextService = {
             targetResults: {
                 validCoordinates: [],
                 validTargets: {},
+                invalidTargets: {},
             },
             playerInput: [],
             externalFlags: {

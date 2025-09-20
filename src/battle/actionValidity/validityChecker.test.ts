@@ -22,10 +22,7 @@ import {
     vi,
 } from "vitest"
 import { CanHealTargetCheck } from "./canHealTargetCheck"
-import {
-    TargetingResults,
-    TargetingResultsService,
-} from "../targeting/targetingService"
+import { TargetingResultsService } from "../targeting/targetingService"
 import {
     ActionEffectTemplateService,
     TargetBySquaddieAffiliationRelation,
@@ -217,8 +214,11 @@ describe("validity checker", () => {
                 })
             )
 
-        const targetingResults = new TargetingResults()
-        targetingResults.addBattleSquaddieIdsInRange(["1"])
+        let targetingResults = TargetingResultsService.new()
+        targetingResults = TargetingResultsService.withBattleSquaddieIdsInRange(
+            targetingResults,
+            ["1"]
+        )
         const targetSpy = vi
             .spyOn(TargetingResultsService, "findValidTargets")
             .mockReturnValue(targetingResults)
@@ -305,8 +305,12 @@ describe("validity checker", () => {
                     })
                 ))
 
-            const targetingResults = new TargetingResults()
-            targetingResults.addBattleSquaddieIdsInRange(["1"])
+            let targetingResults = TargetingResultsService.new()
+            targetingResults =
+                TargetingResultsService.withBattleSquaddieIdsInRange(
+                    targetingResults,
+                    ["1"]
+                )
             targetSpy = vi
                 .spyOn(TargetingResultsService, "findValidTargets")
                 .mockReturnValue(targetingResults)

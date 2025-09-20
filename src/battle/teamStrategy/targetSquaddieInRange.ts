@@ -118,7 +118,7 @@ export class TargetSquaddieInRange implements TeamStrategyCalculator {
             isValidValue(this.desiredBattleSquaddieId) &&
             this.desiredBattleSquaddieId !== "" &&
             this.desiredBattleSquaddieId != undefined &&
-            firstActionTemplateWithTarget.targetingResults.battleSquaddieIdsInRange.includes(
+            firstActionTemplateWithTarget.targetingResults.battleSquaddieIds.inRange.has(
                 this.desiredBattleSquaddieId!
             )
 
@@ -147,8 +147,9 @@ export class TargetSquaddieInRange implements TeamStrategyCalculator {
         }
 
         const battleSquaddieIdsOfDesiredAffiliation =
-            firstActionTemplateWithTarget.targetingResults.battleSquaddieIdsInRange.filter(
-                (battleSquaddieId) => {
+            firstActionTemplateWithTarget.targetingResults.battleSquaddieIds.inRange
+                .values()
+                .filter((battleSquaddieId) => {
                     if (gameEngineState.repository == undefined) return false
                     const { squaddieTemplate: targetSquaddieTemplate } =
                         getResultOrThrowError(
@@ -161,8 +162,8 @@ export class TargetSquaddieInRange implements TeamStrategyCalculator {
                         targetSquaddieTemplate.squaddieId.affiliation ===
                         this.desiredAffiliation
                     )
-                }
-            )
+                })
+                .toArray()
 
         if (battleSquaddieIdsOfDesiredAffiliation.length === 0) {
             return []
@@ -218,7 +219,7 @@ export class TargetSquaddieInRange implements TeamStrategyCalculator {
                         squaddieRepository: objectRepository,
                     })
 
-                if (results.battleSquaddieIdsInRange.length > 0) {
+                if (results.battleSquaddieIds.inRange.size > 0) {
                     return {
                         actionTemplateId: actionTemplate.id,
                         targetingResults: results,

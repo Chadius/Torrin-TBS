@@ -16,7 +16,10 @@ import { CoordinateGeneratorShape } from "../targeting/coordinateGenerator"
 import { Damage, Healing } from "../../squaddie/squaddieService"
 import { CanAttackTargetsCheck } from "./canAttackTargetsCheck"
 import { ActionPerformFailureReason } from "../../squaddie/turn"
-import { TargetingResults } from "../targeting/targetingService"
+import {
+    TargetingResults,
+    TargetingResultsService,
+} from "../targeting/targetingService"
 
 describe("canAttackTargetsCheck", () => {
     let objectRepository: ObjectRepository
@@ -45,7 +48,7 @@ describe("canAttackTargetsCheck", () => {
                 },
             ],
         })
-        validTargetResults = new TargetingResults()
+        validTargetResults = TargetingResultsService.new()
     })
 
     it("is valid if the action does not target foes", () => {
@@ -119,7 +122,11 @@ describe("canAttackTargetsCheck", () => {
         })
 
         it("is valid if at least one target exists", () => {
-            validTargetResults.addBattleSquaddieIdsInRange(["1"])
+            validTargetResults =
+                TargetingResultsService.withBattleSquaddieIdsInRange(
+                    validTargetResults,
+                    ["1"]
+                )
             expect(
                 CanAttackTargetsCheck.targetsAreInRangeOfThisAttack({
                     actionTemplateId: dealsDamageAction.id,

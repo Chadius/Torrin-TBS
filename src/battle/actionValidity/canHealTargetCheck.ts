@@ -33,8 +33,9 @@ export const CanHealTargetCheck = {
         }
 
         if (
-            validTargetResults.battleSquaddieIdsInRange.some(
-                (battleSquaddieId) => {
+            validTargetResults.battleSquaddieIds.inRange
+                .values()
+                .some((battleSquaddieId) => {
                     const { battleSquaddie, squaddieTemplate } =
                         getResultOrThrowError(
                             ObjectRepositoryService.getSquaddieByBattleId(
@@ -53,8 +54,7 @@ export const CanHealTargetCheck = {
                     ) {
                         return true
                     }
-                }
-            )
+                })
         ) {
             return {
                 isValid: true,

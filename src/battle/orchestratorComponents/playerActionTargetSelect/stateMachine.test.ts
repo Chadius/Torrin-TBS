@@ -66,6 +66,7 @@ import { PlayerConsideredActionsService } from "../../battleState/playerConsider
 import { PlayerDecisionHUDService } from "../../hud/playerActionPanel/playerDecisionHUD"
 import {
     PlayerActionTargetContextService,
+    PlayerActionTargetStateInvalidTargetReason,
     PlayerActionTargetStateMachineContext,
 } from "./playerActionTargetStateMachineContext"
 import { PlayerActionTargetStateMachineUIObjectsService } from "./playerActionTargetStateMachineUIObjects"
@@ -263,7 +264,6 @@ describe("PlayerActionTargetSelect State Machine", () => {
             fontColor: [10, 20, 30],
             textBoxMargin: [],
         })
-        // TODO: I need to instantiate in runtime. Draw? The create tasks?
         stateMachine.uiObjects.selectTarget = {
             cancelButton: selectTargetCancelButton,
             explanationLabel: selectTargetExplanationLabel,
@@ -299,17 +299,47 @@ describe("PlayerActionTargetSelect State Machine", () => {
         let targetingResults: TargetingResults
 
         beforeEach(() => {
-            targetingResults = new TargetingResults()
+            targetingResults = TargetingResultsService.new()
             ;[1, 2, 3].forEach((target) => {
-                targetingResults.addBattleSquaddieIdsInRange([`${target}`])
+                targetingResults =
+                    TargetingResultsService.withBattleSquaddieIdsInRange(
+                        targetingResults,
+                        [`${target}`]
+                    )
                 const mapCoordinate = { q: 0, r: target }
-                targetingResults.addCoordinatesInRange([mapCoordinate])
+                targetingResults =
+                    TargetingResultsService.withCoordinatesInRange(
+                        targetingResults,
+                        [mapCoordinate]
+                    )
                 MissionMapService.addSquaddie({
                     missionMap,
                     battleSquaddieId: `${target}`,
                     squaddieTemplateId: `${target}`,
                     originMapCoordinate: mapCoordinate,
                 })
+            })
+            targetingResults =
+                TargetingResultsService.withBattleSquaddieIdsNotAFoe(
+                    targetingResults,
+                    ["4"]
+                )
+            MissionMapService.addSquaddie({
+                missionMap,
+                battleSquaddieId: "4",
+                squaddieTemplateId: "4",
+                originMapCoordinate: { q: 0, r: 4 },
+            })
+            targetingResults =
+                TargetingResultsService.withBattleSquaddieIdsNotAnAlly(
+                    targetingResults,
+                    ["5"]
+                )
+            MissionMapService.addSquaddie({
+                missionMap,
+                battleSquaddieId: "5",
+                squaddieTemplateId: "5",
+                originMapCoordinate: undefined,
             })
 
             findValidTargetsSpy = vi
@@ -339,6 +369,25 @@ describe("PlayerActionTargetSelect State Machine", () => {
                     "1": { currentMapCoordinate: { q: 0, r: 1 } },
                     "2": { currentMapCoordinate: { q: 0, r: 2 } },
                     "3": { currentMapCoordinate: { q: 0, r: 3 } },
+                })
+            )
+        })
+
+        it("remembers targets that are not foes or allies", () => {
+            stateMachine.getActionLogic(
+                PlayerActionTargetActionEnum.COUNT_TARGETS_ENTRY
+            )!(context)
+
+            expect(context.targetResults.invalidTargets).toEqual(
+                expect.objectContaining({
+                    "4": {
+                        currentMapCoordinate: { q: 0, r: 4 },
+                        reason: PlayerActionTargetStateInvalidTargetReason.NOT_A_FOE,
+                    },
+                    "5": {
+                        currentMapCoordinate: undefined,
+                        reason: PlayerActionTargetStateInvalidTargetReason.NOT_AN_ALLY,
+                    },
                 })
             )
         })
@@ -486,15 +535,20 @@ describe("PlayerActionTargetSelect State Machine", () => {
                     originMapCoordinate: { q: 0, r: 2 },
                 })
 
-                targetingResults = new TargetingResults()
-                targetingResults.addBattleSquaddieIdsInRange([
-                    battleSquaddieId,
-                    "ally",
-                ])
-                targetingResults.addCoordinatesInRange([
-                    { q: 0, r: 0 },
-                    { q: 0, r: 1 },
-                ])
+                targetingResults = TargetingResultsService.new()
+                targetingResults =
+                    TargetingResultsService.withBattleSquaddieIdsInRange(
+                        targetingResults,
+                        ["ally"]
+                    )
+                targetingResults =
+                    TargetingResultsService.withCoordinatesInRange(
+                        targetingResults,
+                        [
+                            { q: 0, r: 0 },
+                            { q: 0, r: 1 },
+                        ]
+                    )
                 findValidTargetsSpy = vi
                     .spyOn(TargetingResultsService, "findValidTargets")
                     .mockReturnValue(targetingResults)
@@ -612,29 +666,6 @@ describe("PlayerActionTargetSelect State Machine", () => {
                 )
             })
 
-            describe("will always consider enemies as targets even if the action has no effect", () => {
-                it.each(tests)(
-                    `$name`,
-                    ({ getActionTemplate, mockTheSpyToFail }) => {
-                        mockTheSpyToFail()
-                        targetingResults.addBattleSquaddieIdsInRange(["enemy"])
-                        targetingResults.addCoordinatesInRange([{ q: 0, r: 2 }])
-                        const update =
-                            useActionCountTargetsAndUpdateStateMachine(
-                                getActionTemplate()
-                            )
-                        expect(update.transitionFired).toEqual(
-                            PlayerActionTargetTransitionEnum.TARGETS_AUTOMATICALLY_SELECTED
-                        )
-                        expect(
-                            Object.keys(
-                                stateMachine.context.targetResults.validTargets
-                            )
-                        ).toEqual(["enemy"])
-                    }
-                )
-            })
-
             describe("will target the only ally who can benefit", () => {
                 it.each(tests)(
                     `$name`,
@@ -709,6 +740,16 @@ describe("PlayerActionTargetSelect State Machine", () => {
                             "1": { currentMapCoordinate: { q: 0, r: 1 } },
                             "2": { currentMapCoordinate: { q: 0, r: 2 } },
                             "3": { currentMapCoordinate: { q: 0, r: 3 } },
+                        }
+                        context.targetResults.invalidTargets = {
+                            "4": {
+                                currentMapCoordinate: { q: 0, r: 4 },
+                                reason: PlayerActionTargetStateInvalidTargetReason.NOT_AN_ALLY,
+                            },
+                            "5": {
+                                currentMapCoordinate: { q: 0, r: 5 },
+                                reason: PlayerActionTargetStateInvalidTargetReason.NOT_A_FOE,
+                            },
                         }
                     },
                 }
@@ -976,6 +1017,69 @@ describe("PlayerActionTargetSelect State Machine", () => {
                         ).toBe(true)
                     }
                 )
+
+                it("will explain when the invalid target in range is selected", () => {
+                    SquaddieRepositoryService.createNewSquaddieAndAddToRepository(
+                        {
+                            name: "4",
+                            battleId: "4",
+                            templateId: "4",
+                            affiliation: "UNKNOWN",
+                            objectRepository: context.objectRepository!,
+                            actionTemplateIds: [],
+                        }
+                    )
+                    MissionMapService.addSquaddie({
+                        missionMap: context.missionMap,
+                        squaddieTemplateId: "4",
+                        battleSquaddieId: "4",
+                        originMapCoordinate: { q: 0, r: 4 },
+                    })
+                    const invalidMouseLocation =
+                        ConvertCoordinateService.convertMapCoordinatesToScreenLocation(
+                            {
+                                mapCoordinate: { q: 0, r: 4 },
+                                cameraLocation:
+                                    context.camera.getWorldLocation(),
+                            }
+                        )
+                    clickMouse(invalidMouseLocation)
+                    let update = stateMachine.update()
+                    update.actions.forEach((action) => {
+                        stateMachine.getActionLogic(action)!(context)
+                    })
+
+                    stateMachine.update()
+                    expect(
+                        stateMachine.context.explanationLabelText.includes(
+                            "not an ally"
+                        )
+                    ).toBe(true)
+                })
+
+                it("will explain the location is in range but there are no targets present", () => {
+                    const invalidMouseLocation =
+                        ConvertCoordinateService.convertMapCoordinatesToScreenLocation(
+                            {
+                                mapCoordinate: { q: 0, r: 4 },
+                                cameraLocation:
+                                    context.camera.getWorldLocation(),
+                            }
+                        )
+                    context.targetResults.validCoordinates.push({ q: 0, r: 4 })
+                    clickMouse(invalidMouseLocation)
+                    let update = stateMachine.update()
+                    update.actions.forEach((action) => {
+                        stateMachine.getActionLogic(action)!(context)
+                    })
+
+                    stateMachine.update()
+                    expect(
+                        stateMachine.context.explanationLabelText.includes(
+                            "is empty"
+                        )
+                    ).toBe(true)
+                })
 
                 describe("TRIGGER_PLAYER_CONSIDERS_TARGET_SELECTION", () => {
                     let update: StateMachineUpdate<

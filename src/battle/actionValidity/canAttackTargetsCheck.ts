@@ -29,7 +29,7 @@ export const CanAttackTargetsCheck = {
 
         if (
             actionDealsDamage &&
-            validTargetResults.battleSquaddieIdsInRange.length > 0
+            validTargetResults.battleSquaddieIds.inRange.size > 0
         ) {
             return {
                 isValid: true,

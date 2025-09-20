@@ -18,7 +18,10 @@ import { Damage, Healing } from "../../squaddie/squaddieService"
 import { InBattleAttributesService } from "../stats/inBattleAttributes"
 import { CanHealTargetCheck } from "./canHealTargetCheck"
 import { ActionValidityTestUtils } from "./commonTest"
-import { TargetingResults } from "../targeting/targetingService"
+import {
+    TargetingResults,
+    TargetingResultsService,
+} from "../targeting/targetingService"
 
 describe("can heal targets", () => {
     let objectRepository: ObjectRepository
@@ -46,7 +49,7 @@ describe("can heal targets", () => {
                 },
             ],
         })
-        validTargetResults = new TargetingResults()
+        validTargetResults = TargetingResultsService.new()
     })
 
     it("is valid if the action does not heal", () => {
@@ -133,7 +136,11 @@ describe("can heal targets", () => {
 
         describe("no targets took damage", () => {
             beforeEach(() => {
-                validTargetResults.addBattleSquaddieIdsInRange(["actor"])
+                validTargetResults =
+                    TargetingResultsService.withBattleSquaddieIdsInRange(
+                        validTargetResults,
+                        ["actor"]
+                    )
             })
 
             it("will calculate 0 healing", () => {
@@ -170,7 +177,11 @@ describe("can heal targets", () => {
         })
         describe("1 target took damage", () => {
             beforeEach(() => {
-                validTargetResults.addBattleSquaddieIdsInRange(["actor"])
+                validTargetResults =
+                    TargetingResultsService.withBattleSquaddieIdsInRange(
+                        validTargetResults,
+                        ["actor"]
+                    )
                 const { battleSquaddie } = getResultOrThrowError(
                     ObjectRepositoryService.getSquaddieByBattleId(
                         objectRepository,

@@ -27,7 +27,6 @@ import {
 import { BattleActionDecisionStepService } from "../actionDecision/battleActionDecisionStep"
 import { TerrainTileMapService } from "../../hexMap/terrainTileMap"
 import {
-    CoordinateSystem,
     HexCoordinate,
     HexCoordinateService,
 } from "../../hexMap/hexCoordinate/hexCoordinate"
@@ -36,7 +35,6 @@ import {
     BattleActionService,
 } from "../history/battleAction/battleAction"
 import { SquaddieTemplate } from "../../campaign/squaddieTemplate"
-import { PopupWindowService } from "../hud/popupWindow/popupWindow"
 import {
     PlayerInputAction,
     TPlayerInputAction,
@@ -79,8 +77,6 @@ export const PlayerIntent = {
     CANCEL_SQUADDIE_CONSIDERED_ACTIONS: "CANCEL_SQUADDIE_CONSIDERED_ACTIONS",
     PLAYER_SELECTS_AN_ACTION: "PLAYER_SELECTS_AN_ACTION",
     END_SQUADDIE_TURN: "END_SQUADDIE_TURN",
-    SQUADDIE_SELECTED_MOVE_SQUADDIE_TO_SQUADDIE_OUT_OF_RANGE:
-        "SQUADDIE_SELECTED_MOVE_SQUADDIE_TO_SQUADDIE_OUT_OF_RANGE",
 } as const satisfies Record<string, string>
 
 export type TPlayerIntent = EnumLike<typeof PlayerIntent>
@@ -192,11 +188,6 @@ export const PlayerSelectionService = {
               })
             : { q: 0, r: 0 }
         let endTurnBattleAction: BattleAction
-        const { squaddieTemplate: targetSquaddieTemplate } =
-            getSquaddiePlayerClickedOn({
-                gameEngineState,
-                mouseClick: context.mouseClick,
-            })
 
         switch (context.playerIntent) {
             case PlayerIntent.END_PHASE:
@@ -322,20 +313,6 @@ export const PlayerSelectionService = {
                     battleOrchestratorMode:
                         BattleOrchestratorMode.PLAYER_HUD_CONTROLLER,
                 })
-            case PlayerIntent.SQUADDIE_SELECTED_MOVE_SQUADDIE_TO_SQUADDIE_OUT_OF_RANGE:
-                messageSent = {
-                    type: MessageBoardMessageType.PLAYER_SELECTION_IS_INVALID,
-                    gameEngineState,
-                    popupWindow: PopupWindowService.newWarningWindow({
-                        screenLocation: context?.mouseClick,
-                        camera: gameEngineState.battleOrchestratorState
-                            .battleState.camera,
-                        text: `${targetSquaddieTemplate?.squaddieId.name ?? "Unknown"} is out of range`,
-                        coordinateSystem: CoordinateSystem.SCREEN,
-                    }),
-                }
-                gameEngineState.messageBoard.sendMessage(messageSent)
-                return PlayerSelectionChangesService.new({ messageSent })
             case PlayerIntent.CONSIDER_MOVING_SQUADDIE:
                 if (context.movement == undefined) {
                     messageSent = {
@@ -876,7 +853,7 @@ class PlayerSelectsAnActionBehavior implements BehaviorTreeTask {
                 actingSquaddieTemplate: squaddieTemplate,
                 actingBattleSquaddie: battleSquaddie,
                 squaddieRepository: gameEngineState.repository,
-            }).battleSquaddieIdsInRange
+            }).battleSquaddieIds.inRange
 
         addPlayerSelectionContextToDataBlob(
             this.dataBlob,
@@ -885,7 +862,9 @@ class PlayerSelectsAnActionBehavior implements BehaviorTreeTask {
                 actionTemplateId,
                 actorBattleSquaddieId: actorBattleSquaddieId,
                 mouseClick,
-                targetBattleSquaddieIds: potentialTargetBattleSquaddieIds,
+                targetBattleSquaddieIds: potentialTargetBattleSquaddieIds
+                    .values()
+                    .toArray(),
             })
         )
         return true
@@ -1044,7 +1023,7 @@ class PlayerClicksOnUncontrollableSquaddieBeforeTurnStartsBehavior
 
         const clickedOnSquaddie = DataBlobService.get<boolean>(
             this.dataBlob,
-            "clickedOnSquaddie" // TODO This is false
+            "clickedOnSquaddie"
         )
 
         const squaddieIsNormallyControllableByPlayer =

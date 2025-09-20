@@ -17,7 +17,10 @@ import { CoordinateGeneratorShape } from "../targeting/coordinateGenerator"
 import { Damage } from "../../squaddie/squaddieService"
 import { InBattleAttributesService } from "../stats/inBattleAttributes"
 import { ActionValidityTestUtils } from "./commonTest"
-import { TargetingResults } from "../targeting/targetingService"
+import {
+    TargetingResults,
+    TargetingResultsService,
+} from "../targeting/targetingService"
 import {
     AttributeModifierService,
     AttributeSource,
@@ -51,7 +54,7 @@ describe("can add modifiers check", () => {
                 },
             ],
         })
-        validTargetResults = new TargetingResults()
+        validTargetResults = TargetingResultsService.new()
     })
 
     it("is valid if the action does not apply modifiers", () => {
@@ -157,7 +160,11 @@ describe("can add modifiers check", () => {
                     })
                 )
 
-                validTargetResults.addBattleSquaddieIdsInRange(["actor"])
+                validTargetResults =
+                    TargetingResultsService.withBattleSquaddieIdsInRange(
+                        validTargetResults,
+                        ["actor"]
+                    )
             })
             it("reports attributes will not be added", () => {
                 const { battleSquaddie, squaddieTemplate } =
@@ -192,7 +199,11 @@ describe("can add modifiers check", () => {
         })
         describe("is valid if a target would gain the attribute", () => {
             beforeEach(() => {
-                validTargetResults.addBattleSquaddieIdsInRange(["actor"])
+                validTargetResults =
+                    TargetingResultsService.withBattleSquaddieIdsInRange(
+                        validTargetResults,
+                        ["actor"]
+                    )
             })
             it("reports attributes will be added", () => {
                 const { battleSquaddie, squaddieTemplate } =

@@ -107,7 +107,7 @@ describe("Targeting Service", () => {
             })
 
         expect(results.coordinatesInRange).toHaveLength(6)
-        expect(results.coordinatesInRange).toEqual(
+        expect(results.coordinatesInRange.values().toArray()).toEqual(
             expect.arrayContaining(
                 HexCoordinateService.createNewNeighboringCoordinates({
                     q: 1,
@@ -259,8 +259,12 @@ describe("Targeting Service", () => {
                 squaddieRepository: objectRepository,
             })
 
-        expect(results.battleSquaddieIdsInRange).toEqual(
+        expect(results.battleSquaddieIds.inRange.values().toArray()).toEqual(
             expect.arrayContaining(["enemy in range"])
+        )
+
+        expect(results.battleSquaddieIds.notAFoe.values().toArray()).toEqual(
+            expect.arrayContaining(["player in range"])
         )
     })
 
@@ -291,7 +295,7 @@ describe("Targeting Service", () => {
             squaddieAffiliation: SquaddieAffiliation.ENEMY,
             repository: objectRepository,
             battleMap: battleMap,
-            coordinate: { q: 1, r: 2 },
+            coordinate: { q: 0, r: 1 },
         })
 
         makeSquaddieOfGivenAffiliationAndAddOnMap({
@@ -333,13 +337,17 @@ describe("Targeting Service", () => {
                 squaddieRepository: objectRepository,
             })
 
-        expect(results.battleSquaddieIdsInRange).toEqual(
+        expect(results.battleSquaddieIds.inRange.values().toArray()).toEqual(
             expect.arrayContaining([
                 "player in range",
                 sirCamilBattleSquaddie.battleSquaddieId,
             ])
         )
-        expect(results.battleSquaddieIdsInRange).toHaveLength(2)
+        expect(results.battleSquaddieIds.inRange).toHaveLength(2)
+
+        expect(results.battleSquaddieIds.notAnAlly.values().toArray()).toEqual(
+            expect.arrayContaining(["enemy in range"])
+        )
     })
 
     it("will ignore terrain costs when targeting", () => {
@@ -385,7 +393,7 @@ describe("Targeting Service", () => {
             })
 
         expect(results.coordinatesInRange).toHaveLength(3)
-        expect(results.coordinatesInRange).toStrictEqual([
+        expect(results.coordinatesInRange.values().toArray()).toStrictEqual([
             { q: 0, r: 1 },
             { q: 0, r: 2 },
             { q: 0, r: 3 },
@@ -457,231 +465,6 @@ describe("Targeting Service", () => {
                         r: 1,
                     })
                 )
-            )
-        })
-    })
-
-    describe("verify target affiliation in relation to the user", () => {
-        type idAndAffiliation = {
-            id: string
-            affiliation: TSquaddieAffiliation
-        }
-
-        let player1: idAndAffiliation = {
-            id: "player1",
-            affiliation: SquaddieAffiliation.PLAYER,
-        }
-        let player2: idAndAffiliation = {
-            id: "player2",
-            affiliation: SquaddieAffiliation.PLAYER,
-        }
-        let enemy1: idAndAffiliation = {
-            id: "enemy1",
-            affiliation: SquaddieAffiliation.ENEMY,
-        }
-
-        type AffiliationTest = {
-            name: string
-            actor: idAndAffiliation
-            target: idAndAffiliation
-            squaddieAffiliationRelation: {
-                [TargetBySquaddieAffiliationRelation.TARGET_SELF]: boolean
-                [TargetBySquaddieAffiliationRelation.TARGET_ALLY]: boolean
-                [TargetBySquaddieAffiliationRelation.TARGET_FOE]: boolean
-            }
-            expectedToTarget: boolean
-        }
-
-        const expectShouldTarget = ({
-            actor,
-            target,
-            expectedToTarget,
-            squaddieAffiliationRelation,
-        }: {
-            actor: idAndAffiliation
-            target: idAndAffiliation
-            expectedToTarget: boolean
-            squaddieAffiliationRelation: {
-                [TargetBySquaddieAffiliationRelation.TARGET_SELF]: boolean
-                [TargetBySquaddieAffiliationRelation.TARGET_ALLY]: boolean
-                [TargetBySquaddieAffiliationRelation.TARGET_FOE]: boolean
-            }
-        }) => {
-            expect(
-                TargetingResultsService.shouldTargetDueToAffiliationAndTargetTraits(
-                    {
-                        squaddieAffiliationRelation,
-                        actorBattleSquaddieId: actor.id,
-                        actorAffiliation: actor.affiliation,
-                        targetBattleSquaddieId: target.id,
-                        targetAffiliation: target.affiliation,
-                    }
-                )
-            ).toEqual(expectedToTarget)
-        }
-
-        describe("can target itself if the action TARGET_SELF", () => {
-            const tests: AffiliationTest[] = [
-                {
-                    name: "player1 player1",
-                    actor: player1,
-                    target: player1,
-                    squaddieAffiliationRelation: {
-                        [TargetBySquaddieAffiliationRelation.TARGET_SELF]: true,
-                        [TargetBySquaddieAffiliationRelation.TARGET_ALLY]: true,
-                        [TargetBySquaddieAffiliationRelation.TARGET_FOE]: true,
-                    },
-                    expectedToTarget: true,
-                },
-                {
-                    name: "player1 player2",
-                    actor: player1,
-                    target: player2,
-                    squaddieAffiliationRelation: {
-                        [TargetBySquaddieAffiliationRelation.TARGET_SELF]: true,
-                        [TargetBySquaddieAffiliationRelation.TARGET_ALLY]: false,
-                        [TargetBySquaddieAffiliationRelation.TARGET_FOE]: false,
-                    },
-                    expectedToTarget: false,
-                },
-            ]
-
-            it.each(tests)(
-                `$name`,
-                ({
-                    actor,
-                    target,
-                    squaddieAffiliationRelation,
-                    expectedToTarget,
-                }) => {
-                    expectShouldTarget({
-                        squaddieAffiliationRelation,
-                        actor,
-                        target,
-                        expectedToTarget,
-                    })
-                }
-            )
-        })
-
-        describe("can target allies but not self if the action TARGET_ALLY", () => {
-            const tests: AffiliationTest[] = [
-                {
-                    name: "player1 player1",
-                    actor: player1,
-                    target: player1,
-                    squaddieAffiliationRelation: {
-                        [TargetBySquaddieAffiliationRelation.TARGET_SELF]: false,
-                        [TargetBySquaddieAffiliationRelation.TARGET_ALLY]: true,
-                        [TargetBySquaddieAffiliationRelation.TARGET_FOE]: false,
-                    },
-                    expectedToTarget: false,
-                },
-                {
-                    name: "player1 player2",
-                    actor: player1,
-                    target: player2,
-                    squaddieAffiliationRelation: {
-                        [TargetBySquaddieAffiliationRelation.TARGET_SELF]: false,
-                        [TargetBySquaddieAffiliationRelation.TARGET_ALLY]: true,
-                        [TargetBySquaddieAffiliationRelation.TARGET_FOE]: false,
-                    },
-                    expectedToTarget: true,
-                },
-                {
-                    name: "player1 enemy1",
-                    actor: player1,
-                    target: enemy1,
-                    squaddieAffiliationRelation: {
-                        [TargetBySquaddieAffiliationRelation.TARGET_SELF]: false,
-                        [TargetBySquaddieAffiliationRelation.TARGET_ALLY]: true,
-                        [TargetBySquaddieAffiliationRelation.TARGET_FOE]: false,
-                    },
-                    expectedToTarget: false,
-                },
-            ]
-
-            it.each(tests)(
-                `$name`,
-                ({
-                    actor,
-                    target,
-                    squaddieAffiliationRelation,
-                    expectedToTarget,
-                }) => {
-                    expectShouldTarget({
-                        squaddieAffiliationRelation,
-                        actor,
-                        target,
-                        expectedToTarget,
-                    })
-                }
-            )
-        })
-
-        describe("can target allies if the action TARGET_FOE", () => {
-            const tests: AffiliationTest[] = [
-                {
-                    name: "player1 enemy1",
-                    actor: player1,
-                    target: enemy1,
-                    squaddieAffiliationRelation: {
-                        [TargetBySquaddieAffiliationRelation.TARGET_SELF]: false,
-                        [TargetBySquaddieAffiliationRelation.TARGET_ALLY]: false,
-                        [TargetBySquaddieAffiliationRelation.TARGET_FOE]: true,
-                    },
-                    expectedToTarget: true,
-                },
-                {
-                    name: "enemy1 player1",
-                    actor: enemy1,
-                    target: player1,
-                    squaddieAffiliationRelation: {
-                        [TargetBySquaddieAffiliationRelation.TARGET_SELF]: false,
-                        [TargetBySquaddieAffiliationRelation.TARGET_ALLY]: false,
-                        [TargetBySquaddieAffiliationRelation.TARGET_FOE]: true,
-                    },
-                    expectedToTarget: true,
-                },
-                {
-                    name: "player1 player1",
-                    actor: player1,
-                    target: player1,
-                    squaddieAffiliationRelation: {
-                        [TargetBySquaddieAffiliationRelation.TARGET_SELF]: false,
-                        [TargetBySquaddieAffiliationRelation.TARGET_ALLY]: false,
-                        [TargetBySquaddieAffiliationRelation.TARGET_FOE]: true,
-                    },
-                    expectedToTarget: false,
-                },
-                {
-                    name: "player1 player2",
-                    actor: player1,
-                    target: player2,
-                    squaddieAffiliationRelation: {
-                        [TargetBySquaddieAffiliationRelation.TARGET_SELF]: false,
-                        [TargetBySquaddieAffiliationRelation.TARGET_ALLY]: false,
-                        [TargetBySquaddieAffiliationRelation.TARGET_FOE]: true,
-                    },
-                    expectedToTarget: false,
-                },
-            ]
-
-            it.each(tests)(
-                `$name`,
-                ({
-                    actor,
-                    target,
-                    squaddieAffiliationRelation,
-                    expectedToTarget,
-                }) => {
-                    expectShouldTarget({
-                        squaddieAffiliationRelation,
-                        actor,
-                        target,
-                        expectedToTarget,
-                    })
-                }
             )
         })
     })

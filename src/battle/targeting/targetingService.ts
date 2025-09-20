@@ -2,10 +2,7 @@ import { MissionMap, MissionMapService } from "../../missionMap/missionMap"
 import { BattleSquaddie } from "../battleSquaddie"
 import { ObjectRepository, ObjectRepositoryService } from "../objectRepository"
 import { getResultOrThrowError } from "../../utils/resultOrError"
-import {
-    SquaddieAffiliationService,
-    TSquaddieAffiliation,
-} from "../../squaddie/squaddieAffiliation"
+import { SquaddieAffiliationService } from "../../squaddie/squaddieAffiliation"
 import { HexCoordinate } from "../../hexMap/hexCoordinate/hexCoordinate"
 import { SquaddieTemplate } from "../../campaign/squaddieTemplate"
 import { MissionMapSquaddieCoordinate } from "../../missionMap/squaddieCoordinate"
@@ -36,40 +33,116 @@ import {
     TraitStatusStorageService,
 } from "../../trait/traitStatusStorage"
 
-export class TargetingResults {
-    constructor() {
-        this._coordinatesInRange = []
-        this._battleSquaddieIdsInRange = []
+export interface TargetingResults {
+    coordinatesInRange: Set<HexCoordinate>
+    battleSquaddieIds: {
+        notAnAlly: Set<string>
+        notAFoe: Set<string>
+        inRange: Set<string>
     }
+}
 
-    private _coordinatesInRange: HexCoordinate[]
-
-    get coordinatesInRange(): HexCoordinate[] {
-        return this._coordinatesInRange
-    }
-
-    private _battleSquaddieIdsInRange: string[]
-
-    get battleSquaddieIdsInRange(): string[] {
-        return this._battleSquaddieIdsInRange
-    }
-
-    addCoordinatesInRange(hexCoordinates: HexCoordinate[]) {
-        this._coordinatesInRange = [
-            ...this._coordinatesInRange,
-            ...hexCoordinates,
-        ]
-    }
-
-    addBattleSquaddieIdsInRange(battleIds: string[]) {
-        this._battleSquaddieIdsInRange = [
-            ...this._battleSquaddieIdsInRange,
-            ...battleIds,
-        ]
+const newTargetingResults = (): TargetingResults => {
+    return {
+        coordinatesInRange: new Set<HexCoordinate>(),
+        battleSquaddieIds: {
+            inRange: new Set<string>(),
+            notAnAlly: new Set<string>(),
+            notAFoe: new Set<string>(),
+        },
     }
 }
 
 export const TargetingResultsService = {
+    new: (): TargetingResults => newTargetingResults(),
+    withCoordinatesInRange: (
+        targetingResults: TargetingResults | undefined,
+        hexCoordinates: HexCoordinate[]
+    ): TargetingResults => {
+        return {
+            coordinatesInRange: new Set([
+                ...(targetingResults?.coordinatesInRange.values() ?? []),
+                ...hexCoordinates,
+            ]),
+            battleSquaddieIds: {
+                inRange: new Set(
+                    targetingResults?.battleSquaddieIds.inRange ?? []
+                ),
+                notAnAlly: new Set(
+                    targetingResults?.battleSquaddieIds.notAnAlly ?? []
+                ),
+                notAFoe: new Set(
+                    targetingResults?.battleSquaddieIds.notAFoe ?? []
+                ),
+            },
+        }
+    },
+    withBattleSquaddieIdsInRange: (
+        targetingResults: TargetingResults | undefined,
+        battleIds: string[]
+    ): TargetingResults => {
+        return {
+            coordinatesInRange: new Set([
+                ...(targetingResults?.coordinatesInRange.values() ?? []),
+            ]),
+            battleSquaddieIds: {
+                inRange: new Set([
+                    ...(targetingResults?.battleSquaddieIds.inRange ?? []),
+                    ...battleIds,
+                ]),
+                notAnAlly: new Set(
+                    targetingResults?.battleSquaddieIds.notAnAlly ?? []
+                ),
+                notAFoe: new Set(
+                    targetingResults?.battleSquaddieIds.notAFoe ?? []
+                ),
+            },
+        }
+    },
+    withBattleSquaddieIdsNotAnAlly: (
+        targetingResults: TargetingResults | undefined,
+        battleIds: string[]
+    ): TargetingResults => {
+        return {
+            coordinatesInRange: new Set([
+                ...(targetingResults?.coordinatesInRange.values() ?? []),
+            ]),
+            battleSquaddieIds: {
+                inRange: new Set(
+                    targetingResults?.battleSquaddieIds.inRange ?? []
+                ),
+                notAnAlly: new Set([
+                    ...(targetingResults?.battleSquaddieIds.notAnAlly ?? []),
+                    ...battleIds,
+                ]),
+                notAFoe: new Set(
+                    targetingResults?.battleSquaddieIds.notAFoe ?? []
+                ),
+            },
+        }
+    },
+    withBattleSquaddieIdsNotAFoe: (
+        targetingResults: TargetingResults | undefined,
+        battleIds: string[]
+    ): TargetingResults => {
+        return {
+            coordinatesInRange: new Set([
+                ...(targetingResults?.coordinatesInRange.values() ?? []),
+            ]),
+            battleSquaddieIds: {
+                inRange: new Set(
+                    targetingResults?.battleSquaddieIds.inRange ?? []
+                ),
+                notAnAlly: new Set(
+                    targetingResults?.battleSquaddieIds.notAnAlly ?? []
+                ),
+                notAFoe: new Set([
+                    ...(targetingResults?.battleSquaddieIds.notAFoe ?? []),
+                    ...battleIds,
+                ]),
+            },
+        }
+    },
     findValidTargets: ({
         map,
         actingSquaddieTemplate,
@@ -115,31 +188,6 @@ export const TargetingResultsService = {
             battleActionRecorder,
         })
     },
-    shouldTargetDueToAffiliationAndTargetTraits: ({
-        actorAffiliation,
-        actorBattleSquaddieId,
-        targetBattleSquaddieId,
-        squaddieAffiliationRelation,
-        targetAffiliation,
-    }: {
-        actorAffiliation: TSquaddieAffiliation
-        actorBattleSquaddieId: string
-        targetBattleSquaddieId: string
-        targetAffiliation: TSquaddieAffiliation
-        squaddieAffiliationRelation: {
-            [TargetBySquaddieAffiliationRelation.TARGET_SELF]: boolean
-            [TargetBySquaddieAffiliationRelation.TARGET_ALLY]: boolean
-            [TargetBySquaddieAffiliationRelation.TARGET_FOE]: boolean
-        }
-    }): boolean => {
-        return shouldAddDueToAffiliationRelation({
-            actorAffiliation,
-            actorBattleSquaddieId,
-            targetBattleSquaddieId,
-            squaddieAffiliationRelation,
-            targetAffiliation,
-        })
-    },
 }
 
 const findValidTargets = ({
@@ -172,7 +220,7 @@ const findValidTargets = ({
         startCoordinates = [squaddieInfo.currentMapCoordinate]
 
     if (startCoordinates == undefined || startCoordinates[0] == undefined)
-        return new TargetingResults()
+        return newTargetingResults()
 
     const allLocationsInRange: SearchResult =
         MapSearchService.calculateAllPossiblePathsFromStartingCoordinate({
@@ -195,12 +243,12 @@ const findValidTargets = ({
             }),
         })
 
-    const results = new TargetingResults()
-    results.addCoordinatesInRange(
+    const results = TargetingResultsService.withCoordinatesInRange(
+        newTargetingResults(),
         SearchResultAdapterService.getCoordinatesWithPaths(allLocationsInRange)
     )
 
-    addValidTargetsToResult({
+    return addTargetsToResult({
         squaddieAffiliationRelation: actionEffectTemplate
             ? actionEffectTemplate.targetConstraints.squaddieAffiliationRelation
             : actionTemplate.actionEffectTemplates[0].targetConstraints
@@ -215,11 +263,9 @@ const findValidTargets = ({
         map,
         objectRepository: squaddieRepository,
     })
-
-    return results
 }
 
-const addValidTargetsToResult = ({
+const addTargetsToResult = ({
     targetingResults,
     actingSquaddieTemplate,
     actingBattleSquaddie,
@@ -239,8 +285,8 @@ const addValidTargetsToResult = ({
         [TargetBySquaddieAffiliationRelation.TARGET_ALLY]: boolean
         [TargetBySquaddieAffiliationRelation.TARGET_FOE]: boolean
     }
-}) => {
-    const validBattleSquaddieIds: string[] = tilesInRange
+}): TargetingResults => {
+    const battleSquaddies = tilesInRange
         .map((tile) => {
             const mapData: MissionMapSquaddieCoordinate =
                 MissionMapService.getBattleSquaddieAtCoordinate(map, tile)
@@ -252,38 +298,105 @@ const addValidTargetsToResult = ({
                 )
             )
 
-            if (
-                shouldAddDueToAffiliationRelation({
-                    squaddieAffiliationRelation,
-                    actorAffiliation:
-                        actingSquaddieTemplate.squaddieId.affiliation,
-                    actorBattleSquaddieId:
-                        actingBattleSquaddie.battleSquaddieId,
-                    targetAffiliation: squaddieTemplate.squaddieId.affiliation,
-                    targetBattleSquaddieId: battleSquaddie.battleSquaddieId,
-                })
-            ) {
-                return battleSquaddie.battleSquaddieId
-            }
+            if (squaddieTemplate == undefined || battleSquaddie == undefined)
+                return undefined
 
-            return undefined
+            const squaddiesAreFriends =
+                SquaddieAffiliationService.areSquaddieAffiliationsAllies({
+                    actingAffiliation:
+                        actingSquaddieTemplate.squaddieId.affiliation,
+                    targetAffiliation: squaddieTemplate.squaddieId.affiliation,
+                })
+            return { battleSquaddie, squaddieTemplate, squaddiesAreFriends }
         })
         .filter((x) => x != undefined)
 
-    targetingResults.addBattleSquaddieIdsInRange(validBattleSquaddieIds)
+    const {
+        validBattleSquaddieIds,
+        invalidBattleSquaddieIdsNotAFoe,
+        invalidBattleSquaddieIdsNotAnAlly,
+    } = filterTargetsBasedOnValidity(
+        battleSquaddies,
+        squaddieAffiliationRelation,
+        actingBattleSquaddie
+    )
+
+    let targetingResultsWithInformation =
+        TargetingResultsService.withBattleSquaddieIdsInRange(
+            targetingResults,
+            validBattleSquaddieIds
+        )
+
+    targetingResultsWithInformation =
+        TargetingResultsService.withBattleSquaddieIdsNotAnAlly(
+            targetingResultsWithInformation,
+            invalidBattleSquaddieIdsNotAnAlly
+        )
+
+    return TargetingResultsService.withBattleSquaddieIdsNotAFoe(
+        targetingResultsWithInformation,
+        invalidBattleSquaddieIdsNotAFoe
+    )
+}
+
+const filterTargetsBasedOnValidity = (
+    battleSquaddies: {
+        battleSquaddie: BattleSquaddie
+        squaddieTemplate: SquaddieTemplate
+        squaddiesAreFriends: boolean
+    }[],
+    squaddieAffiliationRelation: {
+        [TargetBySquaddieAffiliationRelation.TARGET_SELF]: boolean
+        [TargetBySquaddieAffiliationRelation.TARGET_ALLY]: boolean
+        [TargetBySquaddieAffiliationRelation.TARGET_FOE]: boolean
+    },
+    actingBattleSquaddie: BattleSquaddie
+) => {
+    const validBattleSquaddieIds: string[] = []
+    const invalidBattleSquaddieIdsNotAFoe: string[] = []
+    const invalidBattleSquaddieIdsNotAnAlly: string[] = []
+    battleSquaddies.forEach((tile) => {
+        const { battleSquaddie, squaddiesAreFriends } = tile
+
+        if (
+            shouldAddDueToAffiliationRelation({
+                squaddiesAreFriends,
+                squaddieAffiliationRelation,
+                actorBattleSquaddieId: actingBattleSquaddie.battleSquaddieId,
+                targetBattleSquaddieId: battleSquaddie.battleSquaddieId,
+            })
+        ) {
+            validBattleSquaddieIds.push(battleSquaddie.battleSquaddieId)
+            return
+        }
+
+        if (squaddiesAreFriends) {
+            invalidBattleSquaddieIdsNotAFoe.push(
+                battleSquaddie.battleSquaddieId
+            )
+            return
+        }
+
+        return invalidBattleSquaddieIdsNotAnAlly.push(
+            battleSquaddie.battleSquaddieId
+        )
+    })
+    return {
+        validBattleSquaddieIds,
+        invalidBattleSquaddieIdsNotAFoe,
+        invalidBattleSquaddieIdsNotAnAlly,
+    }
 }
 
 const shouldAddDueToAffiliationRelation = ({
-    actorAffiliation,
     actorBattleSquaddieId,
     targetBattleSquaddieId,
-    targetAffiliation,
     squaddieAffiliationRelation,
+    squaddiesAreFriends,
 }: {
-    actorAffiliation: TSquaddieAffiliation
+    squaddiesAreFriends: boolean
     actorBattleSquaddieId: string
     targetBattleSquaddieId: string
-    targetAffiliation: TSquaddieAffiliation
     squaddieAffiliationRelation: {
         [TargetBySquaddieAffiliationRelation.TARGET_SELF]: boolean
         [TargetBySquaddieAffiliationRelation.TARGET_ALLY]: boolean
@@ -298,12 +411,6 @@ const shouldAddDueToAffiliationRelation = ({
     ) {
         return true
     }
-
-    const squaddiesAreFriends =
-        SquaddieAffiliationService.areSquaddieAffiliationsAllies({
-            actingAffiliation: actorAffiliation,
-            targetAffiliation,
-        })
 
     if (
         squaddieAffiliationRelation[
@@ -391,7 +498,9 @@ const highlightTargetRange = ({
         actingBattleSquaddie: battleSquaddie,
         squaddieRepository: objectRepository,
     })
-    const actionRange: HexCoordinate[] = targetingResults.coordinatesInRange
+    const actionRange: HexCoordinate[] = [
+        ...targetingResults.coordinatesInRange.values(),
+    ]
 
     TerrainTileMapService.removeAllGraphicsLayers(missionMap.terrainTileMap)
 

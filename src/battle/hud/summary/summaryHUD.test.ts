@@ -27,8 +27,8 @@ import { CampaignService } from "../../../campaign/campaign"
 import { ResourceHandler } from "../../../resource/resourceHandler"
 import {
     PlayerCommandSelection,
-    TPlayerCommandSelection,
     PlayerCommandStateService,
+    TPlayerCommandSelection,
 } from "../playerCommand/playerCommandHUD"
 import { MouseButton } from "../../../utils/mouseConfig"
 import { SquaddieRepositoryService } from "../../../utils/test/squaddie"
@@ -53,10 +53,7 @@ import {
     MockInstance,
     vi,
 } from "vitest"
-import {
-    TargetingResults,
-    TargetingResultsService,
-} from "../../targeting/targetingService"
+import { TargetingResultsService } from "../../targeting/targetingService"
 import { Glossary } from "../../../campaign/glossary/glossary"
 import { PlayerInputAction } from "../../../ui/playerInput/playerInputState"
 
@@ -75,8 +72,11 @@ describe("summaryHUD", () => {
         resourceHandler = mockResourceHandler(graphicsBuffer)
         consoleWarnSpy = mockConsoleWarn()
 
-        const targetingResults = new TargetingResults()
-        targetingResults.addBattleSquaddieIdsInRange(["1"])
+        let targetingResults = TargetingResultsService.new()
+        targetingResults = TargetingResultsService.withBattleSquaddieIdsInRange(
+            targetingResults,
+            ["1"]
+        )
         targetResultSpy = vi
             .spyOn(TargetingResultsService, "findValidTargets")
             .mockReturnValue(targetingResults)

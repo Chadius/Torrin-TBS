@@ -11,7 +11,10 @@ import {
 } from "../../targeting/targetingService"
 import { BattleActionDecisionStepService } from "../../actionDecision/battleActionDecisionStep"
 import { getResultOrThrowError } from "../../../utils/resultOrError"
-import { ObjectRepositoryService } from "../../objectRepository"
+import {
+    ObjectRepository,
+    ObjectRepositoryService,
+} from "../../objectRepository"
 import { MissionMapService } from "../../../missionMap/missionMap"
 import { MessageBoardMessageType } from "../../../message/messageBoardMessage"
 import {
@@ -25,7 +28,10 @@ import {
     PlayerInputAction,
     PlayerInputStateService,
 } from "../../../ui/playerInput/playerInputState"
-import { PlayerActionTargetStateMachineContext } from "./playerActionTargetStateMachineContext"
+import {
+    PlayerActionTargetStateInvalidTargetReason,
+    PlayerActionTargetStateMachineContext,
+} from "./playerActionTargetStateMachineContext"
 import { PlayerActionTargetStateMachineUIObjects } from "./playerActionTargetStateMachineUIObjects"
 import { PLAYER_ACTION_CONFIRM_CREATE_OK_BUTTON_ID } from "./playerActionConfirm/okButton"
 import { ButtonStatus } from "../../../ui/button/buttonStatus"
@@ -491,15 +497,15 @@ const countTargetsEntry = (context: PlayerActionTargetStateMachineContext) => {
         actingBattleSquaddie: battleSquaddie,
         squaddieRepository: context.objectRepository,
     })
-    const targetBattleSquaddieIds =
-        countTargetsFromResultsBasedOnActionTemplate(
+    const validBattleSquaddieIds =
+        findValidTargetsForSelfOrAllyAffectingActionsOnFriends(
             actionTemplate,
             targetingResults,
             context,
             squaddieTemplate
         )
 
-    targetBattleSquaddieIds.forEach((battleSquaddieId) => {
+    validBattleSquaddieIds.forEach((battleSquaddieId) => {
         const { currentMapCoordinate } =
             MissionMapService.getByBattleSquaddieId(
                 context.missionMap,
@@ -510,19 +516,42 @@ const countTargetsEntry = (context: PlayerActionTargetStateMachineContext) => {
             currentMapCoordinate: currentMapCoordinate,
         }
     })
+    ;[
+        {
+            battleSquaddieIds: targetingResults.battleSquaddieIds.notAFoe,
+            reason: PlayerActionTargetStateInvalidTargetReason.NOT_A_FOE,
+        },
+        {
+            battleSquaddieIds: targetingResults.battleSquaddieIds.notAnAlly,
+            reason: PlayerActionTargetStateInvalidTargetReason.NOT_AN_ALLY,
+        },
+    ].forEach(({ battleSquaddieIds, reason }) => {
+        battleSquaddieIds.forEach((battleSquaddieId) => {
+            const { currentMapCoordinate } =
+                MissionMapService.getByBattleSquaddieId(
+                    context.missionMap,
+                    battleSquaddieId
+                )
+
+            context.targetResults.invalidTargets[battleSquaddieId] = {
+                currentMapCoordinate: currentMapCoordinate,
+                reason,
+            }
+        })
+    })
 
     context.targetResults.validCoordinates = [
         ...targetingResults.coordinatesInRange,
     ]
 }
 
-const countTargetsFromResultsBasedOnActionTemplate = (
+const findValidTargetsForSelfOrAllyAffectingActionsOnFriends = (
     actionTemplate: ActionTemplate,
     targetingResults: TargetingResults,
     context: PlayerActionTargetStateMachineContext,
     squaddieTemplate: SquaddieTemplate
 ) => {
-    const actionTargetsSelfOrFriends =
+    const actionTargetsSelfOrAllies =
         ActionTemplateService.getActionEffectTemplates(actionTemplate).some(
             (actionEffectTemplate) =>
                 ActionEffectTemplateService.doesItTargetSelf(
@@ -532,17 +561,18 @@ const countTargetsFromResultsBasedOnActionTemplate = (
                     actionEffectTemplate
                 )
         )
+    if (!actionTargetsSelfOrAllies)
+        return targetingResults.battleSquaddieIds.inRange.values()
     const objectRepository = context.objectRepository
     if (objectRepository == undefined) {
         throw new Error(
-            "[PlayerActionTargetStateMachine.countTargetsFromResultsBasedOnActionTemplate] no objectRepository"
+            "[PlayerActionTargetStateMachine.findValidTargetsForSelfOrAllyAffectingActionsOnFriends] no objectRepository"
         )
     }
 
-    return targetingResults.battleSquaddieIdsInRange.filter(
-        (battleSquaddieId) => {
-            if (!actionTargetsSelfOrFriends) return true
-
+    return targetingResults.battleSquaddieIds.inRange
+        .values()
+        .filter((battleSquaddieId) => {
             const {
                 battleSquaddie: targetBattleSquaddie,
                 squaddieTemplate: targetSquaddieTemplate,
@@ -583,8 +613,7 @@ const countTargetsFromResultsBasedOnActionTemplate = (
                     squaddieTemplate: targetSquaddieTemplate,
                 })
             )
-        }
-    )
+        })
 }
 
 const getKeyboardEvents = (context: PlayerActionTargetStateMachineContext) =>
@@ -783,15 +812,55 @@ const updateSelectTargetExplanationText = (
         info?.battleSquaddieId != undefined &&
         objectRepository != undefined
     ) {
-        const { squaddieTemplate } = getResultOrThrowError(
-            ObjectRepositoryService.getSquaddieByBattleId(
-                objectRepository,
-                info.battleSquaddieId
-            )
-        )
-        selectedDescription = squaddieTemplate?.squaddieId.name
+        context.explanationLabelText = getExplanationTextForInvalidSquaddie({
+            objectRepository: objectRepository,
+            battleSquaddieId: info.battleSquaddieId,
+            selectedDescription: selectedDescription,
+            context: context,
+        })
+        return
     }
-    context.explanationLabelText = `${selectedDescription}\n is out of range`
+    if (
+        HexCoordinateService.includes(
+            context.targetResults.validCoordinates,
+            mapCoordinateClickedOn
+        )
+    ) {
+        context.explanationLabelText = `${selectedDescription}\n is empty`
+    } else {
+        context.explanationLabelText = `${selectedDescription}\n is out of range`
+    }
+}
+
+const getExplanationTextForInvalidSquaddie = ({
+    objectRepository,
+    battleSquaddieId,
+    selectedDescription,
+    context,
+}: {
+    objectRepository: ObjectRepository
+    battleSquaddieId: string
+    selectedDescription: string
+    context: PlayerActionTargetStateMachineContext
+}) => {
+    const { squaddieTemplate, battleSquaddie } = getResultOrThrowError(
+        ObjectRepositoryService.getSquaddieByBattleId(
+            objectRepository,
+            battleSquaddieId
+        )
+    )
+    selectedDescription = squaddieTemplate?.squaddieId.name
+    const invalidTargetReason =
+        context.targetResults.invalidTargets[battleSquaddie.battleSquaddieId]
+            ?.reason
+
+    if (invalidTargetReason == undefined) {
+        return `${selectedDescription}\n is an invalid target`
+    }
+    return invalidTargetReason ==
+        PlayerActionTargetStateInvalidTargetReason.NOT_A_FOE
+        ? `${selectedDescription}\n is not a foe`
+        : `${selectedDescription}\n is not an ally`
 }
 
 const didButtonSwitchFromActiveToHover = (button: Button) => {
