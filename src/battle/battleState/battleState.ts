@@ -45,7 +45,6 @@ import {
     MessageBoardMessageSquaddieTurnEnds,
     MessageBoardMessageType,
 } from "../../message/messageBoardMessage"
-import { GameEngineState } from "../../gameEngine/gameEngine"
 import { getResultOrThrowError } from "../../utils/resultOrError"
 import { SquaddieService } from "../../squaddie/squaddieService"
 import {
@@ -69,8 +68,8 @@ import {
     ChallengeModifierSettingService,
 } from "../challengeModifier/challengeModifierSetting"
 import { ActionValidityByIdCacheService } from "../actionValidity/cache/actionValidityByIdCache"
-import { TBattleOrchestratorStateValidityReason } from "../orchestrator/battleOrchestratorState"
 import { EnumLike } from "../../utils/enum"
+import { GameEngineState } from "../../gameEngine/gameEngineState/gameEngineState"
 
 export const BattleStateValidityMissingComponent = {
     MISSION_MAP: "MISSION_MAP",

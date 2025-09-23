@@ -11,10 +11,6 @@ import {
     ActionPreviewTile,
     ActionPreviewTileService,
 } from "./actionPreviewTile"
-import {
-    GameEngineState,
-    GameEngineStateService,
-} from "../../../../../gameEngine/gameEngine"
 import { SquaddieRepositoryService } from "../../../../../utils/test/squaddie"
 import {
     ActionEffectTemplateService,
@@ -74,6 +70,10 @@ import {
 import { Attribute } from "../../../../../squaddie/attribute/attribute"
 import { BattleActionRecorderService } from "../../../../history/battleAction/battleActionRecorder"
 import { RandomNumberGenerator } from "../../../../numberGenerator/random"
+import {
+    GameEngineState,
+    GameEngineStateService,
+} from "../../../../../gameEngine/gameEngineState/gameEngineState"
 
 describe("Action Preview Tile", () => {
     let objectRepository: ObjectRepository

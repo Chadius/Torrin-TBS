@@ -14,7 +14,6 @@ import {
     MessageBoardMessagePlayerSelectsTargetCoordinate,
     MessageBoardMessageType,
 } from "../../../message/messageBoardMessage"
-import { GameEngineState } from "../../../gameEngine/gameEngine"
 import { ObjectRepositoryService } from "../../objectRepository"
 import { getResultOrThrowError } from "../../../utils/resultOrError"
 import { MissionMap, MissionMapService } from "../../../missionMap/missionMap"
@@ -58,6 +57,7 @@ import {
     DebugModeMenuService,
 } from "../debugModeMenu/debugModeMenu"
 import { HIGHLIGHT_PULSE_COLOR } from "../../../hexMap/hexDrawingUtils"
+import { GameEngineState } from "../../../gameEngine/gameEngineState/gameEngineState"
 
 export interface BattleHUD {
     fileAccessHUD: FileAccessHUD

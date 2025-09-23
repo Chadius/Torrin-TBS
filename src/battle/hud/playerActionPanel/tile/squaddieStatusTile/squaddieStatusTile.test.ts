@@ -49,10 +49,6 @@ import {
 import { ProficiencyLevel } from "../../../../../squaddie/armyAttributes"
 import { Attribute } from "../../../../../squaddie/attribute/attribute"
 import { DataBlobService } from "../../../../../utils/dataBlob/dataBlob"
-import {
-    GameEngineState,
-    GameEngineStateService,
-} from "../../../../../gameEngine/gameEngine"
 import { CampaignService } from "../../../../../campaign/campaign"
 import { BattleStateService } from "../../../../battleState/battleState"
 import { BattlePhase } from "../../../../orchestratorComponents/battlePhaseTracker"
@@ -65,6 +61,10 @@ import { ActionResourceCostService } from "../../../../../action/actionResourceC
 import { BattleActionDecisionStepService } from "../../../../actionDecision/battleActionDecisionStep"
 import { RectArea, RectAreaService } from "../../../../../ui/rectArea"
 import { DrawHorizontalMeterActionDataBlob } from "../../../horizontalBar/drawHorizontalMeterAction"
+import {
+    GameEngineState,
+    GameEngineStateService,
+} from "../../../../../gameEngine/gameEngineState/gameEngineState"
 
 describe("Squaddie Status Tile", () => {
     let objectRepository: ObjectRepository

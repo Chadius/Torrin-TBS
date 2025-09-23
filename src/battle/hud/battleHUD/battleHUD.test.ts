@@ -9,10 +9,6 @@ import {
     BattlePhase,
     TBattlePhase,
 } from "../../orchestratorComponents/battlePhaseTracker"
-import {
-    GameEngineState,
-    GameEngineStateService,
-} from "../../../gameEngine/gameEngine"
 import { BattleOrchestratorStateService } from "../../orchestrator/battleOrchestratorState"
 import { BattleStateService } from "../../battleState/battleState"
 import {
@@ -126,6 +122,10 @@ import { ButtonStatus } from "../../../ui/button/buttonStatus"
 import { CampaignResourcesService } from "../../../campaign/campaignResources"
 import { PlayerCommandStateService } from "../playerCommand/playerCommandHUD"
 import { ActionValidityByIdCacheService } from "../../actionValidity/cache/actionValidityByIdCache"
+import {
+    GameEngineState,
+    GameEngineStateService,
+} from "../../../gameEngine/gameEngineState/gameEngineState"
 
 describe("Battle HUD", () => {
     let mockP5GraphicsContext: MockedP5GraphicsBuffer

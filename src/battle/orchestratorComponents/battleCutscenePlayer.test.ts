@@ -3,12 +3,12 @@ import { BattleCutscenePlayer } from "./battleCutscenePlayer"
 import { Cutscene, CutsceneService } from "../../cutscene/cutscene"
 import { MissionCutsceneCollectionHelper } from "../orchestrator/missionCutsceneCollection"
 import { BattleStateService } from "../battleState/battleState"
+import { DialogueService } from "../../cutscene/dialogue/dialogue"
+import { beforeEach, describe, expect, it } from "vitest"
 import {
     GameEngineState,
     GameEngineStateService,
-} from "../../gameEngine/gameEngine"
-import { DialogueService } from "../../cutscene/dialogue/dialogue"
-import { beforeEach, describe, expect, it } from "vitest"
+} from "../../gameEngine/gameEngineState/gameEngineState"
 
 describe("BattleCutscenePlayer", () => {
     let dinnerDate: Cutscene

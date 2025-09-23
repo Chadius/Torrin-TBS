@@ -24,10 +24,6 @@ import {
 } from "../../campaign/squaddieTemplate"
 import { SquaddieIdService } from "../../squaddie/id"
 import { BattleSquaddie, BattleSquaddieService } from "../battleSquaddie"
-import {
-    GameEngineState,
-    GameEngineStateService,
-} from "../../gameEngine/gameEngine"
 import { BattleOrchestratorStateService } from "../orchestrator/battleOrchestratorState"
 import { MessageBoardMessageType } from "../../message/messageBoardMessage"
 import {
@@ -64,6 +60,10 @@ import { MissionMapService } from "../../missionMap/missionMap"
 import { SearchResultsCacheService } from "../../hexMap/pathfinder/searchResults/searchResultsCache"
 import { SearchLimitService } from "../../hexMap/pathfinder/pathGeneration/searchLimit"
 import { ActionValidityByIdCacheService } from "../actionValidity/cache/actionValidityByIdCache"
+import {
+    GameEngineState,
+    GameEngineStateService,
+} from "../../gameEngine/gameEngineState/gameEngineState"
 
 describe("Battle State", () => {
     it("overrides team strategy for non-player teams", () => {

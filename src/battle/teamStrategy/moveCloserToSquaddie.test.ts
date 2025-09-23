@@ -22,10 +22,6 @@ import {
     BattleActionDecisionStepService,
 } from "../actionDecision/battleActionDecisionStep"
 import { InBattleAttributesService } from "../stats/inBattleAttributes"
-import {
-    GameEngineState,
-    GameEngineStateService,
-} from "../../gameEngine/gameEngine"
 import { BattleOrchestratorStateService } from "../orchestrator/battleOrchestratorState"
 import { BattleStateService } from "../battleState/battleState"
 import { BattleActionRecorderService } from "../history/battleAction/battleActionRecorder"
@@ -33,6 +29,10 @@ import { BattleActionService } from "../history/battleAction/battleAction"
 import { beforeEach, describe, expect, it } from "vitest"
 import { SquaddieIdService } from "../../squaddie/id"
 import { DebugModeMenuService } from "../hud/debugModeMenu/debugModeMenu"
+import {
+    GameEngineState,
+    GameEngineStateService,
+} from "../../gameEngine/gameEngineState/gameEngineState"
 
 describe("move towards closest squaddie in range", () => {
     let repository: ObjectRepository

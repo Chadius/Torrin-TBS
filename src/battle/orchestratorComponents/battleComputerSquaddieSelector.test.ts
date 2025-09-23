@@ -41,10 +41,6 @@ import { SquaddieTemplate } from "../../campaign/squaddieTemplate"
 import { SquaddieMovementService } from "../../squaddie/movement"
 import { TeamStrategyType } from "../teamStrategy/teamStrategy"
 import { BattleStateService } from "../battleState/battleState"
-import {
-    GameEngineState,
-    GameEngineStateService,
-} from "../../gameEngine/gameEngine"
 import { OrchestratorUtilities } from "./orchestratorUtils"
 import { DrawSquaddieIconOnMapUtilities } from "../animation/drawSquaddieIconOnMap/drawSquaddieIconOnMap"
 import { CampaignService } from "../../campaign/campaign"
@@ -79,6 +75,10 @@ import {
     MockInstance,
     vi,
 } from "vitest"
+import {
+    GameEngineState,
+    GameEngineStateService,
+} from "../../gameEngine/gameEngineState/gameEngineState"
 
 describe("BattleComputerSquaddieSelector", () => {
     let selector: BattleComputerSquaddieSelector =

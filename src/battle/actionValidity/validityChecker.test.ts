@@ -11,7 +11,6 @@ import { BattleSquaddieService } from "../battleSquaddie"
 import { ValidityCheckService } from "./validityChecker"
 import { SquaddieCanPerformActionCheck } from "./squaddieCanPerformActionCheck"
 import { PerRoundCheck } from "./perRoundCheck"
-import { GameEngineStateService } from "../../gameEngine/gameEngine"
 import {
     afterEach,
     beforeEach,
@@ -35,6 +34,7 @@ import { Attribute } from "../../squaddie/attribute/attribute"
 import { CanAddModifiersCheck } from "./canAddModifiersCheck"
 import { MapSearchTestUtils } from "../../hexMap/pathfinder/pathGeneration/mapSearchTests/mapSearchTestUtils"
 import { BattleActionRecorderService } from "../history/battleAction/battleActionRecorder"
+import { GameEngineStateService } from "../../gameEngine/gameEngineState/gameEngineState"
 
 describe("validity checker", () => {
     const setupSingleSquaddie = (actionTemplate?: ActionTemplate) => {

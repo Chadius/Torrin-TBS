@@ -1,8 +1,4 @@
 import { MovementCalculatorService } from "./movementCalculator"
-import {
-    GameEngineState,
-    GameEngineStateService,
-} from "../../../gameEngine/gameEngine"
 import { BattleSquaddie } from "../../battleSquaddie"
 import { SquaddieTemplate } from "../../../campaign/squaddieTemplate"
 import { MissionMapService } from "../../../missionMap/missionMap"
@@ -37,6 +33,10 @@ import { SearchPathAdapterService } from "../../../search/searchPathAdapter/sear
 import { SearchLimit } from "../../../hexMap/pathfinder/pathGeneration/searchLimit"
 import { SquaddieTurnService } from "../../../squaddie/turn"
 import { SearchResultsCacheService } from "../../../hexMap/pathfinder/searchResults/searchResultsCache"
+import {
+    GameEngineState,
+    GameEngineStateService,
+} from "../../../gameEngine/gameEngineState/gameEngineState"
 
 describe("movement calculator", () => {
     let pathfinderSpy: MockInstance

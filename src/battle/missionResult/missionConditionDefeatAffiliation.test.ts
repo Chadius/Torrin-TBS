@@ -14,13 +14,13 @@ import { SquaddieTemplate } from "../../campaign/squaddieTemplate"
 import { SquaddieMovementService } from "../../squaddie/movement"
 import { InBattleAttributesService } from "../stats/inBattleAttributes"
 import { BattleStateService } from "../battleState/battleState"
-import {
-    GameEngineState,
-    GameEngineStateService,
-} from "../../gameEngine/gameEngine"
 import { SquaddieRepositoryService } from "../../utils/test/squaddie"
 import { ArmyAttributesService } from "../../squaddie/armyAttributes"
 import { beforeEach, describe, expect, it } from "vitest"
+import {
+    GameEngineState,
+    GameEngineStateService,
+} from "../../gameEngine/gameEngineState/gameEngineState"
 
 describe("Mission Condition: Defeat All Squaddies of a given Affiliation", () => {
     let missionMap: MissionMap

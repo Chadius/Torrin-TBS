@@ -21,7 +21,6 @@ import { ActionTilePosition } from "./tile/actionTilePosition"
 import { OrchestratorUtilities } from "../../orchestratorComponents/orchestratorUtils"
 import { BattleHUDStateService } from "../battleHUD/battleHUDState"
 import { PlayerConsideredActionsService } from "../../battleState/playerConsideredActions"
-import { GameEngineState } from "../../../gameEngine/gameEngine"
 import { BattleStateService } from "../../battleState/battleState"
 import { MissionMapService } from "../../../missionMap/missionMap"
 import { MissionMapSquaddieCoordinateService } from "../../../missionMap/squaddieCoordinate"
@@ -33,6 +32,7 @@ import { getResultOrThrowError } from "../../../utils/resultOrError"
 import { SquaddieTurnService } from "../../../squaddie/turn"
 import { SummaryHUDStateService } from "../summary/summaryHUD"
 import { EnumLike } from "../../../utils/enum"
+import { GameEngineState } from "../../../gameEngine/gameEngineState/gameEngineState"
 
 const INVALID_SELECTION_POP_UP_DURATION_MS = 2000
 

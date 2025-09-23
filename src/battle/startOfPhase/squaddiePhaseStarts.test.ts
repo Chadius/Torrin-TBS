@@ -1,8 +1,4 @@
 import { BattleHUDService } from "../hud/battleHUD/battleHUD"
-import {
-    GameEngineState,
-    GameEngineStateService,
-} from "../../gameEngine/gameEngine"
 import { BattleOrchestratorStateService } from "../orchestrator/battleOrchestratorState"
 import { BattleStateService } from "../battleState/battleState"
 import {
@@ -38,6 +34,10 @@ import {
     vi,
 } from "vitest"
 import { Attribute } from "../../squaddie/attribute/attribute"
+import {
+    GameEngineState,
+    GameEngineStateService,
+} from "../../gameEngine/gameEngineState/gameEngineState"
 
 describe("squaddie phase starts", () => {
     let squaddiePhaseListener: SquaddiePhaseListener

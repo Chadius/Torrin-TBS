@@ -1,4 +1,3 @@
-import { GameEngineState } from "../gameEngine/gameEngine"
 import { BattleAction } from "../battle/history/battleAction/battleAction"
 import { HexCoordinate } from "../hexMap/hexCoordinate/hexCoordinate"
 import { TBattlePhase } from "../battle/orchestratorComponents/battlePhaseTracker"
@@ -7,7 +6,7 @@ import { TBattleOrchestratorMode } from "../battle/orchestrator/battleOrchestrat
 import { PopupWindow } from "../battle/hud/popupWindow/popupWindow"
 import { GraphicsBuffer } from "../utils/graphics/graphicsRenderer"
 import { ResourceHandler } from "../resource/resourceHandler"
-import { LoadSaveState } from "../dataLoader/playerData/loadSaveState"
+import { LoadState } from "../dataLoader/playerData/loadState"
 import { BattleSaveState } from "../battle/history/battleSaveState"
 import { MovementDecision } from "../battle/playerSelectionService/playerSelectionContext"
 import { BattleActionDecisionStep } from "../battle/actionDecision/battleActionDecisionStep"
@@ -27,6 +26,7 @@ import { SearchResultsCache } from "../hexMap/pathfinder/searchResults/searchRes
 import { Glossary } from "../campaign/glossary/glossary"
 import { ChallengeModifierSetting } from "../battle/challengeModifier/challengeModifierSetting"
 import { EnumLike } from "../utils/enum"
+import { GameEngineState } from "../gameEngine/gameEngineState/gameEngineState"
 
 export type MessageBoardMessage =
     | MessageBoardMessageBase
@@ -482,7 +482,7 @@ export interface MessageBoardMessageSquaddieTurnEnds {
 
 export interface MessageBoardMessagePlayerDataLoadUserRequest {
     type: typeof MessageBoardMessageType.PLAYER_DATA_LOAD_USER_REQUEST
-    loadSaveState: LoadSaveState
+    loadState: LoadState
 }
 const isMessageBoardMessagePlayerDataLoadUserRequest = (
     messageBoardMessage: MessageBoardMessage
@@ -495,7 +495,7 @@ const isMessageBoardMessagePlayerDataLoadUserRequest = (
 
 export interface MessageBoardMessagePlayerDataLoadBegin {
     type: typeof MessageBoardMessageType.PLAYER_DATA_LOAD_BEGIN
-    loadSaveState: LoadSaveState
+    loadState: LoadState
 }
 const isMessageBoardMessagePlayerDataLoadBegin = (
     messageBoardMessage: MessageBoardMessage
@@ -508,7 +508,7 @@ const isMessageBoardMessagePlayerDataLoadBegin = (
 
 export interface MessageBoardMessagePlayerDataLoadComplete {
     type: typeof MessageBoardMessageType.PLAYER_DATA_LOAD_COMPLETE
-    loadSaveState: LoadSaveState
+    loadState: LoadState
     saveState: BattleSaveState
 }
 const isMessageBoardMessagePlayerDataLoadComplete = (
@@ -522,7 +522,7 @@ const isMessageBoardMessagePlayerDataLoadComplete = (
 
 export interface MessageBoardMessagePlayerDataLoadErrorDuring {
     type: typeof MessageBoardMessageType.PLAYER_DATA_LOAD_ERROR_DURING
-    loadSaveState: LoadSaveState
+    loadState: LoadState
 }
 const isMessageBoardMessagePlayerDataLoadErrorDuring = (
     messageBoardMessage: MessageBoardMessage
@@ -535,7 +535,7 @@ const isMessageBoardMessagePlayerDataLoadErrorDuring = (
 
 export interface MessageBoardMessagePlayerDataLoadUserCancel {
     type: typeof MessageBoardMessageType.PLAYER_DATA_LOAD_USER_CANCEL
-    loadSaveState: LoadSaveState
+    loadState: LoadState
 }
 const isMessageBoardMessagePlayerDataLoadUserCancel = (
     messageBoardMessage: MessageBoardMessage
@@ -548,7 +548,7 @@ const isMessageBoardMessagePlayerDataLoadUserCancel = (
 
 export interface MessageBoardMessagePlayerDataLoadFinishRequest {
     type: typeof MessageBoardMessageType.PLAYER_DATA_LOAD_FINISH_REQUEST_LOAD
-    loadSaveState: LoadSaveState
+    loadState: LoadState
 }
 const isMessageBoardMessagePlayerDataLoadFinishRequest = (
     messageBoardMessage: MessageBoardMessage

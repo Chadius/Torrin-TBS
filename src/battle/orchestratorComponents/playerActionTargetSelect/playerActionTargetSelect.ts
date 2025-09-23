@@ -4,7 +4,6 @@ import {
     OrchestratorComponentKeyEvent,
     OrchestratorComponentMouseEvent,
 } from "../../orchestrator/battleOrchestratorComponent"
-import { GameEngineState } from "../../../gameEngine/gameEngine"
 import { ResourceHandler } from "../../../resource/resourceHandler"
 import { GraphicsBuffer } from "../../../utils/graphics/graphicsRenderer"
 import { UIControlSettings } from "../../orchestrator/uiControlSettings"
@@ -29,6 +28,7 @@ import { PlayerActionTargetStateMachineLayout } from "./playerActionTargetStateM
 import { PlayerActionTargetStateMachineUIObjects } from "./playerActionTargetStateMachineUIObjects"
 import { BattleCamera } from "../../battleCamera"
 import { StateMachine } from "../../../utils/stateMachine/stateMachine"
+import { GameEngineState } from "../../../gameEngine/gameEngineState/gameEngineState"
 
 export class PlayerActionTargetSelect implements BattleOrchestratorComponent {
     stateMachine: PlayerActionTargetStateMachine | undefined

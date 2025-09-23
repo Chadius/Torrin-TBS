@@ -11,7 +11,6 @@ import {
     TBattleOrchestratorMode,
 } from "../orchestrator/battleOrchestrator"
 import { UIControlSettings } from "../orchestrator/uiControlSettings"
-import { GameEngineState } from "../../gameEngine/gameEngine"
 import { FileAccessHUDService } from "../hud/fileAccess/fileAccessHUD"
 import {
     MouseConfigService,
@@ -51,6 +50,7 @@ import { BattleActionDecisionStepService } from "../actionDecision/battleActionD
 import { DRAW_SQUADDIE_ICON_ON_MAP_LAYOUT } from "../animation/drawSquaddieIconOnMap/drawSquaddieIconOnMap"
 import { ObjectRepositoryService } from "../objectRepository"
 import { ImageUI } from "../../ui/imageUI/imageUI"
+import { GameEngineState } from "../../gameEngine/gameEngineState/gameEngineState"
 
 export class BattlePlayerSquaddieSelector
     implements BattleOrchestratorComponent, MessageBoardListener
@@ -112,7 +112,8 @@ export class BattlePlayerSquaddieSelector
             fileAccessHUD:
                 gameEngineState.battleOrchestratorState.battleHUD.fileAccessHUD,
             mousePress,
-            fileState: gameEngineState.fileState,
+            loadState: gameEngineState.loadState,
+            saveState: gameEngineState.saveSaveState,
             messageBoard: gameEngineState.messageBoard,
         })
     }
@@ -128,7 +129,8 @@ export class BattlePlayerSquaddieSelector
             fileAccessHUD:
                 gameEngineState.battleOrchestratorState.battleHUD.fileAccessHUD,
             mouseRelease,
-            fileState: gameEngineState.fileState,
+            loadState: gameEngineState.loadState,
+            saveState: gameEngineState.saveSaveState,
             messageBoard: gameEngineState.messageBoard,
         })
         if (fileAccessHudWasClicked) {

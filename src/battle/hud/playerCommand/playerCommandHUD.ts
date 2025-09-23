@@ -5,7 +5,6 @@ import {
 import { SummaryHUDState } from "../summary/summaryHUD"
 import { RectArea, RectAreaService } from "../../../ui/rectArea"
 import { ScreenDimensions } from "../../../utils/graphics/graphicsConfig"
-import { GameEngineState } from "../../../gameEngine/gameEngine"
 import { HUE_BY_SQUADDIE_AFFILIATION } from "../../../graphicsConstants"
 import {
     MouseButton,
@@ -46,6 +45,7 @@ import {
     ActionValidityByIdCacheService,
 } from "../../actionValidity/cache/actionValidityByIdCache"
 import { EnumLike } from "../../../utils/enum"
+import { GameEngineState } from "../../../gameEngine/gameEngineState/gameEngineState"
 
 export const END_TURN_NAME = "END TURN"
 

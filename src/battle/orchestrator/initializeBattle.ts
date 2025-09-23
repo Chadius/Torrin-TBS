@@ -8,12 +8,12 @@ import {
 import { DrawSquaddieIconOnMapUtilities } from "../animation/drawSquaddieIconOnMap/drawSquaddieIconOnMap"
 import { SquaddieAffiliation } from "../../squaddie/squaddieAffiliation"
 import { getResultOrThrowError } from "../../utils/resultOrError"
-import { GameEngineState } from "../../gameEngine/gameEngine"
 import { BattleSquaddieTeam } from "../battleSquaddieTeam"
 import { BattlePhaseService } from "../orchestratorComponents/battlePhaseTracker"
 import { ObjectRepositoryService } from "../objectRepository"
 import { GraphicsBuffer } from "../../utils/graphics/graphicsRenderer"
 import { ResourceHandler } from "../../resource/resourceHandler"
+import { GameEngineState } from "../../gameEngine/gameEngineState/gameEngineState"
 
 export class InitializeBattle implements BattleOrchestratorComponent {
     hasCompleted(state: GameEngineState): boolean {

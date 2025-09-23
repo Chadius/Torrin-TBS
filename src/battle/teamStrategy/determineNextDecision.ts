@@ -5,8 +5,8 @@ import { EndTurnTeamStrategy } from "./endTurn"
 import { TeamStrategyCalculator } from "./teamStrategyCalculator"
 import { BattleSquaddieTeam } from "../battleSquaddieTeam"
 import { BattleActionDecisionStep } from "../actionDecision/battleActionDecisionStep"
-import { GameEngineState } from "../../gameEngine/gameEngine"
 import { DebugModeMenuService } from "../hud/debugModeMenu/debugModeMenu"
+import { GameEngineState } from "../../gameEngine/gameEngineState/gameEngineState"
 
 export const DetermineNextDecisionService = {
     determineNextDecision: ({

@@ -27,10 +27,6 @@ import {
     BattleActionDecisionStep,
     BattleActionDecisionStepService,
 } from "../actionDecision/battleActionDecisionStep"
-import {
-    GameEngineState,
-    GameEngineStateService,
-} from "../../gameEngine/gameEngine"
 import { BattleOrchestratorStateService } from "../orchestrator/battleOrchestratorState"
 import { BattleStateService } from "../battleState/battleState"
 import { TargetConstraintsService } from "../../action/targetConstraints"
@@ -38,6 +34,10 @@ import { ActionResourceCostService } from "../../action/actionResourceCost"
 import { beforeEach, describe, expect, it } from "vitest"
 import { DebugModeMenuService } from "../hud/debugModeMenu/debugModeMenu"
 import { HexCoordinate } from "../../hexMap/hexCoordinate/hexCoordinate"
+import {
+    GameEngineState,
+    GameEngineStateService,
+} from "../../gameEngine/gameEngineState/gameEngineState"
 
 describe("target a squaddie within reach of actions", () => {
     let objectRepository: ObjectRepository

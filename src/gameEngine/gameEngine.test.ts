@@ -279,7 +279,7 @@ describe("Game Engine", () => {
                 id: "default",
             })
             SaveSaveStateService.userRequestsSave(
-                newGameEngine.gameEngineState!.fileState.saveSaveState
+                newGameEngine.gameEngineState!.saveSaveState
             )
             newGameEngine.gameEngineState!.battleOrchestratorState.battleState.missionId =
                 "save with this mission id"
@@ -293,8 +293,7 @@ describe("Game Engine", () => {
 
             expect(saveSpy).toBeCalled()
             expect(
-                newGameEngine.gameEngineState!.fileState.saveSaveState
-                    .savingInProgress
+                newGameEngine.gameEngineState!.saveSaveState.savingInProgress
             ).toBeFalsy()
             const battleSaveStateSaved: BattleSaveState =
                 saveSpy.mock.calls[0][0]
@@ -322,7 +321,7 @@ describe("Game Engine", () => {
                 id: "default",
             })
             SaveSaveStateService.userRequestsSave(
-                newGameEngine.gameEngineState!.fileState.saveSaveState
+                newGameEngine.gameEngineState!.saveSaveState
             )
             const saveSpy = vi
                 .spyOn(BattleSaveStateService, "SaveToFile")
@@ -334,12 +333,10 @@ describe("Game Engine", () => {
 
             expect(saveSpy).toBeCalled()
             expect(
-                newGameEngine.gameEngineState!.fileState.saveSaveState
-                    .savingInProgress
+                newGameEngine.gameEngineState!.saveSaveState.savingInProgress
             ).toBeFalsy()
             expect(
-                newGameEngine.gameEngineState!.fileState.saveSaveState
-                    .errorDuringSaving
+                newGameEngine.gameEngineState!.saveSaveState.errorDuringSaving
             ).toBeTruthy()
 
             expect(consoleLoggerSpy).toBeCalled()
@@ -367,8 +364,7 @@ describe("Game Engine", () => {
                 NullMissionMap()
             newGameEngine.gameEngineState!.messageBoard.sendMessage({
                 type: MessageBoardMessageType.PLAYER_DATA_LOAD_USER_REQUEST,
-                loadSaveState:
-                    newGameEngine.gameEngineState!.fileState.loadSaveState,
+                loadState: newGameEngine.gameEngineState!.loadState,
             })
             newGameEngine.gameEngineState!.battleOrchestratorState.battleState.objectives =
                 [
@@ -419,7 +415,8 @@ describe("Game Engine", () => {
             expect(loaderUpdateSpy).toBeCalled()
             expect(loaderCompletedSpy).toBeCalled()
             expect(
-                newGameEngine.gameEngineState!.modeThatInitiatedLoading
+                newGameEngine.gameEngineState!.loadState
+                    .modeThatInitiatedLoading
             ).toBe(GameModeEnum.BATTLE)
         })
     })

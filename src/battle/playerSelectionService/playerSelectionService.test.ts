@@ -19,10 +19,6 @@ import {
 import { SquaddieRepositoryService } from "../../utils/test/squaddie"
 import { BattleSquaddie } from "../battleSquaddie"
 import { SquaddieTemplate } from "../../campaign/squaddieTemplate"
-import {
-    GameEngineState,
-    GameEngineStateService,
-} from "../../gameEngine/gameEngine"
 import { CampaignService } from "../../campaign/campaign"
 import { BattleOrchestratorStateService } from "../orchestrator/battleOrchestratorState"
 import { BattleStateService } from "../battleState/battleState"
@@ -73,6 +69,10 @@ import { RectAreaService } from "../../ui/rectArea"
 import { PlayerConsideredActionsService } from "../battleState/playerConsideredActions"
 import { CampaignResourcesService } from "../../campaign/campaignResources"
 import { SearchResultsCacheService } from "../../hexMap/pathfinder/searchResults/searchResultsCache"
+import {
+    GameEngineState,
+    GameEngineStateService,
+} from "../../gameEngine/gameEngineState/gameEngineState"
 
 describe("Player Selection Service", () => {
     let gameEngineState: GameEngineState

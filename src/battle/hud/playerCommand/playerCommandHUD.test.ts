@@ -1,9 +1,5 @@
 import { RectArea, RectAreaService } from "../../../ui/rectArea"
 import { SummaryHUDState, SummaryHUDStateService } from "../summary/summaryHUD"
-import {
-    GameEngineState,
-    GameEngineStateService,
-} from "../../../gameEngine/gameEngine"
 import * as mocks from "../../../utils/test/mocks"
 import { MockedP5GraphicsBuffer } from "../../../utils/test/mocks"
 import {
@@ -51,6 +47,10 @@ import {
     ActionButtonService,
 } from "../playerActionPanel/actionButton/actionButton"
 import { PlayerInputStateService } from "../../../ui/playerInput/playerInputState"
+import {
+    GameEngineState,
+    GameEngineStateService,
+} from "../../../gameEngine/gameEngineState/gameEngineState"
 
 describe("playerCommandHUD", () => {
     let graphicsBuffer: MockedP5GraphicsBuffer

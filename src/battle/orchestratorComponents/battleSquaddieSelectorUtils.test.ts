@@ -10,10 +10,6 @@ import { SquaddieTemplate } from "../../campaign/squaddieTemplate"
 import { SquaddieRepositoryService } from "../../utils/test/squaddie"
 import { SquaddieAffiliation } from "../../squaddie/squaddieAffiliation"
 import { BattleSquaddieSelectorService } from "./battleSquaddieSelectorUtils"
-import {
-    GameEngineState,
-    GameEngineStateService,
-} from "../../gameEngine/gameEngine"
 import { BattleOrchestratorStateService } from "../orchestrator/battleOrchestratorState"
 import { BattleStateService } from "../battleState/battleState"
 import {
@@ -24,6 +20,10 @@ import { TargetConstraintsService } from "../../action/targetConstraints"
 import { beforeEach, describe, expect, it } from "vitest"
 import { SearchPathAdapterService } from "../../search/searchPathAdapter/searchPathAdapter"
 import { SquaddieService } from "../../squaddie/squaddieService"
+import {
+    GameEngineState,
+    GameEngineStateService,
+} from "../../gameEngine/gameEngineState/gameEngineState"
 
 describe("battleSquaddieSelectorUtils", () => {
     let objectRepository: ObjectRepository

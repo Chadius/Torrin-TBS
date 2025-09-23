@@ -7,11 +7,11 @@ import {
     TSquaddieAffiliation,
 } from "../../squaddie/squaddieAffiliation"
 import { BattlePhaseState } from "./battlePhaseController"
-import { GameEngineState } from "../../gameEngine/gameEngine"
 import { BattleSquaddie } from "../battleSquaddie"
 import { getResultOrThrowError } from "../../utils/resultOrError"
 import { ObjectRepositoryService } from "../objectRepository"
 import { EnumLike } from "../../utils/enum"
+import { GameEngineState } from "../../gameEngine/gameEngineState/gameEngineState"
 
 export const BattlePhase = {
     UNKNOWN: "UNKNOWN",

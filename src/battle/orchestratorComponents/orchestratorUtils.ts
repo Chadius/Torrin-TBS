@@ -8,7 +8,6 @@ import { SquaddieTemplate } from "../../campaign/squaddieTemplate"
 import { MissionMapSquaddieCoordinateService } from "../../missionMap/squaddieCoordinate"
 import { MapHighlightService } from "../animation/mapHighlight"
 import { isValidValue } from "../../utils/objectValidityCheck"
-import { GameEngineState } from "../../gameEngine/gameEngine"
 import { MessageBoardMessageType } from "../../message/messageBoardMessage"
 import { BattlePhase } from "./battlePhaseTracker"
 import { SquaddieAffiliation } from "../../squaddie/squaddieAffiliation"
@@ -28,6 +27,7 @@ import {
     BattleActionDecisionStepService,
 } from "../actionDecision/battleActionDecisionStep"
 import { SearchResultsCache } from "../../hexMap/pathfinder/searchResults/searchResultsCache"
+import { GameEngineState } from "../../gameEngine/gameEngineState/gameEngineState"
 
 export const OrchestratorUtilities = {
     isSquaddieCurrentlyTakingATurn: ({

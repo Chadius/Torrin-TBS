@@ -9,7 +9,6 @@ import { getResultOrThrowError } from "../../utils/resultOrError"
 import { OrchestratorUtilities } from "./orchestratorUtils"
 import { UIControlSettings } from "../orchestrator/uiControlSettings"
 import { GraphicsBuffer } from "../../utils/graphics/graphicsRenderer"
-import { GameEngineState } from "../../gameEngine/gameEngine"
 import { ObjectRepositoryService } from "../objectRepository"
 import { BattleSquaddie } from "../battleSquaddie"
 import { ActionComponentCalculator } from "../actionDecision/actionComponentCalculator"
@@ -21,6 +20,7 @@ import { ResourceHandler } from "../../resource/resourceHandler"
 import { SquaddieService } from "../../squaddie/squaddieService"
 import { GraphicsConfig } from "../../utils/graphics/graphicsConfig"
 import { SearchPathAdapterService } from "../../search/searchPathAdapter/searchPathAdapter"
+import { GameEngineState } from "../../gameEngine/gameEngineState/gameEngineState"
 
 export class BattleSquaddieMover implements BattleOrchestratorComponent {
     animationStartTime?: number

@@ -4,11 +4,11 @@ import { BattleOrchestratorStateService } from "../orchestrator/battleOrchestrat
 import { MissionRewardType } from "./missionReward"
 import { MissionObjectiveService } from "./missionObjective"
 import { BattleStateService } from "../battleState/battleState"
+import { describe, expect, it, vi } from "vitest"
 import {
     GameEngineState,
     GameEngineStateService,
-} from "../../gameEngine/gameEngine"
-import { describe, expect, it, vi } from "vitest"
+} from "../../gameEngine/gameEngineState/gameEngineState"
 
 describe("Mission Objective", () => {
     const mockMissionConditionChecks = (stubReturnValues: {

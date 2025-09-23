@@ -8,15 +8,16 @@ import { BattleStateService } from "../../battle/battleState/battleState"
 import { BattleCamera } from "../../battle/battleCamera"
 import { NullMissionMap } from "../../utils/test/battleOrchestratorState"
 import { BattlePhase } from "../../battle/orchestratorComponents/battlePhaseTracker"
-import { LoadSaveState, LoadSaveStateService } from "./loadSaveState"
+import { LoadState, LoadSaveStateService } from "./loadState"
 import { beforeEach, describe, expect, it } from "vitest"
 import {
     ChallengeModifierEnum,
     ChallengeModifierSettingService,
 } from "../../battle/challengeModifier/challengeModifierSetting"
+import { GameModeEnum } from "../../utils/startupConfig"
 
-describe("Load SaveState", () => {
-    let saveState: BattleSaveState
+describe("LoadState", () => {
+    let battleSaveState: BattleSaveState
 
     beforeEach(() => {
         const challengeModifierSetting = ChallengeModifierSettingService.new()
@@ -26,25 +27,26 @@ describe("Load SaveState", () => {
             value: true,
         })
 
-        saveState = BattleSaveStateService.newUsingBattleOrchestratorState({
-            missionId: "test",
-            campaignId: "test campaign",
-            saveVersion: "SAVE_VERSION",
-            battleOrchestratorState: BattleOrchestratorStateService.new({
-                battleState: BattleStateService.newBattleState({
-                    missionId: "test mission",
-                    campaignId: "test campaign",
-                    camera: new BattleCamera(100, 200),
-                    missionMap: NullMissionMap(),
-                    battlePhaseState: {
-                        turnCount: 0,
-                        currentAffiliation: BattlePhase.UNKNOWN,
-                    },
-                    challengeModifierSetting,
+        battleSaveState =
+            BattleSaveStateService.newUsingBattleOrchestratorState({
+                missionId: "test",
+                campaignId: "test campaign",
+                saveVersion: "SAVE_VERSION",
+                battleOrchestratorState: BattleOrchestratorStateService.new({
+                    battleState: BattleStateService.newBattleState({
+                        missionId: "test mission",
+                        campaignId: "test campaign",
+                        camera: new BattleCamera(100, 200),
+                        missionMap: NullMissionMap(),
+                        battlePhaseState: {
+                            turnCount: 0,
+                            currentAffiliation: BattlePhase.UNKNOWN,
+                        },
+                        challengeModifierSetting,
+                    }),
                 }),
-            }),
-            repository: ObjectRepositoryService.new(),
-        })
+                repository: ObjectRepositoryService.new(),
+            })
     })
 
     it("starts with initial fields", () => {
@@ -86,9 +88,9 @@ describe("Load SaveState", () => {
         })
         it("saveState", () => {
             const loadFlags = LoadSaveStateService.new({
-                saveState: saveState,
+                saveState: battleSaveState,
             })
-            expect(loadFlags.saveState).toEqual(saveState)
+            expect(loadFlags.saveState).toEqual(battleSaveState)
         })
     })
 
@@ -102,9 +104,12 @@ describe("Load SaveState", () => {
         const loadFlags = LoadSaveStateService.new({
             userRequestedLoad: true,
         })
-        LoadSaveStateService.applicationCompletesLoad(loadFlags, saveState)
+        LoadSaveStateService.applicationCompletesLoad(
+            loadFlags,
+            battleSaveState
+        )
         expect(loadFlags.applicationCompletedLoad).toBeTruthy()
-        expect(loadFlags.saveState).toEqual(saveState)
+        expect(loadFlags.saveState).toEqual(battleSaveState)
     })
 
     it("knows when the user has canceled a file", () => {
@@ -133,7 +138,7 @@ describe("Load SaveState", () => {
             applicationErroredWhileLoading: true,
             userCanceledLoad: true,
             applicationCompletedLoad: true,
-            saveState: saveState,
+            saveState: battleSaveState,
         })
 
         LoadSaveStateService.reset(loadFlags)
@@ -145,25 +150,56 @@ describe("Load SaveState", () => {
         expect(loadFlags.saveState).toBeUndefined()
     })
 
-    it("can be cloned", () => {
-        const loadFlags = LoadSaveStateService.new({
-            userRequestedLoad: true,
-            applicationErroredWhileLoading: true,
-            userCanceledLoad: true,
-            applicationCompletedLoad: true,
-            saveState: saveState,
+    describe("clone", () => {
+        let loadFlags: LoadState
+        let clone: LoadState
+        beforeEach(() => {
+            loadFlags = LoadSaveStateService.new({
+                userRequestedLoad: true,
+                applicationErroredWhileLoading: true,
+                userCanceledLoad: true,
+                applicationCompletedLoad: true,
+                saveState: battleSaveState,
+                campaignIdThatWasLoaded: "new campaign id",
+                modeThatInitiatedLoading: GameModeEnum.TITLE_SCREEN,
+            })
+
+            clone = LoadSaveStateService.clone(loadFlags)
+        })
+        it("is a different object", () => {
+            expect(clone).not.toBe(loadFlags)
         })
 
-        const clone: LoadSaveState = LoadSaveStateService.clone(loadFlags)
+        it("userRequestedLoad", () => {
+            expect(clone.userRequestedLoad).toEqual(loadFlags.userRequestedLoad)
+        })
+        it("userCanceledLoad", () => {
+            expect(clone.userCanceledLoad).toEqual(loadFlags.userCanceledLoad)
+        })
+        it("applicationErroredWhileLoading", () => {
+            expect(clone.applicationErroredWhileLoading).toEqual(
+                loadFlags.applicationErroredWhileLoading
+            )
+        })
+        it("applicationCompletedLoad", () => {
+            expect(clone.applicationCompletedLoad).toEqual(
+                loadFlags.applicationCompletedLoad
+            )
+        })
+        it("saveState", () => {
+            expect(clone.saveState).toEqual(loadFlags.saveState)
+        })
 
-        expect(clone.userRequestedLoad).toEqual(loadFlags.userRequestedLoad)
-        expect(clone.userCanceledLoad).toEqual(loadFlags.userCanceledLoad)
-        expect(clone.applicationErroredWhileLoading).toEqual(
-            loadFlags.applicationErroredWhileLoading
-        )
-        expect(clone.applicationCompletedLoad).toEqual(
-            loadFlags.applicationCompletedLoad
-        )
-        expect(clone.saveState).toEqual(loadFlags.saveState)
+        it("campaignIdThatWasLoaded", () => {
+            expect(clone.campaignIdThatWasLoaded).toBe(
+                loadFlags.campaignIdThatWasLoaded
+            )
+        })
+
+        it("modeThatInitiatedLoading", () => {
+            expect(clone.modeThatInitiatedLoading).toBe(
+                loadFlags.modeThatInitiatedLoading
+            )
+        })
     })
 })

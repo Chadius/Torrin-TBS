@@ -26,7 +26,6 @@ import { NumberGeneratorStrategy } from "../../numberGenerator/strategy"
 import { getResultOrThrowError } from "../../../utils/resultOrError"
 import { ActionCalculator } from "./calculator"
 import { DegreeOfSuccess } from "./degreeOfSuccess"
-import { GameEngineStateService } from "../../../gameEngine/gameEngine"
 import {
     ActionTemplate,
     ActionTemplateService,
@@ -71,6 +70,7 @@ import {
     ChallengeModifierSetting,
     ChallengeModifierSettingService,
 } from "../../challengeModifier/challengeModifierSetting"
+import { GameEngineStateService } from "../../../gameEngine/gameEngineState/gameEngineState"
 
 describe("calculator", () => {
     let objectRepository: ObjectRepository

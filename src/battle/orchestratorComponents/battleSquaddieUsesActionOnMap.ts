@@ -7,10 +7,6 @@ import {
 import { OrchestratorUtilities } from "./orchestratorUtils"
 import { UIControlSettings } from "../orchestrator/uiControlSettings"
 import { GraphicsBuffer } from "../../utils/graphics/graphicsRenderer"
-import {
-    GameEngineState,
-    GameEngineStateService,
-} from "../../gameEngine/gameEngine"
 import { ActionComponentCalculator } from "../actionDecision/actionComponentCalculator"
 import { MessageBoardMessageType } from "../../message/messageBoardMessage"
 import { BattleActionRecorderService } from "../history/battleAction/battleActionRecorder"
@@ -18,6 +14,10 @@ import { ResourceHandler } from "../../resource/resourceHandler"
 import { ObjectRepositoryService } from "../objectRepository"
 import { getResultOrThrowError } from "../../utils/resultOrError"
 import { SquaddieService } from "../../squaddie/squaddieService"
+import {
+    GameEngineState,
+    GameEngineStateService,
+} from "../../gameEngine/gameEngineState/gameEngineState"
 
 export const ACTION_COMPLETED_WAIT_TIME_MS = 500
 

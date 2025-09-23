@@ -1,8 +1,4 @@
 import { BattleHUDService } from "../hud/battleHUD/battleHUD"
-import {
-    GameEngineState,
-    GameEngineStateService,
-} from "../../gameEngine/gameEngine"
 import { BattleOrchestratorStateService } from "../orchestrator/battleOrchestratorState"
 import { BattleStateService } from "../battleState/battleState"
 import {
@@ -34,6 +30,10 @@ import {
     MockInstance,
     vi,
 } from "vitest"
+import {
+    GameEngineState,
+    GameEngineStateService,
+} from "../../gameEngine/gameEngineState/gameEngineState"
 
 describe("squaddie phase ends", () => {
     let squaddiePhaseListener: SquaddiePhaseListener

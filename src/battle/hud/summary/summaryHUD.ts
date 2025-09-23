@@ -9,7 +9,6 @@ import {
     PlayerCommandState,
     PlayerCommandStateService,
 } from "../playerCommand/playerCommandHUD"
-import { GameEngineState } from "../../../gameEngine/gameEngine"
 import { ResourceHandler } from "../../../resource/resourceHandler"
 import { MouseRelease, ScreenLocation } from "../../../utils/mouseConfig"
 import { isValidValue } from "../../../utils/objectValidityCheck"
@@ -48,6 +47,7 @@ import { CampaignResources } from "../../../campaign/campaignResources"
 import { PlayerConsideredActions } from "../../battleState/playerConsideredActions"
 import { Glossary } from "../../../campaign/glossary/glossary"
 import { TPlayerInputAction } from "../../../ui/playerInput/playerInputState"
+import { GameEngineState } from "../../../gameEngine/gameEngineState/gameEngineState"
 
 export const SUMMARY_HUD_PEEK_EXPIRATION_MS = 2000
 

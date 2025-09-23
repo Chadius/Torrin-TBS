@@ -25,15 +25,15 @@ import { TerrainTileMapService } from "../../hexMap/terrainTileMap"
 import { TraitStatusStorageService } from "../../trait/traitStatusStorage"
 import { DefaultArmyAttributes } from "../../squaddie/armyAttributes"
 import { BattleStateService } from "../battleState/battleState"
-import {
-    GameEngineState,
-    GameEngineStateService,
-} from "../../gameEngine/gameEngine"
 import { MessageBoardMessageType } from "../../message/messageBoardMessage"
 import { ImageUI, ImageUILoadingBehavior } from "../../ui/imageUI/imageUI"
 import { RectAreaService } from "../../ui/rectArea"
 import { ScreenDimensions } from "../../utils/graphics/graphicsConfig"
 import { beforeEach, describe, expect, it, vi, MockInstance } from "vitest"
+import {
+    GameEngineState,
+    GameEngineStateService,
+} from "../../gameEngine/gameEngineState/gameEngineState"
 
 describe("BattlePhaseController", () => {
     let objectRepository: ObjectRepository

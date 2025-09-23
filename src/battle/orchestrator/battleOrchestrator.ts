@@ -32,7 +32,6 @@ import {
     MouseWheel,
     ScreenLocation,
 } from "../../utils/mouseConfig"
-import { GameEngineState } from "../../gameEngine/gameEngine"
 import {
     MissionObjective,
     MissionObjectiveService,
@@ -66,6 +65,7 @@ import { BattleEventMessageListener } from "../event/battleEventMessageListener"
 import { CutsceneEffect } from "../../cutscene/cutsceneEffect"
 import { ChallengeModifierSetting } from "../challengeModifier/challengeModifierSetting"
 import { ActionValidityByIdCacheService } from "../actionValidity/cache/actionValidityByIdCache"
+import { GameEngineState } from "../../gameEngine/gameEngineState/gameEngineState"
 
 export const BattleOrchestratorMode = {
     UNKNOWN: "UNKNOWN",
@@ -234,8 +234,8 @@ export class BattleOrchestrator implements GameEngineComponent {
 
     recommendStateChanges(state: GameEngineState): GameEngineChanges {
         if (
-            state.fileState.loadSaveState.userRequestedLoad &&
-            !state.fileState.loadSaveState.applicationStartedLoad
+            state.loadState.userRequestedLoad &&
+            !state.loadState.applicationStartedLoad
         ) {
             return {
                 nextMode: GameModeEnum.LOADING_BATTLE,
@@ -264,7 +264,7 @@ export class BattleOrchestrator implements GameEngineComponent {
         gameEngineState: GameEngineState,
         graphicsContext: GraphicsBuffer
     ) {
-        if (gameEngineState.fileState.loadSaveState.applicationStartedLoad) {
+        if (gameEngineState.loadState.applicationStartedLoad) {
             return
         }
         this.initializeCache({
@@ -564,10 +564,10 @@ export class BattleOrchestrator implements GameEngineComponent {
     hasCompleted(state: GameEngineState): boolean {
         return (
             this.battleComplete ||
-            (state.fileState.loadSaveState.userRequestedLoad &&
+            (state.loadState.userRequestedLoad &&
                 !(
-                    state.fileState.loadSaveState.applicationStartedLoad ||
-                    state.fileState.loadSaveState.applicationErroredWhileLoading
+                    state.loadState.applicationStartedLoad ||
+                    state.loadState.applicationErroredWhileLoading
                 ))
         )
     }
@@ -699,8 +699,7 @@ export class BattleOrchestrator implements GameEngineComponent {
                         gameEngineState.battleOrchestratorState.battleState
                             .battlePhaseState.turnCount,
                     ignoreTurn0:
-                        gameEngineState.fileState.loadSaveState
-                            .applicationStartedLoad &&
+                        gameEngineState.loadState.applicationStartedLoad &&
                         gameEngineState.battleOrchestratorState.battleState
                             .battlePhaseState.turnCount === 0,
                 },

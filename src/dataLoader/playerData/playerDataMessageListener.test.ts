@@ -1,4 +1,4 @@
-import { LoadSaveState, LoadSaveStateService } from "./loadSaveState"
+import { LoadState, LoadSaveStateService } from "./loadState"
 import {
     MessageBoardMessagePlayerDataLoadBegin,
     MessageBoardMessagePlayerDataLoadErrorDuring,
@@ -50,10 +50,10 @@ describe("Player Data Message Listener", () => {
                 getSpy: () =>
                     vi.spyOn(LoadSaveStateService, "userRequestsLoad"),
                 getMessage: (
-                    loadSaveState: LoadSaveState
+                    loadSaveState: LoadState
                 ): MessageBoardMessagePlayerDataLoadUserRequest => ({
                     type: MessageBoardMessageType.PLAYER_DATA_LOAD_USER_REQUEST,
-                    loadSaveState,
+                    loadState: loadSaveState,
                 }),
                 type: MessageBoardMessageType.PLAYER_DATA_LOAD_USER_REQUEST,
             },
@@ -62,10 +62,10 @@ describe("Player Data Message Listener", () => {
                 getSpy: () =>
                     vi.spyOn(LoadSaveStateService, "applicationStartsLoad"),
                 getMessage: (
-                    loadSaveState: LoadSaveState
+                    loadSaveState: LoadState
                 ): MessageBoardMessagePlayerDataLoadBegin => ({
                     type: MessageBoardMessageType.PLAYER_DATA_LOAD_BEGIN,
-                    loadSaveState,
+                    loadState: loadSaveState,
                 }),
                 type: MessageBoardMessageType.PLAYER_DATA_LOAD_BEGIN,
             },
@@ -77,10 +77,10 @@ describe("Player Data Message Listener", () => {
                         "applicationErrorsWhileLoading"
                     ),
                 getMessage: (
-                    loadSaveState: LoadSaveState
+                    loadSaveState: LoadState
                 ): MessageBoardMessagePlayerDataLoadErrorDuring => ({
                     type: MessageBoardMessageType.PLAYER_DATA_LOAD_ERROR_DURING,
-                    loadSaveState,
+                    loadState: loadSaveState,
                 }),
                 type: MessageBoardMessageType.PLAYER_DATA_LOAD_ERROR_DURING,
             },
@@ -88,10 +88,10 @@ describe("Player Data Message Listener", () => {
                 name: "user cancels the load",
                 getSpy: () => vi.spyOn(LoadSaveStateService, "userCancelsLoad"),
                 getMessage: (
-                    loadSaveState: LoadSaveState
+                    loadSaveState: LoadState
                 ): MessageBoardMessagePlayerDataLoadUserCancel => ({
                     type: MessageBoardMessageType.PLAYER_DATA_LOAD_USER_CANCEL,
-                    loadSaveState,
+                    loadState: loadSaveState,
                 }),
                 type: MessageBoardMessageType.PLAYER_DATA_LOAD_USER_CANCEL,
             },
@@ -103,10 +103,10 @@ describe("Player Data Message Listener", () => {
                         "userFinishesRequestingLoad"
                     ),
                 getMessage: (
-                    loadSaveState: LoadSaveState
+                    loadSaveState: LoadState
                 ): MessageBoardMessagePlayerDataLoadFinishRequest => ({
                     type: MessageBoardMessageType.PLAYER_DATA_LOAD_FINISH_REQUEST_LOAD,
-                    loadSaveState,
+                    loadState: loadSaveState,
                 }),
                 type: MessageBoardMessageType.PLAYER_DATA_LOAD_FINISH_REQUEST_LOAD,
             },
@@ -153,7 +153,7 @@ describe("Player Data Message Listener", () => {
                 })
             messageBoard.sendMessage({
                 type: MessageBoardMessageType.PLAYER_DATA_LOAD_COMPLETE,
-                loadSaveState,
+                loadState: loadSaveState,
                 saveState,
             })
             expect(spy).toHaveBeenCalledWith(loadSaveState, saveState)
@@ -175,7 +175,7 @@ describe("Player Data Message Listener", () => {
             })
             messageBoard.sendMessage({
                 type: MessageBoardMessageType.PLAYER_DATA_LOAD_FINISH_REQUEST_LOAD,
-                loadSaveState,
+                loadState: loadSaveState,
             })
             expect(loadSaveState).toEqual(newSaveSate)
         })

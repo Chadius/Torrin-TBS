@@ -5,9 +5,9 @@ import {
     MouseWheel,
     ScreenLocation,
 } from "../utils/mouseConfig"
-import { GameEngineState } from "./gameEngine"
 import { TGameMode } from "../utils/startupConfig"
 import { GraphicsBuffer } from "../utils/graphics/graphicsRenderer"
+import { GameEngineState } from "./gameEngineState/gameEngineState"
 
 export type GameEngineChanges = {
     nextMode?: TGameMode

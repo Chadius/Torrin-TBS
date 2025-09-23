@@ -6,8 +6,8 @@ import {
     OrchestratorComponentMouseEvent,
 } from "./battleOrchestratorComponent"
 import { GraphicsBuffer } from "../../utils/graphics/graphicsRenderer"
-import { GameEngineState } from "../../gameEngine/gameEngine"
 import { ResourceHandler } from "../../resource/resourceHandler"
+import { GameEngineState } from "../../gameEngine/gameEngineState/gameEngineState"
 
 export class DefaultBattleOrchestrator implements BattleOrchestratorComponent {
     hasCompleted(state: GameEngineState): boolean {

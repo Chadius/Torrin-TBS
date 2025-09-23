@@ -13,7 +13,6 @@ import {
 import { MissionFileFormat } from "../dataLoader/missionLoader"
 import { GameModeEnum } from "../utils/startupConfig"
 import { BattleStateService } from "../battle/battleState/battleState"
-import { GameEngineState, GameEngineStateService } from "./gameEngine"
 import { CampaignFileFormat } from "../campaign/campaignFileFormat"
 import { LoadCampaignData } from "../utils/fileHandling/loadCampaignData"
 import {
@@ -45,7 +44,7 @@ import { CampaignService } from "../campaign/campaign"
 import { PlayerDataMessageListener } from "../dataLoader/playerData/playerDataMessageListener"
 import { MessageBoardMessageType } from "../message/messageBoardMessage"
 import { SaveSaveStateService } from "../dataLoader/saveSaveState"
-import { LoadSaveStateService } from "../dataLoader/playerData/loadSaveState"
+import { LoadSaveStateService } from "../dataLoader/playerData/loadState"
 import { BattleCompletionStatus } from "../battle/orchestrator/missionObjectivesAndCutscenes"
 import { BattlePhase } from "../battle/orchestratorComponents/battlePhaseTracker"
 import { TitleScreenStateHelper } from "../titleScreen/titleScreenState"
@@ -59,6 +58,10 @@ import {
     ChallengeModifierEnum,
     ChallengeModifierSettingService,
 } from "../battle/challengeModifier/challengeModifierSetting"
+import {
+    GameEngineState,
+    GameEngineStateService,
+} from "./gameEngineState/gameEngineState"
 
 describe("GameEngineGameLoader", () => {
     let loader: GameEngineGameLoader
@@ -578,16 +581,16 @@ describe("GameEngineGameLoader", () => {
                 repository: originalState.repository,
                 resourceHandler: originalState.resourceHandler,
             })
-            currentState.modeThatInitiatedLoading =
-                originalState.modeThatInitiatedLoading
-            currentState.fileState.saveSaveState = SaveSaveStateService.clone(
-                originalState.fileState.saveSaveState
+            currentState.loadState.modeThatInitiatedLoading =
+                originalState.loadState.modeThatInitiatedLoading
+            currentState.saveSaveState = SaveSaveStateService.clone(
+                originalState.saveSaveState
             )
-            currentState.fileState.loadSaveState = LoadSaveStateService.clone(
-                originalState.fileState.loadSaveState
+            currentState.loadState = LoadSaveStateService.clone(
+                originalState.loadState
             )
-            currentState.campaignIdThatWasLoaded =
-                originalState.campaignIdThatWasLoaded
+            currentState.loadState.campaignIdThatWasLoaded =
+                originalState.loadState.campaignIdThatWasLoaded
             setupMessageBoardForSaveStateChanges(currentState)
         })
 
@@ -671,12 +674,8 @@ describe("GameEngineGameLoader", () => {
             while (!loader.hasCompleted(currentState)) {
                 await loader.update(currentState)
             }
-            expect(
-                currentState.fileState.loadSaveState.userRequestedLoad
-            ).toBeFalsy()
-            expect(
-                currentState.fileState.loadSaveState.applicationStartedLoad
-            ).toBeFalsy()
+            expect(currentState.loadState.userRequestedLoad).toBeFalsy()
+            expect(currentState.loadState.applicationStartedLoad).toBeFalsy()
         })
 
         describe("error while loading save file", () => {
@@ -842,7 +841,7 @@ describe("GameEngineGameLoader", () => {
                     .mockResolvedValue(loadedBattleSaveState)
                 currentState.messageBoard.sendMessage({
                     type: MessageBoardMessageType.PLAYER_DATA_LOAD_USER_REQUEST,
-                    loadSaveState: currentState.fileState.loadSaveState,
+                    loadState: currentState.loadState,
                 })
             })
 
@@ -959,7 +958,7 @@ describe("GameEngineGameLoader", () => {
                 .mockRejectedValue(new Error("whoops"))
             currentState.messageBoard.sendMessage({
                 type: MessageBoardMessageType.PLAYER_DATA_LOAD_USER_REQUEST,
-                loadSaveState: currentState.fileState.loadSaveState,
+                loadState: currentState.loadState,
             })
 
             while (!loader.hasCompleted(currentState)) {
@@ -1039,7 +1038,7 @@ describe("GameEngineGameLoader", () => {
                     .mockResolvedValue(newLoadedBattleSaveState)
                 currentState.messageBoard.sendMessage({
                     type: MessageBoardMessageType.PLAYER_DATA_LOAD_USER_REQUEST,
-                    loadSaveState: currentState.fileState.loadSaveState,
+                    loadState: currentState.loadState,
                 })
             })
 
@@ -1106,6 +1105,6 @@ const setupMessageBoardForSaveStateChanges = (
     )
     currentState.messageBoard.sendMessage({
         type: MessageBoardMessageType.PLAYER_DATA_LOAD_USER_REQUEST,
-        loadSaveState: currentState.fileState.loadSaveState,
+        loadState: currentState.loadState,
     })
 }

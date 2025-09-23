@@ -8,13 +8,13 @@ import { SquaddieActionAnimator } from "./squaddieActionAnimator"
 import { Label, LabelService } from "../../ui/label"
 import { RectAreaService } from "../../ui/rectArea"
 import { ScreenDimensions } from "../../utils/graphics/graphicsConfig"
-import { GameEngineState } from "../../gameEngine/gameEngine"
 import { ActionResultTextService } from "./actionResultTextService"
 import { GraphicsBuffer } from "../../utils/graphics/graphicsRenderer"
 import { ObjectRepositoryService } from "../objectRepository"
 import { BattleActionService } from "../history/battleAction/battleAction"
 import { BattleActionRecorderService } from "../history/battleAction/battleActionRecorder"
 import { ResourceHandler } from "../../resource/resourceHandler"
+import { GameEngineState } from "../../gameEngine/gameEngineState/gameEngineState"
 
 export const ANIMATE_TEXT_WINDOW_WAIT_TIME = 5000
 

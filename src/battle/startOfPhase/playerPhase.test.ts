@@ -1,9 +1,5 @@
 import { BattleHUDService } from "../hud/battleHUD/battleHUD"
 import {
-    GameEngineState,
-    GameEngineStateService,
-} from "../../gameEngine/gameEngine"
-import {
     BattleOrchestratorState,
     BattleOrchestratorStateService,
 } from "../orchestrator/battleOrchestratorState"
@@ -27,6 +23,10 @@ import { ScreenDimensions } from "../../utils/graphics/graphicsConfig"
 import { ConvertCoordinateService } from "../../hexMap/convertCoordinates"
 import { SquaddieRepositoryService } from "../../utils/test/squaddie"
 import { beforeEach, describe, expect, it } from "vitest"
+import {
+    GameEngineState,
+    GameEngineStateService,
+} from "../../gameEngine/gameEngineState/gameEngineState"
 
 describe("player phase listener", () => {
     let squaddiePhaseListener: SquaddiePhaseListener

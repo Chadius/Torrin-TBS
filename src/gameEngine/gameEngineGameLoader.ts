@@ -1,4 +1,3 @@
-import { GameEngineState } from "./gameEngine"
 import {
     MouseDrag,
     MousePress,
@@ -37,7 +36,7 @@ import {
     CampaignLoaderContext,
     CampaignLoaderService,
 } from "../dataLoader/campaignLoader"
-import { LoadSaveStateService } from "../dataLoader/playerData/loadSaveState"
+import { LoadSaveStateService } from "../dataLoader/playerData/loadState"
 import { MessageBoardMessageType } from "../message/messageBoardMessage"
 import { CampaignFileFormat } from "../campaign/campaignFileFormat"
 import {
@@ -50,6 +49,7 @@ import { ResourceHandlerBlocker } from "../dataLoader/loadBlocker/resourceHandle
 import { BattleStateService } from "../battle/battleState/battleState"
 import { EnumLike } from "../utils/enum"
 import { CampaignResources } from "../campaign/campaignResources"
+import { GameEngineState } from "./gameEngineState/gameEngineState"
 
 export const TransitionAction = {
     REVERT_BACKUPS: "REVERT_BACKUPS",
@@ -156,8 +156,9 @@ export class GameEngineGameLoader implements GameEngineComponent {
         if (this.status.error) {
             return {
                 nextMode:
-                    state.modeThatInitiatedLoading !== GameModeEnum.UNKNOWN
-                        ? state.modeThatInitiatedLoading
+                    state.loadState.modeThatInitiatedLoading !==
+                    GameModeEnum.UNKNOWN
+                        ? state.loadState.modeThatInitiatedLoading
                         : GameModeEnum.TITLE_SCREEN,
             }
         }
@@ -209,15 +210,14 @@ export class GameEngineGameLoader implements GameEngineComponent {
     private applySaveStateToBattleOrchestratorState(
         gameEngineState: GameEngineState
     ) {
-        if (!gameEngineState.fileState.loadSaveState.applicationCompletedLoad) {
+        if (!gameEngineState.loadState.applicationCompletedLoad) {
             return
         }
-        if (gameEngineState.fileState.loadSaveState.saveState == undefined)
-            return
+        if (gameEngineState.loadState.saveState == undefined) return
         if (gameEngineState.repository == undefined) return
         let battleOrchestratorState = gameEngineState.battleOrchestratorState
         BattleSaveStateService.applySaveStateToOrchestratorState({
-            battleSaveState: gameEngineState.fileState.loadSaveState.saveState,
+            battleSaveState: gameEngineState.loadState.saveState,
             battleOrchestratorState: battleOrchestratorState,
             squaddieRepository: gameEngineState.repository,
         })
@@ -228,7 +228,7 @@ export class GameEngineGameLoader implements GameEngineComponent {
             console.error("Save file is incompatible. Reverting.")
             throw new Error("Save file is incompatible. Reverting.")
         }
-        LoadSaveStateService.reset(gameEngineState.fileState.loadSaveState)
+        LoadSaveStateService.reset(gameEngineState.loadState)
     }
 
     private applyMissionLoaderContextToBattleOrchestratorState(
@@ -369,8 +369,8 @@ export class GameEngineGameLoader implements GameEngineComponent {
         }
 
         if (
-            gameEngineState.fileState.loadSaveState.userRequestedLoad &&
-            gameEngineState.fileState.loadSaveState.saveState == undefined
+            gameEngineState.loadState.userRequestedLoad &&
+            gameEngineState.loadState.saveState == undefined
         ) {
             return [
                 TransitionAction.LOAD_BATTLE_SAVE_STATE,
@@ -494,7 +494,7 @@ export class GameEngineGameLoader implements GameEngineComponent {
             .then((saveState: BattleSaveState) => {
                 gameEngineState.messageBoard.sendMessage({
                     type: MessageBoardMessageType.PLAYER_DATA_LOAD_COMPLETE,
-                    loadSaveState: gameEngineState.fileState.loadSaveState,
+                    loadState: gameEngineState.loadState,
                     saveState,
                 })
                 success = true
@@ -503,12 +503,12 @@ export class GameEngineGameLoader implements GameEngineComponent {
                 if (reason.message === "user canceled") {
                     gameEngineState.messageBoard.sendMessage({
                         type: MessageBoardMessageType.PLAYER_DATA_LOAD_USER_CANCEL,
-                        loadSaveState: gameEngineState.fileState.loadSaveState,
+                        loadState: gameEngineState.loadState,
                     })
                 } else {
                     gameEngineState.messageBoard.sendMessage({
                         type: MessageBoardMessageType.PLAYER_DATA_LOAD_ERROR_DURING,
-                        loadSaveState: gameEngineState.fileState.loadSaveState,
+                        loadState: gameEngineState.loadState,
                     })
                 }
                 console.error("Failed to load progress file from storage.")
@@ -521,11 +521,8 @@ export class GameEngineGameLoader implements GameEngineComponent {
     private async loadCampaign(gameEngineState: GameEngineState) {
         let campaignId: string
         switch (true) {
-            case gameEngineState?.fileState?.loadSaveState?.saveState
-                ?.campaignId != undefined:
-                campaignId =
-                    gameEngineState?.fileState?.loadSaveState?.saveState
-                        ?.campaignId
+            case gameEngineState?.loadState.saveState?.campaignId != undefined:
+                campaignId = gameEngineState?.loadState.saveState?.campaignId
                 break
             case this.loadedData?.campaign?.id != undefined:
                 campaignId = this.loadedData?.campaign?.id
@@ -543,7 +540,7 @@ export class GameEngineGameLoader implements GameEngineComponent {
         ) {
             gameEngineState.messageBoard.sendMessage({
                 type: MessageBoardMessageType.PLAYER_DATA_LOAD_ERROR_DURING,
-                loadSaveState: gameEngineState.fileState.loadSaveState,
+                loadState: gameEngineState.loadState,
             })
             console.error(`Loading campaign ${campaignId} failed`)
             return false
@@ -665,7 +662,7 @@ export class GameEngineGameLoader implements GameEngineComponent {
             objectRepository: gameEngineState.repository,
         })
 
-        gameEngineState.campaignIdThatWasLoaded = id
+        gameEngineState.loadState.campaignIdThatWasLoaded = id
         gameEngineState.campaign = campaign
         this.loadBlocker.beginLoading()
         return true
@@ -749,7 +746,7 @@ export class GameEngineGameLoader implements GameEngineComponent {
         } catch (error) {
             gameEngineState.messageBoard.sendMessage({
                 type: MessageBoardMessageType.PLAYER_DATA_LOAD_ERROR_DURING,
-                loadSaveState: gameEngineState.fileState.loadSaveState,
+                loadState: gameEngineState.loadState,
             })
             return false
         }
@@ -764,7 +761,7 @@ export class GameEngineGameLoader implements GameEngineComponent {
         if (gameEngineState.resourceHandler == undefined) return false
         this.status.campaignIsAlreadyLoaded =
             gameEngineState?.campaign?.id != undefined &&
-            gameEngineState?.fileState?.loadSaveState?.saveState?.campaignId ==
+            gameEngineState?.loadState.saveState?.campaignId ==
                 gameEngineState.campaign.id
         this.loadBlocker = new ResourceHandlerBlocker(
             gameEngineState.resourceHandler,

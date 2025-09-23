@@ -23,7 +23,6 @@ import {
     BattleActionDecisionStepService,
 } from "../actionDecision/battleActionDecisionStep"
 import { SquaddieService } from "../../squaddie/squaddieService"
-import { GameEngineState } from "../../gameEngine/gameEngine"
 import { BattleActionRecorderService } from "../history/battleAction/battleActionRecorder"
 import { SearchResultAdapterService } from "../../hexMap/pathfinder/searchResults/searchResultAdapter"
 import {
@@ -32,6 +31,7 @@ import {
 } from "../../search/searchPathAdapter/searchPathAdapter"
 import { MapSearchService } from "../../hexMap/pathfinder/pathGeneration/mapSearch"
 import { SearchLimitService } from "../../hexMap/pathfinder/pathGeneration/searchLimit"
+import { GameEngineState } from "../../gameEngine/gameEngineState/gameEngineState"
 
 export class MoveCloserToSquaddie implements TeamStrategyCalculator {
     desiredBattleSquaddieId: string | undefined

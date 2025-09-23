@@ -15,10 +15,6 @@ import { ConvertCoordinateService } from "../../hexMap/convertCoordinates"
 import * as mocks from "../../utils/test/mocks"
 import { MockedP5GraphicsBuffer } from "../../utils/test/mocks"
 import { BattleStateService } from "../battleState/battleState"
-import {
-    GameEngineState,
-    GameEngineStateService,
-} from "../../gameEngine/gameEngine"
 import { CampaignService } from "../../campaign/campaign"
 import {
     ActionTemplate,
@@ -92,6 +88,10 @@ import { HexCoordinate } from "../../hexMap/hexCoordinate/hexCoordinate"
 import { ValidityCheckService } from "../actionValidity/validityChecker"
 import { MapSearchTestUtils } from "../../hexMap/pathfinder/pathGeneration/mapSearchTests/mapSearchTestUtils"
 import { CampaignResourcesService } from "../../campaign/campaignResources"
+import {
+    GameEngineState,
+    GameEngineStateService,
+} from "../../gameEngine/gameEngineState/gameEngineState"
 
 describe("BattleSquaddieSelector", () => {
     let selector: BattlePlayerSquaddieSelector =

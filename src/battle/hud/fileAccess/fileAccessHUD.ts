@@ -12,13 +12,17 @@ import {
     WINDOW_SPACING,
 } from "../../../ui/constants"
 import { isValidValue } from "../../../utils/objectValidityCheck"
-import { SaveSaveStateService } from "../../../dataLoader/saveSaveState"
-import { LoadSaveStateService } from "../../../dataLoader/playerData/loadSaveState"
-import { GameEngineState } from "../../../gameEngine/gameEngine"
+import {
+    SaveSaveState,
+    SaveSaveStateService,
+} from "../../../dataLoader/saveSaveState"
+import {
+    LoadState,
+    LoadSaveStateService,
+} from "../../../dataLoader/playerData/loadState"
 import { BattlePhase } from "../../orchestratorComponents/battlePhaseTracker"
 import { OrchestratorUtilities } from "../../orchestratorComponents/orchestratorUtils"
 import { GraphicsBuffer } from "../../../utils/graphics/graphicsRenderer"
-import { FileState } from "../../../gameEngine/fileState"
 import { MessageBoard } from "../../../message/messageBoard"
 import { MessageBoardMessageType } from "../../../message/messageBoardMessage"
 import { ButtonStatus } from "../../../ui/button/buttonStatus"
@@ -38,6 +42,7 @@ import {
     FileAccessHUDShouldCreateSaveButton,
 } from "./saveButton"
 import { EnumLike } from "../../../utils/enum"
+import { GameEngineState } from "../../../gameEngine/gameEngineState/gameEngineState"
 
 export const FileAccessHUDMessage = {
     SAVE_SUCCESS: "Saved!",
@@ -217,12 +222,14 @@ export const FileAccessHUDService = {
     mousePressed: ({
         fileAccessHUD,
         mousePress,
-        fileState,
+        loadState,
+        saveState,
         messageBoard,
     }: {
         fileAccessHUD: FileAccessHUD
         mousePress: MousePress
-        fileState: FileState
+        loadState: LoadState
+        saveState: SaveSaveState
         messageBoard: MessageBoard
     }): boolean => {
         getButtons(fileAccessHUD).forEach((button) => {
@@ -240,27 +247,39 @@ export const FileAccessHUDService = {
             uiObjects.saveButton?.getStatusChangeEvent()?.mousePress !=
             undefined
 
-        if (loadButtonWasClicked) {
-            reactToLoadGameButtonStatusChangeEvent(
-                fileAccessHUD,
-                fileState,
-                messageBoard
-            )
-        }
-        if (saveButtonWasClicked) {
-            reactToSaveGameButtonStatusChangeEvent(fileAccessHUD, fileState)
+        if (
+            !battleIsCurrentlySavingOrLoading({
+                loadState: loadState,
+                saveState: saveState,
+            })
+        ) {
+            if (loadButtonWasClicked) {
+                reactToLoadGameButtonStatusChangeEvent({
+                    fileAccessHUD: fileAccessHUD,
+                    loadState: loadState,
+                    messageBoard: messageBoard,
+                })
+            }
+            if (saveButtonWasClicked) {
+                reactToSaveGameButtonStatusChangeEvent({
+                    fileAccessHUD: fileAccessHUD,
+                    saveState: saveState,
+                })
+            }
         }
         return loadButtonWasClicked || saveButtonWasClicked
     },
     mouseReleased: ({
         fileAccessHUD,
         mouseRelease,
-        fileState,
+        loadState,
+        saveState,
         messageBoard,
     }: {
         fileAccessHUD: FileAccessHUD
         mouseRelease: MouseRelease
-        fileState: FileState
+        loadState: LoadState
+        saveState: SaveSaveState
         messageBoard: MessageBoard
     }): boolean => {
         getButtons(fileAccessHUD).forEach((button) => {
@@ -278,15 +297,25 @@ export const FileAccessHUDService = {
             uiObjects.saveButton?.getStatusChangeEvent()?.mouseRelease !=
             undefined
 
-        if (loadButtonWasClicked) {
-            reactToLoadGameButtonStatusChangeEvent(
-                fileAccessHUD,
-                fileState,
-                messageBoard
-            )
-        }
-        if (saveButtonWasClicked) {
-            reactToSaveGameButtonStatusChangeEvent(fileAccessHUD, fileState)
+        if (
+            !battleIsCurrentlySavingOrLoading({
+                loadState: loadState,
+                saveState: saveState,
+            })
+        ) {
+            if (loadButtonWasClicked) {
+                reactToLoadGameButtonStatusChangeEvent({
+                    fileAccessHUD,
+                    loadState,
+                    messageBoard,
+                })
+            }
+            if (saveButtonWasClicked) {
+                reactToSaveGameButtonStatusChangeEvent({
+                    fileAccessHUD,
+                    saveState,
+                })
+            }
         }
         return loadButtonWasClicked || saveButtonWasClicked
     },
@@ -326,16 +355,19 @@ export const FileAccessHUDService = {
     },
     updateStatusMessage: ({
         fileAccessHUD,
-        fileState,
+        loadState,
+        saveState,
         messageBoard,
     }: {
         fileAccessHUD: FileAccessHUD
-        fileState: FileState
+        loadState: LoadState
+        saveState: SaveSaveState
         messageBoard: MessageBoard
     }): string => {
         return updateStatusMessage({
             fileAccessHUD: fileAccessHUD,
-            fileState: fileState,
+            loadState,
+            saveState,
             messageBoard: messageBoard,
         })
     },
@@ -365,34 +397,31 @@ export const FileAccessHUDService = {
 
 const updateStatusMessage = ({
     fileAccessHUD,
-    fileState,
+    loadState,
+    saveState,
     messageBoard,
 }: {
     fileAccessHUD: FileAccessHUD
-    fileState: FileState
+    loadState: LoadState
+    saveState: SaveSaveState
     messageBoard: MessageBoard
 }): string => {
     if (!didCurrentMessageExpire(fileAccessHUD)) {
-        const messageToShow = calculateMessageToShow(fileState, fileAccessHUD)
+        const messageToShow = calculateMessageToShow({
+            saveState: saveState,
+            loadState: loadState,
+        })
         updateMessageLabel(fileAccessHUD, messageToShow)
         return fileAccessHUD.message ?? ""
     }
 
-    if (
-        SaveSaveStateService.didUserRequestSaveAndSaveHasConcluded(
-            fileState.saveSaveState
-        )
-    ) {
-        SaveSaveStateService.userFinishesRequestingSave(fileState.saveSaveState)
+    if (SaveSaveStateService.didUserRequestSaveAndSaveHasConcluded(saveState)) {
+        SaveSaveStateService.userFinishesRequestingSave(saveState)
     }
-    if (
-        LoadSaveStateService.didUserRequestLoadAndLoadHasConcluded(
-            fileState.loadSaveState
-        )
-    ) {
+    if (LoadSaveStateService.didUserRequestLoadAndLoadHasConcluded(loadState)) {
         messageBoard.sendMessage({
             type: MessageBoardMessageType.PLAYER_DATA_LOAD_FINISH_REQUEST_LOAD,
-            loadSaveState: fileState.loadSaveState,
+            loadState: loadState,
         })
     }
     clearMessage(fileAccessHUD)
@@ -400,12 +429,15 @@ const updateStatusMessage = ({
     return fileAccessHUD.message ?? ""
 }
 
-const battleIsCurrentlySavingOrLoading = (caller: {
-    fileAccessHUD: FileAccessHUD
-    fileState: FileState
-}) =>
-    caller.fileState.saveSaveState.savingInProgress ||
-    caller.fileState.loadSaveState.userRequestedLoad
+const battleIsCurrentlySavingOrLoading = ({
+    loadState,
+    saveState,
+}: {
+    loadState: LoadState
+    saveState: SaveSaveState
+}) => {
+    return saveState.savingInProgress || loadState.userRequestedLoad
+}
 
 const createMessageLabel = (fileAccessHUD: FileAccessHUD) => {
     const layout = fileAccessHUD.data.getLayout()
@@ -466,23 +498,23 @@ const didCurrentMessageExpire = (fileAccessHUD: FileAccessHUD) => {
     return messageIsCurrentlySet && messageTimerIsSet && messageExpired
 }
 
-const calculateMessageToShow = (
-    fileState: FileState,
-    _fileAccessHUD: FileAccessHUD
-): string => {
+const calculateMessageToShow = ({
+    saveState,
+    loadState,
+}: {
+    saveState: SaveSaveState
+    loadState: LoadState
+}): string => {
     const messageChecks: { [key in TFileAccessHUDMessage]?: boolean } = {
         [FileAccessHUDMessage.SAVE_IN_PROGRESS]:
-            fileState.saveSaveState.userRequestedSave &&
-            fileState.saveSaveState.savingInProgress,
+            saveState.userRequestedSave && saveState.savingInProgress,
         [FileAccessHUDMessage.SAVE_SUCCESS]:
-            fileState.saveSaveState.userRequestedSave &&
-            !fileState.saveSaveState.savingInProgress,
+            saveState.userRequestedSave && !saveState.savingInProgress,
         [FileAccessHUDMessage.SAVE_FAILED]:
-            fileState.saveSaveState.userRequestedSave &&
-            fileState.saveSaveState.errorDuringSaving,
+            saveState.userRequestedSave && saveState.errorDuringSaving,
         [FileAccessHUDMessage.LOAD_FAILED]:
-            fileState.loadSaveState.userRequestedLoad &&
-            fileState.loadSaveState.applicationErroredWhileLoading,
+            loadState.userRequestedLoad &&
+            loadState.applicationErroredWhileLoading,
     }
 
     const messagePriority = [
@@ -644,48 +676,39 @@ const createDrawingTask = (fileAccessHUD: FileAccessHUD) => {
     ])
 }
 
-const reactToLoadGameButtonStatusChangeEvent = (
-    fileAccessHUD: FileAccessHUD,
-    fileState: FileState,
+const reactToLoadGameButtonStatusChangeEvent = ({
+    fileAccessHUD,
+    loadState,
+    messageBoard,
+}: {
+    fileAccessHUD: FileAccessHUD
+    loadState: LoadState
     messageBoard: MessageBoard
-) => {
+}) => {
     const uiObjects: FileAccessHUDUIObjects = fileAccessHUD.data.getUIObjects()
     const loadButton = uiObjects.loadButton
     const statusChangeEvent = loadButton?.getStatusChangeEvent()
     if (statusChangeEvent?.newStatus != ButtonStatus.ACTIVE) return
 
-    if (
-        battleIsCurrentlySavingOrLoading({
-            fileAccessHUD,
-            fileState,
-        })
-    ) {
-        return
-    }
     messageBoard.sendMessage({
         type: MessageBoardMessageType.PLAYER_DATA_LOAD_USER_REQUEST,
-        loadSaveState: fileState.loadSaveState,
+        loadState: loadState,
     })
 }
 
-const reactToSaveGameButtonStatusChangeEvent = (
-    fileAccessHUD: FileAccessHUD,
-    fileState: FileState
-) => {
+const reactToSaveGameButtonStatusChangeEvent = ({
+    fileAccessHUD,
+    saveState,
+}: {
+    fileAccessHUD: FileAccessHUD
+    saveState: SaveSaveState
+}) => {
     const uiObjects: FileAccessHUDUIObjects = fileAccessHUD.data.getUIObjects()
     const saveButton = uiObjects.saveButton
     const statusChangeEvent = saveButton?.getStatusChangeEvent()
     if (statusChangeEvent?.newStatus != ButtonStatus.ACTIVE) return
 
-    if (
-        battleIsCurrentlySavingOrLoading({
-            fileAccessHUD,
-            fileState,
-        })
-    ) {
-        return
-    }
-    SaveSaveStateService.userRequestsSave(fileState.saveSaveState)
+    SaveSaveStateService.userRequestsSave(saveState)
     disableButtons(fileAccessHUD)
 }
 

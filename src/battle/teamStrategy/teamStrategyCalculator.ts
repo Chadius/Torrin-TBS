@@ -7,7 +7,8 @@ import { isValidValue } from "../../utils/objectValidityCheck"
 import { getResultOrThrowError } from "../../utils/resultOrError"
 import { SquaddieService } from "../../squaddie/squaddieService"
 import { BattleActionDecisionStep } from "../actionDecision/battleActionDecisionStep"
-import { GameEngineState } from "../../gameEngine/gameEngine"
+
+import { GameEngineState } from "../../gameEngine/gameEngineState/gameEngineState"
 
 export type TeamStrategyBehaviorOverride = {
     noActions: boolean

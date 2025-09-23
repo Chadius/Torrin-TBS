@@ -22,12 +22,12 @@ import { GraphicsBuffer } from "../../utils/graphics/graphicsRenderer"
 import { ActionComponentCalculator } from "../actionDecision/actionComponentCalculator"
 import { MessageBoardMessageType } from "../../message/messageBoardMessage"
 import { BattleActionRecorderService } from "../history/battleAction/battleActionRecorder"
-import { GameEngineState } from "../../gameEngine/gameEngine"
 import { ObjectRepositoryService } from "../objectRepository"
 import { isValidValue } from "../../utils/objectValidityCheck"
 import { MissionMapService } from "../../missionMap/missionMap"
 import { ResourceHandler } from "../../resource/resourceHandler"
 import { DrawSquaddieIconOnMapUtilities } from "../animation/drawSquaddieIconOnMap/drawSquaddieIconOnMap"
+import { GameEngineState } from "../../gameEngine/gameEngineState/gameEngineState"
 
 export class BattleSquaddieUsesActionOnSquaddie
     implements BattleOrchestratorComponent

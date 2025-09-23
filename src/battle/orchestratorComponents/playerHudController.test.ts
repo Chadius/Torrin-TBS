@@ -1,7 +1,3 @@
-import {
-    GameEngineState,
-    GameEngineStateService,
-} from "../../gameEngine/gameEngine"
 import { PlayerHudController } from "./playerHudController"
 import { MissionMap, MissionMapService } from "../../missionMap/missionMap"
 import { TerrainTileMapService } from "../../hexMap/terrainTileMap"
@@ -39,6 +35,10 @@ import {
 import { BattleActionRecorderService } from "../history/battleAction/battleActionRecorder"
 import { beforeEach, describe, expect, it } from "vitest"
 import { BattleEventMessageListener } from "../event/battleEventMessageListener"
+import {
+    GameEngineState,
+    GameEngineStateService,
+} from "../../gameEngine/gameEngineState/gameEngineState"
 
 describe("PlayerHUDController", () => {
     let gameEngineState: GameEngineState

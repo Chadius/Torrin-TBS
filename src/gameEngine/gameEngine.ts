@@ -1,9 +1,5 @@
 import p5 from "p5"
 import { BattleOrchestrator } from "../battle/orchestrator/battleOrchestrator"
-import {
-    BattleOrchestratorState,
-    BattleOrchestratorStateService,
-} from "../battle/orchestrator/battleOrchestratorState"
 import { BattleCutscenePlayer } from "../battle/orchestratorComponents/battleCutscenePlayer"
 import { BattlePlayerSquaddieSelector } from "../battle/orchestratorComponents/battlePlayerSquaddieSelector"
 import { BattleComputerSquaddieSelector } from "../battle/orchestratorComponents/battleComputerSquaddieSelector"
@@ -22,10 +18,7 @@ import {
 import { GameModeEnum, TGameMode } from "../utils/startupConfig"
 import { GameEngineComponent } from "./gameEngineComponent"
 import { TitleScreen } from "../titleScreen/titleScreen"
-import {
-    TitleScreenState,
-    TitleScreenStateHelper,
-} from "../titleScreen/titleScreenState"
+import { TitleScreenStateHelper } from "../titleScreen/titleScreenState"
 import {
     ResourceHandler,
     ResourceHandlerService,
@@ -36,81 +29,24 @@ import {
 } from "../battle/history/battleSaveState"
 import { GameEngineGameLoader } from "./gameEngineGameLoader"
 import { InitializeBattle } from "../battle/orchestrator/initializeBattle"
-import { Campaign, CampaignService } from "../campaign/campaign"
-import {
-    ObjectRepository,
-    ObjectRepositoryService,
-} from "../battle/objectRepository"
+import { ObjectRepositoryService } from "../battle/objectRepository"
 import { isValidValue } from "../utils/objectValidityCheck"
 import { SaveSaveStateService } from "../dataLoader/saveSaveState"
-import { FileState, FileStateService } from "./fileState"
-import { MessageBoard } from "../message/messageBoard"
 import { MessageBoardMessageType } from "../message/messageBoardMessage"
 import { PlayerHudController } from "../battle/orchestratorComponents/playerHudController"
 import { GraphicsBuffer } from "../utils/graphics/graphicsRenderer"
 import { BattleStateListener } from "../battle/battleState/battleState"
 import { SquaddiePhaseListener } from "../battle/startOfPhase/squaddiePhaseListener"
 import { PlayerDecisionHUDListener } from "../battle/hud/playerActionPanel/playerDecisionHUD"
-import {
-    PlayerInputState,
-    PlayerInputStateService,
-} from "../ui/playerInput/playerInputState"
+import { PlayerInputStateService } from "../ui/playerInput/playerInputState"
 import { PlayerDataMessageListener } from "../dataLoader/playerData/playerDataMessageListener"
 import { BattleHUDListener } from "../battle/hud/battleHUD/battleHUDListener"
 import { PlayerActionTargetSelect } from "../battle/orchestratorComponents/playerActionTargetSelect/playerActionTargetSelect"
 import { BattleEventMessageListener } from "../battle/event/battleEventMessageListener"
-
-export interface GameEngineState {
-    modeThatInitiatedLoading: TGameMode
-    battleOrchestratorState: BattleOrchestratorState
-    repository: ObjectRepository | undefined
-    resourceHandler: ResourceHandler | undefined
-    titleScreenState: TitleScreenState
-    campaign: Campaign
-    campaignIdThatWasLoaded: string | undefined
-    fileState: FileState
-    messageBoard: MessageBoard
-    playerInputState: PlayerInputState
-}
-
-export const GameEngineStateService = {
-    new: ({
-        battleOrchestratorState,
-        titleScreenState,
-        resourceHandler,
-        previousMode,
-        repository,
-        campaign,
-        playerInputState,
-    }: {
-        battleOrchestratorState?: BattleOrchestratorState
-        titleScreenState?: TitleScreenState
-        resourceHandler?: ResourceHandler
-        previousMode?: TGameMode
-        campaign?: Campaign
-        repository?: ObjectRepository
-        playerInputState?: PlayerInputState
-    }): GameEngineState => {
-        return {
-            modeThatInitiatedLoading: previousMode ?? GameModeEnum.UNKNOWN,
-            battleOrchestratorState:
-                battleOrchestratorState ??
-                BattleOrchestratorStateService.new({}),
-            titleScreenState: titleScreenState ?? TitleScreenStateHelper.new(),
-            fileState: FileStateService.new(),
-            campaign: campaign ?? CampaignService.default(),
-            campaignIdThatWasLoaded: campaign?.id,
-            repository,
-            resourceHandler,
-            messageBoard: new MessageBoard({
-                logMessages: process.env.LOG_MESSAGES === "true",
-            }),
-            playerInputState:
-                playerInputState ??
-                PlayerInputStateService.newFromEnvironment(),
-        }
-    },
-}
+import {
+    GameEngineState,
+    GameEngineStateService,
+} from "./gameEngineState/gameEngineState"
 
 export class GameEngine {
     gameEngineState: GameEngineState | undefined
@@ -279,7 +215,7 @@ export class GameEngine {
         }
         await this.gameEngineComponent?.update(this.gameEngineState, graphics)
 
-        if (this.gameEngineState.fileState.saveSaveState.savingInProgress) {
+        if (this.gameEngineState.saveSaveState.savingInProgress) {
             this.saveGameAndDownloadFile()
         }
 
@@ -301,7 +237,8 @@ export class GameEngine {
             if (
                 orchestrationChanges?.nextMode === GameModeEnum.LOADING_BATTLE
             ) {
-                this.gameEngineState.modeThatInitiatedLoading = this.currentMode
+                this.gameEngineState.loadState.modeThatInitiatedLoading =
+                    this.currentMode
             }
 
             this._currentMode =
@@ -491,13 +428,13 @@ export class GameEngine {
             BattleSaveStateService.SaveToFile(saveData)
         } catch (error) {
             console.log(`Save game failed: ${error}`)
-            this.gameEngineState.fileState.saveSaveState.errorDuringSaving = true
+            this.gameEngineState.saveSaveState.errorDuringSaving = true
             SaveSaveStateService.foundErrorDuringSaving(
-                this.gameEngineState.fileState.saveSaveState
+                this.gameEngineState.saveSaveState
             )
         }
         SaveSaveStateService.savingAttemptIsComplete(
-            this.gameEngineState.fileState.saveSaveState
+            this.gameEngineState.saveSaveState
         )
     }
 }

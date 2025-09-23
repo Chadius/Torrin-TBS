@@ -8,10 +8,10 @@ import {
 } from "../orchestrator/battleOrchestratorComponent"
 import { UIControlSettings } from "../orchestrator/uiControlSettings"
 import { Cutscene, CutsceneService } from "../../cutscene/cutscene"
-import { GameEngineState } from "../../gameEngine/gameEngine"
 import { isValidValue } from "../../utils/objectValidityCheck"
 import { GraphicsBuffer } from "../../utils/graphics/graphicsRenderer"
 import { ResourceHandler } from "../../resource/resourceHandler"
+import { GameEngineState } from "../../gameEngine/gameEngineState/gameEngineState"
 
 export class BattleCutscenePlayer implements BattleOrchestratorComponent {
     private _currentCutscene: Cutscene | undefined

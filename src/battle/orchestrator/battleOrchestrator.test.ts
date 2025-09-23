@@ -42,10 +42,6 @@ import { MissionMapService } from "../../missionMap/missionMap"
 import { InitializeBattle } from "./initializeBattle"
 import { BattleStateService } from "../battleState/battleState"
 import { BattlePhase } from "../orchestratorComponents/battlePhaseTracker"
-import {
-    GameEngineState,
-    GameEngineStateService,
-} from "../../gameEngine/gameEngine"
 import { BattleHUDService } from "../hud/battleHUD/battleHUD"
 import { PlayerHudController } from "../orchestratorComponents/playerHudController"
 import { SquaddieRepositoryService } from "../../utils/test/squaddie"
@@ -70,6 +66,10 @@ import { EventTriggerTurnRangeService } from "../event/eventTrigger/eventTrigger
 import { CutsceneEffectService } from "../../cutscene/cutsceneEffect"
 import { EventTriggerBattleCompletionStatusService } from "../event/eventTrigger/eventTriggerBattleCompletionStatus"
 import { BattleEventMessageListener } from "../event/battleEventMessageListener"
+import {
+    GameEngineState,
+    GameEngineStateService,
+} from "../../gameEngine/gameEngineState/gameEngineState"
 
 describe("Battle Orchestrator", () => {
     type OrchestratorTestOptions = {
@@ -1593,7 +1593,7 @@ describe("Battle Orchestrator", () => {
             )
             gameEngineState.messageBoard.sendMessage({
                 type: MessageBoardMessageType.PLAYER_DATA_LOAD_USER_REQUEST,
-                loadSaveState: gameEngineState.fileState.loadSaveState,
+                loadState: gameEngineState.loadState,
             })
         })
 
@@ -1608,11 +1608,11 @@ describe("Battle Orchestrator", () => {
         it("does not set the completed flag if loading has started", () => {
             gameEngineState.messageBoard.sendMessage({
                 type: MessageBoardMessageType.PLAYER_DATA_LOAD_USER_REQUEST,
-                loadSaveState: gameEngineState.fileState.loadSaveState,
+                loadState: gameEngineState.loadState,
             })
             gameEngineState.messageBoard.sendMessage({
                 type: MessageBoardMessageType.PLAYER_DATA_LOAD_BEGIN,
-                loadSaveState: gameEngineState.fileState.loadSaveState,
+                loadState: gameEngineState.loadState,
             })
 
             orchestrator.update(gameEngineState, mockedP5GraphicsContext)
@@ -1622,11 +1622,11 @@ describe("Battle Orchestrator", () => {
         it("does not set the completed flag if there is an error while loading", () => {
             gameEngineState.messageBoard.sendMessage({
                 type: MessageBoardMessageType.PLAYER_DATA_LOAD_USER_REQUEST,
-                loadSaveState: gameEngineState.fileState.loadSaveState,
+                loadState: gameEngineState.loadState,
             })
             gameEngineState.messageBoard.sendMessage({
                 type: MessageBoardMessageType.PLAYER_DATA_LOAD_ERROR_DURING,
-                loadSaveState: gameEngineState.fileState.loadSaveState,
+                loadState: gameEngineState.loadState,
             })
 
             orchestrator.update(gameEngineState, mockedP5GraphicsContext)

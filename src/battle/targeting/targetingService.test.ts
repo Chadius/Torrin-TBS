@@ -26,16 +26,16 @@ import {
     TargetBySquaddieAffiliationRelation,
     VersusSquaddieResistance,
 } from "../../action/template/actionEffectTemplate"
-import {
-    GameEngineState,
-    GameEngineStateService,
-} from "../../gameEngine/gameEngine"
 import { BattleOrchestratorStateService } from "../orchestrator/battleOrchestratorState"
 import { BattleStateService } from "../battleState/battleState"
 import { SquaddieRepositoryService } from "../../utils/test/squaddie"
 import { BattleActionDecisionStepService } from "../actionDecision/battleActionDecisionStep"
 import { TargetConstraintsService } from "../../action/targetConstraints"
 import { beforeEach, describe, expect, it } from "vitest"
+import {
+    GameEngineState,
+    GameEngineStateService,
+} from "../../gameEngine/gameEngineState/gameEngineState"
 
 describe("Targeting Service", () => {
     let longswordAction: ActionTemplate

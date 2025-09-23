@@ -40,11 +40,11 @@ import {
 } from "../../../actionDecision/battleActionDecisionStep"
 import { MouseButton } from "../../../../utils/mouseConfig"
 import { RectArea, RectAreaService } from "../../../../ui/rectArea"
+import { CampaignService } from "../../../../campaign/campaign"
 import {
     GameEngineState,
     GameEngineStateService,
-} from "../../../../gameEngine/gameEngine"
-import { CampaignService } from "../../../../campaign/campaign"
+} from "../../../../gameEngine/gameEngineState/gameEngineState"
 
 describe("Squaddie Selector Panel", () => {
     let objectRepository: ObjectRepository

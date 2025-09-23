@@ -12,10 +12,6 @@ import { MockedP5GraphicsBuffer } from "../../utils/test/mocks"
 import { MissionMapService } from "../../missionMap/missionMap"
 import { TerrainTileMapService } from "../../hexMap/terrainTileMap"
 import { BattleStateService } from "../battleState/battleState"
-import {
-    GameEngineState,
-    GameEngineStateService,
-} from "../../gameEngine/gameEngine"
 import { BattleHUDService } from "../hud/battleHUD/battleHUD"
 import { BattleHUDStateService } from "../hud/battleHUD/battleHUDState"
 import { SummaryHUDStateService } from "../hud/summary/summaryHUD"
@@ -36,6 +32,10 @@ import {
     MouseWheel,
     ScreenLocation,
 } from "../../utils/mouseConfig"
+import {
+    GameEngineState,
+    GameEngineStateService,
+} from "../../gameEngine/gameEngineState/gameEngineState"
 
 describe("battleMapDisplay", () => {
     let battleMapDisplay: BattleMapDisplay

@@ -1,10 +1,10 @@
-import { GameEngineState } from "../../gameEngine/gameEngine"
 import { MessageBoardMessageSquaddiePhaseEnds } from "../../message/messageBoardMessage"
 import { BattlePhaseService } from "../orchestratorComponents/battlePhaseTracker"
 import { BattleSquaddie } from "../battleSquaddie"
 import { DrawSquaddieIconOnMapUtilities } from "../animation/drawSquaddieIconOnMap/drawSquaddieIconOnMap"
 import { TerrainTileMapService } from "../../hexMap/terrainTileMap"
 import { MapGraphicsLayerSquaddieTypes } from "../../hexMap/mapLayer/mapGraphicsLayer"
+import { GameEngineState } from "../../gameEngine/gameEngineState/gameEngineState"
 
 export const SquaddiePhaseEndsService = {
     unTintSquaddieMapIconForEachSquaddie: (

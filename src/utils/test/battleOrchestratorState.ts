@@ -1,9 +1,9 @@
 import { MissionMapService } from "../../missionMap/missionMap"
 import { TerrainTileMapService } from "../../hexMap/terrainTileMap"
-import { GameEngineState } from "../../gameEngine/gameEngine"
 import { BattleSquaddie } from "../../battle/battleSquaddie"
 import { ActionTemplate } from "../../action/template/actionTemplate"
 import { BattleActionDecisionStepService } from "../../battle/actionDecision/battleActionDecisionStep"
+import { GameEngineState } from "../../gameEngine/gameEngineState/gameEngineState"
 
 export const NullMissionMap = () =>
     MissionMapService.new({

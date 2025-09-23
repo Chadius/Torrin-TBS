@@ -1,6 +1,5 @@
 import { TBattleOrchestratorMode } from "./battleOrchestrator"
 import { UIControlSettings } from "./uiControlSettings"
-import { GameEngineState } from "../../gameEngine/gameEngine"
 import {
     MouseDrag,
     MousePress,
@@ -11,6 +10,7 @@ import {
 import { GraphicsBuffer } from "../../utils/graphics/graphicsRenderer"
 import { ResourceHandler } from "../../resource/resourceHandler"
 import { EnumLike } from "../../utils/enum"
+import { GameEngineState } from "../../gameEngine/gameEngineState/gameEngineState"
 
 export const OrchestratorComponentMouseEventType = {
     UNKNOWN: "UNKNOWN",

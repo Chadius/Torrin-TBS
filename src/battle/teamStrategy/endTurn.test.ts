@@ -19,14 +19,14 @@ import {
     BattleActionDecisionStep,
     BattleActionDecisionStepService,
 } from "../actionDecision/battleActionDecisionStep"
-import {
-    GameEngineState,
-    GameEngineStateService,
-} from "../../gameEngine/gameEngine"
 import { BattleOrchestratorStateService } from "../orchestrator/battleOrchestratorState"
 import { BattleStateService } from "../battleState/battleState"
 import { beforeEach, describe, expect, it } from "vitest"
 import { DebugModeMenuService } from "../hud/debugModeMenu/debugModeMenu"
+import {
+    GameEngineState,
+    GameEngineStateService,
+} from "../../gameEngine/gameEngineState/gameEngineState"
 
 describe("end turn team strategy", () => {
     let playerSquaddieTemplate: SquaddieTemplate

@@ -10,7 +10,6 @@ import {
     MouseWheel,
     ScreenLocation,
 } from "../utils/mouseConfig"
-import { GameEngineState } from "../gameEngine/gameEngine"
 import { GameModeEnum } from "../utils/startupConfig"
 import { WINDOW_SPACING } from "../ui/constants"
 import { ScreenDimensions } from "../utils/graphics/graphicsConfig"
@@ -21,14 +20,13 @@ import { GraphicsBuffer } from "../utils/graphics/graphicsRenderer"
 import { ImageUI } from "../ui/imageUI/imageUI"
 import {
     PlayerInputAction,
-    TPlayerInputAction,
     PlayerInputStateService,
+    TPlayerInputAction,
 } from "../ui/playerInput/playerInputState"
 import { DataBlob, DataBlobService } from "../utils/dataBlob/dataBlob"
 import { BehaviorTreeTask } from "../utils/behaviorTree/task"
 import { ExecuteAllComposite } from "../utils/behaviorTree/composite/executeAll/executeAll"
 import { SequenceComposite } from "../utils/behaviorTree/composite/sequence/sequence"
-import { FileState } from "../gameEngine/fileState"
 import { MessageBoard } from "../message/messageBoard"
 import { DoesObjectHaveKeyExistCondition } from "../utils/behaviorTree/condition/doesObjectHaveKeyExistCondition"
 import { InverterDecorator } from "../utils/behaviorTree/decorator/inverter/inverter"
@@ -70,7 +68,10 @@ import {
     CreateContinueGameButtonAction,
     ShouldCreateContinueGameButtonAction,
 } from "./components/continueGameButton"
-import { LoadSaveStateService } from "../dataLoader/playerData/loadSaveState"
+import {
+    LoadState,
+    LoadSaveStateService,
+} from "../dataLoader/playerData/loadState"
 import { MessageBoardMessageType } from "../message/messageBoardMessage"
 import { DrawRectanglesAction } from "../ui/rectangle/drawRectanglesAction"
 import { DrawTextBoxesAction } from "../ui/textBox/drawTextBoxesAction"
@@ -83,6 +84,8 @@ import {
 import { ComponentDataBlob } from "../utils/dataBlob/componentDataBlob"
 import { TitleScreenCreateDebugModeTextBoxAction } from "./components/debugMode"
 import { EnumLike } from "../utils/enum"
+import { GameEngineState } from "../gameEngine/gameEngineState/gameEngineState"
+import { SaveSaveState } from "../dataLoader/saveSaveState"
 
 const EXTERNAL_LINK_ITCH_IO_IMAGE_PATH =
     "assets/externalLinks/itchIo-app-icon.png"
@@ -227,7 +230,8 @@ export interface TitleScreenContext {
     errorDuringLoadingDisplayStartTimestamp: number | undefined
     menuSelection: TTitleScreenMenuSelection
     version: string
-    fileState: FileState | undefined
+    loadState: LoadState | undefined
+    saveState: SaveSaveState | undefined
     messageBoard: MessageBoard | undefined
     buttonStatusChangeEventDataBlob: ButtonStatusChangeEventByButtonId
 }
@@ -565,9 +569,9 @@ export class TitleScreen implements GameEngineComponent {
     hasCompleted(_: GameEngineState): boolean {
         const context: TitleScreenContext = this.data.getContext()
         const continueGameWasLoaded =
-            context?.fileState?.loadSaveState &&
-            context.fileState.loadSaveState.userRequestedLoad &&
-            context.fileState.loadSaveState.applicationCompletedLoad
+            context?.loadState &&
+            context.loadState.userRequestedLoad &&
+            context.loadState.applicationCompletedLoad
         const userClickedOnAButtonThatLeavesTheTitleScreen =
             context?.menuSelection !== TitleScreenMenuSelection.NONE
         return (
@@ -622,7 +626,8 @@ export class TitleScreen implements GameEngineComponent {
         this.data.setUIObjects(uiObjects)
 
         const context: TitleScreenContext = this.data.getContext()
-        context.fileState = gameEngineState.fileState
+        context.loadState = gameEngineState.loadState
+        context.saveState = gameEngineState.saveSaveState
         context.messageBoard = gameEngineState.messageBoard
         this.data.setContext(context)
 
@@ -650,7 +655,8 @@ export class TitleScreen implements GameEngineComponent {
             errorDuringLoadingDisplayStartTimestamp: undefined,
             menuSelection: TitleScreenMenuSelection.NONE,
             version: existingContext?.version,
-            fileState: undefined,
+            loadState: undefined,
+            saveState: undefined,
             messageBoard: undefined,
             buttonStatusChangeEventDataBlob: DataBlobService.new(),
         }
@@ -902,19 +908,18 @@ export class TitleScreen implements GameEngineComponent {
         if (titleScreenStatusChange?.newStatus != ButtonStatus.ACTIVE) return
 
         const messageBoard = context.messageBoard
-        const fileState = context.fileState
 
         if (
             context.menuSelection === TitleScreenMenuSelection.NONE &&
-            fileState != undefined &&
+            context.loadState != undefined &&
             messageBoard != undefined
         ) {
             context.menuSelection = TitleScreenMenuSelection.CONTINUE_GAME
 
-            LoadSaveStateService.reset(fileState.loadSaveState)
+            LoadSaveStateService.reset(context.loadState)
             messageBoard.sendMessage({
                 type: MessageBoardMessageType.PLAYER_DATA_LOAD_USER_REQUEST,
-                loadSaveState: fileState.loadSaveState,
+                loadState: context.loadState!,
             })
         }
     }

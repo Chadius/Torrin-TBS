@@ -8,10 +8,6 @@ import {
     vi,
 } from "vitest"
 import { PlayerActionTargetSelect } from "./playerActionTargetSelect"
-import {
-    GameEngineState,
-    GameEngineStateService,
-} from "../../../gameEngine/gameEngine"
 import { GraphicsBuffer } from "../../../utils/graphics/graphicsRenderer"
 import { ResourceHandler } from "../../../resource/resourceHandler"
 import * as mocks from "../../../utils/test/mocks"
@@ -44,6 +40,10 @@ import { ObjectRepositoryService } from "../../objectRepository"
 import { MissionMapService } from "../../../missionMap/missionMap"
 import { BattleCamera } from "../../battleCamera"
 import { SummaryHUDStateService } from "../../hud/summary/summaryHUD"
+import {
+    GameEngineState,
+    GameEngineStateService,
+} from "../../../gameEngine/gameEngineState/gameEngineState"
 
 describe("Player Action Target Select", () => {
     let playerActionTargetSelect: PlayerActionTargetSelect

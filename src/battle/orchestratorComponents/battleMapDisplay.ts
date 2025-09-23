@@ -14,7 +14,6 @@ import {
 import { ScreenDimensions } from "../../utils/graphics/graphicsConfig"
 import { UIControlSettings } from "../orchestrator/uiControlSettings"
 import { MissionMapSquaddieCoordinateService } from "../../missionMap/squaddieCoordinate"
-import { GameEngineState } from "../../gameEngine/gameEngine"
 import { ObjectRepositoryService } from "../objectRepository"
 import { isValidValue } from "../../utils/objectValidityCheck"
 import { FileAccessHUDService } from "../hud/fileAccess/fileAccessHUD"
@@ -38,6 +37,7 @@ import {
 import p5 from "p5"
 import { BattleActionDecisionStepService } from "../actionDecision/battleActionDecisionStep"
 import { MapGraphicsLayerService } from "../../hexMap/mapLayer/mapGraphicsLayer"
+import { GameEngineState } from "../../gameEngine/gameEngineState/gameEngineState"
 
 const SCREEN_EDGES = {
     left: [0.1, 0.04, 0.02],
@@ -144,7 +144,8 @@ export class BattleMapDisplay implements BattleOrchestratorComponent {
         FileAccessHUDService.updateStatusMessage({
             fileAccessHUD:
                 gameEngineState.battleOrchestratorState.battleHUD.fileAccessHUD,
-            fileState: gameEngineState.fileState,
+            loadState: gameEngineState.loadState,
+            saveState: gameEngineState.saveSaveState,
             messageBoard: gameEngineState.messageBoard,
         })
         FileAccessHUDService.draw(

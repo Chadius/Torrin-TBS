@@ -4,10 +4,10 @@ import {
 } from "../orchestrator/battleOrchestratorComponent"
 import { SquaddieActionAnimator } from "./squaddieActionAnimator"
 import { GraphicsBuffer } from "../../utils/graphics/graphicsRenderer"
-import { GameEngineState } from "../../gameEngine/gameEngine"
 import { BattleActionService } from "../history/battleAction/battleAction"
 import { BattleActionRecorderService } from "../history/battleAction/battleActionRecorder"
 import { ResourceHandler } from "../../resource/resourceHandler"
+import { GameEngineState } from "../../gameEngine/gameEngineState/gameEngineState"
 
 export class DefaultSquaddieActionAnimator implements SquaddieActionAnimator {
     hasCompleted(_: GameEngineState): boolean {

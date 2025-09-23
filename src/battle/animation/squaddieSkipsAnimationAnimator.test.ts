@@ -20,10 +20,6 @@ import { LabelService } from "../../ui/label"
 import * as ActionResultTextService from "./actionResultTextService"
 import { BattleStateService } from "../battleState/battleState"
 import {
-    GameEngineState,
-    GameEngineStateService,
-} from "../../gameEngine/gameEngine"
-import {
     ActionTemplate,
     ActionTemplateService,
 } from "../../action/template/actionTemplate"
@@ -39,6 +35,10 @@ import { DegreeOfSuccess } from "../calculator/actionCalculator/degreeOfSuccess"
 import { BattleActionRecorderService } from "../history/battleAction/battleActionRecorder"
 import { TargetConstraintsService } from "../../action/targetConstraints"
 import { beforeEach, describe, expect, it, vi } from "vitest"
+import {
+    GameEngineState,
+    GameEngineStateService,
+} from "../../gameEngine/gameEngineState/gameEngineState"
 
 describe("SquaddieSkipsAnimationAnimator", () => {
     let mockResourceHandler: ResourceHandler

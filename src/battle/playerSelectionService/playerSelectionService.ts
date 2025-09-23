@@ -1,6 +1,5 @@
 import { MousePress, ScreenLocation } from "../../utils/mouseConfig"
 import { EnumLike } from "../../utils/enum"
-import { GameEngineState } from "../../gameEngine/gameEngine"
 import { OrchestratorUtilities } from "../orchestratorComponents/orchestratorUtils"
 import {
     MovementDecision,
@@ -51,6 +50,7 @@ import { PlayerMovesOffMapToCancelConsideredActions } from "./contextCalculator/
 import { SearchPathAdapterService } from "../../search/searchPathAdapter/searchPathAdapter"
 import { SearchResultsCacheService } from "../../hexMap/pathfinder/searchResults/searchResultsCache"
 import { SearchLimitService } from "../../hexMap/pathfinder/pathGeneration/searchLimit"
+import { GameEngineState } from "../../gameEngine/gameEngineState/gameEngineState"
 
 export interface PlayerContextDataBlob extends DataBlob {
     data: {

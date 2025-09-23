@@ -1,5 +1,8 @@
 import { RectAreaService } from "../../../ui/rectArea"
-import { SaveSaveStateService } from "../../../dataLoader/saveSaveState"
+import {
+    SaveSaveState,
+    SaveSaveStateService,
+} from "../../../dataLoader/saveSaveState"
 import { BattleSaveStateService } from "../../history/battleSaveState"
 import {
     FileAccessHUD,
@@ -16,14 +19,9 @@ import {
 } from "../../orchestratorComponents/battlePhaseTracker"
 import { MissionMapService } from "../../../missionMap/missionMap"
 import { TerrainTileMapService } from "../../../hexMap/terrainTileMap"
-import {
-    GameEngineState,
-    GameEngineStateService,
-} from "../../../gameEngine/gameEngine"
 import { BattleCamera } from "../../battleCamera"
 import { CampaignService } from "../../../campaign/campaign"
 import { OrchestratorUtilities } from "../../orchestratorComponents/orchestratorUtils"
-import { FileState, FileStateService } from "../../../gameEngine/fileState"
 import {
     afterEach,
     beforeEach,
@@ -39,10 +37,19 @@ import { MessageBoardMessageType } from "../../../message/messageBoardMessage"
 import { ButtonStatus } from "../../../ui/button/buttonStatus"
 import { GraphicsBuffer } from "../../../utils/graphics/graphicsRenderer"
 import { MockedP5GraphicsBuffer } from "../../../utils/test/mocks"
+import {
+    GameEngineState,
+    GameEngineStateService,
+} from "../../../gameEngine/gameEngineState/gameEngineState"
+import {
+    LoadSaveStateService,
+    LoadState,
+} from "../../../dataLoader/playerData/loadState"
 
 describe("File Access HUD", () => {
     let fileAccessHUD: FileAccessHUD
-    let fileState: FileState
+    let saveState: SaveSaveState
+    let loadState: LoadState
     let dateSpy: MockInstance
     let takingATurnSpy: MockInstance
     let messageBoard: MessageBoard
@@ -80,7 +87,8 @@ describe("File Access HUD", () => {
 
     beforeEach(() => {
         fileAccessHUD = FileAccessHUDService.new()
-        fileState = FileStateService.new()
+        saveState = SaveSaveStateService.new({})
+        loadState = LoadSaveStateService.new({})
         messageBoard = new MessageBoard()
         playerDataMessageListener = new PlayerDataMessageListener(
             "playerDataMessageListener"
@@ -266,7 +274,8 @@ describe("File Access HUD", () => {
                         fileAccessHUD.data.getUIObjects().saveButton!.getArea()
                     ),
                 },
-                fileState,
+                loadState,
+                saveState: saveState,
                 messageBoard,
             })
             FileAccessHUDService.mouseReleased({
@@ -280,13 +289,14 @@ describe("File Access HUD", () => {
                         fileAccessHUD.data.getUIObjects().saveButton!.getArea()
                     ),
                 },
-                fileState,
+                loadState,
+                saveState: saveState,
                 messageBoard,
             })
         })
         it("tells HUD user has requested a save", () => {
-            expect(fileState.saveSaveState.userRequestedSave).toBeTruthy()
-            expect(fileState.saveSaveState.savingInProgress).toBeTruthy()
+            expect(saveState.userRequestedSave).toBeTruthy()
+            expect(saveState.savingInProgress).toBeTruthy()
         })
         it("changes save and load button to disabled", () => {
             expect(
@@ -298,9 +308,7 @@ describe("File Access HUD", () => {
         })
         describe("save is completed successfully", () => {
             beforeEach(() => {
-                SaveSaveStateService.savingAttemptIsComplete(
-                    fileState.saveSaveState
-                )
+                SaveSaveStateService.savingAttemptIsComplete(saveState)
                 FileAccessHUDService.updateButtonStatus(fileAccessHUD)
                 dateSpy = vi.spyOn(Date, "now").mockReturnValue(0)
             })
@@ -308,7 +316,8 @@ describe("File Access HUD", () => {
                 const initialMessage: string =
                     FileAccessHUDService.updateStatusMessage({
                         fileAccessHUD: fileAccessHUD,
-                        fileState: fileState,
+                        loadState: loadState,
+                        saveState: saveState,
                         messageBoard,
                     })
                 expect(initialMessage).toEqual(
@@ -317,7 +326,8 @@ describe("File Access HUD", () => {
                 expect(fileAccessHUD.messageDisplayStartTime).toEqual(0)
                 expectNoMessageAfterDisplayDuration(
                     dateSpy,
-                    fileState,
+                    loadState,
+                    saveState,
                     fileAccessHUD,
                     messageBoard
                 )
@@ -325,26 +335,30 @@ describe("File Access HUD", () => {
             it("clears user request from the save state after the duration passes", () => {
                 FileAccessHUDService.updateStatusMessage({
                     fileAccessHUD: fileAccessHUD,
-                    fileState: fileState,
+                    loadState: loadState,
+                    saveState: saveState,
                     messageBoard,
                 })
                 expectNoMessageAfterDisplayDuration(
                     dateSpy,
-                    fileState,
+                    loadState,
+                    saveState,
                     fileAccessHUD,
                     messageBoard
                 )
-                expect(fileState.saveSaveState.userRequestedSave).toBeFalsy()
+                expect(saveState.userRequestedSave).toBeFalsy()
             })
             it("enables the button after save completes and the message expires", () => {
                 FileAccessHUDService.updateStatusMessage({
                     fileAccessHUD: fileAccessHUD,
-                    fileState: fileState,
+                    loadState: loadState,
+                    saveState: saveState,
                     messageBoard,
                 })
                 expectNoMessageAfterDisplayDuration(
                     dateSpy,
-                    fileState,
+                    loadState,
+                    saveState,
                     fileAccessHUD,
                     messageBoard
                 )
@@ -359,9 +373,7 @@ describe("File Access HUD", () => {
         })
         describe("save has an error during saving", () => {
             beforeEach(() => {
-                SaveSaveStateService.foundErrorDuringSaving(
-                    fileState.saveSaveState
-                )
+                SaveSaveStateService.foundErrorDuringSaving(saveState)
                 FileAccessHUDService.updateButtonStatus(fileAccessHUD)
                 dateSpy = vi.spyOn(Date, "now").mockReturnValue(0)
             })
@@ -369,14 +381,17 @@ describe("File Access HUD", () => {
                 const initialMessage: string =
                     FileAccessHUDService.updateStatusMessage({
                         fileAccessHUD: fileAccessHUD,
-                        fileState: fileState,
+                        loadState: loadState,
+                        saveState: saveState,
+
                         messageBoard,
                     })
                 expect(initialMessage).toEqual(FileAccessHUDMessage.SAVE_FAILED)
                 expect(fileAccessHUD.messageDisplayStartTime).toEqual(0)
                 expectNoMessageAfterDisplayDuration(
                     dateSpy,
-                    fileState,
+                    loadState,
+                    saveState,
                     fileAccessHUD,
                     messageBoard
                 )
@@ -384,12 +399,15 @@ describe("File Access HUD", () => {
             it("enables the button after save errors and the message expires", () => {
                 FileAccessHUDService.updateStatusMessage({
                     fileAccessHUD: fileAccessHUD,
-                    fileState: fileState,
+                    loadState: loadState,
+                    saveState: saveState,
+
                     messageBoard,
                 })
                 expectNoMessageAfterDisplayDuration(
                     dateSpy,
-                    fileState,
+                    loadState,
+                    saveState,
                     fileAccessHUD,
                     messageBoard
                 )
@@ -434,7 +452,9 @@ describe("File Access HUD", () => {
                         fileAccessHUD.data.getUIObjects().loadButton!.getArea()
                     ),
                 },
-                fileState,
+                loadState,
+                saveState: saveState,
+
                 messageBoard,
             })
             FileAccessHUDService.mouseReleased({
@@ -448,12 +468,14 @@ describe("File Access HUD", () => {
                         fileAccessHUD.data.getUIObjects().loadButton!.getArea()
                     ),
                 },
-                fileState,
+                loadState,
+                saveState: saveState,
+
                 messageBoard,
             })
         })
         it("tells HUD user has requested a load", () => {
-            expect(fileState.loadSaveState.userRequestedLoad).toBeTruthy()
+            expect(loadState.userRequestedLoad).toBeTruthy()
         })
         describe("load is completed successfully", () => {
             beforeEach(() => {
@@ -464,7 +486,7 @@ describe("File Access HUD", () => {
 
                 messageBoard.sendMessage({
                     type: MessageBoardMessageType.PLAYER_DATA_LOAD_COMPLETE,
-                    loadSaveState: fileState.loadSaveState,
+                    loadState,
                     saveState:
                         BattleSaveStateService.newUsingBattleOrchestratorState({
                             campaignId: "test campaign",
@@ -498,13 +520,17 @@ describe("File Access HUD", () => {
             it("enables the button after load completes and the message expires", () => {
                 FileAccessHUDService.updateStatusMessage({
                     fileAccessHUD: fileAccessHUD,
-                    fileState: fileState,
+                    loadState: loadState,
+                    saveState: saveState,
+
                     messageBoard,
                 })
                 const noMessage: string =
                     FileAccessHUDService.updateStatusMessage({
                         fileAccessHUD: fileAccessHUD,
-                        fileState: fileState,
+                        loadState: loadState,
+                        saveState: saveState,
+
                         messageBoard,
                     })
                 expect(noMessage).toBe("")
@@ -525,7 +551,7 @@ describe("File Access HUD", () => {
                 )
                 messageBoard.sendMessage({
                     type: MessageBoardMessageType.PLAYER_DATA_LOAD_ERROR_DURING,
-                    loadSaveState: fileState.loadSaveState,
+                    loadState,
                 })
                 FileAccessHUDService.updateButtonStatus(fileAccessHUD)
                 dateSpy = vi.spyOn(Date, "now").mockReturnValue(0)
@@ -533,12 +559,15 @@ describe("File Access HUD", () => {
             it("enables the button after load errors and the message expires", () => {
                 FileAccessHUDService.updateStatusMessage({
                     fileAccessHUD: fileAccessHUD,
-                    fileState: fileState,
+                    loadState: loadState,
+                    saveState: saveState,
+
                     messageBoard,
                 })
                 expectNoMessageAfterDisplayDuration(
                     dateSpy,
-                    fileState,
+                    loadState,
+                    saveState,
                     fileAccessHUD,
                     messageBoard
                 )
@@ -554,14 +583,17 @@ describe("File Access HUD", () => {
                 const initialMessage: string =
                     FileAccessHUDService.updateStatusMessage({
                         fileAccessHUD: fileAccessHUD,
-                        fileState: fileState,
+                        loadState: loadState,
+                        saveState: saveState,
+
                         messageBoard,
                     })
                 expect(initialMessage).toEqual(FileAccessHUDMessage.LOAD_FAILED)
                 expect(fileAccessHUD.messageDisplayStartTime).toEqual(0)
                 expectNoMessageAfterDisplayDuration(
                     dateSpy,
-                    fileState,
+                    loadState,
+                    saveState,
                     fileAccessHUD,
                     messageBoard
                 )
@@ -572,7 +604,8 @@ describe("File Access HUD", () => {
 
 const expectNoMessageAfterDisplayDuration = (
     dateSpy: MockInstance,
-    fileState: FileState,
+    loadState: LoadState,
+    saveState: SaveSaveState,
     fileAccessHUD: FileAccessHUD,
     messageBoard: MessageBoard
 ) => {
@@ -582,7 +615,8 @@ const expectNoMessageAfterDisplayDuration = (
         .mockReturnValue(layout.MESSAGE_DISPLAY_DURATION + 1)
     const noMessage: string = FileAccessHUDService.updateStatusMessage({
         fileAccessHUD: fileAccessHUD,
-        fileState: fileState,
+        loadState: loadState,
+        saveState: saveState,
         messageBoard,
     })
     expect(noMessage).toBe("")

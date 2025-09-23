@@ -11,10 +11,6 @@ import {
     BattleSquaddieUsesActionOnMap,
 } from "./battleSquaddieUsesActionOnMap"
 import { BattleStateService } from "../battleState/battleState"
-import {
-    GameEngineState,
-    GameEngineStateService,
-} from "../../gameEngine/gameEngine"
 import { OrchestratorUtilities } from "./orchestratorUtils"
 import { MockedP5GraphicsBuffer } from "../../utils/test/mocks"
 import { MessageBoardMessageType } from "../../message/messageBoardMessage"
@@ -39,6 +35,10 @@ import { BattleActionDecisionStepService } from "../actionDecision/battleActionD
 import { SummaryHUDStateService } from "../hud/summary/summaryHUD"
 import { PlayerCommandStateService } from "../hud/playerCommand/playerCommandHUD"
 import { CampaignService } from "../../campaign/campaign"
+import {
+    GameEngineState,
+    GameEngineStateService,
+} from "../../gameEngine/gameEngineState/gameEngineState"
 
 describe("BattleSquaddieUsesActionOnMap", () => {
     let squaddieRepository: ObjectRepository

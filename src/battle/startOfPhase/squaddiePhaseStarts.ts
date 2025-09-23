@@ -1,4 +1,3 @@
-import { GameEngineState } from "../../gameEngine/gameEngine"
 import { MessageBoardMessageSquaddiePhaseStarts } from "../../message/messageBoardMessage"
 import {
     BattlePhaseService,
@@ -9,6 +8,7 @@ import { BattleSquaddie, BattleSquaddieService } from "../battleSquaddie"
 import { DrawSquaddieIconOnMapUtilities } from "../animation/drawSquaddieIconOnMap/drawSquaddieIconOnMap"
 import { TerrainTileMapService } from "../../hexMap/terrainTileMap"
 import { SquaddieTurnService } from "../../squaddie/turn"
+import { GameEngineState } from "../../gameEngine/gameEngineState/gameEngineState"
 
 export const SquaddiePhaseStartsService = {
     restoreTurnForAllSquaddies: ({

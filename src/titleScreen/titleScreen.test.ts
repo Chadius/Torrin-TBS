@@ -8,13 +8,9 @@ import { ScreenDimensions } from "../utils/graphics/graphicsConfig"
 import { ResourceHandler } from "../resource/resourceHandler"
 import { RectAreaService } from "../ui/rectArea"
 import {
-    GameEngineState,
-    GameEngineStateService,
-} from "../gameEngine/gameEngine"
-import {
-    LoadSaveState,
+    LoadState,
     LoadSaveStateService,
-} from "../dataLoader/playerData/loadSaveState"
+} from "../dataLoader/playerData/loadState"
 import {
     afterEach,
     beforeEach,
@@ -31,6 +27,10 @@ import { PlayerDataMessageListener } from "../dataLoader/playerData/playerDataMe
 import { WindowService } from "../utils/graphics/window"
 import { TITLE_SCREEN_FILE_MESSAGE_DISPLAY_DURATION } from "./components/continueGameButton"
 import p5 from "p5"
+import {
+    GameEngineState,
+    GameEngineStateService,
+} from "../gameEngine/gameEngineState/gameEngineState"
 
 describe("Title Screen", () => {
     let gameEngineState: GameEngineState
@@ -128,9 +128,9 @@ describe("Title Screen", () => {
     it("will declare itself complete when the file has loaded and control returns to the title screen", async () => {
         await titleScreen.update(gameEngineState, mockedP5GraphicsContext)
         const context: TitleScreenContext = titleScreen.data.getContext()
-        LoadSaveStateService.userRequestsLoad(context!.fileState!.loadSaveState)
+        LoadSaveStateService.userRequestsLoad(context!.loadState!)
         LoadSaveStateService.applicationCompletesLoad(
-            context!.fileState!.loadSaveState,
+            context!.loadState!,
             undefined
         )
         titleScreen.data.setContext(context)
@@ -332,13 +332,11 @@ describe("Title Screen", () => {
             const tests = [
                 {
                     name: "application errors",
-                    loadSaveStateChange: (
-                        loadSaveState: LoadSaveState
-                    ): void => {
+                    loadSaveStateChange: (loadSaveState: LoadState): void => {
                         loadSaveState.applicationErroredWhileLoading = true
                     },
                     expectedSaveStateField: (
-                        loadSaveState: LoadSaveState
+                        loadSaveState: LoadState
                     ): boolean => {
                         return loadSaveState.applicationErroredWhileLoading
                     },
@@ -346,13 +344,11 @@ describe("Title Screen", () => {
                 },
                 {
                     name: "user cancels",
-                    loadSaveStateChange: (
-                        loadSaveState: LoadSaveState
-                    ): void => {
+                    loadSaveStateChange: (loadSaveState: LoadState): void => {
                         loadSaveState.userCanceledLoad = true
                     },
                     expectedSaveStateField: (
-                        loadSaveState: LoadSaveState
+                        loadSaveState: LoadState
                     ): boolean => {
                         return loadSaveState.userCanceledLoad
                     },
@@ -373,7 +369,7 @@ describe("Title Screen", () => {
                     )
                     titleScreen.update(gameEngineState, mockedP5GraphicsContext)
                     mousePressContinueButton(titleScreen, gameEngineState)
-                    loadSaveStateChange(gameEngineState.fileState.loadSaveState)
+                    loadSaveStateChange(gameEngineState.loadState)
 
                     const textSpy = vi.spyOn(
                         mockedP5GraphicsContext.mockedP5,
@@ -391,9 +387,7 @@ describe("Title Screen", () => {
                         expect.anything()
                     )
                     expect(
-                        expectedSaveStateField(
-                            gameEngineState.fileState.loadSaveState
-                        )
+                        expectedSaveStateField(gameEngineState.loadState)
                     ).toBeTruthy()
 
                     vi.spyOn(Date, "now").mockReturnValue(
@@ -410,9 +404,7 @@ describe("Title Screen", () => {
                     )
 
                     expect(
-                        expectedSaveStateField(
-                            gameEngineState.fileState.loadSaveState
-                        )
+                        expectedSaveStateField(gameEngineState.loadState)
                     ).toBeFalsy()
                 }
             )
@@ -426,7 +418,7 @@ describe("Title Screen", () => {
             )
             titleScreen.update(gameEngineState, mockedP5GraphicsContext)
             mousePressContinueButton(titleScreen, gameEngineState)
-            gameEngineState.fileState.loadSaveState.applicationErroredWhileLoading = true
+            gameEngineState.loadState.applicationErroredWhileLoading = true
 
             const textSpy = vi.spyOn(mockedP5GraphicsContext.mockedP5, "text")
             titleScreen.update(gameEngineState, mockedP5GraphicsContext)
@@ -441,8 +433,7 @@ describe("Title Screen", () => {
                 expect.anything()
             )
             expect(
-                gameEngineState.fileState.loadSaveState
-                    .applicationErroredWhileLoading
+                gameEngineState.loadState.applicationErroredWhileLoading
             ).toBeTruthy()
 
             vi.spyOn(Date, "now").mockReturnValue(
@@ -459,8 +450,7 @@ describe("Title Screen", () => {
             )
 
             expect(
-                gameEngineState.fileState.loadSaveState
-                    .applicationErroredWhileLoading
+                gameEngineState.loadState.applicationErroredWhileLoading
             ).toBeFalsy()
         })
         it("should mark as completed and recommend the battle loader", () => {

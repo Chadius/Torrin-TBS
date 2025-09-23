@@ -1,4 +1,3 @@
-import { GameEngineState } from "../../gameEngine/gameEngine"
 import { SquaddieAffiliation } from "../../squaddie/squaddieAffiliation"
 import { ObjectRepositoryService } from "../objectRepository"
 import { getResultOrThrowError } from "../../utils/resultOrError"
@@ -11,6 +10,7 @@ import { GraphicsConfig } from "../../utils/graphics/graphicsConfig"
 import { BANNER_ANIMATION_TIME } from "../orchestratorComponents/battlePhaseController"
 import { MessageBoardMessageStartedPlayerPhase } from "../../message/messageBoardMessage"
 import { MissionMapService } from "../../missionMap/missionMap"
+import { GameEngineState } from "../../gameEngine/gameEngineState/gameEngineState"
 
 export const PlayerPhaseService = {
     panToControllablePlayerSquaddieIfPlayerPhase: (

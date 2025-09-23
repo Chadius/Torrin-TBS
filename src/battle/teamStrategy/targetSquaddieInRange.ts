@@ -27,8 +27,8 @@ import {
     BattleActionDecisionStep,
     BattleActionDecisionStepService,
 } from "../actionDecision/battleActionDecisionStep"
-import { GameEngineState } from "../../gameEngine/gameEngine"
 import { BattleActionRecorderService } from "../history/battleAction/battleActionRecorder"
+import { GameEngineState } from "../../gameEngine/gameEngineState/gameEngineState"
 
 export class TargetSquaddieInRange implements TeamStrategyCalculator {
     desiredBattleSquaddieId: string | undefined

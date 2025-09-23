@@ -2,9 +2,9 @@ import {
     OrchestratorComponentKeyEvent,
     OrchestratorComponentMouseEvent,
 } from "../orchestrator/battleOrchestratorComponent"
-import { GameEngineState } from "../../gameEngine/gameEngine"
 import { GraphicsBuffer } from "../../utils/graphics/graphicsRenderer"
 import { ResourceHandler } from "../../resource/resourceHandler"
+import { GameEngineState } from "../../gameEngine/gameEngineState/gameEngineState"
 
 export interface SquaddieActionAnimator {
     hasCompleted(gameEngineState: GameEngineState): boolean

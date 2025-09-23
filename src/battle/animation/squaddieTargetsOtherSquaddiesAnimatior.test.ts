@@ -26,10 +26,6 @@ import {
 import { ActionTimer } from "./actionAnimation/actionTimer"
 import { BattleStateService } from "../battleState/battleState"
 import {
-    GameEngineState,
-    GameEngineStateService,
-} from "../../gameEngine/gameEngine"
-import {
     ActionTemplate,
     ActionTemplateService,
 } from "../../action/template/actionTemplate"
@@ -62,6 +58,10 @@ import {
     AttributeTypeService,
 } from "../../squaddie/attribute/attribute"
 import { ModifierDisplayColumnPosition } from "./modifierDisplay/modifierDisplayColumn"
+import {
+    GameEngineState,
+    GameEngineStateService,
+} from "../../gameEngine/gameEngineState/gameEngineState"
 
 describe("SquaddieTargetsOtherSquaddiesAnimation", () => {
     let objectRepository: ObjectRepository

@@ -1,6 +1,9 @@
 import { BattleSaveState } from "../../battle/history/battleSaveState"
+import { GameModeEnum, TGameMode } from "../../utils/startupConfig"
 
-export interface LoadSaveState {
+export interface LoadState {
+    modeThatInitiatedLoading: TGameMode
+    campaignIdThatWasLoaded: string | undefined
     saveState: BattleSaveState | undefined
     applicationStartedLoad: boolean
     applicationCompletedLoad: boolean
@@ -10,67 +13,45 @@ export interface LoadSaveState {
 }
 
 export const LoadSaveStateService = {
-    new: ({
-        saveState,
-        applicationStartedLoad,
-        applicationErroredWhileLoading,
-        applicationCompletedLoad,
-        userRequestedLoad,
-        userCanceledLoad,
-    }: {
-        saveState?: BattleSaveState
-        applicationStartedLoad?: boolean
-        applicationErroredWhileLoading?: boolean
-        applicationCompletedLoad?: boolean
-        userRequestedLoad?: boolean
-        userCanceledLoad?: boolean
-    }): LoadSaveState => {
-        return newLoadSaveState({
-            saveState: saveState ?? undefined,
-            applicationStartedLoad: applicationStartedLoad ?? false,
-            applicationErroredWhileLoading:
-                applicationErroredWhileLoading ?? false,
-            applicationCompletedLoad: applicationCompletedLoad ?? false,
-            userRequestedLoad: userRequestedLoad ?? false,
-            userCanceledLoad: userCanceledLoad ?? false,
-        })
+    new: (params: Partial<LoadState>): LoadState => {
+        return newLoadSaveState(params)
     },
-    userRequestsLoad: (loadSaveState: LoadSaveState): void => {
+    userRequestsLoad: (loadSaveState: LoadState): void => {
         loadSaveState.userRequestedLoad = true
         loadSaveState.applicationErroredWhileLoading = false
         loadSaveState.userCanceledLoad = false
         loadSaveState.applicationCompletedLoad = false
     },
-    applicationStartsLoad: (loadSaveState: LoadSaveState): void => {
+    applicationStartsLoad: (loadSaveState: LoadState): void => {
         loadSaveState.applicationStartedLoad = true
     },
     applicationCompletesLoad: (
-        loadSaveState: LoadSaveState,
+        loadSaveState: LoadState,
         saveSate: BattleSaveState | undefined
     ): void => {
         loadSaveState.applicationCompletedLoad = true
         loadSaveState.applicationStartedLoad = false
         loadSaveState.saveState = saveSate
     },
-    applicationErrorsWhileLoading: (loadSaveState: LoadSaveState): void => {
+    applicationErrorsWhileLoading: (loadSaveState: LoadState): void => {
         loadSaveState.applicationErroredWhileLoading = true
         loadSaveState.applicationStartedLoad = false
         loadSaveState.saveState = undefined
     },
-    userCancelsLoad: (loadSaveState: LoadSaveState): void => {
+    userCancelsLoad: (loadSaveState: LoadState): void => {
         loadSaveState.applicationStartedLoad = false
         loadSaveState.userCanceledLoad = true
         loadSaveState.userRequestedLoad = false
         loadSaveState.saveState = undefined
     },
-    reset: (loadSaveState: LoadSaveState): void => reset(loadSaveState),
-    clone: (loadFlags: LoadSaveState): LoadSaveState => {
+    reset: (loadSaveState: LoadState): void => reset(loadSaveState),
+    clone: (loadFlags: LoadState): LoadState => {
         return newLoadSaveState({
             ...loadFlags,
         })
     },
     didUserRequestLoadAndLoadHasConcluded: (
-        loadSaveState: LoadSaveState
+        loadSaveState: LoadState
     ): boolean => {
         return (
             loadSaveState.userRequestedLoad &&
@@ -78,7 +59,7 @@ export const LoadSaveStateService = {
                 !loadSaveState.applicationCompletedLoad)
         )
     },
-    userFinishesRequestingLoad: (loadSaveState: LoadSaveState) => {
+    userFinishesRequestingLoad: (loadSaveState: LoadState) => {
         loadSaveState.userRequestedLoad = false
     },
 }
@@ -90,25 +71,23 @@ const newLoadSaveState = ({
     applicationCompletedLoad,
     userRequestedLoad,
     userCanceledLoad,
-}: {
-    saveState: BattleSaveState | undefined
-    applicationStartedLoad: boolean
-    applicationErroredWhileLoading: boolean
-    applicationCompletedLoad: boolean
-    userRequestedLoad: boolean
-    userCanceledLoad: boolean
-}): LoadSaveState => {
+    campaignIdThatWasLoaded,
+    modeThatInitiatedLoading,
+}: Partial<LoadState>): LoadState => {
     return {
-        saveState,
-        applicationStartedLoad: applicationStartedLoad,
-        applicationErroredWhileLoading: applicationErroredWhileLoading,
-        applicationCompletedLoad: applicationCompletedLoad,
-        userRequestedLoad: userRequestedLoad,
-        userCanceledLoad,
+        modeThatInitiatedLoading:
+            modeThatInitiatedLoading ?? GameModeEnum.UNKNOWN,
+        campaignIdThatWasLoaded,
+        saveState: saveState,
+        applicationStartedLoad: applicationStartedLoad ?? false,
+        applicationErroredWhileLoading: applicationErroredWhileLoading ?? false,
+        applicationCompletedLoad: applicationCompletedLoad ?? false,
+        userRequestedLoad: userRequestedLoad ?? false,
+        userCanceledLoad: userCanceledLoad ?? false,
     }
 }
 
-const reset = (loadSaveState: LoadSaveState): void => {
+const reset = (loadSaveState: LoadState): void => {
     Object.assign(
         loadSaveState,
         newLoadSaveState({

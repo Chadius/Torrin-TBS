@@ -16,10 +16,6 @@ import * as mocks from "../../utils/test/mocks"
 import { MockedP5GraphicsBuffer } from "../../utils/test/mocks"
 import { SquaddieTemplate } from "../../campaign/squaddieTemplate"
 import { BattleStateService } from "../battleState/battleState"
-import {
-    GameEngineState,
-    GameEngineStateService,
-} from "../../gameEngine/gameEngine"
 import { SearchResult } from "../../hexMap/pathfinder/searchResults/searchResult"
 import { CampaignService } from "../../campaign/campaign"
 import { BattleHUDService } from "../hud/battleHUD/battleHUD"
@@ -43,6 +39,10 @@ import { SearchResultAdapterService } from "../../hexMap/pathfinder/searchResult
 import { MapSearchService } from "../../hexMap/pathfinder/pathGeneration/mapSearch"
 import { SearchLimitService } from "../../hexMap/pathfinder/pathGeneration/searchLimit"
 import { SquaddieTurnService } from "../../squaddie/turn"
+import {
+    GameEngineState,
+    GameEngineStateService,
+} from "../../gameEngine/gameEngineState/gameEngineState"
 
 describe("BattleSquaddieMover", () => {
     let objectRepository: ObjectRepository

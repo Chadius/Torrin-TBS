@@ -1,4 +1,3 @@
-import { GameEngineState } from "../../../gameEngine/gameEngine"
 import { BattleSquaddie } from "../../battleSquaddie"
 import {
     DIE_SIZE,
@@ -41,6 +40,7 @@ import { AttributeTypeAndAmount } from "../../../squaddie/attribute/attribute"
 import { NumberGeneratorStrategy } from "../../numberGenerator/strategy"
 import { BattleActionRecorder } from "../../history/battleAction/battleActionRecorder"
 import { ObjectRepository } from "../../objectRepository"
+import { GameEngineState } from "../../../gameEngine/gameEngineState/gameEngineState"
 
 export const CalculatorAttack = {
     getDegreeOfSuccess: ({

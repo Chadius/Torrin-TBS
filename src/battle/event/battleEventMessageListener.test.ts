@@ -1,9 +1,5 @@
 import { BattleOrchestratorStateService } from "../orchestrator/battleOrchestratorState"
 import { BattleStateService } from "../battleState/battleState"
-import {
-    GameEngineState,
-    GameEngineStateService,
-} from "../../gameEngine/gameEngine"
 import { DegreeOfSuccess } from "../calculator/actionCalculator/degreeOfSuccess"
 import {
     MessageBoardMessage,
@@ -57,6 +53,10 @@ import {
     ChallengeModifierSettingService,
 } from "../challengeModifier/challengeModifierSetting"
 import { ChallengeModifierEffectService } from "./eventEffect/challengeModifierEffect/challengeModifierEffect"
+import {
+    GameEngineState,
+    GameEngineStateService,
+} from "../../gameEngine/gameEngineState/gameEngineState"
 
 describe("Event Message Listener", () => {
     let gameEngineState: GameEngineState

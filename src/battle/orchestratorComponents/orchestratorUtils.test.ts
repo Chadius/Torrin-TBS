@@ -15,10 +15,6 @@ import {
     BattleOrchestratorStateService,
 } from "../orchestrator/battleOrchestratorState"
 import { BattleStateService } from "../battleState/battleState"
-import {
-    GameEngineState,
-    GameEngineStateService,
-} from "../../gameEngine/gameEngine"
 import { BattlePhaseStateService } from "./battlePhaseController"
 import { BattlePhase, TBattlePhase } from "./battlePhaseTracker"
 import {
@@ -54,6 +50,10 @@ import {
     vi,
 } from "vitest"
 import { PlayerCommandStateService } from "../hud/playerCommand/playerCommandHUD"
+import {
+    GameEngineState,
+    GameEngineStateService,
+} from "../../gameEngine/gameEngineState/gameEngineState"
 
 describe("Orchestration Utils", () => {
     let knightSquaddieTemplate: SquaddieTemplate

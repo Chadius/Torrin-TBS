@@ -4,7 +4,6 @@ import {
     OrchestratorComponentKeyEvent,
     OrchestratorComponentMouseEvent,
 } from "../orchestrator/battleOrchestratorComponent"
-import { GameEngineState } from "../../gameEngine/gameEngine"
 import { UIControlSettings } from "../orchestrator/uiControlSettings"
 import { BattleOrchestratorMode } from "../orchestrator/battleOrchestrator"
 import { BattleStateService } from "../battleState/battleState"
@@ -15,6 +14,7 @@ import { GraphicsBuffer } from "../../utils/graphics/graphicsRenderer"
 import { BattleActionService } from "../history/battleAction/battleAction"
 import { BattleActionRecorderService } from "../history/battleAction/battleActionRecorder"
 import { ResourceHandler } from "../../resource/resourceHandler"
+import { GameEngineState } from "../../gameEngine/gameEngineState/gameEngineState"
 
 export class PlayerHudController implements BattleOrchestratorComponent {
     hasCompleted(_gameEngineState: GameEngineState): boolean {

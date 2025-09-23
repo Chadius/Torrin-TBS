@@ -21,7 +21,6 @@ import { HexCoordinate } from "../../hexMap/hexCoordinate/hexCoordinate"
 import { TeamStrategy } from "../teamStrategy/teamStrategy"
 import { DetermineNextDecisionService } from "../teamStrategy/determineNextDecision"
 import { BattleStateService } from "../battleState/battleState"
-import { GameEngineState } from "../../gameEngine/gameEngine"
 import { ObjectRepositoryService } from "../objectRepository"
 import { SearchResult } from "../../hexMap/pathfinder/searchResults/searchResult"
 import { DrawSquaddieIconOnMapUtilities } from "../animation/drawSquaddieIconOnMap/drawSquaddieIconOnMap"
@@ -53,6 +52,7 @@ import { MapSearchService } from "../../hexMap/pathfinder/pathGeneration/mapSear
 import { SearchLimitService } from "../../hexMap/pathfinder/pathGeneration/searchLimit"
 import { SearchPathAdapterService } from "../../search/searchPathAdapter/searchPathAdapter"
 import { ActionTemplate } from "../../action/template/actionTemplate"
+import { GameEngineState } from "../../gameEngine/gameEngineState/gameEngineState"
 
 export const SQUADDIE_SELECTOR_PANNING_TIME = 1000
 export const SHOW_SELECTED_ACTION_TIME = 500

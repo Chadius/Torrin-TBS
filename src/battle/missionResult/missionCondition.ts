@@ -1,6 +1,6 @@
 import { MissionConditionDefeatAffiliation } from "./missionConditionDefeatAffiliation"
-import { GameEngineState } from "../../gameEngine/gameEngine"
 import { EnumLike } from "../../utils/enum"
+import { GameEngineState } from "../../gameEngine/gameEngineState/gameEngineState"
 
 export const MissionConditionType = {
     DEFEAT_ALL_ENEMIES: "DEFEAT_ALL_ENEMIES",

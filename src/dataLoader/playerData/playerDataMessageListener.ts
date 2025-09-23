@@ -3,7 +3,7 @@ import {
     MessageBoardMessage,
     MessageBoardMessageService,
 } from "../../message/messageBoardMessage"
-import { LoadSaveStateService } from "./loadSaveState"
+import { LoadSaveStateService } from "./loadState"
 
 export class PlayerDataMessageListener implements MessageBoardListener {
     messageBoardListenerId: string
@@ -18,7 +18,7 @@ export class PlayerDataMessageListener implements MessageBoardListener {
                 message
             )
         ) {
-            LoadSaveStateService.userRequestsLoad(message.loadSaveState)
+            LoadSaveStateService.userRequestsLoad(message.loadState)
             return
         }
 
@@ -27,7 +27,7 @@ export class PlayerDataMessageListener implements MessageBoardListener {
                 message
             )
         ) {
-            LoadSaveStateService.applicationStartsLoad(message.loadSaveState)
+            LoadSaveStateService.applicationStartsLoad(message.loadState)
             return
         }
 
@@ -37,7 +37,7 @@ export class PlayerDataMessageListener implements MessageBoardListener {
             )
         ) {
             LoadSaveStateService.applicationCompletesLoad(
-                message.loadSaveState,
+                message.loadState,
                 message.saveState
             )
             return
@@ -49,7 +49,7 @@ export class PlayerDataMessageListener implements MessageBoardListener {
             )
         ) {
             LoadSaveStateService.applicationErrorsWhileLoading(
-                message.loadSaveState
+                message.loadState
             )
             return
         }
@@ -59,7 +59,7 @@ export class PlayerDataMessageListener implements MessageBoardListener {
                 message
             )
         ) {
-            LoadSaveStateService.userCancelsLoad(message.loadSaveState)
+            LoadSaveStateService.userCancelsLoad(message.loadState)
             return
         }
 
@@ -68,10 +68,8 @@ export class PlayerDataMessageListener implements MessageBoardListener {
                 message
             )
         ) {
-            LoadSaveStateService.userFinishesRequestingLoad(
-                message.loadSaveState
-            )
-            LoadSaveStateService.reset(message.loadSaveState)
+            LoadSaveStateService.userFinishesRequestingLoad(message.loadState)
+            LoadSaveStateService.reset(message.loadState)
             return
         }
     }

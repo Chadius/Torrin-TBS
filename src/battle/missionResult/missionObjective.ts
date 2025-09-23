@@ -1,7 +1,8 @@
 import { MissionReward } from "./missionReward"
 import { MissionCondition, MissionShouldBeComplete } from "./missionCondition"
 import { MissionCompletionStatus } from "./missionCompletionStatus"
-import { GameEngineState } from "../../gameEngine/gameEngine"
+
+import { GameEngineState } from "../../gameEngine/gameEngineState/gameEngineState"
 
 export interface MissionObjective {
     reward: MissionReward

@@ -51,7 +51,6 @@ import {
 } from "../../../../../hexMap/hexCoordinate/hexCoordinate"
 import { DrawImagesAction } from "../../../../../ui/imageUI/drawImagesAction"
 import { DrawHorizontalMeterActionDataBlob } from "../../../horizontalBar/drawHorizontalMeterAction"
-import { GameEngineState } from "../../../../../gameEngine/gameEngine"
 import {
     BattleActionDecisionStep,
     BattleActionDecisionStepService,
@@ -70,6 +69,7 @@ import {
     UpdateActionPointsUIObjectsAction,
 } from "./uiObjects/actionPoints"
 import { ACTION_POINT_METER_FILL_COLOR } from "../../../../../ui/colors"
+import { GameEngineState } from "../../../../../gameEngine/gameEngineState/gameEngineState"
 
 export interface SquaddieStatusTile {
     data: DataBlob

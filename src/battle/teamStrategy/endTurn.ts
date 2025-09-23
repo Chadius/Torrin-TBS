@@ -8,7 +8,8 @@ import {
     BattleActionDecisionStep,
     BattleActionDecisionStepService,
 } from "../actionDecision/battleActionDecisionStep"
-import { GameEngineState } from "../../gameEngine/gameEngine"
+
+import { GameEngineState } from "../../gameEngine/gameEngineState/gameEngineState"
 
 export class EndTurnTeamStrategy implements TeamStrategyCalculator {
     DetermineNextInstruction({

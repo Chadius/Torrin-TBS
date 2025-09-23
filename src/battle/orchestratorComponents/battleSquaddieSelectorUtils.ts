@@ -8,7 +8,6 @@ import { getResultOrThrowError } from "../../utils/resultOrError"
 import { SquaddieTemplate } from "../../campaign/squaddieTemplate"
 import { SearchResult } from "../../hexMap/pathfinder/searchResults/searchResult"
 import { MapHighlightService } from "../animation/mapHighlight"
-import { GameEngineState } from "../../gameEngine/gameEngine"
 import { TerrainTileMapService } from "../../hexMap/terrainTileMap"
 import {
     MapGraphicsLayerService,
@@ -30,6 +29,7 @@ import { SearchLimitService } from "../../hexMap/pathfinder/pathGeneration/searc
 import { BattleState } from "../battleState/battleState"
 import { SquaddieTurnService } from "../../squaddie/turn"
 import { ActionEffectTemplateService } from "../../action/template/actionEffectTemplate"
+import { GameEngineState } from "../../gameEngine/gameEngineState/gameEngineState"
 
 export const BattleSquaddieSelectorService = {
     createSearchPathAndHighlightMovementPath: ({

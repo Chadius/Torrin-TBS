@@ -1,7 +1,3 @@
-import {
-    GameEngineState,
-    GameEngineStateService,
-} from "../../../gameEngine/gameEngine"
 import { BattleOrchestratorStateService } from "../../orchestrator/battleOrchestratorState"
 import { BattleStateService } from "../../battleState/battleState"
 import { BattlePhase } from "../../orchestratorComponents/battlePhaseTracker"
@@ -77,6 +73,10 @@ import { getResultOrThrowError } from "../../../utils/resultOrError"
 import { BattleActionRecorderService } from "../../history/battleAction/battleActionRecorder"
 import { BattleActionService } from "../../history/battleAction/battleAction"
 import { PlayerCommandStateService } from "../playerCommand/playerCommandHUD"
+import {
+    GameEngineState,
+    GameEngineStateService,
+} from "../../../gameEngine/gameEngineState/gameEngineState"
 
 describe("Player Decision HUD", () => {
     const differentSquaddiePopup: PopupWindow = PopupWindowService.new({

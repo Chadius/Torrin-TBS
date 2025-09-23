@@ -19,10 +19,6 @@ import {
     ActionEffectTemplateService,
     TargetBySquaddieAffiliationRelation,
 } from "../../../action/template/actionEffectTemplate"
-import {
-    GameEngineState,
-    GameEngineStateService,
-} from "../../../gameEngine/gameEngine"
 import { CampaignService } from "../../../campaign/campaign"
 import { ResourceHandler } from "../../../resource/resourceHandler"
 import {
@@ -56,6 +52,10 @@ import {
 import { TargetingResultsService } from "../../targeting/targetingService"
 import { Glossary } from "../../../campaign/glossary/glossary"
 import { PlayerInputAction } from "../../../ui/playerInput/playerInputState"
+import {
+    GameEngineState,
+    GameEngineStateService,
+} from "../../../gameEngine/gameEngineState/gameEngineState"
 
 describe("summaryHUD", () => {
     let graphicsBuffer: MockedP5GraphicsBuffer

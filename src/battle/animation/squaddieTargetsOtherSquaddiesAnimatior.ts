@@ -23,7 +23,6 @@ import { SquaddieActionAnimator } from "./squaddieActionAnimator"
 import { ScreenDimensions } from "../../utils/graphics/graphicsConfig"
 import { RectAreaService } from "../../ui/rectArea"
 import { ObjectRepository, ObjectRepositoryService } from "../objectRepository"
-import { GameEngineState } from "../../gameEngine/gameEngine"
 import { ActionEffectTemplate } from "../../action/template/actionEffectTemplate"
 import { GraphicsBuffer } from "../../utils/graphics/graphicsRenderer"
 import { BattleActionSquaddieChange } from "../history/battleAction/battleActionSquaddieChange"
@@ -60,6 +59,7 @@ import {
     Trait,
     TraitStatusStorageService,
 } from "../../trait/traitStatusStorage"
+import { GameEngineState } from "../../gameEngine/gameEngineState/gameEngineState"
 
 const Layout = {
     diceRollAnimationLayout: {

@@ -12,8 +12,8 @@ import { getResultOrThrowError } from "../../utils/resultOrError"
 import { SquaddieService } from "../../squaddie/squaddieService"
 import { MissionMapSquaddieCoordinate } from "../../missionMap/squaddieCoordinate"
 import { ObjectRepositoryService } from "../objectRepository"
-import { GameEngineState } from "../../gameEngine/gameEngine"
 import { MissionMapService } from "../../missionMap/missionMap"
+import { GameEngineState } from "../../gameEngine/gameEngineState/gameEngineState"
 
 export class MissionConditionDefeatAffiliation
     implements MissionConditionCalculator

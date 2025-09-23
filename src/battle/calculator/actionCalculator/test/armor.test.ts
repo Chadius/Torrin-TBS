@@ -5,10 +5,6 @@ import {
     ActionTemplateService,
 } from "../../../../action/template/actionTemplate"
 import {
-    GameEngineState,
-    GameEngineStateService,
-} from "../../../../gameEngine/gameEngine"
-import {
     MissionMap,
     MissionMapService,
 } from "../../../../missionMap/missionMap"
@@ -49,6 +45,10 @@ import { beforeEach, describe, expect, it } from "vitest"
 import { Attribute } from "../../../../squaddie/attribute/attribute"
 import { MissionStatisticsService } from "../../../missionStatistics/missionStatistics"
 import { ChallengeModifierSettingService } from "../../../challengeModifier/challengeModifierSetting"
+import {
+    GameEngineState,
+    GameEngineStateService,
+} from "../../../../gameEngine/gameEngineState/gameEngineState"
 
 describe("Armor Attribute affects Armor Attacks", () => {
     let actingSquaddie: BattleSquaddie

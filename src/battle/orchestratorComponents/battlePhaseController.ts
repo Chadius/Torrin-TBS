@@ -19,7 +19,6 @@ import {
     BattleSquaddieTeamService,
 } from "../battleSquaddieTeam"
 import { BattleStateService } from "../battleState/battleState"
-import { GameEngineState } from "../../gameEngine/gameEngine"
 import { ObjectRepository } from "../objectRepository"
 import { MessageBoardMessageType } from "../../message/messageBoardMessage"
 import p5 from "p5"
@@ -27,6 +26,7 @@ import { GraphicsBuffer } from "../../utils/graphics/graphicsRenderer"
 import { TerrainTileMapService } from "../../hexMap/terrainTileMap"
 import { ResourceHandler } from "../../resource/resourceHandler"
 import { ImageUI, ImageUILoadingBehavior } from "../../ui/imageUI/imageUI"
+import { GameEngineState } from "../../gameEngine/gameEngineState/gameEngineState"
 
 export const BANNER_ANIMATION_TIME = 2000
 

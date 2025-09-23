@@ -29,10 +29,6 @@ import { InBattleAttributesService } from "../stats/inBattleAttributes"
 import { SquaddieTurnService } from "../../squaddie/turn"
 import { BattleStateService } from "../battleState/battleState"
 import {
-    GameEngineState,
-    GameEngineStateService,
-} from "../../gameEngine/gameEngine"
-import {
     ActionTemplate,
     ActionTemplateService,
 } from "../../action/template/actionTemplate"
@@ -71,6 +67,10 @@ import {
 import { BattleHUDListener } from "../hud/battleHUD/battleHUDListener"
 import { BattleActionActorContextService } from "../history/battleAction/battleActionActorContext"
 import { RollResultService } from "../calculator/actionCalculator/rollResult"
+import {
+    GameEngineState,
+    GameEngineStateService,
+} from "../../gameEngine/gameEngineState/gameEngineState"
 
 describe("BattleSquaddieUsesActionOnSquaddie", () => {
     let objectRepository: ObjectRepository
