@@ -4,6 +4,10 @@ import { Rectangle, RectangleService } from "../../../ui/rectangle/rectangle"
 import { ACTION_ANIMATION_TARGET_REACTS_TO_ACTION_TIME } from "./actionAnimationConstants"
 import { WINDOW_SPACING } from "../../../ui/constants"
 import { GraphicsBuffer } from "../../../utils/graphics/graphicsRenderer"
+import {
+    CurveInterpolation,
+    CurveInterpolationService,
+} from "../../../../gitSubmodules/CurveInterpolation/src/curveInterpolation"
 
 export const HIT_POINT_METER_HP_WIDTH = 20
 const HIT_POINT_METER_HEIGHT = 20
@@ -15,10 +19,11 @@ export class HitPointMeter {
     private maxHitPointsTextBox: TextBox | undefined
     private currentHitPointsRectangle: Rectangle | undefined
     private maxHitPointsRectangle: Rectangle | undefined
-    private changedHitPointsRectangle: Rectangle | undefined
+    changedHitPointsRectangle: Rectangle | undefined
     private changedHitPointsRectangleStartWidth: number | undefined
     private changedHitPointsRectangleEndWidth: number | undefined
     private changedHitPointsTimestamp: number | undefined
+    changedHitPointsFormula: CurveInterpolation | undefined
 
     constructor({
         maxHitPoints,
@@ -92,6 +97,14 @@ export class HitPointMeter {
         this.createCurrentHitPointRect(displayedHitPointsAtStartOfChange)
 
         this.createChangedHitPointRect(hitPointChange)
+        this.changedHitPointsFormula =
+            this.changedHitPointsRectangleEndWidth != undefined &&
+            this.changedHitPointsRectangleStartWidth != undefined
+                ? createChangedHitPointsFormula(
+                      this.changedHitPointsRectangleStartWidth,
+                      this.changedHitPointsRectangleEndWidth
+                  )
+                : undefined
         this.changedHitPointsTimestamp = Date.now()
     }
 
@@ -229,28 +242,13 @@ export class HitPointMeter {
         )
             return
         const timeElapsed = Date.now() - this.changedHitPointsTimestamp
-        if (timeElapsed > ACTION_ANIMATION_TARGET_REACTS_TO_ACTION_TIME) {
-            this.changedHitPointsRectangle = RectangleService.new({
-                area: RectAreaService.new({
-                    left: this.changedHitPointsRectangle.area.left,
-                    top: this.changedHitPointsRectangle.area.top,
-                    height: this.changedHitPointsRectangle.area.height,
-                    width: this.changedHitPointsRectangleEndWidth,
-                }),
-                fillColor: this.getColorsBasedOnHue().changed.fillColor,
-                noStroke: true,
-            })
-            return
-        }
-
-        const changeDistance =
-            this.changedHitPointsRectangleEndWidth -
-            this.changedHitPointsRectangleStartWidth
-
         const changedHitPointsRectangleCurrentWidth =
-            (timeElapsed * changeDistance) /
-                ACTION_ANIMATION_TARGET_REACTS_TO_ACTION_TIME +
-            this.changedHitPointsRectangleStartWidth
+            this.changedHitPointsFormula != undefined
+                ? CurveInterpolationService.calculate(
+                      this.changedHitPointsFormula,
+                      timeElapsed
+                  )
+                : this.changedHitPointsRectangleStartWidth
 
         this.changedHitPointsRectangle = RectangleService.new({
             area: RectAreaService.new({
@@ -279,4 +277,28 @@ export class HitPointMeter {
             },
         }
     }
+}
+
+const createChangedHitPointsFormula = (
+    changedHitPointsRectangleStartWidth: number,
+    changedHitPointsRectangleEndWidth: number
+): CurveInterpolation => {
+    const widthChange =
+        changedHitPointsRectangleEndWidth - changedHitPointsRectangleStartWidth
+
+    return CurveInterpolationService.new({
+        startPoint: [0, changedHitPointsRectangleStartWidth],
+        endPoint: [
+            ACTION_ANIMATION_TARGET_REACTS_TO_ACTION_TIME,
+            changedHitPointsRectangleEndWidth,
+        ],
+        easeIn: {
+            time: ACTION_ANIMATION_TARGET_REACTS_TO_ACTION_TIME * 0.2,
+            distance: Math.abs(widthChange * 0.1),
+        },
+        easeOut: {
+            time: ACTION_ANIMATION_TARGET_REACTS_TO_ACTION_TIME * 0.2,
+            distance: Math.abs(widthChange * 0.1),
+        },
+    })
 }

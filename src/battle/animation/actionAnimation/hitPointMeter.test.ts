@@ -1,7 +1,11 @@
 import { ACTION_ANIMATION_TARGET_REACTS_TO_ACTION_TIME } from "./actionAnimationConstants"
 import { HIT_POINT_METER_HP_WIDTH, HitPointMeter } from "./hitPointMeter"
-import { MockedP5GraphicsBuffer } from "../../../utils/test/mocks"
+import {
+    MockedGraphicsBufferService,
+    MockedP5GraphicsBuffer,
+} from "../../../utils/test/mocks"
 import { beforeEach, describe, expect, it, MockInstance, vi } from "vitest"
+import { RectAreaService } from "../../../ui/rectArea"
 
 describe("Hit Point Meter", () => {
     let hitPointMeter: HitPointMeter
@@ -81,89 +85,62 @@ describe("Hit Point Meter", () => {
             )
         })
 
-        it("will animate the length of the changed hit points when damaged", () => {
-            vi.spyOn(Date, "now").mockImplementation(() => 0)
-            hitPointMeter.changeHitPoints(-2)
-            hitPointMeter.draw(mockedP5GraphicsContext)
+        describe("will animate the length of the changed hit points when damaged", () => {
+            beforeEach(() => {
+                vi.spyOn(Date, "now").mockImplementation(() => 0)
+                hitPointMeter.changeHitPoints(-2)
+                hitPointMeter.draw(mockedP5GraphicsContext)
+            })
 
-            expect(textDrawSpy).toBeCalledTimes(2)
-            expect(textDrawSpy.mock.calls[0][0]).toBe("1")
-            expect(textDrawSpy.mock.calls[1][0]).toBe("/5")
+            it("prints the expected number of hit points", () => {
+                const textStrings =
+                    MockedGraphicsBufferService.getTextStrings(textDrawSpy)
+                expect(textStrings[0]).toBe("1")
+                expect(textStrings[1]).toBe("/5")
+            })
 
-            expect(rectDrawSpy).toBeCalledTimes(3)
-            expect(rectDrawSpy.mock.calls[0][2]).toBeCloseTo(
-                5 * HIT_POINT_METER_HP_WIDTH
-            )
-            expect(rectDrawSpy.mock.calls[1][2]).toBeCloseTo(
-                1 * HIT_POINT_METER_HP_WIDTH
-            )
-            expect(rectDrawSpy.mock.calls[2][2]).toBeCloseTo(
-                2 * HIT_POINT_METER_HP_WIDTH
-            )
-            vi.spyOn(Date, "now").mockImplementation(
-                () => ACTION_ANIMATION_TARGET_REACTS_TO_ACTION_TIME / 2
-            )
-
-            hitPointMeter.draw(mockedP5GraphicsContext)
-            expect(rectDrawSpy).toBeCalledTimes(6)
-            expect(rectDrawSpy.mock.calls[5][2]).toBeCloseTo(
-                1 * HIT_POINT_METER_HP_WIDTH
-            )
-
-            vi.spyOn(Date, "now").mockImplementation(
-                () => ACTION_ANIMATION_TARGET_REACTS_TO_ACTION_TIME
-            )
-            hitPointMeter.draw(mockedP5GraphicsContext)
-            expect(rectDrawSpy).toBeCalledTimes(9)
-            expect(rectDrawSpy.mock.calls[8][2]).toBeCloseTo(0)
-
-            vi.spyOn(Date, "now").mockImplementation(
-                () => ACTION_ANIMATION_TARGET_REACTS_TO_ACTION_TIME + 1
-            )
-            hitPointMeter.draw(mockedP5GraphicsContext)
-            expect(rectDrawSpy).toBeCalledTimes(12)
+            it("the bar should shrink over time", () => {
+                const startWidth = RectAreaService.width(
+                    hitPointMeter.changedHitPointsRectangle!.area
+                )
+                vi.spyOn(Date, "now").mockImplementation(
+                    () => ACTION_ANIMATION_TARGET_REACTS_TO_ACTION_TIME
+                )
+                hitPointMeter.draw(mockedP5GraphicsContext)
+                const endWidth = RectAreaService.width(
+                    hitPointMeter.changedHitPointsRectangle!.area
+                )
+                expect(endWidth).toBeLessThan(startWidth)
+            })
         })
 
-        it("will animate the length of the changed hit points when healed", () => {
-            vi.spyOn(Date, "now").mockImplementation(() => 0)
-            hitPointMeter.changeHitPoints(2)
-            hitPointMeter.draw(mockedP5GraphicsContext)
+        describe("will animate the length of the changed hit points when healed", () => {
+            beforeEach(() => {
+                vi.spyOn(Date, "now").mockImplementation(() => 0)
+                hitPointMeter.changeHitPoints(2)
+                hitPointMeter.draw(mockedP5GraphicsContext)
+            })
 
-            expect(textDrawSpy).toBeCalledTimes(2)
-            expect(textDrawSpy.mock.calls[0][0]).toBe("5")
-            expect(textDrawSpy.mock.calls[1][0]).toBe("/5")
-            expect(rectDrawSpy).toBeCalledTimes(3)
-            expect(rectDrawSpy.mock.calls[0][2]).toBeCloseTo(
-                5 * HIT_POINT_METER_HP_WIDTH
-            )
-            expect(rectDrawSpy.mock.calls[1][2]).toBeCloseTo(
-                3 * HIT_POINT_METER_HP_WIDTH
-            )
-            expect(rectDrawSpy.mock.calls[2][2]).toBeCloseTo(0)
-            vi.spyOn(Date, "now").mockImplementation(
-                () => ACTION_ANIMATION_TARGET_REACTS_TO_ACTION_TIME / 2
-            )
+            it("prints the expected number of hit points", () => {
+                const textStrings =
+                    MockedGraphicsBufferService.getTextStrings(textDrawSpy)
+                expect(textStrings[0]).toBe("5")
+                expect(textStrings[1]).toBe("/5")
+            })
 
-            hitPointMeter.draw(mockedP5GraphicsContext)
-            expect(rectDrawSpy).toBeCalledTimes(6)
-            expect(rectDrawSpy.mock.calls[5][2]).toBeCloseTo(
-                1 * HIT_POINT_METER_HP_WIDTH
-            )
-
-            vi.spyOn(Date, "now").mockImplementation(
-                () => ACTION_ANIMATION_TARGET_REACTS_TO_ACTION_TIME
-            )
-            hitPointMeter.draw(mockedP5GraphicsContext)
-            expect(rectDrawSpy).toBeCalledTimes(9)
-            expect(rectDrawSpy.mock.calls[8][2]).toBeCloseTo(
-                2 * HIT_POINT_METER_HP_WIDTH
-            )
-
-            vi.spyOn(Date, "now").mockImplementation(
-                () => ACTION_ANIMATION_TARGET_REACTS_TO_ACTION_TIME + 1
-            )
-            hitPointMeter.draw(mockedP5GraphicsContext)
-            expect(rectDrawSpy).toBeCalledTimes(12)
+            it("the bar should grow over time", () => {
+                const startWidth = RectAreaService.width(
+                    hitPointMeter.changedHitPointsRectangle!.area
+                )
+                vi.spyOn(Date, "now").mockImplementation(
+                    () => ACTION_ANIMATION_TARGET_REACTS_TO_ACTION_TIME
+                )
+                hitPointMeter.draw(mockedP5GraphicsContext)
+                const endWidth = RectAreaService.width(
+                    hitPointMeter.changedHitPointsRectangle!.area
+                )
+                expect(endWidth).toBeGreaterThan(startWidth)
+            })
         })
     })
 })

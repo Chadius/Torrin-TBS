@@ -296,4 +296,6 @@ export const MockedGraphicsBufferService = {
             spy.mockRestore()
         })
     },
+    getTextStrings: (textSpy: MockInstance) =>
+        textSpy.mock.calls.map((call) => call[0] as string),
 }
