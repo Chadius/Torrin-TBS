@@ -16,20 +16,20 @@ import { ResourceHandler } from "../../resource/resourceHandler"
 import { GameEngineState } from "../../gameEngine/gameEngineState/gameEngineState"
 
 export class InitializeBattle implements BattleOrchestratorComponent {
-    hasCompleted(state: GameEngineState): boolean {
+    hasCompleted(_: GameEngineState): boolean {
         return true
     }
 
     keyEventHappened(
-        state: GameEngineState,
-        event: OrchestratorComponentKeyEvent
+        _state: GameEngineState,
+        _event: OrchestratorComponentKeyEvent
     ): void {
         // Required by inheritance
     }
 
     mouseEventHappened(
-        state: GameEngineState,
-        event: OrchestratorComponentMouseEvent
+        _state: GameEngineState,
+        _event: OrchestratorComponentMouseEvent
     ): void {
         // Required by inheritance
     }

@@ -1,8 +1,7 @@
 import p5 from "p5"
 import { ResourceHandler } from "../../resource/resourceHandler"
-import { StubImmediateLoader } from "../../resource/resourceHandlerTestUtils"
 import { GraphicsBuffer } from "../graphics/graphicsRenderer"
-import { Mocked, MockInstance, vi } from "vitest"
+import { MockInstance, vi } from "vitest"
 
 vi.mock("p5", () => {
     return {
@@ -52,12 +51,9 @@ export const mockedP5 = () => {
 }
 
 export const mockResourceHandler = (graphics: GraphicsBuffer) => {
-    const handler = new (<new (options: any) => ResourceHandler>(
-        ResourceHandler
-    ))({
-        imageLoader: new StubImmediateLoader(graphics),
-    }) as Mocked<ResourceHandler>
-
+    const handler = new ResourceHandler({
+        resourceLocators: [],
+    })
     handler.loadResources = vi.fn()
     handler.getResource = vi.fn().mockReturnValue(graphics.createImage(32, 32))
     handler.isResourceLoaded = vi.fn().mockReturnValue(true)

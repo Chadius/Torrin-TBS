@@ -7,6 +7,7 @@ import {
     HexCoordinate,
     HexCoordinateService,
 } from "../../hexCoordinate/hexCoordinate"
+import { EnumLike } from "../../../utils/enum"
 
 export interface SearchResultsCache {
     squaddieAllMovement: {
@@ -16,9 +17,11 @@ export interface SearchResultsCache {
     }
 }
 
-enum SearchResultsCacheType {
-    SQUADDIE_ALL_MOVEMENT = "SQUADDIE_ALL_MOVEMENT",
-}
+const SearchResultsCacheType = {
+    SQUADDIE_ALL_MOVEMENT: "SQUADDIE_ALL_MOVEMENT",
+} as const satisfies Record<string, string>
+
+type TSearchResultsCacheType = EnumLike<typeof SearchResultsCacheType>
 
 export const SearchResultsCacheService = {
     new: (): SearchResultsCache => {
@@ -138,7 +141,7 @@ const storeSearchResultsInCache = ({
     searchResult,
 }: {
     searchResultsCache: SearchResultsCache
-    type: SearchResultsCacheType
+    type: TSearchResultsCacheType
     primaryKey: string
     secondaryKey: string
     searchResult: SearchResult
@@ -155,7 +158,7 @@ const hasSearchResultInCache = ({
     secondaryKey,
 }: {
     searchResultsCache: SearchResultsCache
-    type: SearchResultsCacheType
+    type: TSearchResultsCacheType
     primaryKey: string
     secondaryKey?: string
 }): boolean => {
@@ -179,7 +182,7 @@ const findSearchResultInCache = ({
     secondaryKey,
 }: {
     searchResultsCache: SearchResultsCache
-    type: SearchResultsCacheType
+    type: TSearchResultsCacheType
     primaryKey: string
     secondaryKey?: string
 }): SearchResult | undefined => {

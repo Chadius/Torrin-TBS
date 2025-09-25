@@ -282,7 +282,6 @@ describe("movement calculator", () => {
         let gameEngineState: GameEngineState
         let player0: BattleSquaddie
         let player1: BattleSquaddie
-        let enemy0: BattleSquaddie
         beforeEach(() => {
             const objectRepository = ObjectRepositoryService.new()
             const missionMap = MissionMapService.new({
@@ -341,12 +340,6 @@ describe("movement calculator", () => {
                 ObjectRepositoryService.getSquaddieByBattleId(
                     objectRepository,
                     "player1"
-                )
-            ))
-            ;({ battleSquaddie: enemy0 } = getResultOrThrowError(
-                ObjectRepositoryService.getSquaddieByBattleId(
-                    objectRepository,
-                    "enemy0"
                 )
             ))
 

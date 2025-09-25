@@ -33,7 +33,7 @@ export class SquaddieSkipsAnimationAnimator implements SquaddieActionAnimator {
     }
 
     mouseEventHappened(
-        state: GameEngineState,
+        _: GameEngineState,
         mouseEvent: OrchestratorComponentMouseEvent
     ): void {
         if (
@@ -44,7 +44,7 @@ export class SquaddieSkipsAnimationAnimator implements SquaddieActionAnimator {
     }
 
     keyEventHappened(
-        gameEngineState: GameEngineState,
+        _: GameEngineState,
         keyEvent: OrchestratorComponentKeyEvent
     ): void {
         if (keyEvent.eventType === OrchestratorComponentKeyEventType.PRESSED) {
@@ -65,14 +65,13 @@ export class SquaddieSkipsAnimationAnimator implements SquaddieActionAnimator {
         })
     }
 
-    start(state: GameEngineState): void {
+    start(_: GameEngineState): void {
         this.maybeInitializeAnimationTimer()
     }
 
     update({
         gameEngineState,
         graphicsContext,
-        resourceHandler,
     }: {
         gameEngineState: GameEngineState
         graphicsContext: GraphicsBuffer

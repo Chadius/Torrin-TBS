@@ -129,7 +129,7 @@ export const SquaddieSelectorPanelButtonService = {
             },
         })
 
-        return <SquaddieSelectorPanelButton>{
+        return {
             data: data.data,
         }
     },

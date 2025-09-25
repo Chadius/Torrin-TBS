@@ -17,7 +17,7 @@ export class NonSequentialSelectorComposite implements BehaviorTreeTask {
 
         const randomIndexOrder: number[] = Array.from(
             new Array(this.children.length),
-            (x, i) => i
+            (_, i) => i
         ).sort(() => Math.random() - 0.5)
         return randomIndexOrder.some((i) => {
             if (this.children == undefined) return false

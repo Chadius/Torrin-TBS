@@ -17,8 +17,8 @@ describe("Mission Objective", () => {
         vi.spyOn(mc, "MissionShouldBeComplete").mockImplementation(
             (
                 missionCondition: MissionCondition,
-                state: GameEngineState,
-                _: string
+                _g: GameEngineState,
+                _s: string
             ): boolean => {
                 return stubReturnValues[missionCondition.id] ?? false
             }

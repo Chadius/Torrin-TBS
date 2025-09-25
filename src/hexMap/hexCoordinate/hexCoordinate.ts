@@ -101,7 +101,7 @@ const createNewNeighboringCoordinates = (
 
 const moveCoordinatesInOneDirection = (
     mapCoordinate: HexCoordinate,
-    direction: HexDirection
+    direction: THexDirection
 ): HexCoordinate => {
     switch (direction) {
         case HexDirection.RIGHT:
@@ -122,12 +122,14 @@ const moveCoordinatesInOneDirection = (
     }
 }
 
-enum HexDirection {
-    ORIGIN,
-    RIGHT,
-    LEFT,
-    UP_LEFT,
-    UP_RIGHT,
-    DOWN_LEFT,
-    DOWN_RIGHT,
-}
+const HexDirection = {
+    ORIGIN: "ORIGIN",
+    RIGHT: "RIGHT",
+    LEFT: "LEFT",
+    UP_LEFT: "UP_LEFT",
+    UP_RIGHT: "UP_RIGHT",
+    DOWN_LEFT: "DOWN_LEFT",
+    DOWN_RIGHT: "DOWN_RIGHT",
+} as const satisfies Record<string, string>
+
+type THexDirection = EnumLike<typeof HexDirection>

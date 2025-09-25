@@ -40,7 +40,7 @@ export class DefaultSquaddieActionAnimator implements SquaddieActionAnimator {
         })
     }
 
-    start(state: GameEngineState): void {
+    start(_: GameEngineState): void {
         // Required by inheritance
     }
 

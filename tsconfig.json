@@ -12,7 +12,12 @@
         "esModuleInterop": true,
         "sourceMap": true,
         "jsx": "react",
-        "strict": true
+        "strict": true,
+        "noUnusedLocals": true,
+        "noUnusedParameters": true,
+        "erasableSyntaxOnly": true,
+        "noFallthroughCasesInSwitch": true,
+        "noUncheckedSideEffectImports": true
     },
     "include": ["src/**/*"],
     "exclude": ["node_modules", "node_modules/**/*", "dist", "public"]
