@@ -13,10 +13,6 @@ import {
     ObjectRepositoryService,
 } from "../../objectRepository"
 import { HORIZONTAL_ALIGN, VERTICAL_ALIGN } from "../../../ui/constants"
-import {
-    getSquaddiePositionAlongPath,
-    TIME_TO_MOVE,
-} from "../squaddieMoveAnimationUtils"
 import { SquaddieService } from "../../../squaddie/squaddieService"
 import { GraphicsBuffer } from "../../../utils/graphics/graphicsRenderer"
 import { SquaddieTemplate } from "../../../campaign/squaddieTemplate"
@@ -34,10 +30,6 @@ import { ImageUI } from "../../../ui/imageUI/imageUI"
 import { ResourceHandler } from "../../../resource/resourceHandler"
 import { ScreenLocation } from "../../../utils/mouseConfig"
 import {
-    SearchPathAdapter,
-    SearchPathAdapterService,
-} from "../../../search/searchPathAdapter/searchPathAdapter"
-import {
     PULSE_COLOR_FORMULA,
     PULSE_COLOR_FORMULA_TYPE,
     PulseColor,
@@ -46,6 +38,10 @@ import {
 import { SearchResultsCache } from "../../../hexMap/pathfinder/searchResults/searchResultsCache"
 import { HIGHLIGHT_PULSE_COLOR } from "../../../hexMap/hexDrawingUtils"
 import { ActionTemplateService } from "../../../action/template/actionTemplate"
+import {
+    SquaddieMoveOnMapAnimation,
+    SquaddieMoveOnMapAnimationService,
+} from "../squaddieMoveOnMap/squaddieMoveOnMapAnimation"
 
 interface DrawSquaddieIconOnMapLayout {
     ActionPointsBarColors: {
@@ -264,15 +260,6 @@ export const DRAW_SQUADDIE_ICON_ON_MAP_LAYOUT: DrawSquaddieIconOnMapLayout = {
 }
 
 export const DrawSquaddieIconOnMapUtilities = {
-    hasMovementAnimationFinished: (
-        timeMovementStarted: number,
-        squaddieMovePath: SearchPathAdapter
-    ) => {
-        return hasMovementAnimationFinished(
-            timeMovementStarted,
-            squaddieMovePath
-        )
-    },
     tintSquaddieMapIconWhenTheyCannotAct: ({
         repository,
         battleSquaddieId,
@@ -411,27 +398,6 @@ export const DrawSquaddieIconOnMapUtilities = {
             resourceHandler
         )
     },
-    moveSquaddieAlongPath: ({
-        squaddieRepository,
-        battleSquaddie,
-        timeMovementStarted,
-        squaddieMovePath,
-        camera,
-    }: {
-        squaddieRepository: ObjectRepository
-        battleSquaddie: BattleSquaddie
-        timeMovementStarted: number
-        squaddieMovePath: SearchPathAdapter
-        camera: BattleCamera
-    }) => {
-        return moveSquaddieAlongPath(
-            squaddieRepository,
-            battleSquaddie,
-            timeMovementStarted,
-            squaddieMovePath,
-            camera
-        )
-    },
     unTintSquaddieMapIcon: (
         repository: ObjectRepository,
         battleSquaddie: BattleSquaddie
@@ -503,6 +469,36 @@ export const DrawSquaddieIconOnMapUtilities = {
         return ActionTemplateService.doesItTargetFoesFirst(actionTemplate)
             ? DRAW_SQUADDIE_ICON_ON_MAP_LAYOUT.targetFoeSquaddie
             : DRAW_SQUADDIE_ICON_ON_MAP_LAYOUT.targetOtherSquaddie
+    },
+    moveSquaddieOnMap: ({
+        repository,
+        squaddieMoveOnMapAnimations,
+    }: {
+        repository: ObjectRepository
+        squaddieMoveOnMapAnimations: {
+            [_: string]: SquaddieMoveOnMapAnimation
+        }
+    }) => {
+        Object.entries(squaddieMoveOnMapAnimations).forEach(
+            ([battleSquaddieId, squaddieMoveOnMapAnimation]) => {
+                SquaddieMoveOnMapAnimationService.update(
+                    squaddieMoveOnMapAnimation
+                )
+
+                const mapIcon =
+                    ObjectRepositoryService.getImageUIByBattleSquaddieId({
+                        repository,
+                        battleSquaddieId: battleSquaddieId,
+                    })
+                setImageToLocation({
+                    mapIcon,
+                    screenLocation:
+                        SquaddieMoveOnMapAnimationService.getScreenSquaddieScreenLocation(
+                            squaddieMoveOnMapAnimation
+                        ),
+                })
+            }
+        )
     },
 }
 
@@ -779,52 +775,6 @@ const updateSquaddieIconLocation = (
     })
 
     setImageToLocation({ mapIcon, screenLocation: { x, y } })
-}
-
-const hasMovementAnimationFinished = (
-    timeMovementStarted: number,
-    squaddieMovePath: SearchPathAdapter
-) => {
-    if (squaddieMovePath == undefined) {
-        return true
-    }
-
-    if (
-        (SearchPathAdapterService.getNumberOfCoordinates(squaddieMovePath) ??
-            0) <= 1
-    ) {
-        return true
-    }
-
-    if (timeMovementStarted === undefined) {
-        return true
-    }
-
-    const timePassed = Date.now() - timeMovementStarted
-    return timePassed >= TIME_TO_MOVE
-}
-
-export const moveSquaddieAlongPath = (
-    squaddieRepository: ObjectRepository,
-    battleSquaddie: BattleSquaddie,
-    timeMovementStarted: number,
-    squaddieMovePath: SearchPathAdapter,
-    camera: BattleCamera
-) => {
-    const timePassed = Date.now() - timeMovementStarted
-    const { x, y } = getSquaddiePositionAlongPath(
-        SearchPathAdapterService.getCoordinates(squaddieMovePath),
-        timePassed,
-        TIME_TO_MOVE,
-        camera
-    )
-    const mapIcon = ObjectRepositoryService.getImageUIByBattleSquaddieId({
-        repository: squaddieRepository,
-        battleSquaddieId: battleSquaddie.battleSquaddieId,
-    })
-    if (mapIcon) {
-        setImageToLocation({ mapIcon, screenLocation: { x, y } })
-    }
 }
 
 const highlightPlayableSquaddieReachIfTheyCanAct = ({

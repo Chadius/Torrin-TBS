@@ -11,7 +11,6 @@ import {
 import { BattleSquaddieMover } from "./battleSquaddieMover"
 import { MissionMap, MissionMapService } from "../../missionMap/missionMap"
 import { TerrainTileMapService } from "../../hexMap/terrainTileMap"
-import { TIME_TO_MOVE } from "../animation/squaddieMoveAnimationUtils"
 import * as mocks from "../../utils/test/mocks"
 import { MockedP5GraphicsBuffer } from "../../utils/test/mocks"
 import { SquaddieTemplate } from "../../campaign/squaddieTemplate"
@@ -112,7 +111,8 @@ describe("BattleSquaddieMover", () => {
         })
         expect(mover.hasCompleted(gameEngineState)).toBeFalsy()
 
-        vi.spyOn(Date, "now").mockImplementation(() => 1 + TIME_TO_MOVE)
+        const timeToMove = calculateMovementTimeForAllAnimations(mover)
+        vi.spyOn(Date, "now").mockImplementation(() => 1 + timeToMove)
         mover.update({
             gameEngineState,
             graphicsContext: mockedP5GraphicsContext,
@@ -120,7 +120,7 @@ describe("BattleSquaddieMover", () => {
         })
         expect(mover.hasCompleted(gameEngineState)).toBeTruthy()
         mover.reset(gameEngineState)
-        expect(mover.animationStartTime).toBeUndefined()
+        expect(mover.startedAnimation).toBeFalsy()
     })
 
     it("is complete immediately if the squaddie is not player controlled and its entire path is offscreen", () => {
@@ -171,7 +171,8 @@ describe("BattleSquaddieMover", () => {
             resourceHandler: gameEngineState.resourceHandler!,
         })
 
-        vi.spyOn(Date, "now").mockImplementation(() => 1 + TIME_TO_MOVE)
+        const timeToMove = calculateMovementTimeForAllAnimations(mover)
+        vi.spyOn(Date, "now").mockImplementation(() => 1 + timeToMove)
         mover.update({
             gameEngineState,
             graphicsContext: mockedP5GraphicsContext,
@@ -289,7 +290,8 @@ describe("BattleSquaddieMover", () => {
                     graphicsContext: mockedP5GraphicsContext,
                     resourceHandler: gameEngineState.resourceHandler!,
                 })
-                vi.spyOn(Date, "now").mockImplementation(() => 1 + TIME_TO_MOVE)
+                const timeToMove = calculateMovementTimeForAllAnimations(mover)
+                vi.spyOn(Date, "now").mockImplementation(() => 1 + timeToMove)
                 mover.update({
                     gameEngineState,
                     graphicsContext: mockedP5GraphicsContext,
@@ -385,4 +387,18 @@ const moveSquaddieAndGetGameEngineState = ({
         })
     )
     return gameEngineState
+}
+
+const calculateMovementTimeForAllAnimations = (
+    mover: BattleSquaddieMover
+): number => {
+    if (Object.keys(mover.squaddieMoveOnMapAnimations).length < 1) {
+        throw new Error("mover.squaddieMoveOnMapAnimations must be more than 1")
+    }
+
+    return Math.max(
+        ...Object.values(mover.squaddieMoveOnMapAnimations).map(
+            (animation) => animation.animationDuration
+        )
+    )
 }
