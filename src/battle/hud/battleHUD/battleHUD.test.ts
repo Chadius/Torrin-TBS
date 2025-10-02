@@ -125,6 +125,7 @@ import {
     GameEngineState,
     GameEngineStateService,
 } from "../../../gameEngine/gameEngineState/gameEngineState"
+import { MapSearchTestUtils } from "../../../hexMap/pathfinder/pathGeneration/mapSearchTests/mapSearchTestUtils"
 
 describe("Battle HUD", () => {
     let mockP5GraphicsContext: MockedP5GraphicsBuffer
@@ -361,7 +362,14 @@ describe("Battle HUD", () => {
             )
             messageBoard.sendMessage({
                 type: MessageBoardMessageType.STARTED_PLAYER_PHASE,
-                gameEngineState: gameEngineStateWithPlayerPhase,
+                repository: gameEngineStateWithPlayerPhase.repository,
+                camera: new BattleCamera(),
+                missionMap:
+                    MapSearchTestUtils.create1row5columnsAllFlatTerrain(),
+                teams: [],
+                fileAccessHUD:
+                    gameEngineStateWithPlayerPhase.battleOrchestratorState
+                        .battleHUD.fileAccessHUD,
             })
 
             expect(listenerSpy).toBeCalled()

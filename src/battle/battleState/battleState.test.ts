@@ -533,9 +533,19 @@ describe("Battle State", () => {
 
             gameEngineState.messageBoard.sendMessage({
                 type: MessageBoardMessageType.BATTLE_ACTION_FINISHES_ANIMATION,
-                gameEngineState,
-                graphicsContext: new MockedP5GraphicsBuffer(),
-                resourceHandler: gameEngineState.resourceHandler!,
+                battleActionRecorder:
+                    gameEngineState.battleOrchestratorState.battleState
+                        .battleActionRecorder,
+                repository: gameEngineState.repository,
+                missionMap:
+                    gameEngineState.battleOrchestratorState.battleState
+                        .missionMap,
+                cache: gameEngineState.battleOrchestratorState.cache,
+                battleHUDState:
+                    gameEngineState.battleOrchestratorState.battleHUDState,
+                battleState:
+                    gameEngineState.battleOrchestratorState.battleState,
+                messageBoard: gameEngineState.messageBoard,
             })
 
             expect(
@@ -586,9 +596,20 @@ describe("Battle State", () => {
                 beforeEach(() => {
                     gameEngineState.messageBoard.sendMessage({
                         type: MessageBoardMessageType.BATTLE_ACTION_FINISHES_ANIMATION,
-                        gameEngineState,
-                        graphicsContext: new MockedP5GraphicsBuffer(),
-                        resourceHandler: gameEngineState.resourceHandler!,
+                        battleActionRecorder:
+                            gameEngineState.battleOrchestratorState.battleState
+                                .battleActionRecorder,
+                        repository: gameEngineState.repository,
+                        missionMap:
+                            gameEngineState.battleOrchestratorState.battleState
+                                .missionMap,
+                        cache: gameEngineState.battleOrchestratorState.cache,
+                        battleHUDState:
+                            gameEngineState.battleOrchestratorState
+                                .battleHUDState,
+                        battleState:
+                            gameEngineState.battleOrchestratorState.battleState,
+                        messageBoard: gameEngineState.messageBoard,
                     })
                     moveToOriginCoordinateAction = BattleActionService.new({
                         actor: { actorBattleSquaddieId: "battleSquaddieId" },
@@ -607,9 +628,20 @@ describe("Battle State", () => {
                     )
                     gameEngineState.messageBoard.sendMessage({
                         type: MessageBoardMessageType.BATTLE_ACTION_FINISHES_ANIMATION,
-                        gameEngineState,
-                        graphicsContext: new MockedP5GraphicsBuffer(),
-                        resourceHandler: gameEngineState.resourceHandler!,
+                        battleActionRecorder:
+                            gameEngineState.battleOrchestratorState.battleState
+                                .battleActionRecorder,
+                        repository: gameEngineState.repository,
+                        missionMap:
+                            gameEngineState.battleOrchestratorState.battleState
+                                .missionMap,
+                        cache: gameEngineState.battleOrchestratorState.cache,
+                        battleHUDState:
+                            gameEngineState.battleOrchestratorState
+                                .battleHUDState,
+                        battleState:
+                            gameEngineState.battleOrchestratorState.battleState,
+                        messageBoard: gameEngineState.messageBoard,
                     })
                 })
                 it("removes all new movement actions from the already animated queue", () => {
@@ -635,9 +667,20 @@ describe("Battle State", () => {
                 beforeEach(() => {
                     gameEngineState.messageBoard.sendMessage({
                         type: MessageBoardMessageType.BATTLE_ACTION_FINISHES_ANIMATION,
-                        gameEngineState,
-                        graphicsContext: new MockedP5GraphicsBuffer(),
-                        resourceHandler: gameEngineState.resourceHandler!,
+                        battleActionRecorder:
+                            gameEngineState.battleOrchestratorState.battleState
+                                .battleActionRecorder,
+                        repository: gameEngineState.repository,
+                        missionMap:
+                            gameEngineState.battleOrchestratorState.battleState
+                                .missionMap,
+                        cache: gameEngineState.battleOrchestratorState.cache,
+                        battleHUDState:
+                            gameEngineState.battleOrchestratorState
+                                .battleHUDState,
+                        battleState:
+                            gameEngineState.battleOrchestratorState.battleState,
+                        messageBoard: gameEngineState.messageBoard,
                     })
 
                     BattleActionRecorderService.addReadyToAnimateBattleAction(
@@ -647,9 +690,20 @@ describe("Battle State", () => {
                     )
                     gameEngineState.messageBoard.sendMessage({
                         type: MessageBoardMessageType.BATTLE_ACTION_FINISHES_ANIMATION,
-                        gameEngineState,
-                        graphicsContext: new MockedP5GraphicsBuffer(),
-                        resourceHandler: gameEngineState.resourceHandler!,
+                        battleActionRecorder:
+                            gameEngineState.battleOrchestratorState.battleState
+                                .battleActionRecorder,
+                        repository: gameEngineState.repository,
+                        missionMap:
+                            gameEngineState.battleOrchestratorState.battleState
+                                .missionMap,
+                        cache: gameEngineState.battleOrchestratorState.cache,
+                        battleHUDState:
+                            gameEngineState.battleOrchestratorState
+                                .battleHUDState,
+                        battleState:
+                            gameEngineState.battleOrchestratorState.battleState,
+                        messageBoard: gameEngineState.messageBoard,
                     })
                     MissionMapService.updateBattleSquaddieCoordinate({
                         missionMap:
@@ -671,9 +725,20 @@ describe("Battle State", () => {
                     )
                     gameEngineState.messageBoard.sendMessage({
                         type: MessageBoardMessageType.BATTLE_ACTION_FINISHES_ANIMATION,
-                        gameEngineState,
-                        graphicsContext: new MockedP5GraphicsBuffer(),
-                        resourceHandler: gameEngineState.resourceHandler!,
+                        battleActionRecorder:
+                            gameEngineState.battleOrchestratorState.battleState
+                                .battleActionRecorder,
+                        repository: gameEngineState.repository,
+                        missionMap:
+                            gameEngineState.battleOrchestratorState.battleState
+                                .missionMap,
+                        cache: gameEngineState.battleOrchestratorState.cache,
+                        battleHUDState:
+                            gameEngineState.battleOrchestratorState
+                                .battleHUDState,
+                        battleState:
+                            gameEngineState.battleOrchestratorState.battleState,
+                        messageBoard: gameEngineState.messageBoard,
                     })
                 })
                 it("keeps all new movement actions from the already animated queue", () => {
@@ -726,9 +791,19 @@ describe("Battle State", () => {
 
             gameEngineState.messageBoard.sendMessage({
                 type: MessageBoardMessageType.BATTLE_ACTION_FINISHES_ANIMATION,
-                gameEngineState,
-                graphicsContext,
-                resourceHandler: gameEngineState.resourceHandler!,
+                battleActionRecorder:
+                    gameEngineState.battleOrchestratorState.battleState
+                        .battleActionRecorder,
+                repository: gameEngineState.repository,
+                missionMap:
+                    gameEngineState.battleOrchestratorState.battleState
+                        .missionMap,
+                cache: gameEngineState.battleOrchestratorState.cache,
+                battleHUDState:
+                    gameEngineState.battleOrchestratorState.battleHUDState,
+                battleState:
+                    gameEngineState.battleOrchestratorState.battleState,
+                messageBoard: gameEngineState.messageBoard,
             })
 
             expect(updateTileUsingSquaddieSpy).toBeCalledWith(
@@ -774,9 +849,19 @@ describe("Battle State", () => {
 
             gameEngineState.messageBoard.sendMessage({
                 type: MessageBoardMessageType.BATTLE_ACTION_FINISHES_ANIMATION,
-                gameEngineState,
-                graphicsContext: new MockedP5GraphicsBuffer(),
-                resourceHandler: gameEngineState.resourceHandler!,
+                battleActionRecorder:
+                    gameEngineState.battleOrchestratorState.battleState
+                        .battleActionRecorder,
+                repository: gameEngineState.repository,
+                missionMap:
+                    gameEngineState.battleOrchestratorState.battleState
+                        .missionMap,
+                cache: gameEngineState.battleOrchestratorState.cache,
+                battleHUDState:
+                    gameEngineState.battleOrchestratorState.battleHUDState,
+                battleState:
+                    gameEngineState.battleOrchestratorState.battleState,
+                messageBoard: gameEngineState.messageBoard,
             })
 
             expect(
@@ -804,8 +889,19 @@ describe("Battle State", () => {
             gameEngineState.messageBoard.sendMessage({
                 type: MessageBoardMessageType.BATTLE_ACTION_FINISHES_ANIMATION,
                 gameEngineState,
-                graphicsContext: new MockedP5GraphicsBuffer(),
-                resourceHandler: gameEngineState.resourceHandler!,
+                battleActionRecorder:
+                    gameEngineState.battleOrchestratorState.battleState
+                        .battleActionRecorder,
+                repository: gameEngineState.repository,
+                missionMap:
+                    gameEngineState.battleOrchestratorState.battleState
+                        .missionMap,
+                cache: gameEngineState.battleOrchestratorState.cache,
+                battleHUDState:
+                    gameEngineState.battleOrchestratorState.battleHUDState,
+                battleState:
+                    gameEngineState.battleOrchestratorState.battleState,
+                messageBoard: gameEngineState.messageBoard,
             })
 
             expect(
@@ -817,9 +913,19 @@ describe("Battle State", () => {
             beforeEach(() => {
                 gameEngineState.messageBoard.sendMessage({
                     type: MessageBoardMessageType.BATTLE_ACTION_FINISHES_ANIMATION,
-                    gameEngineState,
-                    graphicsContext: new MockedP5GraphicsBuffer(),
-                    resourceHandler: gameEngineState.resourceHandler!,
+                    battleActionRecorder:
+                        gameEngineState.battleOrchestratorState.battleState
+                            .battleActionRecorder,
+                    repository: gameEngineState.repository,
+                    missionMap:
+                        gameEngineState.battleOrchestratorState.battleState
+                            .missionMap,
+                    cache: gameEngineState.battleOrchestratorState.cache,
+                    battleHUDState:
+                        gameEngineState.battleOrchestratorState.battleHUDState,
+                    battleState:
+                        gameEngineState.battleOrchestratorState.battleState,
+                    messageBoard: gameEngineState.messageBoard,
                 })
             })
 
@@ -848,8 +954,19 @@ describe("Battle State", () => {
                 gameEngineState.messageBoard.sendMessage({
                     type: MessageBoardMessageType.BATTLE_ACTION_FINISHES_ANIMATION,
                     gameEngineState,
-                    graphicsContext: new MockedP5GraphicsBuffer(),
-                    resourceHandler: gameEngineState.resourceHandler!,
+                    battleActionRecorder:
+                        gameEngineState.battleOrchestratorState.battleState
+                            .battleActionRecorder,
+                    repository: gameEngineState.repository,
+                    missionMap:
+                        gameEngineState.battleOrchestratorState.battleState
+                            .missionMap,
+                    cache: gameEngineState.battleOrchestratorState.cache,
+                    battleHUDState:
+                        gameEngineState.battleOrchestratorState.battleHUDState,
+                    battleState:
+                        gameEngineState.battleOrchestratorState.battleState,
+                    messageBoard: gameEngineState.messageBoard,
                 })
             })
 
@@ -865,7 +982,14 @@ describe("Battle State", () => {
             it("will send a message indicating the squaddie turn is over when they cannot act", () => {
                 expect(messageSpy).toBeCalledWith({
                     type: MessageBoardMessageType.SQUADDIE_TURN_ENDS,
-                    gameEngineState,
+                    cache: gameEngineState.battleOrchestratorState.cache,
+                    battleActionRecorder:
+                        gameEngineState.battleOrchestratorState.battleState
+                            .battleActionRecorder,
+                    battleHUDState:
+                        gameEngineState.battleOrchestratorState.battleHUDState,
+                    battleState:
+                        gameEngineState.battleOrchestratorState.battleState,
                 })
             })
         })
@@ -971,7 +1095,14 @@ describe("Battle State", () => {
 
             gameEngineState.messageBoard.sendMessage({
                 type: MessageBoardMessageType.SQUADDIE_TURN_ENDS,
-                gameEngineState,
+                cache: gameEngineState.battleOrchestratorState.cache,
+                battleActionRecorder:
+                    gameEngineState.battleOrchestratorState.battleState
+                        .battleActionRecorder,
+                battleHUDState:
+                    gameEngineState.battleOrchestratorState.battleHUDState,
+                battleState:
+                    gameEngineState.battleOrchestratorState.battleState,
             })
 
             const battleActionRecorder: BattleActionRecorder =
@@ -997,7 +1128,14 @@ describe("Battle State", () => {
 
             gameEngineState.messageBoard.sendMessage({
                 type: MessageBoardMessageType.SQUADDIE_TURN_ENDS,
-                gameEngineState,
+                cache: gameEngineState.battleOrchestratorState.cache,
+                battleActionRecorder:
+                    gameEngineState.battleOrchestratorState.battleState
+                        .battleActionRecorder,
+                battleHUDState:
+                    gameEngineState.battleOrchestratorState.battleHUDState,
+                battleState:
+                    gameEngineState.battleOrchestratorState.battleState,
             })
 
             const battleActionRecorder: BattleActionRecorder =
@@ -1021,7 +1159,14 @@ describe("Battle State", () => {
 
             gameEngineState.messageBoard.sendMessage({
                 type: MessageBoardMessageType.SQUADDIE_TURN_ENDS,
-                gameEngineState,
+                cache: gameEngineState.battleOrchestratorState.cache,
+                battleActionRecorder:
+                    gameEngineState.battleOrchestratorState.battleState
+                        .battleActionRecorder,
+                battleHUDState:
+                    gameEngineState.battleOrchestratorState.battleHUDState,
+                battleState:
+                    gameEngineState.battleOrchestratorState.battleState,
             })
 
             expect(
@@ -1049,7 +1194,14 @@ describe("Battle State", () => {
 
             gameEngineState.messageBoard.sendMessage({
                 type: MessageBoardMessageType.SQUADDIE_TURN_ENDS,
-                gameEngineState,
+                cache: gameEngineState.battleOrchestratorState.cache,
+                battleActionRecorder:
+                    gameEngineState.battleOrchestratorState.battleState
+                        .battleActionRecorder,
+                battleHUDState:
+                    gameEngineState.battleOrchestratorState.battleHUDState,
+                battleState:
+                    gameEngineState.battleOrchestratorState.battleState,
             })
 
             expect(
@@ -1075,7 +1227,14 @@ describe("Battle State", () => {
 
             gameEngineState.messageBoard.sendMessage({
                 type: MessageBoardMessageType.SQUADDIE_TURN_ENDS,
-                gameEngineState,
+                cache: gameEngineState.battleOrchestratorState.cache,
+                battleActionRecorder:
+                    gameEngineState.battleOrchestratorState.battleState
+                        .battleActionRecorder,
+                battleHUDState:
+                    gameEngineState.battleOrchestratorState.battleHUDState,
+                battleState:
+                    gameEngineState.battleOrchestratorState.battleState,
             })
 
             expect(
@@ -1102,7 +1261,14 @@ describe("Battle State", () => {
 
             gameEngineState.messageBoard.sendMessage({
                 type: MessageBoardMessageType.SQUADDIE_TURN_ENDS,
-                gameEngineState,
+                cache: gameEngineState.battleOrchestratorState.cache,
+                battleActionRecorder:
+                    gameEngineState.battleOrchestratorState.battleState
+                        .battleActionRecorder,
+                battleHUDState:
+                    gameEngineState.battleOrchestratorState.battleHUDState,
+                battleState:
+                    gameEngineState.battleOrchestratorState.battleState,
             })
 
             expect(

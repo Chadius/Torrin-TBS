@@ -168,9 +168,17 @@ describe("BattleSquaddieUsesActionOnMap", () => {
         })
         expect(messageSpy).toBeCalledWith({
             type: MessageBoardMessageType.BATTLE_ACTION_FINISHES_ANIMATION,
-            gameEngineState,
-            graphicsContext: mockedP5GraphicsContext,
-            resourceHandler: gameEngineState.resourceHandler!,
+            battleActionRecorder:
+                gameEngineState.battleOrchestratorState.battleState
+                    .battleActionRecorder,
+            repository: gameEngineState.repository,
+            missionMap:
+                gameEngineState.battleOrchestratorState.battleState.missionMap,
+            cache: gameEngineState.battleOrchestratorState.cache,
+            battleHUDState:
+                gameEngineState.battleOrchestratorState.battleHUDState,
+            battleState: gameEngineState.battleOrchestratorState.battleState,
+            messageBoard: gameEngineState.messageBoard,
         })
     })
 
@@ -216,9 +224,19 @@ describe("BattleSquaddieUsesActionOnMap", () => {
         it("knows a message was generated to indicate animation finished", () => {
             expect(messageSpy).toBeCalledWith({
                 type: MessageBoardMessageType.BATTLE_ACTION_FINISHES_ANIMATION,
-                gameEngineState,
-                graphicsContext: mockedP5GraphicsContext,
-                resourceHandler: gameEngineState.resourceHandler!,
+                battleActionRecorder:
+                    gameEngineState.battleOrchestratorState.battleState
+                        .battleActionRecorder,
+                repository: gameEngineState.repository,
+                missionMap:
+                    gameEngineState.battleOrchestratorState.battleState
+                        .missionMap,
+                cache: gameEngineState.battleOrchestratorState.cache,
+                battleHUDState:
+                    gameEngineState.battleOrchestratorState.battleHUDState,
+                battleState:
+                    gameEngineState.battleOrchestratorState.battleState,
+                messageBoard: gameEngineState.messageBoard,
             })
         })
 

@@ -4,8 +4,6 @@ import { TBattlePhase } from "../battle/orchestratorComponents/battlePhaseTracke
 import { MousePress, ScreenLocation } from "../utils/mouseConfig"
 import { TBattleOrchestratorMode } from "../battle/orchestrator/battleOrchestrator"
 import { PopupWindow } from "../battle/hud/popupWindow/popupWindow"
-import { GraphicsBuffer } from "../utils/graphics/graphicsRenderer"
-import { ResourceHandler } from "../resource/resourceHandler"
 import { LoadState } from "../dataLoader/playerData/loadState"
 import { BattleSaveState } from "../battle/history/battleSaveState"
 import { MovementDecision } from "../battle/playerSelectionService/playerSelectionContext"
@@ -27,6 +25,11 @@ import { Glossary } from "../campaign/glossary/glossary"
 import { ChallengeModifierSetting } from "../battle/challengeModifier/challengeModifierSetting"
 import { EnumLike } from "../utils/enum"
 import { GameEngineState } from "../gameEngine/gameEngineState/gameEngineState"
+import { BattleCache } from "../battle/orchestrator/battleCache/battleCache"
+import { BattleHUDState } from "../battle/hud/battleHUD/battleHUDState"
+import { BattleCamera } from "../battle/battleCamera"
+import { BattleSquaddieTeam } from "../battle/battleSquaddieTeam"
+import { FileAccessHUD } from "../battle/hud/fileAccess/fileAccessHUD"
 
 export type MessageBoardMessage =
     | MessageBoardMessageBase
@@ -169,7 +172,11 @@ export interface MessageBoardMessageBase {
 
 export interface MessageBoardMessageStartedPlayerPhase {
     type: typeof MessageBoardMessageType.STARTED_PLAYER_PHASE
-    gameEngineState: GameEngineState
+    repository: ObjectRepository
+    camera: BattleCamera
+    missionMap: MissionMap
+    teams: BattleSquaddieTeam[]
+    fileAccessHUD: FileAccessHUD
 }
 const isMessageBoardMessageStartedPlayerPhase = (
     messageBoardMessage: MessageBoardMessage
@@ -306,9 +313,13 @@ const isMessageBoardMessagePlayerPeeksAtSquaddie = (
 
 export interface MessageBoardBattleActionFinishesAnimation {
     type: typeof MessageBoardMessageType.BATTLE_ACTION_FINISHES_ANIMATION
-    gameEngineState: GameEngineState
-    graphicsContext: GraphicsBuffer
-    resourceHandler: ResourceHandler
+    cache: BattleCache
+    battleActionRecorder: BattleActionRecorder
+    battleHUDState: BattleHUDState
+    battleState: BattleState
+    repository: ObjectRepository
+    missionMap: MissionMap
+    messageBoard: MessageBoard
 }
 
 export interface MessageBoardMessagePlayerSelectsActionTemplate {
@@ -477,7 +488,10 @@ const isMessageBoardMessagePlayerControlledSquaddieNeedsNextAction = (
 
 export interface MessageBoardMessageSquaddieTurnEnds {
     type: typeof MessageBoardMessageType.SQUADDIE_TURN_ENDS
-    gameEngineState: GameEngineState
+    cache: BattleCache
+    battleActionRecorder: BattleActionRecorder
+    battleHUDState: BattleHUDState
+    battleState: BattleState
 }
 
 export interface MessageBoardMessagePlayerDataLoadUserRequest {

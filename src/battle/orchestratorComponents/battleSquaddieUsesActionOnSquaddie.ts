@@ -147,14 +147,11 @@ export class BattleSquaddieUsesActionOnSquaddie
             !this.sawResultAftermath &&
             this.squaddieActionAnimator.hasCompleted(gameEngineState)
         ) {
-            this.reactToAnimationCompletion(gameEngineState, graphicsContext)
+            this.reactToAnimationCompletion(gameEngineState)
         }
     }
 
-    private reactToAnimationCompletion(
-        gameEngineState: GameEngineState,
-        graphicsContext: GraphicsBuffer
-    ) {
+    private reactToAnimationCompletion(gameEngineState: GameEngineState) {
         const repository = gameEngineState.repository
         this.hideDeadSquaddies(gameEngineState)
         const actorBattleSquaddieId =
@@ -195,9 +192,17 @@ export class BattleSquaddieUsesActionOnSquaddie
 
         gameEngineState.messageBoard.sendMessage({
             type: MessageBoardMessageType.BATTLE_ACTION_FINISHES_ANIMATION,
-            gameEngineState,
-            graphicsContext,
-            resourceHandler: gameEngineState.resourceHandler,
+            battleActionRecorder:
+                gameEngineState.battleOrchestratorState.battleState
+                    .battleActionRecorder,
+            repository: gameEngineState.repository,
+            missionMap:
+                gameEngineState.battleOrchestratorState.battleState.missionMap,
+            cache: gameEngineState.battleOrchestratorState.cache,
+            battleHUDState:
+                gameEngineState.battleOrchestratorState.battleHUDState,
+            battleState: gameEngineState.battleOrchestratorState.battleState,
+            messageBoard: gameEngineState.messageBoard,
         })
 
         this.sawResultAftermath = true

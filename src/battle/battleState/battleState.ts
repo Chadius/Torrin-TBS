@@ -66,9 +66,9 @@ import {
     ChallengeModifierSetting,
     ChallengeModifierSettingService,
 } from "../challengeModifier/challengeModifierSetting"
-import { ActionValidityByIdCacheService } from "../actionValidity/cache/actionValidityByIdCache"
 import { EnumLike } from "../../utils/enum"
-import { GameEngineState } from "../../gameEngine/gameEngineState/gameEngineState"
+import { BattleCacheService } from "../orchestrator/battleCache/battleCache"
+import { BattleHUDStateService } from "../hud/battleHUD/battleHUDState"
 
 export const BattleStateValidityMissingComponent = {
     MISSION_MAP: "MISSION_MAP",
@@ -340,46 +340,49 @@ export class BattleStateListener implements MessageBoardListener {
 const battleActionFinishesAnimation = (
     message: MessageBoardBattleActionFinishesAnimation
 ) => {
-    const gameEngineState: GameEngineState = message.gameEngineState
+    const battleActionRecorder = message.battleActionRecorder
+    const repository = message.repository
+    const missionMap = message.missionMap
+    const cache = message.cache
+    const battleHUDState = message.battleHUDState
+    const battleState = message.battleState
+    const messageBoard = message.messageBoard
 
-    const battleAction = BattleActionRecorderService.peekAtAnimationQueue(
-        gameEngineState.battleOrchestratorState.battleState.battleActionRecorder
-    )
+    if (repository == undefined) return
+
+    const battleAction =
+        BattleActionRecorderService.peekAtAnimationQueue(battleActionRecorder)
     if (battleAction == undefined) return
-    if (gameEngineState.repository == undefined) return
+
     const { battleSquaddie, squaddieTemplate } =
         ObjectRepositoryService.getSquaddieByBattleId(
-            gameEngineState.repository,
+            repository,
             battleAction.actor.actorBattleSquaddieId
         )
 
     const { originMapCoordinate } = MissionMapService.getByBattleSquaddieId(
-        gameEngineState.battleOrchestratorState.battleState.missionMap,
+        missionMap,
         battleAction.actor.actorBattleSquaddieId
     )
 
     SearchResultsCacheService.invalidateSquaddieAllMovementCacheForAll({
-        searchResultsCache:
-            gameEngineState.battleOrchestratorState.cache.searchResultsCache,
+        searchResultsCache: cache.searchResultsCache,
     })
-    gameEngineState.battleOrchestratorState.cache.actionValidity =
-        ActionValidityByIdCacheService.new()
+    BattleCacheService.resetActionValidity(cache)
 
     updateSummaryHUDAfterFinishingAnimation(message)
 
     DrawSquaddieIconOnMapUtilities.highlightPlayableSquaddieReachIfTheyCanAct({
         battleSquaddie,
         squaddieTemplate,
-        missionMap:
-            gameEngineState.battleOrchestratorState.battleState.missionMap,
-        repository: gameEngineState.repository,
-        squaddieAllMovementCache:
-            gameEngineState.battleOrchestratorState.cache.searchResultsCache,
+        missionMap,
+        repository,
+        squaddieAllMovementCache: cache.searchResultsCache,
     })
     DrawSquaddieIconOnMapUtilities.tintSquaddieMapIconIfTheyCannotAct(
         battleSquaddie,
         squaddieTemplate,
-        gameEngineState.repository
+        repository
     )
 
     BattleActionService.setAnimationCompleted({
@@ -389,8 +392,7 @@ const battleActionFinishesAnimation = (
 
     if (battleAction.action.isMovement) {
         BattleActionsDuringTurnService.removeUndoableMovementActions(
-            gameEngineState.battleOrchestratorState.battleState
-                .battleActionRecorder.actionsAlreadyAnimatedThisTurn
+            battleActionRecorder.actionsAlreadyAnimatedThisTurn
         )
 
         const squaddieUndidMovementWithoutActing =
@@ -401,19 +403,16 @@ const battleActionFinishesAnimation = (
             )
         if (squaddieUndidMovementWithoutActing) {
             BattleActionRecorderService.dequeueBattleActionFromReadyToAnimateQueue(
-                gameEngineState.battleOrchestratorState.battleState
-                    .battleActionRecorder
+                battleActionRecorder
             )
         } else {
             BattleActionRecorderService.addAnimatingBattleActionToAlreadyAnimatedThisTurn(
-                gameEngineState.battleOrchestratorState.battleState
-                    .battleActionRecorder
+                battleActionRecorder
             )
         }
     } else {
         BattleActionRecorderService.addAnimatingBattleActionToAlreadyAnimatedThisTurn(
-            gameEngineState.battleOrchestratorState.battleState
-                .battleActionRecorder
+            battleActionRecorder
         )
     }
 
@@ -424,87 +423,75 @@ const battleActionFinishesAnimation = (
 
     if (battleSquaddie && canAct) {
         BattleActionDecisionStepService.reset(
-            gameEngineState.battleOrchestratorState.battleState
-                .battleActionDecisionStep
+            battleState.battleActionDecisionStep
         )
         BattleActionDecisionStepService.setActor({
-            actionDecisionStep:
-                gameEngineState.battleOrchestratorState.battleState
-                    .battleActionDecisionStep,
+            actionDecisionStep: battleState.battleActionDecisionStep,
             battleSquaddieId: battleSquaddie.battleSquaddieId,
         })
         return
     }
 
-    BattleActionDecisionStepService.reset(
-        gameEngineState.battleOrchestratorState.battleState
-            .battleActionDecisionStep
-    )
+    BattleActionDecisionStepService.reset(battleState.battleActionDecisionStep)
 
     if (!canAct) {
-        gameEngineState.messageBoard.sendMessage({
+        messageBoard.sendMessage({
             type: MessageBoardMessageType.SQUADDIE_TURN_ENDS,
-            gameEngineState,
+            cache,
+            battleActionRecorder,
+            battleHUDState,
+            battleState,
         })
     }
 }
 
 const squaddieTurnEnds = (message: MessageBoardMessageSquaddieTurnEnds) => {
-    const gameEngineState: GameEngineState = message.gameEngineState
-    BattleActionRecorderService.turnComplete(
-        gameEngineState.battleOrchestratorState.battleState.battleActionRecorder
-    )
+    const cache = message.cache
+    const battleActionRecorder = message.battleActionRecorder
+    const battleHUDState = message.battleHUDState
+    const battleState = message.battleState
+
+    BattleActionRecorderService.turnComplete(battleActionRecorder)
+
     SearchResultsCacheService.invalidateSquaddieAllMovementCacheForAll({
-        searchResultsCache:
-            gameEngineState.battleOrchestratorState.cache.searchResultsCache,
+        searchResultsCache: cache.searchResultsCache,
     })
-
-    gameEngineState.battleOrchestratorState.cache.actionValidity =
-        ActionValidityByIdCacheService.new()
-
-    gameEngineState.battleOrchestratorState.battleHUDState.summaryHUDState =
-        undefined
-    gameEngineState.battleOrchestratorState.battleState.playerConsideredActions =
-        PlayerConsideredActionsService.new()
+    BattleCacheService.resetActionValidity(cache)
+    BattleHUDStateService.resetSummaryHUDState(battleHUDState)
+    battleState.playerConsideredActions = PlayerConsideredActionsService.new()
 }
 
 const updateSummaryHUDAfterFinishingAnimation = (
     message: MessageBoardBattleActionFinishesAnimation
 ) => {
-    const gameEngineState: GameEngineState = message.gameEngineState
+    const { battleHUDState, missionMap, battleState, repository } = message
 
-    if (
-        !gameEngineState.battleOrchestratorState.battleHUDState.summaryHUDState
-    ) {
+    if (!battleHUDState.summaryHUDState) {
         return
     }
-    if (gameEngineState.repository == undefined) return
+    if (repository == undefined) return
     ;[ActionTilePosition.ACTOR_STATUS, ActionTilePosition.TARGET_STATUS]
         .filter((tilePosition) =>
             isValidValue(
-                gameEngineState.battleOrchestratorState.battleHUDState
-                    .summaryHUDState?.squaddieStatusTiles[tilePosition]
+                battleHUDState.summaryHUDState?.squaddieStatusTiles[
+                    tilePosition
+                ]
             )
         )
         .map(
             (tilePosition) =>
-                gameEngineState.battleOrchestratorState.battleHUDState
-                    .summaryHUDState?.squaddieStatusTiles[tilePosition]
+                battleHUDState.summaryHUDState?.squaddieStatusTiles[
+                    tilePosition
+                ]
         )
         .filter((tile) => tile != undefined)
         .forEach((tile) =>
             SquaddieStatusTileService.updateTileUsingSquaddie({
                 tile,
-                missionMap:
-                    gameEngineState.battleOrchestratorState.battleState
-                        .missionMap,
-                playerConsideredActions:
-                    gameEngineState.battleOrchestratorState.battleState
-                        .playerConsideredActions,
-                battleActionDecisionStep:
-                    gameEngineState.battleOrchestratorState.battleState
-                        .battleActionDecisionStep,
-                objectRepository: gameEngineState.repository!,
+                missionMap,
+                playerConsideredActions: battleState.playerConsideredActions,
+                battleActionDecisionStep: battleState.battleActionDecisionStep,
+                objectRepository: repository,
             })
         )
 }

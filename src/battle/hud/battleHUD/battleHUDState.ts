@@ -145,6 +145,15 @@ export const BattleHUDStateService = {
         }
         return nextBattleSquaddieId?.battleSquaddieId
     },
+    resetSummaryHUDState: (battleHUDState: BattleHUDState) => {
+        if (battleHUDState == undefined) {
+            throw new Error(
+                "[BattleHUDStateService.resetSummaryHUDState] summaryHUDState must be defined"
+            )
+        }
+
+        battleHUDState.summaryHUDState = undefined
+    },
 }
 
 const newBattleHUDState = ({

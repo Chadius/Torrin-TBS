@@ -149,7 +149,13 @@ export class BattlePhaseController implements BattleOrchestratorComponent {
         if (gameEngineState.repository == undefined) return
         gameEngineState.messageBoard.sendMessage({
             type: MessageBoardMessageType.STARTED_PLAYER_PHASE,
-            gameEngineState,
+            repository: gameEngineState.repository,
+            camera: gameEngineState.battleOrchestratorState.battleState.camera,
+            missionMap:
+                gameEngineState.battleOrchestratorState.battleState.missionMap,
+            teams: gameEngineState.battleOrchestratorState.battleState.teams,
+            fileAccessHUD:
+                gameEngineState.battleOrchestratorState.battleHUD.fileAccessHUD,
         })
 
         const playerTeam = BattleStateService.getCurrentTeam(

@@ -8,7 +8,6 @@ import {
 } from "./battleOrchestratorComponent"
 import { EnumLike } from "../../utils/enum"
 import {
-    BattleCache,
     BattleOrchestratorState,
     BattleOrchestratorStateService,
 } from "./battleOrchestratorState"
@@ -66,6 +65,7 @@ import { CutsceneEffect } from "../../cutscene/cutsceneEffect"
 import { ChallengeModifierSetting } from "../challengeModifier/challengeModifierSetting"
 import { ActionValidityByIdCacheService } from "../actionValidity/cache/actionValidityByIdCache"
 import { GameEngineState } from "../../gameEngine/gameEngineState/gameEngineState"
+import { BattleCache } from "./battleCache/battleCache"
 
 export const BattleOrchestratorMode = {
     UNKNOWN: "UNKNOWN",

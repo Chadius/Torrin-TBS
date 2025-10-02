@@ -18,23 +18,13 @@ import {
     PlayerDecisionHUD,
     PlayerDecisionHUDService,
 } from "../hud/playerActionPanel/playerDecisionHUD"
-import {
-    SearchResultsCache,
-    SearchResultsCacheService,
-} from "../../hexMap/pathfinder/searchResults/searchResultsCache"
+import { SearchResultsCacheService } from "../../hexMap/pathfinder/searchResults/searchResultsCache"
 import { Glossary } from "../../campaign/glossary/glossary"
 import { DebugModeMenuService } from "../hud/debugModeMenu/debugModeMenu"
 import { ChallengeModifierSetting } from "../challengeModifier/challengeModifierSetting"
-import {
-    ActionValidityByIdCache,
-    ActionValidityByIdCacheService,
-} from "../actionValidity/cache/actionValidityByIdCache"
+import { ActionValidityByIdCacheService } from "../actionValidity/cache/actionValidityByIdCache"
 import { EnumLike } from "../../utils/enum"
-
-export type BattleCache = {
-    searchResultsCache: SearchResultsCache
-    actionValidity: ActionValidityByIdCache
-}
+import { BattleCache } from "./battleCache/battleCache"
 
 export class BattleOrchestratorState {
     battleHUD: BattleHUD

@@ -163,7 +163,17 @@ describe("player phase listener", () => {
 
             gameEngineState.messageBoard.sendMessage({
                 type: MessageBoardMessageType.STARTED_PLAYER_PHASE,
-                gameEngineState: gameEngineState,
+                repository: gameEngineState.repository,
+                camera: gameEngineState.battleOrchestratorState.battleState
+                    .camera,
+                missionMap:
+                    gameEngineState.battleOrchestratorState.battleState
+                        .missionMap,
+                teams: gameEngineState.battleOrchestratorState.battleState
+                    .teams,
+                fileAccessHUD:
+                    gameEngineState.battleOrchestratorState.battleHUD
+                        .fileAccessHUD,
             })
 
             expect(
@@ -221,7 +231,17 @@ describe("player phase listener", () => {
 
             gameEngineState.messageBoard.sendMessage({
                 type: MessageBoardMessageType.STARTED_PLAYER_PHASE,
-                gameEngineState: gameEngineState,
+                repository: gameEngineState.repository,
+                camera: gameEngineState.battleOrchestratorState.battleState
+                    .camera,
+                missionMap:
+                    gameEngineState.battleOrchestratorState.battleState
+                        .missionMap,
+                teams: gameEngineState.battleOrchestratorState.battleState
+                    .teams,
+                fileAccessHUD:
+                    gameEngineState.battleOrchestratorState.battleHUD
+                        .fileAccessHUD,
             })
 
             expect(

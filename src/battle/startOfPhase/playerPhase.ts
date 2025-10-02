@@ -9,17 +9,19 @@ import { GraphicsConfig } from "../../utils/graphics/graphicsConfig"
 import { BANNER_ANIMATION_TIME } from "../orchestratorComponents/battlePhaseController"
 import { MessageBoardMessageStartedPlayerPhase } from "../../message/messageBoardMessage"
 import { MissionMapService } from "../../missionMap/missionMap"
-import { GameEngineState } from "../../gameEngine/gameEngineState/gameEngineState"
 
 export const PlayerPhaseService = {
     panToControllablePlayerSquaddieIfPlayerPhase: (
         message: MessageBoardMessageStartedPlayerPhase
     ) => {
-        const gameEngineState: GameEngineState = message.gameEngineState
-        const repository = gameEngineState.repository
+        const repository = message.repository
+        const camera = message.camera
+        const missionMap = message.missionMap
+        const teams = message.teams
+
         const playerTeam: BattleSquaddieTeam =
             BattlePhaseService.findTeamsOfAffiliation(
-                gameEngineState.battleOrchestratorState.battleState.teams,
+                teams,
                 SquaddieAffiliation.PLAYER
             )[0]
         let squaddieToPanToBattleId = playerTeam.battleSquaddieIds.find(
@@ -46,7 +48,7 @@ export const PlayerPhaseService = {
         }
 
         const mapDatum = MissionMapService.getByBattleSquaddieId(
-            gameEngineState.battleOrchestratorState.battleState.missionMap,
+            missionMap,
             squaddieToPanToBattleId
         )
         if (
@@ -56,8 +58,7 @@ export const PlayerPhaseService = {
             const squaddieScreenLocation =
                 ConvertCoordinateService.convertMapCoordinatesToScreenLocation({
                     mapCoordinate: mapDatum.currentMapCoordinate,
-                    cameraLocation:
-                        gameEngineState.battleOrchestratorState.battleState.camera.getWorldLocation(),
+                    cameraLocation: camera.getWorldLocation(),
                 })
             if (
                 GraphicsConfig.isLocationWithinMiddleThirdOfScreen(
@@ -72,7 +73,7 @@ export const PlayerPhaseService = {
                 ConvertCoordinateService.convertMapCoordinatesToWorldLocation({
                     mapCoordinate: mapDatum.currentMapCoordinate,
                 })
-            gameEngineState.battleOrchestratorState.battleState.camera.pan({
+            camera.pan({
                 xDestination: squaddieWorldLocation.x,
                 yDestination: squaddieWorldLocation.y,
                 timeToPan: BANNER_ANIMATION_TIME - 500,

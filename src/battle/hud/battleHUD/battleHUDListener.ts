@@ -15,9 +15,6 @@ export class BattleHUDListener implements MessageBoardListener {
 
     receiveMessage(message: MessageBoardMessage): void {
         if (
-            MessageBoardMessageService.isMessageBoardMessageStartedPlayerPhase(
-                message
-            ) ||
             MessageBoardMessageService.isMessageBoardMessagePlayerCanControlDifferentSquaddie(
                 message
             )
@@ -26,6 +23,15 @@ export class BattleHUDListener implements MessageBoardListener {
                 message.gameEngineState.battleOrchestratorState.battleHUD
                     .fileAccessHUD
             )
+            return
+        }
+
+        if (
+            MessageBoardMessageService.isMessageBoardMessageStartedPlayerPhase(
+                message
+            )
+        ) {
+            FileAccessHUDService.enableButtons(message.fileAccessHUD)
             return
         }
 
