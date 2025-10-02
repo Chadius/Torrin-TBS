@@ -231,7 +231,7 @@ const isMessageBoardMessageSquaddieIsDefeated = (
 
 export interface MessageBoardMessagePlayerSelectionIsInvalid {
     type: typeof MessageBoardMessageType.PLAYER_SELECTION_IS_INVALID
-    gameEngineState: GameEngineState
+    playerDecisionHUD: PlayerDecisionHUD
     popupWindow: PopupWindow
 }
 const isMessageBoardMessagePlayerSelectionIsInvalid = (

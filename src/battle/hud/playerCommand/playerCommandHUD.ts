@@ -510,7 +510,8 @@ const createQueuedPopupIfNeeded = (
         })
     gameEngineState.messageBoard.sendMessage({
         type: MessageBoardMessageType.PLAYER_SELECTION_IS_INVALID,
-        gameEngineState,
+        playerDecisionHUD:
+            gameEngineState.battleOrchestratorState.playerDecisionHUD,
         popupWindow: PopupWindowService.new({
             coordinateSystem: CoordinateSystem.SCREEN,
             label: LabelService.new({

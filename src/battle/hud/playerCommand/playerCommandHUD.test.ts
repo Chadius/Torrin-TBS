@@ -639,7 +639,9 @@ describe("playerCommandHUD", () => {
                 expect(messageSpy).toBeCalledWith(
                     expect.objectContaining({
                         type: MessageBoardMessageType.PLAYER_SELECTION_IS_INVALID,
-                        gameEngineState,
+                        playerDecisionHUD:
+                            gameEngineState.battleOrchestratorState
+                                .playerDecisionHUD,
                     })
                 )
                 expect(textHandlingSpy).toBeCalled()

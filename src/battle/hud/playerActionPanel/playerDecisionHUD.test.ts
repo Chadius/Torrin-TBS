@@ -154,7 +154,8 @@ describe("Player Decision HUD", () => {
 
         gameEngineState.messageBoard.sendMessage({
             type: MessageBoardMessageType.PLAYER_SELECTION_IS_INVALID,
-            gameEngineState,
+            playerDecisionHUD:
+                gameEngineState.battleOrchestratorState.playerDecisionHUD,
             popupWindow: PopupWindowService.new({
                 coordinateSystem: CoordinateSystem.WORLD,
                 label: LabelService.new({
@@ -504,7 +505,9 @@ describe("Player Decision HUD", () => {
                     gameEngineState.battleOrchestratorState.playerDecisionHUD,
                 message: {
                     type: MessageBoardMessageType.PLAYER_SELECTION_IS_INVALID,
-                    gameEngineState,
+                    playerDecisionHUD:
+                        gameEngineState.battleOrchestratorState
+                            .playerDecisionHUD,
                     popupWindow: PopupWindowService.new({}),
                 },
                 popupWindow: PopupWindowService.new({}),

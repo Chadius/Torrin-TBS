@@ -97,9 +97,7 @@ export class PlayerDecisionHUDListener implements MessageBoardListener {
         PlayerDecisionHUDService.createPlayerInvalidSelectionPopup({
             message: message,
             popupWindow: message.popupWindow,
-            playerDecisionHUD:
-                message.gameEngineState.battleOrchestratorState
-                    .playerDecisionHUD,
+            playerDecisionHUD: message.playerDecisionHUD,
         })
     }
 }
