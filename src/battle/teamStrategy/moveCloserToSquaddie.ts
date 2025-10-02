@@ -3,7 +3,6 @@ import {
     TeamStrategyCalculator,
     TeamStrategyService,
 } from "./teamStrategyCalculator"
-import { getResultOrThrowError } from "../../utils/resultOrError"
 import { TSquaddieAffiliation } from "../../squaddie/squaddieAffiliation"
 import { ObjectRepository, ObjectRepositoryService } from "../objectRepository"
 import { BattleSquaddieTeam } from "../battleSquaddieTeam"
@@ -248,12 +247,11 @@ const selectDesiredBattleSquaddies = (
                 return false
             }
 
-            const { squaddieTemplate, battleSquaddie } = getResultOrThrowError(
+            const { squaddieTemplate, battleSquaddie } =
                 ObjectRepositoryService.getSquaddieByBattleId(
                     repository,
                     battleSquaddieIter.battleSquaddieId
                 )
-            )
 
             if (
                 !SquaddieService.isSquaddieAlive({
@@ -431,12 +429,11 @@ const getMovementInformationAboutBattleSquaddie = ({
         throw new Error("gameEngineState.repository")
     }
 
-    const { battleSquaddie, squaddieTemplate } = getResultOrThrowError(
+    const { battleSquaddie, squaddieTemplate } =
         ObjectRepositoryService.getSquaddieByBattleId(
             gameEngineState.repository,
             battleSquaddieIdToAct
         )
-    )
 
     const { originMapCoordinate, currentMapCoordinate } =
         MissionMapService.getByBattleSquaddieId(

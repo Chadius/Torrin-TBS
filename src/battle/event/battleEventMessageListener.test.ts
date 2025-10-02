@@ -33,7 +33,6 @@ import {
     CutsceneEffectService,
 } from "../../cutscene/cutsceneEffect"
 import { CutsceneQueueService } from "../cutscene/cutsceneIdQueue"
-import { getResultOrThrowError } from "../../utils/resultOrError"
 import { InBattleAttributesService } from "../stats/inBattleAttributes"
 import { Damage } from "../../squaddie/squaddieService"
 import { BattleActionRecorderService } from "../history/battleAction/battleActionRecorder"
@@ -307,12 +306,11 @@ describe("Event Message Listener", () => {
 
             const dealDamageToTargetSquaddie = (damageTaken: number) => {
                 const { battleSquaddie: targetBattleSquaddie } =
-                    getResultOrThrowError(
-                        ObjectRepositoryService.getSquaddieByBattleId(
-                            gameEngineState.repository!,
-                            targetBattleSquaddieId
-                        )
+                    ObjectRepositoryService.getSquaddieByBattleId(
+                        gameEngineState.repository!,
+                        targetBattleSquaddieId
                     )
+
                 InBattleAttributesService.takeDamage({
                     inBattleAttributes: targetBattleSquaddie.inBattleAttributes,
                     damageToTake: damageTaken,

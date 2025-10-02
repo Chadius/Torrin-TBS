@@ -14,7 +14,6 @@ import {
     BattleSquaddieTeamService,
 } from "../battleSquaddieTeam"
 import { MessageBoardMessageType } from "../../message/messageBoardMessage"
-import { getResultOrThrowError } from "../../utils/resultOrError"
 import { SquaddiePhaseListener } from "./squaddiePhaseListener"
 import { MissionMap, MissionMapService } from "../../missionMap/missionMap"
 import { TerrainTileMapService } from "../../hexMap/terrainTileMap"
@@ -62,12 +61,11 @@ describe("player phase listener", () => {
                 battleSquaddieId: "player 2",
             })
         )
-        ;({ battleSquaddie: player2 } = getResultOrThrowError(
+        ;({ battleSquaddie: player2 } =
             ObjectRepositoryService.getSquaddieByBattleId(
                 repository,
                 "player 2"
-            )
-        ))
+            ))
 
         playerTeam = BattleSquaddieTeamService.new({
             id: "player team",

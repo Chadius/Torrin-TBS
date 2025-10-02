@@ -15,7 +15,6 @@ import {
     MessageBoardMessageType,
 } from "../../../message/messageBoardMessage"
 import { ObjectRepositoryService } from "../../objectRepository"
-import { getResultOrThrowError } from "../../../utils/resultOrError"
 import { MissionMap, MissionMapService } from "../../../missionMap/missionMap"
 import { OrchestratorUtilities } from "../../orchestratorComponents/orchestratorUtils"
 import { BattleActionDecisionStepService } from "../../actionDecision/battleActionDecisionStep"
@@ -171,12 +170,11 @@ export const BattleHUDService = {
         if (battleSquaddieId == undefined) return
         if (gameEngineState.repository == undefined) return
 
-        const { battleSquaddie } = getResultOrThrowError(
+        const { battleSquaddie } =
             ObjectRepositoryService.getSquaddieByBattleId(
                 gameEngineState.repository,
                 battleSquaddieId
             )
-        )
 
         const { currentMapCoordinate } =
             MissionMapService.getByBattleSquaddieId(
@@ -222,12 +220,11 @@ export const BattleHUDService = {
         const gameEngineState = message.gameEngineState
         const battleSquaddieId = message.battleSquaddieSelectedId
         if (gameEngineState.repository == undefined) return
-        const { squaddieTemplate, battleSquaddie } = getResultOrThrowError(
+        const { squaddieTemplate, battleSquaddie } =
             ObjectRepositoryService.getSquaddieByBattleId(
                 gameEngineState.repository,
                 battleSquaddieId
             )
-        )
 
         if (
             SquaddieService.canSquaddieActRightNow({
@@ -294,12 +291,12 @@ export const BattleHUDService = {
                 message.missionMap,
                 battleSquaddieId
             )
-        const { squaddieTemplate, battleSquaddie } = getResultOrThrowError(
+        const { squaddieTemplate, battleSquaddie } =
             ObjectRepositoryService.getSquaddieByBattleId(
                 message.objectRepository,
                 battleSquaddieId
             )
-        )
+
         const squaddieReachHighlightedOnMap =
             MapHighlightService.highlightAllCoordinatesWithinSquaddieRange({
                 repository: message.objectRepository,
@@ -405,11 +402,9 @@ export const BattleHUDService = {
         const {
             battleSquaddie: actingBattleSquaddie,
             squaddieTemplate: actingSquaddieTemplate,
-        } = getResultOrThrowError(
-            ObjectRepositoryService.getSquaddieByBattleId(
-                message.objectRepository,
-                battleSquaddieId
-            )
+        } = ObjectRepositoryService.getSquaddieByBattleId(
+            message.objectRepository,
+            battleSquaddieId
         )
 
         const actionTemplateId = BattleActionDecisionStepService.getAction(
@@ -505,12 +500,12 @@ export const BattleHUDService = {
     tryToMoveSquaddieToLocation: (
         message: MessageBoardMessageMoveSquaddieToCoordinate
     ) => {
-        const { battleSquaddie, squaddieTemplate } = getResultOrThrowError(
+        const { battleSquaddie, squaddieTemplate } =
             ObjectRepositoryService.getSquaddieByBattleId(
                 message.objectRepository,
                 message.battleSquaddieId
             )
-        )
+
         const destination = message.targetCoordinate
         if (
             HexCoordinateService.areEqual(

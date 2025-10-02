@@ -69,7 +69,6 @@ import { BattleActionDecisionStepService } from "../../actionDecision/battleActi
 import { MovementDecision } from "../../playerSelectionService/playerSelectionContext"
 import { PlayerConsideredActionsService } from "../../battleState/playerConsideredActions"
 import { SquaddieSelectorPanelService } from "./squaddieSelectorPanel/squaddieSelectorPanel"
-import { getResultOrThrowError } from "../../../utils/resultOrError"
 import { BattleActionRecorderService } from "../../history/battleAction/battleActionRecorder"
 import { BattleActionService } from "../../history/battleAction/battleAction"
 import { PlayerCommandStateService } from "../playerCommand/playerCommandHUD"
@@ -1041,12 +1040,11 @@ describe("Player Decision HUD", () => {
         })
 
         it("if a squaddie is taking a turn, they are always next", () => {
-            const { battleSquaddie } = getResultOrThrowError(
+            const { battleSquaddie } =
                 ObjectRepositoryService.getSquaddieByBattleId(
                     gameEngineState.repository!,
                     "playerSquaddie2"
                 )
-            )
 
             BattleActionRecorderService.addReadyToAnimateBattleAction(
                 gameEngineState.battleOrchestratorState.battleState

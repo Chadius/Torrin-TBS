@@ -5,7 +5,6 @@ import {
     OrchestratorComponentMouseEvent,
 } from "../orchestrator/battleOrchestratorComponent"
 import { DrawSquaddieIconOnMapUtilities } from "../animation/drawSquaddieIconOnMap/drawSquaddieIconOnMap"
-import { getResultOrThrowError } from "../../utils/resultOrError"
 import { OrchestratorUtilities } from "./orchestratorUtils"
 import { UIControlSettings } from "../orchestrator/uiControlSettings"
 import { GraphicsBuffer } from "../../utils/graphics/graphicsRenderer"
@@ -173,12 +172,12 @@ export class BattleSquaddieMover implements BattleOrchestratorComponent {
         Object.keys(this.squaddieMoveOnMapAnimations).forEach(
             (battleSquaddieId) => {
                 if (gameEngineState.repository == undefined) return
-                const { battleSquaddie } = getResultOrThrowError(
+                const { battleSquaddie } =
                     ObjectRepositoryService.getSquaddieByBattleId(
                         gameEngineState.repository,
                         battleSquaddieId
                     )
-                )
+
                 DrawSquaddieIconOnMapUtilities.unTintSquaddieMapIcon(
                     gameEngineState.repository,
                     battleSquaddie
@@ -235,12 +234,11 @@ export class BattleSquaddieMover implements BattleOrchestratorComponent {
         return activeAnimations.some(
             ([battleSquaddieId, squaddieMoveOnMapAnimation]) => {
                 const { battleSquaddie, squaddieTemplate } =
-                    getResultOrThrowError(
-                        ObjectRepositoryService.getSquaddieByBattleId(
-                            repository,
-                            battleSquaddieId
-                        )
+                    ObjectRepositoryService.getSquaddieByBattleId(
+                        repository,
+                        battleSquaddieId
                     )
+
                 const { squaddieIsNormallyControllableByPlayer } =
                     SquaddieService.canPlayerControlSquaddieRightNow({
                         squaddieTemplate,
@@ -280,12 +278,12 @@ export class BattleSquaddieMover implements BattleOrchestratorComponent {
             )
         if (peekAtAnimationQueue == undefined) return
 
-        const { battleSquaddie } = getResultOrThrowError(
+        const { battleSquaddie } =
             ObjectRepositoryService.getSquaddieByBattleId(
                 gameEngineState.repository,
                 peekAtAnimationQueue.actor.actorBattleSquaddieId
             )
-        )
+
         if (
             gameEngineState.battleOrchestratorState.battleState
                 .squaddieMovePath == undefined

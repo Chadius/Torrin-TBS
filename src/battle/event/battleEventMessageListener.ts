@@ -24,7 +24,6 @@ import {
     BattleEventTriggerSquaddiesContext,
 } from "./battleEvent"
 import { ObjectRepository, ObjectRepositoryService } from "../objectRepository"
-import { getResultOrThrowError } from "../../utils/resultOrError"
 import { SquaddieService } from "../../squaddie/squaddieService"
 import { CutsceneEffect } from "../../cutscene/cutsceneEffect"
 import { ChallengeModifierEffect } from "./eventEffect/challengeModifierEffect/challengeModifierEffect"
@@ -184,12 +183,11 @@ const generateTriggerSatisfiedSquaddieContext = (
             squaddieChange
         ) => {
             if (objectRepository == undefined) return squaddiesContext
-            const { squaddieTemplate, battleSquaddie } = getResultOrThrowError(
+            const { squaddieTemplate, battleSquaddie } =
                 ObjectRepositoryService.getSquaddieByBattleId(
                     objectRepository,
                     squaddieChange.battleSquaddieId
                 )
-            )
 
             if (squaddieChange.damage.net <= 0) return squaddiesContext
 

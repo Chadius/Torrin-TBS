@@ -80,7 +80,6 @@ import {
 import { Attribute } from "../../squaddie/attribute/attribute"
 import { ActionButtonService } from "../hud/playerActionPanel/actionButton/actionButton"
 import { SummaryHUDStateService } from "../hud/summary/summaryHUD"
-import { getResultOrThrowError } from "../../utils/resultOrError"
 import { SquaddieTurnService } from "../../squaddie/turn"
 import { BattleSquaddieService } from "../battleSquaddie"
 import { FileAccessHUDService } from "../hud/fileAccess/fileAccessHUD"
@@ -409,12 +408,12 @@ describe("BattleSquaddieSelector", () => {
         })
 
         it("if the first squaddie turn ends, select the next squaddie", () => {
-            const { battleSquaddie, squaddieTemplate } = getResultOrThrowError(
+            const { battleSquaddie, squaddieTemplate } =
                 ObjectRepositoryService.getSquaddieByBattleId(
                     gameEngineState.repository!,
                     "battleSquaddieId"
                 )
-            )
+
             SquaddieTurnService.endTurn(battleSquaddie.squaddieTurn)
             ObjectRepositoryService.addBattleSquaddie(
                 gameEngineState.repository!,
@@ -467,12 +466,12 @@ describe("BattleSquaddieSelector", () => {
                 {
                     name: "no squaddies can act",
                     setup: () => {
-                        const { battleSquaddie } = getResultOrThrowError(
+                        const { battleSquaddie } =
                             ObjectRepositoryService.getSquaddieByBattleId(
                                 gameEngineState.repository!,
                                 "battleSquaddieId"
                             )
-                        )
+
                         SquaddieTurnService.endTurn(battleSquaddie.squaddieTurn)
                     },
                 },
@@ -1145,12 +1144,12 @@ describe("BattleSquaddieSelector", () => {
         describe("Press buttons for action templates", () => {
             let playerActionTemplateIds: string[]
             beforeEach(() => {
-                const { squaddieTemplate } = getResultOrThrowError(
+                const { squaddieTemplate } =
                     ObjectRepositoryService.getSquaddieByBattleId(
                         objectRepository,
                         playerBattleSquaddieId
                     )
-                )
+
                 playerActionTemplateIds = squaddieTemplate.actionTemplateIds
             })
 

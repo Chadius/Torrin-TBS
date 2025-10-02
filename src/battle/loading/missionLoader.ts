@@ -27,7 +27,6 @@ import {
     SquaddieTemplate,
     SquaddieTemplateService,
 } from "../../campaign/squaddieTemplate"
-import { getResultOrThrowError } from "../../utils/resultOrError"
 import { ConvertCoordinateService } from "../../hexMap/convertCoordinates"
 import { RectAreaService } from "../../ui/rectArea"
 import { HORIZONTAL_ALIGN, VERTICAL_ALIGN } from "../../ui/constants"
@@ -326,12 +325,11 @@ const initializeSquaddieResources = ({
     ObjectRepositoryService.getBattleSquaddieIterator(repository).forEach(
         (info) => {
             const { battleSquaddie, battleSquaddieId } = info
-            const { squaddieTemplate } = getResultOrThrowError(
+            const { squaddieTemplate } =
                 ObjectRepositoryService.getSquaddieByBattleId(
                     repository,
                     battleSquaddieId
                 )
-            )
 
             if (
                 squaddieTemplate.squaddieId.resources.mapIconResourceKey ==

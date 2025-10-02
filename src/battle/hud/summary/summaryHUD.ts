@@ -21,7 +21,6 @@ import {
     BattleActionDecisionStepService,
 } from "../../actionDecision/battleActionDecisionStep"
 import { RectAreaService } from "../../../ui/rectArea"
-import { getResultOrThrowError } from "../../../utils/resultOrError"
 import { SquaddieService } from "../../../squaddie/squaddieService"
 import { MissionMap, MissionMapService } from "../../../missionMap/missionMap"
 import {
@@ -368,12 +367,11 @@ export const SummaryHUDStateService = {
             return
         }
 
-        const { battleSquaddie, squaddieTemplate } = getResultOrThrowError(
+        const { battleSquaddie, squaddieTemplate } =
             ObjectRepositoryService.getSquaddieByBattleId(
                 objectRepository,
                 battleSquaddieId
             )
-        )
 
         const { squaddieHasThePlayerControlledAffiliation } =
             SquaddieService.canPlayerControlSquaddieRightNow({
@@ -445,12 +443,11 @@ export const SummaryHUDStateService = {
         )?.battleSquaddieId
         if (battleSquaddieId == undefined) return
 
-        const { battleSquaddie, squaddieTemplate } = getResultOrThrowError(
+        const { battleSquaddie, squaddieTemplate } =
             ObjectRepositoryService.getSquaddieByBattleId(
                 objectRepository,
                 battleSquaddieId
             )
-        )
         return SquaddieService.canPlayerControlSquaddieRightNow({
             battleSquaddie,
             squaddieTemplate,

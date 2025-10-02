@@ -13,7 +13,6 @@ import {
 } from "../../battleSquaddieTeam"
 import { MissionMap, MissionMapService } from "../../../missionMap/missionMap"
 import { TerrainTileMapService } from "../../../hexMap/terrainTileMap"
-import { getResultOrThrowError } from "../../../utils/resultOrError"
 import { SquaddieTurnService } from "../../../squaddie/turn"
 import { SquaddieSelectorPanelService } from "../playerActionPanel/squaddieSelectorPanel/squaddieSelectorPanel"
 import { BattleActionDecisionStepService } from "../../actionDecision/battleActionDecisionStep"
@@ -159,12 +158,11 @@ describe("BattleHUDState", () => {
         })
 
         it("skips any squaddie who took their turn", () => {
-            const { battleSquaddie } = getResultOrThrowError(
+            const { battleSquaddie } =
                 ObjectRepositoryService.getSquaddieByBattleId(
                     objectRepository,
                     "playerSquaddie0"
                 )
-            )
 
             SquaddieTurnService.endTurn(battleSquaddie.squaddieTurn)
             expect(
@@ -177,12 +175,11 @@ describe("BattleHUDState", () => {
         })
 
         it("skips any dead squaddies", () => {
-            const { battleSquaddie } = getResultOrThrowError(
+            const { battleSquaddie } =
                 ObjectRepositoryService.getSquaddieByBattleId(
                     objectRepository,
                     "playerSquaddie1"
                 )
-            )
 
             battleSquaddie.inBattleAttributes.currentHitPoints = 0
 
@@ -234,12 +231,11 @@ describe("BattleHUDState", () => {
 
         it("if no squaddies are available, returns undefined", () => {
             playerTeam.battleSquaddieIds.forEach((battleSquaddieId) => {
-                const { battleSquaddie } = getResultOrThrowError(
+                const { battleSquaddie } =
                     ObjectRepositoryService.getSquaddieByBattleId(
                         objectRepository,
                         battleSquaddieId
                     )
-                )
 
                 SquaddieTurnService.endTurn(battleSquaddie.squaddieTurn)
             })
@@ -272,12 +268,11 @@ describe("BattleHUDState", () => {
             playerTeam.battleSquaddieIds
                 .slice(0, 2)
                 .forEach((battleSquaddieId) => {
-                    const { battleSquaddie } = getResultOrThrowError(
+                    const { battleSquaddie } =
                         ObjectRepositoryService.getSquaddieByBattleId(
                             objectRepository,
                             battleSquaddieId
                         )
-                    )
 
                     SquaddieTurnService.endTurn(battleSquaddie.squaddieTurn)
                 })

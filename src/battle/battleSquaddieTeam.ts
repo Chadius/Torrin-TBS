@@ -3,7 +3,6 @@ import {
     TSquaddieAffiliation,
 } from "../squaddie/squaddieAffiliation"
 import { ObjectRepository, ObjectRepositoryService } from "./objectRepository"
-import { getResultOrThrowError } from "../utils/resultOrError"
 import { DrawSquaddieIconOnMapUtilities } from "./animation/drawSquaddieIconOnMap/drawSquaddieIconOnMap"
 import { SquaddieService } from "../squaddie/squaddieService"
 import { BattleSquaddieService } from "./battleSquaddie"
@@ -51,12 +50,11 @@ export const BattleSquaddieTeamService = {
             isValidValue(team.battleSquaddieIds) &&
             team.battleSquaddieIds.some((battleSquaddieId) => {
                 const { squaddieTemplate, battleSquaddie } =
-                    getResultOrThrowError(
-                        ObjectRepositoryService.getSquaddieByBattleId(
-                            squaddieRepository,
-                            battleSquaddieId
-                        )
+                    ObjectRepositoryService.getSquaddieByBattleId(
+                        squaddieRepository,
+                        battleSquaddieId
                     )
+
                 const { canAct } = SquaddieService.canSquaddieActRightNow({
                     squaddieTemplate,
                     battleSquaddie,
@@ -84,12 +82,12 @@ export const BattleSquaddieTeamService = {
         squaddieRepository: ObjectRepository
     ): boolean => {
         return team.battleSquaddieIds.some((battleSquaddieId) => {
-            const { squaddieTemplate, battleSquaddie } = getResultOrThrowError(
+            const { squaddieTemplate, battleSquaddie } =
                 ObjectRepositoryService.getSquaddieByBattleId(
                     squaddieRepository,
                     battleSquaddieId
                 )
-            )
+
             const { playerCanControlThisSquaddieRightNow } =
                 SquaddieService.canPlayerControlSquaddieRightNow({
                     squaddieTemplate,
@@ -103,12 +101,12 @@ export const BattleSquaddieTeamService = {
         squaddieRepository: ObjectRepository
     ): string | undefined => {
         return team.battleSquaddieIds.find((battleSquaddieId) => {
-            const { squaddieTemplate, battleSquaddie } = getResultOrThrowError(
+            const { squaddieTemplate, battleSquaddie } =
                 ObjectRepositoryService.getSquaddieByBattleId(
                     squaddieRepository,
                     battleSquaddieId
                 )
-            )
+
             const {
                 squaddieCanCurrentlyAct,
                 squaddieHasThePlayerControlledAffiliation,
@@ -127,12 +125,12 @@ export const BattleSquaddieTeamService = {
         squaddieRepository: ObjectRepository
     ): string[] => {
         return team.battleSquaddieIds.filter((battleSquaddieId) => {
-            const { squaddieTemplate, battleSquaddie } = getResultOrThrowError(
+            const { squaddieTemplate, battleSquaddie } =
                 ObjectRepositoryService.getSquaddieByBattleId(
                     squaddieRepository,
                     battleSquaddieId
                 )
-            )
+
             const { canAct } = SquaddieService.canSquaddieActRightNow({
                 squaddieTemplate,
                 battleSquaddie,
@@ -145,12 +143,12 @@ export const BattleSquaddieTeamService = {
     },
     endTurn: (team: BattleSquaddieTeam, objectRepository: ObjectRepository) => {
         team.battleSquaddieIds.forEach((battleSquaddieId) => {
-            const { squaddieTemplate, battleSquaddie } = getResultOrThrowError(
+            const { squaddieTemplate, battleSquaddie } =
                 ObjectRepositoryService.getSquaddieByBattleId(
                     objectRepository,
                     battleSquaddieId
                 )
-            )
+
             BattleSquaddieService.endTurn(battleSquaddie)
             DrawSquaddieIconOnMapUtilities.tintSquaddieMapIconIfTheyCannotAct(
                 battleSquaddie,

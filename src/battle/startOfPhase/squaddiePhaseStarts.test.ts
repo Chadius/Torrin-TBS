@@ -16,7 +16,6 @@ import {
 import { SquaddieTurnService } from "../../squaddie/turn"
 import { MessageBoardMessageType } from "../../message/messageBoardMessage"
 import { SquaddieService } from "../../squaddie/squaddieService"
-import { getResultOrThrowError } from "../../utils/resultOrError"
 import { SquaddiePhaseListener } from "./squaddiePhaseListener"
 import {
     AttributeModifierService,
@@ -138,12 +137,12 @@ describe("squaddie phase starts", () => {
             addListenerToGameState(gameEngineState)
 
             team.battleSquaddieIds.forEach((battleSquaddieId) => {
-                const { battleSquaddie } = getResultOrThrowError(
+                const { battleSquaddie } =
                     ObjectRepositoryService.getSquaddieByBattleId(
                         gameEngineState.repository!,
                         battleSquaddieId
                     )
-                )
+
                 SquaddieTurnService.endTurn(battleSquaddie.squaddieTurn)
             })
 
@@ -156,11 +155,9 @@ describe("squaddie phase starts", () => {
             expect(
                 team.battleSquaddieIds.every((battleSquaddieId) => {
                     const { battleSquaddie, squaddieTemplate } =
-                        getResultOrThrowError(
-                            ObjectRepositoryService.getSquaddieByBattleId(
-                                gameEngineState.repository!,
-                                battleSquaddieId
-                            )
+                        ObjectRepositoryService.getSquaddieByBattleId(
+                            gameEngineState.repository!,
+                            battleSquaddieId
                         )
 
                     return SquaddieService.canSquaddieActRightNow({
@@ -194,12 +191,12 @@ describe("squaddie phase starts", () => {
             addListenerToGameState(gameEngineState)
 
             team.battleSquaddieIds.forEach((battleSquaddieId) => {
-                const { battleSquaddie } = getResultOrThrowError(
+                const { battleSquaddie } =
                     ObjectRepositoryService.getSquaddieByBattleId(
                         gameEngineState.repository!,
                         battleSquaddieId
                     )
-                )
+
                 InBattleAttributesService.addActionCooldown({
                     inBattleAttributes: battleSquaddie.inBattleAttributes,
                     actionTemplateId: "3 turns cooldown",
@@ -215,12 +212,11 @@ describe("squaddie phase starts", () => {
 
             expect(
                 team.battleSquaddieIds.every((battleSquaddieId) => {
-                    const { battleSquaddie } = getResultOrThrowError(
+                    const { battleSquaddie } =
                         ObjectRepositoryService.getSquaddieByBattleId(
                             gameEngineState.repository!,
                             battleSquaddieId
                         )
-                    )
 
                     return (
                         InBattleAttributesService.getActionTurnsOfCooldown({
@@ -248,12 +244,11 @@ describe("squaddie phase starts", () => {
         addListenerToGameState(gameEngineState)
 
         team.battleSquaddieIds.forEach((battleSquaddieId, index) => {
-            const { battleSquaddie } = getResultOrThrowError(
+            const { battleSquaddie } =
                 ObjectRepositoryService.getSquaddieByBattleId(
                     gameEngineState.repository!,
                     battleSquaddieId
                 )
-            )
 
             const armorModifierAddedDuringPlayerPhase =
                 AttributeModifierService.new({
@@ -278,18 +273,15 @@ describe("squaddie phase starts", () => {
         })
 
         const { battleSquaddie: squaddieWithExpiredArmorModifier } =
-            getResultOrThrowError(
-                ObjectRepositoryService.getSquaddieByBattleId(
-                    gameEngineState.repository!,
-                    team.battleSquaddieIds[0]
-                )
+            ObjectRepositoryService.getSquaddieByBattleId(
+                gameEngineState.repository!,
+                team.battleSquaddieIds[0]
             )
+
         const { battleSquaddie: squaddieWithActiveArmorModifier } =
-            getResultOrThrowError(
-                ObjectRepositoryService.getSquaddieByBattleId(
-                    gameEngineState.repository!,
-                    team.battleSquaddieIds[1]
-                )
+            ObjectRepositoryService.getSquaddieByBattleId(
+                gameEngineState.repository!,
+                team.battleSquaddieIds[1]
             )
 
         expect(

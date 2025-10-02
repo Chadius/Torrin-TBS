@@ -5,7 +5,6 @@ import {
     InBattleAttributes,
     InBattleAttributesService,
 } from "../battle/stats/inBattleAttributes"
-import { getResultOrThrowError } from "../utils/resultOrError"
 import {
     ObjectRepository,
     ObjectRepositoryService,
@@ -101,12 +100,11 @@ export const SquaddieService = {
         } = {
             0: [searchPath[0].fromNode],
         }
-        const { squaddieTemplate, battleSquaddie } = getResultOrThrowError(
+        const { squaddieTemplate, battleSquaddie } =
             ObjectRepositoryService.getSquaddieByBattleId(
                 repository,
                 battleSquaddieId
             )
-        )
 
         let cumulativeMovementCost: number = 0
         searchPath.forEach((coordinateDescription) => {

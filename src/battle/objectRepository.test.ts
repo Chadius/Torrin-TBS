@@ -4,11 +4,6 @@ import { SquaddieAffiliation } from "../squaddie/squaddieAffiliation"
 import { SquaddieTurn, SquaddieTurnService } from "../squaddie/turn"
 import { ObjectRepository, ObjectRepositoryService } from "./objectRepository"
 import {
-    getResultOrThrowError,
-    isError,
-    unwrapResultOrError,
-} from "../utils/resultOrError"
-import {
     SquaddieTemplate,
     SquaddieTemplateService,
 } from "../campaign/squaddieTemplate"
@@ -88,12 +83,11 @@ describe("Object Repository", () => {
             )
         ).toBeTruthy()
 
-        const { squaddieTemplate, battleSquaddie } = getResultOrThrowError(
+        const { squaddieTemplate, battleSquaddie } =
             ObjectRepositoryService.getSquaddieByBattleId(
                 objectRepository,
                 "young_nahla_0"
             )
-        )
 
         expect(squaddieTemplate).toStrictEqual(squaddieTemplate)
         expect(battleSquaddie).toStrictEqual(battleSquaddie)
@@ -179,15 +173,12 @@ describe("Object Repository", () => {
     })
 
     it("getBattleSquaddieByID should return error if battle squaddie doesn't exist", () => {
-        const resultOrError = ObjectRepositoryService.getSquaddieByBattleId(
-            objectRepository,
-            "young_nahla_0"
-        )
-
-        expect(isError(resultOrError)).toBeTruthy()
-
-        const expectedError = unwrapResultOrError(resultOrError)
-        expect((expectedError as Error).message).toBe(
+        expect(() => {
+            ObjectRepositoryService.getSquaddieByBattleId(
+                objectRepository,
+                "young_nahla_0"
+            )
+        }).toThrow(
             "cannot getBattleSquaddieByID for 'young_nahla_0', does not exist"
         )
     })
@@ -251,12 +242,11 @@ describe("Object Repository", () => {
             })
         )
 
-        const { squaddieTemplate } = getResultOrThrowError(
+        const { squaddieTemplate } =
             ObjectRepositoryService.getSquaddieByBattleId(
                 objectRepository,
                 "young_nahla_0"
             )
-        )
 
         expect(squaddieTemplate).toStrictEqual(squaddieTemplate)
     })

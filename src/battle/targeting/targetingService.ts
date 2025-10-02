@@ -1,7 +1,6 @@
 import { MissionMap, MissionMapService } from "../../missionMap/missionMap"
 import { BattleSquaddie } from "../battleSquaddie"
 import { ObjectRepository, ObjectRepositoryService } from "../objectRepository"
-import { getResultOrThrowError } from "../../utils/resultOrError"
 import { SquaddieAffiliationService } from "../../squaddie/squaddieAffiliation"
 import { HexCoordinate } from "../../hexMap/hexCoordinate/hexCoordinate"
 import { SquaddieTemplate } from "../../campaign/squaddieTemplate"
@@ -291,12 +290,11 @@ const addTargetsToResult = ({
             const mapData: MissionMapSquaddieCoordinate =
                 MissionMapService.getBattleSquaddieAtCoordinate(map, tile)
             if (mapData.battleSquaddieId == undefined) return undefined
-            const { squaddieTemplate, battleSquaddie } = getResultOrThrowError(
+            const { squaddieTemplate, battleSquaddie } =
                 ObjectRepositoryService.getSquaddieByBattleId(
                     objectRepository,
                     mapData.battleSquaddieId
                 )
-            )
 
             if (squaddieTemplate == undefined || battleSquaddie == undefined)
                 return undefined
@@ -464,12 +462,11 @@ const highlightTargetRange = ({
     if (battleSquaddieId == undefined) return []
     if (actionTemplateId == undefined) return []
 
-    const { squaddieTemplate, battleSquaddie } = getResultOrThrowError(
+    const { squaddieTemplate, battleSquaddie } =
         ObjectRepositoryService.getSquaddieByBattleId(
             objectRepository,
             battleSquaddieId
         )
-    )
 
     if (
         !MissionMapService.getByBattleSquaddieId(missionMap, battleSquaddieId)

@@ -2,7 +2,6 @@ import {
     ObjectRepository,
     ObjectRepositoryService,
 } from "../../../objectRepository"
-import { getResultOrThrowError } from "../../../../utils/resultOrError"
 import { SquaddieEmotion } from "../../../animation/actionAnimation/actionAnimationConstants"
 import { BattleSquaddieTeam } from "../../../battleSquaddieTeam"
 import {
@@ -69,12 +68,11 @@ export const SquaddieNameAndPortraitTileService = {
         horizontalPosition: TActionTilePosition
         glossary: Glossary
     }): SquaddieNameAndPortraitTile => {
-        const { squaddieTemplate } = getResultOrThrowError(
+        const { squaddieTemplate } =
             ObjectRepositoryService.getSquaddieByBattleId(
                 objectRepository,
                 battleSquaddieId
             )
-        )
 
         const squaddiePortraitResourceKey = getValidValueOrDefault(
             squaddieTemplate.squaddieId.resources?.actionSpritesByEmotion[
@@ -279,12 +277,11 @@ const createGlossaryLabelStack = ({
             bottom: RectAreaService.top(overallBoundingBox) - 1,
         })
 
-    const { battleSquaddie } = getResultOrThrowError(
-        ObjectRepositoryService.getSquaddieByBattleId(
-            objectRepository,
-            battleSquaddieId
-        )
+    const { battleSquaddie } = ObjectRepositoryService.getSquaddieByBattleId(
+        objectRepository,
+        battleSquaddieId
     )
+
     const glossaryTerms = glossary.getGlossaryTermsFromInBattleAttributes(
         battleSquaddie.inBattleAttributes
     )

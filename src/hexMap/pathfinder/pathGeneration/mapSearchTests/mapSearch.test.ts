@@ -16,7 +16,6 @@ import {
     TSquaddieAffiliation,
 } from "../../../../squaddie/squaddieAffiliation"
 import { SquaddieRepositoryService } from "../../../../utils/test/squaddie"
-import { getResultOrThrowError } from "../../../../utils/resultOrError"
 import { InBattleAttributesService } from "../../../../battle/stats/inBattleAttributes"
 import {
     AttributeModifierService,
@@ -821,12 +820,12 @@ describe("mapSearch", () => {
                             blockingSquaddieAffiliation
                         )
 
-                        const { battleSquaddie } = getResultOrThrowError(
+                        const { battleSquaddie } =
                             ObjectRepositoryService.getSquaddieByBattleId(
                                 objectRepository,
                                 "searchingSquaddieBattleSquaddieId"
                             )
-                        )
+
                         InBattleAttributesService.addActiveAttributeModifier(
                             battleSquaddie.inBattleAttributes,
                             AttributeModifierService.new({

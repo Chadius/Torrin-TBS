@@ -25,7 +25,6 @@ import { InBattleAttributesService } from "../stats/inBattleAttributes"
 import { Damage, SquaddieService } from "../../squaddie/squaddieService"
 import { BattleHUDService } from "../hud/battleHUD/battleHUD"
 import { MessageBoardMessageType } from "../../message/messageBoardMessage"
-import { getResultOrThrowError } from "../../utils/resultOrError"
 import { CampaignService } from "../../campaign/campaign"
 import { SquaddieRepositoryService } from "../../utils/test/squaddie"
 import {
@@ -510,11 +509,9 @@ describe("Orchestration Utils", () => {
             )
 
             SquaddieTurnService.endTurn(
-                getResultOrThrowError(
-                    ObjectRepositoryService.getSquaddieByBattleId(
-                        repository,
-                        playerSquaddieIds[0]
-                    )
+                ObjectRepositoryService.getSquaddieByBattleId(
+                    repository,
+                    playerSquaddieIds[0]
                 ).battleSquaddie.squaddieTurn
             )
             OrchestratorUtilities.generateMessagesIfThePlayerCanActWithANewSquaddie(
@@ -535,11 +532,9 @@ describe("Orchestration Utils", () => {
             )
 
             SquaddieTurnService.setMovementActionPointsPreviewedByPlayer({
-                squaddieTurn: getResultOrThrowError(
-                    ObjectRepositoryService.getSquaddieByBattleId(
-                        repository,
-                        playerSquaddieIds[0]
-                    )
+                squaddieTurn: ObjectRepositoryService.getSquaddieByBattleId(
+                    repository,
+                    playerSquaddieIds[0]
                 ).battleSquaddie.squaddieTurn,
                 actionPoints: 1,
             })
@@ -572,11 +567,9 @@ describe("Orchestration Utils", () => {
                 0
             )
             SquaddieTurnService.endTurn(
-                getResultOrThrowError(
-                    ObjectRepositoryService.getSquaddieByBattleId(
-                        repository,
-                        playerSquaddieIds[0]
-                    )
+                ObjectRepositoryService.getSquaddieByBattleId(
+                    repository,
+                    playerSquaddieIds[0]
                 ).battleSquaddie.squaddieTurn
             )
             MissionMapService.updateBattleSquaddieCoordinate({
@@ -601,11 +594,9 @@ describe("Orchestration Utils", () => {
                 2
             )
             SquaddieTurnService.endTurn(
-                getResultOrThrowError(
-                    ObjectRepositoryService.getSquaddieByBattleId(
-                        repository,
-                        enemySquaddieIds[0]
-                    )
+                ObjectRepositoryService.getSquaddieByBattleId(
+                    repository,
+                    enemySquaddieIds[0]
                 ).battleSquaddie.squaddieTurn
             )
 

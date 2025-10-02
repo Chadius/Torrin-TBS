@@ -5,7 +5,6 @@ import {
 import { ObjectRepository, ObjectRepositoryService } from "../objectRepository"
 import { TargetingResults } from "../targeting/targetingService"
 import { ActionCheckResult } from "./validityChecker"
-import { getResultOrThrowError } from "../../utils/resultOrError"
 import { ActionPerformFailureReason } from "../../squaddie/turn"
 import { BattleSquaddie } from "../battleSquaddie"
 import { SquaddieTemplate } from "../../campaign/squaddieTemplate"
@@ -42,11 +41,9 @@ export const CanAddModifiersCheck = {
                 .values()
                 .some((battleSquaddieId) => {
                     const { battleSquaddie, squaddieTemplate } =
-                        getResultOrThrowError(
-                            ObjectRepositoryService.getSquaddieByBattleId(
-                                objectRepository,
-                                battleSquaddieId
-                            )
+                        ObjectRepositoryService.getSquaddieByBattleId(
+                            objectRepository,
+                            battleSquaddieId
                         )
 
                     if (

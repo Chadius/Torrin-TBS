@@ -1,5 +1,4 @@
 import { BattleSquaddie, BattleSquaddieService } from "./battleSquaddie"
-import { makeError, makeResult, ResultOrError } from "../utils/resultOrError"
 import { SquaddieTemplate } from "../campaign/squaddieTemplate"
 import { TSquaddieAffiliation } from "../squaddie/squaddieAffiliation"
 import { ActionTemplate } from "../action/template/actionTemplate"
@@ -82,31 +81,26 @@ export const ObjectRepositoryService = {
     getSquaddieByBattleId: (
         repo: ObjectRepository,
         battleSquaddieId: string
-    ): ResultOrError<
-        {
-            squaddieTemplate: SquaddieTemplate
-            battleSquaddie: BattleSquaddie
-        },
-        Error
-    > => {
+    ): {
+        squaddieTemplate: SquaddieTemplate
+        battleSquaddie: BattleSquaddie
+    } => {
         const battleSquaddie: BattleSquaddie =
             repo.battleSquaddies[battleSquaddieId]
 
         if (!battleSquaddie) {
-            return makeError(
-                new Error(
-                    `cannot getBattleSquaddieByID for '${battleSquaddieId}', does not exist`
-                )
+            throw new Error(
+                `cannot getBattleSquaddieByID for '${battleSquaddieId}', does not exist`
             )
         }
 
         const squaddieTemplate: SquaddieTemplate =
             repo.squaddieTemplates[battleSquaddie.squaddieTemplateId]
 
-        return makeResult({
+        return {
             squaddieTemplate,
             battleSquaddie,
-        })
+        }
     },
     hasSquaddieByBattleId: (
         repo: ObjectRepository,

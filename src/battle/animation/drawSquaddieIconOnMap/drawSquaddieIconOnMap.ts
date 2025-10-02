@@ -7,7 +7,6 @@ import {
 import { RectArea, RectAreaService } from "../../../ui/rectArea"
 import { Rectangle, RectangleService } from "../../../ui/rectangle/rectangle"
 import { BattleCamera } from "../../battleCamera"
-import { getResultOrThrowError } from "../../../utils/resultOrError"
 import {
     ObjectRepository,
     ObjectRepositoryService,
@@ -267,12 +266,12 @@ export const DrawSquaddieIconOnMapUtilities = {
         repository: ObjectRepository
         battleSquaddieId: string
     }) => {
-        const { battleSquaddie, squaddieTemplate } = getResultOrThrowError(
+        const { battleSquaddie, squaddieTemplate } =
             ObjectRepositoryService.getSquaddieByBattleId(
                 repository,
                 battleSquaddieId
             )
-        )
+
         return tintSquaddieMapIconWhenTheyCannotAct(
             repository,
             squaddieTemplate,
@@ -329,12 +328,12 @@ export const DrawSquaddieIconOnMapUtilities = {
         destination: HexCoordinate
         camera: BattleCamera
     }) => {
-        const { battleSquaddie } = getResultOrThrowError(
+        const { battleSquaddie } =
             ObjectRepositoryService.getSquaddieByBattleId(
                 repository,
                 battleSquaddieId
             )
-        )
+
         return updateSquaddieIconLocation(
             repository,
             battleSquaddie,
@@ -562,12 +561,12 @@ const drawSquaddieMapIconAtMapCoordinate = (
     })
     if (resourceHandler)
         mapIcon?.draw({ graphicsContext: graphics, resourceHandler })
-    const { squaddieTemplate, battleSquaddie } = getResultOrThrowError(
+    const { squaddieTemplate, battleSquaddie } =
         ObjectRepositoryService.getSquaddieByBattleId(
             squaddieRepository,
             battleSquaddieId
         )
-    )
+
     drawMapIconActionPointsBar(
         graphics,
         squaddieTemplate,

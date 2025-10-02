@@ -6,7 +6,6 @@ import {
     OrchestratorComponentMouseEventType,
 } from "../orchestrator/battleOrchestratorComponent"
 import { ConvertCoordinateService } from "../../hexMap/convertCoordinates"
-import { getResultOrThrowError } from "../../utils/resultOrError"
 import {
     BattleSquaddieTeam,
     BattleSquaddieTeamService,
@@ -425,12 +424,11 @@ export class BattleComputerSquaddieSelector
         if (battleActionDecisionStep?.actor?.battleSquaddieId == undefined)
             return
         if (gameEngineState.repository == undefined) return
-        const { battleSquaddie } = getResultOrThrowError(
+        const { battleSquaddie } =
             ObjectRepositoryService.getSquaddieByBattleId(
                 gameEngineState.repository,
                 battleActionDecisionStep?.actor?.battleSquaddieId
             )
-        )
 
         TerrainTileMapService.removeAllGraphicsLayers(
             gameEngineState.battleOrchestratorState.battleState.missionMap
@@ -684,12 +682,11 @@ export class BattleComputerSquaddieSelector
         }
         if (battleActionDecisionSteps[0].actor == undefined) return {}
         if (gameEngineState.repository == undefined) return {}
-        const { squaddieTemplate, battleSquaddie } = getResultOrThrowError(
+        const { squaddieTemplate, battleSquaddie } =
             ObjectRepositoryService.getSquaddieByBattleId(
                 gameEngineState.repository,
                 battleActionDecisionSteps[0].actor.battleSquaddieId
             )
-        )
 
         let actionTemplateIdUsed: string | undefined =
             battleActionDecisionSteps.find(

@@ -8,7 +8,6 @@ import {
     MissionConditionType,
     TMissionConditionType,
 } from "./missionCondition"
-import { getResultOrThrowError } from "../../utils/resultOrError"
 import { SquaddieService } from "../../squaddie/squaddieService"
 import { MissionMapSquaddieCoordinate } from "../../missionMap/squaddieCoordinate"
 import { ObjectRepositoryService } from "../objectRepository"
@@ -49,12 +48,11 @@ export class MissionConditionDefeatAffiliation
         ).find((livingSquaddieDatum: MissionMapSquaddieCoordinate) => {
             if (livingSquaddieDatum.battleSquaddieId == undefined) return false
             if (state.repository == undefined) return false
-            const { squaddieTemplate, battleSquaddie } = getResultOrThrowError(
+            const { squaddieTemplate, battleSquaddie } =
                 ObjectRepositoryService.getSquaddieByBattleId(
                     state.repository,
                     livingSquaddieDatum.battleSquaddieId
                 )
-            )
 
             if (
                 squaddieTemplate.squaddieId.affiliation !== affiliationToCheck

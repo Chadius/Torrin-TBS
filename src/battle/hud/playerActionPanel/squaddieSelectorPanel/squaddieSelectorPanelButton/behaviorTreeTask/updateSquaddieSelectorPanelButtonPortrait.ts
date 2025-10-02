@@ -14,7 +14,6 @@ import {
     ObjectRepository,
     ObjectRepositoryService,
 } from "../../../../../objectRepository"
-import { getResultOrThrowError } from "../../../../../../utils/resultOrError"
 import { RectAreaService } from "../../../../../../ui/rectArea"
 import { WINDOW_SPACING } from "../../../../../../ui/constants"
 
@@ -58,12 +57,11 @@ export class UpdateSquaddieSelectorPanelButtonPortrait
                 "context"
             )
 
-        const { squaddieTemplate } = getResultOrThrowError(
+        const { squaddieTemplate } =
             ObjectRepositoryService.getSquaddieByBattleId(
                 this.objectRepository,
                 context.battleSquaddieId
             )
-        )
 
         uiObjects.mapIcon = new ImageUI({
             area: RectAreaService.new({

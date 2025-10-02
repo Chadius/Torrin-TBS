@@ -12,7 +12,6 @@ import { MessageBoardMessageType } from "../../message/messageBoardMessage"
 import { BattleActionRecorderService } from "../history/battleAction/battleActionRecorder"
 import { ResourceHandler } from "../../resource/resourceHandler"
 import { ObjectRepositoryService } from "../objectRepository"
-import { getResultOrThrowError } from "../../utils/resultOrError"
 import { SquaddieService } from "../../squaddie/squaddieService"
 import {
     GameEngineState,
@@ -126,12 +125,11 @@ const shouldWaitBeforeFinishing = (
         battleAction?.actor.actorBattleSquaddieId == undefined
     )
         return false
-    const { battleSquaddie, squaddieTemplate } = getResultOrThrowError(
+    const { battleSquaddie, squaddieTemplate } =
         ObjectRepositoryService.getSquaddieByBattleId(
             gameEngineState.repository,
             battleAction.actor.actorBattleSquaddieId
         )
-    )
 
     const { squaddieIsNormallyControllableByPlayer } =
         SquaddieService.canPlayerControlSquaddieRightNow({

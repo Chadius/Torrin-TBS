@@ -8,7 +8,6 @@ import {
     PlayerSelectionService,
 } from "../playerSelectionService"
 import { HexCoordinate } from "../../../hexMap/hexCoordinate/hexCoordinate"
-import { getResultOrThrowError } from "../../../utils/resultOrError"
 import { ObjectRepositoryService } from "../../objectRepository"
 import { BattleActionDecisionStepService } from "../../actionDecision/battleActionDecisionStep"
 import { SquaddieTurnService } from "../../../squaddie/turn"
@@ -53,12 +52,12 @@ export class PlayerMovesOffMapToCancelConsideredActions
             objectRepository != undefined &&
             battleSquaddieId != undefined
         ) {
-            const { battleSquaddie } = getResultOrThrowError(
+            const { battleSquaddie } =
                 ObjectRepositoryService.getSquaddieByBattleId(
                     objectRepository,
                     battleSquaddieId
                 )
-            )
+
             movementActionPointsPreviewedByPlayer =
                 SquaddieTurnService.getMovementActionPointsPreviewedByPlayer(
                     battleSquaddie.squaddieTurn

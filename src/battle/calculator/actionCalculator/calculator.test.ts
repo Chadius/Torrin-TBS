@@ -23,7 +23,6 @@ import { BattleStateService } from "../../battleState/battleState"
 import { HexCoordinate } from "../../../hexMap/hexCoordinate/hexCoordinate"
 import { StreamNumberGenerator } from "../../numberGenerator/stream"
 import { NumberGeneratorStrategy } from "../../numberGenerator/strategy"
-import { getResultOrThrowError } from "../../../utils/resultOrError"
 import { ActionCalculator } from "./calculator"
 import { DegreeOfSuccess } from "./degreeOfSuccess"
 import {
@@ -934,12 +933,12 @@ describe("calculator", () => {
         })
 
         it("will hit if the roll hits the defender armor", () => {
-            const { battleSquaddie: enemyBattle } = getResultOrThrowError(
+            const { battleSquaddie: enemyBattle } =
                 ObjectRepositoryService.getSquaddieByBattleId(
                     objectRepository,
                     enemy1DynamicId
                 )
-            )
+
             enemyBattle.inBattleAttributes.armyAttributes.armor = {
                 proficiencyLevel: ProficiencyLevel.UNTRAINED,
                 base: 1,
@@ -967,12 +966,12 @@ describe("calculator", () => {
         })
 
         it("will miss if the roll is less than the defender armor class", () => {
-            const { battleSquaddie: enemyBattle } = getResultOrThrowError(
+            const { battleSquaddie: enemyBattle } =
                 ObjectRepositoryService.getSquaddieByBattleId(
                     objectRepository,
                     enemy1DynamicId
                 )
-            )
+
             enemyBattle.inBattleAttributes.armyAttributes.armor = {
                 proficiencyLevel: ProficiencyLevel.UNTRAINED,
                 base: 1,
@@ -1000,12 +999,12 @@ describe("calculator", () => {
         })
 
         it("will always hit if the action always hits", () => {
-            const { battleSquaddie: enemyBattle } = getResultOrThrowError(
+            const { battleSquaddie: enemyBattle } =
                 ObjectRepositoryService.getSquaddieByBattleId(
                     objectRepository,
                     enemy1DynamicId
                 )
-            )
+
             enemyBattle.inBattleAttributes.armyAttributes.armor = {
                 proficiencyLevel: ProficiencyLevel.UNTRAINED,
                 base: 1,
@@ -1037,12 +1036,12 @@ describe("calculator", () => {
             let currentActionStep: BattleActionDecisionStep
 
             beforeEach(() => {
-                const { battleSquaddie: enemyBattle } = getResultOrThrowError(
+                const { battleSquaddie: enemyBattle } =
                     ObjectRepositoryService.getSquaddieByBattleId(
                         objectRepository,
                         enemy1DynamicId
                     )
-                )
+
                 enemyBattle.inBattleAttributes.armyAttributes.armor = {
                     proficiencyLevel: ProficiencyLevel.UNTRAINED,
                     base: 1,
@@ -1190,12 +1189,12 @@ describe("calculator", () => {
 
         describe("attack proficiency", () => {
             it("will apply the proficiency bonus to the attacker roll to increase change of hitting", () => {
-                const { battleSquaddie: enemyBattle } = getResultOrThrowError(
+                const { battleSquaddie: enemyBattle } =
                     ObjectRepositoryService.getSquaddieByBattleId(
                         objectRepository,
                         enemy1DynamicId
                     )
-                )
+
                 setArmorClass({
                     battleSquaddie: enemyBattle,
                     desiredArmorClass: 2,
@@ -1250,12 +1249,11 @@ describe("calculator", () => {
             const {
                 battleSquaddie: enemyBattle,
                 squaddieTemplate: enemySquaddieTemplate,
-            } = getResultOrThrowError(
-                ObjectRepositoryService.getSquaddieByBattleId(
-                    objectRepository,
-                    enemy1DynamicId
-                )
+            } = ObjectRepositoryService.getSquaddieByBattleId(
+                objectRepository,
+                enemy1DynamicId
             )
+
             enemySquaddieTemplate.attributes.tier = 1
             enemyBattle.inBattleAttributes.armyAttributes.armor = {
                 proficiencyLevel: ProficiencyLevel.NOVICE,
@@ -1302,12 +1300,12 @@ describe("calculator", () => {
         })
 
         it("will critically hit if the roll hits the defender armor by 6 points or more", () => {
-            const { battleSquaddie: enemyBattle } = getResultOrThrowError(
+            const { battleSquaddie: enemyBattle } =
                 ObjectRepositoryService.getSquaddieByBattleId(
                     objectRepository,
                     enemy1DynamicId
                 )
-            )
+
             enemyBattle.inBattleAttributes.armyAttributes.armor = {
                 proficiencyLevel: ProficiencyLevel.UNTRAINED,
                 base: -4,
@@ -1335,12 +1333,12 @@ describe("calculator", () => {
         })
 
         it("will critically hit if the roll is 6 and 6 and the attack would have hit", () => {
-            const { battleSquaddie: enemyBattle } = getResultOrThrowError(
+            const { battleSquaddie: enemyBattle } =
                 ObjectRepositoryService.getSquaddieByBattleId(
                     objectRepository,
                     enemy1DynamicId
                 )
-            )
+
             enemyBattle.inBattleAttributes.armyAttributes.armor = {
                 proficiencyLevel: ProficiencyLevel.UNTRAINED,
                 base: 3,
@@ -1366,12 +1364,12 @@ describe("calculator", () => {
         })
 
         it("will hit normally if the roll is 6 and 6 and the attack would have missed", () => {
-            const { battleSquaddie: enemyBattle } = getResultOrThrowError(
+            const { battleSquaddie: enemyBattle } =
                 ObjectRepositoryService.getSquaddieByBattleId(
                     objectRepository,
                     enemy1DynamicId
                 )
-            )
+
             enemyBattle.inBattleAttributes.armyAttributes.armor = {
                 proficiencyLevel: ProficiencyLevel.UNTRAINED,
                 base: 4,
@@ -1457,12 +1455,12 @@ describe("calculator", () => {
         })
 
         it("will increment the number of critical hits dealt by the player squaddies in the mission statistics", () => {
-            const { battleSquaddie: enemyBattle } = getResultOrThrowError(
+            const { battleSquaddie: enemyBattle } =
                 ObjectRepositoryService.getSquaddieByBattleId(
                     objectRepository,
                     enemy1DynamicId
                 )
-            )
+
             enemyBattle.inBattleAttributes.armyAttributes.armor = {
                 proficiencyLevel: ProficiencyLevel.UNTRAINED,
                 base: -5,
@@ -1515,12 +1513,12 @@ describe("calculator", () => {
         })
 
         it("cannot critically hit if the action is forbidden from critically succeeding", () => {
-            const { battleSquaddie: enemyBattle } = getResultOrThrowError(
+            const { battleSquaddie: enemyBattle } =
                 ObjectRepositoryService.getSquaddieByBattleId(
                     objectRepository,
                     enemy1DynamicId
                 )
-            )
+
             enemyBattle.inBattleAttributes.armyAttributes.armor = {
                 proficiencyLevel: ProficiencyLevel.UNTRAINED,
                 base: -4,
@@ -1552,12 +1550,12 @@ describe("calculator", () => {
         })
 
         it("will critically miss if the roll is 6 points or more under the defender armor", () => {
-            const { battleSquaddie: enemyBattle } = getResultOrThrowError(
+            const { battleSquaddie: enemyBattle } =
                 ObjectRepositoryService.getSquaddieByBattleId(
                     objectRepository,
                     enemy1DynamicId
                 )
-            )
+
             enemyBattle.inBattleAttributes.armyAttributes.armor = {
                 proficiencyLevel: ProficiencyLevel.UNTRAINED,
                 base: 4,
@@ -1585,12 +1583,12 @@ describe("calculator", () => {
         })
 
         it("will critically miss if the roll is 1 and 1", () => {
-            const { battleSquaddie: enemyBattle } = getResultOrThrowError(
+            const { battleSquaddie: enemyBattle } =
                 ObjectRepositoryService.getSquaddieByBattleId(
                     objectRepository,
                     enemy1DynamicId
                 )
-            )
+
             enemyBattle.inBattleAttributes.armyAttributes.armor = {
                 proficiencyLevel: ProficiencyLevel.UNTRAINED,
                 base: 9001,
@@ -1616,12 +1614,12 @@ describe("calculator", () => {
         })
 
         it("cannot critically fail if the action is forbidden from critically failing", () => {
-            const { battleSquaddie: enemyBattle } = getResultOrThrowError(
+            const { battleSquaddie: enemyBattle } =
                 ObjectRepositoryService.getSquaddieByBattleId(
                     objectRepository,
                     enemy1DynamicId
                 )
-            )
+
             enemyBattle.inBattleAttributes.armyAttributes.armor = {
                 proficiencyLevel: ProficiencyLevel.UNTRAINED,
                 base: 4,

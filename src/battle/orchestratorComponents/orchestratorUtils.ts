@@ -1,4 +1,3 @@
-import { getResultOrThrowError } from "../../utils/resultOrError"
 import { ObjectRepository, ObjectRepositoryService } from "../objectRepository"
 import { MissionMap, MissionMapService } from "../../missionMap/missionMap"
 import { BattleSquaddie } from "../battleSquaddie"
@@ -119,12 +118,11 @@ export const OrchestratorUtilities = {
                 (battleSquaddieInfo) => {
                     const { battleSquaddieId } = battleSquaddieInfo
                     const { battleSquaddie, squaddieTemplate } =
-                        getResultOrThrowError(
-                            ObjectRepositoryService.getSquaddieByBattleId(
-                                repository,
-                                battleSquaddieId
-                            )
+                        ObjectRepositoryService.getSquaddieByBattleId(
+                            repository,
+                            battleSquaddieId
                         )
+
                     const { playerCanControlThisSquaddieRightNow } =
                         SquaddieService.canPlayerControlSquaddieRightNow({
                             squaddieTemplate,
@@ -178,12 +176,11 @@ const canTheCurrentSquaddieAct = (gameEngineState: GameEngineState) => {
     const battleSquaddieIdCurrentlyTakingATurn =
         getBattleSquaddieIdCurrentlyTakingATurn({ gameEngineState })
     if (battleSquaddieIdCurrentlyTakingATurn == undefined) return false
-    const { battleSquaddie, squaddieTemplate } = getResultOrThrowError(
+    const { battleSquaddie, squaddieTemplate } =
         ObjectRepositoryService.getSquaddieByBattleId(
             gameEngineState.repository,
             battleSquaddieIdCurrentlyTakingATurn
         )
-    )
 
     const { canAct } = SquaddieService.canSquaddieActRightNow({
         squaddieTemplate: squaddieTemplate,
@@ -240,12 +237,11 @@ const messageAndHighlightPlayableSquaddieTakingATurn = ({
     if (gameEngineState.repository == undefined) return
     if (currentlyActingBattleSquaddieId == undefined) return
 
-    const { battleSquaddie, squaddieTemplate } = getResultOrThrowError(
+    const { battleSquaddie, squaddieTemplate } =
         ObjectRepositoryService.getSquaddieByBattleId(
             gameEngineState.repository,
             currentlyActingBattleSquaddieId
         )
-    )
 
     const { playerCanControlThisSquaddieRightNow } =
         SquaddieService.canPlayerControlSquaddieRightNow({
@@ -308,12 +304,11 @@ const getSquaddieAtMapCoordinate = (param: {
         }
     }
 
-    const { squaddieTemplate, battleSquaddie } = getResultOrThrowError(
+    const { squaddieTemplate, battleSquaddie } =
         ObjectRepositoryService.getSquaddieByBattleId(
             squaddieRepository,
             squaddieAndLocationIdentifier.battleSquaddieId
         )
-    )
 
     return {
         squaddieTemplate,
@@ -340,12 +335,11 @@ const highlightSquaddieRange = ({
             battleSquaddieToHighlightId
         )
 
-    const { battleSquaddie, squaddieTemplate } = getResultOrThrowError(
+    const { battleSquaddie, squaddieTemplate } =
         ObjectRepositoryService.getSquaddieByBattleId(
             objectRepository,
             battleSquaddieToHighlightId
         )
-    )
 
     const squaddieReachHighlightedOnMap =
         MapHighlightService.highlightAllCoordinatesWithinSquaddieRange({

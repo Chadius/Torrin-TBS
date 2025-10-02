@@ -1,6 +1,5 @@
 import { ObjectRepository, ObjectRepositoryService } from "../objectRepository"
 import { ActionCheckResult } from "./validityChecker"
-import { getResultOrThrowError } from "../../utils/resultOrError"
 import { TargetingResults } from "../targeting/targetingService"
 import { ActionPerformFailureReason } from "../../squaddie/turn"
 import {
@@ -37,11 +36,9 @@ export const CanHealTargetCheck = {
                 .values()
                 .some((battleSquaddieId) => {
                     const { battleSquaddie, squaddieTemplate } =
-                        getResultOrThrowError(
-                            ObjectRepositoryService.getSquaddieByBattleId(
-                                objectRepository,
-                                battleSquaddieId
-                            )
+                        ObjectRepositoryService.getSquaddieByBattleId(
+                            objectRepository,
+                            battleSquaddieId
                         )
 
                     if (

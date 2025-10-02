@@ -7,7 +7,6 @@ import {
     SquaddieAffiliation,
     TSquaddieAffiliation,
 } from "../../squaddie/squaddieAffiliation"
-import { getResultOrThrowError } from "../../utils/resultOrError"
 import {
     TargetingResults,
     TargetingResultsService,
@@ -76,12 +75,11 @@ export class TargetSquaddieInRange implements TeamStrategyCalculator {
         if (battleSquaddieIdToAct == undefined) {
             return []
         }
-        const { battleSquaddie, squaddieTemplate } = getResultOrThrowError(
+        const { battleSquaddie, squaddieTemplate } =
             ObjectRepositoryService.getSquaddieByBattleId(
                 gameEngineState.repository,
                 battleSquaddieIdToAct
             )
-        )
         const validActionTemplates = squaddieTemplate.actionTemplateIds
             .map((id) =>
                 gameEngineState.repository != undefined
@@ -152,11 +150,9 @@ export class TargetSquaddieInRange implements TeamStrategyCalculator {
                 .filter((battleSquaddieId) => {
                     if (gameEngineState.repository == undefined) return false
                     const { squaddieTemplate: targetSquaddieTemplate } =
-                        getResultOrThrowError(
-                            ObjectRepositoryService.getSquaddieByBattleId(
-                                gameEngineState.repository,
-                                battleSquaddieId
-                            )
+                        ObjectRepositoryService.getSquaddieByBattleId(
+                            gameEngineState.repository,
+                            battleSquaddieId
                         )
                     return (
                         targetSquaddieTemplate.squaddieId.affiliation ===

@@ -13,7 +13,6 @@ import { MapGraphicsLayerHighlight } from "../../../hexMap/mapLayer/mapGraphicsL
 import { HIGHLIGHT_PULSE_COLOR } from "../../../hexMap/hexDrawingUtils"
 import { CampaignService } from "../../../campaign/campaign"
 import { BattleActionRecorderService } from "../../history/battleAction/battleActionRecorder"
-import { getResultOrThrowError } from "../../../utils/resultOrError"
 import { InBattleAttributesService } from "../../stats/inBattleAttributes"
 import {
     AttributeModifierService,
@@ -316,12 +315,11 @@ describe("movement calculator", () => {
                     templateId: info.battleSquaddieId,
                 })
 
-                const { battleSquaddie } = getResultOrThrowError(
+                const { battleSquaddie } =
                     ObjectRepositoryService.getSquaddieByBattleId(
                         objectRepository,
                         info.battleSquaddieId
                     )
-                )
 
                 MissionMapService.addSquaddie({
                     missionMap,
@@ -330,18 +328,16 @@ describe("movement calculator", () => {
                     originMapCoordinate: info.coordinate,
                 })
             })
-            ;({ battleSquaddie: player0 } = getResultOrThrowError(
+            ;({ battleSquaddie: player0 } =
                 ObjectRepositoryService.getSquaddieByBattleId(
                     objectRepository,
                     "player0"
-                )
-            ))
-            ;({ battleSquaddie: player1 } = getResultOrThrowError(
+                ))
+            ;({ battleSquaddie: player1 } =
                 ObjectRepositoryService.getSquaddieByBattleId(
                     objectRepository,
                     "player1"
-                )
-            ))
+                ))
 
             gameEngineState = GameEngineStateService.new({
                 repository: objectRepository,

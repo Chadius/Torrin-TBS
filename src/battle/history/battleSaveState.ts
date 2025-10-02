@@ -17,7 +17,6 @@ import { BattleSquaddieTeam } from "../battleSquaddieTeam"
 import { MissionCompletionStatus } from "../missionResult/missionCompletionStatus"
 import { BattleEvent } from "../event/battleEvent"
 import { ObjectRepository, ObjectRepositoryService } from "../objectRepository"
-import { getResultOrThrowError } from "../../utils/resultOrError"
 import {
     BattlePhase,
     TBattlePhase,
@@ -314,12 +313,11 @@ const applySaveStateToOrchestratorStateInBattleAttributes = (
     squaddieRepository: ObjectRepository
 ) => {
     for (let squaddieBattleId in battleSaveState.inBattleAttributesBySquaddieBattleId) {
-        const { battleSquaddie } = getResultOrThrowError(
+        const { battleSquaddie } =
             ObjectRepositoryService.getSquaddieByBattleId(
                 squaddieRepository,
                 squaddieBattleId
             )
-        )
 
         battleSquaddie.inBattleAttributes =
             battleSaveState.inBattleAttributesBySquaddieBattleId[

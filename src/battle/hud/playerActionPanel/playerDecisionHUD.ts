@@ -28,7 +28,6 @@ import { ConvertCoordinateService } from "../../../hexMap/convertCoordinates"
 import { BattleActionDecisionStepService } from "../../actionDecision/battleActionDecisionStep"
 import { PlayerCommandStateService } from "../playerCommand/playerCommandHUD"
 import { ObjectRepositoryService } from "../../objectRepository"
-import { getResultOrThrowError } from "../../../utils/resultOrError"
 import { SquaddieTurnService } from "../../../squaddie/turn"
 import { SummaryHUDStateService } from "../summary/summaryHUD"
 import { EnumLike } from "../../../utils/enum"
@@ -229,11 +228,9 @@ const playerConsidersMovement = (
     )?.battleSquaddieId
     if (battleSquaddieId == undefined) return
 
-    const { battleSquaddie } = getResultOrThrowError(
-        ObjectRepositoryService.getSquaddieByBattleId(
-            message.objectRepository,
-            battleSquaddieId
-        )
+    const { battleSquaddie } = ObjectRepositoryService.getSquaddieByBattleId(
+        message.objectRepository,
+        battleSquaddieId
     )
 
     message.playerConsideredActions.endTurn = false
@@ -275,11 +272,9 @@ const cancelPlayerActionConsiderations = (
         throw new Error("battleSquaddieId is undefined")
     }
 
-    const { battleSquaddie } = getResultOrThrowError(
-        ObjectRepositoryService.getSquaddieByBattleId(
-            message.objectRepository,
-            battleSquaddieId
-        )
+    const { battleSquaddie } = ObjectRepositoryService.getSquaddieByBattleId(
+        message.objectRepository,
+        battleSquaddieId
     )
 
     BattleActionDecisionStepService.removeAction({

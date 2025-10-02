@@ -17,7 +17,6 @@ import { BattleOrchestratorMode } from "../orchestrator/battleOrchestrator"
 import { ConvertCoordinateService } from "../../hexMap/convertCoordinates"
 import { MissionMapService } from "../../missionMap/missionMap"
 import { ObjectRepositoryService } from "../objectRepository"
-import { getResultOrThrowError } from "../../utils/resultOrError"
 import { SquaddieService } from "../../squaddie/squaddieService"
 import {
     MessageBoardMessage,
@@ -433,12 +432,11 @@ const getSquaddiePlayerClickedOn = ({
         }
     }
 
-    const { squaddieTemplate, battleSquaddie } = getResultOrThrowError(
+    const { squaddieTemplate, battleSquaddie } =
         ObjectRepositoryService.getSquaddieByBattleId(
             gameEngineState.repository,
             battleSquaddieId
         )
-    )
 
     const { squaddieIsNormallyControllableByPlayer } =
         SquaddieService.canPlayerControlSquaddieRightNow({
@@ -836,12 +834,11 @@ class PlayerSelectsAnActionBehavior implements BehaviorTreeTask {
             return true
         }
 
-        const { battleSquaddie, squaddieTemplate } = getResultOrThrowError(
+        const { battleSquaddie, squaddieTemplate } =
             ObjectRepositoryService.getSquaddieByBattleId(
                 gameEngineState.repository,
                 actorBattleSquaddieId
             )
-        )
 
         const potentialTargetBattleSquaddieIds =
             TargetingResultsService.findValidTargets({
@@ -1300,12 +1297,11 @@ class PlayerConsidersMovementForSelectedSquaddie implements BehaviorTreeTask {
         if (gameEngineState.repository == undefined) return undefined
         const missionMap =
             gameEngineState.battleOrchestratorState.battleState.missionMap
-        const { battleSquaddie, squaddieTemplate } = getResultOrThrowError(
+        const { battleSquaddie, squaddieTemplate } =
             ObjectRepositoryService.getSquaddieByBattleId(
                 gameEngineState.repository,
                 battleSquaddieId
             )
-        )
 
         const { unSpentActionPoints } = SquaddieService.getActionPointSpend({
             battleSquaddie,

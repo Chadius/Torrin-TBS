@@ -10,7 +10,6 @@ import {
     TargetingResultsService,
 } from "../../targeting/targetingService"
 import { BattleActionDecisionStepService } from "../../actionDecision/battleActionDecisionStep"
-import { getResultOrThrowError } from "../../../utils/resultOrError"
 import {
     ObjectRepository,
     ObjectRepositoryService,
@@ -468,12 +467,11 @@ const countTargetsEntry = (context: PlayerActionTargetStateMachineContext) => {
         )
     }
 
-    const { battleSquaddie, squaddieTemplate } = getResultOrThrowError(
+    const { battleSquaddie, squaddieTemplate } =
         ObjectRepositoryService.getSquaddieByBattleId(
             context.objectRepository,
             battleSquaddieId
         )
-    )
 
     const actionTemplateId = BattleActionDecisionStepService.getAction(
         context.battleActionDecisionStep
@@ -576,11 +574,9 @@ const findValidTargetsForSelfOrAllyAffectingActionsOnFriends = (
             const {
                 battleSquaddie: targetBattleSquaddie,
                 squaddieTemplate: targetSquaddieTemplate,
-            } = getResultOrThrowError(
-                ObjectRepositoryService.getSquaddieByBattleId(
-                    objectRepository,
-                    battleSquaddieId
-                )
+            } = ObjectRepositoryService.getSquaddieByBattleId(
+                objectRepository,
+                battleSquaddieId
             )
 
             if (
@@ -843,12 +839,12 @@ const getExplanationTextForInvalidSquaddie = ({
     selectedDescription: string
     context: PlayerActionTargetStateMachineContext
 }) => {
-    const { squaddieTemplate, battleSquaddie } = getResultOrThrowError(
+    const { squaddieTemplate, battleSquaddie } =
         ObjectRepositoryService.getSquaddieByBattleId(
             objectRepository,
             battleSquaddieId
         )
-    )
+
     selectedDescription = squaddieTemplate?.squaddieId.name
     const invalidTargetReason =
         context.targetResults.invalidTargets[battleSquaddie.battleSquaddieId]

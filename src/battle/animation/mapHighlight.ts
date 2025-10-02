@@ -1,5 +1,4 @@
 import { ObjectRepository, ObjectRepositoryService } from "../objectRepository"
-import { getResultOrThrowError } from "../../utils/resultOrError"
 import { SquaddieService } from "../../squaddie/squaddieService"
 import { HIGHLIGHT_PULSE_COLOR } from "../../hexMap/hexDrawingUtils"
 import { MissionMap } from "../../missionMap/missionMap"
@@ -58,12 +57,11 @@ export const MapHighlightService = {
         squaddieTurnOverride?: SquaddieTurn
     }): HighlightCoordinateDescription[] => {
         if (originMapCoordinate == undefined) return []
-        const { squaddieTemplate, battleSquaddie } = getResultOrThrowError(
+        const { squaddieTemplate, battleSquaddie } =
             ObjectRepositoryService.getSquaddieByBattleId(
                 repository,
                 battleSquaddieId
             )
-        )
 
         let movementActionPoints =
             SquaddieTurnService.getActionPointsThatCouldBeSpentOnMovement(

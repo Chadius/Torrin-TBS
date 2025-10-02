@@ -10,7 +10,6 @@ import {
     TActionAnimationPhase,
     SquaddieEmotion,
 } from "./actionAnimationConstants"
-import { getResultOrThrowError } from "../../../utils/resultOrError"
 import { SquaddieMovementService } from "../../../squaddie/movement"
 import { Damage, Healing } from "../../../squaddie/squaddieService"
 import {
@@ -74,12 +73,11 @@ describe("Target Sprite", () => {
             actionTemplateIds: [],
         })
 
-        const { squaddieTemplate } = getResultOrThrowError(
+        const { squaddieTemplate } =
             ObjectRepositoryService.getSquaddieByBattleId(
                 squaddieRepository,
                 battleSquaddieId
             )
-        )
 
         resultTookDamage = BattleActionSquaddieChangeService.new({
             battleSquaddieId,
@@ -249,12 +247,12 @@ describe("Target Sprite", () => {
         expect(getterSpy).toBeCalled()
     })
     it("transitions to DEAD if it kills the target", () => {
-        const { battleSquaddie } = getResultOrThrowError(
+        const { battleSquaddie } =
             ObjectRepositoryService.getSquaddieByBattleId(
                 squaddieRepository,
                 battleSquaddieId
             )
-        )
+
         battleSquaddie.inBattleAttributes.currentHitPoints = 0
 
         const getterSpy = mockActionTimerPhase(

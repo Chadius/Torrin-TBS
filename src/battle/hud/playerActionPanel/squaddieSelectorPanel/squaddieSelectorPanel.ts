@@ -7,7 +7,6 @@ import {
     SquaddieSelectorPanelButtonContext,
     SquaddieSelectorPanelButtonService,
 } from "./squaddieSelectorPanelButton/squaddieSelectorPanelButton"
-import { getResultOrThrowError } from "../../../../utils/resultOrError"
 import { SquaddieService } from "../../../../squaddie/squaddieService"
 import {
     BattleActionDecisionStep,
@@ -35,12 +34,11 @@ export const SquaddieSelectorPanelService = {
         const buttons: SquaddieSelectorPanelButton[] = battleSquaddieIds.map(
             (battleSquaddieId, squaddieIndex) => {
                 const { battleSquaddie, squaddieTemplate } =
-                    getResultOrThrowError(
-                        ObjectRepositoryService.getSquaddieByBattleId(
-                            objectRepository,
-                            battleSquaddieId
-                        )
+                    ObjectRepositoryService.getSquaddieByBattleId(
+                        objectRepository,
+                        battleSquaddieId
                     )
+
                 const squaddieIsControllable =
                     SquaddieService.canPlayerControlSquaddieRightNow({
                         battleSquaddie,
@@ -87,12 +85,10 @@ export const SquaddieSelectorPanelService = {
         squaddieSelectorPanel.buttons.forEach(
             (button: SquaddieSelectorPanelButton) => {
                 const { battleSquaddie, squaddieTemplate } =
-                    getResultOrThrowError(
-                        ObjectRepositoryService.getSquaddieByBattleId(
-                            objectRepository,
-                            SquaddieSelectorPanelButtonService.getBattleSquaddieId(
-                                button
-                            )
+                    ObjectRepositoryService.getSquaddieByBattleId(
+                        objectRepository,
+                        SquaddieSelectorPanelButtonService.getBattleSquaddieId(
+                            button
                         )
                     )
 

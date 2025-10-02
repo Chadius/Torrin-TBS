@@ -90,7 +90,6 @@ import { Attribute } from "../../../squaddie/attribute/attribute"
 import { CanHealTargetCheck } from "../../actionValidity/canHealTargetCheck"
 import { CanAddModifiersCheck } from "../../actionValidity/canAddModifiersCheck"
 import { InBattleAttributesService } from "../../stats/inBattleAttributes"
-import { getResultOrThrowError } from "../../../utils/resultOrError"
 import { PLAYER_ACTION_SELECT_TARGET_CREATE_CANCEL_BUTTON_ID } from "./playerActionTarget/cancelButton"
 import { ConvertCoordinateService } from "../../../hexMap/convertCoordinates"
 import { BattleCamera } from "../../battleCamera"
@@ -597,12 +596,11 @@ describe("PlayerActionTargetSelect State Machine", () => {
                     getExpectedSpy: () => findValidTargetsSpy,
                     mockTheSpyToFail: () => healCheckSpy.mockReturnValue(0),
                     makeAllyTheOnlyValidTarget: () => {
-                        const { battleSquaddie } = getResultOrThrowError(
+                        const { battleSquaddie } =
                             ObjectRepositoryService.getSquaddieByBattleId(
                                 objectRepository,
                                 "ally"
                             )
-                        )
 
                         InBattleAttributesService.takeDamage({
                             damageToTake: 1,
@@ -619,12 +617,12 @@ describe("PlayerActionTargetSelect State Machine", () => {
                     mockTheSpyToFail: () =>
                         addModifierCheckSpy.mockReturnValue(false),
                     makeAllyTheOnlyValidTarget: () => {
-                        const { battleSquaddie } = getResultOrThrowError(
+                        const { battleSquaddie } =
                             ObjectRepositoryService.getSquaddieByBattleId(
                                 objectRepository,
                                 battleSquaddieId
                             )
-                        )
+
                         InBattleAttributesService.addActiveAttributeModifier(
                             battleSquaddie.inBattleAttributes,
                             AttributeModifierService.new({

@@ -1,5 +1,4 @@
 import { ObjectRepository, ObjectRepositoryService } from "../objectRepository"
-import { getResultOrThrowError } from "../../utils/resultOrError"
 import { SquaddieTemplate } from "../../campaign/squaddieTemplate"
 import {
     Trait,
@@ -338,12 +337,11 @@ const outputResultForTextOnly = ({
     actionTemplateName: string
     actingBattleSquaddieId: string
 }): string[] => {
-    const { squaddieTemplate: actingSquaddieTemplate } = getResultOrThrowError(
+    const { squaddieTemplate: actingSquaddieTemplate } =
         ObjectRepositoryService.getSquaddieByBattleId(
             squaddieRepository,
             actingBattleSquaddieId
         )
-    )
 
     let output: string[] = []
     let actorUsesActionDescriptionText =
@@ -394,11 +392,9 @@ const outputResultForTextOnly = ({
         (squaddieChange: BattleActionSquaddieChange) => {
             const targetSquaddieId: string = squaddieChange.battleSquaddieId
             const { squaddieTemplate: targetSquaddieTemplate } =
-                getResultOrThrowError(
-                    ObjectRepositoryService.getSquaddieByBattleId(
-                        squaddieRepository,
-                        targetSquaddieId
-                    )
+                ObjectRepositoryService.getSquaddieByBattleId(
+                    squaddieRepository,
+                    targetSquaddieId
                 )
 
             const targetFoe = ActionEffectTemplateService.doesItTargetFoes(
@@ -506,12 +502,11 @@ const outputIntentForTextOnly = ({
     actingSquaddieModifiers: AttributeTypeAndAmount[]
     rollModifiers: { [r in TRollModifier]?: number }
 }): string[] => {
-    const { squaddieTemplate: actingSquaddieTemplate } = getResultOrThrowError(
+    const { squaddieTemplate: actingSquaddieTemplate } =
         ObjectRepositoryService.getSquaddieByBattleId(
             squaddieRepository,
             actingBattleSquaddieId
         )
-    )
 
     let output: string[] = []
     output.push(

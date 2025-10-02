@@ -14,7 +14,6 @@ import {
     ObjectRepository,
     ObjectRepositoryService,
 } from "../../objectRepository"
-import { getResultOrThrowError } from "../../../utils/resultOrError"
 import { RectAreaService } from "../../../ui/rectArea"
 import {
     ActionEffectTemplate,
@@ -84,12 +83,11 @@ export class ActorSprite {
         )
             return
 
-        const { squaddieTemplate } = getResultOrThrowError(
+        const { squaddieTemplate } =
             ObjectRepositoryService.getSquaddieByBattleId(
                 this.squaddieRepository,
                 this.battleSquaddieId
             )
-        )
 
         this._sprite = SquaddieSpriteService.new({
             actionSpritesResourceKeysByEmotion: {

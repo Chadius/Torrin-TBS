@@ -16,7 +16,6 @@ import {
     ObjectRepository,
     ObjectRepositoryService,
 } from "../../objectRepository"
-import { getResultOrThrowError } from "../../../utils/resultOrError"
 import { SquaddieService } from "../../../squaddie/squaddieService"
 import { RectAreaService } from "../../../ui/rectArea"
 import {
@@ -97,12 +96,11 @@ export class TargetSprite {
         )
             return
 
-        const { squaddieTemplate } = getResultOrThrowError(
+        const { squaddieTemplate } =
             ObjectRepositoryService.getSquaddieByBattleId(
                 this.squaddieRepository,
                 this.battleSquaddieId
             )
-        )
 
         this._sprite = SquaddieSpriteService.new({
             actionSpritesResourceKeysByEmotion: {
@@ -146,12 +144,12 @@ export class TargetSprite {
         result: BattleActionSquaddieChange
         actionEffectSquaddieTemplateService: ActionEffectTemplate
     }): TSquaddieEmotion {
-        const { squaddieTemplate, battleSquaddie } = getResultOrThrowError(
+        const { squaddieTemplate, battleSquaddie } =
             ObjectRepositoryService.getSquaddieByBattleId(
                 squaddieRepository,
                 battleSquaddieId
             )
-        )
+
         const stillAlive = SquaddieService.isSquaddieAlive({
             squaddieTemplate,
             battleSquaddie,

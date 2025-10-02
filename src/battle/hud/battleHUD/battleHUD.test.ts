@@ -79,7 +79,6 @@ import {
     Healing,
     SquaddieService,
 } from "../../../squaddie/squaddieService"
-import { getResultOrThrowError } from "../../../utils/resultOrError"
 import { DegreeOfSuccess } from "../../calculator/actionCalculator/degreeOfSuccess"
 import {
     BattleActionSquaddieChangeService,
@@ -1878,12 +1877,11 @@ describe("Battle HUD", () => {
                     longswordActionDamage
                 )
 
-                const { squaddieTemplate } = getResultOrThrowError(
+                const { squaddieTemplate } =
                     ObjectRepositoryService.getSquaddieByBattleId(
                         gameEngineState.repository!,
                         thiefBattleSquaddie.battleSquaddieId
                     )
-                )
 
                 const { maxHitPoints, currentHitPoints } =
                     SquaddieService.getHitPoints({

@@ -23,7 +23,6 @@ import {
 } from "../battle/history/battleSaveState"
 import { SaveFile } from "../utils/fileHandling/saveFile"
 import { DrawSquaddieIconOnMapUtilities } from "../battle/animation/drawSquaddieIconOnMap/drawSquaddieIconOnMap"
-import { getResultOrThrowError } from "../utils/resultOrError"
 import { BattleCompletionStatus } from "../battle/orchestrator/missionObjectivesAndCutscenes"
 import { BattleCamera, BattleCameraService } from "../battle/battleCamera"
 import {
@@ -336,12 +335,11 @@ export class GameEngineGameLoader implements GameEngineComponent {
         ObjectRepositoryService.getBattleSquaddieIterator(repository).forEach(
             (info) => {
                 const { battleSquaddie, battleSquaddieId } = info
-                const { squaddieTemplate } = getResultOrThrowError(
+                const { squaddieTemplate } =
                     ObjectRepositoryService.getSquaddieByBattleId(
                         repository,
                         battleSquaddieId
                     )
-                )
                 DrawSquaddieIconOnMapUtilities.tintSquaddieMapIconIfTheyCannotAct(
                     battleSquaddie,
                     squaddieTemplate,

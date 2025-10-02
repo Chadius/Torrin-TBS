@@ -7,7 +7,6 @@ import {
     ObjectRepository,
     ObjectRepositoryService,
 } from "../../../../../objectRepository"
-import { getResultOrThrowError } from "../../../../../../utils/resultOrError"
 import { GraphicsBuffer } from "../../../../../../utils/graphics/graphicsRenderer"
 import { HUE_BY_SQUADDIE_AFFILIATION } from "../../../../../../graphicsConstants"
 import {
@@ -43,12 +42,11 @@ export class SquaddieStatusTileIsHitPointsCorrectCondition
         )
 
         const battleSquaddieId = context.battleSquaddieId
-        const { battleSquaddie, squaddieTemplate } = getResultOrThrowError(
+        const { battleSquaddie, squaddieTemplate } =
             ObjectRepositoryService.getSquaddieByBattleId(
                 this.objectRepository,
                 battleSquaddieId
             )
-        )
 
         const { currentHitPoints, currentAbsorb, maxHitPoints } =
             SquaddieStatusTileService.calculateHitPoints(
@@ -82,12 +80,11 @@ export class SquaddieStatusTileUpdateHitPointsContextAction
         )
 
         const battleSquaddieId = context.battleSquaddieId
-        const { battleSquaddie, squaddieTemplate } = getResultOrThrowError(
+        const { battleSquaddie, squaddieTemplate } =
             ObjectRepositoryService.getSquaddieByBattleId(
                 this.objectRepository,
                 battleSquaddieId
             )
-        )
 
         const { currentHitPoints, currentAbsorb, maxHitPoints } =
             SquaddieStatusTileService.calculateHitPoints(

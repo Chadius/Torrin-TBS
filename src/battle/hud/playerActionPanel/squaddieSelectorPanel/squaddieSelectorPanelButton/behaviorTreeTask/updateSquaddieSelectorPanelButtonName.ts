@@ -12,7 +12,6 @@ import {
 } from "../../../../../objectRepository"
 import { GraphicsBuffer } from "../../../../../../utils/graphics/graphicsRenderer"
 import { DataBlobService } from "../../../../../../utils/dataBlob/dataBlob"
-import { getResultOrThrowError } from "../../../../../../utils/resultOrError"
 import { RectAreaService } from "../../../../../../ui/rectArea"
 import { WINDOW_SPACING } from "../../../../../../ui/constants"
 import { TextGraphicalHandlingService } from "../../../../../../utils/graphics/textGraphicalHandlingService"
@@ -53,12 +52,11 @@ export class UpdateSquaddieSelectorPanelButtonName implements BehaviorTreeTask {
                 "context"
             )
 
-        const { squaddieTemplate } = getResultOrThrowError(
+        const { squaddieTemplate } =
             ObjectRepositoryService.getSquaddieByBattleId(
                 this.objectRepository,
                 context.battleSquaddieId
             )
-        )
 
         let layoutConstantsToUseBasedOnSelectable: {
             strokeWeight: number

@@ -15,7 +15,6 @@ import {
 } from "../battleSquaddieTeam"
 import { SquaddieTurnService } from "../../squaddie/turn"
 import { MessageBoardMessageType } from "../../message/messageBoardMessage"
-import { getResultOrThrowError } from "../../utils/resultOrError"
 import { SquaddiePhaseListener } from "./squaddiePhaseListener"
 import { DrawSquaddieIconOnMapUtilities } from "../animation/drawSquaddieIconOnMap/drawSquaddieIconOnMap"
 import { SquaddieRepositoryService } from "../../utils/test/squaddie"
@@ -145,12 +144,11 @@ describe("squaddie phase ends", () => {
             addListenerToGameState(gameEngineState)
 
             team.battleSquaddieIds.forEach((battleSquaddieId) => {
-                const { battleSquaddie } = getResultOrThrowError(
+                const { battleSquaddie } =
                     ObjectRepositoryService.getSquaddieByBattleId(
                         gameEngineState.repository!,
                         battleSquaddieId
                     )
-                )
                 SquaddieTurnService.endTurn(battleSquaddie.squaddieTurn)
             })
 

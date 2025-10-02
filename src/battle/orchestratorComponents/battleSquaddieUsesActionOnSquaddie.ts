@@ -6,7 +6,6 @@ import {
     OrchestratorComponentMouseEvent,
     OrchestratorComponentMouseEventType,
 } from "../orchestrator/battleOrchestratorComponent"
-import { getResultOrThrowError } from "../../utils/resultOrError"
 import { OrchestratorUtilities } from "./orchestratorUtils"
 import { SquaddieService } from "../../squaddie/squaddieService"
 import { UIControlSettings } from "../orchestrator/uiControlSettings"
@@ -174,12 +173,11 @@ export class BattleSquaddieUsesActionOnSquaddie
             ;[actorBattleSquaddieId, ...targetBattleSquaddieIds]
                 .filter((x) => x != undefined)
                 .forEach((battleSquaddieId) => {
-                    const { battleSquaddie } = getResultOrThrowError(
+                    const { battleSquaddie } =
                         ObjectRepositoryService.getSquaddieByBattleId(
                             repository,
                             battleSquaddieId
                         )
-                    )
 
                     DrawSquaddieIconOnMapUtilities.unTintSquaddieMapIcon(
                         repository,
@@ -219,12 +217,12 @@ export class BattleSquaddieUsesActionOnSquaddie
             )
         const mostRecentResults = recentBattleAction?.effect.squaddie ?? []
         mostRecentResults.forEach((result) => {
-            const { battleSquaddie, squaddieTemplate } = getResultOrThrowError(
+            const { battleSquaddie, squaddieTemplate } =
                 ObjectRepositoryService.getSquaddieByBattleId(
                     repository,
                     result.battleSquaddieId
                 )
-            )
+
             if (
                 !SquaddieService.isSquaddieAlive({
                     battleSquaddie,
@@ -316,12 +314,11 @@ const generateMessagesBasedOnAnimationFinishedBattleAction = (
         recentBattleAction?.effect?.squaddie
             ?.filter((change) => {
                 const { battleSquaddie, squaddieTemplate } =
-                    getResultOrThrowError(
-                        ObjectRepositoryService.getSquaddieByBattleId(
-                            objectRepository,
-                            change.battleSquaddieId
-                        )
+                    ObjectRepositoryService.getSquaddieByBattleId(
+                        objectRepository,
+                        change.battleSquaddieId
                     )
+
                 return !SquaddieService.isSquaddieAlive({
                     battleSquaddie,
                     squaddieTemplate,

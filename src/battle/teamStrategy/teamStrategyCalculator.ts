@@ -4,7 +4,6 @@ import {
     BattleSquaddieTeamService,
 } from "../battleSquaddieTeam"
 import { isValidValue } from "../../utils/objectValidityCheck"
-import { getResultOrThrowError } from "../../utils/resultOrError"
 import { SquaddieService } from "../../squaddie/squaddieService"
 import { BattleActionDecisionStep } from "../actionDecision/battleActionDecisionStep"
 
@@ -49,12 +48,12 @@ export const TeamStrategyService = {
         }
 
         if (battleSquaddieId) {
-            const { battleSquaddie, squaddieTemplate } = getResultOrThrowError(
+            const { battleSquaddie, squaddieTemplate } =
                 ObjectRepositoryService.getSquaddieByBattleId(
                     objectRepository,
                     battleSquaddieId
                 )
-            )
+
             const { canAct } = SquaddieService.canSquaddieActRightNow({
                 battleSquaddie,
                 squaddieTemplate,

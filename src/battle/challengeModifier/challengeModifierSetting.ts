@@ -4,7 +4,6 @@ import {
     DegreeOfSuccess,
     TDegreeOfSuccess,
 } from "../calculator/actionCalculator/degreeOfSuccess"
-import { getResultOrThrowError } from "../../utils/resultOrError"
 import {
     SquaddieAffiliation,
     SquaddieAffiliationService,
@@ -128,18 +127,17 @@ const preemptDegreeOfSuccessWithTrainingWheels = ({
     targetBattleSquaddieId: string
     actionTemplateId: string
 }): { didPreempt: boolean; newDegreeOfSuccess: TDegreeOfSuccess } => {
-    const { squaddieTemplate: actorSquaddieTemplate } = getResultOrThrowError(
+    const { squaddieTemplate: actorSquaddieTemplate } =
         ObjectRepositoryService.getSquaddieByBattleId(
             objectRepository,
             actorBattleSquaddieId
         )
-    )
-    const { squaddieTemplate: targetSquaddieTemplate } = getResultOrThrowError(
+
+    const { squaddieTemplate: targetSquaddieTemplate } =
         ObjectRepositoryService.getSquaddieByBattleId(
             objectRepository,
             targetBattleSquaddieId
         )
-    )
 
     const actionTemplate = ObjectRepositoryService.getActionTemplateById(
         objectRepository,

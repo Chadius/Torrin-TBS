@@ -2,7 +2,6 @@ import {
     ObjectRepository,
     ObjectRepositoryService,
 } from "../../../../objectRepository"
-import { getResultOrThrowError } from "../../../../../utils/resultOrError"
 import { ResourceHandler } from "../../../../../resource/resourceHandler"
 import { GraphicsBuffer } from "../../../../../utils/graphics/graphicsRenderer"
 import { TSquaddieAffiliation } from "../../../../../squaddie/squaddieAffiliation"
@@ -554,12 +553,11 @@ export const SquaddieStatusTileService = {
         battleSquaddieId: string
         objectRepository: ObjectRepository
     }): { actionPoints: SquaddieStatusTileActionPointsContext } => {
-        const { battleSquaddie } = getResultOrThrowError(
+        const { battleSquaddie } =
             ObjectRepositoryService.getSquaddieByBattleId(
                 objectRepository,
                 battleSquaddieId
             )
-        )
 
         const { actionPointsRemaining, movementActionPoints } =
             calculateActionPoints(battleSquaddie)
@@ -584,12 +582,11 @@ export const SquaddieStatusTileService = {
         playerConsideredActions: PlayerConsideredActions | undefined
         objectRepository: ObjectRepository
     }): { actionPoints: SquaddieStatusTileActionPointsContext } => {
-        const { battleSquaddie } = getResultOrThrowError(
+        const { battleSquaddie } =
             ObjectRepositoryService.getSquaddieByBattleId(
                 objectRepository,
                 battleSquaddieId
             )
-        )
 
         const { actionPointsRemaining, movementActionPoints } =
             calculateActionPoints(battleSquaddie)
@@ -668,12 +665,12 @@ const createContext = ({
     if (gameEngineState.repository == undefined) {
         throw new Error("gameEngine.repository not found")
     }
-    const { squaddieTemplate, battleSquaddie } = getResultOrThrowError(
+    const { squaddieTemplate, battleSquaddie } =
         ObjectRepositoryService.getSquaddieByBattleId(
             gameEngineState.repository,
             battleSquaddieId
         )
-    )
+
     const actorBattleSquaddieId = BattleActionDecisionStepService.getActor(
         gameEngineState.battleOrchestratorState.battleState
             .battleActionDecisionStep
@@ -1034,12 +1031,11 @@ class IsArmorCorrectCondition implements BehaviorTreeTask {
         )
 
         const battleSquaddieId = context.battleSquaddieId
-        const { battleSquaddie, squaddieTemplate } = getResultOrThrowError(
+        const { battleSquaddie, squaddieTemplate } =
             ObjectRepositoryService.getSquaddieByBattleId(
                 this.objectRepository,
                 battleSquaddieId
             )
-        )
 
         const { net: currentNet, modifier: currentModifier } =
             calculateArmorClass(battleSquaddie, squaddieTemplate)
@@ -1067,12 +1063,11 @@ class UpdateArmorContextAction implements BehaviorTreeTask {
         )
 
         const battleSquaddieId = context.battleSquaddieId
-        const { battleSquaddie, squaddieTemplate } = getResultOrThrowError(
+        const { battleSquaddie, squaddieTemplate } =
             ObjectRepositoryService.getSquaddieByBattleId(
                 this.objectRepository,
                 battleSquaddieId
             )
-        )
 
         const { net: currentNet, modifier: currentModifier } =
             calculateArmorClass(battleSquaddie, squaddieTemplate)
@@ -1166,12 +1161,11 @@ class IsMovementCorrectCondition implements BehaviorTreeTask {
         )
 
         const battleSquaddieId = context.battleSquaddieId
-        const { battleSquaddie, squaddieTemplate } = getResultOrThrowError(
+        const { battleSquaddie, squaddieTemplate } =
             ObjectRepositoryService.getSquaddieByBattleId(
                 this.objectRepository,
                 battleSquaddieId
             )
-        )
 
         const { initialMovementPerAction, movementChange } = calculateMovement(
             battleSquaddie,
@@ -1202,12 +1196,11 @@ class UpdateMovementContextAction implements BehaviorTreeTask {
         )
 
         const battleSquaddieId = context.battleSquaddieId
-        const { battleSquaddie, squaddieTemplate } = getResultOrThrowError(
+        const { battleSquaddie, squaddieTemplate } =
             ObjectRepositoryService.getSquaddieByBattleId(
                 this.objectRepository,
                 battleSquaddieId
             )
-        )
 
         const { initialMovementPerAction, movementChange } = calculateMovement(
             battleSquaddie,
@@ -1433,12 +1426,11 @@ class IsAttributeModifiersCorrectCondition implements BehaviorTreeTask {
         )
 
         const battleSquaddieId = context.battleSquaddieId
-        const { battleSquaddie } = getResultOrThrowError(
+        const { battleSquaddie } =
             ObjectRepositoryService.getSquaddieByBattleId(
                 this.objectRepository,
                 battleSquaddieId
             )
-        )
 
         const attributeModifiers = calculateAttributeModifiers(battleSquaddie)
 
@@ -1477,12 +1469,11 @@ class UpdateAttributeModifiersContextAction implements BehaviorTreeTask {
         )
 
         const battleSquaddieId = context.battleSquaddieId
-        const { battleSquaddie } = getResultOrThrowError(
+        const { battleSquaddie } =
             ObjectRepositoryService.getSquaddieByBattleId(
                 this.objectRepository,
                 battleSquaddieId
             )
-        )
 
         const attributeModifiers = calculateAttributeModifiers(battleSquaddie)
 

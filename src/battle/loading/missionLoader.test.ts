@@ -7,7 +7,6 @@ import {
 } from "../../dataLoader/missionLoader"
 import { MissionLoader, MissionLoaderContext } from "./missionLoader"
 import { ObjectRepository, ObjectRepositoryService } from "../objectRepository"
-import { getResultOrThrowError } from "../../utils/resultOrError"
 import { DEFAULT_VICTORY_CUTSCENE_ID } from "../orchestrator/missionCutsceneCollection"
 import { MissionObjectiveService } from "../missionResult/missionObjective"
 import {
@@ -265,12 +264,12 @@ describe("Mission Loader", () => {
 
                 npcDeployments.forEach((deployment) =>
                     deployment.mapPlacements.forEach((placement) => {
-                        const { battleSquaddie } = getResultOrThrowError(
+                        const { battleSquaddie } =
                             ObjectRepositoryService.getSquaddieByBattleId(
                                 objectRepository,
                                 placement.battleSquaddieId
                             )
-                        )
+
                         expect(battleSquaddie.battleSquaddieId).toEqual(
                             placement.battleSquaddieId
                         )

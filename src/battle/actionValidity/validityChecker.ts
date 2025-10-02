@@ -1,6 +1,5 @@
 import { ObjectRepository, ObjectRepositoryService } from "../objectRepository"
 import { SquaddieCanPerformActionCheck } from "./squaddieCanPerformActionCheck"
-import { getResultOrThrowError } from "../../utils/resultOrError"
 import { TActionPerformFailureReason } from "../../squaddie/turn"
 import { PerRoundCheck } from "./perRoundCheck"
 import { CanAttackTargetsCheck } from "./canAttackTargetsCheck"
@@ -50,12 +49,12 @@ export const ValidityCheckService = {
             [actionTemplateId: string]: ActionValidityStatus
         } = {}
 
-        const { battleSquaddie, squaddieTemplate } = getResultOrThrowError(
+        const { battleSquaddie, squaddieTemplate } =
             ObjectRepositoryService.getSquaddieByBattleId(
                 objectRepository,
                 battleSquaddieId
             )
-        )
+
         squaddieTemplate.actionTemplateIds.forEach(
             (actionTemplateId: string) => {
                 overallStatus[actionTemplateId] = {

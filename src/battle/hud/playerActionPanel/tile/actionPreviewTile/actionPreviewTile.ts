@@ -10,7 +10,6 @@ import {
 } from "../actionTilePosition"
 import { TSquaddieAffiliation } from "../../../../../squaddie/squaddieAffiliation"
 import { TextBox } from "../../../../../ui/textBox/textBox"
-import { getResultOrThrowError } from "../../../../../utils/resultOrError"
 import {
     BattleActionDecisionStep,
     BattleActionDecisionStepService,
@@ -216,12 +215,11 @@ export const ActionPreviewTileService = {
             battleActionDecisionStep
         )!.battleSquaddieId
 
-        const { squaddieTemplate } = getResultOrThrowError(
+        const { squaddieTemplate } =
             ObjectRepositoryService.getSquaddieByBattleId(
                 objectRepository,
                 battleSquaddieId
             )
-        )
 
         const forecast = ActionCalculator.forecastResults({
             battleActionDecisionStep,
@@ -613,12 +611,12 @@ const createActionPreviewTileContext = ({
     let focusedBattleSquaddieId: string | undefined = undefined
     forecast.changesPerEffect.forEach((effect) => {
         effect.squaddieChanges?.forEach((squaddieChange) => {
-            const { squaddieTemplate } = getResultOrThrowError(
+            const { squaddieTemplate } =
                 ObjectRepositoryService.getSquaddieByBattleId(
                     objectRepository,
                     squaddieChange.battleSquaddieId
                 )
-            )
+
             squaddieNamesByBattleSquaddieId[squaddieChange.battleSquaddieId] =
                 squaddieTemplate.squaddieId.name
             focusedBattleSquaddieId ||= squaddieChange.battleSquaddieId

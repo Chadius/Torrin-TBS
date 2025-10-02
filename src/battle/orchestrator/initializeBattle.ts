@@ -7,7 +7,6 @@ import {
 } from "./battleOrchestratorComponent"
 import { DrawSquaddieIconOnMapUtilities } from "../animation/drawSquaddieIconOnMap/drawSquaddieIconOnMap"
 import { SquaddieAffiliation } from "../../squaddie/squaddieAffiliation"
-import { getResultOrThrowError } from "../../utils/resultOrError"
 import { BattleSquaddieTeam } from "../battleSquaddieTeam"
 import { BattlePhaseService } from "../orchestratorComponents/battlePhaseTracker"
 import { ObjectRepositoryService } from "../objectRepository"
@@ -51,12 +50,11 @@ export class InitializeBattle implements BattleOrchestratorComponent {
         playerTeams.forEach((playerTeam) => {
             playerTeam.battleSquaddieIds.forEach((battleId) => {
                 const { battleSquaddie, squaddieTemplate } =
-                    getResultOrThrowError(
-                        ObjectRepositoryService.getSquaddieByBattleId(
-                            repository,
-                            battleId
-                        )
+                    ObjectRepositoryService.getSquaddieByBattleId(
+                        repository,
+                        battleId
                     )
+
                 DrawSquaddieIconOnMapUtilities.tintSquaddieMapIconIfTheyCannotAct(
                     battleSquaddie,
                     squaddieTemplate,

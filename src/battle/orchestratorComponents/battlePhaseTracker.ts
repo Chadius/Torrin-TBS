@@ -8,7 +8,6 @@ import {
 } from "../../squaddie/squaddieAffiliation"
 import { BattlePhaseState } from "./battlePhaseController"
 import { BattleSquaddie } from "../battleSquaddie"
-import { getResultOrThrowError } from "../../utils/resultOrError"
 import { ObjectRepositoryService } from "../objectRepository"
 import { EnumLike } from "../../utils/enum"
 import { GameEngineState } from "../../gameEngine/gameEngineState/gameEngineState"
@@ -57,12 +56,11 @@ export const BattlePhaseService = {
         if (objectRepository == undefined) return
         squaddieTeams.forEach((team) => {
             team.battleSquaddieIds.forEach((battleSquaddieId) => {
-                const { battleSquaddie } = getResultOrThrowError(
+                const { battleSquaddie } =
                     ObjectRepositoryService.getSquaddieByBattleId(
                         objectRepository,
                         battleSquaddieId
                     )
-                )
 
                 callback(battleSquaddie)
             })

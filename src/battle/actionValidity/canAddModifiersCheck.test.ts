@@ -11,7 +11,6 @@ import {
     ActionTemplateService,
 } from "../../action/template/actionTemplate"
 import { MapSearchTestUtils } from "../../hexMap/pathfinder/pathGeneration/mapSearchTests/mapSearchTestUtils"
-import { getResultOrThrowError } from "../../utils/resultOrError"
 import { ActionPerformFailureReason } from "../../squaddie/turn"
 import { CoordinateGeneratorShape } from "../targeting/coordinateGenerator"
 import { Damage } from "../../squaddie/squaddieService"
@@ -85,12 +84,12 @@ describe("can add modifiers check", () => {
             actorSquaddieName: "actor",
         })
 
-        const { battleSquaddie } = getResultOrThrowError(
+        const { battleSquaddie } =
             ObjectRepositoryService.getSquaddieByBattleId(
                 objectRepository,
                 "actor"
             )
-        )
+
         InBattleAttributesService.takeDamage({
             inBattleAttributes: battleSquaddie.inBattleAttributes,
             damageToTake: 1,
@@ -145,12 +144,12 @@ describe("can add modifiers check", () => {
 
         describe("is not valid if the target already has the attributes", () => {
             beforeEach(() => {
-                const { battleSquaddie } = getResultOrThrowError(
+                const { battleSquaddie } =
                     ObjectRepositoryService.getSquaddieByBattleId(
                         objectRepository,
                         "actor"
                     )
-                )
+
                 InBattleAttributesService.addActiveAttributeModifier(
                     battleSquaddie.inBattleAttributes,
                     AttributeModifierService.new({
@@ -168,11 +167,9 @@ describe("can add modifiers check", () => {
             })
             it("reports attributes will not be added", () => {
                 const { battleSquaddie, squaddieTemplate } =
-                    getResultOrThrowError(
-                        ObjectRepositoryService.getSquaddieByBattleId(
-                            objectRepository,
-                            "actor"
-                        )
+                    ObjectRepositoryService.getSquaddieByBattleId(
+                        objectRepository,
+                        "actor"
                     )
 
                 expect(
@@ -207,11 +204,9 @@ describe("can add modifiers check", () => {
             })
             it("reports attributes will be added", () => {
                 const { battleSquaddie, squaddieTemplate } =
-                    getResultOrThrowError(
-                        ObjectRepositoryService.getSquaddieByBattleId(
-                            objectRepository,
-                            "actor"
-                        )
+                    ObjectRepositoryService.getSquaddieByBattleId(
+                        objectRepository,
+                        "actor"
                     )
 
                 expect(

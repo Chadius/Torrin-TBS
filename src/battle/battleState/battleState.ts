@@ -45,7 +45,6 @@ import {
     MessageBoardMessageSquaddieTurnEnds,
     MessageBoardMessageType,
 } from "../../message/messageBoardMessage"
-import { getResultOrThrowError } from "../../utils/resultOrError"
 import { SquaddieService } from "../../squaddie/squaddieService"
 import {
     BattleActionRecorder,
@@ -348,12 +347,12 @@ const battleActionFinishesAnimation = (
     )
     if (battleAction == undefined) return
     if (gameEngineState.repository == undefined) return
-    const { battleSquaddie, squaddieTemplate } = getResultOrThrowError(
+    const { battleSquaddie, squaddieTemplate } =
         ObjectRepositoryService.getSquaddieByBattleId(
             gameEngineState.repository,
             battleAction.actor.actorBattleSquaddieId
         )
-    )
+
     const { originMapCoordinate } = MissionMapService.getByBattleSquaddieId(
         gameEngineState.battleOrchestratorState.battleState.missionMap,
         battleAction.actor.actorBattleSquaddieId

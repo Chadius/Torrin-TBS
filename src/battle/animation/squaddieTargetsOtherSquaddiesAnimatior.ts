@@ -12,7 +12,6 @@ import { ActionTimer } from "./actionAnimation/actionTimer"
 import { ActorTextWindow } from "./actionAnimation/actorTextWindow"
 import { WeaponIcon } from "./actionAnimation/weaponIcon"
 import { ActorSprite } from "./actionAnimation/actorSprite"
-import { getResultOrThrowError } from "../../utils/resultOrError"
 import { TargetSprite } from "./actionAnimation/targetSprite"
 import { TargetTextWindow } from "./actionAnimation/targetTextWindow"
 import { HitPointMeter } from "./actionAnimation/hitPointMeter"
@@ -305,11 +304,9 @@ export class SquaddieTargetsOtherSquaddiesAnimator
             return
 
         const { battleSquaddie: actorBattle, squaddieTemplate: actorTemplate } =
-            getResultOrThrowError(
-                ObjectRepositoryService.getSquaddieByBattleId(
-                    gameEngineState.repository,
-                    actionToShow.actor.actorBattleSquaddieId
-                )
+            ObjectRepositoryService.getSquaddieByBattleId(
+                gameEngineState.repository,
+                actionToShow.actor.actorBattleSquaddieId
             )
 
         if (actionToShow?.action.actionTemplateId === undefined) {
@@ -439,11 +436,9 @@ export class SquaddieTargetsOtherSquaddiesAnimator
                 const {
                     battleSquaddie: targetBattle,
                     squaddieTemplate: targetTemplate,
-                } = getResultOrThrowError(
-                    ObjectRepositoryService.getSquaddieByBattleId(
-                        gameEngineState.repository,
-                        battleId
-                    )
+                } = ObjectRepositoryService.getSquaddieByBattleId(
+                    gameEngineState.repository,
+                    battleId
                 )
 
                 const actionEffectSquaddieTemplate =
@@ -487,11 +482,9 @@ export class SquaddieTargetsOtherSquaddiesAnimator
                 const {
                     battleSquaddie: targetBattle,
                     squaddieTemplate: targetTemplate,
-                } = getResultOrThrowError(
-                    ObjectRepositoryService.getSquaddieByBattleId(
-                        gameEngineState.repository,
-                        battleSquaddieId
-                    )
+                } = ObjectRepositoryService.getSquaddieByBattleId(
+                    gameEngineState.repository,
+                    battleSquaddieId
                 )
 
                 let {

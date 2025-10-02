@@ -55,8 +55,6 @@ import {
 } from "../../../../squaddie/attribute/attributeModifier"
 import { Attribute } from "../../../../squaddie/attribute/attribute"
 import { GraphicsBuffer } from "../../../../utils/graphics/graphicsRenderer"
-import { getResultOrThrowError } from "../../../../utils/resultOrError"
-
 describe("Squaddie Name and Portrait Tile", () => {
     let objectRepository: ObjectRepository
 
@@ -415,11 +413,9 @@ describe("Squaddie Name and Portrait Tile", () => {
                 ],
             })
 
-            battleSquaddie = getResultOrThrowError(
-                ObjectRepositoryService.getSquaddieByBattleId(
-                    objectRepository,
-                    tile.battleSquaddieId
-                )
+            battleSquaddie = ObjectRepositoryService.getSquaddieByBattleId(
+                objectRepository,
+                tile.battleSquaddieId
             ).battleSquaddie
             battleSquaddie.inBattleAttributes = inBattleAttributes
         })
@@ -624,12 +620,11 @@ describe("Squaddie Name and Portrait Tile", () => {
                 ],
             })
 
-            const battleSquaddie = getResultOrThrowError(
+            const battleSquaddie =
                 ObjectRepositoryService.getSquaddieByBattleId(
                     objectRepository,
                     tile.battleSquaddieId
-                )
-            ).battleSquaddie
+                ).battleSquaddie
             battleSquaddie.inBattleAttributes = inBattleAttributes
 
             tile = SquaddieNameAndPortraitTileService.newFromBattleSquaddieId({

@@ -11,7 +11,6 @@ import {
     ActionTemplateService,
 } from "../../action/template/actionTemplate"
 import { MapSearchTestUtils } from "../../hexMap/pathfinder/pathGeneration/mapSearchTests/mapSearchTestUtils"
-import { getResultOrThrowError } from "../../utils/resultOrError"
 import { ActionPerformFailureReason } from "../../squaddie/turn"
 import { CoordinateGeneratorShape } from "../targeting/coordinateGenerator"
 import { Damage, Healing } from "../../squaddie/squaddieService"
@@ -80,12 +79,12 @@ describe("can heal targets", () => {
             actorSquaddieName: "actor",
         })
 
-        const { battleSquaddie } = getResultOrThrowError(
+        const { battleSquaddie } =
             ObjectRepositoryService.getSquaddieByBattleId(
                 objectRepository,
                 "actor"
             )
-        )
+
         InBattleAttributesService.takeDamage({
             inBattleAttributes: battleSquaddie.inBattleAttributes,
             damageToTake: 1,
@@ -145,11 +144,9 @@ describe("can heal targets", () => {
 
             it("will calculate 0 healing", () => {
                 const { battleSquaddie, squaddieTemplate } =
-                    getResultOrThrowError(
-                        ObjectRepositoryService.getSquaddieByBattleId(
-                            objectRepository,
-                            "actor"
-                        )
+                    ObjectRepositoryService.getSquaddieByBattleId(
+                        objectRepository,
+                        "actor"
                     )
 
                 expect(
@@ -182,12 +179,12 @@ describe("can heal targets", () => {
                         validTargetResults,
                         ["actor"]
                     )
-                const { battleSquaddie } = getResultOrThrowError(
+                const { battleSquaddie } =
                     ObjectRepositoryService.getSquaddieByBattleId(
                         objectRepository,
                         "actor"
                     )
-                )
+
                 InBattleAttributesService.takeDamage({
                     inBattleAttributes: battleSquaddie.inBattleAttributes,
                     damageToTake: 1,
@@ -196,11 +193,9 @@ describe("can heal targets", () => {
             })
             it("will calculate healing amount", () => {
                 const { battleSquaddie, squaddieTemplate } =
-                    getResultOrThrowError(
-                        ObjectRepositoryService.getSquaddieByBattleId(
-                            objectRepository,
-                            "actor"
-                        )
+                    ObjectRepositoryService.getSquaddieByBattleId(
+                        objectRepository,
+                        "actor"
                     )
 
                 expect(

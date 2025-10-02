@@ -4,7 +4,6 @@ import {
     ObjectRepository,
     ObjectRepositoryService,
 } from "../../objectRepository"
-import { getResultOrThrowError } from "../../../utils/resultOrError"
 import { SquaddieService } from "../../../squaddie/squaddieService"
 import { MissionMap, MissionMapService } from "../../../missionMap/missionMap"
 import { TerrainTileMapService } from "../../../hexMap/terrainTileMap"
@@ -70,11 +69,9 @@ export const BattleHUDStateService = {
             battleHUDState.squaddieListing.battleSquaddieIds
                 .map((battleSquaddieId, squaddieListingIndex) => {
                     const { battleSquaddie, squaddieTemplate } =
-                        getResultOrThrowError(
-                            ObjectRepositoryService.getSquaddieByBattleId(
-                                objectRepository,
-                                battleSquaddieId
-                            )
+                        ObjectRepositoryService.getSquaddieByBattleId(
+                            objectRepository,
+                            battleSquaddieId
                         )
 
                     if (

@@ -12,7 +12,6 @@ import {
     BANNER_ANIMATION_TIME,
     BattlePhaseController,
 } from "./battlePhaseController"
-import { getResultOrThrowError } from "../../utils/resultOrError"
 import { ResourceHandler } from "../../resource/resourceHandler"
 import * as mocks from "../../utils/test/mocks"
 import { MockedP5GraphicsBuffer } from "../../utils/test/mocks"
@@ -306,12 +305,12 @@ describe("BattlePhaseController", () => {
                 }
             ;[enemySquaddieTeam].forEach((team) =>
                 team.battleSquaddieIds.forEach((battleSquaddieId) => {
-                    const { battleSquaddie } = getResultOrThrowError(
+                    const { battleSquaddie } =
                         ObjectRepositoryService.getSquaddieByBattleId(
                             objectRepository,
                             battleSquaddieId
                         )
-                    )
+
                     SquaddieTurnService.endTurn(battleSquaddie.squaddieTurn)
                 })
             )
@@ -334,12 +333,12 @@ describe("BattlePhaseController", () => {
         })
 
         it("should not select a player squaddie who cannot act", () => {
-            const { battleSquaddie } = getResultOrThrowError(
+            const { battleSquaddie } =
                 ObjectRepositoryService.getSquaddieByBattleId(
                     objectRepository,
                     playerSquaddieTeam.battleSquaddieIds[0]
                 )
-            )
+
             battleSquaddie.inBattleAttributes.currentHitPoints = 0
 
             battlePhaseController.update({
@@ -367,12 +366,12 @@ describe("BattlePhaseController", () => {
         }
         ;[playerSquaddieTeam].forEach((team) =>
             team.battleSquaddieIds.forEach((battleSquaddieId) => {
-                const { battleSquaddie } = getResultOrThrowError(
+                const { battleSquaddie } =
                     ObjectRepositoryService.getSquaddieByBattleId(
                         objectRepository,
                         battleSquaddieId
                     )
-                )
+
                 SquaddieTurnService.endTurn(battleSquaddie.squaddieTurn)
             })
         )
@@ -415,12 +414,12 @@ describe("BattlePhaseController", () => {
                     .battlePhaseState.currentAffiliation
             ).toBe(BattlePhase.PLAYER)
 
-            const { battleSquaddie: battleSquaddie0 } = getResultOrThrowError(
+            const { battleSquaddie: battleSquaddie0 } =
                 ObjectRepositoryService.getSquaddieByBattleId(
                     objectRepository,
                     "player_squaddie_0"
                 )
-            )
+
             BattleSquaddieService.endTurn(battleSquaddie0)
 
             vi.spyOn(Date, "now").mockImplementation(() => startTime)
@@ -602,12 +601,12 @@ describe("BattlePhaseController", () => {
 
         it("will stay with the current affiliation if the current team is done", () => {
             playerSquaddieTeam.battleSquaddieIds.forEach((battleSquaddieId) => {
-                const { battleSquaddie } = getResultOrThrowError(
+                const { battleSquaddie } =
                     ObjectRepositoryService.getSquaddieByBattleId(
                         objectRepository,
                         battleSquaddieId
                     )
-                )
+
                 SquaddieTurnService.endTurn(battleSquaddie.squaddieTurn)
             })
 
@@ -632,12 +631,12 @@ describe("BattlePhaseController", () => {
         it("will move on to the next phase when all teams of the current affiliation are done", () => {
             ;[playerSquaddieTeam, playerTeam2].forEach((team) =>
                 team.battleSquaddieIds.forEach((battleSquaddieId) => {
-                    const { battleSquaddie } = getResultOrThrowError(
+                    const { battleSquaddie } =
                         ObjectRepositoryService.getSquaddieByBattleId(
                             objectRepository,
                             battleSquaddieId
                         )
-                    )
+
                     SquaddieTurnService.endTurn(battleSquaddie.squaddieTurn)
                 })
             )

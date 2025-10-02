@@ -32,7 +32,6 @@ import {
     SquaddieSelectorPanelService,
 } from "./squaddieSelectorPanel"
 import { SquaddieSelectorPanelButtonService } from "./squaddieSelectorPanelButton/squaddieSelectorPanelButton"
-import { getResultOrThrowError } from "../../../../utils/resultOrError"
 import { SquaddieTurnService } from "../../../../squaddie/turn"
 import {
     BattleActionDecisionStep,
@@ -160,11 +159,9 @@ describe("Squaddie Selector Panel", () => {
         it("will set the button status as uncontrollable if the squaddie is out of actions", () => {
             const playerTeam = createPlayerTeamWithSomeSquaddies(2)
             const { battleSquaddie: battleSquaddieWithoutActions } =
-                getResultOrThrowError(
-                    ObjectRepositoryService.getSquaddieByBattleId(
-                        objectRepository,
-                        "playerBattleSquaddieId0"
-                    )
+                ObjectRepositoryService.getSquaddieByBattleId(
+                    objectRepository,
+                    "playerBattleSquaddieId0"
                 )
 
             SquaddieTurnService.endTurn(
@@ -313,11 +310,9 @@ describe("Squaddie Selector Panel", () => {
                     .squaddieIsControllable
             ).toBeTruthy()
             const { battleSquaddie: battleSquaddieWithoutActions } =
-                getResultOrThrowError(
-                    ObjectRepositoryService.getSquaddieByBattleId(
-                        objectRepository,
-                        "playerBattleSquaddieId0"
-                    )
+                ObjectRepositoryService.getSquaddieByBattleId(
+                    objectRepository,
+                    "playerBattleSquaddieId0"
                 )
 
             SquaddieTurnService.endTurn(

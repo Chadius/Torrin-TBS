@@ -1,5 +1,4 @@
 import { BattleSquaddie } from "../../battleSquaddie"
-import { getResultOrThrowError } from "../../../utils/resultOrError"
 import { Damage } from "../../../squaddie/squaddieService"
 import { SquaddieAffiliation } from "../../../squaddie/squaddieAffiliation"
 import {
@@ -264,20 +263,18 @@ const getDegreeOfSuccessAndSuccessBonus = ({
     challengeModifierSetting: ChallengeModifierSetting
     objectRepository: ObjectRepository
 }): DegreeOfSuccessAndSuccessBonus => {
-    const { battleSquaddie: actorBattleSquaddie } = getResultOrThrowError(
+    const { battleSquaddie: actorBattleSquaddie } =
         ObjectRepositoryService.getSquaddieByBattleId(
             objectRepository,
             actorBattleSquaddieId
         )
-    )
+
     const {
         battleSquaddie: targetBattleSquaddie,
         squaddieTemplate: targetSquaddieTemplate,
-    } = getResultOrThrowError(
-        ObjectRepositoryService.getSquaddieByBattleId(
-            objectRepository,
-            targetBattleSquaddieId
-        )
+    } = ObjectRepositoryService.getSquaddieByBattleId(
+        objectRepository,
+        targetBattleSquaddieId
     )
 
     if (isAnAttack(actionEffectTemplate)) {
@@ -353,12 +350,11 @@ const applyCalculatedEffectAndReturnChange = ({
     targetedBattleSquaddieId: string
     successBonus: number | undefined
 }) => {
-    const { battleSquaddie: targetedBattleSquaddie } = getResultOrThrowError(
+    const { battleSquaddie: targetedBattleSquaddie } =
         ObjectRepositoryService.getSquaddieByBattleId(
             objectRepository,
             targetedBattleSquaddieId
         )
-    )
 
     const changes = getBattleActionSquaddieChange({
         objectRepository,
@@ -417,12 +413,11 @@ const maybeUpdateMissionStatistics = ({
     actingBattleSquaddieId: string
 }) => {
     const { squaddieTemplate: targetedSquaddieTemplate } =
-        getResultOrThrowError(
-            ObjectRepositoryService.getSquaddieByBattleId(
-                objectRepository,
-                result.battleSquaddieId
-            )
+        ObjectRepositoryService.getSquaddieByBattleId(
+            objectRepository,
+            result.battleSquaddieId
         )
+
     const healingReceived: number = result.healingReceived
     const damageDealt: number = result.damage.net
 
@@ -450,12 +445,12 @@ const maybeUpdateMissionStatistics = ({
         }
     }
 
-    const { squaddieTemplate: actingSquaddieTemplate } = getResultOrThrowError(
+    const { squaddieTemplate: actingSquaddieTemplate } =
         ObjectRepositoryService.getSquaddieByBattleId(
             objectRepository,
             actingBattleSquaddieId
         )
-    )
+
     if (
         actingSquaddieTemplate.squaddieId.affiliation ===
         SquaddieAffiliation.PLAYER
@@ -508,12 +503,11 @@ const getBattleActionSquaddieChange = ({
     objectRepository: ObjectRepository
     targetBattleSquaddieId: string
 }): BattleActionSquaddieChange => {
-    const { battleSquaddie } = getResultOrThrowError(
-        ObjectRepositoryService.getSquaddieByBattleId(
-            objectRepository,
-            targetBattleSquaddieId
-        )
+    const { battleSquaddie } = ObjectRepositoryService.getSquaddieByBattleId(
+        objectRepository,
+        targetBattleSquaddieId
     )
+
     return BattleActionSquaddieChangeService.new({
         battleSquaddieId: targetBattleSquaddieId,
         attributesBefore: InBattleAttributesService.clone(
@@ -539,12 +533,11 @@ const forecastCalculatedEffectAndReturnChange = ({
     chanceOfDegreeOfSuccess: number
     objectRepository: ObjectRepository
 }): BattleActionSquaddieChange => {
-    const { battleSquaddie: targetedBattleSquaddie } = getResultOrThrowError(
+    const { battleSquaddie: targetedBattleSquaddie } =
         ObjectRepositoryService.getSquaddieByBattleId(
             objectRepository,
             targetedBattleSquaddieId
         )
-    )
 
     const changes = getBattleActionSquaddieChange({
         objectRepository,
@@ -648,11 +641,9 @@ const calculateResults = ({
     const {
         battleSquaddie: actorBattleSquaddie,
         squaddieTemplate: actorSquaddieTemplate,
-    } = getResultOrThrowError(
-        ObjectRepositoryService.getSquaddieByBattleId(
-            objectRepository,
-            actorBattleSquaddieId
-        )
+    } = ObjectRepositoryService.getSquaddieByBattleId(
+        objectRepository,
+        actorBattleSquaddieId
     )
 
     const actionTemplate: ActionTemplate =
@@ -733,11 +724,9 @@ const forecastChangesForSquaddieAndActionEffectTemplate = ({
                 const {
                     battleSquaddie: targetBattleSquaddie,
                     squaddieTemplate: targetSquaddieTemplate,
-                } = getResultOrThrowError(
-                    ObjectRepositoryService.getSquaddieByBattleId(
-                        objectRepository,
-                        targetedBattleSquaddieId
-                    )
+                } = ObjectRepositoryService.getSquaddieByBattleId(
+                    objectRepository,
+                    targetedBattleSquaddieId
                 )
 
                 const possibleDegreesOfSuccess = getAllPossibleDegreesOfSuccess(
@@ -888,12 +877,11 @@ const applySquaddieChangesForThisEffectSquaddieTemplate = ({
     challengeModifierSetting: ChallengeModifierSetting
     objectRepository: ObjectRepository
 }): ActionEffectChange => {
-    const { squaddieTemplate: actorSquaddieTemplate } = getResultOrThrowError(
+    const { squaddieTemplate: actorSquaddieTemplate } =
         ObjectRepositoryService.getSquaddieByBattleId(
             objectRepository,
             actorBattleSquaddieId
         )
-    )
 
     const actorContext = getActorContext({
         battleActionRecorder,
@@ -912,12 +900,11 @@ const applySquaddieChangesForThisEffectSquaddieTemplate = ({
                 const {
                     battleSquaddie: targetBattleSquaddie,
                     squaddieTemplate: targetSquaddieTemplate,
-                } = getResultOrThrowError(
-                    ObjectRepositoryService.getSquaddieByBattleId(
-                        objectRepository,
-                        targetedBattleSquaddieId
-                    )
+                } = ObjectRepositoryService.getSquaddieByBattleId(
+                    objectRepository,
+                    targetedBattleSquaddieId
                 )
+
                 actorContext.targetAttributeModifiers[
                     targetedBattleSquaddieId
                 ] = getTargetContext({

@@ -29,7 +29,6 @@ import {
     ObjectRepository,
     ObjectRepositoryService,
 } from "../../../battle/objectRepository"
-import { getResultOrThrowError } from "../../../utils/resultOrError"
 import {
     SquaddieAffiliation,
     SquaddieAffiliationService,
@@ -494,11 +493,9 @@ const shouldAddNeighborDuringMapSearchWhenThereIsASquaddieAtNeighbor = ({
 
     if (!battleSquaddieIdAtNeighbor) return true
 
-    const { squaddieTemplate } = getResultOrThrowError(
-        ObjectRepositoryService.getSquaddieByBattleId(
-            objectRepository,
-            battleSquaddieIdAtNeighbor
-        )
+    const { squaddieTemplate } = ObjectRepositoryService.getSquaddieByBattleId(
+        objectRepository,
+        battleSquaddieIdAtNeighbor
     )
 
     if (
@@ -532,11 +529,11 @@ const getSquaddieAtStartCoordinate = ({
             startCoordinate
         )
     if (!battleSquaddieId) return undefined
-    const { squaddieTemplate, battleSquaddie } = getResultOrThrowError(
+    const { squaddieTemplate, battleSquaddie } =
         ObjectRepositoryService.getSquaddieByBattleId(
             objectRepository,
             battleSquaddieId
         )
-    )
+
     return { squaddieTemplate, battleSquaddie }
 }

@@ -2,7 +2,6 @@ import {
     ObjectRepository,
     ObjectRepositoryService,
 } from "../../../../objectRepository"
-import { getResultOrThrowError } from "../../../../../utils/resultOrError"
 import { GraphicsBuffer } from "../../../../../utils/graphics/graphicsRenderer"
 import {
     ActionTilePosition,
@@ -123,12 +122,12 @@ export const ActionSelectedTileService = {
             actionTemplateId
         )
 
-        const { squaddieTemplate } = getResultOrThrowError(
+        const { squaddieTemplate } =
             ObjectRepositoryService.getSquaddieByBattleId(
                 objectRepository,
                 battleSquaddieId
             )
-        )
+
         const glossaryLabelStack = createGlossaryLabelStack({
             actionTemplate: actionTemplate,
             glossary: glossary,

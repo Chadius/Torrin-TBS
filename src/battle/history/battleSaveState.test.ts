@@ -25,7 +25,6 @@ import {
 import { SquaddieAffiliation } from "../../squaddie/squaddieAffiliation"
 import { BattleSquaddie, BattleSquaddieService } from "../battleSquaddie"
 import { SquaddieTurnService } from "../../squaddie/turn"
-import { getResultOrThrowError } from "../../utils/resultOrError"
 import { InBattleAttributesService } from "../stats/inBattleAttributes"
 import { DefaultArmyAttributes } from "../../squaddie/armyAttributes"
 import { Damage } from "../../squaddie/squaddieService"
@@ -651,12 +650,11 @@ describe("BattleSaveState", () => {
             )
         ).toHaveLength(2)
         const { squaddieTemplate: enemyTemplate, battleSquaddie: enemyBattle } =
-            getResultOrThrowError(
-                ObjectRepositoryService.getSquaddieByBattleId(
-                    newSquaddieRepository,
-                    "enemy battle 0"
-                )
+            ObjectRepositoryService.getSquaddieByBattleId(
+                newSquaddieRepository,
+                "enemy battle 0"
             )
+
         expect(enemyTemplate.squaddieId.templateId).toBe("enemy template 0")
         expect(enemyBattle.inBattleAttributes.currentHitPoints).toBe(4)
     })
