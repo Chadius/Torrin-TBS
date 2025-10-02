@@ -155,7 +155,8 @@ export const OrchestratorUtilities = {
 
         gameEngineState.messageBoard.sendMessage({
             type: MessageBoardMessageType.PLAYER_CAN_CONTROL_DIFFERENT_SQUADDIE,
-            gameEngineState,
+            fileAccessHUD:
+                gameEngineState.battleOrchestratorState.battleHUD.fileAccessHUD,
         })
     },
     getBattleSquaddieIdCurrentlyTakingATurn: ({

@@ -297,6 +297,7 @@ const generateMessagesBasedOnAnimationFinishedBattleAction = (
 ) => {
     const objectRepository = gameEngineState.repository
     if (objectRepository == undefined) return
+    const battleState = gameEngineState.battleOrchestratorState.battleState
 
     const recentBattleAction = BattleActionRecorderService.peekAtAnimationQueue(
         gameEngineState.battleOrchestratorState.battleState.battleActionRecorder
@@ -312,7 +313,8 @@ const generateMessagesBasedOnAnimationFinishedBattleAction = (
         gameEngineState,
         type: MessageBoardMessageType.SQUADDIE_IS_INJURED,
         battleSquaddieIds: damagedBattleSquaddieIds,
-        objectRepository: objectRepository,
+        repository: objectRepository,
+        battleState,
     })
 
     const defeatedBattleSquaddieIds: string[] =
@@ -332,9 +334,9 @@ const generateMessagesBasedOnAnimationFinishedBattleAction = (
             .map((change) => change.battleSquaddieId) ?? []
 
     gameEngineState.messageBoard.sendMessage({
-        gameEngineState,
         type: MessageBoardMessageType.SQUADDIE_IS_DEFEATED,
         battleSquaddieIds: defeatedBattleSquaddieIds,
-        objectRepository: gameEngineState.repository,
+        repository: gameEngineState.repository!,
+        battleState: gameEngineState.battleOrchestratorState.battleState,
     })
 }

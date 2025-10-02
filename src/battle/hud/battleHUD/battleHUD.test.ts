@@ -389,7 +389,9 @@ describe("Battle HUD", () => {
             )
             messageBoard.sendMessage({
                 type: MessageBoardMessageType.PLAYER_CAN_CONTROL_DIFFERENT_SQUADDIE,
-                gameEngineState: gameEngineStateWithPlayerPhase,
+                fileAccessHUD:
+                    gameEngineStateWithPlayerPhase.battleOrchestratorState
+                        .battleHUD.fileAccessHUD,
             })
 
             expect(listenerSpy).toBeCalled()

@@ -806,7 +806,8 @@ describe("BattleSquaddieUsesActionOnSquaddie", () => {
             type: MessageBoardMessageType.SQUADDIE_IS_INJURED,
             gameEngineState,
             battleSquaddieIds: [targetDynamicSquaddieBattleSquaddieId],
-            objectRepository: gameEngineState.repository!,
+            repository: gameEngineState.repository!,
+            battleState: gameEngineState.battleOrchestratorState.battleState,
         })
         messageBoardSendSpy.mockRestore()
     })

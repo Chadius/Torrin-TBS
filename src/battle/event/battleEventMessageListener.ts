@@ -1,9 +1,7 @@
 import { MessageBoardListener } from "../../message/messageBoardListener"
 import {
     MessageBoardMessage,
-    MessageBoardMessageSquaddieIsInjured,
-    MessageBoardMessageType,
-    TMessageBoardMessageType,
+    MessageBoardMessageService,
 } from "../../message/messageBoardMessage"
 import {
     CutsceneIdQueue,
@@ -28,6 +26,7 @@ import { SquaddieService } from "../../squaddie/squaddieService"
 import { CutsceneEffect } from "../../cutscene/cutsceneEffect"
 import { ChallengeModifierEffect } from "./eventEffect/challengeModifierEffect/challengeModifierEffect"
 import { TBattleCompletionStatus } from "../orchestrator/missionObjectivesAndCutscenes"
+import { BattleState } from "../battleState/battleState"
 
 export class BattleEventMessageListener implements MessageBoardListener {
     messageBoardListenerId: string
@@ -40,37 +39,46 @@ export class BattleEventMessageListener implements MessageBoardListener {
 
     receiveMessage(message: MessageBoardMessage): void {
         if (
-            !new Set<TMessageBoardMessageType>([
-                MessageBoardMessageType.SQUADDIE_IS_INJURED,
-                MessageBoardMessageType.SQUADDIE_IS_DEFEATED,
-                MessageBoardMessageType.SQUADDIE_PHASE_STARTS,
-            ]).has(message.type)
+            !MessageBoardMessageService.isMessageBoardMessageSquaddiePhaseStarts(
+                message
+            ) &&
+            !MessageBoardMessageService.isMessageBoardMessageSquaddieIsInjured(
+                message
+            ) &&
+            !MessageBoardMessageService.isMessageBoardMessageSquaddieIsDefeated(
+                message
+            )
         )
             return
 
-        let battleEvents = (message as MessageBoardMessageSquaddieIsInjured)
-            .gameEngineState.battleOrchestratorState.battleState.battleEvents
-        let objectRepository = (message as MessageBoardMessageSquaddieIsInjured)
-            .gameEngineState.repository
-        if (objectRepository) {
-            battleEvents = this.filterQualifyingBattleEvents({
-                allBattleEvents: battleEvents,
-                objectRepository,
-                battleActionRecorder: (
-                    message as MessageBoardMessageSquaddieIsInjured
-                ).gameEngineState.battleOrchestratorState.battleState
-                    .battleActionRecorder,
-                turn: {
-                    turnCount: (message as MessageBoardMessageSquaddieIsInjured)
-                        .gameEngineState.battleOrchestratorState.battleState
-                        ?.battlePhaseState?.turnCount,
-                },
-                battleCompletionStatus: (
-                    message as MessageBoardMessageSquaddieIsInjured
-                ).gameEngineState.battleOrchestratorState.battleState
-                    .battleCompletionStatus,
-            })
-        }
+        let battleEvents = message.battleState.battleEvents
+        const objectRepository = message.repository
+        const battleState = message.battleState
+        this.applyQualifyingBattleEvents({
+            allBattleEvents: battleEvents,
+            objectRepository,
+            battleState,
+        })
+    }
+
+    applyQualifyingBattleEvents({
+        battleState,
+        allBattleEvents,
+        objectRepository,
+    }: {
+        battleState: BattleState
+        allBattleEvents: BattleEvent[]
+        objectRepository: ObjectRepository
+    }): void {
+        let battleEvents = this.filterQualifyingBattleEvents({
+            allBattleEvents,
+            objectRepository,
+            battleActionRecorder: battleState.battleActionRecorder,
+            turn: {
+                turnCount: battleState?.battlePhaseState?.turnCount,
+            },
+            battleCompletionStatus: battleState.battleCompletionStatus,
+        })
 
         this.applyBattleEventEffects(battleEvents)
     }

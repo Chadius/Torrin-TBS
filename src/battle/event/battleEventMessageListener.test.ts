@@ -118,16 +118,19 @@ describe("Event Message Listener", () => {
                     type: MessageBoardMessageType.SQUADDIE_IS_INJURED,
                     gameEngineState,
                     battleSquaddieIds: [],
-                    objectRepository: gameEngineState.repository!,
+                    repository: gameEngineState.repository!,
+                    battleState:
+                        gameEngineState.battleOrchestratorState.battleState,
                 }),
             },
             {
                 name: "reacts to defeat messages",
                 messageToSend: () => ({
                     type: MessageBoardMessageType.SQUADDIE_IS_DEFEATED,
-                    gameEngineState,
                     battleSquaddieIds: [],
-                    objectRepository: gameEngineState.repository!,
+                    repository: gameEngineState.repository!,
+                    battleState:
+                        gameEngineState.battleOrchestratorState.battleState,
                 }),
             },
         ]

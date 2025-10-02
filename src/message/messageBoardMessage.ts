@@ -189,7 +189,7 @@ const isMessageBoardMessageStartedPlayerPhase = (
 
 export interface MessageBoardMessagePlayerCanControlDifferentSquaddie {
     type: typeof MessageBoardMessageType.PLAYER_CAN_CONTROL_DIFFERENT_SQUADDIE
-    gameEngineState: GameEngineState
+    fileAccessHUD: FileAccessHUD
 }
 const isMessageBoardMessagePlayerCanControlDifferentSquaddie = (
     messageBoardMessage: MessageBoardMessage
@@ -202,16 +202,31 @@ const isMessageBoardMessagePlayerCanControlDifferentSquaddie = (
 
 export interface MessageBoardMessageSquaddieIsInjured {
     type: typeof MessageBoardMessageType.SQUADDIE_IS_INJURED
-    gameEngineState: GameEngineState
-    objectRepository: ObjectRepository
     battleSquaddieIds: string[]
+    repository: ObjectRepository
+    battleState: BattleState
+}
+const isMessageBoardMessageSquaddieIsInjured = (
+    messageBoardMessage: MessageBoardMessage
+): messageBoardMessage is MessageBoardMessageSquaddieIsInjured => {
+    return (
+        messageBoardMessage.type === MessageBoardMessageType.SQUADDIE_IS_INJURED
+    )
 }
 
 export interface MessageBoardMessageSquaddieIsDefeated {
     type: typeof MessageBoardMessageType.SQUADDIE_IS_DEFEATED
-    gameEngineState: GameEngineState
-    objectRepository: ObjectRepository
+    repository: ObjectRepository
+    battleState: BattleState
     battleSquaddieIds: string[]
+}
+const isMessageBoardMessageSquaddieIsDefeated = (
+    messageBoardMessage: MessageBoardMessage
+): messageBoardMessage is MessageBoardMessageSquaddieIsDefeated => {
+    return (
+        messageBoardMessage.type ===
+        MessageBoardMessageType.SQUADDIE_IS_DEFEATED
+    )
 }
 
 export interface MessageBoardMessagePlayerSelectionIsInvalid {
@@ -385,6 +400,8 @@ export interface MessageBoardMessageSquaddiePhaseStarts {
     type: typeof MessageBoardMessageType.SQUADDIE_PHASE_STARTS
     phase: TBattlePhase
     gameEngineState: GameEngineState
+    repository: ObjectRepository
+    battleState: BattleState
 }
 const isMessageBoardMessageSquaddiePhaseStarts = (
     messageBoardMessage: MessageBoardMessage
@@ -778,5 +795,15 @@ export const MessageBoardMessageService = {
         return isMessageBoardMessagePlayerDataLoadFinishRequest(
             messageBoardMessage
         )
+    },
+    isMessageBoardMessageSquaddieIsInjured: (
+        messageBoardMessage: MessageBoardMessage
+    ): messageBoardMessage is MessageBoardMessageSquaddieIsInjured => {
+        return isMessageBoardMessageSquaddieIsInjured(messageBoardMessage)
+    },
+    isMessageBoardMessageSquaddieIsDefeated: (
+        messageBoardMessage: MessageBoardMessage
+    ): messageBoardMessage is MessageBoardMessageSquaddieIsDefeated => {
+        return isMessageBoardMessageSquaddieIsDefeated(messageBoardMessage)
     },
 }

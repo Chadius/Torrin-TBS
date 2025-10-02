@@ -520,7 +520,9 @@ describe("Orchestration Utils", () => {
 
             expect(messageBoardSpy).toBeCalledWith({
                 type: MessageBoardMessageType.PLAYER_CAN_CONTROL_DIFFERENT_SQUADDIE,
-                gameEngineState,
+                fileAccessHUD:
+                    gameEngineState.battleOrchestratorState.battleHUD
+                        .fileAccessHUD,
             })
         })
 

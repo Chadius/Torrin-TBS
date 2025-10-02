@@ -17,16 +17,7 @@ export class BattleHUDListener implements MessageBoardListener {
         if (
             MessageBoardMessageService.isMessageBoardMessagePlayerCanControlDifferentSquaddie(
                 message
-            )
-        ) {
-            FileAccessHUDService.enableButtons(
-                message.gameEngineState.battleOrchestratorState.battleHUD
-                    .fileAccessHUD
-            )
-            return
-        }
-
-        if (
+            ) ||
             MessageBoardMessageService.isMessageBoardMessageStartedPlayerPhase(
                 message
             )
