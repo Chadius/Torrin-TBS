@@ -27,6 +27,7 @@ import {
 } from "../actionDecision/battleActionDecisionStep"
 import { SearchResultsCache } from "../../hexMap/pathfinder/searchResults/searchResultsCache"
 import { GameEngineState } from "../../gameEngine/gameEngineState/gameEngineState"
+import { BattleStateService } from "../battleState/battleState"
 
 export const OrchestratorUtilities = {
     isSquaddieCurrentlyTakingATurn: ({
@@ -101,14 +102,9 @@ export const OrchestratorUtilities = {
         }
 
         if (
-            isSquaddieCurrentlyTakingATurn({
-                battleActionDecisionStep:
-                    gameEngineState.battleOrchestratorState.battleState
-                        .battleActionDecisionStep,
-                battleActionRecorder:
-                    gameEngineState.battleOrchestratorState.battleState
-                        .battleActionRecorder,
-            })
+            BattleStateService.getBattleSquaddieIdCurrentlyTakingATurn(
+                gameEngineState.battleOrchestratorState.battleState
+            )
         ) {
             return
         }
@@ -159,12 +155,6 @@ export const OrchestratorUtilities = {
                 gameEngineState.battleOrchestratorState.battleHUD.fileAccessHUD,
         })
     },
-    getBattleSquaddieIdCurrentlyTakingATurn: ({
-        gameEngineState,
-    }: {
-        gameEngineState: GameEngineState
-    }): string | undefined =>
-        getBattleSquaddieIdCurrentlyTakingATurn({ gameEngineState }),
     messageAndHighlightPlayableSquaddieTakingATurn: ({
         gameEngineState,
     }: {
@@ -175,7 +165,9 @@ export const OrchestratorUtilities = {
 const canTheCurrentSquaddieAct = (gameEngineState: GameEngineState) => {
     if (gameEngineState.repository == undefined) return false
     const battleSquaddieIdCurrentlyTakingATurn =
-        getBattleSquaddieIdCurrentlyTakingATurn({ gameEngineState })
+        BattleStateService.getBattleSquaddieIdCurrentlyTakingATurn(
+            gameEngineState.battleOrchestratorState.battleState
+        )
     if (battleSquaddieIdCurrentlyTakingATurn == undefined) return false
     const { battleSquaddie, squaddieTemplate } =
         ObjectRepositoryService.getSquaddieByBattleId(
@@ -225,7 +217,9 @@ const messageAndHighlightPlayableSquaddieTakingATurn = ({
     gameEngineState: GameEngineState
 }) => {
     const currentlyActingBattleSquaddieId =
-        getBattleSquaddieIdCurrentlyTakingATurn({ gameEngineState })
+        BattleStateService.getBattleSquaddieIdCurrentlyTakingATurn(
+            gameEngineState.battleOrchestratorState.battleState
+        )
     if (
         !isValidValue(currentlyActingBattleSquaddieId) ||
         currentlyActingBattleSquaddieId === ""
@@ -383,48 +377,4 @@ const highlightSquaddieRange = ({
         missionMap.terrainTileMap,
         actionRangeOnMap
     )
-}
-
-const getBattleSquaddieIdCurrentlyTakingATurn = ({
-    gameEngineState,
-}: {
-    gameEngineState: GameEngineState
-}): string | undefined => {
-    switch (true) {
-        case !isSquaddieCurrentlyTakingATurn({
-            battleActionDecisionStep:
-                gameEngineState.battleOrchestratorState.battleState
-                    .battleActionDecisionStep,
-            battleActionRecorder:
-                gameEngineState.battleOrchestratorState.battleState
-                    .battleActionRecorder,
-        }):
-            return undefined
-        case BattleActionDecisionStepService.isActorSet(
-            gameEngineState.battleOrchestratorState.battleState
-                .battleActionDecisionStep
-        ):
-            return BattleActionDecisionStepService.getActor(
-                gameEngineState.battleOrchestratorState.battleState
-                    .battleActionDecisionStep
-            )?.battleSquaddieId
-        case !BattleActionRecorderService.isAnimationQueueEmpty(
-            gameEngineState.battleOrchestratorState.battleState
-                .battleActionRecorder
-        ):
-            return BattleActionRecorderService.peekAtAnimationQueue(
-                gameEngineState.battleOrchestratorState.battleState
-                    .battleActionRecorder
-            )?.actor?.actorBattleSquaddieId
-        case !BattleActionRecorderService.isAlreadyAnimatedQueueEmpty(
-            gameEngineState.battleOrchestratorState.battleState
-                .battleActionRecorder
-        ):
-            return BattleActionRecorderService.peekAtAlreadyAnimatedQueue(
-                gameEngineState.battleOrchestratorState.battleState
-                    .battleActionRecorder
-            )?.actor?.actorBattleSquaddieId
-        default:
-            return undefined
-    }
 }

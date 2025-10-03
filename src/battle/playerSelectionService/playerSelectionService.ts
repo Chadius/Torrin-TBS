@@ -567,10 +567,9 @@ const getBattleSquaddieTryingToStartAnAction = (
     gameEngineState: GameEngineState
 ) => {
     let battleSquaddieIdCurrentlyTakingATurn =
-        OrchestratorUtilities.getBattleSquaddieIdCurrentlyTakingATurn({
-            gameEngineState,
-        })
-
+        BattleStateService.getBattleSquaddieIdCurrentlyTakingATurn(
+            gameEngineState.battleOrchestratorState.battleState
+        )
     const battleSquaddieIdCurrentlyMakingADecision =
         BattleActionDecisionStepService.getActor(
             gameEngineState.battleOrchestratorState.battleState

@@ -30,7 +30,10 @@ import {
     BattleAction,
     BattleActionService,
 } from "../history/battleAction/battleAction"
-import { BattleActionDecisionStepService } from "../actionDecision/battleActionDecisionStep"
+import {
+    BattleActionDecisionStep,
+    BattleActionDecisionStepService,
+} from "../actionDecision/battleActionDecisionStep"
 import { SquaddieRepositoryService } from "../../utils/test/squaddie"
 import { SquaddieMovementService } from "../../squaddie/movement"
 import { SquaddieTurnService } from "../../squaddie/turn"
@@ -1273,6 +1276,105 @@ describe("Battle State", () => {
 
             expect(
                 gameEngineState.battleOrchestratorState.cache.actionValidity.key
+            ).toBeUndefined()
+        })
+    })
+
+    describe("getBattleSquaddieIdCurrentlyTakingATurn", () => {
+        let battleActionRecorder: BattleActionRecorder
+        let battleActionDecisionStep: BattleActionDecisionStep
+        let battleState: BattleState
+        let battleAction: BattleAction
+
+        beforeEach(() => {
+            battleActionDecisionStep = BattleActionDecisionStepService.new()
+            battleActionRecorder = BattleActionRecorderService.new()
+            battleState = BattleStateService.new({
+                campaignId: "",
+                missionId: "",
+                battleActionDecisionStep,
+                battleActionRecorder,
+            })
+            battleAction = BattleActionService.new({
+                actor: {
+                    actorBattleSquaddieId:
+                        "battleSquaddieIdCurrentlyTakingATurn",
+                },
+                action: {
+                    isMovement: true,
+                },
+                effect: {
+                    movement: {
+                        startCoordinate: { q: 0, r: 0 },
+                        endCoordinate: { q: 0, r: 0 },
+                    },
+                },
+            })
+        })
+
+        it("returns the actor who selected an action and is considering a target", () => {
+            BattleActionDecisionStepService.setActor({
+                actionDecisionStep: battleActionDecisionStep,
+                battleSquaddieId: "battleSquaddieIdCurrentlyTakingATurn",
+            })
+            BattleActionDecisionStepService.addAction({
+                actionDecisionStep: battleActionDecisionStep,
+                actionTemplateId: "action",
+            })
+            BattleActionDecisionStepService.setConsideredTarget({
+                actionDecisionStep: battleActionDecisionStep,
+                targetCoordinate: { q: 0, r: 0 },
+            })
+
+            expect(
+                BattleStateService.getBattleSquaddieIdCurrentlyTakingATurn(
+                    battleState
+                )
+            ).toEqual("battleSquaddieIdCurrentlyTakingATurn")
+        })
+
+        it("returns the actor currently animating an action", () => {
+            BattleActionRecorderService.addReadyToAnimateBattleAction(
+                battleActionRecorder,
+                battleAction
+            )
+
+            expect(
+                BattleStateService.getBattleSquaddieIdCurrentlyTakingATurn(
+                    battleState
+                )
+            ).toEqual("battleSquaddieIdCurrentlyTakingATurn")
+        })
+        it("returns the actor who acted previously this turn and still has actions remaining", () => {
+            BattleActionRecorderService.addReadyToAnimateBattleAction(
+                battleActionRecorder,
+                battleAction
+            )
+            BattleActionRecorderService.addAnimatingBattleActionToAlreadyAnimatedThisTurn(
+                battleActionRecorder
+            )
+            expect(
+                BattleActionRecorderService.isAnimationQueueEmpty(
+                    battleActionRecorder
+                )
+            ).toBeTruthy()
+            expect(
+                BattleActionRecorderService.isAlreadyAnimatedQueueEmpty(
+                    battleActionRecorder
+                )
+            ).toBeFalsy()
+            expect(
+                BattleStateService.getBattleSquaddieIdCurrentlyTakingATurn(
+                    battleState
+                )
+            ).toEqual("battleSquaddieIdCurrentlyTakingATurn")
+        })
+
+        it("no squaddie is taking a turn if there is no actions taken this turn and no squaddie selected", () => {
+            expect(
+                BattleStateService.getBattleSquaddieIdCurrentlyTakingATurn(
+                    battleState
+                )
             ).toBeUndefined()
         })
     })

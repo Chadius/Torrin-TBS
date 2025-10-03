@@ -17,7 +17,6 @@ import {
 } from "../popupWindow/popupWindow"
 import { SquaddieStatusTileService } from "./tile/squaddieStatusTile/squaddieStatusTile"
 import { ActionTilePosition } from "./tile/actionTilePosition"
-import { OrchestratorUtilities } from "../../orchestratorComponents/orchestratorUtils"
 import { BattleHUDStateService } from "../battleHUD/battleHUDState"
 import { PlayerConsideredActionsService } from "../../battleState/playerConsideredActions"
 import { BattleStateService } from "../../battleState/battleState"
@@ -313,9 +312,9 @@ const selectAndLockNextSquaddie = (
     createSquaddieSelectorPanel(gameEngineState)
 
     const squaddieCurrentlyTakingATurn =
-        OrchestratorUtilities.getBattleSquaddieIdCurrentlyTakingATurn({
-            gameEngineState,
-        })
+        BattleStateService.getBattleSquaddieIdCurrentlyTakingATurn(
+            gameEngineState.battleOrchestratorState.battleState
+        )
 
     if (squaddieCurrentlyTakingATurn) {
         panCameraToSquaddie(gameEngineState, squaddieCurrentlyTakingATurn)

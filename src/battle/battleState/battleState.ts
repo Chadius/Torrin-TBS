@@ -219,6 +219,43 @@ export const BattleStateService = {
         battleState.playerConsideredActions =
             PlayerConsideredActionsService.new()
     },
+    getBattleSquaddieIdCurrentlyTakingATurn: (
+        battleState: BattleState
+    ): string | undefined => {
+        const isSquaddieCurrentlySelected =
+            BattleActionDecisionStepService.isActorSet(
+                battleState.battleActionDecisionStep
+            )
+        const isSquaddieCurrentlyAnimating =
+            !BattleActionRecorderService.isAnimationQueueEmpty(
+                battleState.battleActionRecorder
+            )
+        const didSquaddieAlreadyAnimateThisTurn =
+            !BattleActionRecorderService.isAlreadyAnimatedQueueEmpty(
+                battleState.battleActionRecorder
+            )
+        switch (true) {
+            case !isSquaddieCurrentlyTakingATurn({
+                battleActionDecisionStep: battleState.battleActionDecisionStep,
+                battleActionRecorder: battleState.battleActionRecorder,
+            }):
+                return undefined
+            case isSquaddieCurrentlySelected:
+                return BattleActionDecisionStepService.getActor(
+                    battleState.battleActionDecisionStep
+                )?.battleSquaddieId
+            case isSquaddieCurrentlyAnimating:
+                return BattleActionRecorderService.peekAtAnimationQueue(
+                    battleState.battleActionRecorder
+                )?.actor?.actorBattleSquaddieId
+            case didSquaddieAlreadyAnimateThisTurn:
+                return BattleActionRecorderService.peekAtAlreadyAnimatedQueue(
+                    battleState.battleActionRecorder
+                )?.actor?.actorBattleSquaddieId
+            default:
+                return undefined
+        }
+    },
 }
 
 interface BattleStateConstructorParameters {
@@ -503,4 +540,32 @@ const updateSummaryHUDAfterFinishingAnimation = (
                 objectRepository: repository,
             })
         )
+}
+
+const isSquaddieCurrentlyTakingATurn = ({
+    battleActionDecisionStep,
+    battleActionRecorder,
+}: {
+    battleActionDecisionStep: BattleActionDecisionStep
+    battleActionRecorder: BattleActionRecorder
+}): boolean => {
+    if (
+        BattleActionDecisionStepService.isActorSet(battleActionDecisionStep) &&
+        BattleActionDecisionStepService.isActionSet(battleActionDecisionStep) &&
+        BattleActionDecisionStepService.isTargetConsidered(
+            battleActionDecisionStep
+        )
+    ) {
+        return true
+    }
+
+    if (
+        !BattleActionRecorderService.isAnimationQueueEmpty(battleActionRecorder)
+    ) {
+        return true
+    }
+
+    return !BattleActionRecorderService.isAlreadyAnimatedQueueEmpty(
+        battleActionRecorder
+    )
 }
