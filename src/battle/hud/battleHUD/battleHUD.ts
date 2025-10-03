@@ -57,6 +57,10 @@ import {
 } from "../debugModeMenu/debugModeMenu"
 import { HIGHLIGHT_PULSE_COLOR } from "../../../hexMap/hexDrawingUtils"
 import { GameEngineState } from "../../../gameEngine/gameEngineState/gameEngineState"
+import { ObjectRepository } from "../../objectRepository"
+import { MessageBoard } from "../../../message/messageBoard"
+import { BattleState } from "../../battleState/battleState"
+import { BattleActionRecorder } from "../../history/battleAction/battleActionRecorder"
 
 export interface BattleHUD {
     fileAccessHUD: FileAccessHUD
@@ -157,33 +161,42 @@ export const BattleHUDService = {
             actionDecisionStep: message.battleActionDecisionStep,
         })
     },
-    endPlayerSquaddieTurn: (
-        gameEngineState: GameEngineState,
+    endPlayerSquaddieTurn: ({
+        battleState,
+        missionMap,
+        battleActionRecorder,
+        objectRepository,
+        messageBoard,
+        battleAction,
+    }: {
+        battleState: BattleState
+        missionMap: MissionMap
+        battleActionRecorder: BattleActionRecorder
+        objectRepository: ObjectRepository
+        messageBoard: MessageBoard
         battleAction: BattleAction
-    ) => {
-        const missionMap =
-            gameEngineState.battleOrchestratorState.battleState.missionMap
+    }) => {
         const battleSquaddieId = BattleActionDecisionStepService.getActor(
-            gameEngineState.battleOrchestratorState.battleState
-                .battleActionDecisionStep
+            battleState.battleActionDecisionStep
         )?.battleSquaddieId
         if (battleSquaddieId == undefined) return
-        if (gameEngineState.repository == undefined) return
 
         const { battleSquaddie } =
             ObjectRepositoryService.getSquaddieByBattleId(
-                gameEngineState.repository,
+                objectRepository,
                 battleSquaddieId
             )
 
         const { currentMapCoordinate } =
             MissionMapService.getByBattleSquaddieId(
-                gameEngineState.battleOrchestratorState.battleState.missionMap,
+                missionMap,
                 battleSquaddie.battleSquaddieId
             )
 
         processEndTurnAction(
-            gameEngineState,
+            battleState,
+            missionMap,
+            battleActionRecorder,
             battleSquaddie,
             currentMapCoordinate
         )
@@ -193,22 +206,18 @@ export const BattleHUDService = {
             battleSquaddie.battleSquaddieId
         )
 
-        TerrainTileMapService.removeAllGraphicsLayers(
-            gameEngineState.battleOrchestratorState.battleState.missionMap
-                .terrainTileMap
-        )
+        TerrainTileMapService.removeAllGraphicsLayers(missionMap.terrainTileMap)
         DrawSquaddieIconOnMapUtilities.unTintSquaddieMapIcon(
-            gameEngineState.repository,
+            objectRepository,
             battleSquaddie
         )
 
         BattleActionRecorderService.addReadyToAnimateBattleAction(
-            gameEngineState.battleOrchestratorState.battleState
-                .battleActionRecorder,
+            battleActionRecorder,
             battleAction
         )
 
-        gameEngineState.messageBoard.sendMessage({
+        messageBoard.sendMessage({
             type: MessageBoardMessageType.PLAYER_CONFIRMS_DECISION_STEP_ACTOR,
             recommendedMode: BattleOrchestratorMode.PLAYER_HUD_CONTROLLER,
         })
@@ -569,7 +578,9 @@ export const BattleHUDService = {
 }
 
 const processEndTurnAction = (
-    gameEngineState: GameEngineState,
+    battleState: BattleState,
+    missionMap: MissionMap,
+    battleActionRecorder: BattleActionRecorder,
     battleSquaddie: BattleSquaddie,
     mapCoordinate: HexCoordinate | undefined
 ) => {
@@ -579,43 +590,31 @@ const processEndTurnAction = (
         effect: { endTurn: true },
     })
     BattleActionRecorderService.addReadyToAnimateBattleAction(
-        gameEngineState.battleOrchestratorState.battleState
-            .battleActionRecorder,
+        battleActionRecorder,
         endTurnAction
     )
-    BattleActionDecisionStepService.reset(
-        gameEngineState.battleOrchestratorState.battleState
-            .battleActionDecisionStep
-    )
+    BattleActionDecisionStepService.reset(battleState.battleActionDecisionStep)
     BattleActionDecisionStepService.setActor({
-        actionDecisionStep:
-            gameEngineState.battleOrchestratorState.battleState
-                .battleActionDecisionStep,
+        actionDecisionStep: battleState.battleActionDecisionStep,
         battleSquaddieId: battleSquaddie.battleSquaddieId,
     })
     BattleActionDecisionStepService.addAction({
-        actionDecisionStep:
-            gameEngineState.battleOrchestratorState.battleState
-                .battleActionDecisionStep,
+        actionDecisionStep: battleState.battleActionDecisionStep,
         endTurn: true,
     })
     BattleActionDecisionStepService.setConfirmedTarget({
-        actionDecisionStep:
-            gameEngineState.battleOrchestratorState.battleState
-                .battleActionDecisionStep,
+        actionDecisionStep: battleState.battleActionDecisionStep,
         targetCoordinate: mapCoordinate ?? { q: 0, r: 0 },
     })
 
     MapGraphicsLayerSquaddieTypes.forEach((t) =>
         TerrainTileMapService.removeGraphicsLayerByType(
-            gameEngineState.battleOrchestratorState.battleState.missionMap
-                .terrainTileMap,
+            missionMap.terrainTileMap,
             t
         )
     )
     BattleActionRecorderService.addReadyToAnimateBattleAction(
-        gameEngineState.battleOrchestratorState.battleState
-            .battleActionRecorder,
+        battleActionRecorder,
         endTurnAction
     )
     BattleSquaddieService.endTurn(battleSquaddie)

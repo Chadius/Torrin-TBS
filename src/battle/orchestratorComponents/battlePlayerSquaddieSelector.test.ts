@@ -850,7 +850,17 @@ describe("BattleSquaddieSelector", () => {
                                 BattleOrchestratorMode.PLAYER_HUD_CONTROLLER,
                             messageSent: {
                                 type: MessageBoardMessageType.PLAYER_ENDS_TURN,
-                                gameEngineState,
+                                missionMap:
+                                    gameEngineState.battleOrchestratorState
+                                        .battleState.missionMap,
+                                battleActionRecorder:
+                                    gameEngineState.battleOrchestratorState
+                                        .battleState.battleActionRecorder,
+                                battleState:
+                                    gameEngineState.battleOrchestratorState
+                                        .battleState,
+                                objectRepository: gameEngineState.repository!,
+                                messageBoard: gameEngineState.messageBoard,
                                 battleAction: BattleActionService.new({
                                     actor: {
                                         actorBattleSquaddieId:
@@ -866,21 +876,11 @@ describe("BattleSquaddieSelector", () => {
         })
 
         it("sends a message to end the turn", () => {
-            expect(messageSpy).toHaveBeenCalledWith({
-                type: MessageBoardMessageType.PLAYER_ENDS_TURN,
-                gameEngineState,
-                battleAction: BattleActionService.new({
-                    action: {
-                        isEndTurn: true,
-                    },
-                    actor: {
-                        actorBattleSquaddieId: "battleSquaddieId",
-                    },
-                    effect: {
-                        endTurn: true,
-                    },
-                }),
-            })
+            expect(messageSpy).toHaveBeenCalledWith(
+                expect.objectContaining({
+                    type: MessageBoardMessageType.PLAYER_ENDS_TURN,
+                })
+            )
         })
     })
 

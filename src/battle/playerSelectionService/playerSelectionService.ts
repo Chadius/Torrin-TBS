@@ -303,7 +303,16 @@ export const PlayerSelectionService = {
 
                 messageSent = {
                     type: MessageBoardMessageType.PLAYER_ENDS_TURN,
-                    gameEngineState,
+                    battleState:
+                        gameEngineState.battleOrchestratorState.battleState,
+                    missionMap:
+                        gameEngineState.battleOrchestratorState.battleState
+                            .missionMap,
+                    battleActionRecorder:
+                        gameEngineState.battleOrchestratorState.battleState
+                            .battleActionRecorder,
+                    objectRepository: gameEngineState.repository,
+                    messageBoard: gameEngineState.messageBoard,
                     battleAction: endTurnBattleAction,
                 }
                 gameEngineState.messageBoard.sendMessage(messageSent)

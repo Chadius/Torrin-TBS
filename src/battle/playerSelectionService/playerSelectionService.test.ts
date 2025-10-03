@@ -1273,7 +1273,16 @@ describe("Player Selection Service", () => {
                 })
                 expectedMessage = {
                     type: MessageBoardMessageType.PLAYER_ENDS_TURN,
-                    gameEngineState,
+                    battleState:
+                        gameEngineState.battleOrchestratorState.battleState,
+                    missionMap:
+                        gameEngineState.battleOrchestratorState.battleState
+                            .missionMap,
+                    battleActionRecorder:
+                        gameEngineState.battleOrchestratorState.battleState
+                            .battleActionRecorder,
+                    objectRepository: gameEngineState.repository,
+                    messageBoard: gameEngineState.messageBoard,
                     battleAction: BattleActionService.new({
                         actor: {
                             actorBattleSquaddieId: "PLAYER",

@@ -279,7 +279,11 @@ const isMessageBoardMessagePlayerCancelsTargetConfirmation = (
 
 export interface MessageBoardMessagePlayerEndsTurn {
     type: typeof MessageBoardMessageType.PLAYER_ENDS_TURN
-    gameEngineState: GameEngineState
+    battleState: BattleState
+    missionMap: MissionMap
+    battleActionRecorder: BattleActionRecorder
+    objectRepository: ObjectRepository
+    messageBoard: MessageBoard
     battleAction: BattleAction
 }
 const isMessageBoardMessagePlayerEndsTurn = (

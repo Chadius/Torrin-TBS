@@ -1038,7 +1038,16 @@ describe("Battle HUD", () => {
 
             battleHUDListener.receiveMessage({
                 type: MessageBoardMessageType.PLAYER_ENDS_TURN,
-                gameEngineState,
+                missionMap:
+                    gameEngineState.battleOrchestratorState.battleState
+                        .missionMap,
+                battleActionRecorder:
+                    gameEngineState.battleOrchestratorState.battleState
+                        .battleActionRecorder,
+                objectRepository: gameEngineState.repository!,
+                battleState:
+                    gameEngineState.battleOrchestratorState.battleState,
+                messageBoard: gameEngineState.messageBoard,
                 battleAction: endTurnBattleAction,
             })
 
@@ -1064,7 +1073,16 @@ describe("Battle HUD", () => {
             beforeEach(() => {
                 battleHUDListener.receiveMessage({
                     type: MessageBoardMessageType.PLAYER_ENDS_TURN,
-                    gameEngineState,
+                    missionMap:
+                        gameEngineState.battleOrchestratorState.battleState
+                            .missionMap,
+                    battleActionRecorder:
+                        gameEngineState.battleOrchestratorState.battleState
+                            .battleActionRecorder,
+                    objectRepository: gameEngineState.repository!,
+                    battleState:
+                        gameEngineState.battleOrchestratorState.battleState,
+                    messageBoard: gameEngineState.messageBoard,
                     battleAction: endTurnBattleAction,
                 })
             })

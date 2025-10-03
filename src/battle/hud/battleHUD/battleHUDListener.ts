@@ -49,10 +49,14 @@ export class BattleHUDListener implements MessageBoardListener {
                 message
             )
         ) {
-            BattleHUDService.endPlayerSquaddieTurn(
-                message.gameEngineState,
-                message.battleAction
-            )
+            BattleHUDService.endPlayerSquaddieTurn({
+                battleState: message.battleState,
+                missionMap: message.missionMap,
+                battleActionRecorder: message.battleActionRecorder,
+                objectRepository: message.objectRepository,
+                messageBoard: message.messageBoard,
+                battleAction: message.battleAction,
+            })
             return
         }
 
