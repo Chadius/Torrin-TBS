@@ -381,17 +381,19 @@ describe("BattlePhaseController", () => {
             resourceHandler,
         })
 
-        expect(messageSpy).toHaveBeenCalledWith({
-            type: MessageBoardMessageType.SQUADDIE_PHASE_ENDS,
-            phase: BattlePhase.PLAYER,
-            gameEngineState,
-        })
+        expect(messageSpy).toHaveBeenCalledWith(
+            expect.objectContaining({
+                type: MessageBoardMessageType.SQUADDIE_PHASE_ENDS,
+                phase: BattlePhase.PLAYER,
+            })
+        )
 
-        expect(messageSpy).toHaveBeenCalledWith({
-            type: MessageBoardMessageType.SQUADDIE_PHASE_STARTS,
-            phase: BattlePhase.ENEMY,
-            gameEngineState,
-        })
+        expect(messageSpy).toHaveBeenCalledWith(
+            expect.objectContaining({
+                type: MessageBoardMessageType.SQUADDIE_PHASE_STARTS,
+                phase: BattlePhase.ENEMY,
+            })
+        )
     })
 
     describe("player team completes their turn", () => {

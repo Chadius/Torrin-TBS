@@ -8,92 +8,86 @@ import { BattleSquaddie, BattleSquaddieService } from "../battleSquaddie"
 import { DrawSquaddieIconOnMapUtilities } from "../animation/drawSquaddieIconOnMap/drawSquaddieIconOnMap"
 import { TerrainTileMapService } from "../../hexMap/terrainTileMap"
 import { SquaddieTurnService } from "../../squaddie/turn"
-import { GameEngineState } from "../../gameEngine/gameEngineState/gameEngineState"
+import { BattleSquaddieTeam } from "../battleSquaddieTeam"
+import { ObjectRepository } from "../objectRepository"
 
 export const SquaddiePhaseStartsService = {
-    restoreTurnForAllSquaddies: ({
-        gameEngineState,
-        phase,
-    }: {
-        gameEngineState: GameEngineState
+    restoreTurnForAllSquaddies: (message: {
+        teams: BattleSquaddieTeam[]
+        repository: ObjectRepository
         phase: TBattlePhase
     }) => {
-        BattlePhaseService.doForEachSquaddieOfBattlePhase(
-            gameEngineState,
-            phase,
-            (battleSquaddie: BattleSquaddie) => {
+        BattlePhaseService.doForEachSquaddieOfBattlePhase({
+            teams: message.teams,
+            repository: message.repository,
+            phase: message.phase,
+            callback: (battleSquaddie: BattleSquaddie) => {
                 SquaddieTurnService.beginNewTurn(battleSquaddie.squaddieTurn)
-            }
-        )
+            },
+        })
     },
-    reduceDurationForAttributeModifiers: (
-        message: MessageBoardMessageSquaddiePhaseStarts
-    ) => {
-        BattlePhaseService.doForEachSquaddieOfBattlePhase(
-            message.gameEngineState,
-            message.phase,
-            (battleSquaddie: BattleSquaddie) => {
+    reduceDurationForAttributeModifiers: ({
+        teams,
+        repository,
+        phase,
+    }: {
+        teams: BattleSquaddieTeam[]
+        repository: ObjectRepository
+        phase: TBattlePhase
+    }) => {
+        BattlePhaseService.doForEachSquaddieOfBattlePhase({
+            teams,
+            repository,
+            phase,
+            callback: (battleSquaddie: BattleSquaddie) => {
                 InBattleAttributesService.decreaseModifiersBy1Round(
                     battleSquaddie.inBattleAttributes
                 )
                 InBattleAttributesService.removeInactiveAttributeModifiers(
                     battleSquaddie.inBattleAttributes
                 )
-            }
-        )
+            },
+        })
     },
     stopCamera: (message: MessageBoardMessageSquaddiePhaseStarts) => {
-        const gameEngineState: GameEngineState = message.gameEngineState
-        gameEngineState.battleOrchestratorState.battleState.camera.setXVelocity(
-            0
-        )
-        gameEngineState.battleOrchestratorState.battleState.camera.setYVelocity(
-            0
-        )
+        message.camera.setXVelocity(0)
+        message.camera.setYVelocity(0)
     },
     stopHighlightingMapTiles: (
         message: MessageBoardMessageSquaddiePhaseStarts
     ) => {
-        const gameEngineState: GameEngineState = message.gameEngineState
-        if (
-            gameEngineState?.battleOrchestratorState?.battleState?.missionMap
-                ?.terrainTileMap === undefined
-        ) {
+        if (message.missionMap?.terrainTileMap === undefined) {
             return
         }
         TerrainTileMapService.removeAllGraphicsLayers(
-            gameEngineState.battleOrchestratorState.battleState.missionMap
-                .terrainTileMap
+            message.missionMap.terrainTileMap
         )
     },
     unTintSquaddieMapIconForEachSquaddieWhoCanAct: (
         message: MessageBoardMessageSquaddiePhaseStarts
     ) => {
-        BattlePhaseService.doForEachSquaddieOfBattlePhase(
-            message.gameEngineState,
-            message.phase,
-            (battleSquaddie: BattleSquaddie) => {
-                if (message.gameEngineState.repository == undefined) return
+        BattlePhaseService.doForEachSquaddieOfBattlePhase({
+            teams: message.teams,
+            repository: message.repository,
+            phase: message.phase,
+            callback: (battleSquaddie: BattleSquaddie) => {
                 DrawSquaddieIconOnMapUtilities.unTintSquaddieMapIcon(
-                    message.gameEngineState.repository,
+                    message.repository,
                     battleSquaddie
                 )
-            }
-        )
+            },
+        })
     },
-    reduceCooldownForAllSquaddies: ({
-        gameEngineState,
-        phase,
-    }: {
-        gameEngineState: GameEngineState
-        phase: TBattlePhase
-    }) => {
-        BattlePhaseService.doForEachSquaddieOfBattlePhase(
-            gameEngineState,
-            phase,
-            (battleSquaddie: BattleSquaddie) => {
+    reduceCooldownForAllSquaddies: (
+        message: MessageBoardMessageSquaddiePhaseStarts
+    ) => {
+        BattlePhaseService.doForEachSquaddieOfBattlePhase({
+            teams: message.teams,
+            repository: message.repository,
+            phase: message.phase,
+            callback: (battleSquaddie: BattleSquaddie) => {
                 BattleSquaddieService.beginNewTurn(battleSquaddie)
-            }
-        )
+            },
+        })
     },
 }

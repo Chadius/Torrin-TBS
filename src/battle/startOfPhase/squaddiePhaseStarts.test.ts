@@ -148,7 +148,16 @@ describe("squaddie phase starts", () => {
 
             gameEngineState.messageBoard.sendMessage({
                 type: MessageBoardMessageType.SQUADDIE_PHASE_STARTS,
-                gameEngineState: gameEngineState,
+                repository: gameEngineState.repository,
+                battleState:
+                    gameEngineState.battleOrchestratorState.battleState,
+                teams: gameEngineState.battleOrchestratorState.battleState
+                    .teams,
+                missionMap:
+                    gameEngineState.battleOrchestratorState.battleState
+                        .missionMap,
+                camera: gameEngineState.battleOrchestratorState.battleState
+                    .camera,
                 phase,
             })
 
@@ -206,7 +215,16 @@ describe("squaddie phase starts", () => {
 
             gameEngineState.messageBoard.sendMessage({
                 type: MessageBoardMessageType.SQUADDIE_PHASE_STARTS,
-                gameEngineState: gameEngineState,
+                repository: gameEngineState.repository,
+                battleState:
+                    gameEngineState.battleOrchestratorState.battleState,
+                teams: gameEngineState.battleOrchestratorState.battleState
+                    .teams,
+                missionMap:
+                    gameEngineState.battleOrchestratorState.battleState
+                        .missionMap,
+                camera: gameEngineState.battleOrchestratorState.battleState
+                    .camera,
                 phase,
             })
 
@@ -268,7 +286,12 @@ describe("squaddie phase starts", () => {
 
         gameEngineState.messageBoard.sendMessage({
             type: MessageBoardMessageType.SQUADDIE_PHASE_STARTS,
-            gameEngineState: gameEngineState,
+            repository: gameEngineState.repository,
+            battleState: gameEngineState.battleOrchestratorState.battleState,
+            teams: gameEngineState.battleOrchestratorState.battleState.teams,
+            missionMap:
+                gameEngineState.battleOrchestratorState.battleState.missionMap,
+            camera: gameEngineState.battleOrchestratorState.battleState.camera,
             phase: BattlePhase.PLAYER,
         })
 
@@ -316,7 +339,12 @@ describe("squaddie phase starts", () => {
 
         gameEngineState.messageBoard.sendMessage({
             type: MessageBoardMessageType.SQUADDIE_PHASE_STARTS,
-            gameEngineState: gameEngineState,
+            repository: gameEngineState.repository,
+            battleState: gameEngineState.battleOrchestratorState.battleState,
+            teams: gameEngineState.battleOrchestratorState.battleState.teams,
+            missionMap:
+                gameEngineState.battleOrchestratorState.battleState.missionMap,
+            camera: gameEngineState.battleOrchestratorState.battleState.camera,
             phase: BattlePhase.PLAYER,
         })
         expect(

@@ -49,14 +49,8 @@ export class SquaddiePhaseListener implements MessageBoardListener {
     private squaddiePhaseStarts = (
         message: MessageBoardMessageSquaddiePhaseStarts
     ) => {
-        SquaddiePhaseStartsService.restoreTurnForAllSquaddies({
-            gameEngineState: message.gameEngineState,
-            phase: message.phase,
-        })
-        SquaddiePhaseStartsService.reduceCooldownForAllSquaddies({
-            gameEngineState: message.gameEngineState,
-            phase: message.phase,
-        })
+        SquaddiePhaseStartsService.restoreTurnForAllSquaddies(message)
+        SquaddiePhaseStartsService.reduceCooldownForAllSquaddies(message)
         SquaddiePhaseStartsService.reduceDurationForAttributeModifiers(message)
         SquaddiePhaseStartsService.unTintSquaddieMapIconForEachSquaddieWhoCanAct(
             message
@@ -70,10 +64,7 @@ export class SquaddiePhaseListener implements MessageBoardListener {
             | MessageBoardMessageSquaddiePhaseEnds
     ) => {
         SquaddiePhaseEndsService.unTintSquaddieMapIconForEachSquaddie(message)
-        SquaddiePhaseStartsService.restoreTurnForAllSquaddies({
-            gameEngineState: message.gameEngineState,
-            phase: message.phase,
-        })
+        SquaddiePhaseStartsService.restoreTurnForAllSquaddies(message)
         SquaddiePhaseEndsService.clearMapSquaddieGameplayLayers(message)
     }
 }

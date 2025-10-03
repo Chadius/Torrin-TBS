@@ -186,7 +186,10 @@ export class BattlePhaseController implements BattleOrchestratorComponent {
     ) {
         gameEngineState.messageBoard.sendMessage({
             type: MessageBoardMessageType.SQUADDIE_PHASE_ENDS,
-            gameEngineState: gameEngineState,
+            repository: gameEngineState.repository,
+            teams: gameEngineState.battleOrchestratorState.battleState.teams,
+            missionMap:
+                gameEngineState.battleOrchestratorState.battleState.missionMap,
             phase: gameEngineState.battleOrchestratorState.battleState
                 .battlePhaseState.currentAffiliation,
         })
@@ -203,7 +206,12 @@ export class BattlePhaseController implements BattleOrchestratorComponent {
 
         gameEngineState.messageBoard.sendMessage({
             type: MessageBoardMessageType.SQUADDIE_PHASE_STARTS,
-            gameEngineState: gameEngineState,
+            repository: gameEngineState.repository,
+            battleState: gameEngineState.battleOrchestratorState.battleState,
+            teams: gameEngineState.battleOrchestratorState.battleState.teams,
+            missionMap:
+                gameEngineState.battleOrchestratorState.battleState.missionMap,
+            camera: gameEngineState.battleOrchestratorState.battleState.camera,
             phase: gameEngineState.battleOrchestratorState.battleState
                 .battlePhaseState.currentAffiliation,
         })

@@ -154,7 +154,12 @@ describe("squaddie phase ends", () => {
 
             gameEngineState.messageBoard.sendMessage({
                 type: MessageBoardMessageType.SQUADDIE_PHASE_ENDS,
-                gameEngineState: gameEngineState,
+                repository: gameEngineState.repository,
+                teams: gameEngineState.battleOrchestratorState.battleState
+                    .teams,
+                missionMap:
+                    gameEngineState.battleOrchestratorState.battleState
+                        .missionMap,
                 phase,
             })
 

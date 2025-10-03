@@ -408,9 +408,11 @@ const isMessageBoardMessagePlayerConfirmsAction = (
 export interface MessageBoardMessageSquaddiePhaseStarts {
     type: typeof MessageBoardMessageType.SQUADDIE_PHASE_STARTS
     phase: TBattlePhase
-    gameEngineState: GameEngineState
     repository: ObjectRepository
     battleState: BattleState
+    teams: BattleSquaddieTeam[]
+    missionMap: MissionMap
+    camera: BattleCamera
 }
 const isMessageBoardMessageSquaddiePhaseStarts = (
     messageBoardMessage: MessageBoardMessage
@@ -424,7 +426,9 @@ const isMessageBoardMessageSquaddiePhaseStarts = (
 export interface MessageBoardMessageSquaddiePhaseEnds {
     type: typeof MessageBoardMessageType.SQUADDIE_PHASE_ENDS
     phase: TBattlePhase
-    gameEngineState: GameEngineState
+    teams: BattleSquaddieTeam[]
+    missionMap: MissionMap
+    repository: ObjectRepository
 }
 const isMessageBoardMessageSquaddiePhaseEnds = (
     messageBoardMessage: MessageBoardMessage

@@ -8,9 +8,8 @@ import {
 } from "../../squaddie/squaddieAffiliation"
 import { BattlePhaseState } from "./battlePhaseController"
 import { BattleSquaddie } from "../battleSquaddie"
-import { ObjectRepositoryService } from "../objectRepository"
+import { ObjectRepository, ObjectRepositoryService } from "../objectRepository"
 import { EnumLike } from "../../utils/enum"
-import { GameEngineState } from "../../gameEngine/gameEngineState/gameEngineState"
 
 export const BattlePhase = {
     UNKNOWN: "UNKNOWN",
@@ -40,25 +39,28 @@ export const BattlePhaseService = {
     ): BattleSquaddieTeam[] => {
         return findTeamsOfAffiliation(teams, affiliation)
     },
-    doForEachSquaddieOfBattlePhase: (
-        gameEngineState: GameEngineState,
-        phase: TBattlePhase,
+    doForEachSquaddieOfBattlePhase: ({
+        teams,
+        repository,
+        phase,
+        callback,
+    }: {
+        teams: BattleSquaddieTeam[]
+        repository: ObjectRepository
+        phase: TBattlePhase
         callback: (battleSquaddie: BattleSquaddie) => void
-    ) => {
+    }) => {
         const squaddieAffiliation =
             BattlePhaseService.ConvertBattlePhaseToSquaddieAffiliation(phase)
 
-        const squaddieTeams =
-            gameEngineState.battleOrchestratorState.battleState.teams.filter(
-                (team) => team.affiliation === squaddieAffiliation
-            )
-        const objectRepository = gameEngineState.repository
-        if (objectRepository == undefined) return
+        const squaddieTeams = teams.filter(
+            (team) => team.affiliation === squaddieAffiliation
+        )
         squaddieTeams.forEach((team) => {
             team.battleSquaddieIds.forEach((battleSquaddieId) => {
                 const { battleSquaddie } =
                     ObjectRepositoryService.getSquaddieByBattleId(
-                        objectRepository,
+                        repository,
                         battleSquaddieId
                     )
 

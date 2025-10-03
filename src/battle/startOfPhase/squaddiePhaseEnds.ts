@@ -4,32 +4,30 @@ import { BattleSquaddie } from "../battleSquaddie"
 import { DrawSquaddieIconOnMapUtilities } from "../animation/drawSquaddieIconOnMap/drawSquaddieIconOnMap"
 import { TerrainTileMapService } from "../../hexMap/terrainTileMap"
 import { MapGraphicsLayerSquaddieTypes } from "../../hexMap/mapLayer/mapGraphicsLayer"
-import { GameEngineState } from "../../gameEngine/gameEngineState/gameEngineState"
 
 export const SquaddiePhaseEndsService = {
     unTintSquaddieMapIconForEachSquaddie: (
         message: MessageBoardMessageSquaddiePhaseEnds
     ) => {
-        BattlePhaseService.doForEachSquaddieOfBattlePhase(
-            message.gameEngineState,
-            message.phase,
-            (battleSquaddie: BattleSquaddie) => {
-                if (message.gameEngineState.repository == undefined) return
+        BattlePhaseService.doForEachSquaddieOfBattlePhase({
+            teams: message.teams,
+            repository: message.repository,
+            phase: message.phase,
+            callback: (battleSquaddie: BattleSquaddie) => {
+                if (message.repository == undefined) return
                 DrawSquaddieIconOnMapUtilities.unTintSquaddieMapIcon(
-                    message.gameEngineState.repository,
+                    message.repository,
                     battleSquaddie
                 )
-            }
-        )
+            },
+        })
     },
     clearMapSquaddieGameplayLayers: (
         message: MessageBoardMessageSquaddiePhaseEnds
     ) => {
-        const gameEngineState: GameEngineState = message.gameEngineState
         MapGraphicsLayerSquaddieTypes.forEach((t) =>
             TerrainTileMapService.removeGraphicsLayerByType(
-                gameEngineState.battleOrchestratorState.battleState.missionMap
-                    .terrainTileMap,
+                message.missionMap.terrainTileMap,
                 t
             )
         )
