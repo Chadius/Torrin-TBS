@@ -273,7 +273,13 @@ const messageAndHighlightPlayableSquaddieTakingATurn = ({
 
     gameEngineState.messageBoard.sendMessage({
         type: MessageBoardMessageType.PLAYER_SELECTS_AND_LOCKS_SQUADDIE,
-        gameEngineState: gameEngineState,
+        repository: gameEngineState.repository,
+        battleHUDState: gameEngineState.battleOrchestratorState.battleHUDState,
+        battleState: gameEngineState.battleOrchestratorState.battleState,
+        missionMap:
+            gameEngineState.battleOrchestratorState.battleState.missionMap,
+        cache: gameEngineState.battleOrchestratorState.cache,
+        campaignResources: gameEngineState.campaign.resources,
         battleSquaddieSelectedId: battleSquaddie.battleSquaddieId,
     })
 }

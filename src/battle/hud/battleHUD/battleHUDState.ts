@@ -1,4 +1,4 @@
-import { SummaryHUDState } from "../summary/summaryHUD"
+import { SummaryHUDState, SummaryHUDStateService } from "../summary/summaryHUD"
 import { BattleSquaddieTeam } from "../../battleSquaddieTeam"
 import {
     ObjectRepository,
@@ -145,7 +145,7 @@ export const BattleHUDStateService = {
         }
         return nextBattleSquaddieId?.battleSquaddieId
     },
-    resetSummaryHUDState: (battleHUDState: BattleHUDState) => {
+    clearSummaryHUDState: (battleHUDState: BattleHUDState) => {
         if (battleHUDState == undefined) {
             throw new Error(
                 "[BattleHUDStateService.resetSummaryHUDState] summaryHUDState must be defined"
@@ -153,6 +153,15 @@ export const BattleHUDStateService = {
         }
 
         battleHUDState.summaryHUDState = undefined
+    },
+    resetSummaryHUDState: (battleHUDState: BattleHUDState) => {
+        if (battleHUDState == undefined) {
+            throw new Error(
+                "[BattleHUDStateService.resetSummaryHUDState] summaryHUDState must be defined"
+            )
+        }
+
+        battleHUDState.summaryHUDState = SummaryHUDStateService.new()
     },
 }
 

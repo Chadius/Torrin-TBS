@@ -198,7 +198,16 @@ export const PlayerSelectionService = {
             case PlayerIntent.START_OF_TURN_CLICK_ON_SQUADDIE_UNCONTROLLABLE:
                 messageSent = {
                     type: MessageBoardMessageType.PLAYER_SELECTS_AND_LOCKS_SQUADDIE,
-                    gameEngineState,
+                    repository: gameEngineState.repository,
+                    battleHUDState:
+                        gameEngineState.battleOrchestratorState.battleHUDState,
+                    battleState:
+                        gameEngineState.battleOrchestratorState.battleState,
+                    missionMap:
+                        gameEngineState.battleOrchestratorState.battleState
+                            .missionMap,
+                    cache: gameEngineState.battleOrchestratorState.cache,
+                    campaignResources: gameEngineState.campaign.resources,
                     battleSquaddieSelectedId: context.actorBattleSquaddieId,
                 }
                 gameEngineState.messageBoard.sendMessage(messageSent)

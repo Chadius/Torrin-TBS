@@ -210,6 +210,15 @@ export const BattleStateService = {
     sanitize: (battleState: BattleState) => {
         MissionObjectivesAndCutscenesHelper.sanitize(battleState)
     },
+    resetPlayerConsideredActions: (battleState: BattleState) => {
+        if (battleState == undefined) {
+            throw new Error(
+                "[BattleStateService.resetPlayerConsideredActions]: battleState must be defined"
+            )
+        }
+        battleState.playerConsideredActions =
+            PlayerConsideredActionsService.new()
+    },
 }
 
 interface BattleStateConstructorParameters {
@@ -457,7 +466,7 @@ const squaddieTurnEnds = (message: MessageBoardMessageSquaddieTurnEnds) => {
         searchResultsCache: cache.searchResultsCache,
     })
     BattleCacheService.resetActionValidity(cache)
-    BattleHUDStateService.resetSummaryHUDState(battleHUDState)
+    BattleHUDStateService.clearSummaryHUDState(battleHUDState)
     battleState.playerConsideredActions = PlayerConsideredActionsService.new()
 }
 

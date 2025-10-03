@@ -5,7 +5,6 @@ import {
     MessageBoardMessagePlayerConsidersAction,
     MessageBoardMessagePlayerConsidersMovement,
     MessageBoardMessagePlayerSelectionIsInvalid,
-    MessageBoardMessagePlayerSelectsAndLocksSquaddie,
     MessageBoardMessageSelectAndLockNextSquaddie,
     MessageBoardMessageService,
     MessageBoardMessageType,
@@ -84,9 +83,7 @@ export class PlayerDecisionHUDListener implements MessageBoardListener {
                 message
             )
         ) {
-            selectAndLockNextSquaddie(
-                message as MessageBoardMessagePlayerSelectsAndLocksSquaddie
-            )
+            selectAndLockNextSquaddie(message)
             return
         }
     }
@@ -324,7 +321,14 @@ const selectAndLockNextSquaddie = (
         panCameraToSquaddie(gameEngineState, squaddieCurrentlyTakingATurn)
         gameEngineState.messageBoard.sendMessage({
             type: MessageBoardMessageType.PLAYER_SELECTS_AND_LOCKS_SQUADDIE,
-            gameEngineState,
+            repository: gameEngineState.repository,
+            battleHUDState:
+                gameEngineState.battleOrchestratorState.battleHUDState,
+            battleState: gameEngineState.battleOrchestratorState.battleState,
+            missionMap:
+                gameEngineState.battleOrchestratorState.battleState.missionMap,
+            cache: gameEngineState.battleOrchestratorState.cache,
+            campaignResources: gameEngineState.campaign.resources,
             battleSquaddieSelectedId: squaddieCurrentlyTakingATurn,
         })
         return
@@ -349,7 +353,13 @@ const selectAndLockNextSquaddie = (
 
     gameEngineState.messageBoard.sendMessage({
         type: MessageBoardMessageType.PLAYER_SELECTS_AND_LOCKS_SQUADDIE,
-        gameEngineState,
+        repository: gameEngineState.repository,
+        battleHUDState: gameEngineState.battleOrchestratorState.battleHUDState,
+        battleState: gameEngineState.battleOrchestratorState.battleState,
+        missionMap:
+            gameEngineState.battleOrchestratorState.battleState.missionMap,
+        cache: gameEngineState.battleOrchestratorState.cache,
+        campaignResources: gameEngineState.campaign.resources,
         battleSquaddieSelectedId: nextBattleSquaddieId,
     })
 }

@@ -299,8 +299,13 @@ export type SquaddieSelectionMethod = {
 
 export interface MessageBoardMessagePlayerSelectsAndLocksSquaddie {
     type: typeof MessageBoardMessageType.PLAYER_SELECTS_AND_LOCKS_SQUADDIE
-    gameEngineState: GameEngineState
     battleSquaddieSelectedId: string
+    repository: ObjectRepository
+    battleHUDState: BattleHUDState
+    battleState: BattleState
+    missionMap: MissionMap
+    cache: BattleCache
+    campaignResources: CampaignResources
 }
 const isMessageBoardMessagePlayerSelectsAndLocksSquaddie = (
     messageBoardMessage: MessageBoardMessage

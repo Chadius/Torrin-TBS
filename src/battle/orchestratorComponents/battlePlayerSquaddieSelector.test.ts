@@ -627,14 +627,20 @@ describe("BattleSquaddieSelector", () => {
             gameEngineState.battleOrchestratorState.battleState.battleActionDecisionStep =
                 BattleActionDecisionStepService.new()
 
-            BattleHUDService.playerSelectsSquaddie(
-                gameEngineState.battleOrchestratorState.battleHUD,
-                {
-                    type: MessageBoardMessageType.PLAYER_SELECTS_AND_LOCKS_SQUADDIE,
-                    gameEngineState,
-                    battleSquaddieSelectedId: "battleSquaddieId",
-                }
-            )
+            BattleHUDService.playerSelectsSquaddie({
+                type: MessageBoardMessageType.PLAYER_SELECTS_AND_LOCKS_SQUADDIE,
+                repository: gameEngineState.repository!,
+                battleHUDState:
+                    gameEngineState.battleOrchestratorState.battleHUDState,
+                battleState:
+                    gameEngineState.battleOrchestratorState.battleState,
+                missionMap:
+                    gameEngineState.battleOrchestratorState.battleState
+                        .missionMap,
+                cache: gameEngineState.battleOrchestratorState.cache,
+                campaignResources: gameEngineState.campaign.resources,
+                battleSquaddieSelectedId: "battleSquaddieId",
+            })
             messageSpy = vi.spyOn(gameEngineState.messageBoard, "sendMessage")
         })
 
@@ -796,14 +802,20 @@ describe("BattleSquaddieSelector", () => {
                 missionMap,
             })
 
-            BattleHUDService.playerSelectsSquaddie(
-                gameEngineState.battleOrchestratorState.battleHUD,
-                {
-                    type: MessageBoardMessageType.PLAYER_SELECTS_AND_LOCKS_SQUADDIE,
-                    gameEngineState,
-                    battleSquaddieSelectedId: "battleSquaddieId",
-                }
-            )
+            BattleHUDService.playerSelectsSquaddie({
+                type: MessageBoardMessageType.PLAYER_SELECTS_AND_LOCKS_SQUADDIE,
+                repository: gameEngineState.repository!,
+                battleHUDState:
+                    gameEngineState.battleOrchestratorState.battleHUDState,
+                battleState:
+                    gameEngineState.battleOrchestratorState.battleState,
+                missionMap:
+                    gameEngineState.battleOrchestratorState.battleState
+                        .missionMap,
+                cache: gameEngineState.battleOrchestratorState.cache,
+                campaignResources: gameEngineState.campaign.resources,
+                battleSquaddieSelectedId: "battleSquaddieId",
+            })
 
             showPlayerActionsSpy = vi
                 .spyOn(SummaryHUDStateService, "shouldShowAllPlayerActions")
@@ -933,14 +945,20 @@ describe("BattleSquaddieSelector", () => {
                 originMapCoordinate: { q: 0, r: 2 },
             })
 
-            BattleHUDService.playerSelectsSquaddie(
-                gameEngineState.battleOrchestratorState.battleHUD,
-                {
-                    type: MessageBoardMessageType.PLAYER_SELECTS_AND_LOCKS_SQUADDIE,
-                    gameEngineState,
-                    battleSquaddieSelectedId: "battleSquaddieId",
-                }
-            )
+            BattleHUDService.playerSelectsSquaddie({
+                type: MessageBoardMessageType.PLAYER_SELECTS_AND_LOCKS_SQUADDIE,
+                repository: gameEngineState.repository!,
+                battleHUDState:
+                    gameEngineState.battleOrchestratorState.battleHUDState,
+                battleState:
+                    gameEngineState.battleOrchestratorState.battleState,
+                missionMap:
+                    gameEngineState.battleOrchestratorState.battleState
+                        .missionMap,
+                cache: gameEngineState.battleOrchestratorState.cache,
+                campaignResources: gameEngineState.campaign.resources,
+                battleSquaddieSelectedId: "battleSquaddieId",
+            })
 
             const battleHUDListener = new BattleHUDListener("battleHUDListener")
             gameEngineState.messageBoard.addListener(
@@ -1061,14 +1079,20 @@ describe("BattleSquaddieSelector", () => {
                 missionMap,
             })
 
-            BattleHUDService.playerSelectsSquaddie(
-                gameEngineState.battleOrchestratorState.battleHUD,
-                {
-                    type: MessageBoardMessageType.PLAYER_SELECTS_AND_LOCKS_SQUADDIE,
-                    gameEngineState,
-                    battleSquaddieSelectedId: "battleSquaddieId",
-                }
-            )
+            BattleHUDService.playerSelectsSquaddie({
+                type: MessageBoardMessageType.PLAYER_SELECTS_AND_LOCKS_SQUADDIE,
+                repository: gameEngineState.repository!,
+                battleHUDState:
+                    gameEngineState.battleOrchestratorState.battleHUDState,
+                battleState:
+                    gameEngineState.battleOrchestratorState.battleState,
+                missionMap:
+                    gameEngineState.battleOrchestratorState.battleState
+                        .missionMap,
+                cache: gameEngineState.battleOrchestratorState.cache,
+                campaignResources: gameEngineState.campaign.resources,
+                battleSquaddieSelectedId: "battleSquaddieId",
+            })
 
             const battleHUDListener = new BattleHUDListener("battleHUDListener")
             gameEngineState.messageBoard.addListener(

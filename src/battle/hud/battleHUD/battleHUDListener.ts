@@ -65,10 +65,7 @@ export class BattleHUDListener implements MessageBoardListener {
                 message
             )
         ) {
-            BattleHUDService.playerSelectsSquaddie(
-                message.gameEngineState.battleOrchestratorState.battleHUD,
-                message
-            )
+            BattleHUDService.playerSelectsSquaddie(message)
             return
         }
 

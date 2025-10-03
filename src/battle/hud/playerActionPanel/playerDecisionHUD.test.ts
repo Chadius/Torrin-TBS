@@ -943,7 +943,6 @@ describe("Player Decision HUD", () => {
             expect(messageSpy).toBeCalledWith(
                 expect.objectContaining({
                     type: MessageBoardMessageType.PLAYER_SELECTS_AND_LOCKS_SQUADDIE,
-                    gameEngineState,
                 })
             )
 

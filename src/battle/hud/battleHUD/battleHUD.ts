@@ -48,7 +48,6 @@ import { BattleActionRecorderService } from "../../history/battleAction/battleAc
 import { ActionTemplateService } from "../../../action/template/actionTemplate"
 import { BattleStateService } from "../../battleState/battleState"
 import { SquaddieSelectorPanelService } from "../playerActionPanel/squaddieSelectorPanel/squaddieSelectorPanel"
-import { PlayerConsideredActionsService } from "../../battleState/playerConsideredActions"
 import { DrawSquaddieIconOnMapUtilities } from "../../animation/drawSquaddieIconOnMap/drawSquaddieIconOnMap"
 import { InBattleAttributesService } from "../../stats/inBattleAttributes"
 import {
@@ -56,11 +55,12 @@ import {
     DebugModeMenuService,
 } from "../debugModeMenu/debugModeMenu"
 import { HIGHLIGHT_PULSE_COLOR } from "../../../hexMap/hexDrawingUtils"
-import { GameEngineState } from "../../../gameEngine/gameEngineState/gameEngineState"
 import { ObjectRepository } from "../../objectRepository"
 import { MessageBoard } from "../../../message/messageBoard"
 import { BattleState } from "../../battleState/battleState"
 import { BattleActionRecorder } from "../../history/battleAction/battleActionRecorder"
+import { BattleHUDState, BattleHUDStateService } from "./battleHUDState"
+import { CampaignResources } from "../../../campaign/campaignResources"
 
 export interface BattleHUD {
     fileAccessHUD: FileAccessHUD
@@ -223,15 +223,17 @@ export const BattleHUDService = {
         })
     },
     playerSelectsSquaddie: (
-        _battleHUD: BattleHUD,
         message: MessageBoardMessagePlayerSelectsAndLocksSquaddie
     ) => {
-        const gameEngineState = message.gameEngineState
         const battleSquaddieId = message.battleSquaddieSelectedId
-        if (gameEngineState.repository == undefined) return
+        const battleState = message.battleState
+        const battleHUDState = message.battleHUDState
+        const campaignResources = message.campaignResources
+        const repository = message.repository
+
         const { squaddieTemplate, battleSquaddie } =
             ObjectRepositoryService.getSquaddieByBattleId(
-                gameEngineState.repository,
+                repository,
                 battleSquaddieId
             )
 
@@ -243,19 +245,14 @@ export const BattleHUDService = {
         )
             return
 
-        gameEngineState.battleOrchestratorState.battleHUDState.summaryHUDState =
-            SummaryHUDStateService.new()
-        gameEngineState.battleOrchestratorState.battleState.playerConsideredActions =
-            PlayerConsideredActionsService.new()
+        BattleHUDStateService.resetSummaryHUDState(battleHUDState)
+        BattleStateService.resetPlayerConsideredActions(battleState)
 
         OrchestratorUtilities.highlightSquaddieRange({
             battleSquaddieToHighlightId: battleSquaddieId,
-            missionMap:
-                gameEngineState.battleOrchestratorState.battleState.missionMap,
-            objectRepository: gameEngineState.repository,
-            squaddieAllMovementCache:
-                gameEngineState.battleOrchestratorState.cache
-                    .searchResultsCache,
+            missionMap: message.missionMap,
+            objectRepository: repository,
+            squaddieAllMovementCache: message.cache.searchResultsCache,
         })
 
         const {
@@ -267,18 +264,27 @@ export const BattleHUDService = {
         })
 
         if (playerCanControlThisSquaddieRightNow) {
-            showHUDForControllableSquaddie(gameEngineState, battleSquaddie)
+            showHUDForControllableSquaddie({
+                battleState: battleState,
+                battleHUDState: battleHUDState,
+                battleSquaddie: battleSquaddie,
+                repository: repository,
+            })
         }
 
         if (squaddieIsNormallyControllableByPlayer) {
-            createSquaddieStatusTileForNormallyControllableSquaddie(
-                gameEngineState
-            )
+            createSquaddieStatusTileForNormallyControllableSquaddie({
+                battleHUDState: battleHUDState,
+                battleState: battleState,
+                repository: repository,
+                campaignResources: campaignResources,
+            })
         } else {
-            createSquaddieStatusTileForNormallyUncontrollableSquaddie(
-                gameEngineState,
-                battleSquaddie
-            )
+            createSquaddieStatusTileForNormallyUncontrollableSquaddie({
+                battleSquaddie,
+                battleHUDState,
+                repository,
+            })
         }
     },
     playerPeeksAtSquaddie: (
@@ -690,96 +696,88 @@ const playerControlledSquaddieNeedsNextAction = (
     )
 }
 
-const showHUDForControllableSquaddie = (
-    gameEngineState: GameEngineState,
+const showHUDForControllableSquaddie = ({
+    battleState,
+    battleHUDState,
+    battleSquaddie,
+    repository,
+}: {
+    battleState: BattleState
+    battleHUDState: BattleHUDState
     battleSquaddie: BattleSquaddie
-) => {
-    if (
-        gameEngineState.battleOrchestratorState.battleState
-            .battleActionDecisionStep === undefined
-    ) {
+    repository: ObjectRepository
+}) => {
+    if (battleState.battleActionDecisionStep === undefined) {
         BattleActionDecisionStepService.reset(
-            gameEngineState.battleOrchestratorState.battleState
-                .battleActionDecisionStep
+            battleState.battleActionDecisionStep
         )
     }
     BattleActionDecisionStepService.setActor({
-        actionDecisionStep:
-            gameEngineState.battleOrchestratorState.battleState
-                .battleActionDecisionStep,
+        actionDecisionStep: battleState.battleActionDecisionStep,
         battleSquaddieId: battleSquaddie.battleSquaddieId,
     })
 
     if (
-        gameEngineState.battleOrchestratorState.battleHUDState
-            .squaddieSelectorPanel == undefined &&
-        gameEngineState.repository != undefined
+        battleHUDState.squaddieSelectorPanel == undefined &&
+        repository != undefined
     ) {
         const currentTeam = BattleStateService.getCurrentTeam(
-            gameEngineState.battleOrchestratorState.battleState,
-            gameEngineState.repository
+            battleState,
+            repository
         )
 
         if (currentTeam) {
-            gameEngineState.battleOrchestratorState.battleHUDState.squaddieSelectorPanel =
+            battleHUDState.squaddieSelectorPanel =
                 SquaddieSelectorPanelService.new({
                     battleSquaddieIds: currentTeam.battleSquaddieIds,
-                    objectRepository: gameEngineState.repository,
+                    objectRepository: repository,
                     battleActionDecisionStep:
-                        gameEngineState.battleOrchestratorState.battleState
-                            .battleActionDecisionStep,
+                        battleState.battleActionDecisionStep,
                 })
         }
     }
-    if (
-        gameEngineState.battleOrchestratorState.battleHUDState
-            .squaddieSelectorPanel != undefined
-    ) {
+    if (battleHUDState.squaddieSelectorPanel != undefined) {
         SquaddieSelectorPanelService.selectSquaddie(
-            gameEngineState.battleOrchestratorState.battleHUDState
-                .squaddieSelectorPanel,
+            battleHUDState.squaddieSelectorPanel,
             battleSquaddie.battleSquaddieId
         )
     }
 }
 
-const createSquaddieStatusTileForNormallyControllableSquaddie = (
-    gameEngineState: GameEngineState
-) => {
-    if (
-        gameEngineState.battleOrchestratorState.battleHUDState
-            .summaryHUDState == undefined
-    )
-        return
-    if (gameEngineState.repository == undefined) return
+const createSquaddieStatusTileForNormallyControllableSquaddie = ({
+    battleHUDState,
+    battleState,
+    repository,
+    campaignResources,
+}: {
+    battleHUDState: BattleHUDState
+    battleState: BattleState
+    repository: ObjectRepository
+    campaignResources: CampaignResources
+}) => {
+    if (battleHUDState.summaryHUDState == undefined) return
     SummaryHUDStateService.createActorTiles({
-        battleActionDecisionStep:
-            gameEngineState.battleOrchestratorState.battleState
-                .battleActionDecisionStep,
-        campaignResources: gameEngineState.campaign.resources,
-        summaryHUDState:
-            gameEngineState.battleOrchestratorState.battleHUDState
-                .summaryHUDState,
-        objectRepository: gameEngineState.repository,
+        battleActionDecisionStep: battleState.battleActionDecisionStep,
+        campaignResources,
+        summaryHUDState: battleHUDState.summaryHUDState,
+        objectRepository: repository,
     })
 }
 
-const createSquaddieStatusTileForNormallyUncontrollableSquaddie = (
-    gameEngineState: GameEngineState,
+const createSquaddieStatusTileForNormallyUncontrollableSquaddie = ({
+    battleSquaddie,
+    battleHUDState,
+    repository,
+}: {
     battleSquaddie: BattleSquaddie
-) => {
-    if (
-        gameEngineState.battleOrchestratorState.battleHUDState
-            .summaryHUDState == undefined
-    )
-        return
-    if (gameEngineState.repository == undefined) return
+    battleHUDState: BattleHUDState
+    repository: ObjectRepository
+}) => {
+    if (battleHUDState.summaryHUDState == undefined) return
     SummaryHUDStateService.peekAtSquaddie({
-        summaryHUDState:
-            gameEngineState.battleOrchestratorState.battleHUDState
-                .summaryHUDState,
+        summaryHUDState: battleHUDState.summaryHUDState,
         battleSquaddieId: battleSquaddie.battleSquaddieId,
-        objectRepository: gameEngineState.repository,
+        objectRepository: repository,
         removeExpirationTime: true,
     })
 }
