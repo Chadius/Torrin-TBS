@@ -124,22 +124,16 @@ export const ApplyPlayerProgressToGameEngineService = {
                 playerProgressToGameEngine.loadedFileData.playerArmy = undefined
                 break
             case hasLoadedCampaign(playerProgressToGameEngine) &&
-                !hasLoadedMission(playerProgressToGameEngine):
+                !(
+                    hasLoadedMission(playerProgressToGameEngine) &&
+                    hasLoadedPlayerArmy(playerProgressToGameEngine)
+                ):
                 if (shouldLogMessages) {
                     console.log(
-                        "[ApplyPlayerProgressToGameEngineService.update] Loading Mission"
+                        "[ApplyPlayerProgressToGameEngineService.update] Loading Mission and Player Army"
                     )
                 }
-                await loadMission(playerProgressToGameEngine)
-                break
-            case hasLoadedCampaign(playerProgressToGameEngine) &&
-                !hasLoadedPlayerArmy(playerProgressToGameEngine):
-                if (shouldLogMessages) {
-                    console.log(
-                        "[ApplyPlayerProgressToGameEngineService.update] Loading Player Army"
-                    )
-                }
-                await loadPlayerArmy(playerProgressToGameEngine)
+                await loadMissionAndPlayerArmy(playerProgressToGameEngine)
                 break
             case hasLoadedCampaign(playerProgressToGameEngine) &&
                 hasLoadedMission(playerProgressToGameEngine) &&
@@ -218,9 +212,9 @@ const hasLoadedMission = (
     )
 }
 
-const loadMission = async (
+const loadMissionAndPlayerArmy = async (
     playerProgressToGameEngine: PlayerProgressToGameEngine
-) => {
+): Promise<void> => {
     if (playerProgressToGameEngine.playerProgress.tryingToApply == undefined) {
         throw new Error(
             "[ApplyPlayerProgressToGameEngineService.update] PlayerProgress cannot be undefined"
@@ -233,12 +227,16 @@ const loadMission = async (
     }
 
     try {
-        playerProgressToGameEngine.loadedFileData.mission =
-            await LoadMissionService.loadMission(
+        const [playerArmy, mission] = await Promise.all([
+            LoadPlayerArmyService.loadPlayerArmy(),
+            LoadMissionService.loadMission(
                 playerProgressToGameEngine.playerProgress.tryingToApply
                     .campaignId,
                 playerProgressToGameEngine.loadedFileData.campaign.missionIds[0]
-            )
+            ),
+        ])
+        playerProgressToGameEngine.loadedFileData.playerArmy = playerArmy
+        playerProgressToGameEngine.loadedFileData.mission = mission
     } catch (error) {
         finishApplyWithError(playerProgressToGameEngine)
         playerProgressToGameEngine.status.error = error as Error
@@ -248,23 +246,6 @@ const loadMission = async (
 const hasLoadedPlayerArmy = (
     playerProgressToGameEngine: PlayerProgressToGameEngine
 ): boolean => playerProgressToGameEngine.loadedFileData.playerArmy != undefined
-
-const loadPlayerArmy = async (
-    playerProgressToGameEngine: PlayerProgressToGameEngine
-) => {
-    if (playerProgressToGameEngine.playerProgress.tryingToApply == undefined) {
-        throw new Error(
-            "[ApplyPlayerProgressToGameEngineService.update] PlayerProgress cannot be undefined"
-        )
-    }
-    try {
-        playerProgressToGameEngine.loadedFileData.playerArmy =
-            await LoadPlayerArmyService.loadPlayerArmy()
-    } catch (error) {
-        finishApplyWithError(playerProgressToGameEngine)
-        playerProgressToGameEngine.status.error = error as Error
-    }
-}
 
 const finishApplyWithSuccess = (
     playerProgressToGameEngine: PlayerProgressToGameEngine
