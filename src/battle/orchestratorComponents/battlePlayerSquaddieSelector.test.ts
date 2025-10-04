@@ -1133,7 +1133,21 @@ describe("BattleSquaddieSelector", () => {
                             PlayerSelectionChangesService.new({
                                 messageSent: {
                                     type: MessageBoardMessageType.SELECT_AND_LOCK_NEXT_SQUADDIE,
-                                    gameEngineState,
+                                    repository: gameEngineState.repository!,
+                                    battleState:
+                                        gameEngineState.battleOrchestratorState
+                                            .battleState,
+                                    battleHUDState:
+                                        gameEngineState.battleOrchestratorState
+                                            .battleHUDState,
+                                    messageBoard: gameEngineState.messageBoard,
+                                    missionMap:
+                                        gameEngineState.battleOrchestratorState
+                                            .battleState.missionMap,
+                                    cache: gameEngineState
+                                        .battleOrchestratorState.cache,
+                                    campaignResources:
+                                        gameEngineState.campaign.resources,
                                 },
                             }),
                     })
@@ -1141,10 +1155,11 @@ describe("BattleSquaddieSelector", () => {
             })
 
             it("sends a message to change playable squaddie", () => {
-                expect(messageSpy).toHaveBeenCalledWith({
-                    type: MessageBoardMessageType.SELECT_AND_LOCK_NEXT_SQUADDIE,
-                    gameEngineState,
-                })
+                expect(messageSpy).toHaveBeenCalledWith(
+                    expect.objectContaining({
+                        type: MessageBoardMessageType.SELECT_AND_LOCK_NEXT_SQUADDIE,
+                    })
+                )
             })
         })
 

@@ -236,7 +236,17 @@ export const PlayerSelectionService = {
             case PlayerIntent.START_OF_TURN_SELECT_NEXT_CONTROLLABLE_SQUADDIE:
                 messageSent = {
                     type: MessageBoardMessageType.SELECT_AND_LOCK_NEXT_SQUADDIE,
-                    gameEngineState,
+                    repository: gameEngineState.repository!,
+                    battleState:
+                        gameEngineState.battleOrchestratorState.battleState,
+                    battleHUDState:
+                        gameEngineState.battleOrchestratorState.battleHUDState,
+                    messageBoard: gameEngineState.messageBoard,
+                    missionMap:
+                        gameEngineState.battleOrchestratorState.battleState
+                            .missionMap,
+                    cache: gameEngineState.battleOrchestratorState.cache,
+                    campaignResources: gameEngineState.campaign.resources,
                 }
                 gameEngineState.messageBoard.sendMessage(messageSent)
                 return PlayerSelectionChangesService.new({ messageSent })

@@ -509,9 +509,8 @@ describe("Battle HUD", () => {
         const sendMessageViaMouseClick = () => {
             gameEngineState.messageBoard.sendMessage({
                 type: MessageBoardMessageType.PLAYER_SELECTS_AND_LOCKS_SQUADDIE,
-                gameEngineState,
                 battleSquaddieSelectedId: battleSquaddie.battleSquaddieId,
-                repository: gameEngineState.repository,
+                repository: gameEngineState.repository!,
                 battleHUDState:
                     gameEngineState.battleOrchestratorState.battleHUDState,
                 battleState:

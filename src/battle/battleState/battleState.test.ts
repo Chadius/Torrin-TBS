@@ -891,11 +891,10 @@ describe("Battle State", () => {
 
             gameEngineState.messageBoard.sendMessage({
                 type: MessageBoardMessageType.BATTLE_ACTION_FINISHES_ANIMATION,
-                gameEngineState,
                 battleActionRecorder:
                     gameEngineState.battleOrchestratorState.battleState
                         .battleActionRecorder,
-                repository: gameEngineState.repository,
+                repository: gameEngineState.repository!,
                 missionMap:
                     gameEngineState.battleOrchestratorState.battleState
                         .missionMap,
@@ -956,11 +955,10 @@ describe("Battle State", () => {
                 SquaddieTurnService.endTurn(battleSquaddie.squaddieTurn)
                 gameEngineState.messageBoard.sendMessage({
                     type: MessageBoardMessageType.BATTLE_ACTION_FINISHES_ANIMATION,
-                    gameEngineState,
                     battleActionRecorder:
                         gameEngineState.battleOrchestratorState.battleState
                             .battleActionRecorder,
-                    repository: gameEngineState.repository,
+                    repository: gameEngineState.repository!,
                     missionMap:
                         gameEngineState.battleOrchestratorState.battleState
                             .missionMap,

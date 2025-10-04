@@ -310,7 +310,6 @@ const generateMessagesBasedOnAnimationFinishedBattleAction = (
             .map((change) => change.battleSquaddieId) ?? []
 
     gameEngineState.messageBoard.sendMessage({
-        gameEngineState,
         type: MessageBoardMessageType.SQUADDIE_IS_INJURED,
         battleSquaddieIds: damagedBattleSquaddieIds,
         repository: objectRepository,

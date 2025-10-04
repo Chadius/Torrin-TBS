@@ -24,7 +24,6 @@ import { SearchResultsCache } from "../hexMap/pathfinder/searchResults/searchRes
 import { Glossary } from "../campaign/glossary/glossary"
 import { ChallengeModifierSetting } from "../battle/challengeModifier/challengeModifierSetting"
 import { EnumLike } from "../utils/enum"
-import { GameEngineState } from "../gameEngine/gameEngineState/gameEngineState"
 import { BattleCache } from "../battle/orchestrator/battleCache/battleCache"
 import { BattleHUDState } from "../battle/hud/battleHUD/battleHUDState"
 import { BattleCamera } from "../battle/battleCamera"
@@ -440,7 +439,13 @@ const isMessageBoardMessageSquaddiePhaseEnds = (
 
 export interface MessageBoardMessageSelectAndLockNextSquaddie {
     type: typeof MessageBoardMessageType.SELECT_AND_LOCK_NEXT_SQUADDIE
-    gameEngineState: GameEngineState
+    repository: ObjectRepository
+    battleState: BattleState
+    battleHUDState: BattleHUDState
+    messageBoard: MessageBoard
+    missionMap: MissionMap
+    cache: BattleCache
+    campaignResources: CampaignResources
 }
 const isMessageBoardMessageSelectAndLockNextSquaddie = (
     messageBoardMessage: MessageBoardMessage

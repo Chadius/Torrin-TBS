@@ -818,7 +818,6 @@ describe("BattleSquaddieUsesActionOnSquaddie", () => {
 
         expect(messageBoardSendSpy).toBeCalledWith({
             type: MessageBoardMessageType.SQUADDIE_IS_INJURED,
-            gameEngineState,
             battleSquaddieIds: [targetDynamicSquaddieBattleSquaddieId],
             repository: gameEngineState.repository!,
             battleState: gameEngineState.battleOrchestratorState.battleState,

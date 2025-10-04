@@ -937,7 +937,17 @@ describe("Player Decision HUD", () => {
         it("selects the first squaddie in the team and pan the camera towards them", () => {
             gameEngineState.messageBoard.sendMessage({
                 type: MessageBoardMessageType.SELECT_AND_LOCK_NEXT_SQUADDIE,
-                gameEngineState,
+                repository: gameEngineState.repository!,
+                battleState:
+                    gameEngineState.battleOrchestratorState.battleState,
+                battleHUDState:
+                    gameEngineState.battleOrchestratorState.battleHUDState,
+                messageBoard: gameEngineState.messageBoard,
+                missionMap:
+                    gameEngineState.battleOrchestratorState.battleState
+                        .missionMap,
+                cache: gameEngineState.battleOrchestratorState.cache,
+                campaignResources: gameEngineState.campaign.resources,
             })
 
             expect(messageSpy).toBeCalledWith(
@@ -959,7 +969,17 @@ describe("Player Decision HUD", () => {
         it("shows the squaddie selector panel with the first squaddie already selected", () => {
             gameEngineState.messageBoard.sendMessage({
                 type: MessageBoardMessageType.SELECT_AND_LOCK_NEXT_SQUADDIE,
-                gameEngineState,
+                repository: gameEngineState.repository!,
+                battleState:
+                    gameEngineState.battleOrchestratorState.battleState,
+                battleHUDState:
+                    gameEngineState.battleOrchestratorState.battleHUDState,
+                messageBoard: gameEngineState.messageBoard,
+                missionMap:
+                    gameEngineState.battleOrchestratorState.battleState
+                        .missionMap,
+                cache: gameEngineState.battleOrchestratorState.cache,
+                campaignResources: gameEngineState.campaign.resources,
             })
             expect(
                 SquaddieSelectorPanelService.getSelectedBattleSquaddieId(
@@ -972,11 +992,31 @@ describe("Player Decision HUD", () => {
         it("rotates through the squaddies if you keep pressing next", () => {
             gameEngineState.messageBoard.sendMessage({
                 type: MessageBoardMessageType.SELECT_AND_LOCK_NEXT_SQUADDIE,
-                gameEngineState,
+                repository: gameEngineState.repository!,
+                battleState:
+                    gameEngineState.battleOrchestratorState.battleState,
+                battleHUDState:
+                    gameEngineState.battleOrchestratorState.battleHUDState,
+                messageBoard: gameEngineState.messageBoard,
+                missionMap:
+                    gameEngineState.battleOrchestratorState.battleState
+                        .missionMap,
+                cache: gameEngineState.battleOrchestratorState.cache,
+                campaignResources: gameEngineState.campaign.resources,
             })
             gameEngineState.messageBoard.sendMessage({
                 type: MessageBoardMessageType.SELECT_AND_LOCK_NEXT_SQUADDIE,
-                gameEngineState,
+                repository: gameEngineState.repository!,
+                battleState:
+                    gameEngineState.battleOrchestratorState.battleState,
+                battleHUDState:
+                    gameEngineState.battleOrchestratorState.battleHUDState,
+                messageBoard: gameEngineState.messageBoard,
+                missionMap:
+                    gameEngineState.battleOrchestratorState.battleState
+                        .missionMap,
+                cache: gameEngineState.battleOrchestratorState.cache,
+                campaignResources: gameEngineState.campaign.resources,
             })
             expect(
                 SquaddieSelectorPanelService.getSelectedBattleSquaddieId(
@@ -987,7 +1027,17 @@ describe("Player Decision HUD", () => {
 
             gameEngineState.messageBoard.sendMessage({
                 type: MessageBoardMessageType.SELECT_AND_LOCK_NEXT_SQUADDIE,
-                gameEngineState,
+                repository: gameEngineState.repository!,
+                battleState:
+                    gameEngineState.battleOrchestratorState.battleState,
+                battleHUDState:
+                    gameEngineState.battleOrchestratorState.battleHUDState,
+                messageBoard: gameEngineState.messageBoard,
+                missionMap:
+                    gameEngineState.battleOrchestratorState.battleState
+                        .missionMap,
+                cache: gameEngineState.battleOrchestratorState.cache,
+                campaignResources: gameEngineState.campaign.resources,
             })
             expect(
                 SquaddieSelectorPanelService.getSelectedBattleSquaddieId(
@@ -998,7 +1048,17 @@ describe("Player Decision HUD", () => {
 
             gameEngineState.messageBoard.sendMessage({
                 type: MessageBoardMessageType.SELECT_AND_LOCK_NEXT_SQUADDIE,
-                gameEngineState,
+                repository: gameEngineState.repository!,
+                battleState:
+                    gameEngineState.battleOrchestratorState.battleState,
+                battleHUDState:
+                    gameEngineState.battleOrchestratorState.battleHUDState,
+                messageBoard: gameEngineState.messageBoard,
+                missionMap:
+                    gameEngineState.battleOrchestratorState.battleState
+                        .missionMap,
+                cache: gameEngineState.battleOrchestratorState.cache,
+                campaignResources: gameEngineState.campaign.resources,
             })
             expect(
                 SquaddieSelectorPanelService.getSelectedBattleSquaddieId(
@@ -1032,7 +1092,17 @@ describe("Player Decision HUD", () => {
 
             gameEngineState.messageBoard.sendMessage({
                 type: MessageBoardMessageType.SELECT_AND_LOCK_NEXT_SQUADDIE,
-                gameEngineState,
+                repository: gameEngineState.repository!,
+                battleState:
+                    gameEngineState.battleOrchestratorState.battleState,
+                battleHUDState:
+                    gameEngineState.battleOrchestratorState.battleHUDState,
+                messageBoard: gameEngineState.messageBoard,
+                missionMap:
+                    gameEngineState.battleOrchestratorState.battleState
+                        .missionMap,
+                cache: gameEngineState.battleOrchestratorState.cache,
+                campaignResources: gameEngineState.campaign.resources,
             })
 
             expect(
@@ -1073,7 +1143,17 @@ describe("Player Decision HUD", () => {
             messageSpy.mockClear()
             gameEngineState.messageBoard.sendMessage({
                 type: MessageBoardMessageType.SELECT_AND_LOCK_NEXT_SQUADDIE,
-                gameEngineState,
+                repository: gameEngineState.repository!,
+                battleState:
+                    gameEngineState.battleOrchestratorState.battleState,
+                battleHUDState:
+                    gameEngineState.battleOrchestratorState.battleHUDState,
+                messageBoard: gameEngineState.messageBoard,
+                missionMap:
+                    gameEngineState.battleOrchestratorState.battleState
+                        .missionMap,
+                cache: gameEngineState.battleOrchestratorState.cache,
+                campaignResources: gameEngineState.campaign.resources,
             })
 
             expect(messageSpy).not.toBeCalledWith(

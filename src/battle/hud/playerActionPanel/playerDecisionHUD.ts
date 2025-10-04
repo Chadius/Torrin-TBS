@@ -17,19 +17,24 @@ import {
 } from "../popupWindow/popupWindow"
 import { SquaddieStatusTileService } from "./tile/squaddieStatusTile/squaddieStatusTile"
 import { ActionTilePosition } from "./tile/actionTilePosition"
-import { BattleHUDStateService } from "../battleHUD/battleHUDState"
-import { PlayerConsideredActionsService } from "../../battleState/playerConsideredActions"
-import { BattleStateService } from "../../battleState/battleState"
-import { MissionMapService } from "../../../missionMap/missionMap"
+import {
+    BattleHUDState,
+    BattleHUDStateService,
+} from "../battleHUD/battleHUDState"
+import { BattleState, BattleStateService } from "../../battleState/battleState"
+import { MissionMap, MissionMapService } from "../../../missionMap/missionMap"
 import { MissionMapSquaddieCoordinateService } from "../../../missionMap/squaddieCoordinate"
 import { ConvertCoordinateService } from "../../../hexMap/convertCoordinates"
 import { BattleActionDecisionStepService } from "../../actionDecision/battleActionDecisionStep"
 import { PlayerCommandStateService } from "../playerCommand/playerCommandHUD"
-import { ObjectRepositoryService } from "../../objectRepository"
+import {
+    ObjectRepository,
+    ObjectRepositoryService,
+} from "../../objectRepository"
 import { SquaddieTurnService } from "../../../squaddie/turn"
 import { SummaryHUDStateService } from "../summary/summaryHUD"
 import { EnumLike } from "../../../utils/enum"
-import { GameEngineState } from "../../../gameEngine/gameEngineState/gameEngineState"
+import { BattleCamera } from "../../battleCamera"
 
 const INVALID_SELECTION_POP_UP_DURATION_MS = 2000
 
@@ -307,94 +312,112 @@ const cancelPlayerActionConsiderations = (
 const selectAndLockNextSquaddie = (
     message: MessageBoardMessageSelectAndLockNextSquaddie
 ) => {
-    const gameEngineState = message.gameEngineState
+    const repository = message.repository
+    const battleHUDState = message.battleHUDState
+    const battleState = message.battleState
+    const messageBoard = message.messageBoard
+    const missionMap = message.battleState.missionMap
+    const cache = message.cache
+    const campaignResources = message.campaignResources
 
-    createSquaddieSelectorPanel(gameEngineState)
+    if (repository == undefined) return
+    createSquaddieSelectorPanel({
+        repository,
+        battleHUDState,
+        battleState,
+    })
 
     const squaddieCurrentlyTakingATurn =
-        BattleStateService.getBattleSquaddieIdCurrentlyTakingATurn(
-            gameEngineState.battleOrchestratorState.battleState
-        )
+        BattleStateService.getBattleSquaddieIdCurrentlyTakingATurn(battleState)
 
     if (squaddieCurrentlyTakingATurn) {
-        panCameraToSquaddie(gameEngineState, squaddieCurrentlyTakingATurn)
-        gameEngineState.messageBoard.sendMessage({
+        panCameraToSquaddie({
+            nextBattleSquaddieId: squaddieCurrentlyTakingATurn,
+            missionMap: missionMap,
+            camera: battleState.camera,
+        })
+        messageBoard.sendMessage({
             type: MessageBoardMessageType.PLAYER_SELECTS_AND_LOCKS_SQUADDIE,
-            repository: gameEngineState.repository,
-            battleHUDState:
-                gameEngineState.battleOrchestratorState.battleHUDState,
-            battleState: gameEngineState.battleOrchestratorState.battleState,
-            missionMap:
-                gameEngineState.battleOrchestratorState.battleState.missionMap,
-            cache: gameEngineState.battleOrchestratorState.cache,
-            campaignResources: gameEngineState.campaign.resources,
+            repository,
+            battleHUDState,
+            battleState,
+            missionMap,
+            cache,
+            campaignResources,
             battleSquaddieSelectedId: squaddieCurrentlyTakingATurn,
         })
         return
     }
 
-    if (gameEngineState.repository == undefined) return
     const nextBattleSquaddieId = BattleHUDStateService.getNextSquaddieId({
-        battleHUDState: gameEngineState.battleOrchestratorState.battleHUDState,
-        objectRepository: gameEngineState.repository,
-        missionMap:
-            gameEngineState.battleOrchestratorState.battleState.missionMap,
+        battleHUDState,
+        objectRepository: repository,
+        missionMap,
     })
 
     if (nextBattleSquaddieId == undefined) {
         return
     }
 
-    panCameraToSquaddie(gameEngineState, nextBattleSquaddieId)
+    panCameraToSquaddie({
+        nextBattleSquaddieId,
+        missionMap: missionMap,
+        camera: battleState.camera,
+    })
 
-    gameEngineState.battleOrchestratorState.battleState.playerConsideredActions =
-        PlayerConsideredActionsService.new()
+    BattleStateService.resetPlayerConsideredActions(battleState)
 
-    gameEngineState.messageBoard.sendMessage({
+    messageBoard.sendMessage({
         type: MessageBoardMessageType.PLAYER_SELECTS_AND_LOCKS_SQUADDIE,
-        repository: gameEngineState.repository,
-        battleHUDState: gameEngineState.battleOrchestratorState.battleHUDState,
-        battleState: gameEngineState.battleOrchestratorState.battleState,
-        missionMap:
-            gameEngineState.battleOrchestratorState.battleState.missionMap,
-        cache: gameEngineState.battleOrchestratorState.cache,
-        campaignResources: gameEngineState.campaign.resources,
+        repository,
+        battleHUDState,
+        battleState,
+        missionMap,
+        cache,
+        campaignResources,
         battleSquaddieSelectedId: nextBattleSquaddieId,
     })
 }
 
-const createSquaddieSelectorPanel = (gameEngineState: GameEngineState) => {
-    if (gameEngineState.repository == undefined) return
+const createSquaddieSelectorPanel = ({
+    repository,
+    battleHUDState,
+    battleState,
+}: {
+    repository: ObjectRepository
+    battleHUDState: BattleHUDState
+    battleState: BattleState
+}) => {
     const currentTeam = BattleStateService.getCurrentTeam(
-        gameEngineState.battleOrchestratorState.battleState,
-        gameEngineState.repository
+        battleState,
+        repository
     )
 
     if (currentTeam == undefined) return
     if (
-        gameEngineState.battleOrchestratorState.battleHUDState
-            .squaddieListing === undefined ||
-        gameEngineState.battleOrchestratorState.battleHUDState.squaddieListing
-            .teamId != currentTeam.id
+        battleHUDState.squaddieListing === undefined ||
+        battleHUDState.squaddieListing.teamId != currentTeam.id
     ) {
         BattleHUDStateService.resetSquaddieListingForTeam({
-            battleHUDState:
-                gameEngineState.battleOrchestratorState.battleHUDState,
+            battleHUDState: battleHUDState,
             team: currentTeam,
-            objectRepository: gameEngineState.repository,
-            battleActionDecisionStep:
-                gameEngineState.battleOrchestratorState.battleState
-                    .battleActionDecisionStep,
+            objectRepository: repository,
+            battleActionDecisionStep: battleState.battleActionDecisionStep,
         })
     }
 }
 
-const panCameraToSquaddie = (
-    gameEngineState: GameEngineState,
+const panCameraToSquaddie = ({
+    nextBattleSquaddieId,
+    missionMap,
+    camera,
+}: {
     nextBattleSquaddieId: string
-) => {
+    missionMap: MissionMap
+    camera: BattleCamera
+}) => {
     const selectedMapCoordinates = MissionMapService.getByBattleSquaddieId(
-        gameEngineState.battleOrchestratorState.battleState.missionMap,
+        missionMap,
         nextBattleSquaddieId
     )
     if (
@@ -408,7 +431,7 @@ const panCameraToSquaddie = (
                     r: selectedMapCoordinates.currentMapCoordinate.r,
                 },
             })
-        gameEngineState.battleOrchestratorState.battleState.camera.pan({
+        camera.pan({
             xDestination: selectedWorldCoordinates.x,
             yDestination: selectedWorldCoordinates.y,
             timeToPan: 500,
