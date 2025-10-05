@@ -22,7 +22,10 @@ import {
     MockedP5GraphicsBuffer,
 } from "../../../utils/test/mocks"
 import { TerrainTileMapService } from "../../../hexMap/terrainTileMap"
-import { TargetConstraintsService } from "../../../action/targetConstraints"
+import {
+    ActionRange,
+    TargetConstraintsService,
+} from "../../../action/targetConstraints"
 import {
     ActionEffectTemplateService,
     VersusSquaddieResistance,
@@ -70,6 +73,7 @@ import { PLAYER_ACTION_CONFIRM_CREATE_CANCEL_BUTTON_ID } from "./playerActionCon
 import { CampaignResourcesService } from "../../../campaign/campaignResources"
 import { SearchResultsCacheService } from "../../../hexMap/pathfinder/searchResults/searchResultsCache"
 import { ChallengeModifierSettingService } from "../../challengeModifier/challengeModifierSetting"
+import { CoordinateGeneratorShape } from "../../targeting/coordinateGenerator"
 
 describe("Player Action Target Select View Controller", () => {
     let playerActionTargetSelectViewController: PlayerActionTargetSelectViewController
@@ -126,8 +130,8 @@ describe("Player Action Target Select View Controller", () => {
             name: "longsword",
             id: "longsword",
             targetConstraints: TargetConstraintsService.new({
-                minimumRange: 1,
-                maximumRange: 1,
+                range: ActionRange.MELEE,
+                coordinateGeneratorShape: CoordinateGeneratorShape.BLOOM,
             }),
             actionEffectTemplates: [
                 ActionEffectTemplateService.new({
@@ -338,10 +342,11 @@ describe("Player Action Target Select View Controller", () => {
                 (highlightedTileDescription) =>
                     highlightedTileDescription.coordinate
             )
-        expect(highlightedTileLocations).toHaveLength(6)
+        expect(highlightedTileLocations).toHaveLength(7)
         expect(highlightedTileLocations).toEqual(
             expect.arrayContaining([
                 { q: 1, r: 0 },
+                { q: 1, r: 1 },
                 { q: 1, r: 2 },
                 { q: 0, r: 1 },
                 { q: 2, r: 1 },

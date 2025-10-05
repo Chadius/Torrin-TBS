@@ -95,7 +95,10 @@ import { BattleOrchestratorMode } from "../../orchestrator/battleOrchestrator"
 import { BattleActionRecorderService } from "../../history/battleAction/battleActionRecorder"
 import { BattleActionActorContextService } from "../../history/battleAction/battleActionActorContext"
 import { BattleActionQueueService } from "../../history/battleAction/battleActionQueue"
-import { TargetConstraintsService } from "../../../action/targetConstraints"
+import {
+    ActionRange,
+    TargetConstraintsService,
+} from "../../../action/targetConstraints"
 import { ArmyAttributesService } from "../../../squaddie/armyAttributes"
 import { RollResultService } from "../../calculator/actionCalculator/rollResult"
 import { ActionTilePosition } from "../playerActionPanel/tile/actionTilePosition"
@@ -172,8 +175,7 @@ describe("Battle HUD", () => {
             name: "longsword",
             id: "longsword",
             targetConstraints: TargetConstraintsService.new({
-                minimumRange: 0,
-                maximumRange: 1,
+                range: ActionRange.MELEE,
                 coordinateGeneratorShape: CoordinateGeneratorShape.BLOOM,
             }),
             actionEffectTemplates: [
@@ -192,8 +194,7 @@ describe("Battle HUD", () => {
             id: "self",
             name: "self",
             targetConstraints: TargetConstraintsService.new({
-                minimumRange: 0,
-                maximumRange: 0,
+                range: ActionRange.SELF,
                 coordinateGeneratorShape: CoordinateGeneratorShape.BLOOM,
             }),
             actionEffectTemplates: [
@@ -1658,8 +1659,7 @@ describe("Battle HUD", () => {
                 name: "attackTwiceWithLongsword",
                 id: "attackTwiceWithLongsword",
                 targetConstraints: TargetConstraintsService.new({
-                    minimumRange: 1,
-                    maximumRange: 1,
+                    range: ActionRange.MELEE,
                     coordinateGeneratorShape: CoordinateGeneratorShape.BLOOM,
                 }),
                 actionEffectTemplates: [

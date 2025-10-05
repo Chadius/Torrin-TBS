@@ -33,12 +33,16 @@ import { SquaddieRepositoryService } from "../../utils/test/squaddie"
 import { BattleActionSquaddieChangeService } from "../history/battleAction/battleActionSquaddieChange"
 import { DegreeOfSuccess } from "../calculator/actionCalculator/degreeOfSuccess"
 import { BattleActionRecorderService } from "../history/battleAction/battleActionRecorder"
-import { TargetConstraintsService } from "../../action/targetConstraints"
+import {
+    ActionRange,
+    TargetConstraintsService,
+} from "../../action/targetConstraints"
 import { beforeEach, describe, expect, it, vi } from "vitest"
 import {
     GameEngineState,
     GameEngineStateService,
 } from "../../gameEngine/gameEngineState/gameEngineState"
+import { CoordinateGeneratorShape } from "../targeting/coordinateGenerator"
 
 describe("SquaddieSkipsAnimationAnimator", () => {
     let mockResourceHandler: ResourceHandler
@@ -65,8 +69,8 @@ describe("SquaddieSkipsAnimationAnimator", () => {
             id: "koan",
             name: "koan",
             targetConstraints: TargetConstraintsService.new({
-                minimumRange: 0,
-                maximumRange: 0,
+                range: ActionRange.SELF,
+                coordinateGeneratorShape: CoordinateGeneratorShape.BLOOM,
             }),
             actionEffectTemplates: [
                 ActionEffectTemplateService.new({

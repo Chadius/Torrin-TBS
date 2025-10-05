@@ -28,7 +28,10 @@ import {
 } from "../playerCommand/playerCommandHUD"
 import { MouseButton } from "../../../utils/mouseConfig"
 import { SquaddieRepositoryService } from "../../../utils/test/squaddie"
-import { TargetConstraintsService } from "../../../action/targetConstraints"
+import {
+    ActionRange,
+    TargetConstraintsService,
+} from "../../../action/targetConstraints"
 import {
     BattleActionDecisionStep,
     BattleActionDecisionStepService,
@@ -56,6 +59,7 @@ import {
     GameEngineState,
     GameEngineStateService,
 } from "../../../gameEngine/gameEngineState/gameEngineState"
+import { CoordinateGeneratorShape } from "../../targeting/coordinateGenerator"
 
 describe("summaryHUD", () => {
     let graphicsBuffer: MockedP5GraphicsBuffer
@@ -85,8 +89,8 @@ describe("summaryHUD", () => {
             id: "actionTemplate0",
             name: "NeedsTarget",
             targetConstraints: TargetConstraintsService.new({
-                minimumRange: 2,
-                maximumRange: 3,
+                range: ActionRange.SHORT,
+                coordinateGeneratorShape: CoordinateGeneratorShape.BLOOM,
             }),
             actionEffectTemplates: [
                 ActionEffectTemplateService.new({
@@ -105,8 +109,8 @@ describe("summaryHUD", () => {
             id: "actionTemplate1",
             name: "AlsoNeedsTarget",
             targetConstraints: TargetConstraintsService.new({
-                minimumRange: 1,
-                maximumRange: 2,
+                range: ActionRange.REACH,
+                coordinateGeneratorShape: CoordinateGeneratorShape.BLOOM,
             }),
             actionEffectTemplates: [
                 ActionEffectTemplateService.new({

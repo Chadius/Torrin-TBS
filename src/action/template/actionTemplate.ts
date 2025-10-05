@@ -12,6 +12,7 @@ import {
 } from "./actionEffectTemplate"
 import { AttributeModifier } from "../../squaddie/attribute/attributeModifier"
 import {
+    ActionRange,
     TargetConstraints,
     TargetConstraintsService,
 } from "../targetConstraints"
@@ -74,7 +75,8 @@ export const ActionTemplateService = {
             rank: rank ?? 0,
             buttonIconResourceKey: buttonIconResourceKey ?? "",
             targetConstraints:
-                targetConstraints ?? TargetConstraintsService.new({}),
+                targetConstraints ??
+                TargetConstraintsService.new({ range: ActionRange.SELF }),
             userInformation: userInformation ?? {
                 userReadableDescription: "Missing Description",
                 customGlossaryTerms: [],
@@ -164,12 +166,6 @@ export const ActionTemplateService = {
             0
         )
     },
-    getActionTemplateRange: (actionTemplate: ActionTemplate): number[] => {
-        return [
-            actionTemplate.targetConstraints.minimumRange,
-            actionTemplate.targetConstraints.maximumRange,
-        ]
-    },
     getActionTemplateDecisionTypes: (
         actionTemplate: ActionTemplate
     ): TActionDecision[] => {
@@ -252,7 +248,8 @@ const sanitize = (template: Partial<ActionTemplate>): ActionTemplate => {
         rank: template.rank ?? 0,
         buttonIconResourceKey: template.buttonIconResourceKey,
         targetConstraints:
-            template.targetConstraints ?? TargetConstraintsService.new({}),
+            template.targetConstraints ??
+            TargetConstraintsService.new({ range: ActionRange.SELF }),
         userInformation: template.userInformation ?? {
             userReadableDescription: "Missing Description",
             customGlossaryTerms: [],

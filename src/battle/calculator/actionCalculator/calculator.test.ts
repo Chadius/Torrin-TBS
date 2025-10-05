@@ -45,7 +45,10 @@ import {
 } from "../../actionDecision/battleActionDecisionStep"
 import { BattleActionRecorderService } from "../../history/battleAction/battleActionRecorder"
 import { BattleActionService } from "../../history/battleAction/battleAction"
-import { TargetConstraintsService } from "../../../action/targetConstraints"
+import {
+    ActionRange,
+    TargetConstraintsService,
+} from "../../../action/targetConstraints"
 import { RollModifierEnum } from "./rollResult"
 import { CalculatorAttack } from "./attack"
 import {
@@ -70,6 +73,7 @@ import {
     ChallengeModifierSettingService,
 } from "../../challengeModifier/challengeModifierSetting"
 import { GameEngineStateService } from "../../../gameEngine/gameEngineState/gameEngineState"
+import { CoordinateGeneratorShape } from "../../targeting/coordinateGenerator"
 
 describe("calculator", () => {
     let objectRepository: ObjectRepository
@@ -101,8 +105,8 @@ describe("calculator", () => {
             id: "deal body damage auto hit",
             name: "deal body damage (Auto Hit)",
             targetConstraints: TargetConstraintsService.new({
-                minimumRange: 0,
-                maximumRange: 9001,
+                range: ActionRange.LONG,
+                coordinateGeneratorShape: CoordinateGeneratorShape.BLOOM,
             }),
             actionEffectTemplates: [
                 ActionEffectTemplateService.new({
@@ -126,8 +130,8 @@ describe("calculator", () => {
             id: "deal body damage",
             name: "deal body damage",
             targetConstraints: TargetConstraintsService.new({
-                minimumRange: 0,
-                maximumRange: 9001,
+                range: ActionRange.LONG,
+                coordinateGeneratorShape: CoordinateGeneratorShape.BLOOM,
             }),
             actionEffectTemplates: [
                 ActionEffectTemplateService.new({
@@ -673,8 +677,8 @@ describe("calculator", () => {
                 id: "heals lost hit points",
                 name: "heals lost hit points",
                 targetConstraints: TargetConstraintsService.new({
-                    minimumRange: 0,
-                    maximumRange: 9001,
+                    range: ActionRange.LONG,
+                    coordinateGeneratorShape: CoordinateGeneratorShape.BLOOM,
                 }),
                 actionEffectTemplates: [
                     ActionEffectTemplateService.new({
@@ -834,8 +838,8 @@ describe("calculator", () => {
                 id: "raise shield",
                 name: "Raise Shield",
                 targetConstraints: TargetConstraintsService.new({
-                    minimumRange: 0,
-                    maximumRange: 0,
+                    range: ActionRange.SELF,
+                    coordinateGeneratorShape: CoordinateGeneratorShape.BLOOM,
                 }),
                 actionEffectTemplates: [
                     ActionEffectTemplateService.new({
@@ -1660,8 +1664,8 @@ describe("calculator", () => {
                 id: "actionHasTwoEffectTemplates",
                 name: "actionHasTwoEffectTemplates",
                 targetConstraints: TargetConstraintsService.new({
-                    minimumRange: 0,
-                    maximumRange: 9001,
+                    range: ActionRange.LONG,
+                    coordinateGeneratorShape: CoordinateGeneratorShape.BLOOM,
                 }),
                 actionEffectTemplates: [
                     ActionEffectTemplateService.new({

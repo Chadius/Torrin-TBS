@@ -19,10 +19,14 @@ import {
     SquaddieTemplate,
     SquaddieTemplateService,
 } from "../../campaign/squaddieTemplate"
-import { TargetConstraintsService } from "../../action/targetConstraints"
+import {
+    ActionRange,
+    TargetConstraintsService,
+} from "../../action/targetConstraints"
 import { ArmyAttributesService } from "../../squaddie/armyAttributes"
 import { ActionResourceCostService } from "../../action/actionResourceCost"
 import { SquaddieBuildService } from "../../campaign/squaddieBuild"
+import { CoordinateGeneratorShape } from "../../battle/targeting/coordinateGenerator"
 
 export const TestPlayerArmyData = () => {
     const playerArmy: PlayerArmy = PlayerArmyService.new({
@@ -44,8 +48,8 @@ export const TestPlayerArmyData = () => {
                 customGlossaryTerms: [],
             },
             targetConstraints: TargetConstraintsService.new({
-                minimumRange: 0,
-                maximumRange: 2,
+                range: ActionRange.REACH,
+                coordinateGeneratorShape: CoordinateGeneratorShape.BLOOM,
             }),
             actionEffectTemplates: [
                 ActionEffectTemplateService.new({
@@ -75,8 +79,8 @@ export const TestPlayerArmyData = () => {
                 actionPoints: 2,
             }),
             targetConstraints: TargetConstraintsService.new({
-                minimumRange: 0,
-                maximumRange: 1,
+                range: ActionRange.MELEE,
+                coordinateGeneratorShape: CoordinateGeneratorShape.BLOOM,
             }),
             actionEffectTemplates: [
                 ActionEffectTemplateService.new({
@@ -105,8 +109,8 @@ export const TestPlayerArmyData = () => {
                 customGlossaryTerms: [],
             },
             targetConstraints: TargetConstraintsService.new({
-                minimumRange: 0,
-                maximumRange: 1,
+                range: ActionRange.MELEE,
+                coordinateGeneratorShape: CoordinateGeneratorShape.BLOOM,
             }),
             actionEffectTemplates: [
                 ActionEffectTemplateService.new({

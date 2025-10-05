@@ -44,7 +44,10 @@ import {
     BattleActionService,
 } from "../history/battleAction/battleAction"
 import { BattleActionRecorderService } from "../history/battleAction/battleActionRecorder"
-import { TargetConstraintsService } from "../../action/targetConstraints"
+import {
+    ActionRange,
+    TargetConstraintsService,
+} from "../../action/targetConstraints"
 import { beforeEach, describe, expect, it, vi } from "vitest"
 import { PlayerInputTestService } from "../../utils/test/playerInput"
 import { BattleActionActorContextService } from "../history/battleAction/battleActionActorContext"
@@ -62,6 +65,7 @@ import {
     GameEngineState,
     GameEngineStateService,
 } from "../../gameEngine/gameEngineState/gameEngineState"
+import { CoordinateGeneratorShape } from "../targeting/coordinateGenerator"
 
 describe("SquaddieTargetsOtherSquaddiesAnimation", () => {
     let objectRepository: ObjectRepository
@@ -92,8 +96,8 @@ describe("SquaddieTargetsOtherSquaddiesAnimation", () => {
             name: "longsword",
             id: "longsword",
             targetConstraints: TargetConstraintsService.new({
-                minimumRange: 1,
-                maximumRange: 1,
+                range: ActionRange.MELEE,
+                coordinateGeneratorShape: CoordinateGeneratorShape.BLOOM,
             }),
             actionEffectTemplates: [
                 ActionEffectTemplateService.new({

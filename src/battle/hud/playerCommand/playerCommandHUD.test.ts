@@ -29,7 +29,10 @@ import { MessageBoardMessageType } from "../../../message/messageBoardMessage"
 import { CoordinateSystem } from "../../../hexMap/hexCoordinate/hexCoordinate"
 import { PopupWindow } from "../popupWindow/popupWindow"
 import { TextGraphicalHandlingService } from "../../../utils/graphics/textGraphicalHandlingService"
-import { TargetConstraintsService } from "../../../action/targetConstraints"
+import {
+    ActionRange,
+    TargetConstraintsService,
+} from "../../../action/targetConstraints"
 import { BattleActionDecisionStepService } from "../../actionDecision/battleActionDecisionStep"
 import {
     afterEach,
@@ -50,6 +53,7 @@ import {
     GameEngineState,
     GameEngineStateService,
 } from "../../../gameEngine/gameEngineState/gameEngineState"
+import { CoordinateGeneratorShape } from "../../targeting/coordinateGenerator"
 
 describe("playerCommandHUD", () => {
     let graphicsBuffer: MockedP5GraphicsBuffer
@@ -85,8 +89,8 @@ describe("playerCommandHUD", () => {
             id: "actionNeedsTarget",
             name: "NeedsTarget",
             targetConstraints: TargetConstraintsService.new({
-                minimumRange: 2,
-                maximumRange: 3,
+                range: ActionRange.SHORT,
+                coordinateGeneratorShape: CoordinateGeneratorShape.BLOOM,
             }),
             actionEffectTemplates: [
                 ActionEffectTemplateService.new({
@@ -105,8 +109,8 @@ describe("playerCommandHUD", () => {
             id: "actionAlsoNeedsTarget",
             name: "AlsoNeedsTarget",
             targetConstraints: TargetConstraintsService.new({
-                minimumRange: 1,
-                maximumRange: 2,
+                range: ActionRange.REACH,
+                coordinateGeneratorShape: CoordinateGeneratorShape.BLOOM,
             }),
             actionEffectTemplates: [
                 ActionEffectTemplateService.new({
@@ -125,8 +129,8 @@ describe("playerCommandHUD", () => {
             id: "actionHasAWarning",
             name: "ActionHasAWarning",
             targetConstraints: TargetConstraintsService.new({
-                minimumRange: 1,
-                maximumRange: 2,
+                range: ActionRange.REACH,
+                coordinateGeneratorShape: CoordinateGeneratorShape.BLOOM,
             }),
             actionEffectTemplates: [
                 ActionEffectTemplateService.new({
@@ -145,8 +149,8 @@ describe("playerCommandHUD", () => {
             id: "WillAlwaysBeDisabled",
             name: "WillAlwaysBeDisabled",
             targetConstraints: TargetConstraintsService.new({
-                minimumRange: 0,
-                maximumRange: 1,
+                range: ActionRange.MELEE,
+                coordinateGeneratorShape: CoordinateGeneratorShape.BLOOM,
             }),
             actionEffectTemplates: [
                 ActionEffectTemplateService.new({

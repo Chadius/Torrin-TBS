@@ -31,7 +31,10 @@ import {
     ActionTemplate,
     ActionTemplateService,
 } from "../../action/template/actionTemplate"
-import { TargetConstraintsService } from "../../action/targetConstraints"
+import {
+    ActionRange,
+    TargetConstraintsService,
+} from "../../action/targetConstraints"
 import {
     AttributeModifierService,
     AttributeSource,
@@ -74,8 +77,8 @@ describe("map highlight generator", () => {
             id: "meleeAndRanged",
             name: "melee and ranged",
             targetConstraints: TargetConstraintsService.new({
-                minimumRange: 0,
-                maximumRange: 2,
+                range: ActionRange.REACH,
+                coordinateGeneratorShape: CoordinateGeneratorShape.BLOOM,
             }),
             actionEffectTemplates: [
                 ActionEffectTemplateService.new({
@@ -98,11 +101,10 @@ describe("map highlight generator", () => {
         healingAction = ActionTemplateService.new({
             id: "healingAction",
             name: "healingAction",
-            targetConstraints: {
-                minimumRange: 0,
-                maximumRange: 2,
+            targetConstraints: TargetConstraintsService.new({
+                range: ActionRange.REACH,
                 coordinateGeneratorShape: CoordinateGeneratorShape.BLOOM,
-            },
+            }),
             actionEffectTemplates: [
                 ActionEffectTemplateService.new({
                     squaddieAffiliationRelation: {

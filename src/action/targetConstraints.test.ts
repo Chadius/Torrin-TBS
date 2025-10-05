@@ -1,56 +1,104 @@
-import { TargetConstraintsService } from "./targetConstraints"
+import { ActionRange, TargetConstraintsService } from "./targetConstraints"
 import { describe, expect, it } from "vitest"
 import { CoordinateGeneratorShape } from "../battle/targeting/coordinateGenerator"
 
 describe("Target Constraints", () => {
     it("can make an action range with defaults", () => {
-        const range = TargetConstraintsService.new({})
-        expect(range.minimumRange).toEqual(0)
-        expect(range.maximumRange).toEqual(0)
+        // TODO remove range on this to ensure self is used by default
+        const range = TargetConstraintsService.new({ range: ActionRange.SELF })
+        expect(range.range).toEqual(ActionRange.SELF)
         expect(range.coordinateGeneratorShape).toEqual(
             CoordinateGeneratorShape.BLOOM
         )
     })
 
-    it("can make an action range with given values", () => {
-        const range = TargetConstraintsService.new({
-            minimumRange: 1,
-            maximumRange: 2,
-            coordinateGeneratorShape: CoordinateGeneratorShape.BLOOM,
-        })
-        expect(range.minimumRange).toEqual(1)
-        expect(range.maximumRange).toEqual(2)
-        expect(range.coordinateGeneratorShape).toEqual(
-            CoordinateGeneratorShape.BLOOM
+    describe("isInRange", () => {
+        const trueTests = [
+            {
+                range: ActionRange.SELF,
+                distance: 0,
+            },
+            {
+                range: ActionRange.MELEE,
+                distance: 1,
+            },
+            {
+                range: ActionRange.REACH,
+                distance: 2,
+            },
+            {
+                range: ActionRange.SHORT,
+                distance: 3,
+            },
+            {
+                range: ActionRange.MEDIUM,
+                distance: 4,
+            },
+            {
+                range: ActionRange.LONG,
+                distance: 6,
+            },
+        ]
+
+        it.each(trueTests)(
+            `$range $distance is in range`,
+            ({ range, distance }) => {
+                const constraints = TargetConstraintsService.new({
+                    range,
+                    coordinateGeneratorShape: CoordinateGeneratorShape.BLOOM,
+                })
+
+                expect(
+                    TargetConstraintsService.isInRange({
+                        constraints,
+                        distance,
+                    })
+                ).toBeTruthy()
+            }
         )
-    })
 
-    it("ensures minimum is always less than maximum", () => {
-        const range = TargetConstraintsService.new({
-            minimumRange: 2,
-            maximumRange: 1,
-            coordinateGeneratorShape: CoordinateGeneratorShape.BLOOM,
-        })
-        expect(range.minimumRange).toEqual(1)
-        expect(range.maximumRange).toEqual(2)
-    })
+        const falseTests = [
+            {
+                range: ActionRange.SELF,
+                distance: 1,
+            },
+            {
+                range: ActionRange.MELEE,
+                distance: 2,
+            },
+            {
+                range: ActionRange.REACH,
+                distance: 3,
+            },
+            {
+                range: ActionRange.SHORT,
+                distance: 4,
+            },
+            {
+                range: ActionRange.MEDIUM,
+                distance: 5,
+            },
+            {
+                range: ActionRange.LONG,
+                distance: 7,
+            },
+        ]
 
-    it("ensures minimum is always less than maximum, even if the maximum is not specified", () => {
-        const range = TargetConstraintsService.new({ minimumRange: 1 })
-        expect(range.minimumRange).toEqual(0)
-        expect(range.maximumRange).toEqual(1)
-        expect(range.coordinateGeneratorShape).toEqual(
-            CoordinateGeneratorShape.BLOOM
+        it.each(falseTests)(
+            `$range $distance not in range`,
+            ({ range, distance }) => {
+                const constraints = TargetConstraintsService.new({
+                    range,
+                    coordinateGeneratorShape: CoordinateGeneratorShape.BLOOM,
+                })
+
+                expect(
+                    TargetConstraintsService.isInRange({
+                        constraints,
+                        distance,
+                    })
+                ).toBeFalsy()
+            }
         )
-    })
-
-    it("never allows negative values", () => {
-        const range = TargetConstraintsService.new({
-            minimumRange: -9001,
-            maximumRange: -5,
-            coordinateGeneratorShape: CoordinateGeneratorShape.BLOOM,
-        })
-        expect(range.minimumRange).toEqual(0)
-        expect(range.maximumRange).toEqual(0)
     })
 })

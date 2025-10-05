@@ -14,7 +14,7 @@ import {
     Trait,
     TraitStatusStorageService,
 } from "../../trait/traitStatusStorage"
-import { TargetConstraintsService } from "../targetConstraints"
+import { ActionRange, TargetConstraintsService } from "../targetConstraints"
 import { CoordinateGeneratorShape } from "../../battle/targeting/coordinateGenerator"
 
 describe("ActionTemplate", () => {
@@ -29,8 +29,7 @@ describe("ActionTemplate", () => {
         expect(justMovement.actionEffectTemplates).toHaveLength(0)
         expect(justMovement.resourceCost?.actionPoints).toEqual(1)
         expect(justMovement.rank).toEqual(0)
-        expect(justMovement.targetConstraints.minimumRange).toEqual(0)
-        expect(justMovement.targetConstraints.maximumRange).toEqual(0)
+        expect(justMovement.targetConstraints.range).toEqual(ActionRange.SELF)
         expect(justMovement.targetConstraints.coordinateGeneratorShape).toEqual(
             CoordinateGeneratorShape.BLOOM
         )
@@ -84,13 +83,13 @@ describe("ActionTemplate", () => {
                 id: "strike",
                 name: "strike",
                 targetConstraints: TargetConstraintsService.new({
-                    minimumRange: 1,
-                    maximumRange: 10,
+                    range: ActionRange.LONG,
                     coordinateGeneratorShape: CoordinateGeneratorShape.BLOOM,
                 }),
             })
-            expect(actionTemplate.targetConstraints.minimumRange).toEqual(1)
-            expect(actionTemplate.targetConstraints.maximumRange).toEqual(10)
+            expect(actionTemplate.targetConstraints.range).toEqual(
+                ActionRange.LONG
+            )
             expect(
                 actionTemplate.targetConstraints.coordinateGeneratorShape
             ).toEqual(CoordinateGeneratorShape.BLOOM)
@@ -191,37 +190,6 @@ describe("ActionTemplate", () => {
             expect(
                 ActionTemplateService.multipleAttackPenaltyMultiplier(withMap)
             ).toEqual(1)
-        })
-    })
-
-    describe("actionTemplateRange", () => {
-        it("returns default range if none are specified", () => {
-            const justWaiting = ActionTemplateService.new({
-                id: "justWaiting",
-                name: "just waiting",
-                actionEffectTemplates: [],
-            })
-
-            const ranges =
-                ActionTemplateService.getActionTemplateRange(justWaiting)
-
-            expect(ranges).toEqual([0, 0])
-        })
-
-        it("returns the range of the only action effect with a range", () => {
-            const bow = ActionTemplateService.new({
-                id: "bow",
-                name: "bow",
-                targetConstraints: {
-                    minimumRange: 1,
-                    maximumRange: 3,
-                    coordinateGeneratorShape: CoordinateGeneratorShape.BLOOM,
-                },
-                actionEffectTemplates: [ActionEffectTemplateService.new({})],
-            })
-
-            const ranges = ActionTemplateService.getActionTemplateRange(bow)
-            expect(ranges).toEqual([1, 3])
         })
     })
 

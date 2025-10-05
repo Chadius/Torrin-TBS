@@ -26,6 +26,10 @@ import {
 } from "../../squaddie/attribute/attributeModifier"
 import { Attribute } from "../../squaddie/attribute/attribute"
 import { CanAddModifiersCheck } from "./canAddModifiersCheck"
+import {
+    ActionRange,
+    TargetConstraintsService,
+} from "../../action/targetConstraints"
 
 describe("can add modifiers check", () => {
     let objectRepository: ObjectRepository
@@ -60,11 +64,10 @@ describe("can add modifiers check", () => {
         let attackAction = ActionTemplateService.new({
             id: "attackAction",
             name: "attackAction",
-            targetConstraints: {
-                maximumRange: 1,
-                minimumRange: 0,
+            targetConstraints: TargetConstraintsService.new({
+                range: ActionRange.MELEE,
                 coordinateGeneratorShape: CoordinateGeneratorShape.BLOOM,
-            },
+            }),
             actionEffectTemplates: [
                 ActionEffectTemplateService.new({
                     squaddieAffiliationRelation: {
@@ -113,11 +116,10 @@ describe("can add modifiers check", () => {
             addArmorAction = ActionTemplateService.new({
                 id: "raiseBarrier",
                 name: "raiseBarrier",
-                targetConstraints: {
-                    maximumRange: 1,
-                    minimumRange: 0,
+                targetConstraints: TargetConstraintsService.new({
+                    range: ActionRange.MELEE,
                     coordinateGeneratorShape: CoordinateGeneratorShape.BLOOM,
-                },
+                }),
                 actionEffectTemplates: [
                     ActionEffectTemplateService.new({
                         squaddieAffiliationRelation: {

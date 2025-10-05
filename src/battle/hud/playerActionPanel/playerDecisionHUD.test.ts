@@ -42,7 +42,10 @@ import {
     BattleSquaddieTeamService,
 } from "../../battleSquaddieTeam"
 import { SquaddieAffiliation } from "../../../squaddie/squaddieAffiliation"
-import { TargetConstraintsService } from "../../../action/targetConstraints"
+import {
+    ActionRange,
+    TargetConstraintsService,
+} from "../../../action/targetConstraints"
 import { CoordinateGeneratorShape } from "../../targeting/coordinateGenerator"
 import {
     ActionEffectTemplateService,
@@ -261,8 +264,7 @@ describe("Player Decision HUD", () => {
             name: "longsword",
             id: "longsword",
             targetConstraints: TargetConstraintsService.new({
-                minimumRange: 0,
-                maximumRange: 1,
+                range: ActionRange.MELEE,
                 coordinateGeneratorShape: CoordinateGeneratorShape.BLOOM,
             }),
             actionEffectTemplates: [
@@ -281,8 +283,7 @@ describe("Player Decision HUD", () => {
             id: "self",
             name: "self",
             targetConstraints: TargetConstraintsService.new({
-                minimumRange: 0,
-                maximumRange: 0,
+                range: ActionRange.SELF,
                 coordinateGeneratorShape: CoordinateGeneratorShape.BLOOM,
             }),
             actionEffectTemplates: [

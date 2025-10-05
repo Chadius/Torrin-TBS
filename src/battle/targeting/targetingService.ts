@@ -31,6 +31,7 @@ import {
     Trait,
     TraitStatusStorageService,
 } from "../../trait/traitStatusStorage"
+import { TargetConstraintsService } from "../../action/targetConstraints"
 
 export interface TargetingResults {
     coordinatesInRange: Set<HexCoordinate>
@@ -221,6 +222,10 @@ const findValidTargets = ({
     if (startCoordinates == undefined || startCoordinates[0] == undefined)
         return newTargetingResults()
 
+    const range = TargetConstraintsService.getRangeDistance(
+        actionTemplate.targetConstraints
+    )
+
     const allLocationsInRange: SearchResult =
         MapSearchService.calculateAllPossiblePathsFromStartingCoordinate({
             missionMap: map,
@@ -237,8 +242,8 @@ const findValidTargets = ({
                     actionTemplate.actionEffectTemplates[0].traits,
                     Trait.CROSS_OVER_PITS
                 ),
-                minimumDistance: actionTemplate.targetConstraints.minimumRange,
-                maximumDistance: actionTemplate.targetConstraints.maximumRange,
+                minimumDistance: range[0],
+                maximumDistance: range[1],
             }),
         })
 

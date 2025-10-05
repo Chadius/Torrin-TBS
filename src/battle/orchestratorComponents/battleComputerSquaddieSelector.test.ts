@@ -63,7 +63,10 @@ import { SquaddieRepositoryService } from "../../utils/test/squaddie"
 import { MapGraphicsLayer } from "../../hexMap/mapLayer/mapGraphicsLayer"
 import { BattleActionService } from "../history/battleAction/battleAction"
 import { BattleActionRecorderService } from "../history/battleAction/battleActionRecorder"
-import { TargetConstraintsService } from "../../action/targetConstraints"
+import {
+    ActionRange,
+    TargetConstraintsService,
+} from "../../action/targetConstraints"
 import { ArmyAttributesService } from "../../squaddie/armyAttributes"
 import { ActionResourceCostService } from "../../action/actionResourceCost"
 import {
@@ -79,6 +82,7 @@ import {
     GameEngineState,
     GameEngineStateService,
 } from "../../gameEngine/gameEngineState/gameEngineState"
+import { CoordinateGeneratorShape } from "../targeting/coordinateGenerator"
 
 describe("BattleComputerSquaddieSelector", () => {
     let selector: BattleComputerSquaddieSelector =
@@ -117,8 +121,8 @@ describe("BattleComputerSquaddieSelector", () => {
                 actionPoints: 2,
             }),
             targetConstraints: TargetConstraintsService.new({
-                minimumRange: 1,
-                maximumRange: 1,
+                range: ActionRange.MELEE,
+                coordinateGeneratorShape: CoordinateGeneratorShape.BLOOM,
             }),
             actionEffectTemplates: [
                 ActionEffectTemplateService.new({

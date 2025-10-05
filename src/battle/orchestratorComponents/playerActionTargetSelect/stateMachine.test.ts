@@ -101,6 +101,10 @@ import {
 import { StateMachineUpdate } from "../../../utils/stateMachine/stateMachineUpdate"
 import { SearchResultsCacheService } from "../../../hexMap/pathfinder/searchResults/searchResultsCache"
 import { ChallengeModifierSettingService } from "../../challengeModifier/challengeModifierSetting"
+import {
+    ActionRange,
+    TargetConstraintsService,
+} from "../../../action/targetConstraints"
 
 describe("PlayerActionTargetSelect State Machine", () => {
     let stateMachine: PlayerActionTargetStateMachine
@@ -439,12 +443,11 @@ describe("PlayerActionTargetSelect State Machine", () => {
                 healingAction = ActionTemplateService.new({
                     id: "healingAction",
                     name: "healingAction",
-                    targetConstraints: {
-                        maximumRange: 1,
-                        minimumRange: 0,
+                    targetConstraints: TargetConstraintsService.new({
+                        range: ActionRange.MELEE,
                         coordinateGeneratorShape:
                             CoordinateGeneratorShape.BLOOM,
-                    },
+                    }),
                     actionEffectTemplates: [
                         ActionEffectTemplateService.new({
                             squaddieAffiliationRelation: {
@@ -466,12 +469,11 @@ describe("PlayerActionTargetSelect State Machine", () => {
                 addArmorAction = ActionTemplateService.new({
                     id: "addArmorAction",
                     name: "addArmorAction",
-                    targetConstraints: {
-                        maximumRange: 0,
-                        minimumRange: 0,
+                    targetConstraints: TargetConstraintsService.new({
+                        range: ActionRange.SELF,
                         coordinateGeneratorShape:
                             CoordinateGeneratorShape.BLOOM,
-                    },
+                    }),
                     actionEffectTemplates: [
                         ActionEffectTemplateService.new({
                             squaddieAffiliationRelation: {

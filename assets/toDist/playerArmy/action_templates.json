@@ -6,8 +6,7 @@
       "userReadableDescription": "Attack AC up to 2 tiles away."
     },
     "targetConstraints": {
-      "minimumRange": 0,
-      "maximumRange": 2,
+      "range": "REACH",
       "targetingShape": "BLOOM"
     },
     "actionEffectTemplates": [
@@ -43,8 +42,7 @@
       "actionPoints": 2
     },
     "targetConstraints": {
-      "minimumRange": 0,
-      "maximumRange": 1,
+      "range": "MELEE",
       "targetingShape": "BLOOM"
     },
     "actionEffectTemplates": [
@@ -78,8 +76,7 @@
       "userReadableDescription": "Pass through enemies and ignore terrain penalties for the rest of the round."
     },
     "targetConstraints": {
-      "minimumRange": 0,
-      "maximumRange": 0,
+      "range": "SELF",
       "targetingShape": "BLOOM"
     },
     "resourceCost": {
@@ -139,8 +136,7 @@
       ]
     },
     "targetConstraints": {
-      "minimumRange": 0,
-      "maximumRange": 1,
+      "range": "MELEE",
       "targetingShape": "BLOOM"
     },
     "actionEffectTemplates": [
@@ -177,8 +173,7 @@
       "numberOfTimesPerRound": 1
     },
     "targetConstraints": {
-      "minimumRange": 0,
-      "maximumRange": 0,
+      "range": "SELF",
       "targetingShape": "BLOOM"
     },
     "actionEffectTemplates": [
@@ -224,8 +219,7 @@
       "userReadableDescription": "Attack AC of an adjacent foe. Deals extra damage if enemy is Flanked or Off-Guard."
     },
     "targetConstraints": {
-      "minimumRange": 0,
-      "maximumRange": 1,
+      "range": "MELEE",
       "targetingShape": "BLOOM"
     },
     "actionEffectTemplates": [

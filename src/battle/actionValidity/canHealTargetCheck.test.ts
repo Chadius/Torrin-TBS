@@ -21,6 +21,10 @@ import {
     TargetingResults,
     TargetingResultsService,
 } from "../targeting/targetingService"
+import {
+    ActionRange,
+    TargetConstraintsService,
+} from "../../action/targetConstraints"
 
 describe("can heal targets", () => {
     let objectRepository: ObjectRepository
@@ -55,11 +59,10 @@ describe("can heal targets", () => {
         let attackAction = ActionTemplateService.new({
             id: "attackAction",
             name: "attackAction",
-            targetConstraints: {
-                maximumRange: 1,
-                minimumRange: 0,
+            targetConstraints: TargetConstraintsService.new({
+                range: ActionRange.MELEE,
                 coordinateGeneratorShape: CoordinateGeneratorShape.BLOOM,
-            },
+            }),
             actionEffectTemplates: [
                 ActionEffectTemplateService.new({
                     squaddieAffiliationRelation: {
@@ -108,11 +111,10 @@ describe("can heal targets", () => {
             healingAction = ActionTemplateService.new({
                 id: "healingAction",
                 name: "healingAction",
-                targetConstraints: {
-                    maximumRange: 1,
-                    minimumRange: 0,
+                targetConstraints: TargetConstraintsService.new({
+                    range: ActionRange.MELEE,
                     coordinateGeneratorShape: CoordinateGeneratorShape.BLOOM,
-                },
+                }),
                 actionEffectTemplates: [
                     ActionEffectTemplateService.new({
                         squaddieAffiliationRelation: {

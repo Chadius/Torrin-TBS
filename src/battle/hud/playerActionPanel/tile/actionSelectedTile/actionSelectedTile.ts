@@ -25,8 +25,8 @@ import {
 } from "../../../../../action/template/actionTemplate"
 import { AttributeModifierService } from "../../../../../squaddie/attribute/attributeModifier"
 import {
-    TAttribute,
     AttributeTypeService,
+    TAttribute,
 } from "../../../../../squaddie/attribute/attribute"
 import {
     TileAttributeLabelStack,
@@ -36,6 +36,7 @@ import { Glossary } from "../../../../../campaign/glossary/glossary"
 import { ResourceHandler } from "../../../../../resource/resourceHandler"
 import { ScreenLocation } from "../../../../../utils/mouseConfig"
 import { TextFormatService } from "../../../../../utils/graphics/textFormatService"
+import { TargetConstraintsService } from "../../../../../action/targetConstraints"
 
 type ActionSelectedTileLayout = {
     actionNameText: {
@@ -483,32 +484,16 @@ const createRangeTextBoxesAndGetBottom = ({
     actionTemplate: ActionTemplate
     top: number
 }): number => {
-    const templateRange =
-        ActionTemplateService.getActionTemplateRange(actionTemplate)
-    const minimumRange = isValidValue(templateRange) ? templateRange[0] : 0
-    const maximumRange = isValidValue(templateRange) ? templateRange[1] : 0
-
-    let rangeNameText = `Range`
-    let showRangeAmount = true
-    switch (true) {
-        case minimumRange <= 1 && maximumRange == 1:
-            rangeNameText = "Melee"
-            showRangeAmount = false
-            break
-        case minimumRange == 0 && maximumRange == 0:
-            rangeNameText = "Self Only"
-            showRangeAmount = false
-            break
-    }
+    let rangeNameText = TargetConstraintsService.getDistanceDescriptor(
+        actionTemplate.targetConstraints
+    )
 
     const textBoxAreas = createNameAndAmountTextBoxes({
         tile,
         graphicsContext,
         top,
         variableName: rangeNameText,
-        variableAmountDescription: showRangeAmount
-            ? `${minimumRange}-${maximumRange}`
-            : undefined,
+        variableAmountDescription: undefined,
     })
     return Math.max(...textBoxAreas.map((area) => RectAreaService.bottom(area)))
 }

@@ -52,7 +52,10 @@ import { BattleActionService } from "../history/battleAction/battleAction"
 import { SquaddieRepositoryService } from "../../utils/test/squaddie"
 import { BattleOrchestratorMode } from "../orchestrator/battleOrchestrator"
 import { BattleActionRecorderService } from "../history/battleAction/battleActionRecorder"
-import { TargetConstraintsService } from "../../action/targetConstraints"
+import {
+    ActionRange,
+    TargetConstraintsService,
+} from "../../action/targetConstraints"
 import { ArmyAttributesService } from "../../squaddie/armyAttributes"
 import { ActionResourceCostService } from "../../action/actionResourceCost"
 import {
@@ -71,6 +74,7 @@ import {
     GameEngineState,
     GameEngineStateService,
 } from "../../gameEngine/gameEngineState/gameEngineState"
+import { CoordinateGeneratorShape } from "../targeting/coordinateGenerator"
 
 describe("BattleSquaddieUsesActionOnSquaddie", () => {
     let objectRepository: ObjectRepository
@@ -136,8 +140,8 @@ describe("BattleSquaddieUsesActionOnSquaddie", () => {
                 actionPoints: 3,
             }),
             targetConstraints: TargetConstraintsService.new({
-                minimumRange: 1,
-                maximumRange: 1,
+                range: ActionRange.MELEE,
+                coordinateGeneratorShape: CoordinateGeneratorShape.BLOOM,
             }),
             actionEffectTemplates: [
                 ActionEffectTemplateService.new({
@@ -160,8 +164,8 @@ describe("BattleSquaddieUsesActionOnSquaddie", () => {
             name: "attack longsword",
             id: "attackLongsword",
             targetConstraints: TargetConstraintsService.new({
-                minimumRange: 1,
-                maximumRange: 1,
+                range: ActionRange.MELEE,
+                coordinateGeneratorShape: CoordinateGeneratorShape.BLOOM,
             }),
             actionEffectTemplates: [
                 ActionEffectTemplateService.new({
@@ -184,8 +188,8 @@ describe("BattleSquaddieUsesActionOnSquaddie", () => {
             id: "koan",
             name: "koan",
             targetConstraints: TargetConstraintsService.new({
-                minimumRange: 0,
-                maximumRange: 0,
+                range: ActionRange.SELF,
+                coordinateGeneratorShape: CoordinateGeneratorShape.BLOOM,
             }),
             actionEffectTemplates: [
                 ActionEffectTemplateService.new({

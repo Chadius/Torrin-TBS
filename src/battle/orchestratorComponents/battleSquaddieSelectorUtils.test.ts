@@ -16,7 +16,10 @@ import {
     ActionEffectTemplateService,
     TargetBySquaddieAffiliationRelation,
 } from "../../action/template/actionEffectTemplate"
-import { TargetConstraintsService } from "../../action/targetConstraints"
+import {
+    ActionRange,
+    TargetConstraintsService,
+} from "../../action/targetConstraints"
 import { beforeEach, describe, expect, it } from "vitest"
 import { SearchPathAdapterService } from "../../search/searchPathAdapter/searchPathAdapter"
 import { SquaddieService } from "../../squaddie/squaddieService"
@@ -24,6 +27,7 @@ import {
     GameEngineState,
     GameEngineStateService,
 } from "../../gameEngine/gameEngineState/gameEngineState"
+import { CoordinateGeneratorShape } from "../targeting/coordinateGenerator"
 
 describe("battleSquaddieSelectorUtils", () => {
     let objectRepository: ObjectRepository
@@ -40,8 +44,8 @@ describe("battleSquaddieSelectorUtils", () => {
             id: "meleeAttack",
             name: "meleeAttack",
             targetConstraints: TargetConstraintsService.new({
-                minimumRange: 0,
-                maximumRange: 1,
+                range: ActionRange.MELEE,
+                coordinateGeneratorShape: CoordinateGeneratorShape.BLOOM,
             }),
             actionEffectTemplates: [
                 ActionEffectTemplateService.new({
@@ -57,8 +61,8 @@ describe("battleSquaddieSelectorUtils", () => {
             id: "rangedAttack",
             name: "rangedAttack",
             targetConstraints: TargetConstraintsService.new({
-                minimumRange: 2,
-                maximumRange: 3,
+                range: ActionRange.SHORT,
+                coordinateGeneratorShape: CoordinateGeneratorShape.BLOOM,
             }),
             actionEffectTemplates: [
                 ActionEffectTemplateService.new({

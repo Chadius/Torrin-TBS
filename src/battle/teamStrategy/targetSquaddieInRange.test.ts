@@ -29,7 +29,10 @@ import {
 } from "../actionDecision/battleActionDecisionStep"
 import { BattleOrchestratorStateService } from "../orchestrator/battleOrchestratorState"
 import { BattleStateService } from "../battleState/battleState"
-import { TargetConstraintsService } from "../../action/targetConstraints"
+import {
+    ActionRange,
+    TargetConstraintsService,
+} from "../../action/targetConstraints"
 import { ActionResourceCostService } from "../../action/actionResourceCost"
 import { beforeEach, describe, expect, it } from "vitest"
 import { DebugModeMenuService } from "../hud/debugModeMenu/debugModeMenu"
@@ -38,6 +41,7 @@ import {
     GameEngineState,
     GameEngineStateService,
 } from "../../gameEngine/gameEngineState/gameEngineState"
+import { CoordinateGeneratorShape } from "../targeting/coordinateGenerator"
 
 describe("target a squaddie within reach of actions", () => {
     let objectRepository: ObjectRepository
@@ -59,8 +63,8 @@ describe("target a squaddie within reach of actions", () => {
                 actionPoints: 2,
             }),
             targetConstraints: TargetConstraintsService.new({
-                minimumRange: 1,
-                maximumRange: 2,
+                range: ActionRange.REACH,
+                coordinateGeneratorShape: CoordinateGeneratorShape.BLOOM,
             }),
             actionEffectTemplates: [
                 ActionEffectTemplateService.new({
@@ -392,8 +396,8 @@ describe("target a squaddie within reach of actions", () => {
                 actionPoints: 2,
             }),
             targetConstraints: TargetConstraintsService.new({
-                minimumRange: 1,
-                maximumRange: 2,
+                range: ActionRange.REACH,
+                coordinateGeneratorShape: CoordinateGeneratorShape.BLOOM,
             }),
             actionEffectTemplates: [
                 ActionEffectTemplateService.new({

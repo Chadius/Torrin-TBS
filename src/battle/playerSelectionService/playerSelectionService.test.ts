@@ -49,7 +49,10 @@ import { BattleActionDecisionStepService } from "../actionDecision/battleActionD
 import { SummaryHUDStateService } from "../hud/summary/summaryHUD"
 import { BattleActionService } from "../history/battleAction/battleAction"
 import { BattleActionRecorderService } from "../history/battleAction/battleActionRecorder"
-import { TargetConstraintsService } from "../../action/targetConstraints"
+import {
+    ActionRange,
+    TargetConstraintsService,
+} from "../../action/targetConstraints"
 import {
     afterEach,
     beforeEach,
@@ -73,6 +76,7 @@ import {
     GameEngineState,
     GameEngineStateService,
 } from "../../gameEngine/gameEngineState/gameEngineState"
+import { CoordinateGeneratorShape } from "../targeting/coordinateGenerator"
 
 describe("Player Selection Service", () => {
     let gameEngineState: GameEngineState
@@ -1368,8 +1372,8 @@ const createSquaddie = ({
                 id: "melee",
                 name: "melee",
                 targetConstraints: TargetConstraintsService.new({
-                    minimumRange: 0,
-                    maximumRange: 1,
+                    range: ActionRange.MELEE,
+                    coordinateGeneratorShape: CoordinateGeneratorShape.BLOOM,
                 }),
                 actionEffectTemplates: [
                     ActionEffectTemplateService.new({
@@ -1398,8 +1402,8 @@ const createSquaddie = ({
                 id: "ranged",
                 name: "ranged",
                 targetConstraints: TargetConstraintsService.new({
-                    minimumRange: 1,
-                    maximumRange: 2,
+                    range: ActionRange.REACH,
+                    coordinateGeneratorShape: CoordinateGeneratorShape.BLOOM,
                 }),
                 actionEffectTemplates: [
                     ActionEffectTemplateService.new({
@@ -1428,8 +1432,8 @@ const createSquaddie = ({
                 id: "heal",
                 name: "heal",
                 targetConstraints: TargetConstraintsService.new({
-                    minimumRange: 0,
-                    maximumRange: 1,
+                    range: ActionRange.MELEE,
+                    coordinateGeneratorShape: CoordinateGeneratorShape.BLOOM,
                 }),
                 actionEffectTemplates: [
                     ActionEffectTemplateService.new({
@@ -1457,8 +1461,8 @@ const createSquaddie = ({
                 id: "self",
                 name: "self",
                 targetConstraints: TargetConstraintsService.new({
-                    minimumRange: 0,
-                    maximumRange: 1,
+                    range: ActionRange.MELEE,
+                    coordinateGeneratorShape: CoordinateGeneratorShape.BLOOM,
                 }),
                 actionEffectTemplates: [
                     ActionEffectTemplateService.new({

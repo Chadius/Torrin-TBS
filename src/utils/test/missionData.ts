@@ -32,6 +32,10 @@ import { EventTriggerTurnRangeService } from "../../battle/event/eventTrigger/ev
 import { EventTriggerBattleCompletionStatusService } from "../../battle/event/eventTrigger/eventTriggerBattleCompletionStatus"
 import { BattleCompletionStatus } from "../../battle/orchestrator/missionObjectivesAndCutscenes"
 import { CutsceneService } from "../../cutscene/cutscene"
+import {
+    ActionRange,
+    TargetConstraintsService,
+} from "../../action/targetConstraints"
 
 export const TestMissionData = () => {
     const missionData: MissionFileFormat = {
@@ -800,11 +804,10 @@ export const TestMissionData = () => {
                 userReadableDescription: "Attack AC of an adjacent foe.",
                 customGlossaryTerms: [],
             },
-            targetConstraints: {
-                minimumRange: 0,
-                maximumRange: 1,
+            targetConstraints: TargetConstraintsService.new({
+                range: ActionRange.MELEE,
                 coordinateGeneratorShape: CoordinateGeneratorShape.BLOOM,
-            },
+            }),
             actionEffectTemplates: [
                 ActionEffectTemplateService.new({
                     traits: {
@@ -829,11 +832,10 @@ export const TestMissionData = () => {
                 userReadableDescription: "Attack AC of an adjacent foe.",
                 customGlossaryTerms: [],
             },
-            targetConstraints: {
-                minimumRange: 0,
-                maximumRange: 1,
+            targetConstraints: TargetConstraintsService.new({
+                range: ActionRange.MELEE,
                 coordinateGeneratorShape: CoordinateGeneratorShape.BLOOM,
-            },
+            }),
             actionEffectTemplates: [
                 ActionEffectTemplateService.new({
                     traits: {
@@ -857,11 +859,10 @@ export const TestMissionData = () => {
                 userReadableDescription: "Attack AC of an adjacent foe.",
                 customGlossaryTerms: [],
             },
-            targetConstraints: {
-                minimumRange: 0,
-                maximumRange: 1,
+            targetConstraints: TargetConstraintsService.new({
+                range: ActionRange.MELEE,
                 coordinateGeneratorShape: CoordinateGeneratorShape.BLOOM,
-            },
+            }),
             actionEffectTemplates: [
                 ActionEffectTemplateService.new({
                     traits: {

@@ -40,7 +40,10 @@ import {
     BattleActionDecisionStep,
     BattleActionDecisionStepService,
 } from "../../../actionDecision/battleActionDecisionStep"
-import { TargetConstraintsService } from "../../../../action/targetConstraints"
+import {
+    ActionRange,
+    TargetConstraintsService,
+} from "../../../../action/targetConstraints"
 import { beforeEach, describe, expect, it } from "vitest"
 import { Attribute } from "../../../../squaddie/attribute/attribute"
 import { MissionStatisticsService } from "../../../missionStatistics/missionStatistics"
@@ -49,6 +52,7 @@ import {
     GameEngineState,
     GameEngineStateService,
 } from "../../../../gameEngine/gameEngineState/gameEngineState"
+import { CoordinateGeneratorShape } from "../../../targeting/coordinateGenerator"
 
 describe("Armor Attribute affects Armor Attacks", () => {
     let actingSquaddie: BattleSquaddie
@@ -71,8 +75,8 @@ describe("Armor Attribute affects Armor Attacks", () => {
             id: "armorAttackingAction",
             name: "ArmorAttackingAction",
             targetConstraints: TargetConstraintsService.new({
-                minimumRange: 1,
-                maximumRange: 1,
+                range: ActionRange.MELEE,
+                coordinateGeneratorShape: CoordinateGeneratorShape.BLOOM,
             }),
             actionEffectTemplates: [
                 ActionEffectTemplateService.new({
@@ -242,8 +246,8 @@ describe("Armor Attribute affects Armor Attacks", () => {
             id: "armorIgnoringAction",
             name: "ArmorIgnoringAction",
             targetConstraints: TargetConstraintsService.new({
-                minimumRange: 1,
-                maximumRange: 1,
+                range: ActionRange.MELEE,
+                coordinateGeneratorShape: CoordinateGeneratorShape.BLOOM,
             }),
             actionEffectTemplates: [
                 ActionEffectTemplateService.new({

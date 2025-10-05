@@ -6,8 +6,7 @@
       "userReadableDescription": "Attack AC of an adjacent foe."
     },
     "targetConstraints": {
-      "minimumRange": 0,
-      "maximumRange": 1,
+      "range": "MELEE",
       "targetingShape": "BLOOM"
     },
     "actionEffectTemplates": [
@@ -38,8 +37,7 @@
       "userReadableDescription": "Attack AC of a foe from 2-3 tiles away."
     },
     "targetConstraints": {
-      "minimumRange": 2,
-      "maximumRange": 3,
+      "range": "SHORT",
       "targetingShape": "BLOOM"
     },
     "actionEffectTemplates": [

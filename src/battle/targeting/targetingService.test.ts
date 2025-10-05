@@ -30,12 +30,16 @@ import { BattleOrchestratorStateService } from "../orchestrator/battleOrchestrat
 import { BattleStateService } from "../battleState/battleState"
 import { SquaddieRepositoryService } from "../../utils/test/squaddie"
 import { BattleActionDecisionStepService } from "../actionDecision/battleActionDecisionStep"
-import { TargetConstraintsService } from "../../action/targetConstraints"
+import {
+    ActionRange,
+    TargetConstraintsService,
+} from "../../action/targetConstraints"
 import { beforeEach, describe, expect, it } from "vitest"
 import {
     GameEngineState,
     GameEngineStateService,
 } from "../../gameEngine/gameEngineState/gameEngineState"
+import { CoordinateGeneratorShape } from "./coordinateGenerator"
 
 describe("Targeting Service", () => {
     let longswordAction: ActionTemplate
@@ -49,8 +53,8 @@ describe("Targeting Service", () => {
             name: "longsword",
             id: "longsword",
             targetConstraints: TargetConstraintsService.new({
-                minimumRange: 1,
-                maximumRange: 1,
+                range: ActionRange.MELEE,
+                coordinateGeneratorShape: CoordinateGeneratorShape.BLOOM,
             }),
             actionEffectTemplates: [
                 ActionEffectTemplateService.new({
@@ -106,7 +110,7 @@ describe("Targeting Service", () => {
                 squaddieRepository: objectRepository,
             })
 
-        expect(results.coordinatesInRange).toHaveLength(6)
+        expect(results.coordinatesInRange).toHaveLength(7)
         expect(results.coordinatesInRange.values().toArray()).toEqual(
             expect.arrayContaining(
                 HexCoordinateService.createNewNeighboringCoordinates({
@@ -128,8 +132,8 @@ describe("Targeting Service", () => {
             name: "longbow",
             id: "longbow",
             targetConstraints: TargetConstraintsService.new({
-                minimumRange: 2,
-                maximumRange: 3,
+                range: ActionRange.SHORT,
+                coordinateGeneratorShape: CoordinateGeneratorShape.BLOOM,
             }),
             actionEffectTemplates: [
                 ActionEffectTemplateService.new({
@@ -172,7 +176,7 @@ describe("Targeting Service", () => {
                 squaddieRepository: objectRepository,
             })
 
-        expect(results.coordinatesInRange).toHaveLength(4)
+        expect(results.coordinatesInRange).toHaveLength(10)
         expect(results.coordinatesInRange).toContainEqual({ q: 0, r: 0 })
         expect(results.coordinatesInRange).toContainEqual({ q: 0, r: 3 })
         expect(results.coordinatesInRange).toContainEqual({ q: 1, r: 3 })
@@ -310,8 +314,8 @@ describe("Targeting Service", () => {
             id: "healingAction",
             name: "Healing Action",
             targetConstraints: TargetConstraintsService.new({
-                minimumRange: 0,
-                maximumRange: 1,
+                range: ActionRange.MELEE,
+                coordinateGeneratorShape: CoordinateGeneratorShape.BLOOM,
             }),
             actionEffectTemplates: [
                 ActionEffectTemplateService.new({
@@ -355,8 +359,8 @@ describe("Targeting Service", () => {
             name: "longbow",
             id: "longbow",
             targetConstraints: TargetConstraintsService.new({
-                minimumRange: 1,
-                maximumRange: 3,
+                range: ActionRange.SHORT,
+                coordinateGeneratorShape: CoordinateGeneratorShape.BLOOM,
             }),
             actionEffectTemplates: [
                 ActionEffectTemplateService.new({
@@ -392,12 +396,15 @@ describe("Targeting Service", () => {
                 squaddieRepository: objectRepository,
             })
 
-        expect(results.coordinatesInRange).toHaveLength(3)
-        expect(results.coordinatesInRange.values().toArray()).toStrictEqual([
-            { q: 0, r: 1 },
-            { q: 0, r: 2 },
-            { q: 0, r: 3 },
-        ])
+        expect(results.coordinatesInRange).toHaveLength(4)
+        expect(results.coordinatesInRange.values().toArray()).toEqual(
+            expect.arrayContaining([
+                { q: 0, r: 0 },
+                { q: 0, r: 1 },
+                { q: 0, r: 2 },
+                { q: 0, r: 3 },
+            ])
+        )
     })
 
     describe("highlightTargetRange using a gameEngineState", () => {
@@ -457,7 +464,7 @@ describe("Targeting Service", () => {
                         gameEngineState.battleOrchestratorState.battleState
                             .battleActionRecorder,
                 })
-            expect(actionRange).toHaveLength(6)
+            expect(actionRange).toHaveLength(7)
             expect(actionRange).toEqual(
                 expect.arrayContaining(
                     HexCoordinateService.createNewNeighboringCoordinates({

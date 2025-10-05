@@ -29,6 +29,7 @@ import { BattleState } from "../battleState/battleState"
 import { SquaddieTurnService } from "../../squaddie/turn"
 import { ActionEffectTemplateService } from "../../action/template/actionEffectTemplate"
 import { GameEngineState } from "../../gameEngine/gameEngineState/gameEngineState"
+import { TargetConstraintsService } from "../../action/targetConstraints"
 
 export const BattleSquaddieSelectorService = {
     createSearchPathAndHighlightMovementPath: ({
@@ -460,11 +461,13 @@ const getSquaddieAttackCoordinates = ({
                                                     Trait.CROSS_OVER_PITS
                                                 ),
                                             minimumDistance:
-                                                actionTemplate.targetConstraints
-                                                    .minimumRange,
+                                                TargetConstraintsService.getRangeDistance(
+                                                    actionTemplate.targetConstraints
+                                                )[0],
                                             maximumDistance:
-                                                actionTemplate.targetConstraints
-                                                    .maximumRange,
+                                                TargetConstraintsService.getRangeDistance(
+                                                    actionTemplate.targetConstraints
+                                                )[1],
                                         }),
                                     }
                                 )

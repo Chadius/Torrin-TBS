@@ -969,7 +969,7 @@
             "type": "DIALOGUE",
             "id": "killed_first_enemy_3",
             "speakerName": "Nahla",
-            "dialogueText": "I'm worried about those locusts, they can shoot us from 2 or 3 spaces away.",
+            "dialogueText": "I'm worried about those locusts, they can shoot us from up to 3 tiles away.",
             "speakerPortraitResourceKey": "young nahla cutscene portrait",
             "animationDuration": 0
           },
@@ -977,7 +977,7 @@
             "type": "DIALOGUE",
             "id": "killed_first_enemy_4",
             "speakerName": "Nahla",
-            "dialogueText": "We can stop them in hit.",
+            "dialogueText": "We can stop them in 1 hit.",
             "speakerPortraitResourceKey": "young nahla cutscene portrait",
             "animationDuration": 0
           }

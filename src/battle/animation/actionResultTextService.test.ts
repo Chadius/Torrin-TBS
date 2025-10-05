@@ -31,7 +31,10 @@ import {
 } from "../../squaddie/attribute/attributeModifier"
 import { SquaddieRepositoryService } from "../../utils/test/squaddie"
 import { BattleActionActorContextService } from "../history/battleAction/battleActionActorContext"
-import { TargetConstraintsService } from "../../action/targetConstraints"
+import {
+    ActionRange,
+    TargetConstraintsService,
+} from "../../action/targetConstraints"
 import {
     RollModifierEnum,
     RollResultService,
@@ -40,6 +43,7 @@ import { ActionResourceCostService } from "../../action/actionResourceCost"
 import { beforeEach, describe, expect, it } from "vitest"
 import { SquaddieService } from "../../squaddie/squaddieService"
 import { Attribute } from "../../squaddie/attribute/attribute"
+import { CoordinateGeneratorShape } from "../targeting/coordinateGenerator"
 
 describe("Action Result Text Writer", () => {
     let squaddieRepository: ObjectRepository = ObjectRepositoryService.new()
@@ -66,8 +70,8 @@ describe("Action Result Text Writer", () => {
             id: "longsword",
             name: "Longsword Sweep",
             targetConstraints: TargetConstraintsService.new({
-                minimumRange: 1,
-                maximumRange: 1,
+                range: ActionRange.MELEE,
+                coordinateGeneratorShape: CoordinateGeneratorShape.BLOOM,
             }),
             actionEffectTemplates: [
                 ActionEffectTemplateService.new({
@@ -89,8 +93,8 @@ describe("Action Result Text Writer", () => {
                 actionPoints: 2,
             }),
             targetConstraints: TargetConstraintsService.new({
-                minimumRange: 1,
-                maximumRange: 1,
+                range: ActionRange.MELEE,
+                coordinateGeneratorShape: CoordinateGeneratorShape.BLOOM,
             }),
             actionEffectTemplates: [
                 ActionEffectTemplateService.new({

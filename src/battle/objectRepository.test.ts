@@ -18,10 +18,14 @@ import {
 } from "../action/template/actionEffectTemplate"
 import { Damage } from "../squaddie/squaddieService"
 import { SquaddieMovementService } from "../squaddie/movement"
-import { TargetConstraintsService } from "../action/targetConstraints"
+import {
+    ActionRange,
+    TargetConstraintsService,
+} from "../action/targetConstraints"
 import { ArmyAttributesService } from "../squaddie/armyAttributes"
 import { ActionResourceCostService } from "../action/actionResourceCost"
 import { beforeEach, describe, expect, it } from "vitest"
+import { CoordinateGeneratorShape } from "./targeting/coordinateGenerator"
 
 describe("Object Repository", () => {
     let objectRepository: ObjectRepository
@@ -292,8 +296,8 @@ describe("Object Repository", () => {
                 }),
                 buttonIconResourceKey: "image key",
                 targetConstraints: TargetConstraintsService.new({
-                    minimumRange: 0,
-                    maximumRange: 2,
+                    range: ActionRange.REACH,
+                    coordinateGeneratorShape: CoordinateGeneratorShape.BLOOM,
                 }),
                 actionEffectTemplates: [
                     ActionEffectTemplateService.new({

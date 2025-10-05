@@ -59,7 +59,10 @@ import {
 } from "../../trait/traitStatusStorage"
 import { Damage, Healing } from "../../squaddie/squaddieService"
 import { BattleActionRecorderService } from "../history/battleAction/battleActionRecorder"
-import { TargetConstraintsService } from "../../action/targetConstraints"
+import {
+    ActionRange,
+    TargetConstraintsService,
+} from "../../action/targetConstraints"
 import {
     afterEach,
     beforeEach,
@@ -131,8 +134,8 @@ describe("BattleSquaddieSelector", () => {
             id: "melee",
             name: "melee",
             targetConstraints: TargetConstraintsService.new({
-                minimumRange: 0,
-                maximumRange: 1,
+                range: ActionRange.MELEE,
+                coordinateGeneratorShape: CoordinateGeneratorShape.BLOOM,
             }),
             actionEffectTemplates: [
                 ActionEffectTemplateService.new({
@@ -153,8 +156,7 @@ describe("BattleSquaddieSelector", () => {
             id: "self",
             name: "self",
             targetConstraints: TargetConstraintsService.new({
-                minimumRange: 0,
-                maximumRange: 0,
+                range: ActionRange.SELF,
                 coordinateGeneratorShape: CoordinateGeneratorShape.BLOOM,
             }),
             actionEffectTemplates: [
@@ -182,8 +184,7 @@ describe("BattleSquaddieSelector", () => {
             name: "ranged",
             id: "ranged",
             targetConstraints: TargetConstraintsService.new({
-                minimumRange: 0,
-                maximumRange: 2,
+                range: ActionRange.REACH,
                 coordinateGeneratorShape: CoordinateGeneratorShape.BLOOM,
             }),
             actionEffectTemplates: [

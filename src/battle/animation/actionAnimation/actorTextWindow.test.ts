@@ -18,7 +18,10 @@ import {
     ActionTemplateService,
 } from "../../../action/template/actionTemplate"
 import { BattleActionActorContextService } from "../../history/battleAction/battleActionActorContext"
-import { TargetConstraintsService } from "../../../action/targetConstraints"
+import {
+    ActionRange,
+    TargetConstraintsService,
+} from "../../../action/targetConstraints"
 import {
     RollModifierEnum,
     RollResultService,
@@ -59,8 +62,7 @@ describe("ActorTextWindow", () => {
             id: "action Id",
             name: "Action",
             targetConstraints: TargetConstraintsService.new({
-                minimumRange: 1,
-                maximumRange: 1,
+                range: ActionRange.MELEE,
                 coordinateGeneratorShape: CoordinateGeneratorShape.BLOOM,
             }),
             actionEffectTemplates: [
