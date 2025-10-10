@@ -6,6 +6,7 @@ import {
 } from "../../../../gitSubmodules/CurveInterpolation/src/curveInterpolation"
 import { ScreenLocation } from "../../../utils/mouseConfig"
 import { ConvertCoordinateService } from "../../../hexMap/convertCoordinates"
+import { InterpolationTypeEnum } from "../../../../gitSubmodules/CurveInterpolation/src/interpolationType"
 
 export interface SquaddieMoveOnMapAnimation {
     camera: BattleCamera
@@ -46,15 +47,18 @@ export const SquaddieMoveOnMapAnimationService = {
                 ? WALKING_ANIMATION_TIME
                 : WALKING_ANIMATION_TIME * 0.1
         const progressInterpolation = CurveInterpolationService.new({
-            startPoint: [0, 0],
-            endPoint: [animationDuration, PROGRESS_PERCENTAGE],
+            formulaSettings: {
+                type: InterpolationTypeEnum.LINEAR,
+                startPoint: [0, 0],
+                endPoint: [animationDuration, PROGRESS_PERCENTAGE],
+            },
             easeIn: {
-                time: animationDuration * 0.2,
-                distance: PROGRESS_PERCENTAGE / 10,
+                realTime: animationDuration * 0.4,
+                formulaTime: animationDuration * 0.2,
             },
             easeOut: {
-                time: animationDuration * 0.4,
-                distance: PROGRESS_PERCENTAGE / 10,
+                realTime: animationDuration * 0.4,
+                formulaTime: animationDuration * 0.1,
             },
         })
 

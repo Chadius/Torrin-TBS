@@ -15,6 +15,7 @@ import {
     type CurveInterpolation,
     CurveInterpolationService,
 } from "../../../../gitSubmodules/CurveInterpolation/src/curveInterpolation"
+import { InterpolationTypeEnum } from "../../../../gitSubmodules/CurveInterpolation/src/interpolationType"
 
 export interface AttackRollThermometer {
     segments: {
@@ -50,12 +51,12 @@ const LayoutConstants = {
         strokeWeight: 4,
         height: 16,
         easeIn: {
-            timeRatio: 0.2,
-            distanceRatio: 0.5,
+            realTime: 0.2,
+            formulaTime: 0.5,
         },
         easeOut: {
-            timeRatio: 0.2,
-            distanceRatio: 0.2,
+            realTime: 0.2,
+            formulaTime: 0.1,
         },
     },
 }
@@ -498,26 +499,31 @@ const createWidthFormulaForInitialFill = (
     const easeOut = isRollACritical(thermometer)
         ? undefined
         : {
-              time:
+              realTime:
                   LayoutConstants.thermometerProgressBar
                       .animationTimeForInitialFill *
-                  LayoutConstants.thermometerProgressBar.easeOut.timeRatio,
-              distance:
-                  initialFillEndWidth *
-                  LayoutConstants.thermometerProgressBar.easeOut.distanceRatio,
+                  LayoutConstants.thermometerProgressBar.easeOut.realTime,
+              formulaTime:
+                  LayoutConstants.thermometerProgressBar
+                      .animationTimeForInitialFill *
+                  LayoutConstants.thermometerProgressBar.easeOut.formulaTime,
           }
 
     return CurveInterpolationService.new({
-        startPoint,
-        endPoint,
+        formulaSettings: {
+            type: InterpolationTypeEnum.LINEAR,
+            startPoint,
+            endPoint,
+        },
         easeIn: {
-            time:
+            realTime:
                 LayoutConstants.thermometerProgressBar
                     .animationTimeForInitialFill *
-                LayoutConstants.thermometerProgressBar.easeIn.timeRatio,
-            distance:
-                initialFillEndWidth *
-                LayoutConstants.thermometerProgressBar.easeIn.distanceRatio,
+                LayoutConstants.thermometerProgressBar.easeIn.realTime,
+            formulaTime:
+                LayoutConstants.thermometerProgressBar
+                    .animationTimeForInitialFill *
+                LayoutConstants.thermometerProgressBar.easeIn.formulaTime,
         },
         easeOut,
     })
@@ -557,15 +563,18 @@ const createWidthFormulaForCriticalFill = (
     const endPoint: [number, number] = [totalAnimationTimeForFill, rollWidth]
 
     return CurveInterpolationService.new({
-        startPoint,
-        endPoint,
+        formulaSettings: {
+            type: InterpolationTypeEnum.LINEAR,
+            startPoint,
+            endPoint,
+        },
         easeOut: {
-            time:
+            realTime:
                 totalAnimationTimeForFill *
-                LayoutConstants.thermometerProgressBar.easeOut.timeRatio,
-            distance:
-                rollWidth *
-                LayoutConstants.thermometerProgressBar.easeOut.distanceRatio,
+                LayoutConstants.thermometerProgressBar.easeOut.realTime,
+            formulaTime:
+                totalAnimationTimeForFill *
+                LayoutConstants.thermometerProgressBar.easeOut.formulaTime,
         },
     })
 }

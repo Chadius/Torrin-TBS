@@ -8,6 +8,7 @@ import {
     CurveInterpolation,
     CurveInterpolationService,
 } from "../../../../gitSubmodules/CurveInterpolation/src/curveInterpolation"
+import { InterpolationTypeEnum } from "../../../../gitSubmodules/CurveInterpolation/src/interpolationType"
 
 export const HIT_POINT_METER_HP_WIDTH = 20
 const HIT_POINT_METER_HEIGHT = 20
@@ -283,22 +284,22 @@ const createChangedHitPointsFormula = (
     changedHitPointsRectangleStartWidth: number,
     changedHitPointsRectangleEndWidth: number
 ): CurveInterpolation => {
-    const widthChange =
-        changedHitPointsRectangleEndWidth - changedHitPointsRectangleStartWidth
-
     return CurveInterpolationService.new({
-        startPoint: [0, changedHitPointsRectangleStartWidth],
-        endPoint: [
-            ACTION_ANIMATION_TARGET_REACTS_TO_ACTION_TIME,
-            changedHitPointsRectangleEndWidth,
-        ],
+        formulaSettings: {
+            type: InterpolationTypeEnum.LINEAR,
+            startPoint: [0, changedHitPointsRectangleStartWidth],
+            endPoint: [
+                ACTION_ANIMATION_TARGET_REACTS_TO_ACTION_TIME,
+                changedHitPointsRectangleEndWidth,
+            ],
+        },
         easeIn: {
-            time: ACTION_ANIMATION_TARGET_REACTS_TO_ACTION_TIME * 0.2,
-            distance: Math.abs(widthChange * 0.1),
+            realTime: ACTION_ANIMATION_TARGET_REACTS_TO_ACTION_TIME * 0.2,
+            formulaTime: ACTION_ANIMATION_TARGET_REACTS_TO_ACTION_TIME * 0.1,
         },
         easeOut: {
-            time: ACTION_ANIMATION_TARGET_REACTS_TO_ACTION_TIME * 0.2,
-            distance: Math.abs(widthChange * 0.1),
+            realTime: ACTION_ANIMATION_TARGET_REACTS_TO_ACTION_TIME * 0.2,
+            formulaTime: ACTION_ANIMATION_TARGET_REACTS_TO_ACTION_TIME * 0.1,
         },
     })
 }
