@@ -3,6 +3,11 @@ import { ComponentDataBlob } from "../../../utils/dataBlob/componentDataBlob"
 import { TextBox } from "../../../ui/textBox/textBox"
 import { SequenceComposite } from "../../../utils/behaviorTree/composite/sequence/sequence"
 import {
+    ObjectRepository,
+    ObjectRepositoryService,
+} from "../../objectRepository"
+import { Damage, SquaddieService } from "../../../squaddie/squaddieService"
+import {
     DebugModeCreateDebugModeTitle,
     DebugModeMenuShouldCreateTitle,
 } from "./debugModeTitle"
@@ -29,7 +34,14 @@ import {
     DebugModeMenuCreateToggleBehaviorOverrideNoActionButton,
     DebugModeMenuShouldCreateToggleBehaviorOverrideNoActionButton,
 } from "./toggleBehaviorOverrideNoActionButton"
-import { WINDOW_SPACING } from "../../../ui/constants"
+import {
+    HORIZONTAL_ALIGN,
+    VERTICAL_ALIGN,
+    WINDOW_SPACING,
+} from "../../../ui/constants"
+import { InBattleAttributesService } from "../../stats/inBattleAttributes"
+import { Label, LabelService } from "../../../ui/label"
+import { RectArea, RectAreaService } from "../../../ui/rectArea"
 
 export interface DebugModeMenuLayout {
     titleText: {
@@ -145,6 +157,7 @@ export interface DebugModeMenuUIObjects {
     debugModeTitle: TextBox | undefined
     toggleMenuButton: Button | undefined
     behaviorOverrideToggleNoActionButton: Button | undefined
+    reduceSquaddiesTo1HPButton: Label | undefined
 }
 
 export interface DebugModeFlags {
@@ -169,6 +182,12 @@ export const DebugModeMenuService = {
             DebugModeMenuContext,
             DebugModeMenuUIObjects
         > = new ComponentDataBlob()
+        const menuBackground: RectArea = RectAreaService.new({
+            left: 900,
+            top: 250,
+            height: 150,
+            width: 300,
+        })
         dataBlob.setLayout({
             titleText: {
                 fontSize: 36,
@@ -259,12 +278,7 @@ export const DebugModeMenuService = {
                 },
             },
             menuBackground: {
-                area: {
-                    left: 900,
-                    top: 250,
-                    height: 100,
-                    width: 300,
-                },
+                area: menuBackground,
                 strokeWeight: 1,
                 fillColor: [0, 0, 0, 128],
                 strokeColor: [0, 0, 0],
@@ -280,6 +294,24 @@ export const DebugModeMenuService = {
             debugModeTitle: undefined,
             toggleMenuButton: undefined,
             behaviorOverrideToggleNoActionButton: undefined,
+            reduceSquaddiesTo1HPButton: LabelService.new({
+                text: "all down to 1 HP",
+                horizAlign: HORIZONTAL_ALIGN.CENTER,
+                vertAlign: VERTICAL_ALIGN.CENTER,
+                fontSize: 12,
+                fontColor: [0, 0, 0],
+                area: RectAreaService.new({
+                    baseRectangle: menuBackground,
+                    top: 50 + WINDOW_SPACING.SPACING1,
+                    left: WINDOW_SPACING.SPACING1,
+                    width: 150,
+                    height: 40,
+                }),
+                fillColor: [330, 60, 86],
+                strokeColor: [0, 0, 0],
+                strokeWeight: 2,
+                textBoxMargin: 5,
+            }),
             menuBackground: undefined,
         })
 
@@ -310,6 +342,15 @@ export const DebugModeMenuService = {
             )
             button.draw()
         })
+        if (
+            debugModeMenu.data.getContext().isMenuOpen &&
+            debugModeMenu.data.getUIObjects().reduceSquaddiesTo1HPButton !=
+                undefined
+        )
+            LabelService.draw(
+                debugModeMenu.data.getUIObjects().reduceSquaddiesTo1HPButton,
+                graphicsContext
+            )
     },
     mouseMoved: ({
         debugModeMenu,
@@ -372,15 +413,31 @@ export const DebugModeMenuService = {
     mouseReleased: ({
         debugModeMenu,
         mouseRelease,
+        repository,
     }: {
         debugModeMenu: DebugModeMenu
         mouseRelease: MouseRelease
+        repository: ObjectRepository
     }) => {
         getButtons(debugModeMenu).forEach((button) => {
             button.mouseReleased({
                 mouseRelease,
             })
         })
+
+        const uiObjects: DebugModeMenuUIObjects =
+            debugModeMenu.data.getUIObjects()
+
+        if (
+            uiObjects.reduceSquaddiesTo1HPButton?.rectangle.area != undefined &&
+            RectAreaService.isInside(
+                uiObjects.reduceSquaddiesTo1HPButton?.rectangle.area,
+                mouseRelease.x,
+                mouseRelease.y
+            )
+        ) {
+            reduceAllLivingSquaddiesToOneHP(repository)
+        }
     },
     getDebugModeFlags: (
         debugModeMenu: DebugModeMenu | undefined
@@ -504,6 +561,36 @@ const toggleBehaviorOverrideNoAction = (debugModeMenu: DebugModeMenu) => {
     const context: DebugModeMenuContext = debugModeMenu.data.getContext()
     context.behaviorOverrides.noAction = !context.behaviorOverrides.noAction
     debugModeMenu.data.setContext(context)
+}
+
+const reduceAllLivingSquaddiesToOneHP = (
+    repository: ObjectRepository | undefined
+) => {
+    if (!repository) return
+    ObjectRepositoryService.getBattleSquaddieIterator(repository).forEach(
+        (info) => {
+            const { squaddieTemplate, battleSquaddie } =
+                ObjectRepositoryService.getSquaddieByBattleId(
+                    repository,
+                    info.battleSquaddieId
+                )
+
+            const isAlive = SquaddieService.isSquaddieAlive({
+                squaddieTemplate,
+                battleSquaddie,
+            })
+
+            if (isAlive) {
+                InBattleAttributesService.takeDamage({
+                    inBattleAttributes: battleSquaddie.inBattleAttributes,
+                    damageToTake:
+                        battleSquaddie.inBattleAttributes.armyAttributes
+                            .maxHitPoints - 1,
+                    damageType: Damage.UNKNOWN,
+                })
+            }
+        }
+    )
 }
 
 class DebugModeMenuIsOpenTask implements BehaviorTreeTask {

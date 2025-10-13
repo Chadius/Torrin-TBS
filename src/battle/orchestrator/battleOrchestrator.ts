@@ -433,11 +433,15 @@ export class BattleOrchestrator implements GameEngineComponent {
             this.mapDisplay?.mouseEventHappened(gameEngineState, mouseEvent)
         }
 
-        if (gameEngineState.battleOrchestratorState.battleHUD.debugMode) {
+        if (
+            gameEngineState.repository &&
+            gameEngineState.battleOrchestratorState.battleHUD.debugMode
+        ) {
             DebugModeMenuService.mouseReleased({
                 debugModeMenu:
                     gameEngineState.battleOrchestratorState.battleHUD.debugMode,
                 mouseRelease,
+                repository: gameEngineState.repository,
             })
         }
     }
