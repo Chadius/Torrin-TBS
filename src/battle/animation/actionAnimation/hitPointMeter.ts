@@ -16,6 +16,7 @@ const HIT_POINT_TEXT_WIDTH = 80
 const HIT_POINT_TEXT_SIZE = 18
 
 export class HitPointMeter {
+    textBackgroundRectangle: Rectangle | undefined
     private currentHitPointsTextBox: TextBox | undefined
     private maxHitPointsTextBox: TextBox | undefined
     private currentHitPointsRectangle: Rectangle | undefined
@@ -25,24 +26,25 @@ export class HitPointMeter {
     private changedHitPointsRectangleEndWidth: number | undefined
     private changedHitPointsTimestamp: number | undefined
     changedHitPointsFormula: CurveInterpolation | undefined
+    bottom: number
 
     constructor({
         maxHitPoints,
         currentHitPoints,
         left,
-        top,
+        bottom,
         hue,
     }: {
         maxHitPoints: number
         currentHitPoints: number
         left: number
-        top: number
+        bottom: number
         hue: number
     }) {
+        this.bottom = bottom
         this._maxHitPoints = maxHitPoints
         this._currentHitPoints = currentHitPoints
         this._left = left
-        this._top = top
         this._hue = hue
 
         this.createMaxHitPointTextBox()
@@ -50,6 +52,20 @@ export class HitPointMeter {
 
         this.createMaxHitPointRect()
         this.createCurrentHitPointRect(this.currentHitPoints)
+        this.textBackgroundRectangle = RectangleService.new({
+            area: RectAreaService.new({
+                left:
+                    RectAreaService.left(this.currentHitPointsTextBox!.area) -
+                    WINDOW_SPACING.SPACING1,
+                right: RectAreaService.right(this.maxHitPointsTextBox!.area),
+                top:
+                    RectAreaService.top(this.currentHitPointsTextBox!.area) -
+                    WINDOW_SPACING.SPACING1 / 2,
+                bottom: RectAreaService.bottom(this.maxHitPointsTextBox!.area),
+            }),
+            fillColor: this.getBackgroundColorBasedOnHue(),
+            noStroke: true,
+        })
     }
 
     private _maxHitPoints: number
@@ -68,12 +84,6 @@ export class HitPointMeter {
 
     get left(): number {
         return this._left
-    }
-
-    private _top: number
-
-    get top(): number {
-        return this._top
     }
 
     private _hue: number
@@ -132,6 +142,7 @@ export class HitPointMeter {
             this.maxHitPointsTextBox == undefined
         )
             return
+        RectangleService.draw(this.textBackgroundRectangle, graphicsContext)
         TextBoxService.draw(this.currentHitPointsTextBox, graphicsContext)
         TextBoxService.draw(this.maxHitPointsTextBox, graphicsContext)
     }
@@ -143,7 +154,7 @@ export class HitPointMeter {
             fontColor: this.getColorsBasedOnHue().textColor,
             area: RectAreaService.new({
                 left: this.left,
-                top: this.top,
+                bottom: this.bottom,
                 width: HIT_POINT_TEXT_WIDTH / 2,
                 height: HIT_POINT_METER_HEIGHT,
             }),
@@ -157,7 +168,7 @@ export class HitPointMeter {
             fontColor: this.getColorsBasedOnHue().textColor,
             area: RectAreaService.new({
                 left: this.left + HIT_POINT_TEXT_WIDTH / 2,
-                top: this.top,
+                bottom: this.bottom,
                 width: HIT_POINT_TEXT_WIDTH / 2,
                 height: HIT_POINT_METER_HEIGHT,
             }),
@@ -169,7 +180,7 @@ export class HitPointMeter {
             area: RectAreaService.new({
                 left:
                     this.left + HIT_POINT_TEXT_WIDTH + WINDOW_SPACING.SPACING1,
-                top: this.top,
+                bottom: this.bottom,
                 height: HIT_POINT_METER_HEIGHT,
                 width: HIT_POINT_METER_HP_WIDTH * this.maxHitPoints,
             }),
@@ -184,7 +195,7 @@ export class HitPointMeter {
             area: RectAreaService.new({
                 left:
                     this.left + HIT_POINT_TEXT_WIDTH + WINDOW_SPACING.SPACING1,
-                top: this.top,
+                bottom: this.bottom,
                 height: HIT_POINT_METER_HEIGHT,
                 width: HIT_POINT_METER_HP_WIDTH * currentHitPoints,
             }),
@@ -221,7 +232,7 @@ export class HitPointMeter {
                 left: RectAreaService.right(
                     this.currentHitPointsRectangle.area
                 ),
-                top: this.top,
+                bottom: this.bottom,
                 height: HIT_POINT_METER_HEIGHT,
                 width: this.changedHitPointsRectangleStartWidth,
             }),
@@ -261,6 +272,10 @@ export class HitPointMeter {
             fillColor: this.getColorsBasedOnHue().changed.fillColor,
             noStroke: true,
         })
+    }
+
+    private getBackgroundColorBasedOnHue(): [number, number, number, number] {
+        return [this.hue, 2, 90, 255 - 128]
     }
 
     private getColorsBasedOnHue() {

@@ -393,6 +393,7 @@ const applyCalculatedEffectAndReturnChange = ({
             raw: calculatedEffect.damage.raw,
             absorbed: calculatedEffect.damage.absorbed,
             net: calculatedEffect.damage.net,
+            willKo: calculatedEffect.damage.willKo,
         }),
         actorDegreeOfSuccess: calculatedEffect.degreeOfSuccess,
         successBonus,

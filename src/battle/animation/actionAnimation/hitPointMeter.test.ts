@@ -21,7 +21,7 @@ describe("Hit Point Meter", () => {
             maxHitPoints: 5,
             currentHitPoints: 3,
             left: 10,
-            top: 50,
+            bottom: 50,
             hue,
         })
 
@@ -62,15 +62,15 @@ describe("Hit Point Meter", () => {
         expect(strokeSpy).toBeCalledTimes(1)
         expect(strokeSpy.mock.calls[0][0]).toBe(hue)
 
-        expect(rectDrawSpy).toBeCalledTimes(2)
-        expect(rectDrawSpy.mock.calls[0][2]).toBeGreaterThanOrEqual(
+        expect(rectDrawSpy).toBeCalledTimes(3)
+        expect(rectDrawSpy.mock.calls[1][2]).toBeGreaterThanOrEqual(
             5 * HIT_POINT_METER_HP_WIDTH
         )
-        expect(rectDrawSpy.mock.calls[0][2]).toBeLessThan(
+        expect(rectDrawSpy.mock.calls[1][2]).toBeLessThan(
             6 * HIT_POINT_METER_HP_WIDTH
         )
 
-        expect(rectDrawSpy.mock.calls[1][2]).toBe(3 * HIT_POINT_METER_HP_WIDTH)
+        expect(rectDrawSpy.mock.calls[2][2]).toBe(3 * HIT_POINT_METER_HP_WIDTH)
     })
 
     describe("hit point change", () => {
@@ -79,8 +79,8 @@ describe("Hit Point Meter", () => {
             hitPointMeter.changeHitPoints(-2)
             hitPointMeter.draw(mockedP5GraphicsContext)
 
-            expect(rectDrawSpy).toBeCalledTimes(3)
-            expect(rectDrawSpy.mock.calls[2][2]).toBe(
+            expect(rectDrawSpy).toBeCalledTimes(4)
+            expect(rectDrawSpy.mock.calls[3][2]).toBe(
                 2 * HIT_POINT_METER_HP_WIDTH
             )
         })

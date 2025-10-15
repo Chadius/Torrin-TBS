@@ -1,71 +1,71 @@
-import { BattleOrchestratorStateService } from "../orchestrator/battleOrchestratorState"
-import { ObjectRepository, ObjectRepositoryService } from "../objectRepository"
-import { BattleSquaddie } from "../battleSquaddie"
+import { BattleOrchestratorStateService } from "../../orchestrator/battleOrchestratorState"
+import {
+    ObjectRepository,
+    ObjectRepositoryService,
+} from "../../objectRepository"
+import { BattleSquaddie } from "../../battleSquaddie"
 import {
     Trait,
     TraitStatusStorageService,
-} from "../../trait/traitStatusStorage"
+} from "../../../trait/traitStatusStorage"
 import {
     OrchestratorComponentKeyEvent,
     OrchestratorComponentMouseEvent,
     OrchestratorComponentMouseEventType,
-} from "../orchestrator/battleOrchestratorComponent"
-import { ResourceHandler } from "../../resource/resourceHandler"
-import * as mocks from "../../utils/test/mocks"
-import { MockedP5GraphicsBuffer } from "../../utils/test/mocks"
+} from "../../orchestrator/battleOrchestratorComponent"
+import { ResourceHandler } from "../../../resource/resourceHandler"
+import * as mocks from "../../../utils/test/mocks"
+import { MockedP5GraphicsBuffer } from "../../../utils/test/mocks"
 import {
     CreateNewKnightSquaddie,
     CreateNewThiefSquaddie,
-} from "../../utils/test/squaddie"
-import { Damage } from "../../squaddie/squaddieService"
+} from "../../../utils/test/squaddie"
+import { Damage } from "../../../squaddie/squaddieService"
 import { SquaddieTargetsOtherSquaddiesAnimator } from "./squaddieTargetsOtherSquaddiesAnimatior"
-import {
-    ActionAnimationPhase,
-    TActionAnimationPhase,
-} from "./actionAnimation/actionAnimationConstants"
-import { ActionTimer } from "./actionAnimation/actionTimer"
-import { BattleStateService } from "../battleState/battleState"
+import { BattleStateService } from "../../battleState/battleState"
 import {
     ActionTemplate,
     ActionTemplateService,
-} from "../../action/template/actionTemplate"
+} from "../../../action/template/actionTemplate"
 import {
     ActionEffectTemplateService,
+    TargetBySquaddieAffiliationRelation,
     VersusSquaddieResistance,
-} from "../../action/template/actionEffectTemplate"
-import { DegreeOfSuccess } from "../calculator/actionCalculator/degreeOfSuccess"
-import { MouseButton } from "../../utils/mouseConfig"
+} from "../../../action/template/actionEffectTemplate"
+import { DegreeOfSuccess } from "../../calculator/actionCalculator/degreeOfSuccess"
+import { MouseButton } from "../../../utils/mouseConfig"
 import {
     BattleActionSquaddieChangeService,
     DamageExplanationService,
-} from "../history/battleAction/battleActionSquaddieChange"
+} from "../../history/battleAction/battleActionSquaddieChange"
 import {
     BattleAction,
     BattleActionService,
-} from "../history/battleAction/battleAction"
-import { BattleActionRecorderService } from "../history/battleAction/battleActionRecorder"
+} from "../../history/battleAction/battleAction"
+import { BattleActionRecorderService } from "../../history/battleAction/battleActionRecorder"
 import {
     ActionRange,
     TargetConstraintsService,
-} from "../../action/targetConstraints"
+} from "../../../action/targetConstraints"
 import { beforeEach, describe, expect, it, vi } from "vitest"
-import { PlayerInputTestService } from "../../utils/test/playerInput"
-import { BattleActionActorContextService } from "../history/battleAction/battleActionActorContext"
+import { PlayerInputTestService } from "../../../utils/test/playerInput"
+import { BattleActionActorContextService } from "../../history/battleAction/battleActionActorContext"
 import {
     RollModifierEnum,
     RollModifierTypeService,
     RollResultService,
-} from "../calculator/actionCalculator/rollResult"
+} from "../../calculator/actionCalculator/rollResult"
 import {
     Attribute,
     AttributeTypeService,
-} from "../../squaddie/attribute/attribute"
-import { ModifierDisplayColumnPosition } from "./modifierDisplay/modifierDisplayColumn"
+} from "../../../squaddie/attribute/attribute"
+import { ModifierDisplayColumnPosition } from "../modifierDisplay/modifierDisplayColumn"
 import {
     GameEngineState,
     GameEngineStateService,
-} from "../../gameEngine/gameEngineState/gameEngineState"
-import { CoordinateGeneratorShape } from "../targeting/coordinateGenerator"
+} from "../../../gameEngine/gameEngineState/gameEngineState"
+import { CoordinateGeneratorShape } from "../../targeting/coordinateGenerator"
+import { SquaddieActionAnimationPlanService } from "../actionAnimation/animationPlanner/squaddieActionAnimationPlanService"
 
 describe("SquaddieTargetsOtherSquaddiesAnimation", () => {
     let objectRepository: ObjectRepository
@@ -101,6 +101,9 @@ describe("SquaddieTargetsOtherSquaddiesAnimation", () => {
             }),
             actionEffectTemplates: [
                 ActionEffectTemplateService.new({
+                    squaddieAffiliationRelation: {
+                        [TargetBySquaddieAffiliationRelation.TARGET_FOE]: true,
+                    },
                     traits: TraitStatusStorageService.newUsingTraitValues({
                         [Trait.ATTACK]: true,
                     }),
@@ -125,6 +128,7 @@ describe("SquaddieTargetsOtherSquaddiesAnimation", () => {
         animator = new SquaddieTargetsOtherSquaddiesAnimator()
 
         mockResourceHandler = mocks.mockResourceHandler(mockedP5GraphicsContext)
+        mockResourceHandler.loadResource = vi.fn().mockImplementation(() => {})
         mockResourceHandler.getResource = vi
             .fn()
             .mockReturnValue({ width: 32, height: 32 })
@@ -158,17 +162,8 @@ describe("SquaddieTargetsOtherSquaddiesAnimation", () => {
             })
     })
 
-    function mockActionTimerPhase(
-        timer: ActionTimer,
-        actionAnimationPhase: TActionAnimationPhase
-    ) {
-        return vi
-            .spyOn(timer, "currentPhase", "get")
-            .mockReturnValue(actionAnimationPhase)
-    }
-
     it("will create an actor sprite and a target sprite", () => {
-        vi.spyOn(Date, "now").mockImplementation(() => 0)
+        const dateSpy = vi.spyOn(Date, "now").mockImplementation(() => 0)
         animateKnightHittingWithLongsword({
             objectRepository: objectRepository,
             mockResourceHandler: mockResourceHandler,
@@ -176,14 +171,30 @@ describe("SquaddieTargetsOtherSquaddiesAnimation", () => {
             animator: animator,
             mockedP5GraphicsContext: mockedP5GraphicsContext,
         })
-        expect(animator.actorSprite).not.toBeUndefined()
-        expect(animator.actorSprite?.battleSquaddieId).toBe(
-            knightBattleSquaddieId
-        )
+        const drawingInstructions =
+            SquaddieActionAnimationPlanService.getSquaddieDrawingInstructions({
+                animationPlan:
+                    animator.uiObjects!.squaddieActionAnimationDrawState!
+                        .animationPlan,
+                timeElapsed: 0,
+            })
+        expect(drawingInstructions[knightBattleSquaddieId]).toBeDefined()
+        expect(
+            animator.uiObjects!.squaddieActionAnimationDrawState
+                ?.imagesBySquaddieAndEmotion[knightBattleSquaddieId][
+                drawingInstructions[knightBattleSquaddieId]?.squaddieEmotion
+            ]
+        ).toBeDefined()
 
-        expect(animator.targetSprites).not.toBeUndefined()
-        expect(animator.targetSprites).toHaveLength(1)
-        expect(animator.targetSprites[0]!.battleSquaddieId).toBe(thiefDynamicId)
+        expect(drawingInstructions[thiefDynamicId]).toBeDefined()
+        expect(
+            animator.uiObjects!.squaddieActionAnimationDrawState
+                ?.imagesBySquaddieAndEmotion[thiefDynamicId][
+                drawingInstructions[thiefDynamicId]?.squaddieEmotion
+            ]
+        ).toBeDefined()
+        expect(dateSpy).toHaveBeenCalled()
+        dateSpy.mockRestore()
     })
 
     it("creates dice roll animation", () => {
@@ -202,13 +213,15 @@ describe("SquaddieTargetsOtherSquaddiesAnimation", () => {
             knightHitsThiefWithLongswordInstructionBattleAction?.effect
                 ?.squaddie != undefined
         ) {
-            expect(animator.diceRollAnimation?.degreeOfSuccess).toEqual(
+            expect(
+                animator.uiObjects!.diceRollAnimation?.degreeOfSuccess
+            ).toEqual(
                 knightHitsThiefWithLongswordInstructionBattleAction!.effect!
                     .squaddie[0]!.actorDegreeOfSuccess
             )
         }
 
-        expect(animator.diceRollAnimation?.dice).toHaveLength(2)
+        expect(animator.uiObjects!.diceRollAnimation?.dice).toHaveLength(2)
     })
 
     it("creates modifier display animation", () => {
@@ -264,17 +277,17 @@ describe("SquaddieTargetsOtherSquaddiesAnimation", () => {
         })
 
         expect(
-            animator.modifierDisplayColumns![
+            animator.uiObjects!.modifierDisplayColumns![
                 ModifierDisplayColumnPosition.LEFT
             ]!.labels
         ).toHaveLength(2)
         expect(
-            animator.modifierDisplayColumns![
+            animator.uiObjects!.modifierDisplayColumns![
                 ModifierDisplayColumnPosition.LEFT
             ]!.labels[0]!.textBox!.text
         ).includes(AttributeTypeService.readableName(Attribute.MOVEMENT))
         expect(
-            animator.modifierDisplayColumns![
+            animator.uiObjects!.modifierDisplayColumns![
                 ModifierDisplayColumnPosition.LEFT
             ]!.labels[1]!.textBox!.text
         ).includes(
@@ -285,12 +298,12 @@ describe("SquaddieTargetsOtherSquaddiesAnimation", () => {
         )
 
         expect(
-            animator.modifierDisplayColumns![
+            animator.uiObjects!.modifierDisplayColumns![
                 ModifierDisplayColumnPosition.RIGHT
             ]!.labels
         ).toHaveLength(1)
         expect(
-            animator.modifierDisplayColumns![
+            animator.uiObjects!.modifierDisplayColumns![
                 ModifierDisplayColumnPosition.RIGHT
             ]!.labels[0]!.textBox!.text
         ).includes(AttributeTypeService.readableName(Attribute.ARMOR))
@@ -339,11 +352,6 @@ describe("SquaddieTargetsOtherSquaddiesAnimation", () => {
         ]
 
         it.each(tests)(`$name `, ({ action }) => {
-            expect(animator.actionAnimationTimer).not.toBeUndefined()
-            mockActionTimerPhase(
-                animator.actionAnimationTimer!,
-                ActionAnimationPhase.INITIALIZED
-            )
             const gameEngineState = animateKnightHittingWithLongsword({
                 objectRepository: objectRepository,
                 mockResourceHandler: mockResourceHandler,
@@ -352,11 +360,6 @@ describe("SquaddieTargetsOtherSquaddiesAnimation", () => {
                 animator: animator,
                 mockedP5GraphicsContext: mockedP5GraphicsContext,
             })
-            expect(animator.actionAnimationTimer).not.toBeUndefined()
-            mockActionTimerPhase(
-                animator.actionAnimationTimer!,
-                ActionAnimationPhase.DURING_ACTION
-            )
 
             animator.update({
                 gameEngineState,
@@ -376,11 +379,7 @@ describe("SquaddieTargetsOtherSquaddiesAnimation", () => {
     })
 
     it("is complete at the end of the animation time", () => {
-        expect(animator.actionAnimationTimer).not.toBeUndefined()
-        mockActionTimerPhase(
-            animator.actionAnimationTimer!,
-            ActionAnimationPhase.INITIALIZED
-        )
+        const dateSpy = vi.spyOn(Date, "now").mockReturnValue(0)
         const gameEngineState = animateKnightHittingWithLongsword({
             objectRepository: objectRepository,
             mockResourceHandler: mockResourceHandler,
@@ -390,17 +389,26 @@ describe("SquaddieTargetsOtherSquaddiesAnimation", () => {
         })
         expect(animator.hasCompleted(gameEngineState)).toBeFalsy()
 
-        expect(animator.actionAnimationTimer).not.toBeUndefined()
-        mockActionTimerPhase(
-            animator.actionAnimationTimer!,
-            ActionAnimationPhase.FINISHED_SHOWING_RESULTS
-        )
+        const finishingTime =
+            SquaddieActionAnimationPlanService.getTotalAnimationTime({
+                animationPlan:
+                    animator.uiObjects!.squaddieActionAnimationDrawState!
+                        .animationPlan,
+            })
+        expect(finishingTime).toBeDefined()
+        if (finishingTime == undefined) {
+            throw new Error("finishingTime is undefined")
+        }
+        dateSpy.mockReturnValue(finishingTime)
+
         animator.update({
             gameEngineState,
             graphicsContext: mockedP5GraphicsContext,
             resourceHandler: gameEngineState.resourceHandler!,
         })
         expect(animator.hasCompleted(gameEngineState)).toBeTruthy()
+        expect(dateSpy).toHaveBeenCalled()
+        dateSpy.mockRestore()
     })
 
     it("will set the battle action animation to true when it resets", () => {

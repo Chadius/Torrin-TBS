@@ -512,10 +512,14 @@ const calculateEffectBasedOnDegreeOfSuccess = ({
                     damage: rawDamageFromAction,
                     damageType,
                 })
+
             damageExplanation.net += damageExplanationForThisEffect.net
             damageExplanation.raw += damageExplanationForThisEffect.raw
             damageExplanation.absorbed +=
                 damageExplanationForThisEffect.absorbed
+            if (damageExplanationForThisEffect.willKo) {
+                damageExplanation.willKo = true
+            }
         })
 
     let attributeModifiersToAddToTarget: AttributeModifier[] =

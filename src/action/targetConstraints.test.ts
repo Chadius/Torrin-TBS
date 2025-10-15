@@ -4,8 +4,7 @@ import { CoordinateGeneratorShape } from "../battle/targeting/coordinateGenerato
 
 describe("Target Constraints", () => {
     it("can make an action range with defaults", () => {
-        // TODO remove range on this to ensure self is used by default
-        const range = TargetConstraintsService.new({ range: ActionRange.SELF })
+        const range = TargetConstraintsService.new({})
         expect(range.range).toEqual(ActionRange.SELF)
         expect(range.coordinateGeneratorShape).toEqual(
             CoordinateGeneratorShape.BLOOM

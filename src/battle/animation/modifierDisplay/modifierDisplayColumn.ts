@@ -3,7 +3,11 @@ import { isValidValue } from "../../../utils/objectValidityCheck"
 import { RectAreaService } from "../../../ui/rectArea"
 import { GraphicsBuffer } from "../../../utils/graphics/graphicsRenderer"
 import { ScreenDimensions } from "../../../utils/graphics/graphicsConfig"
-import { GOLDEN_RATIO, VERTICAL_ALIGN } from "../../../ui/constants"
+import {
+    GOLDEN_RATIO,
+    VERTICAL_ALIGN,
+    WINDOW_SPACING,
+} from "../../../ui/constants"
 import { TextFormatService } from "../../../utils/graphics/textFormatService"
 import { EnumLike } from "../../../utils/enum"
 
@@ -49,7 +53,8 @@ export interface ModifierDisplayColumn {
 
 const MODIFIER_DISPLAY_TOP =
     ScreenDimensions.SCREEN_HEIGHT / GOLDEN_RATIO +
-    ScreenDimensions.SCREEN_HEIGHT * 0.1
+    ScreenDimensions.SCREEN_HEIGHT * 0.1 +
+    WINDOW_SPACING.SPACING2
 const MODIFIER_DISPLAY_DELAY = 500
 const MODIFIER_DISPLAY_SHOW_ALL_DELAY = 500
 

@@ -43,7 +43,6 @@ export const TargetConstraintsService = {
         coordinateGeneratorShape:
             coordinateGeneratorShape ?? CoordinateGeneratorShape.BLOOM,
     }),
-    // TODO use this to determine if attacks are in range
     isInRange: ({
         constraints,
         distance,

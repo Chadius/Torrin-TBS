@@ -6,11 +6,6 @@ import {
 } from "../../trait/traitStatusStorage"
 import { ActionResultText } from "./actionAnimation/actionResultText"
 import { DegreeOfSuccess } from "../calculator/actionCalculator/degreeOfSuccess"
-import { ActionTimer } from "./actionAnimation/actionTimer"
-import {
-    ActionAnimationPhase,
-    TActionAnimationPhase,
-} from "./actionAnimation/actionAnimationConstants"
 import { TRollModifier } from "../calculator/actionCalculator/rollResult"
 import { BattleSquaddie } from "../battleSquaddie"
 import {
@@ -23,11 +18,10 @@ import { InBattleAttributesService } from "../stats/inBattleAttributes"
 import { AttributeModifierService } from "../../squaddie/attribute/attributeModifier"
 import { BattleActionActorContext } from "../history/battleAction/battleActionActorContext"
 import { SquaddieService } from "../../squaddie/squaddieService"
-import { ActionEffectChange } from "../history/calculatedResult"
 import {
     Attribute,
-    TAttribute,
     AttributeTypeAndAmount,
+    TAttribute,
 } from "../../squaddie/attribute/attribute"
 
 export const ActionResultTextService = {
@@ -147,56 +141,6 @@ export const ActionResultTextService = {
     }): string {
         return `${squaddieTemplate.squaddieId.name} receives ${healingReceived} healing`
     },
-    calculateActorUsesActionDescriptionText: ({
-        timer,
-        actorTemplate,
-        actionTemplateName,
-        results,
-    }: {
-        timer?: ActionTimer
-        actorTemplate: SquaddieTemplate
-        actionTemplateName: string
-        results: ActionEffectChange
-    }): string => {
-        let actorUsesActionDescriptionText =
-            ActionResultTextService.getSquaddieUsesActionString({
-                squaddieTemplate: actorTemplate,
-                actionTemplateName: actionTemplateName,
-                newline: true,
-            })
-        if (!timer) {
-            return actorUsesActionDescriptionText
-        }
-        if (
-            new Set<TActionAnimationPhase>([
-                ActionAnimationPhase.DURING_ACTION,
-                ActionAnimationPhase.TARGET_REACTS,
-                ActionAnimationPhase.SHOWING_RESULTS,
-                ActionAnimationPhase.FINISHED_SHOWING_RESULTS,
-            ]).has(timer.currentPhase) &&
-            results.actorContext?.actorRoll.occurred
-        ) {
-            const attackPenaltyDescriptions =
-                ActionResultText.getAttackPenaltyDescriptions(
-                    results.actorContext.actorAttributeModifiers
-                )
-            if (attackPenaltyDescriptions.length > 0) {
-                actorUsesActionDescriptionText +=
-                    "\n" + attackPenaltyDescriptions.join("\n")
-            }
-            const attackRollModifierDescriptions =
-                ActionResultText.getRollModifierDescriptions(
-                    results.actorContext.actorRoll.rollModifiers
-                )
-            if (attackRollModifierDescriptions.length > 0) {
-                actorUsesActionDescriptionText +=
-                    "\n" + attackRollModifierDescriptions.join("\n")
-            }
-
-            actorUsesActionDescriptionText += `\n${ActionResultText.getActingSquaddieRollTotalIfNeeded(results.actorContext)}`
-        }
-        return actorUsesActionDescriptionText
-    },
     getBeforeActionText: ({
         targetTemplate,
         targetBattle,
@@ -239,52 +183,6 @@ export const ActionResultTextService = {
         }
 
         return targetBeforeActionText
-    },
-    getAfterActionText: ({
-        result,
-    }: {
-        result: BattleActionSquaddieChange
-    }): string => {
-        let targetAfterActionText = ""
-        let damageText = ""
-        switch (result.actorDegreeOfSuccess) {
-            case DegreeOfSuccess.FAILURE:
-                targetAfterActionText = `MISS`
-                break
-            case DegreeOfSuccess.CRITICAL_SUCCESS:
-                damageText = "CRITICAL HIT!\n"
-                if (result.damage.net === 0 && result.healingReceived === 0) {
-                    damageText += `NO DAMAGE`
-                } else if (result.damage.net > 0) {
-                    damageText += `${result.damage.net} damage`
-                }
-                targetAfterActionText = damageText
-                if (result.damage.absorbed > 0) {
-                    targetAfterActionText += `\n${result.damage.absorbed} Absorbed`
-                }
-                break
-            case DegreeOfSuccess.CRITICAL_FAILURE:
-                targetAfterActionText = `CRITICAL MISS!!`
-                break
-            case DegreeOfSuccess.SUCCESS:
-                if (result.damage.net === 0 && result.healingReceived === 0) {
-                    targetAfterActionText = `NO DAMAGE`
-                } else if (result.damage.net > 0) {
-                    targetAfterActionText = `${result.damage.net} damage`
-                }
-                if (result.damage.absorbed > 0) {
-                    targetAfterActionText += `\n${result.damage.absorbed} Absorbed`
-                }
-                break
-            default:
-                break
-        }
-
-        if (result.healingReceived > 0) {
-            targetAfterActionText += `${result.healingReceived} healed`
-        }
-
-        return targetAfterActionText
     },
 }
 

@@ -22,6 +22,10 @@ import {
 } from "../../campaign/squaddieTemplate"
 import { ActionTemplate } from "../../action/template/actionTemplate"
 import { getValidValueOrDefault } from "../objectValidityCheck"
+import {
+    SquaddieEmotion,
+    TSquaddieEmotion,
+} from "../../battle/animation/actionAnimation/actionAnimationConstants"
 
 export const SquaddieRepositoryService = {
     createNewSquaddieAndAddToRepository: ({
@@ -32,6 +36,7 @@ export const SquaddieRepositoryService = {
         objectRepository,
         attributes,
         actionTemplateIds,
+        actionSpritesByEmotion,
     }: {
         name: string
         templateId: string
@@ -40,6 +45,7 @@ export const SquaddieRepositoryService = {
         objectRepository: ObjectRepository
         attributes?: ArmyAttributes
         actionTemplateIds: string[]
+        actionSpritesByEmotion?: { [key in TSquaddieEmotion]?: string }
     }): {
         squaddieTemplate: SquaddieTemplate
         battleSquaddie: BattleSquaddie
@@ -52,6 +58,7 @@ export const SquaddieRepositoryService = {
             objectRepository,
             attributes,
             actionTemplateIds,
+            actionSpritesByEmotion,
         })
     },
 }
@@ -64,6 +71,7 @@ const createNewSquaddieAndAddToRepository: (params: {
     objectRepository: ObjectRepository
     attributes?: ArmyAttributes
     actionTemplateIds?: string[]
+    actionSpritesByEmotion?: { [key in TSquaddieEmotion]?: string }
 }) => {
     squaddieTemplate: SquaddieTemplate
     battleSquaddie: BattleSquaddie
@@ -75,6 +83,7 @@ const createNewSquaddieAndAddToRepository: (params: {
     objectRepository,
     attributes,
     actionTemplateIds,
+    actionSpritesByEmotion,
 }: {
     name: string
     templateId: string
@@ -83,6 +92,7 @@ const createNewSquaddieAndAddToRepository: (params: {
     objectRepository: ObjectRepository
     attributes?: ArmyAttributes
     actionTemplateIds?: string[]
+    actionSpritesByEmotion?: { [key in TSquaddieEmotion]?: string }
 }) => {
     const squaddieTemplate: SquaddieTemplate = SquaddieTemplateService.new({
         squaddieId: {
@@ -90,7 +100,7 @@ const createNewSquaddieAndAddToRepository: (params: {
             name,
             resources: {
                 mapIconResourceKey: "",
-                actionSpritesByEmotion: {},
+                actionSpritesByEmotion: actionSpritesByEmotion ?? {},
             },
             traits: TraitStatusStorageService.newUsingTraitValues(),
             affiliation,
@@ -166,6 +176,15 @@ export const CreateNewThiefSquaddie: (params: {
                 : SquaddieAffiliation.ENEMY,
         objectRepository: squaddieRepository,
         attributes: attributes || DefaultArmyAttributes(),
+        actionSpritesByEmotion: {
+            [SquaddieEmotion.NEUTRAL]: "thief_neutral",
+            [SquaddieEmotion.DAMAGED]: "thief_damaged",
+            [SquaddieEmotion.TARGETED]: "thief_targeted",
+            [SquaddieEmotion.DEAD]: "thief_dead",
+            [SquaddieEmotion.ASSISTING]: "thief_assisting",
+            [SquaddieEmotion.THANKFUL]: "thief_thankful",
+            [SquaddieEmotion.ATTACK]: "thief_attack",
+        },
     })
 
     return {
@@ -213,6 +232,14 @@ export const CreateNewKnightSquaddie: (params: {
                 : SquaddieAffiliation.PLAYER,
         objectRepository: squaddieRepository,
         attributes: attributes || DefaultArmyAttributes(),
+        actionSpritesByEmotion: {
+            [SquaddieEmotion.NEUTRAL]: "knight_neutral",
+            [SquaddieEmotion.ATTACK]: "knight_attack",
+            [SquaddieEmotion.ASSISTING]: "knight_assisting",
+            [SquaddieEmotion.THANKFUL]: "knight_thankful",
+            [SquaddieEmotion.DAMAGED]: "knight_damaged",
+            [SquaddieEmotion.TARGETED]: "knight_targeted",
+        },
     })
 
     return {
