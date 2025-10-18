@@ -162,23 +162,23 @@ describe("battlePhaseTracker", () => {
         const teams = [playerSquaddieTeam]
 
         const battlePhaseState: BattlePhaseState = {
-            currentAffiliation: BattlePhase.UNKNOWN,
+            battlePhase: BattlePhase.UNKNOWN,
             turnCount: 0,
         }
 
         BattlePhaseService.AdvanceToNextPhase(battlePhaseState, teams)
-        expect(battlePhaseState.currentAffiliation).toBe(BattlePhase.PLAYER)
+        expect(battlePhaseState.battlePhase).toBe(BattlePhase.PLAYER)
     })
 
     it("defaults to the first player team when multiple teams are added", () => {
         const teams = [playerSquaddieTeam, enemySquaddieTeam]
 
         const battlePhaseState: BattlePhaseState = {
-            currentAffiliation: BattlePhase.UNKNOWN,
+            battlePhase: BattlePhase.UNKNOWN,
             turnCount: 0,
         }
         BattlePhaseService.AdvanceToNextPhase(battlePhaseState, teams)
-        expect(battlePhaseState.currentAffiliation).toBe(BattlePhase.PLAYER)
+        expect(battlePhaseState.battlePhase).toBe(BattlePhase.PLAYER)
     })
 
     it("will rotate between phases when advance is called", () => {
@@ -190,34 +190,34 @@ describe("battlePhaseTracker", () => {
         ]
 
         const battlePhaseState: BattlePhaseState = {
-            currentAffiliation: BattlePhase.UNKNOWN,
+            battlePhase: BattlePhase.UNKNOWN,
             turnCount: 0,
         }
 
         BattlePhaseService.AdvanceToNextPhase(battlePhaseState, teams)
-        expect(battlePhaseState.currentAffiliation).toBe(BattlePhase.PLAYER)
+        expect(battlePhaseState.battlePhase).toBe(BattlePhase.PLAYER)
         expect(battlePhaseState.turnCount).toBe(1)
 
         BattlePhaseService.AdvanceToNextPhase(battlePhaseState, teams)
-        expect(battlePhaseState.currentAffiliation).toBe(BattlePhase.ENEMY)
+        expect(battlePhaseState.battlePhase).toBe(BattlePhase.ENEMY)
         expect(battlePhaseState.turnCount).toBe(1)
 
         BattlePhaseService.AdvanceToNextPhase(battlePhaseState, teams)
-        expect(battlePhaseState.currentAffiliation).toBe(BattlePhase.ALLY)
+        expect(battlePhaseState.battlePhase).toBe(BattlePhase.ALLY)
         expect(battlePhaseState.turnCount).toBe(1)
 
         BattlePhaseService.AdvanceToNextPhase(battlePhaseState, teams)
-        expect(battlePhaseState.currentAffiliation).toBe(BattlePhase.NONE)
+        expect(battlePhaseState.battlePhase).toBe(BattlePhase.NONE)
         expect(battlePhaseState.turnCount).toBe(1)
 
         BattlePhaseService.AdvanceToNextPhase(battlePhaseState, teams)
-        expect(battlePhaseState.currentAffiliation).toBe(BattlePhase.PLAYER)
+        expect(battlePhaseState.battlePhase).toBe(BattlePhase.PLAYER)
         expect(battlePhaseState.turnCount).toBe(2)
     })
 
     it("throws an error if no teams are added", () => {
         const battlePhaseState: BattlePhaseState = {
-            currentAffiliation: BattlePhase.UNKNOWN,
+            battlePhase: BattlePhase.UNKNOWN,
             turnCount: 0,
         }
 

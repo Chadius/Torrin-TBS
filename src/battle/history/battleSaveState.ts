@@ -170,7 +170,7 @@ export const BattleSaveStateService = {
             battlePhaseState: {
                 currentPhase:
                     battleOrchestratorState.battleState.battlePhaseState
-                        .currentAffiliation,
+                        .battlePhase,
                 turnCount:
                     battleOrchestratorState.battleState.battlePhaseState
                         .turnCount,
@@ -265,7 +265,7 @@ const applySaveStateToOrchestratorStateTurnAndPhase = (
     battleSaveState: BattleSaveState
 ) => {
     battleOrchestratorState.battleState.battlePhaseState = {
-        currentAffiliation: battleSaveState.battlePhaseState.currentPhase,
+        battlePhase: battleSaveState.battlePhaseState.currentPhase,
         turnCount: battleSaveState.battlePhaseState.turnCount,
     }
 }

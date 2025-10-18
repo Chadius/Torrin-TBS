@@ -44,6 +44,7 @@ import { ImageUI, ImageUILoadingBehavior } from "../../ui/imageUI/imageUI"
 import { ScreenDimensions } from "../../utils/graphics/graphicsConfig"
 import { ResourceHandlerBlocker } from "../../dataLoader/loadBlocker/resourceHandlerBlocker"
 import { BattleEvent, BattleEventService } from "../event/battleEvent"
+import { TBattlePhase } from "../orchestratorComponents/battlePhaseTracker"
 
 export interface MissionLoaderCompletionProgress {
     started: boolean
@@ -629,15 +630,17 @@ const loadPhaseAffiliationBanners = (
         ...missionData.phaseBannersByAffiliation,
     }
     Object.entries(missionLoaderContext.phaseBannersByAffiliation).forEach(
-        ([affiliationKey, resourceKeyName]) => {
+        ([battlePhaseStr, resourceKeyName]) => {
             if (!isValidValue(resourceKeyName) || resourceKeyName === "") {
                 return
             }
 
-            const affiliation: TSquaddieAffiliation =
-                affiliationKey as TSquaddieAffiliation
-            repository.uiElements.phaseBannersByAffiliation[affiliation] =
-                resourceKeyName
+            const battlePhase = battlePhaseStr as TBattlePhase
+            ObjectRepositoryService.setPhaseBanner({
+                repository,
+                resourceKey: resourceKeyName,
+                battlePhase,
+            })
 
             loadBlocker.queueResourceToLoad(resourceKeyName)
         }
@@ -649,15 +652,18 @@ const loadTeamIcons = (
     repository: ObjectRepository,
     loadBlocker: ResourceHandlerBlocker
 ) => {
-    repository.uiElements.teamAffiliationIcons = {}
+    ObjectRepositoryService.resetTeamAffiliationIcons(repository)
 
     const playerTeamIconResourceKey = missionData.player.iconResourceKey
     if (
         isValidValue(playerTeamIconResourceKey) &&
         playerTeamIconResourceKey !== ""
     ) {
-        repository.uiElements.teamAffiliationIcons[missionData.player.teamId] =
-            playerTeamIconResourceKey
+        ObjectRepositoryService.setTeamAffiliationIcon({
+            repository,
+            teamId: missionData.player.teamId,
+            resourceKey: playerTeamIconResourceKey,
+        })
         loadBlocker.queueResourceToLoad(playerTeamIconResourceKey)
     }
 
@@ -676,8 +682,11 @@ const loadTeamIcons = (
             )
             .forEach((team) => {
                 const teamIconResourceKey = team.iconResourceKey
-                repository.uiElements.teamAffiliationIcons[team.id] =
-                    teamIconResourceKey
+                ObjectRepositoryService.setTeamAffiliationIcon({
+                    repository,
+                    teamId: team.id,
+                    resourceKey: teamIconResourceKey,
+                })
                 loadBlocker.queueResourceToLoad(teamIconResourceKey)
             })
     )

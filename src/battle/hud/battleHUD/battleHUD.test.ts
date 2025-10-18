@@ -342,7 +342,7 @@ describe("Battle HUD", () => {
                     }),
                     battleState: BattleStateService.new({
                         battlePhaseState: {
-                            currentAffiliation: BattlePhase.PLAYER,
+                            battlePhase: BattlePhase.PLAYER,
                             turnCount: 0,
                         },
                         missionId: "missionId",

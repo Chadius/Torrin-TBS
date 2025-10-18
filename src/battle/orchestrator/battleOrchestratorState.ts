@@ -159,7 +159,7 @@ const newOrchestratorState = ({
                 missionId: "test mission",
                 battlePhaseState: {
                     turnCount: 0,
-                    currentAffiliation: BattlePhase.UNKNOWN,
+                    battlePhase: BattlePhase.UNKNOWN,
                 },
                 battleCompletionStatus: BattleCompletionStatus.IN_PROGRESS,
             }),

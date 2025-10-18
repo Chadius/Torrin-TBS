@@ -91,7 +91,7 @@ export const OrchestratorUtilities = {
 
         if (
             gameEngineState.battleOrchestratorState.battleState.battlePhaseState
-                .currentAffiliation !== BattlePhase.PLAYER
+                .battlePhase !== BattlePhase.PLAYER
         ) {
             return
         }

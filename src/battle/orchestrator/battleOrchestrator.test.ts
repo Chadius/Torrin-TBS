@@ -247,7 +247,7 @@ describe("Battle Orchestrator", () => {
                     },
                     battlePhaseState: {
                         turnCount: 0,
-                        currentAffiliation: BattlePhase.UNKNOWN,
+                        battlePhase: BattlePhase.UNKNOWN,
                     },
                 }),
             }),
@@ -342,7 +342,7 @@ describe("Battle Orchestrator", () => {
                     battleEvents: [turn1BattleEvent],
                     battlePhaseState: {
                         turnCount: 1,
-                        currentAffiliation: BattlePhase.UNKNOWN,
+                        battlePhase: BattlePhase.UNKNOWN,
                     },
                 }),
             }),
@@ -396,7 +396,7 @@ describe("Battle Orchestrator", () => {
                     ],
                     battlePhaseState: {
                         turnCount: 0,
-                        currentAffiliation: BattlePhase.UNKNOWN,
+                        battlePhase: BattlePhase.UNKNOWN,
                     },
                 }),
             }),
@@ -432,7 +432,7 @@ describe("Battle Orchestrator", () => {
                     cutsceneCollection,
                     battlePhaseState: {
                         turnCount: 0,
-                        currentAffiliation: BattlePhase.UNKNOWN,
+                        battlePhase: BattlePhase.UNKNOWN,
                     },
                 }),
                 cutsceneIdsToPlay: ["cutscene0", "cutscene1"],
@@ -545,7 +545,7 @@ describe("Battle Orchestrator", () => {
                     ],
                     battlePhaseState: {
                         turnCount: 0,
-                        currentAffiliation: BattlePhase.UNKNOWN,
+                        battlePhase: BattlePhase.UNKNOWN,
                     },
                 }),
             }),
@@ -839,7 +839,7 @@ describe("Battle Orchestrator", () => {
                             BattleCompletionStatus.IN_PROGRESS,
                         battlePhaseState: {
                             turnCount: 0,
-                            currentAffiliation: BattlePhase.UNKNOWN,
+                            battlePhase: BattlePhase.UNKNOWN,
                         },
                     }),
                 }),
@@ -899,7 +899,7 @@ describe("Battle Orchestrator", () => {
                             BattleCompletionStatus.IN_PROGRESS,
                         battlePhaseState: {
                             turnCount: 0,
-                            currentAffiliation: BattlePhase.UNKNOWN,
+                            battlePhase: BattlePhase.UNKNOWN,
                         },
                     }),
                 }),

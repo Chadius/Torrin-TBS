@@ -177,7 +177,7 @@ describe("BattleComputerSquaddieSelector", () => {
         ])
 
         battlePhaseState = {
-            currentAffiliation: BattlePhase.ENEMY,
+            battlePhase: BattlePhase.ENEMY,
             turnCount: 1,
         }
 

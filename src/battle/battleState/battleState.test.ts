@@ -256,7 +256,7 @@ describe("Battle State", () => {
             battleEvents: [],
             battlePhaseState: {
                 turnCount: 20,
-                currentAffiliation: BattlePhase.ENEMY,
+                battlePhase: BattlePhase.ENEMY,
             },
         })
     it("can clone existing objects", () => {
@@ -382,7 +382,7 @@ describe("Battle State", () => {
                 campaignId: "test campaign",
                 missionId: "mission",
                 battlePhaseState: {
-                    currentAffiliation: BattlePhase.UNKNOWN,
+                    battlePhase: BattlePhase.UNKNOWN,
                     turnCount: 0,
                 },
                 teams: [playerTeam0, playerTeam1, enemyTeam0],
@@ -392,21 +392,20 @@ describe("Battle State", () => {
             getImageUISpy.mockRestore()
         })
         it("reports no teams when there are no teams with the current affiliation", () => {
-            battleState.battlePhaseState.currentAffiliation =
-                BattlePhase.UNKNOWN
+            battleState.battlePhaseState.battlePhase = BattlePhase.UNKNOWN
             expect(
                 BattleStateService.getCurrentTeam(battleState, objectRepository)
             ).toBeUndefined()
         })
         it("reports the first added team of a given affiliation when all teams are ready", () => {
-            battleState.battlePhaseState.currentAffiliation = BattlePhase.PLAYER
+            battleState.battlePhaseState.battlePhase = BattlePhase.PLAYER
             expect(
                 BattleStateService.getCurrentTeam(battleState, objectRepository)
             ).toBe(playerTeam0)
         })
         it("reports the second added team of a given affiliation if the first team cannot act", () => {
             BattleSquaddieTeamService.endTurn(playerTeam0, objectRepository)
-            battleState.battlePhaseState.currentAffiliation = BattlePhase.PLAYER
+            battleState.battlePhaseState.battlePhase = BattlePhase.PLAYER
             expect(
                 BattleStateService.getCurrentTeam(battleState, objectRepository)
             ).toBe(playerTeam1)
@@ -415,7 +414,7 @@ describe("Battle State", () => {
         it("reports no teams when all of the teams of a given affiliation cannot act", () => {
             BattleSquaddieTeamService.endTurn(playerTeam0, objectRepository)
             BattleSquaddieTeamService.endTurn(playerTeam1, objectRepository)
-            battleState.battlePhaseState.currentAffiliation = BattlePhase.PLAYER
+            battleState.battlePhaseState.battlePhase = BattlePhase.PLAYER
             expect(
                 BattleStateService.getCurrentTeam(battleState, objectRepository)
             ).toBeUndefined()

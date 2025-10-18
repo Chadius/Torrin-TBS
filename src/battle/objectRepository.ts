@@ -3,6 +3,7 @@ import { SquaddieTemplate } from "../campaign/squaddieTemplate"
 import { TSquaddieAffiliation } from "../squaddie/squaddieAffiliation"
 import { ActionTemplate } from "../action/template/actionTemplate"
 import { ImageUI } from "../ui/imageUI/imageUI"
+import { TBattlePhase } from "./orchestratorComponents/battlePhaseTracker"
 
 export interface ObjectRepository {
     actionTemplatesById: {
@@ -200,7 +201,81 @@ export const ObjectRepositoryService = {
         imageUI: ImageUI
         battleSquaddieId: string
     }) => {
+        if (repository == undefined) {
+            throw new Error(
+                "[ObjectRepositoryService.addImageUIByBattleSquaddieId]: repository must be defined"
+            )
+        }
         repository.imageUIByBattleSquaddieId[battleSquaddieId] = imageUI
+    },
+    getPhaseBanners: (repository: ObjectRepository) => {
+        if (repository == undefined) {
+            throw new Error(
+                "[ObjectRepositoryService.getPhaseBanners]: repository must be defined"
+            )
+        }
+        return { ...repository.uiElements.phaseBannersByAffiliation }
+    },
+    getPhaseBannerForAffiliation: (
+        repository: ObjectRepository,
+        battlePhase: TBattlePhase
+    ): string | undefined => {
+        if (repository == undefined) {
+            throw new Error(
+                "[ObjectRepositoryService.getPhaseBannerByAffiliation]: repository must be defined"
+            )
+        }
+        return repository.uiElements.phaseBannersByAffiliation[battlePhase]
+    },
+    setPhaseBanner: ({
+        repository,
+        battlePhase,
+        resourceKey,
+    }: {
+        repository: ObjectRepository
+        battlePhase: TBattlePhase
+        resourceKey: string
+    }): void => {
+        if (repository == undefined) {
+            throw new Error(
+                "[ObjectRepositoryService.setPhaseBanner]: repository must be defined"
+            )
+        }
+        repository.uiElements.phaseBannersByAffiliation[battlePhase] =
+            resourceKey
+    },
+    getTeamAffiliationIcons: (repository: ObjectRepository) => {
+        if (repository == undefined) {
+            throw new Error(
+                "[ObjectRepositoryService.getTeamAffiliationIcons]: repository must be defined"
+            )
+        }
+
+        return { ...repository.uiElements.teamAffiliationIcons }
+    },
+    setTeamAffiliationIcon: ({
+        repository,
+        teamId,
+        resourceKey,
+    }: {
+        repository: ObjectRepository
+        teamId: string
+        resourceKey: string
+    }) => {
+        if (repository == undefined) {
+            throw new Error(
+                "[ObjectRepositoryService.setTeamAffiliationIcon]: repository must be defined"
+            )
+        }
+        repository.uiElements.teamAffiliationIcons[teamId] = resourceKey
+    },
+    resetTeamAffiliationIcons: (repository: ObjectRepository) => {
+        if (repository == undefined) {
+            throw new Error(
+                "[ObjectRepositoryService.resetTeamAffiliationIcons]: repository must be defined"
+            )
+        }
+        repository.uiElements.teamAffiliationIcons = {}
     },
 }
 

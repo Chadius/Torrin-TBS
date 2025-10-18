@@ -137,7 +137,7 @@ describe("Player Decision HUD", () => {
             battleOrchestratorState: BattleOrchestratorStateService.new({
                 battleState: BattleStateService.new({
                     battlePhaseState: {
-                        currentAffiliation: BattlePhase.PLAYER,
+                        battlePhase: BattlePhase.PLAYER,
                         turnCount: 0,
                     },
                     missionId: "missionId",
@@ -877,7 +877,7 @@ describe("Player Decision HUD", () => {
                         teams,
                         battlePhaseState: {
                             turnCount: 0,
-                            currentAffiliation: BattlePhase.PLAYER,
+                            battlePhase: BattlePhase.PLAYER,
                         },
                         missionId: "missionId",
                         campaignId: "campaignId",

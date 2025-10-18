@@ -75,7 +75,7 @@ describe("File Access HUD", () => {
                     missionMap,
                     camera: new BattleCamera(0, 0),
                     battlePhaseState: {
-                        currentAffiliation: battlePhaseAffiliation,
+                        battlePhase: battlePhaseAffiliation,
                         turnCount: 0,
                     },
                 }),
@@ -498,8 +498,7 @@ describe("File Access HUD", () => {
                                         campaignId: "test campaign",
                                         missionId: "missionId",
                                         battlePhaseState: {
-                                            currentAffiliation:
-                                                BattlePhase.PLAYER,
+                                            battlePhase: BattlePhase.PLAYER,
                                             turnCount: 0,
                                         },
                                         missionMap: MissionMapService.new({

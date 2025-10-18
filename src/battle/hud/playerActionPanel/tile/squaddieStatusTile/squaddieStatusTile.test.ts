@@ -94,7 +94,7 @@ describe("Squaddie Status Tile", () => {
                     campaignId: "test campaign",
                     missionId: "missionId",
                     battlePhaseState: {
-                        currentAffiliation: BattlePhase.PLAYER,
+                        battlePhase: BattlePhase.PLAYER,
                         turnCount: 0,
                     },
                 }),

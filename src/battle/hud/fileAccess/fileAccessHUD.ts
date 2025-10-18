@@ -327,7 +327,7 @@ export const FileAccessHUDService = {
             !gameEngineState.battleOrchestratorState.battleState
                 .battlePhaseState ||
             gameEngineState.battleOrchestratorState.battleState.battlePhaseState
-                .currentAffiliation !== BattlePhase.PLAYER
+                .battlePhase !== BattlePhase.PLAYER
         ) {
             return disableButtons(fileAccessHUD)
         }

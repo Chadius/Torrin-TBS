@@ -279,7 +279,7 @@ describe("BattleSaveState", () => {
                 missionMap: NullMissionMap(),
                 battlePhaseState: {
                     turnCount: 0,
-                    currentAffiliation: BattlePhase.UNKNOWN,
+                    battlePhase: BattlePhase.UNKNOWN,
                 },
             }),
         })
@@ -304,7 +304,7 @@ describe("BattleSaveState", () => {
                     missionMap: NullMissionMap(),
                     battlePhaseState: {
                         turnCount: 0,
-                        currentAffiliation: BattlePhase.UNKNOWN,
+                        battlePhase: BattlePhase.UNKNOWN,
                     },
                 }),
             })
@@ -330,7 +330,7 @@ describe("BattleSaveState", () => {
                 campaignId: "test campaign",
                 missionMap: NullMissionMap(),
                 battlePhaseState: {
-                    currentAffiliation: BattlePhase.PLAYER,
+                    battlePhase: BattlePhase.PLAYER,
                     turnCount: 3,
                 },
             }),
@@ -354,7 +354,7 @@ describe("BattleSaveState", () => {
                     missionMap: NullMissionMap(),
                     battlePhaseState: {
                         turnCount: 0,
-                        currentAffiliation: BattlePhase.PLAYER,
+                        battlePhase: BattlePhase.PLAYER,
                     },
                 }),
             })
@@ -363,9 +363,9 @@ describe("BattleSaveState", () => {
             battleOrchestratorState: newBattleState,
             squaddieRepository: newSquaddieRepository,
         })
-        expect(
-            newBattleState.battleState.battlePhaseState.currentAffiliation
-        ).toBe(BattlePhase.PLAYER)
+        expect(newBattleState.battleState.battlePhaseState.battlePhase).toBe(
+            BattlePhase.PLAYER
+        )
         expect(newBattleState.battleState.battlePhaseState.turnCount).toBe(3)
     })
 
@@ -392,7 +392,7 @@ describe("BattleSaveState", () => {
                 battleActionRecorder: battleActionRecorder,
                 battlePhaseState: {
                     turnCount: 0,
-                    currentAffiliation: BattlePhase.UNKNOWN,
+                    battlePhase: BattlePhase.UNKNOWN,
                 },
             }),
         })
@@ -418,7 +418,7 @@ describe("BattleSaveState", () => {
                     missionMap: NullMissionMap(),
                     battlePhaseState: {
                         turnCount: 0,
-                        currentAffiliation: BattlePhase.UNKNOWN,
+                        battlePhase: BattlePhase.UNKNOWN,
                     },
                 }),
             })
@@ -472,7 +472,7 @@ describe("BattleSaveState", () => {
                 missionMap: missionMap,
                 battlePhaseState: {
                     turnCount: 0,
-                    currentAffiliation: BattlePhase.UNKNOWN,
+                    battlePhase: BattlePhase.UNKNOWN,
                 },
             }),
         })
@@ -499,7 +499,7 @@ describe("BattleSaveState", () => {
                     }),
                     battlePhaseState: {
                         turnCount: 0,
-                        currentAffiliation: BattlePhase.UNKNOWN,
+                        battlePhase: BattlePhase.UNKNOWN,
                     },
                 }),
             })
@@ -563,7 +563,7 @@ describe("BattleSaveState", () => {
                 missionMap: NullMissionMap(),
                 battlePhaseState: {
                     turnCount: 0,
-                    currentAffiliation: BattlePhase.UNKNOWN,
+                    battlePhase: BattlePhase.UNKNOWN,
                 },
             }),
         })
@@ -588,7 +588,7 @@ describe("BattleSaveState", () => {
                     missionMap: NullMissionMap(),
                     battlePhaseState: {
                         turnCount: 0,
-                        currentAffiliation: BattlePhase.UNKNOWN,
+                        battlePhase: BattlePhase.UNKNOWN,
                     },
                 }),
             })
@@ -610,7 +610,7 @@ describe("BattleSaveState", () => {
                 missionMap: NullMissionMap(),
                 battlePhaseState: {
                     turnCount: 0,
-                    currentAffiliation: BattlePhase.UNKNOWN,
+                    battlePhase: BattlePhase.UNKNOWN,
                 },
             }),
         })
@@ -635,7 +635,7 @@ describe("BattleSaveState", () => {
                     missionMap: NullMissionMap(),
                     battlePhaseState: {
                         turnCount: 0,
-                        currentAffiliation: BattlePhase.UNKNOWN,
+                        battlePhase: BattlePhase.UNKNOWN,
                     },
                 }),
             })
@@ -669,7 +669,7 @@ describe("BattleSaveState", () => {
                 teams,
                 battlePhaseState: {
                     turnCount: 0,
-                    currentAffiliation: BattlePhase.UNKNOWN,
+                    battlePhase: BattlePhase.UNKNOWN,
                 },
             }),
         })
@@ -692,7 +692,7 @@ describe("BattleSaveState", () => {
                     missionMap: NullMissionMap(),
                     battlePhaseState: {
                         turnCount: 0,
-                        currentAffiliation: BattlePhase.UNKNOWN,
+                        battlePhase: BattlePhase.UNKNOWN,
                     },
                 }),
             })
@@ -741,7 +741,7 @@ describe("BattleSaveState", () => {
                 teamStrategiesById,
                 battlePhaseState: {
                     turnCount: 0,
-                    currentAffiliation: BattlePhase.UNKNOWN,
+                    battlePhase: BattlePhase.UNKNOWN,
                 },
             }),
         })
@@ -764,7 +764,7 @@ describe("BattleSaveState", () => {
                     missionMap: NullMissionMap(),
                     battlePhaseState: {
                         turnCount: 0,
-                        currentAffiliation: BattlePhase.UNKNOWN,
+                        battlePhase: BattlePhase.UNKNOWN,
                     },
                 }),
             })
@@ -887,7 +887,7 @@ describe("BattleSaveState", () => {
                 battleEvents,
                 battlePhaseState: {
                     turnCount: 0,
-                    currentAffiliation: BattlePhase.UNKNOWN,
+                    battlePhase: BattlePhase.UNKNOWN,
                 },
             }),
         })
@@ -910,7 +910,7 @@ describe("BattleSaveState", () => {
                     missionMap: NullMissionMap(),
                     battlePhaseState: {
                         turnCount: 0,
-                        currentAffiliation: BattlePhase.UNKNOWN,
+                        battlePhase: BattlePhase.UNKNOWN,
                     },
                 }),
             })
@@ -1082,7 +1082,7 @@ describe("BattleSaveState", () => {
                     battleEvents,
                     battlePhaseState: {
                         turnCount: 0,
-                        currentAffiliation: BattlePhase.UNKNOWN,
+                        battlePhase: BattlePhase.UNKNOWN,
                     },
                 }),
             })
@@ -1170,7 +1170,7 @@ describe("BattleSaveState", () => {
                         campaignId: "test campaign",
                         camera: new BattleCamera(100, 200),
                         battlePhaseState: {
-                            currentAffiliation: BattlePhase.PLAYER,
+                            battlePhase: BattlePhase.PLAYER,
                             turnCount: 3,
                         },
                         battleActionRecorder,
@@ -1226,7 +1226,7 @@ describe("BattleSaveState", () => {
                 )
                 expect(newSaveData.battlePhaseState.currentPhase).toBe(
                     battleOrchestratorState.battleState.battlePhaseState
-                        .currentAffiliation
+                        .battlePhase
                 )
             })
 
@@ -1315,7 +1315,7 @@ describe("BattleSaveState", () => {
                                     missionMap: NullMissionMap(),
                                     battlePhaseState: {
                                         turnCount: 0,
-                                        currentAffiliation: BattlePhase.UNKNOWN,
+                                        battlePhase: BattlePhase.UNKNOWN,
                                     },
                                 }),
                             }),

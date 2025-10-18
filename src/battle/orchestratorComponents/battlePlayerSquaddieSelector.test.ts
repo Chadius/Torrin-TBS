@@ -338,7 +338,7 @@ describe("BattleSquaddieSelector", () => {
             })
 
         return {
-            currentAffiliation: BattlePhase.PLAYER,
+            battlePhase: BattlePhase.PLAYER,
             turnCount: 1,
         }
     }

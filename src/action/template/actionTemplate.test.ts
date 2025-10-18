@@ -331,4 +331,16 @@ describe("ActionTemplate", () => {
             expect(justMovement.rank).toEqual(9001)
         })
     })
+
+    it("can get all resource keys", () => {
+        const actionTemplate = ActionTemplateService.new({
+            id: "actionTemplate",
+            name: "actionTemplate",
+            buttonIconResourceKey: "buttonIconResourceKey",
+        })
+
+        expect(ActionTemplateService.getResourceKeys(actionTemplate)).toEqual([
+            "buttonIconResourceKey",
+        ])
+    })
 })

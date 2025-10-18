@@ -82,7 +82,7 @@ describe("player phase listener", () => {
                 battleHUD: BattleHUDService.new({}),
                 battleState: BattleStateService.new({
                     battlePhaseState: {
-                        currentAffiliation: BattlePhase.PLAYER,
+                        battlePhase: BattlePhase.PLAYER,
                         turnCount: 0,
                     },
                     teams: [playerTeam],
@@ -137,7 +137,7 @@ describe("player phase listener", () => {
                 })
 
             battleOrchestratorState.battleState.battlePhaseState = {
-                currentAffiliation: BattlePhase.UNKNOWN,
+                battlePhase: BattlePhase.UNKNOWN,
                 turnCount: 0,
             }
 

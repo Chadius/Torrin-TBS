@@ -89,7 +89,7 @@ describe("squaddie phase ends", () => {
                 battleHUD: BattleHUDService.new({}),
                 battleState: BattleStateService.new({
                     battlePhaseState: {
-                        currentAffiliation: startingBattlePhase,
+                        battlePhase: startingBattlePhase,
                         turnCount: 0,
                     },
                     teams: teams,

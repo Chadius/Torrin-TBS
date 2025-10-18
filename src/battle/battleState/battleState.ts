@@ -140,7 +140,7 @@ export const BattleStateService = {
             BattlePhaseService.findTeamsOfAffiliation(
                 battleState.teams,
                 BattlePhaseService.ConvertBattlePhaseToSquaddieAffiliation(
-                    battleState.battlePhaseState.currentAffiliation
+                    battleState.battlePhaseState.battlePhase
                 )
             )
 

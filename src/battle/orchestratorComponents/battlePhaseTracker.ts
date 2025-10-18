@@ -108,7 +108,7 @@ const advanceToNextPhase = (
         }
     }
 
-    const startingPhase = startingPhaseState.currentAffiliation
+    const startingPhase = startingPhaseState.battlePhase
     let { phase, incrementTurn } = getNextPhase(startingPhase)
 
     let numberOfAttemptedSwitches = 0
@@ -123,7 +123,7 @@ const advanceToNextPhase = (
                 BattleSquaddieTeamService.hasSquaddies(team)
             )
         ) {
-            startingPhaseState.currentAffiliation = phase
+            startingPhaseState.battlePhase = phase
             if (incrementTurn) {
                 startingPhaseState.turnCount += 1
             }
@@ -132,7 +132,7 @@ const advanceToNextPhase = (
 
         ;({ phase, incrementTurn } = getNextPhase(phase))
         if (phase === startingPhase) {
-            startingPhaseState.currentAffiliation = BattlePhase.UNKNOWN
+            startingPhaseState.battlePhase = BattlePhase.UNKNOWN
             if (incrementTurn) {
                 startingPhaseState.turnCount += 1
             }

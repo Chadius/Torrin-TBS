@@ -237,7 +237,7 @@ describe("BattleSquaddieMover", () => {
                     missionMap: map,
                     searchPath: movePath,
                     battlePhaseState: {
-                        currentAffiliation: BattlePhase.PLAYER,
+                        battlePhase: BattlePhase.PLAYER,
                         turnCount: 0,
                     },
                 }),

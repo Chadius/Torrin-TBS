@@ -207,6 +207,8 @@ export const ActionTemplateService = {
         !ActionEffectTemplateService.doesItTargetFoes(
             actionTemplate.actionEffectTemplates[0]
         ),
+    getResourceKeys: (actionTemplate: ActionTemplate): string[] =>
+        [actionTemplate.buttonIconResourceKey].filter((x) => x != undefined),
 }
 
 const sanitize = (template: Partial<ActionTemplate>): ActionTemplate => {

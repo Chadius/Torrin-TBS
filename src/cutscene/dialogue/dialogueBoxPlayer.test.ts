@@ -242,7 +242,7 @@ describe("dialogue box player", () => {
                         missionId: "test mission",
                         campaignId: "test campaign",
                         battlePhaseState: {
-                            currentAffiliation: BattlePhase.UNKNOWN,
+                            battlePhase: BattlePhase.UNKNOWN,
                             turnCount: 5,
                         },
                     }),

@@ -16,7 +16,7 @@ describe("BattleOrchestratorStateSubstitution", () => {
                     campaignId: "test campaign",
                     missionId: "test mission",
                     battlePhaseState: {
-                        currentAffiliation: BattlePhase.UNKNOWN,
+                        battlePhase: BattlePhase.UNKNOWN,
                         turnCount: 5,
                     },
                 }),
@@ -52,7 +52,7 @@ describe("BattleOrchestratorStateSubstitution", () => {
                     missionId: "test mission",
                     campaignId: "test campaign",
                     battlePhaseState: {
-                        currentAffiliation: BattlePhase.UNKNOWN,
+                        battlePhase: BattlePhase.UNKNOWN,
                         turnCount: 5,
                     },
                 }),

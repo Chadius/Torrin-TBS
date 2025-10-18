@@ -19,7 +19,7 @@ import {
     BattleSquaddieTeamService,
 } from "../battleSquaddieTeam"
 import { BattleStateService } from "../battleState/battleState"
-import { ObjectRepository } from "../objectRepository"
+import { ObjectRepository, ObjectRepositoryService } from "../objectRepository"
 import { MessageBoardMessageType } from "../../message/messageBoardMessage"
 import p5 from "p5"
 import { GraphicsBuffer } from "../../utils/graphics/graphicsRenderer"
@@ -31,7 +31,7 @@ import { GameEngineState } from "../../gameEngine/gameEngineState/gameEngineStat
 export const BANNER_ANIMATION_TIME = 2000
 
 export interface BattlePhaseState {
-    currentAffiliation: TBattlePhase
+    battlePhase: TBattlePhase
     turnCount: number
 }
 
@@ -44,7 +44,7 @@ export const BattlePhaseStateService = {
         turnCount?: number
     }): BattlePhaseState => {
         return {
-            currentAffiliation,
+            battlePhase: currentAffiliation,
             turnCount:
                 turnCount != undefined || turnCount === 0 ? turnCount : 0,
         }
@@ -137,7 +137,7 @@ export class BattlePhaseController implements BattleOrchestratorComponent {
 
         if (
             gameEngineState.battleOrchestratorState.battleState.battlePhaseState
-                .currentAffiliation === BattlePhase.PLAYER
+                .battlePhase === BattlePhase.PLAYER
         ) {
             this.selectFirstControllablePlayerSquaddie(gameEngineState)
         }
@@ -191,7 +191,7 @@ export class BattlePhaseController implements BattleOrchestratorComponent {
             missionMap:
                 gameEngineState.battleOrchestratorState.battleState.missionMap,
             phase: gameEngineState.battleOrchestratorState.battleState
-                .battlePhaseState.currentAffiliation,
+                .battlePhaseState.battlePhase,
         })
 
         BattlePhaseService.AdvanceToNextPhase(
@@ -213,14 +213,14 @@ export class BattlePhaseController implements BattleOrchestratorComponent {
                 gameEngineState.battleOrchestratorState.battleState.missionMap,
             camera: gameEngineState.battleOrchestratorState.battleState.camera,
             phase: gameEngineState.battleOrchestratorState.battleState
-                .battlePhaseState.currentAffiliation,
+                .battlePhaseState.battlePhase,
         })
     }
 
     private shouldPhaseEnd(gameEngineState: GameEngineState): boolean {
         if (
             gameEngineState.battleOrchestratorState.battleState.battlePhaseState
-                .currentAffiliation === BattlePhase.UNKNOWN
+                .battlePhase === BattlePhase.UNKNOWN
         )
             return true
         if (gameEngineState.repository == undefined) return true
@@ -230,7 +230,7 @@ export class BattlePhaseController implements BattleOrchestratorComponent {
                 gameEngineState.battleOrchestratorState.battleState.teams,
                 BattlePhaseService.ConvertBattlePhaseToSquaddieAffiliation(
                     gameEngineState.battleOrchestratorState.battleState
-                        .battlePhaseState.currentAffiliation
+                        .battlePhaseState.battlePhase
                 ),
                 gameEngineState.repository
             ) === undefined
@@ -252,7 +252,7 @@ export class BattlePhaseController implements BattleOrchestratorComponent {
         return (
             !this.newBannerShown &&
             gameEngineState.battleOrchestratorState.battleState.battlePhaseState
-                .currentAffiliation !== BattlePhase.UNKNOWN &&
+                .battlePhase !== BattlePhase.UNKNOWN &&
             BattleStateService.getCurrentTeam(
                 gameEngineState.battleOrchestratorState.battleState,
                 gameEngineState.repository
@@ -265,13 +265,13 @@ export class BattlePhaseController implements BattleOrchestratorComponent {
             state.battleOrchestratorState.battleState.missionMap.terrainTileMap
         )
 
-        const currentSquaddieAffiliation =
+        const battlePhase =
             state.battleOrchestratorState.battleState.battlePhaseState
-                .currentAffiliation
+                .battlePhase
         const teams = BattlePhaseService.findTeamsOfAffiliation(
             state.battleOrchestratorState.battleState.teams,
             BattlePhaseService.ConvertBattlePhaseToSquaddieAffiliation(
-                currentSquaddieAffiliation
+                battlePhase
             )
         )
 
@@ -287,19 +287,17 @@ export class BattlePhaseController implements BattleOrchestratorComponent {
         }
 
         if (
-            state.repository?.uiElements.phaseBannersByAffiliation[
-                currentSquaddieAffiliation
-            ] != undefined &&
-            state.repository?.uiElements.phaseBannersByAffiliation[
-                currentSquaddieAffiliation
-            ] !== "" &&
-            state.resourceHandler != undefined
+            state.resourceHandler != undefined &&
+            state.repository != undefined
         ) {
-            this.bannerImage = state.resourceHandler.getResource(
-                state.repository.uiElements.phaseBannersByAffiliation[
-                    currentSquaddieAffiliation
-                ]
-            )
+            let bannerResourceKey =
+                ObjectRepositoryService.getPhaseBannerForAffiliation(
+                    state.repository,
+                    battlePhase
+                )
+            if (bannerResourceKey)
+                this.bannerImage =
+                    state.resourceHandler.getResource(bannerResourceKey)
         }
 
         if (!this.bannerImage) {

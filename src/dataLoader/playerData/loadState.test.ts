@@ -40,7 +40,7 @@ describe("LoadState", () => {
                         missionMap: NullMissionMap(),
                         battlePhaseState: {
                             turnCount: 0,
-                            currentAffiliation: BattlePhase.UNKNOWN,
+                            battlePhase: BattlePhase.UNKNOWN,
                         },
                         challengeModifierSetting,
                     }),

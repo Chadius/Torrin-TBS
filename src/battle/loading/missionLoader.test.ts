@@ -641,7 +641,7 @@ describe("Mission Loader", () => {
 
         it("copies the banner by squaddie affiliation information", () => {
             expect(
-                objectRepository.uiElements.phaseBannersByAffiliation
+                ObjectRepositoryService.getPhaseBanners(objectRepository)
             ).toEqual(missionData.phaseBannersByAffiliation)
         })
 
@@ -659,9 +659,11 @@ describe("Mission Loader", () => {
                 })
             )
 
-            expect(objectRepository.uiElements.teamAffiliationIcons).toEqual(
-                expectedKeys
-            )
+            expect(
+                ObjectRepositoryService.getTeamAffiliationIcons(
+                    objectRepository
+                )
+            ).toEqual(expectedKeys)
         })
     })
 })

@@ -171,7 +171,7 @@ describe("PlayerHUDController", () => {
             gameEngineState.battleOrchestratorState.battleState.battlePhaseState =
                 {
                     turnCount: 0,
-                    currentAffiliation: BattlePhase.PLAYER,
+                    battlePhase: BattlePhase.PLAYER,
                 }
             gameEngineState.battleOrchestratorState.battleState.battleActionDecisionStep =
                 BattleActionDecisionStepService.new()

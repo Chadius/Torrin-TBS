@@ -620,7 +620,7 @@ describe("GameEngineGameLoader", () => {
             currentState.battleOrchestratorState.battleState.battlePhaseState =
                 {
                     turnCount: 1,
-                    currentAffiliation: BattlePhase.PLAYER,
+                    battlePhase: BattlePhase.PLAYER,
                 }
             while (!loader.hasCompleted(currentState)) {
                 await loader.update(currentState)
@@ -653,7 +653,7 @@ describe("GameEngineGameLoader", () => {
                     .battlePhaseState
             ).toEqual({
                 turnCount: 0,
-                currentAffiliation: BattlePhase.UNKNOWN,
+                battlePhase: BattlePhase.UNKNOWN,
             })
 
             expect(

@@ -138,7 +138,7 @@ describe("BattlePhaseController", () => {
                     campaignId: "test campaign",
                     missionId: "test mission",
                     battlePhaseState: {
-                        currentAffiliation: BattlePhase.UNKNOWN,
+                        battlePhase: BattlePhase.UNKNOWN,
                         turnCount: 0,
                     },
                     teams,
@@ -157,7 +157,7 @@ describe("BattlePhaseController", () => {
 
     it("does nothing and finishes immediately if team has not finished their turn", () => {
         gameEngineState.battleOrchestratorState.battleState.battlePhaseState = {
-            currentAffiliation: BattlePhase.UNKNOWN,
+            battlePhase: BattlePhase.UNKNOWN,
             turnCount: 0,
         }
         BattlePhaseService.AdvanceToNextPhase(
@@ -167,7 +167,7 @@ describe("BattlePhaseController", () => {
         )
         expect(
             gameEngineState.battleOrchestratorState.battleState.battlePhaseState
-                .currentAffiliation
+                .battlePhase
         ).toBe(BattlePhase.PLAYER)
 
         battlePhaseController.update({
@@ -179,7 +179,7 @@ describe("BattlePhaseController", () => {
         expect(battlePhaseController.draw).not.toBeCalled()
         expect(
             gameEngineState.battleOrchestratorState.battleState.battlePhaseState
-                .currentAffiliation
+                .battlePhase
         ).toBe(BattlePhase.PLAYER)
     })
 
@@ -205,7 +205,7 @@ describe("BattlePhaseController", () => {
         vi.spyOn(Date, "now").mockImplementation(() => startTime)
 
         gameEngineState.battleOrchestratorState.battleState.battlePhaseState = {
-            currentAffiliation: BattlePhase.UNKNOWN,
+            battlePhase: BattlePhase.UNKNOWN,
             turnCount: 0,
         }
 
@@ -217,7 +217,7 @@ describe("BattlePhaseController", () => {
         expect(battlePhaseController.hasCompleted(gameEngineState)).toBeFalsy()
         expect(
             gameEngineState.battleOrchestratorState.battleState.battlePhaseState
-                .currentAffiliation
+                .battlePhase
         ).toBe(BattlePhase.PLAYER)
         expect(
             gameEngineState.battleOrchestratorState.battleState.battlePhaseState
@@ -238,7 +238,7 @@ describe("BattlePhaseController", () => {
         expect(battlePhaseController.hasCompleted(gameEngineState)).toBeTruthy()
         expect(
             gameEngineState.battleOrchestratorState.battleState.battlePhaseState
-                .currentAffiliation
+                .battlePhase
         ).toBe(BattlePhase.PLAYER)
     })
 
@@ -258,7 +258,7 @@ describe("BattlePhaseController", () => {
                     }),
                     battlePhaseState: {
                         turnCount: 0,
-                        currentAffiliation: BattlePhase.UNKNOWN,
+                        battlePhase: BattlePhase.UNKNOWN,
                     },
                 }),
             }),
@@ -300,7 +300,7 @@ describe("BattlePhaseController", () => {
 
             gameEngineState.battleOrchestratorState.battleState.battlePhaseState =
                 {
-                    currentAffiliation: BattlePhase.ENEMY,
+                    battlePhase: BattlePhase.ENEMY,
                     turnCount: 1,
                 }
             ;[enemySquaddieTeam].forEach((team) =>
@@ -361,7 +361,7 @@ describe("BattlePhaseController", () => {
         const messageSpy = vi.spyOn(gameEngineState.messageBoard, "sendMessage")
 
         gameEngineState.battleOrchestratorState.battleState.battlePhaseState = {
-            currentAffiliation: BattlePhase.PLAYER,
+            battlePhase: BattlePhase.PLAYER,
             turnCount: 1,
         }
         ;[playerSquaddieTeam].forEach((team) =>
@@ -402,7 +402,7 @@ describe("BattlePhaseController", () => {
         beforeEach(() => {
             gameEngineState.battleOrchestratorState.battleState.battlePhaseState =
                 {
-                    currentAffiliation: BattlePhase.UNKNOWN,
+                    battlePhase: BattlePhase.UNKNOWN,
                     turnCount: 0,
                 }
 
@@ -413,7 +413,7 @@ describe("BattlePhaseController", () => {
             )
             expect(
                 gameEngineState.battleOrchestratorState.battleState
-                    .battlePhaseState.currentAffiliation
+                    .battlePhaseState.battlePhase
             ).toBe(BattlePhase.PLAYER)
 
             const { battleSquaddie: battleSquaddie0 } =
@@ -435,7 +435,7 @@ describe("BattlePhaseController", () => {
             ).toBeFalsy()
             expect(
                 gameEngineState.battleOrchestratorState.battleState
-                    .battlePhaseState.currentAffiliation
+                    .battlePhaseState.battlePhase
             ).toBe(BattlePhase.ENEMY)
         })
 
@@ -453,7 +453,7 @@ describe("BattlePhaseController", () => {
             ).toBeTruthy()
             expect(
                 gameEngineState.battleOrchestratorState.battleState
-                    .battlePhaseState.currentAffiliation
+                    .battlePhaseState.battlePhase
             ).toBe(BattlePhase.ENEMY)
         })
     })
@@ -474,7 +474,7 @@ describe("BattlePhaseController", () => {
                     }),
                     battlePhaseState: {
                         turnCount: 0,
-                        currentAffiliation: BattlePhase.UNKNOWN,
+                        battlePhase: BattlePhase.UNKNOWN,
                     },
                 }),
             }),
@@ -593,7 +593,7 @@ describe("BattlePhaseController", () => {
                             }),
                         }),
                         battlePhaseState: {
-                            currentAffiliation: BattlePhase.PLAYER,
+                            battlePhase: BattlePhase.PLAYER,
                             turnCount: 0,
                         },
                     }),
@@ -623,7 +623,7 @@ describe("BattlePhaseController", () => {
             ).toBeTruthy()
             expect(
                 gameEngineState.battleOrchestratorState.battleState
-                    .battlePhaseState.currentAffiliation
+                    .battlePhaseState.battlePhase
             ).toBe(BattlePhase.PLAYER)
             expect(
                 gameEngineState.battleOrchestratorState.battleState
@@ -654,7 +654,7 @@ describe("BattlePhaseController", () => {
             ).toBeFalsy()
             expect(
                 gameEngineState.battleOrchestratorState.battleState
-                    .battlePhaseState.currentAffiliation
+                    .battlePhaseState.battlePhase
             ).toBe(BattlePhase.ENEMY)
             expect(
                 gameEngineState.battleOrchestratorState.battleState
