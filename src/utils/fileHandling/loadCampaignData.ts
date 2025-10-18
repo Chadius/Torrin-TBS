@@ -148,4 +148,60 @@ export const LoadCampaignData = {
             baseSquaddieTemplatesById,
         }
     },
+    getExpectedFileNames: () => {
+        const { campaignFile: campaignFileData } = TestCampaignData()
+        return {
+            [campaignFileData.id]: `assets/campaign/${campaignFileData.id}/missions/0000.json`,
+            mission_0000: `assets/campaign/theNewCampaign/missions/0000.json`,
+            playerArmy: "assets/playerArmy/playerArmy.json",
+            campaignFileData: "assets/campaign/coolCampaign/campaign.json",
+            theNewCampaign: "assets/campaign/theNewCampaign/campaign.json",
+            npcActionTemplates: "assets/npcData/action_templates.json",
+            playerActionTemplates: "assets/playerArmy/action_templates.json",
+            ...getExpectedSquaddieFileNames(),
+        }
+    },
+    getExpectedSquaddieFileNames: () => getExpectedSquaddieFileNames(),
+    getExpectedSquaddieTemplates: () => getExpectedSquaddieTemplates(),
+    getExpectedActionTemplateIds: () => getExpectedActionTemplateIds(),
+}
+
+const getExpectedSquaddieFileNames = () => {
+    return {
+        young_nahla:
+            "assets/playerArmy/young_nahla/base-squaddie-template.json",
+        sir_camil: "assets/playerArmy/sir_camil/base-squaddie-template.json",
+        enemyDemonSlitherTemplate:
+            "assets/npcData/enemy_demon_slither/enemy_demon_slither.json",
+        enemyDemonSlitherTemplate2:
+            "assets/npcData/enemyDemonSlitherTemplate2_id/enemyDemonSlitherTemplate2_id.json",
+        allyGuardTemplate: "assets/npcData/ally_guard/ally_guard.json",
+        noAffiliationLivingFlameTemplate:
+            "assets/npcData/no_affiliation_living_flame/no_affiliation_living_flame.json",
+    }
+}
+
+const getExpectedSquaddieTemplates = () => {
+    const {
+        enemyDemonSlitherTemplate,
+        enemyDemonSlitherTemplate2,
+        allyGuardTemplate,
+        noAffiliationLivingFlameTemplate,
+    } = TestMissionData()
+
+    const { baseSquaddieTemplatesById } = TestPlayerArmyData()
+
+    return [
+        enemyDemonSlitherTemplate,
+        enemyDemonSlitherTemplate2,
+        allyGuardTemplate,
+        noAffiliationLivingFlameTemplate,
+        ...Object.values(baseSquaddieTemplatesById),
+    ]
+}
+
+const getExpectedActionTemplateIds = () => {
+    return LoadCampaignData.getExpectedSquaddieTemplates()
+        .map((squaddieTemplate) => squaddieTemplate.actionTemplateIds)
+        .flat()
 }

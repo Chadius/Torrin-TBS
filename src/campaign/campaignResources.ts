@@ -61,4 +61,11 @@ export const CampaignResourcesService = {
             defaultByTerrainCost: { ...original.mapTiles.defaultByTerrainCost },
         },
     }),
+    getAllResourceKeys: (resources: CampaignResources): string[] => {
+        return [
+            resources.endTurnIconResourceKey,
+            ...resources.mapTiles.resourceKeys,
+            ...Object.values(resources.actionEffectSquaddieTemplateButtonIcons),
+        ]
+    },
 }

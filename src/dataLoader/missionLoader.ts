@@ -40,7 +40,14 @@ export interface NpcTeamMissionDeployment {
 }
 
 export const NpcTeamMissionDeploymentService = {
-    new: (): NpcTeamMissionDeployment => {
+    new: (p: Partial<NpcTeamMissionDeployment>): NpcTeamMissionDeployment => {
+        return {
+            templateIds: [...(p.templateIds ?? [])],
+            mapPlacements: [...(p.mapPlacements ?? [])],
+            teams: [...(p.teams ?? [])],
+        }
+    },
+    null: (): NpcTeamMissionDeployment => {
         return {
             templateIds: [],
             mapPlacements: [],
@@ -118,6 +125,20 @@ export const MissionFileFormatService = {
     sanitize: (data: Partial<MissionFileFormat>): MissionFileFormat => {
         return sanitize(data)
     },
+    getAllResourceKeys: (missionFileFormat: MissionFileFormat): string[] => {
+        return [
+            missionFileFormat.player.iconResourceKey,
+            ...(missionFileFormat.npcDeployments.enemy?.teams.map(
+                (t) => t.iconResourceKey
+            ) ?? []),
+            ...(missionFileFormat.npcDeployments.ally?.teams.map(
+                (t) => t.iconResourceKey
+            ) ?? []),
+            ...(missionFileFormat.npcDeployments.noAffiliation?.teams.map(
+                (t) => t.iconResourceKey
+            ) ?? []),
+        ]
+    },
 }
 
 const sanitize = (data: Partial<MissionFileFormat>): MissionFileFormat => {
@@ -140,14 +161,14 @@ const sanitize = (data: Partial<MissionFileFormat>): MissionFileFormat => {
 
     data.npcDeployments = data.npcDeployments ?? {}
     data.npcDeployments.enemy =
-        data.npcDeployments?.enemy ?? NpcTeamMissionDeploymentService.new()
+        data.npcDeployments?.enemy ?? NpcTeamMissionDeploymentService.null()
 
     data.npcDeployments.ally =
-        data.npcDeployments?.ally ?? NpcTeamMissionDeploymentService.new()
+        data.npcDeployments?.ally ?? NpcTeamMissionDeploymentService.null()
 
     data.npcDeployments.noAffiliation =
         data.npcDeployments?.noAffiliation ??
-        NpcTeamMissionDeploymentService.new()
+        NpcTeamMissionDeploymentService.null()
 
     data.phaseBannersByAffiliation = data.phaseBannersByAffiliation ?? {}
 

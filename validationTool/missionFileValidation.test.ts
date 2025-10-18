@@ -51,7 +51,7 @@ describe("Mission File validation", () => {
         expect(consoleErrorSpy).toBeCalled()
     })
     it("fails validation because the squaddie is placed in an invalid coordinate", () => {
-        const enemyDeployment = NpcTeamMissionDeploymentService.new()
+        const enemyDeployment = NpcTeamMissionDeploymentService.null()
         enemyDeployment.templateIds = ["enemyTemplateId"]
         enemyDeployment.mapPlacements = [
             {
@@ -77,8 +77,8 @@ describe("Mission File validation", () => {
             terrain: ["1 1 1 "],
             npcDeployments: {
                 enemy: enemyDeployment,
-                ally: NpcTeamMissionDeploymentService.new(),
-                noAffiliation: NpcTeamMissionDeploymentService.new(),
+                ally: NpcTeamMissionDeploymentService.null(),
+                noAffiliation: NpcTeamMissionDeploymentService.null(),
             },
         })
 
@@ -90,7 +90,7 @@ describe("Mission File validation", () => {
         )
     })
     it("fails validation because two squaddies are deployed to the same coordinate", () => {
-        const noAffiliationDeployment = NpcTeamMissionDeploymentService.new()
+        const noAffiliationDeployment = NpcTeamMissionDeploymentService.null()
         noAffiliationDeployment.templateIds = ["noneTemplateId"]
         noAffiliationDeployment.mapPlacements = [
             {
@@ -100,7 +100,7 @@ describe("Mission File validation", () => {
             },
         ]
 
-        const allyDeployment = NpcTeamMissionDeploymentService.new()
+        const allyDeployment = NpcTeamMissionDeploymentService.null()
         allyDeployment.templateIds = ["allyTemplateId"]
         allyDeployment.mapPlacements = [
             {
@@ -120,7 +120,7 @@ describe("Mission File validation", () => {
             },
             terrain: ["1 1 1 "],
             npcDeployments: {
-                enemy: NpcTeamMissionDeploymentService.new(),
+                enemy: NpcTeamMissionDeploymentService.null(),
                 ally: allyDeployment,
                 noAffiliation: noAffiliationDeployment,
             },
@@ -136,7 +136,7 @@ describe("Mission File validation", () => {
         )
     })
     it("fails validation because the team uses a squaddie that does not exist", () => {
-        const enemyDeployment = NpcTeamMissionDeploymentService.new()
+        const enemyDeployment = NpcTeamMissionDeploymentService.null()
         enemyDeployment.teams = [
             {
                 id: "team 0",
@@ -158,8 +158,8 @@ describe("Mission File validation", () => {
             terrain: ["1 1 1 "],
             npcDeployments: {
                 enemy: enemyDeployment,
-                ally: NpcTeamMissionDeploymentService.new(),
-                noAffiliation: NpcTeamMissionDeploymentService.new(),
+                ally: NpcTeamMissionDeploymentService.null(),
+                noAffiliation: NpcTeamMissionDeploymentService.null(),
             },
         })
 
@@ -173,7 +173,7 @@ describe("Mission File validation", () => {
         )
     })
     it("fails validation because two teams have the same name", () => {
-        const enemyDeployment = NpcTeamMissionDeploymentService.new()
+        const enemyDeployment = NpcTeamMissionDeploymentService.null()
         enemyDeployment.teams = [
             {
                 id: "team 0",
@@ -184,7 +184,7 @@ describe("Mission File validation", () => {
             },
         ]
 
-        const allyDeployment = NpcTeamMissionDeploymentService.new()
+        const allyDeployment = NpcTeamMissionDeploymentService.null()
         allyDeployment.teams = [
             {
                 id: "team 0",
@@ -207,7 +207,7 @@ describe("Mission File validation", () => {
             npcDeployments: {
                 enemy: enemyDeployment,
                 ally: allyDeployment,
-                noAffiliation: NpcTeamMissionDeploymentService.new(),
+                noAffiliation: NpcTeamMissionDeploymentService.null(),
             },
         })
 
@@ -221,7 +221,7 @@ describe("Mission File validation", () => {
         )
     })
     it("fails validation because the same squaddie is on two teams", () => {
-        const enemyDeployment = NpcTeamMissionDeploymentService.new()
+        const enemyDeployment = NpcTeamMissionDeploymentService.null()
         enemyDeployment.mapPlacements = [
             {
                 battleSquaddieId: "squaddie",
@@ -239,7 +239,7 @@ describe("Mission File validation", () => {
             },
         ]
 
-        const allyDeployment = NpcTeamMissionDeploymentService.new()
+        const allyDeployment = NpcTeamMissionDeploymentService.null()
         allyDeployment.teams = [
             {
                 id: "team 1",
@@ -269,7 +269,7 @@ describe("Mission File validation", () => {
             npcDeployments: {
                 enemy: enemyDeployment,
                 ally: allyDeployment,
-                noAffiliation: NpcTeamMissionDeploymentService.new(),
+                noAffiliation: NpcTeamMissionDeploymentService.null(),
             },
         })
 

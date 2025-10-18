@@ -37,6 +37,7 @@ export const SquaddieTemplateService = {
     sanitize: (data: SquaddieTemplate): SquaddieTemplate => {
         return sanitize(data)
     },
+    // TODO odd function, whoever is using this should load action templates.
     getResourceKeys: (
         squaddieTemplate: SquaddieTemplate,
         objectRepository: ObjectRepository

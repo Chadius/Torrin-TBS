@@ -80,18 +80,105 @@ describe("missionLoader", () => {
         it("makes empty enemy section if it is missing", () => {
             MissionFileFormatService.sanitize(validMission)
             expect(validMission.npcDeployments.enemy).toEqual(
-                NpcTeamMissionDeploymentService.new()
+                NpcTeamMissionDeploymentService.null()
             )
             expect(validMission.npcDeployments.ally).toEqual(
-                NpcTeamMissionDeploymentService.new()
+                NpcTeamMissionDeploymentService.null()
             )
             expect(validMission.npcDeployments.noAffiliation).toEqual(
-                NpcTeamMissionDeploymentService.new()
+                NpcTeamMissionDeploymentService.null()
             )
         })
         it("makes empty phase banner by affiliation section if it is missing", () => {
             MissionFileFormatService.sanitize(validMission)
             expect(validMission.phaseBannersByAffiliation).toEqual({})
         })
+    })
+    it("can return all resourceKeys", () => {
+        const enemyDeployment = NpcTeamMissionDeploymentService.new({
+            templateIds: ["enemyTemplateId"],
+            mapPlacements: [
+                {
+                    battleSquaddieId: "enemy 0",
+                    coordinate: { q: 0, r: 0 },
+                    squaddieTemplateId: "enemyTemplateId",
+                },
+            ],
+            teams: [
+                {
+                    id: "enemy",
+                    name: "enemy",
+                    battleSquaddieIds: ["enemy 0"],
+                    strategies: [],
+                    iconResourceKey: "enemyTeamIconResourceKey",
+                },
+            ],
+        })
+
+        const allyDeployment = NpcTeamMissionDeploymentService.new({
+            templateIds: ["allyTemplateId"],
+            mapPlacements: [
+                {
+                    battleSquaddieId: "ally 0",
+                    coordinate: { q: 0, r: 0 },
+                    squaddieTemplateId: "allyTemplateId",
+                },
+            ],
+            teams: [
+                {
+                    id: "ally",
+                    name: "ally",
+                    battleSquaddieIds: ["ally 0"],
+                    strategies: [],
+                    iconResourceKey: "allyTeamIconResourceKey",
+                },
+            ],
+        })
+
+        const noAffiliationDeployment = NpcTeamMissionDeploymentService.new({
+            templateIds: ["noAffiliationTemplateId"],
+            mapPlacements: [
+                {
+                    battleSquaddieId: "noAffiliation 0",
+                    coordinate: { q: 0, r: 0 },
+                    squaddieTemplateId: "noAffiliationTemplateId",
+                },
+            ],
+            teams: [
+                {
+                    id: "noAffiliation",
+                    name: "noAffiliation",
+                    battleSquaddieIds: ["noAffiliation 0"],
+                    strategies: [],
+                    iconResourceKey: "noAffiliationTeamIconResourceKey",
+                },
+            ],
+        })
+
+        const missionFileFormat = MissionFileFormatService.new({
+            id: "missionId",
+            player: {
+                deployment: SquaddieDeploymentService.default(),
+                teamId: "",
+                teamName: "",
+                iconResourceKey: "playerTeamIconResourceKey",
+            },
+            terrain: ["1 1 1 "],
+            npcDeployments: {
+                enemy: enemyDeployment,
+                ally: allyDeployment,
+                noAffiliation: noAffiliationDeployment,
+            },
+        })
+
+        let expectedResourceKeys = [
+            "playerTeamIconResourceKey",
+            "enemyTeamIconResourceKey",
+            "allyTeamIconResourceKey",
+            "noAffiliationTeamIconResourceKey",
+        ]
+        let actualResourceKeys =
+            MissionFileFormatService.getAllResourceKeys(missionFileFormat)
+        expect(actualResourceKeys).toEqual(expectedResourceKeys)
     })
 })

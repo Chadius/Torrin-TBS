@@ -1,11 +1,11 @@
 import {
-    describe,
-    it,
-    expect,
-    beforeEach,
-    vi,
     afterEach,
+    beforeEach,
+    describe,
+    expect,
+    it,
     MockInstance,
+    vi,
 } from "vitest"
 import { PlayerProgress, PlayerProgressService } from "./playerProgress"
 import {
@@ -14,14 +14,45 @@ import {
 } from "./applyPlayerProgressToGameEngine"
 import { LoadCampaignData } from "../../utils/fileHandling/loadCampaignData"
 import { CampaignFileFormat } from "../../campaign/campaignFileFormat"
-import { MissionFileFormat } from "../../dataLoader/missionLoader"
+import {
+    MissionFileFormat,
+    MissionFileFormatService,
+} from "../../dataLoader/missionLoader"
 import { PlayerArmy } from "../../campaign/playerArmy"
 import { TestCampaignData } from "../../utils/test/campaignData"
 import { LoadCampaignService } from "./loadCampaignService/loadCampaignService"
 import { LoadMissionService } from "./loadMissionService/loadMissionService"
 import { LoadPlayerArmyService } from "./loadPlayerArmyService/loadPlayerArmyService"
+import { CampaignResourcesService } from "../../campaign/campaignResources"
+import {
+    MockedP5GraphicsBuffer,
+    mockResourceHandler,
+} from "../../utils/test/mocks"
+import { ResourceHandler } from "../../resource/resourceHandler"
+import {
+    ObjectRepository,
+    ObjectRepositoryService,
+} from "../../battle/objectRepository"
+import {
+    SquaddieTemplate,
+    SquaddieTemplateService,
+} from "../../campaign/squaddieTemplate"
+import {
+    ActionTemplate,
+    ActionTemplateService,
+} from "../../action/template/actionTemplate"
 
 describe("applyPlayerProgressToGameEngine", () => {
+    let resourceHandler: ResourceHandler
+    let mockedP5GraphicsContext: MockedP5GraphicsBuffer
+    let repository: ObjectRepository
+
+    beforeEach(() => {
+        repository = ObjectRepositoryService.new()
+        mockedP5GraphicsContext = new MockedP5GraphicsBuffer()
+        resourceHandler = mockResourceHandler(mockedP5GraphicsContext)
+    })
+
     it("Can store the given player progress into a new object", () => {
         const newGamePlayerProgress = PlayerProgressService.new({
             campaignId: "campaignId",
@@ -109,7 +140,11 @@ describe("applyPlayerProgressToGameEngine", () => {
                 }))
 
             expect(
-                await runUntilSuccess(playerProgressToGameEngine)
+                await runUntilSuccess({
+                    newProgress: playerProgressToGameEngine,
+                    resourceHandler,
+                    repository,
+                })
             ).toBeTruthy()
         })
 
@@ -186,11 +221,27 @@ describe("applyPlayerProgressToGameEngine", () => {
         let playerArmySpy: MockInstance
         let playerArmy: PlayerArmy
 
+        let loadFileIntoFormatSpy: MockInstance
+
+        let playerActionTemplates: ActionTemplate[]
+        let npcActionTemplates: ActionTemplate[]
+        let enemyDemonSlitherTemplate: SquaddieTemplate
+        let enemyDemonSlitherTemplate2: SquaddieTemplate
+        let allyGuardTemplate: SquaddieTemplate
+        let noAffiliationLivingFlameTemplate: SquaddieTemplate
+
         beforeEach(async () => {
             ;({
                 campaignFileData,
                 missionData: missionFileData,
                 playerArmy,
+                playerActionTemplates,
+                enemyDemonSlitherTemplate,
+                enemyDemonSlitherTemplate2,
+                allyGuardTemplate,
+                noAffiliationLivingFlameTemplate,
+                npcActionTemplates,
+                loadFileIntoFormatSpy,
             } = LoadCampaignData.createLoadFileSpy())
 
             playerProgressCampaign0 = PlayerProgressService.new({
@@ -229,6 +280,8 @@ describe("applyPlayerProgressToGameEngine", () => {
                 expect(
                     await runUpdateUntil({
                         playerProgressToGameEngine: playerProgressToGameEngine,
+                        repository,
+                        resourceHandler,
                         stopPredicate: (
                             playerProgressToGameEngine: PlayerProgressToGameEngine
                         ) =>
@@ -248,7 +301,11 @@ describe("applyPlayerProgressToGameEngine", () => {
                 )
 
                 expect(
-                    await runUntilAbortsDueToError(playerProgressToGameEngine)
+                    await runUntilAbortsDueToError({
+                        newProgress: playerProgressToGameEngine,
+                        resourceHandler,
+                        repository,
+                    })
                 ).toBeTruthy()
 
                 expect(
@@ -260,7 +317,11 @@ describe("applyPlayerProgressToGameEngine", () => {
 
             it("will always try to load the campaign", async () => {
                 expect(
-                    await runUntilSuccess(playerProgressToGameEngine)
+                    await runUntilSuccess({
+                        newProgress: playerProgressToGameEngine,
+                        resourceHandler,
+                        repository,
+                    })
                 ).toBeTruthy()
 
                 campaignLoadSpy.mockClear()
@@ -276,9 +337,38 @@ describe("applyPlayerProgressToGameEngine", () => {
                 ).toBeTruthy()
 
                 expect(
-                    await runUntilSuccess(playerProgressToGameEngine)
+                    await runUntilSuccess({
+                        newProgress: playerProgressToGameEngine,
+                        resourceHandler,
+                        repository,
+                    })
                 ).toBeTruthy()
                 expect(campaignLoadSpy).toBeCalled()
+            })
+
+            it("populate loading lists with campaign resources", async () => {
+                expect(
+                    await runUpdateUntil({
+                        playerProgressToGameEngine: playerProgressToGameEngine,
+                        repository,
+                        resourceHandler,
+                        stopPredicate: (
+                            playerProgressToGameEngine: PlayerProgressToGameEngine
+                        ) =>
+                            playerProgressToGameEngine.loadedFileData
+                                .campaign == campaignFileData,
+                    })
+                ).toBeTruthy()
+
+                expect(
+                    playerProgressToGameEngine.resourceKeys.pending.isSupersetOf(
+                        new Set<string>(
+                            CampaignResourcesService.getAllResourceKeys(
+                                campaignFileData.resources
+                            )
+                        )
+                    )
+                ).toBeTruthy()
             })
         })
 
@@ -291,6 +381,8 @@ describe("applyPlayerProgressToGameEngine", () => {
                 expect(
                     await runUpdateUntil({
                         playerProgressToGameEngine: playerProgressToGameEngine,
+                        repository,
+                        resourceHandler,
                         stopPredicate: (
                             playerProgressToGameEngine: PlayerProgressToGameEngine
                         ) =>
@@ -313,7 +405,11 @@ describe("applyPlayerProgressToGameEngine", () => {
                 )
 
                 expect(
-                    await runUntilAbortsDueToError(playerProgressToGameEngine)
+                    await runUntilAbortsDueToError({
+                        newProgress: playerProgressToGameEngine,
+                        resourceHandler,
+                        repository,
+                    })
                 ).toBeTruthy()
 
                 expect(
@@ -322,6 +418,31 @@ describe("applyPlayerProgressToGameEngine", () => {
                     )
                 ).toEqual(new Error("Mission Load Error"))
             })
+
+            it("populate loading lists with mission resources", async () => {
+                expect(
+                    await runUpdateUntil({
+                        playerProgressToGameEngine: playerProgressToGameEngine,
+                        repository,
+                        resourceHandler,
+                        stopPredicate: (
+                            playerProgressToGameEngine: PlayerProgressToGameEngine
+                        ) =>
+                            playerProgressToGameEngine.loadedFileData.mission ==
+                            missionFileData,
+                    })
+                ).toBeTruthy()
+
+                expect(
+                    playerProgressToGameEngine.resourceKeys.pending.isSupersetOf(
+                        new Set<string>(
+                            MissionFileFormatService.getAllResourceKeys(
+                                missionFileData
+                            )
+                        )
+                    )
+                ).toBeTruthy()
+            })
         })
 
         describe("loading the player army", () => {
@@ -329,6 +450,8 @@ describe("applyPlayerProgressToGameEngine", () => {
                 expect(
                     await runUpdateUntil({
                         playerProgressToGameEngine: playerProgressToGameEngine,
+                        repository,
+                        resourceHandler,
                         stopPredicate: (
                             playerProgressToGameEngine: PlayerProgressToGameEngine
                         ) =>
@@ -348,7 +471,11 @@ describe("applyPlayerProgressToGameEngine", () => {
                 )
 
                 expect(
-                    await runUntilAbortsDueToError(playerProgressToGameEngine)
+                    await runUntilAbortsDueToError({
+                        newProgress: playerProgressToGameEngine,
+                        resourceHandler,
+                        repository,
+                    })
                 ).toBeTruthy()
 
                 expect(
@@ -359,9 +486,124 @@ describe("applyPlayerProgressToGameEngine", () => {
             })
         })
 
+        describe("after loading files populate repository", () => {
+            let loadResourceSpy: MockInstance
+            let isResourceLoadedSpy: MockInstance
+            let resourceKeysThatWereLoaded: Set<string>
+
+            beforeEach(async () => {
+                resourceKeysThatWereLoaded = new Set()
+                loadResourceSpy = vi
+                    .spyOn(resourceHandler, "loadResource")
+                    .mockImplementation((key) => {
+                        resourceKeysThatWereLoaded.add(key)
+                    })
+                isResourceLoadedSpy = vi
+                    .spyOn(resourceHandler, "isResourceLoaded")
+                    .mockImplementation((key) =>
+                        resourceKeysThatWereLoaded.has(key)
+                    )
+                expect(
+                    await runUntilSuccess({
+                        newProgress: playerProgressToGameEngine,
+                        resourceHandler,
+                        repository,
+                    })
+                ).toBeTruthy()
+            })
+
+            afterEach(() => {
+                loadResourceSpy.mockRestore()
+                isResourceLoadedSpy.mockRestore()
+            })
+
+            it("will use the resource handler", () => {
+                expect(loadResourceSpy).toBeCalled()
+                expect(isResourceLoadedSpy).toBeCalled()
+            })
+
+            it("will load the individual squaddies from their files", () => {
+                const expectedFileNames =
+                    LoadCampaignData.getExpectedSquaddieFileNames()
+
+                Object.values(expectedFileNames).forEach((filename) =>
+                    expect(loadFileIntoFormatSpy).toBeCalledWith(filename)
+                )
+            })
+
+            it("will add squaddie templates to the repository", () => {
+                const expectedSquaddieTemplates =
+                    LoadCampaignData.getExpectedSquaddieTemplates()
+                const repositorySquaddieTemplateIds =
+                    ObjectRepositoryService.getSquaddieTemplateIterator(
+                        repository
+                    ).map((info) => info.squaddieTemplateId)
+
+                expectedSquaddieTemplates.forEach((squaddieTemplate) => {
+                    expect(repositorySquaddieTemplateIds).toContain(
+                        squaddieTemplate.squaddieId.templateId
+                    )
+                })
+            })
+
+            it("will add action templates to the repository", () => {
+                const expectedActionTemplateIds =
+                    LoadCampaignData.getExpectedActionTemplateIds()
+
+                expectedActionTemplateIds.forEach((actionTemplateId) => {
+                    expect(
+                        ObjectRepositoryService.getActionTemplateById(
+                            repository,
+                            actionTemplateId
+                        )
+                    ).toBeDefined()
+                })
+            })
+
+            it("will call the resource handler to load the squaddies from files", () => {
+                const expectedResourceKeys = new Set<string>([
+                    ...SquaddieTemplateService.getResourceKeys(
+                        enemyDemonSlitherTemplate,
+                        repository
+                    ),
+                    ...SquaddieTemplateService.getResourceKeys(
+                        enemyDemonSlitherTemplate2,
+                        repository
+                    ),
+                    ...SquaddieTemplateService.getResourceKeys(
+                        allyGuardTemplate,
+                        repository
+                    ),
+                    ...SquaddieTemplateService.getResourceKeys(
+                        noAffiliationLivingFlameTemplate,
+                        repository
+                    ),
+                    ...playerActionTemplates
+                        .map(ActionTemplateService.getResourceKeys)
+                        .flat(),
+                    ...npcActionTemplates
+                        .map(ActionTemplateService.getResourceKeys)
+                        .flat(),
+                ])
+
+                expectedResourceKeys.forEach((key) =>
+                    expect(loadResourceSpy).toBeCalledWith(key)
+                )
+            })
+
+            // TODO Object Repository should have add/retrieve functions for team affiliation and phase banners
+            // TODO also load the team icons - see loadTeamIcons in loading/missionLoader.ts
+            // TODO also load the team resource keys - see loadPhaseAffiliationBanners in loading/missionLoader.ts
+            it("will add resource keys for campaign resources", () => {})
+        })
+
         it("If it loads successfully once and then errors, we can rollback to the previous valid load and try again", async () => {
             expect(
-                await runUntilSuccess(playerProgressToGameEngine)
+                await runUntilSuccess({
+                    newProgress: playerProgressToGameEngine,
+                    resourceHandler,
+                    repository,
+                })
             ).toBeTruthy()
 
             ApplyPlayerProgressToGameEngineService.startApplyingPlayerProgress(
@@ -378,7 +620,11 @@ describe("applyPlayerProgressToGameEngine", () => {
             campaignLoadSpy.mockRejectedValue(new Error("Campaign Load Error"))
 
             expect(
-                await runUntilAbortsDueToError(playerProgressToGameEngine)
+                await runUntilAbortsDueToError({
+                    newProgress: playerProgressToGameEngine,
+                    resourceHandler,
+                    repository,
+                })
             ).toBeTruthy()
 
             ApplyPlayerProgressToGameEngineService.revertToLastValidPlayerProgress(
@@ -431,6 +677,8 @@ describe("applyPlayerProgressToGameEngine", () => {
             expect(
                 await runUpdateUntil({
                     playerProgressToGameEngine: applicationProgress,
+                    repository,
+                    resourceHandler,
                     stopPredicate: (
                         playerProgressToGameEngine: PlayerProgressToGameEngine
                     ) =>
@@ -474,7 +722,13 @@ describe("applyPlayerProgressToGameEngine", () => {
             campaignFileData1.id = playerProgressCampaign1.campaignId
             campaignLoadSpy.mockResolvedValue(campaignFileData1)
 
-            expect(await runUntilSuccess(applicationProgress)).toBeTruthy()
+            expect(
+                await runUntilSuccess({
+                    newProgress: applicationProgress,
+                    resourceHandler,
+                    repository,
+                })
+            ).toBeTruthy()
 
             expect(
                 applicationProgress.playerProgress.tryingToApply
@@ -490,8 +744,13 @@ const runUpdateUntil = async ({
     playerProgressToGameEngine,
     stopPredicate,
     timeout,
+    repository,
+    resourceHandler,
 }: {
     playerProgressToGameEngine: PlayerProgressToGameEngine
+    resourceHandler: ResourceHandler
+    repository: ObjectRepository
+
     stopPredicate: (_: PlayerProgressToGameEngine) => boolean
     timeout?: number
 }): Promise<boolean> => {
@@ -502,9 +761,11 @@ const runUpdateUntil = async ({
         timeElapsed <= maxRunTime &&
         !stopPredicate(playerProgressToGameEngine)
     ) {
-        await ApplyPlayerProgressToGameEngineService.update(
-            playerProgressToGameEngine
-        )
+        await ApplyPlayerProgressToGameEngineService.update({
+            playerProgressToGameEngine: playerProgressToGameEngine,
+            resourceHandler,
+            repository,
+        })
         timeElapsed = Date.now() - timeStarted
     }
     expect(Date.now() - timeStarted).toBeLessThan(maxRunTime)
@@ -534,12 +795,20 @@ const setupSpiesForSuccessfulLoad = ({
     return { campaignLoadSpy, missionLoadSpy, playerArmySpy }
 }
 
-const runUntilAbortsDueToError = async (
+const runUntilAbortsDueToError = async ({
+    newProgress,
+    repository,
+    resourceHandler,
+}: {
     newProgress: PlayerProgressToGameEngine
-): Promise<boolean> => {
+    resourceHandler: ResourceHandler
+    repository: ObjectRepository
+}): Promise<boolean> => {
     expect(
         await runUpdateUntil({
             playerProgressToGameEngine: newProgress,
+            repository,
+            resourceHandler,
             stopPredicate: (
                 playerProgressToGameEngine: PlayerProgressToGameEngine
             ) =>
@@ -565,12 +834,20 @@ const runUntilAbortsDueToError = async (
     return true
 }
 
-const runUntilSuccess = async (
+const runUntilSuccess = async ({
+    newProgress,
+    resourceHandler,
+    repository,
+}: {
     newProgress: PlayerProgressToGameEngine
-): Promise<boolean> => {
+    resourceHandler: ResourceHandler
+    repository: ObjectRepository
+}): Promise<boolean> => {
     expect(
         await runUpdateUntil({
             playerProgressToGameEngine: newProgress,
+            repository,
+            resourceHandler,
             stopPredicate: (
                 playerProgressToGameEngine: PlayerProgressToGameEngine
             ) =>

@@ -54,4 +54,22 @@ describe("campaign resources", () => {
             )
         })
     })
+    it("can return all resourceKeys", () => {
+        let campaignResources = CampaignResourcesService.default()
+        let expectedResourceKeys = new Set<string>([
+            "map-tiles-basic-floor",
+            "map-tiles-basic-sand",
+            "map-tiles-basic-pit",
+            "map-tiles-basic-wall",
+            "map-tiles-basic-water",
+            "decision-button-unknown",
+            "decision-button-end-turn",
+        ])
+        let actualResourceKeys = new Set<string>(
+            CampaignResourcesService.getAllResourceKeys(campaignResources)
+        )
+        expect(
+            actualResourceKeys.isSupersetOf(expectedResourceKeys)
+        ).toBeTruthy()
+    })
 })
