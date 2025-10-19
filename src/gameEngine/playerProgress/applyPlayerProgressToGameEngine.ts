@@ -191,7 +191,7 @@ export const ApplyPlayerProgressToGameEngineService = {
                         "[ApplyPlayerProgressToGameEngineService.update] Adding Pending Resource Keys to Resource Handler"
                     )
                 }
-                addPendingResourceKeysToResourceHandler({
+                loadPendingResourceKeys({
                     playerProgressToGameEngine,
                     resourceHandler,
                 })
@@ -531,8 +531,6 @@ const getSquaddieTemplateFromMission = async ({
     )
 }
 
-// TODO also need to load phase banner images!
-
 const getSquaddieTemplateResourceKeys = (
     squaddieTemplates: SquaddieTemplate[],
     repository: ObjectRepository
@@ -676,18 +674,28 @@ const addResourceKeysToPending = async ({
     })
 
     if (playerProgressToGameEngine.loadedFileData.mission) {
+        MissionFileFormatService.hydrateCutscenesFromLoadedData(
+            playerProgressToGameEngine.loadedFileData.mission
+        )
+
         playerProgressToGameEngine.resourceKeys.pending =
             playerProgressToGameEngine.resourceKeys.pending.union(
-                new Set<string>(
-                    MissionFileFormatService.getAllResourceKeys(
+                new Set<string>([
+                    ...MissionFileFormatService.getAllResourceKeys(
                         playerProgressToGameEngine.loadedFileData.mission
+                    ),
+                    ...Object.values(
+                        playerProgressToGameEngine.loadedFileData.mission
+                            .cutscene.cutsceneById
                     )
-                )
+                        .map((cutscene) => cutscene.allResourceKeys)
+                        .flat(),
+                ])
             )
     }
 }
 
-const addPendingResourceKeysToResourceHandler = ({
+const loadPendingResourceKeys = ({
     playerProgressToGameEngine,
     resourceHandler,
 }: {

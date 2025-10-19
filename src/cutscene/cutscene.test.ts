@@ -4,12 +4,7 @@ import {
 } from "./dialogue/dialogueBoxPlayer"
 import { Cutscene, CutsceneService } from "./cutscene"
 import { CutsceneDecisionTriggerService } from "./decisionTrigger"
-import {
-    ResourceHandler,
-    ResourceHandlerService,
-    Resource,
-} from "../resource/resourceHandler"
-import { StubImmediateLoader } from "../resource/resourceHandlerTestUtils"
+import { ResourceHandler } from "../resource/resourceHandler"
 import {
     BattleOrchestratorState,
     BattleOrchestratorStateService,
@@ -592,63 +587,6 @@ describe("Cutscene", () => {
             expect(CutsceneService.isFastForward(dinnerDate)).toBeFalsy()
             expect(CutsceneService.canFastForward(dinnerDate)).toBeFalsy()
         })
-    })
-
-    it("can start after loading if no actions require loading", () => {
-        const dinnerDate: Cutscene = CutsceneService.new({
-            directions: [splash1, frontDoorGreeting],
-        })
-
-        CutsceneService.loadResources(
-            dinnerDate,
-            mockResourceHandler(new MockedP5GraphicsBuffer())
-        )
-        expect(
-            CutsceneService.hasLoaded(
-                dinnerDate,
-                mockResourceHandler(new MockedP5GraphicsBuffer())
-            )
-        ).toBeTruthy()
-        const error = CutsceneService.start(
-            dinnerDate,
-            mockResourceHandler(new MockedP5GraphicsBuffer()),
-            {}
-        )
-        expect(error).toBeUndefined()
-        expect(CutsceneService.isInProgress(dinnerDate)).toBeTruthy()
-    })
-
-    it("can load required resources and indicate if it is ready to load", () => {
-        const restaurantEntrance = SplashScreenService.new({
-            id: "splash1",
-            screenImageResourceKey: "restaurant_entrance",
-        })
-
-        const graphicsContext = new MockedP5GraphicsBuffer()
-
-        const handler = ResourceHandlerService.new({
-            graphics: graphicsContext,
-            imageLoader: new StubImmediateLoader(graphicsContext),
-            resourceLocators: [
-                {
-                    type: Resource.IMAGE,
-                    path: "path/to/image",
-                    key: "restaurant_entrance",
-                },
-            ],
-        })
-
-        const dinnerDate: Cutscene = CutsceneService.new({
-            directions: [restaurantEntrance],
-        })
-
-        CutsceneService.loadResources(dinnerDate, handler)
-        CutsceneService.setResources(dinnerDate, handler)
-
-        expect(CutsceneService.hasLoaded(dinnerDate, handler)).toBeTruthy()
-        const error = CutsceneService.start(dinnerDate, handler, {})
-        expect(error).toBeUndefined()
-        expect(CutsceneService.isInProgress(dinnerDate)).toBeTruthy()
     })
 
     it("will pass on the TextSubstitution context when starting a cutscene", () => {

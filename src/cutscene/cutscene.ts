@@ -402,13 +402,6 @@ export const CutsceneService = {
 
         advanceToNextCutsceneDirectionIfFinished(cutscene, context)
     },
-    loadResources: (cutscene: Cutscene, resourceHandler: ResourceHandler) => {
-        if (!isValidValue(resourceHandler)) {
-            return
-        }
-
-        return resourceHandler.loadResources(cutscene.allResourceKeys)
-    },
     setResources: (cutscene: Cutscene, resourceHandler: ResourceHandler) => {
         if (!isValidValue(resourceHandler)) {
             return

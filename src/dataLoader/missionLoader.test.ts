@@ -5,6 +5,7 @@ import {
 } from "./missionLoader"
 import { SquaddieDeploymentService } from "../missionMap/squaddieDeployment"
 import { beforeEach, describe, expect, it } from "vitest"
+import { BattlePhase } from "../battle/orchestratorComponents/battlePhaseTracker"
 
 describe("missionLoader", () => {
     describe("sanitization", () => {
@@ -169,6 +170,12 @@ describe("missionLoader", () => {
                 ally: allyDeployment,
                 noAffiliation: noAffiliationDeployment,
             },
+            phaseBannersByAffiliation: {
+                [BattlePhase.PLAYER]: "player banner",
+                [BattlePhase.ENEMY]: "enemy banner",
+                [BattlePhase.ALLY]: "ally banner",
+                [BattlePhase.NONE]: "no affiliation banner",
+            },
         })
 
         let expectedResourceKeys = [
@@ -176,6 +183,10 @@ describe("missionLoader", () => {
             "enemyTeamIconResourceKey",
             "allyTeamIconResourceKey",
             "noAffiliationTeamIconResourceKey",
+            "player banner",
+            "enemy banner",
+            "ally banner",
+            "no affiliation banner",
         ]
         let actualResourceKeys =
             MissionFileFormatService.getAllResourceKeys(missionFileFormat)

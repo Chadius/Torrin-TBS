@@ -12,7 +12,7 @@ import {
 } from "../missionMap/squaddieDeployment"
 import { isValidValue } from "../utils/objectValidityCheck"
 import { TSquaddieAffiliation } from "../squaddie/squaddieAffiliation"
-import { Cutscene } from "../cutscene/cutscene"
+import { Cutscene, CutsceneService } from "../cutscene/cutscene"
 import {
     SquaddieTemplate,
     SquaddieTemplateService,
@@ -137,7 +137,20 @@ export const MissionFileFormatService = {
             ...(missionFileFormat.npcDeployments.noAffiliation?.teams.map(
                 (t) => t.iconResourceKey
             ) ?? []),
+            ...Object.values(
+                missionFileFormat.phaseBannersByAffiliation
+            ).filter((x) => x != undefined),
         ]
+    },
+    hydrateCutscenesFromLoadedData: (missionData: MissionFileFormat) => {
+        missionData.cutscene.cutsceneById = Object.fromEntries(
+            Object.entries(missionData.cutscene.cutsceneById).map(
+                ([key, rawCutscene]) => {
+                    const cutscene = CutsceneService.new(rawCutscene)
+                    return [key, cutscene]
+                }
+            )
+        )
     },
 }
 

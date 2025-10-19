@@ -486,7 +486,7 @@ describe("applyPlayerProgressToGameEngine", () => {
             })
         })
 
-        describe("after loading files populate repository", () => {
+        describe("use files to populate resource handler and repository", () => {
             let loadResourceSpy: MockInstance
             let isResourceLoadedSpy: MockInstance
             let resourceKeysThatWereLoaded: Set<string>
@@ -591,10 +591,42 @@ describe("applyPlayerProgressToGameEngine", () => {
                 )
             })
 
-            // TODO Object Repository should have add/retrieve functions for team affiliation and phase banners
-            // TODO also load the team icons - see loadTeamIcons in loading/missionLoader.ts
-            // TODO also load the team resource keys - see loadPhaseAffiliationBanners in loading/missionLoader.ts
-            it("will add resource keys for campaign resources", () => {})
+            it("will call the resource handler to load the team icons and the banner affiliations from files", () => {
+                const expectedResourceKeys = new Set<string>([
+                    missionFileData.player.iconResourceKey,
+                    ...(missionFileData.npcDeployments.enemy?.teams.map(
+                        (team) => team.iconResourceKey
+                    ) || []),
+                    ...(missionFileData.npcDeployments.noAffiliation?.teams.map(
+                        (team) => team.iconResourceKey
+                    ) || []),
+                    ...(missionFileData.npcDeployments.ally?.teams.map(
+                        (team) => team.iconResourceKey
+                    ) || []),
+                    ...Object.values(
+                        missionFileData.phaseBannersByAffiliation
+                    ).filter((x) => x != undefined),
+                ])
+
+                expectedResourceKeys.forEach((key) =>
+                    expect(loadResourceSpy).toBeCalledWith(key)
+                )
+            })
+
+            it("will add cutscene resource keys into resource handler", () => {
+                const expectedResourceKeys = [
+                    "young nahla cutscene portrait",
+                    "sir camil cutscene portrait",
+                    "tutorial-confirm-cancel",
+                    "tutorial-spend-action-points",
+                    "splash victory",
+                    "splash defeat",
+                ]
+
+                expectedResourceKeys.forEach((key) =>
+                    expect(loadResourceSpy).toBeCalledWith(key)
+                )
+            })
         })
 
         it("If it loads successfully once and then errors, we can rollback to the previous valid load and try again", async () => {
