@@ -12,7 +12,10 @@ import {
     DrawSquaddieIconOnMapUtilities,
 } from "../animation/drawSquaddieIconOnMap/drawSquaddieIconOnMap"
 import { ScreenDimensions } from "../../utils/graphics/graphicsConfig"
-import { BattleUISettings, BattleUISettingsService } from "../orchestrator/uiSettings/uiSettings"
+import {
+    BattleUISettings,
+    BattleUISettingsService,
+} from "../orchestrator/uiSettings/uiSettings"
 import { MissionMapSquaddieCoordinateService } from "../../missionMap/squaddieCoordinate"
 import { ObjectRepositoryService } from "../objectRepository"
 import { isValidValue } from "../../utils/objectValidityCheck"
@@ -318,21 +321,8 @@ export class BattleMapDisplay implements BattleOrchestratorComponent {
         battleOrchestratorState.battleState.camera.constrainCamera()
     }
 
-    update({
-        gameEngineState,
-        graphicsContext,
-        resourceHandler,
-    }: {
-        gameEngineState: GameEngineState
-        graphicsContext: GraphicsBuffer
-        resourceHandler: ResourceHandler | undefined
-    }): void {
+    update({ gameEngineState }: { gameEngineState: GameEngineState }): void {
         this.checkForKeyboardHeldKeys(gameEngineState)
-        this.draw({
-            gameEngineState,
-            graphics: graphicsContext,
-            resourceHandler,
-        })
     }
 
     recommendStateChanges(

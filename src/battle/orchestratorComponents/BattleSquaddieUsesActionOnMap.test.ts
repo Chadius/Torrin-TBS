@@ -12,7 +12,6 @@ import {
 } from "./battleSquaddieUsesActionOnMap"
 import { BattleStateService } from "../battleState/battleState"
 import { OrchestratorUtilities } from "./orchestratorUtils"
-import { MockedP5GraphicsBuffer } from "../../utils/test/mocks"
 import { MessageBoardMessageType } from "../../message/messageBoardMessage"
 import { SquaddieRepositoryService } from "../../utils/test/squaddie"
 import {
@@ -42,14 +41,12 @@ import {
 
 describe("BattleSquaddieUsesActionOnMap", () => {
     let squaddieRepository: ObjectRepository
-    let mockedP5GraphicsContext: MockedP5GraphicsBuffer
     let dateSpy: MockInstance
     let mapAction: BattleSquaddieUsesActionOnMap
     let gameEngineState: GameEngineState
     let messageSpy: MockInstance
 
     beforeEach(() => {
-        mockedP5GraphicsContext = new MockedP5GraphicsBuffer()
         squaddieRepository = ObjectRepositoryService.new()
         SquaddieRepositoryService.createNewSquaddieAndAddToRepository({
             name: "Nahla",
@@ -105,8 +102,6 @@ describe("BattleSquaddieUsesActionOnMap", () => {
         endTurnForSquaddie(gameEngineState, "player_nahla")
         mapAction.update({
             gameEngineState,
-            graphicsContext: mockedP5GraphicsContext,
-            resourceHandler: gameEngineState.resourceHandler!,
         })
         expect(mapAction.animationCompleteStartTime).not.toBeUndefined()
         expect(mapAction.hasCompleted(gameEngineState)).toBeFalsy()
@@ -114,8 +109,6 @@ describe("BattleSquaddieUsesActionOnMap", () => {
 
         mapAction.update({
             gameEngineState,
-            graphicsContext: mockedP5GraphicsContext,
-            resourceHandler: gameEngineState.resourceHandler!,
         })
         expect(mapAction.hasCompleted(gameEngineState)).toBeTruthy()
     })
@@ -124,8 +117,6 @@ describe("BattleSquaddieUsesActionOnMap", () => {
         endTurnForSquaddie(gameEngineState, "enemy")
         mapAction.update({
             gameEngineState,
-            graphicsContext: mockedP5GraphicsContext,
-            resourceHandler: gameEngineState.resourceHandler!,
         })
         expect(mapAction.hasCompleted(gameEngineState)).toBeTruthy()
     })
@@ -157,14 +148,10 @@ describe("BattleSquaddieUsesActionOnMap", () => {
         endTurnForSquaddie(gameEngineState, "player_nahla")
         mapAction.update({
             gameEngineState,
-            graphicsContext: mockedP5GraphicsContext,
-            resourceHandler: gameEngineState.resourceHandler!,
         })
         dateSpy.mockImplementation(() => ACTION_COMPLETED_WAIT_TIME_MS)
         mapAction.update({
             gameEngineState,
-            graphicsContext: mockedP5GraphicsContext,
-            resourceHandler: gameEngineState.resourceHandler!,
         })
         expect(messageSpy).toBeCalledWith({
             type: MessageBoardMessageType.BATTLE_ACTION_FINISHES_ANIMATION,
@@ -200,14 +187,10 @@ describe("BattleSquaddieUsesActionOnMap", () => {
             endTurnForSquaddie(gameEngineState, "player_nahla")
             mapAction.update({
                 gameEngineState,
-                graphicsContext: mockedP5GraphicsContext,
-                resourceHandler: gameEngineState.resourceHandler!,
             })
             dateSpy.mockImplementation(() => ACTION_COMPLETED_WAIT_TIME_MS)
             mapAction.update({
                 gameEngineState,
-                graphicsContext: mockedP5GraphicsContext,
-                resourceHandler: gameEngineState.resourceHandler!,
             })
             mapAction.recommendStateChanges(gameEngineState)
             mapAction.reset(gameEngineState)

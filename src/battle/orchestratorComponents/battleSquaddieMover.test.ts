@@ -106,21 +106,27 @@ describe("BattleSquaddieMover", () => {
         vi.spyOn(Date, "now").mockImplementation(() => 1)
         mover.update({
             gameEngineState,
-            graphicsContext: mockedP5GraphicsContext,
+        })
+        mover.draw({
+            gameEngineState,
+            graphics: mockedP5GraphicsContext,
             resourceHandler: gameEngineState.resourceHandler!,
         })
         expect(mover.hasCompleted(gameEngineState)).toBeFalsy()
 
         const timeToMove = calculateMovementTimeForAllAnimations(mover)
         vi.spyOn(Date, "now").mockImplementation(() => 1 + timeToMove)
+        mover.draw({
+            gameEngineState,
+            graphics: mockedP5GraphicsContext,
+            resourceHandler: gameEngineState.resourceHandler!,
+        })
         mover.update({
             gameEngineState,
-            graphicsContext: mockedP5GraphicsContext,
-            resourceHandler: gameEngineState.resourceHandler!,
         })
         expect(mover.hasCompleted(gameEngineState)).toBeTruthy()
         mover.reset(gameEngineState)
-        expect(mover.startedAnimation).toBeFalsy()
+        expect(mover.progress.startedAnimation).toBeFalsy()
     })
 
     it("is complete immediately if the squaddie is not player controlled and its entire path is offscreen", () => {
@@ -140,8 +146,14 @@ describe("BattleSquaddieMover", () => {
         const mover: BattleSquaddieMover = new BattleSquaddieMover()
         mover.update({
             gameEngineState,
-            graphicsContext: mockedP5GraphicsContext,
+        })
+        mover.draw({
+            gameEngineState,
+            graphics: mockedP5GraphicsContext,
             resourceHandler: gameEngineState.resourceHandler!,
+        })
+        mover.update({
+            gameEngineState,
         })
         expect(mover.hasCompleted(gameEngineState)).toBeTruthy()
         expect(onScreenSpy).toHaveBeenCalled()
@@ -167,16 +179,22 @@ describe("BattleSquaddieMover", () => {
         vi.spyOn(Date, "now").mockImplementation(() => 1)
         mover.update({
             gameEngineState,
-            graphicsContext: mockedP5GraphicsContext,
+        })
+        mover.draw({
+            gameEngineState,
+            graphics: mockedP5GraphicsContext,
             resourceHandler: gameEngineState.resourceHandler!,
         })
 
         const timeToMove = calculateMovementTimeForAllAnimations(mover)
         vi.spyOn(Date, "now").mockImplementation(() => 1 + timeToMove)
+        mover.draw({
+            gameEngineState,
+            graphics: mockedP5GraphicsContext,
+            resourceHandler: gameEngineState.resourceHandler!,
+        })
         mover.update({
             gameEngineState,
-            graphicsContext: mockedP5GraphicsContext,
-            resourceHandler: gameEngineState.resourceHandler!,
         })
         mover.reset(gameEngineState)
 
@@ -295,15 +313,11 @@ describe("BattleSquaddieMover", () => {
                 vi.spyOn(Date, "now").mockImplementation(() => 1)
                 mover.update({
                     gameEngineState,
-                    graphicsContext: mockedP5GraphicsContext,
-                    resourceHandler: gameEngineState.resourceHandler!,
                 })
                 const timeToMove = calculateMovementTimeForAllAnimations(mover)
                 vi.spyOn(Date, "now").mockImplementation(() => 1 + timeToMove)
                 mover.update({
                     gameEngineState,
-                    graphicsContext: mockedP5GraphicsContext,
-                    resourceHandler: gameEngineState.resourceHandler!,
                 })
             })
 
@@ -400,12 +414,12 @@ const moveSquaddieAndGetGameEngineState = ({
 const calculateMovementTimeForAllAnimations = (
     mover: BattleSquaddieMover
 ): number => {
-    if (Object.keys(mover.squaddieMoveOnMapAnimations).length < 1) {
+    if (Object.keys(mover.progress.squaddieMoveOnMapAnimations).length < 1) {
         throw new Error("mover.squaddieMoveOnMapAnimations must be more than 1")
     }
 
     return Math.max(
-        ...Object.values(mover.squaddieMoveOnMapAnimations).map(
+        ...Object.values(mover.progress.squaddieMoveOnMapAnimations).map(
             (animation) => animation.animationDuration
         )
     )

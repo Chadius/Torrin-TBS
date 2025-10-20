@@ -51,7 +51,7 @@ describe("Player Action Target Select", () => {
     let graphicsContext: GraphicsBuffer
     let resourceHandler: ResourceHandler
     let stateMachineSpy: MockInstance
-    let viewControllerSpy: MockInstance
+    let drawViewControllerSpy: MockInstance
 
     beforeEach(() => {
         graphicsContext = new MockedP5GraphicsBuffer()
@@ -74,7 +74,7 @@ describe("Player Action Target Select", () => {
 
     afterEach(() => {
         if (stateMachineSpy) stateMachineSpy.mockRestore()
-        if (viewControllerSpy) viewControllerSpy.mockRestore()
+        if (drawViewControllerSpy) drawViewControllerSpy.mockRestore()
     })
 
     const initializePlayerActionTargetSelect = (
@@ -89,17 +89,13 @@ describe("Player Action Target Select", () => {
             stateMachineSpy = vi
                 .spyOn(playerActionTargetSelect, "updateStateMachine")
                 .mockReturnValue()
-            viewControllerSpy = vi
-                .spyOn(playerActionTargetSelect, "updateViewController")
+            drawViewControllerSpy = vi
+                .spyOn(playerActionTargetSelect, "draw")
                 .mockReturnValue()
         })
 
         describe("it will run the updaters when it updates", () => {
             const updateTests = [
-                {
-                    name: "view controller",
-                    getUpdate: () => viewControllerSpy,
-                },
                 {
                     name: "state machine",
                     getUpdate: () => stateMachineSpy,
@@ -109,8 +105,6 @@ describe("Player Action Target Select", () => {
             it.each(updateTests)(`$name`, ({ getUpdate }) => {
                 playerActionTargetSelect.update({
                     gameEngineState,
-                    graphicsContext,
-                    resourceHandler,
                 })
                 expect(getUpdate()).toBeCalled()
             })
@@ -136,16 +130,12 @@ describe("Player Action Target Select", () => {
                 expect(getField()).toBeUndefined()
                 playerActionTargetSelect.update({
                     gameEngineState,
-                    graphicsContext,
-                    resourceHandler,
                 })
                 const originalField = getField()
                 expect(originalField).not.toBeUndefined()
 
                 playerActionTargetSelect.update({
                     gameEngineState,
-                    graphicsContext,
-                    resourceHandler,
                 })
                 expect(getField()).toBe(originalField)
             }
@@ -155,8 +145,6 @@ describe("Player Action Target Select", () => {
             ({ getField }) => {
                 playerActionTargetSelect.update({
                     gameEngineState,
-                    graphicsContext,
-                    resourceHandler,
                 })
                 playerActionTargetSelect.reset(gameEngineState)
                 expect(getField()).toBeUndefined()
@@ -174,12 +162,15 @@ describe("Player Action Target Select", () => {
                 .spyOn(playerActionTargetSelect.stateMachine, "updateUntil")
                 .mockReturnValue()
         }
-        viewControllerSpy = vi
-            .spyOn(playerActionTargetSelect, "updateViewController")
+        drawViewControllerSpy = vi
+            .spyOn(playerActionTargetSelect, "draw")
             .mockReturnValue()
         playerActionTargetSelect.update({
             gameEngineState,
-            graphicsContext,
+        })
+        playerActionTargetSelect.draw({
+            gameEngineState,
+            graphics: graphicsContext,
             resourceHandler,
         })
     }
@@ -197,10 +188,7 @@ describe("Player Action Target Select", () => {
 
     it("update runs the view controller", () => {
         stubStateMachineAndViewControllerThenUpdate()
-        expect(viewControllerSpy).toBeCalledWith({
-            camera: gameEngineState.battleOrchestratorState.battleState.camera,
-            graphicsContext,
-        })
+        expect(drawViewControllerSpy).toBeCalled()
     })
 
     it("will connect the view controller uiObjects to the state machine", () => {
@@ -272,8 +260,6 @@ describe("Player Action Target Select", () => {
         initializePlayerActionTargetSelect(gameEngineState)
         playerActionTargetSelect.update({
             gameEngineState,
-            graphicsContext,
-            resourceHandler,
         })
         expect(playerActionTargetSelect.stateMachine!.uiObjects!.camera).toBe(
             playerActionTargetSelect.viewController!.getUIObjects().camera
@@ -318,13 +304,11 @@ describe("Player Action Target Select", () => {
             stateMachineSpy = vi
                 .spyOn(playerActionTargetSelect, "updateStateMachine")
                 .mockReturnValue()
-            viewControllerSpy = vi
-                .spyOn(playerActionTargetSelect, "updateViewController")
+            drawViewControllerSpy = vi
+                .spyOn(playerActionTargetSelect, "draw")
                 .mockReturnValue()
             playerActionTargetSelect.update({
                 gameEngineState,
-                graphicsContext,
-                resourceHandler,
             })
         }
 
@@ -411,14 +395,12 @@ describe("Player Action Target Select", () => {
                     )
                     .mockReturnValueOnce(triggeredTransition)
             }
-            viewControllerSpy = vi
-                .spyOn(playerActionTargetSelect, "updateViewController")
+            drawViewControllerSpy = vi
+                .spyOn(playerActionTargetSelect, "draw")
                 .mockReturnValue()
 
             playerActionTargetSelect.update({
                 gameEngineState,
-                graphicsContext,
-                resourceHandler,
             })
             mockPostTransition()
         }

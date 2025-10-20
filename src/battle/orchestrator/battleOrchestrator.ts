@@ -69,6 +69,7 @@ import { ChallengeModifierSetting } from "../challengeModifier/challengeModifier
 import { ActionValidityByIdCacheService } from "../actionValidity/cache/actionValidityByIdCache"
 import { GameEngineState } from "../../gameEngine/gameEngineState/gameEngineState"
 import { BattleCache } from "./battleCache/battleCache"
+import { ResourceHandler } from "../../resource/resourceHandler"
 
 export const BattleOrchestratorMode = {
     UNKNOWN: "UNKNOWN",
@@ -218,11 +219,7 @@ export class BattleOrchestrator implements GameEngineComponent {
         this.resetInternalState()
     }
 
-    private _previousUpdateTimestamp: number | undefined
-
-    get previousUpdateTimestamp(): number | undefined {
-        return this._previousUpdateTimestamp
-    }
+    previousUpdateTimestamp: number | undefined
 
     private _battleComplete: boolean | undefined
 
@@ -279,7 +276,9 @@ export class BattleOrchestrator implements GameEngineComponent {
                 gameEngineState.battleOrchestratorState.cutsceneQueue,
         })
 
-        this.displayMapAndPlayerHUD(gameEngineState, graphicsContext)
+        this.updateMap(gameEngineState)
+        this.drawMap(gameEngineState, graphicsContext)
+        this.displayPlayerHUD(gameEngineState, graphicsContext)
 
         if (this.mode === BattleOrchestratorMode.PLAYER_HUD_CONTROLLER) {
             const orchestrationChanges: BattleOrchestratorChanges | undefined =
@@ -294,17 +293,26 @@ export class BattleOrchestrator implements GameEngineComponent {
             this.mode != undefined &&
             this.mode in this.battleOrchestratorModeComponentConstants
         ) {
-            this.updateComponent(
-                gameEngineState,
-                this.battleOrchestratorModeComponentConstants[
-                    this.mode
-                ].getCurrentComponent(),
-                graphicsContext,
-                this.battleOrchestratorModeComponentConstants[this.mode]
-                    .defaultNextMode
-            )
+            this.updateComponent({
+                gameEngineState: gameEngineState,
+                currentComponent:
+                    this.battleOrchestratorModeComponentConstants[
+                        this.mode
+                    ].getCurrentComponent(),
+                defaultNextMode:
+                    this.battleOrchestratorModeComponentConstants[this.mode]
+                        .defaultNextMode,
+            })
         }
+        this.updateMissionStatistics(gameEngineState)
+        this.draw({
+            gameEngineState,
+            graphics: graphicsContext,
+            resourceHandler: gameEngineState.resourceHandler,
+        })
+    }
 
+    private updateMissionStatistics(gameEngineState: GameEngineState) {
         if (
             !MissionStatisticsService.hasStarted(
                 gameEngineState.battleOrchestratorState.battleState
@@ -323,52 +331,66 @@ export class BattleOrchestrator implements GameEngineComponent {
                     Date.now() - this.previousUpdateTimestamp
                 )
             }
-            this._previousUpdateTimestamp = Date.now()
+            this.previousUpdateTimestamp = Date.now()
         }
-
-        this.drawDebugMenu(gameEngineState, graphicsContext)
     }
 
-    private displayMapAndPlayerHUD(
+    private updateMap(gameEngineState: GameEngineState) {
+        if (this.uiControlSettings?.displayBattleMap !== true) return
+        this.mapDisplay?.update({
+            gameEngineState,
+        })
+    }
+
+    private drawMap(
         gameEngineState: GameEngineState,
         graphicsContext: GraphicsBuffer
     ) {
         if (this.uiControlSettings?.displayBattleMap !== true) return
-        this.mapDisplay?.update({
+        this.mapDisplay?.draw({
             gameEngineState,
-            graphicsContext,
+            graphics: graphicsContext,
             resourceHandler: gameEngineState.resourceHandler,
         })
-        if (gameEngineState.resourceHandler == undefined) return
+    }
+
+    private displayPlayerHUD(
+        gameEngineState: GameEngineState,
+        graphicsContext: GraphicsBuffer
+    ) {
+        const resourceHandler = gameEngineState.resourceHandler
+        const repository = gameEngineState.repository
+        const squaddieSelectorPanel =
+            gameEngineState.battleOrchestratorState.battleHUDState
+                .squaddieSelectorPanel
+        const summaryHUDState =
+            gameEngineState.battleOrchestratorState.battleHUDState
+                .summaryHUDState
 
         if (
             this.uiControlSettings?.displayPlayerHUD === true &&
-            gameEngineState.battleOrchestratorState.battleHUDState
-                .squaddieSelectorPanel &&
-            gameEngineState.repository != undefined
+            repository &&
+            resourceHandler &&
+            squaddieSelectorPanel
         ) {
             SquaddieSelectorPanelService.draw({
-                squaddieSelectorPanel:
-                    gameEngineState.battleOrchestratorState.battleHUDState
-                        .squaddieSelectorPanel,
-                objectRepository: gameEngineState.repository,
+                squaddieSelectorPanel,
+                objectRepository: repository,
                 graphicsContext,
-                resourceHandler: gameEngineState.resourceHandler,
+                resourceHandler,
             })
         }
 
         if (
-            this.uiControlSettings.displayPlayerHUD &&
-            gameEngineState.battleOrchestratorState.battleHUDState
-                .summaryHUDState
+            this.uiControlSettings?.displayPlayerHUD &&
+            summaryHUDState &&
+            resourceHandler
         ) {
             SummaryHUDStateService.draw({
-                summaryHUDState:
-                    gameEngineState.battleOrchestratorState.battleHUDState
-                        .summaryHUDState,
+                summaryHUDState,
                 graphicsBuffer: graphicsContext,
                 gameEngineState,
-                resourceHandler: gameEngineState.resourceHandler,
+                resourceHandler,
             })
         }
 
@@ -378,17 +400,18 @@ export class BattleOrchestrator implements GameEngineComponent {
         )
     }
 
-    public updateComponent(
-        gameEngineState: GameEngineState,
-        currentComponent: BattleOrchestratorComponent | undefined,
-        graphicsContext: GraphicsBuffer,
+    public updateComponent({
+        gameEngineState,
+        currentComponent,
+        defaultNextMode,
+    }: {
+        gameEngineState: GameEngineState
+        currentComponent: BattleOrchestratorComponent | undefined
         defaultNextMode: TBattleOrchestratorMode | undefined
-    ) {
+    }) {
         if (currentComponent == undefined) return
         currentComponent.update({
             gameEngineState,
-            graphicsContext,
-            resourceHandler: gameEngineState.resourceHandler,
         })
         const newUIControlSettingsChanges =
             currentComponent.uiControlSettings(gameEngineState)
@@ -795,7 +818,7 @@ export class BattleOrchestrator implements GameEngineComponent {
         this.uiControlSettings = BattleUISettingsService.new({})
 
         this._battleComplete = false
-        this._previousUpdateTimestamp = undefined
+        this.previousUpdateTimestamp = undefined
     }
 
     private initializeCache({ cache }: { cache: BattleCache }) {
@@ -803,6 +826,30 @@ export class BattleOrchestrator implements GameEngineComponent {
             cache.searchResultsCache = SearchResultsCacheService.new()
             cache.actionValidity = ActionValidityByIdCacheService.new()
         }
+    }
+
+    private draw({
+        gameEngineState,
+        graphics,
+        resourceHandler,
+    }: {
+        gameEngineState: GameEngineState
+        graphics: GraphicsBuffer
+        resourceHandler: ResourceHandler | undefined
+    }) {
+        if (
+            this.mode != undefined &&
+            this.mode in this.battleOrchestratorModeComponentConstants
+        ) {
+            this.battleOrchestratorModeComponentConstants[this.mode]
+                .getCurrentComponent()
+                ?.draw({
+                    gameEngineState,
+                    graphics,
+                    resourceHandler,
+                })
+        }
+        this.drawDebugMenu(gameEngineState, graphics)
     }
 
     private drawDebugMenu(

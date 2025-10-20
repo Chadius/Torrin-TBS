@@ -15,7 +15,10 @@ import {
     TBattleOrchestratorMode,
 } from "../orchestrator/battleOrchestrator"
 import { GraphicsConfig } from "../../utils/graphics/graphicsConfig"
-import { BattleUISettings, BattleUISettingsService } from "../orchestrator/uiSettings/uiSettings"
+import {
+    BattleUISettings,
+    BattleUISettingsService,
+} from "../orchestrator/uiSettings/uiSettings"
 import { HexCoordinate } from "../../hexMap/hexCoordinate/hexCoordinate"
 import { TeamStrategy } from "../teamStrategy/teamStrategy"
 import { DetermineNextDecisionService } from "../teamStrategy/determineNextDecision"
@@ -113,15 +116,7 @@ export class BattleComputerSquaddieSelector
         })
     }
 
-    update({
-        gameEngineState,
-        graphicsContext,
-        resourceHandler,
-    }: {
-        gameEngineState: GameEngineState
-        graphicsContext: GraphicsBuffer
-        resourceHandler: ResourceHandler | undefined
-    }): void {
+    update({ gameEngineState }: { gameEngineState: GameEngineState }): void {
         if (gameEngineState.repository == undefined) return
         const currentTeam: BattleSquaddieTeam | undefined =
             BattleStateService.getCurrentTeam(
@@ -141,17 +136,6 @@ export class BattleComputerSquaddieSelector
             )
         ) {
             this.askComputerControlSquaddie(gameEngineState)
-        }
-
-        if (
-            gameEngineState.battleOrchestratorState.battleState.camera.isPanning() &&
-            this.mostRecentDecisionSteps !== undefined
-        ) {
-            drawSquaddieAtInitialPositionAsCameraPans(
-                gameEngineState,
-                graphicsContext,
-                resourceHandler
-            )
         }
     }
 
@@ -713,6 +697,7 @@ export class BattleComputerSquaddieSelector
             .forEach((movementStep) => {
                 let numberOfActionPointsSpentMoving: number
                 if (gameEngineState.repository == undefined) return
+                // TODO not working or getting removed immediately
                 BattleSquaddieSelectorService.createSearchPathAndHighlightMovementPath(
                     {
                         squaddieTemplate,
@@ -782,6 +767,28 @@ export class BattleComputerSquaddieSelector
                 )
             })
         )
+    }
+
+    draw({
+        gameEngineState,
+        graphics,
+        resourceHandler,
+    }: {
+        gameEngineState: GameEngineState
+        graphics: GraphicsBuffer
+        resourceHandler: ResourceHandler | undefined
+    }): void {
+        if (gameEngineState.repository == undefined) return
+        if (
+            gameEngineState.battleOrchestratorState.battleState.camera.isPanning() &&
+            this.mostRecentDecisionSteps !== undefined
+        ) {
+            drawSquaddieAtInitialPositionAsCameraPans(
+                gameEngineState,
+                graphics,
+                resourceHandler
+            )
+        }
     }
 }
 

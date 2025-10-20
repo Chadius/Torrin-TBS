@@ -4,7 +4,6 @@ import {
     OrchestratorComponentKeyEvent,
     OrchestratorComponentMouseEvent,
 } from "../orchestrator/battleOrchestratorComponent"
-import { BattleOrchestratorState } from "../orchestrator/battleOrchestratorState"
 import {
     BattlePhase,
     BattlePhaseService,
@@ -12,7 +11,10 @@ import {
 } from "./battlePhaseTracker"
 import { RectAreaService } from "../../ui/rectArea"
 import { ScreenDimensions } from "../../utils/graphics/graphicsConfig"
-import { BattleUISettings, BattleUISettingsService } from "../orchestrator/uiSettings/uiSettings"
+import {
+    BattleUISettings,
+    BattleUISettingsService,
+} from "../orchestrator/uiSettings/uiSettings"
 import { TSquaddieAffiliation } from "../../squaddie/squaddieAffiliation"
 import {
     BattleSquaddieTeam,
@@ -107,27 +109,12 @@ export class BattlePhaseController implements BattleOrchestratorComponent {
         })
     }
 
-    update({
-        gameEngineState,
-        graphicsContext,
-        resourceHandler,
-    }: {
-        gameEngineState: GameEngineState
-        graphicsContext: GraphicsBuffer
-        resourceHandler: ResourceHandler | undefined
-    }): void {
+    update({ gameEngineState }: { gameEngineState: GameEngineState }): void {
         if (this.isTeamStillActingAndNoBannerToShow(gameEngineState)) {
             return
         }
 
-        if (this.shouldDrawPhaseBanner()) {
-            this.draw(
-                gameEngineState.battleOrchestratorState,
-                graphicsContext,
-                resourceHandler
-            )
-            return
-        }
+        if (this.shouldDrawPhaseBanner()) return
 
         if (!this.shouldPhaseEnd(gameEngineState)) {
             return
@@ -341,16 +328,29 @@ export class BattlePhaseController implements BattleOrchestratorComponent {
         })
     }
 
-    draw(
-        _: BattleOrchestratorState,
-        graphicsContext: GraphicsBuffer,
+    draw({
+        gameEngineState,
+        graphics,
+        resourceHandler,
+    }: {
+        gameEngineState: GameEngineState
+        graphics: GraphicsBuffer
         resourceHandler: ResourceHandler | undefined
-    ): void {
+    }): void {
+        if (this.isTeamStillActingAndNoBannerToShow(gameEngineState)) {
+            return
+        }
+
+        if (!this.shouldDrawPhaseBanner()) return
+
         if (this.bannerImageUI && resourceHandler) {
-            this.bannerImageUI.draw({ graphicsContext, resourceHandler })
+            this.bannerImageUI.draw({
+                graphicsContext: graphics,
+                resourceHandler,
+            })
             if (this.affiliationImageUI)
                 this.affiliationImageUI.draw({
-                    graphicsContext,
+                    graphicsContext: graphics,
                     resourceHandler,
                 })
         }

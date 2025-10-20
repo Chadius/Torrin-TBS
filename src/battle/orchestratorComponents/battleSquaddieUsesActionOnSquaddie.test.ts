@@ -431,8 +431,6 @@ describe("BattleSquaddieUsesActionOnSquaddie", () => {
 
         squaddieUsesActionOnSquaddie.update({
             gameEngineState,
-            graphicsContext: mockedP5GraphicsContext,
-            resourceHandler: gameEngineState.resourceHandler!,
         })
         expect(
             squaddieTargetsOtherSquaddiesAnimatorHasCompletedSpy
@@ -465,8 +463,6 @@ describe("BattleSquaddieUsesActionOnSquaddie", () => {
 
         squaddieUsesActionOnSquaddie.update({
             gameEngineState,
-            graphicsContext: mockedP5GraphicsContext,
-            resourceHandler: gameEngineState.resourceHandler!,
         })
         expect(
             squaddieTargetsOtherSquaddiesAnimatorHasCompletedSpy
@@ -508,8 +504,6 @@ describe("BattleSquaddieUsesActionOnSquaddie", () => {
 
         squaddieUsesActionOnSquaddie.update({
             gameEngineState,
-            graphicsContext: mockedP5GraphicsContext,
-            resourceHandler: gameEngineState.resourceHandler!,
         })
         expect(
             squaddieTargetsOtherSquaddiesAnimatorHasCompletedSpy
@@ -574,7 +568,10 @@ describe("BattleSquaddieUsesActionOnSquaddie", () => {
         it("resets squaddie currently acting when it finishes acting", () => {
             squaddieUsesActionOnSquaddie.update({
                 gameEngineState,
-                graphicsContext: mockedP5GraphicsContext,
+            })
+            squaddieUsesActionOnSquaddie.draw({
+                gameEngineState,
+                graphics: mockedP5GraphicsContext,
                 resourceHandler: gameEngineState.resourceHandler!,
             })
             expect(
@@ -615,8 +612,6 @@ describe("BattleSquaddieUsesActionOnSquaddie", () => {
 
             squaddieUsesActionOnSquaddie.update({
                 gameEngineState,
-                graphicsContext: mockedP5GraphicsContext,
-                resourceHandler: gameEngineState.resourceHandler!,
             })
             expect(
                 squaddieTargetsOtherSquaddiesAnimatorHasCompletedSpy
@@ -647,7 +642,10 @@ describe("BattleSquaddieUsesActionOnSquaddie", () => {
             .mockReturnValue(false)
         squaddieUsesActionOnSquaddie.update({
             gameEngineState,
-            graphicsContext: mockedP5GraphicsContext,
+        })
+        squaddieUsesActionOnSquaddie.draw({
+            gameEngineState,
+            graphics: mockedP5GraphicsContext,
             resourceHandler: gameEngineState.resourceHandler!,
         })
 
@@ -667,8 +665,6 @@ describe("BattleSquaddieUsesActionOnSquaddie", () => {
         )
         squaddieUsesActionOnSquaddie.update({
             gameEngineState,
-            graphicsContext: mockedP5GraphicsContext,
-            resourceHandler: gameEngineState.resourceHandler!,
         })
         expect(squaddieTargetsOtherSquaddiesAnimatorUpdateSpy).toBeCalled()
         expect(
@@ -694,8 +690,6 @@ describe("BattleSquaddieUsesActionOnSquaddie", () => {
 
         squaddieUsesActionOnSquaddie.update({
             gameEngineState,
-            graphicsContext: mockedP5GraphicsContext,
-            resourceHandler: gameEngineState.resourceHandler!,
         })
         expect(
             squaddieUsesActionOnSquaddie.squaddieActionAnimator
@@ -737,7 +731,10 @@ describe("BattleSquaddieUsesActionOnSquaddie", () => {
             .mockReturnValue(false)
         squaddieUsesActionOnSquaddie.update({
             gameEngineState,
-            graphicsContext: mockedP5GraphicsContext,
+        })
+        squaddieUsesActionOnSquaddie.draw({
+            gameEngineState,
+            graphics: mockedP5GraphicsContext,
             resourceHandler: gameEngineState.resourceHandler!,
         })
 
@@ -753,8 +750,6 @@ describe("BattleSquaddieUsesActionOnSquaddie", () => {
         squaddieSkipsAnimationAnimatorHasCompletedSpy.mockReturnValue(true)
         squaddieUsesActionOnSquaddie.update({
             gameEngineState,
-            graphicsContext: mockedP5GraphicsContext,
-            resourceHandler: gameEngineState.resourceHandler!,
         })
         expect(squaddieSkipsAnimationAnimatorUpdateSpy).toBeCalled()
         expect(squaddieSkipsAnimationAnimatorHasCompletedSpy).toBeCalled()
@@ -813,8 +808,6 @@ describe("BattleSquaddieUsesActionOnSquaddie", () => {
 
         squaddieUsesActionOnSquaddie.update({
             gameEngineState,
-            graphicsContext: mockedP5GraphicsContext,
-            resourceHandler: gameEngineState.resourceHandler!,
         })
         expect(
             squaddieTargetsOtherSquaddiesAnimatorHasCompletedSpy
@@ -865,8 +858,6 @@ describe("BattleSquaddieUsesActionOnSquaddie", () => {
 
         squaddieUsesActionOnSquaddie.update({
             gameEngineState,
-            graphicsContext: mockedP5GraphicsContext,
-            resourceHandler: gameEngineState.resourceHandler!,
         })
         expect(
             squaddieTargetsOtherSquaddiesAnimatorHasCompletedSpy

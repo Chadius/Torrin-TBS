@@ -172,8 +172,6 @@ describe("BattlePhaseController", () => {
 
         battlePhaseController.update({
             gameEngineState,
-            graphicsContext: mockedP5GraphicsContext,
-            resourceHandler,
         })
         expect(battlePhaseController.hasCompleted(gameEngineState)).toBeTruthy()
         expect(battlePhaseController.draw).not.toBeCalled()
@@ -211,8 +209,6 @@ describe("BattlePhaseController", () => {
 
         battlePhaseController.update({
             gameEngineState,
-            graphicsContext: mockedP5GraphicsContext,
-            resourceHandler,
         })
         expect(battlePhaseController.hasCompleted(gameEngineState)).toBeFalsy()
         expect(
@@ -229,8 +225,6 @@ describe("BattlePhaseController", () => {
 
         battlePhaseController.update({
             gameEngineState,
-            graphicsContext: mockedP5GraphicsContext,
-            resourceHandler,
         })
         vi.spyOn(Date, "now").mockImplementation(
             () => startTime + BANNER_ANIMATION_TIME + diffTime
@@ -269,8 +263,6 @@ describe("BattlePhaseController", () => {
 
         battlePhaseController.update({
             gameEngineState,
-            graphicsContext: mockedP5GraphicsContext,
-            resourceHandler,
         })
         expect(battlePhaseController.hasCompleted(state)).toBeFalsy()
 
@@ -319,8 +311,6 @@ describe("BattlePhaseController", () => {
         it("should select the first player squaddie", () => {
             battlePhaseController.update({
                 gameEngineState,
-                graphicsContext: mockedP5GraphicsContext,
-                resourceHandler,
             })
 
             expect(messageSpy).toHaveBeenCalledWith(
@@ -343,8 +333,6 @@ describe("BattlePhaseController", () => {
 
             battlePhaseController.update({
                 gameEngineState,
-                graphicsContext: mockedP5GraphicsContext,
-                resourceHandler,
             })
 
             expect(messageSpy).toHaveBeenCalledWith(
@@ -377,8 +365,6 @@ describe("BattlePhaseController", () => {
         )
         battlePhaseController.update({
             gameEngineState,
-            graphicsContext: mockedP5GraphicsContext,
-            resourceHandler,
         })
 
         expect(messageSpy).toHaveBeenCalledWith(
@@ -427,8 +413,6 @@ describe("BattlePhaseController", () => {
             vi.spyOn(Date, "now").mockImplementation(() => startTime)
             battlePhaseController.update({
                 gameEngineState,
-                graphicsContext: mockedP5GraphicsContext,
-                resourceHandler,
             })
             expect(
                 battlePhaseController.hasCompleted(gameEngineState)
@@ -445,8 +429,6 @@ describe("BattlePhaseController", () => {
             )
             battlePhaseController.update({
                 gameEngineState,
-                graphicsContext: mockedP5GraphicsContext,
-                resourceHandler,
             })
             expect(
                 battlePhaseController.hasCompleted(gameEngineState)
@@ -456,64 +438,6 @@ describe("BattlePhaseController", () => {
                     .battlePhaseState.battlePhase
             ).toBe(BattlePhase.ENEMY)
         })
-    })
-
-    it("only draws the banner while the timer is going", () => {
-        const gameEngineState: GameEngineState = GameEngineStateService.new({
-            repository: objectRepository,
-            resourceHandler,
-            battleOrchestratorState: BattleOrchestratorStateService.new({
-                battleState: BattleStateService.newBattleState({
-                    missionId: "test mission",
-                    campaignId: "test campaign",
-                    teams,
-                    missionMap: MissionMapService.new({
-                        terrainTileMap: TerrainTileMapService.new({
-                            movementCost: ["1 1 1 "],
-                        }),
-                    }),
-                    battlePhaseState: {
-                        turnCount: 0,
-                        battlePhase: BattlePhase.UNKNOWN,
-                    },
-                }),
-            }),
-        })
-        battlePhaseController = new BattlePhaseController()
-        battlePhaseController.draw = vi.fn()
-
-        const startTime = 0
-        vi.spyOn(Date, "now").mockImplementation(() => startTime)
-
-        battlePhaseController.update({
-            gameEngineState,
-            graphicsContext: mockedP5GraphicsContext,
-            resourceHandler,
-        })
-        expect(battlePhaseController.draw).not.toBeCalled()
-        expect(battlePhaseController.bannerDisplayAnimationStartTime).toBe(
-            startTime
-        )
-
-        vi.spyOn(Date, "now").mockImplementation(
-            () => startTime + BANNER_ANIMATION_TIME * 0.5
-        )
-        battlePhaseController.update({
-            gameEngineState,
-            graphicsContext: mockedP5GraphicsContext,
-            resourceHandler,
-        })
-        expect(battlePhaseController.draw).toBeCalledTimes(1)
-
-        vi.spyOn(Date, "now").mockImplementation(
-            () => startTime + BANNER_ANIMATION_TIME * 0.75
-        )
-        battlePhaseController.update({
-            gameEngineState,
-            graphicsContext: mockedP5GraphicsContext,
-            resourceHandler,
-        })
-        expect(battlePhaseController.draw).toBeCalledTimes(2)
     })
 
     it("resets internal variables once completed", () => {
@@ -615,8 +539,6 @@ describe("BattlePhaseController", () => {
             battlePhaseController = new BattlePhaseController()
             battlePhaseController.update({
                 gameEngineState,
-                graphicsContext: mockedP5GraphicsContext,
-                resourceHandler,
             })
             expect(
                 battlePhaseController.hasCompleted(gameEngineState)
@@ -646,8 +568,6 @@ describe("BattlePhaseController", () => {
             battlePhaseController = new BattlePhaseController()
             battlePhaseController.update({
                 gameEngineState,
-                graphicsContext: mockedP5GraphicsContext,
-                resourceHandler,
             })
             expect(
                 battlePhaseController.hasCompleted(gameEngineState)

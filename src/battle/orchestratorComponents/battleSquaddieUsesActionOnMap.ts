@@ -5,7 +5,10 @@ import {
     OrchestratorComponentMouseEvent,
 } from "../orchestrator/battleOrchestratorComponent"
 import { OrchestratorUtilities } from "./orchestratorUtils"
-import { BattleUISettings, BattleUISettingsService } from "../orchestrator/uiSettings/uiSettings"
+import {
+    BattleUISettings,
+    BattleUISettingsService,
+} from "../orchestrator/uiSettings/uiSettings"
 import { GraphicsBuffer } from "../../utils/graphics/graphicsRenderer"
 import { ActionComponentCalculator } from "../actionDecision/actionComponentCalculator"
 import { MessageBoardMessageType } from "../../message/messageBoardMessage"
@@ -48,9 +51,7 @@ export class BattleSquaddieUsesActionOnMap
         // Required by inheritance
     }
 
-    uiControlSettings(
-        _gameEngineState: GameEngineState
-    ): BattleUISettings {
+    uiControlSettings(_gameEngineState: GameEngineState): BattleUISettings {
         return BattleUISettingsService.new({
             displayBattleMap: true,
             letMouseScrollCamera: false,
@@ -86,13 +87,7 @@ export class BattleSquaddieUsesActionOnMap
         this.completed = false
     }
 
-    update({
-        gameEngineState,
-    }: {
-        gameEngineState: GameEngineState
-        graphicsContext: GraphicsBuffer
-        resourceHandler: ResourceHandler | undefined
-    }): void {
+    update({ gameEngineState }: { gameEngineState: GameEngineState }): void {
         if (this.animationCompleteStartTime === undefined) {
             this.animationCompleteStartTime = Date.now()
         }
@@ -120,6 +115,14 @@ export class BattleSquaddieUsesActionOnMap
         })
 
         this.completed = true
+    }
+
+    draw({}: {
+        gameEngineState: GameEngineState
+        graphics: GraphicsBuffer
+        resourceHandler: ResourceHandler | undefined
+    }): void {
+        // Required by inheritance
     }
 }
 

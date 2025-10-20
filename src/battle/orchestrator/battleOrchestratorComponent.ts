@@ -84,13 +84,11 @@ export type BattleOrchestratorChanges = {
 }
 
 export interface BattleOrchestratorComponent {
-    update({
-        gameEngineState,
-        graphicsContext,
-        resourceHandler,
-    }: {
+    update({ gameEngineState }: { gameEngineState: GameEngineState }): void
+
+    draw({}: {
         gameEngineState: GameEngineState
-        graphicsContext: GraphicsBuffer
+        graphics: GraphicsBuffer
         resourceHandler: ResourceHandler | undefined
     }): void
 

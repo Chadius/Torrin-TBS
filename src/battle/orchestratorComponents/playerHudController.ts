@@ -4,7 +4,10 @@ import {
     OrchestratorComponentKeyEvent,
     OrchestratorComponentMouseEvent,
 } from "../orchestrator/battleOrchestratorComponent"
-import { BattleUISettings, BattleUISettingsService } from "../orchestrator/uiSettings/uiSettings"
+import {
+    BattleUISettings,
+    BattleUISettingsService,
+} from "../orchestrator/uiSettings/uiSettings"
 import { BattleOrchestratorMode } from "../orchestrator/battleOrchestrator"
 import { BattleStateService } from "../battleState/battleState"
 import { isValidValue } from "../../utils/objectValidityCheck"
@@ -118,15 +121,17 @@ export class PlayerHudController implements BattleOrchestratorComponent {
         // Required by inheritance
     }
 
-    uiControlSettings(
-        _gameEngineState: GameEngineState
-    ): BattleUISettings {
+    uiControlSettings(_gameEngineState: GameEngineState): BattleUISettings {
         return BattleUISettingsService.new({})
     }
 
-    update(_param: {
+    update(_param: { gameEngineState: GameEngineState }): void {
+        // Required by inheritance
+    }
+
+    draw({}: {
         gameEngineState: GameEngineState
-        graphicsContext: GraphicsBuffer
+        graphics: GraphicsBuffer
         resourceHandler: ResourceHandler | undefined
     }): void {
         // Required by inheritance

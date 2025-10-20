@@ -6,13 +6,15 @@ import {
 } from "../orchestrator/battleOrchestratorComponent"
 import { DrawSquaddieIconOnMapUtilities } from "../animation/drawSquaddieIconOnMap/drawSquaddieIconOnMap"
 import { OrchestratorUtilities } from "./orchestratorUtils"
-import { BattleUISettings, BattleUISettingsService } from "../orchestrator/uiSettings/uiSettings"
+import {
+    BattleUISettings,
+    BattleUISettingsService,
+} from "../orchestrator/uiSettings/uiSettings"
 import { GraphicsBuffer } from "../../utils/graphics/graphicsRenderer"
 import { ObjectRepositoryService } from "../objectRepository"
 import { BattleSquaddie } from "../battleSquaddie"
 import { ActionComponentCalculator } from "../actionDecision/actionComponentCalculator"
 import { MessageBoardMessageType } from "../../message/messageBoardMessage"
-import { TerrainTileMapService } from "../../hexMap/terrainTileMap"
 import { BattleActionService } from "../history/battleAction/battleAction"
 import { BattleActionRecorderService } from "../history/battleAction/battleActionRecorder"
 import { ResourceHandler } from "../../resource/resourceHandler"
@@ -25,17 +27,27 @@ import {
     SquaddieMoveOnMapAnimationService,
 } from "../animation/squaddieMoveOnMap/squaddieMoveOnMapAnimation"
 
-export class BattleSquaddieMover implements BattleOrchestratorComponent {
+interface BattleSquaddieMoverProgress {
+    createdAnimation: boolean
     startedAnimation: boolean
+    finishedAnimation: boolean
     finishedCleanup: boolean
     squaddieMoveOnMapAnimations: {
         [battleSquaddieId: string]: SquaddieMoveOnMapAnimation
     }
+}
+
+export class BattleSquaddieMover implements BattleOrchestratorComponent {
+    progress: BattleSquaddieMoverProgress
 
     constructor() {
-        this.startedAnimation = false
-        this.finishedCleanup = false
-        this.squaddieMoveOnMapAnimations = {}
+        this.progress = {
+            createdAnimation: false,
+            startedAnimation: false,
+            finishedAnimation: false,
+            finishedCleanup: false,
+            squaddieMoveOnMapAnimations: {},
+        }
     }
 
     hasCompleted(gameEngineState: GameEngineState): boolean {
@@ -45,7 +57,7 @@ export class BattleSquaddieMover implements BattleOrchestratorComponent {
         ) {
             return true
         }
-        return this.finishedCleanup
+        return this.progress.finishedAnimation && this.progress.finishedCleanup
     }
 
     mouseEventHappened(
@@ -62,9 +74,7 @@ export class BattleSquaddieMover implements BattleOrchestratorComponent {
         // Required by inheritance
     }
 
-    uiControlSettings(
-        _gameEngineState: GameEngineState
-    ): BattleUISettings {
+    uiControlSettings(_gameEngineState: GameEngineState): BattleUISettings {
         return BattleUISettingsService.new({
             letMouseScrollCamera: false,
             displayBattleMap: true,
@@ -73,38 +83,15 @@ export class BattleSquaddieMover implements BattleOrchestratorComponent {
         })
     }
 
-    update({
-        gameEngineState,
-        graphicsContext,
-        resourceHandler,
-    }: {
-        gameEngineState: GameEngineState
-        graphicsContext: GraphicsBuffer
-        resourceHandler: ResourceHandler | undefined
-    }): void {
-        if (!this.startedAnimation) {
-            this.startedAnimation = true
+    update({ gameEngineState }: { gameEngineState: GameEngineState }): void {
+        if (!this.progress.createdAnimation) {
             this.createSquaddieMovementAnimationsFromBattleAction(
                 gameEngineState
             )
         }
 
-        if (
-            this.shouldAnimateSquaddieMovement(gameEngineState) &&
-            gameEngineState.battleOrchestratorState.battleState
-                .squaddieMovePath != undefined &&
-            !this.hasAllMovementAnimationsFinished()
-        ) {
-            this.updateWhileAnimationIsInProgress(
-                gameEngineState,
-                graphicsContext,
-                resourceHandler
-            )
-            return
-        }
-
-        if (!this.finishedCleanup) {
-            this.updateWhenAnimationCompletes(gameEngineState, graphicsContext)
+        if (this.progress.finishedAnimation && !this.progress.finishedCleanup) {
+            this.updateWhenAnimationCompletes(gameEngineState)
         }
     }
 
@@ -131,9 +118,13 @@ export class BattleSquaddieMover implements BattleOrchestratorComponent {
     }
 
     reset(_: GameEngineState) {
-        this.startedAnimation = false
-        this.finishedCleanup = false
-        this.squaddieMoveOnMapAnimations = {}
+        this.progress = {
+            createdAnimation: false,
+            startedAnimation: false,
+            finishedAnimation: false,
+            finishedCleanup: false,
+            squaddieMoveOnMapAnimations: {},
+        }
     }
 
     private updateWhileAnimationIsInProgress(
@@ -146,10 +137,11 @@ export class BattleSquaddieMover implements BattleOrchestratorComponent {
 
         DrawSquaddieIconOnMapUtilities.moveSquaddieOnMap({
             repository,
-            squaddieMoveOnMapAnimations: this.squaddieMoveOnMapAnimations,
+            squaddieMoveOnMapAnimations:
+                this.progress.squaddieMoveOnMapAnimations,
         })
 
-        Object.keys(this.squaddieMoveOnMapAnimations).forEach(
+        Object.keys(this.progress.squaddieMoveOnMapAnimations).forEach(
             (battleSquaddieId) => {
                 const mapIcon =
                     ObjectRepositoryService.getImageUIByBattleSquaddieId({
@@ -163,38 +155,7 @@ export class BattleSquaddieMover implements BattleOrchestratorComponent {
         )
     }
 
-    private updateWhenAnimationCompletes(
-        gameEngineState: GameEngineState,
-        graphicsContext: GraphicsBuffer
-    ) {
-        TerrainTileMapService.removeAllGraphicsLayers(
-            gameEngineState.battleOrchestratorState.battleState.missionMap
-                .terrainTileMap
-        )
-        Object.keys(this.squaddieMoveOnMapAnimations).forEach(
-            (battleSquaddieId) => {
-                if (gameEngineState.repository == undefined) return
-                const { battleSquaddie } =
-                    ObjectRepositoryService.getSquaddieByBattleId(
-                        gameEngineState.repository,
-                        battleSquaddieId
-                    )
-
-                DrawSquaddieIconOnMapUtilities.unTintSquaddieMapIcon(
-                    gameEngineState.repository,
-                    battleSquaddie
-                )
-                if (gameEngineState.resourceHandler) {
-                    updateIconLocation(
-                        gameEngineState,
-                        battleSquaddie,
-                        graphicsContext,
-                        gameEngineState.resourceHandler
-                    )
-                }
-            }
-        )
-
+    private updateWhenAnimationCompletes(gameEngineState: GameEngineState) {
         const battleAction = BattleActionRecorderService.peekAtAnimationQueue(
             gameEngineState.battleOrchestratorState.battleState
                 .battleActionRecorder
@@ -220,23 +181,22 @@ export class BattleSquaddieMover implements BattleOrchestratorComponent {
             battleState: gameEngineState.battleOrchestratorState.battleState,
             messageBoard: gameEngineState.messageBoard,
         })
-        this.finishedCleanup = true
+        this.progress.finishedCleanup = true
         gameEngineState.battleOrchestratorState.battleState.squaddieMovePath =
             undefined
-        this.squaddieMoveOnMapAnimations = {}
+        this.progress.squaddieMoveOnMapAnimations = {}
     }
 
     private shouldAnimateSquaddieMovement(
         gameEngineState: GameEngineState
     ): boolean {
         const activeAnimations = Object.entries(
-            this.squaddieMoveOnMapAnimations
+            this.progress.squaddieMoveOnMapAnimations
         ).filter(([_, squaddieMoveOnMapAnimation]) => {
             return !SquaddieMoveOnMapAnimationService.hasFinishedMoving(
                 squaddieMoveOnMapAnimation
             )
         })
-
         if (activeAnimations.length == 0) return false
         if (gameEngineState.repository == undefined) return false
         const repository = gameEngineState.repository
@@ -268,7 +228,7 @@ export class BattleSquaddieMover implements BattleOrchestratorComponent {
     }
 
     private hasAllMovementAnimationsFinished() {
-        return Object.values(this.squaddieMoveOnMapAnimations).every(
+        return Object.values(this.progress.squaddieMoveOnMapAnimations).every(
             (squaddieMoveOnMapAnimation) =>
                 SquaddieMoveOnMapAnimationService.hasFinishedMoving(
                     squaddieMoveOnMapAnimation
@@ -301,19 +261,78 @@ export class BattleSquaddieMover implements BattleOrchestratorComponent {
             return
 
         if (
-            this.squaddieMoveOnMapAnimations[battleSquaddie.battleSquaddieId] ==
-            undefined
+            this.progress.squaddieMoveOnMapAnimations[
+                battleSquaddie.battleSquaddieId
+            ] == undefined
         ) {
-            this.squaddieMoveOnMapAnimations[battleSquaddie.battleSquaddieId] =
-                SquaddieMoveOnMapAnimationService.new({
-                    movementPath: SearchPathAdapterService.getCoordinates(
-                        gameEngineState.battleOrchestratorState.battleState
-                            .squaddieMovePath
-                    ),
-                    camera: gameEngineState.battleOrchestratorState.battleState
-                        .camera,
-                })
+            this.progress.squaddieMoveOnMapAnimations[
+                battleSquaddie.battleSquaddieId
+            ] = SquaddieMoveOnMapAnimationService.new({
+                movementPath: SearchPathAdapterService.getCoordinates(
+                    gameEngineState.battleOrchestratorState.battleState
+                        .squaddieMovePath
+                ),
+                camera: gameEngineState.battleOrchestratorState.battleState
+                    .camera,
+            })
         }
+
+        this.progress.createdAnimation = true
+    }
+
+    draw({
+        gameEngineState,
+        graphics,
+        resourceHandler,
+    }: {
+        gameEngineState: GameEngineState
+        graphics: GraphicsBuffer
+        resourceHandler: ResourceHandler | undefined
+    }): void {
+        if (!this.progress.createdAnimation) return
+
+        if (!this.progress.startedAnimation) {
+            this.progress.startedAnimation = true
+        }
+
+        if (
+            this.shouldAnimateSquaddieMovement(gameEngineState) &&
+            gameEngineState.battleOrchestratorState.battleState
+                .squaddieMovePath != undefined &&
+            !this.hasAllMovementAnimationsFinished()
+        ) {
+            this.updateWhileAnimationIsInProgress(
+                gameEngineState,
+                graphics,
+                resourceHandler
+            )
+            return
+        }
+
+        Object.keys(this.progress.squaddieMoveOnMapAnimations).forEach(
+            (battleSquaddieId) => {
+                if (gameEngineState.repository == undefined) return
+                const { battleSquaddie } =
+                    ObjectRepositoryService.getSquaddieByBattleId(
+                        gameEngineState.repository,
+                        battleSquaddieId
+                    )
+
+                DrawSquaddieIconOnMapUtilities.unTintSquaddieMapIcon(
+                    gameEngineState.repository,
+                    battleSquaddie
+                )
+                if (gameEngineState.resourceHandler) {
+                    updateIconLocation(
+                        gameEngineState,
+                        battleSquaddie,
+                        graphics,
+                        gameEngineState.resourceHandler
+                    )
+                }
+            }
+        )
+        this.progress.finishedAnimation = true
     }
 }
 

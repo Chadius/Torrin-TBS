@@ -225,6 +225,10 @@ export class ImageUI {
         return !!this.graphic
     }
 
+    getPulseColor() {
+        return this.pulseColor
+    }
+
     setPulseColor(pulseColor: PulseColor) {
         this.pulseColor = pulseColor
     }

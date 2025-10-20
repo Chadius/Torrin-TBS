@@ -1,4 +1,7 @@
-import { BattleUISettings, BattleUISettingsService } from "./uiSettings/uiSettings"
+import {
+    BattleUISettings,
+    BattleUISettingsService,
+} from "./uiSettings/uiSettings"
 import {
     BattleOrchestratorChanges,
     BattleOrchestratorComponent,
@@ -68,9 +71,13 @@ export class InitializeBattle implements BattleOrchestratorComponent {
         return BattleUISettingsService.new({})
     }
 
-    update({}: {
+    update({}: { gameEngineState: GameEngineState }): void {
+        // Required by inheritance
+    }
+
+    draw({}: {
         gameEngineState: GameEngineState
-        graphicsContext: GraphicsBuffer
+        graphics: GraphicsBuffer
         resourceHandler: ResourceHandler | undefined
     }): void {
         // Required by inheritance

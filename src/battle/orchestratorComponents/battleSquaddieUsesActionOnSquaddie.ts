@@ -8,7 +8,10 @@ import {
 } from "../orchestrator/battleOrchestratorComponent"
 import { OrchestratorUtilities } from "./orchestratorUtils"
 import { SquaddieService } from "../../squaddie/squaddieService"
-import { BattleUISettings, BattleUISettingsService } from "../orchestrator/uiSettings/uiSettings"
+import {
+    BattleUISettings,
+    BattleUISettingsService,
+} from "../orchestrator/uiSettings/uiSettings"
 import { SquaddieTargetsOtherSquaddiesAnimator } from "../animation/squaddieActOnSquaddie/squaddieTargetsOtherSquaddiesAnimatior"
 import { SquaddieActionAnimator } from "../animation/squaddieActionAnimator"
 import { DefaultSquaddieActionAnimator } from "../animation/defaultSquaddieActionAnimator"
@@ -124,25 +127,12 @@ export class BattleSquaddieUsesActionOnSquaddie
         this.resetInternalState()
     }
 
-    update({
-        gameEngineState,
-        graphicsContext,
-        resourceHandler,
-    }: {
-        gameEngineState: GameEngineState
-        graphicsContext: GraphicsBuffer
-        resourceHandler: ResourceHandler
-    }): void {
+    update({ gameEngineState }: { gameEngineState: GameEngineState }): void {
         if (
             this.squaddieActionAnimator instanceof DefaultSquaddieActionAnimator
         ) {
             this.setSquaddieActionAnimatorBasedOnAction(gameEngineState)
         }
-        this.squaddieActionAnimator.update({
-            gameEngineState,
-            graphicsContext,
-            resourceHandler,
-        })
         if (
             !this.sawResultAftermath &&
             this.squaddieActionAnimator.hasCompleted(gameEngineState)
@@ -289,6 +279,23 @@ export class BattleSquaddieUsesActionOnSquaddie
 
         this._squaddieActionAnimator =
             this.squaddieTargetsOtherSquaddiesAnimator
+    }
+
+    draw({
+        gameEngineState,
+        graphics,
+        resourceHandler,
+    }: {
+        gameEngineState: GameEngineState
+        graphics: GraphicsBuffer
+        resourceHandler: ResourceHandler | undefined
+    }): void {
+        if (resourceHandler == undefined) return
+        this.squaddieActionAnimator.update({
+            gameEngineState,
+            graphicsContext: graphics,
+            resourceHandler,
+        })
     }
 }
 

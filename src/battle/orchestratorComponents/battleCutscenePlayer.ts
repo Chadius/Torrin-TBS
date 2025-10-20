@@ -6,7 +6,10 @@ import {
     OrchestratorComponentMouseEvent,
     OrchestratorComponentMouseEventType,
 } from "../orchestrator/battleOrchestratorComponent"
-import { BattleUISettings, BattleUISettingsService } from "../orchestrator/uiSettings/uiSettings"
+import {
+    BattleUISettings,
+    BattleUISettingsService,
+} from "../orchestrator/uiSettings/uiSettings"
 import { Cutscene, CutsceneService } from "../../cutscene/cutscene"
 import { isValidValue } from "../../utils/objectValidityCheck"
 import { GraphicsBuffer } from "../../utils/graphics/graphicsRenderer"
@@ -96,15 +99,7 @@ export class BattleCutscenePlayer implements BattleOrchestratorComponent {
         })
     }
 
-    update({
-        gameEngineState,
-        graphicsContext,
-        resourceHandler,
-    }: {
-        gameEngineState: GameEngineState
-        graphicsContext: GraphicsBuffer
-        resourceHandler: ResourceHandler | undefined
-    }): void {
+    update({ gameEngineState }: { gameEngineState: GameEngineState }): void {
         if (!isValidValue(this.currentCutscene)) {
             return
         }
@@ -131,14 +126,24 @@ export class BattleCutscenePlayer implements BattleOrchestratorComponent {
                 }
             )
         }
+    }
 
+    draw({
+        graphics,
+        resourceHandler,
+        gameEngineState,
+    }: {
+        gameEngineState: GameEngineState
+        graphics: GraphicsBuffer
+        resourceHandler: ResourceHandler | undefined
+    }): void {
         if (
             this.currentCutscene != undefined &&
             CutsceneService.isInProgress(this.currentCutscene)
         ) {
             CutsceneService.draw(
                 this.currentCutscene,
-                graphicsContext,
+                graphics,
                 resourceHandler
             )
             CutsceneService.update(this.currentCutscene, {

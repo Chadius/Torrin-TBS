@@ -10,7 +10,10 @@ import {
     BattleOrchestratorMode,
     TBattleOrchestratorMode,
 } from "../orchestrator/battleOrchestrator"
-import { BattleUISettings, BattleUISettingsService } from "../orchestrator/uiSettings/uiSettings"
+import {
+    BattleUISettings,
+    BattleUISettingsService,
+} from "../orchestrator/uiSettings/uiSettings"
 import { FileAccessHUDService } from "../hud/fileAccess/fileAccessHUD"
 import {
     MouseConfigService,
@@ -278,9 +281,7 @@ export class BattlePlayerSquaddieSelector
         })
     }
 
-    uiControlSettings(
-        _gameEngineState: GameEngineState
-    ): BattleUISettings {
+    uiControlSettings(_gameEngineState: GameEngineState): BattleUISettings {
         return BattleUISettingsService.new({
             letMouseScrollCamera: true,
             displayBattleMap: true,
@@ -289,20 +290,14 @@ export class BattlePlayerSquaddieSelector
         })
     }
 
-    update({
-        gameEngineState,
-    }: {
-        gameEngineState: GameEngineState
-        graphicsContext: GraphicsBuffer
-        resourceHandler: ResourceHandler | undefined
-    }): void {
+    update({ gameEngineState }: { gameEngineState: GameEngineState }): void {
         if (this.readyToAutomaticallySelectASquaddie(gameEngineState)) {
-            this.selectFirstPlayableSquaddie(gameEngineState)
+            this.findAndSelectFirstPlayableSquaddie(gameEngineState)
         }
-        this.highlightActorSquaddie(gameEngineState)
+        this.findCurrentlyActingSquaddie(gameEngineState)
     }
 
-    private highlightActorSquaddie(gameEngineState: GameEngineState) {
+    private findCurrentlyActingSquaddie(gameEngineState: GameEngineState) {
         if (
             !BattleActionDecisionStepService.isActorSet(
                 gameEngineState.battleOrchestratorState.battleState
@@ -322,20 +317,24 @@ export class BattlePlayerSquaddieSelector
         if (this.highlightedSquaddie.battleSquaddieId == battleSquaddieId)
             return
 
-        const mapIcon = ObjectRepositoryService.getImageUIByBattleSquaddieId({
-            repository: gameEngineState.repository,
-            battleSquaddieId: battleSquaddieId,
-            throwErrorIfNotFound: false,
-        })
-
-        if (!mapIcon) return
-
-        mapIcon.setPulseColor(
-            DRAW_SQUADDIE_ICON_ON_MAP_LAYOUT.actorSquaddie.pulseColorForMapIcon
-        )
+        this.highlightedSquaddie.mapIcon =
+            ObjectRepositoryService.getImageUIByBattleSquaddieId({
+                repository: gameEngineState.repository,
+                battleSquaddieId: battleSquaddieId,
+                throwErrorIfNotFound: false,
+            })
 
         this.highlightedSquaddie.battleSquaddieId = battleSquaddieId
-        this.highlightedSquaddie.mapIcon = mapIcon
+    }
+
+    private addHighlightToCurrentlyActingSquaddie() {
+        if (this.highlightedSquaddie.mapIcon == undefined) return
+        if (this.highlightedSquaddie.mapIcon.getPulseColor() != undefined)
+            return
+
+        this.highlightedSquaddie.mapIcon.setPulseColor(
+            DRAW_SQUADDIE_ICON_ON_MAP_LAYOUT.actorSquaddie.pulseColorForMapIcon
+        )
     }
 
     private readyToAutomaticallySelectASquaddie(
@@ -372,7 +371,9 @@ export class BattlePlayerSquaddieSelector
         )
     }
 
-    private selectFirstPlayableSquaddie(gameEngineState: GameEngineState) {
+    private findAndSelectFirstPlayableSquaddie(
+        gameEngineState: GameEngineState
+    ) {
         if (gameEngineState.repository == undefined) return
         const currentTeam = BattleStateService.getCurrentTeam(
             gameEngineState.battleOrchestratorState.battleState,
@@ -424,6 +425,14 @@ export class BattlePlayerSquaddieSelector
         this.recommendedNextMode = (
             message as MessageBoardMessagePlayerConfirmsDecisionStepActor
         ).recommendedMode
+    }
+
+    draw({}: {
+        gameEngineState: GameEngineState
+        graphics: GraphicsBuffer
+        resourceHandler: ResourceHandler | undefined
+    }): void {
+        this.addHighlightToCurrentlyActingSquaddie()
     }
 }
 

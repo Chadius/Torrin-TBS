@@ -6,7 +6,10 @@ import {
 } from "../../orchestrator/battleOrchestratorComponent"
 import { ResourceHandler } from "../../../resource/resourceHandler"
 import { GraphicsBuffer } from "../../../utils/graphics/graphicsRenderer"
-import { BattleUISettings, BattleUISettingsService } from "../../orchestrator/uiSettings/uiSettings"
+import {
+    BattleUISettings,
+    BattleUISettingsService,
+} from "../../orchestrator/uiSettings/uiSettings"
 import { BattleOrchestratorMode } from "../../orchestrator/battleOrchestrator"
 import {
     PlayerActionTargetActionType,
@@ -26,7 +29,6 @@ import { PlayerActionTargetSelectViewController } from "./viewController"
 import { ComponentDataBlob } from "../../../utils/dataBlob/componentDataBlob"
 import { PlayerActionTargetStateMachineLayout } from "./playerActionTargetStateMachineLayout"
 import { PlayerActionTargetStateMachineUIObjects } from "./playerActionTargetStateMachineUIObjects"
-import { BattleCamera } from "../../battleCamera"
 import { StateMachine } from "../../../utils/stateMachine/stateMachine"
 import { GameEngineState } from "../../../gameEngine/gameEngineState/gameEngineState"
 
@@ -35,23 +37,11 @@ export class PlayerActionTargetSelect implements BattleOrchestratorComponent {
     viewController: PlayerActionTargetSelectViewController | undefined
     context: PlayerActionTargetStateMachineContext | undefined
 
-    update({
-        gameEngineState,
-        graphicsContext,
-    }: {
-        gameEngineState: GameEngineState
-        graphicsContext: GraphicsBuffer
-        resourceHandler: ResourceHandler | undefined
-    }): void {
+    update({ gameEngineState }: { gameEngineState: GameEngineState }): void {
         this.lazyInitializeContext(gameEngineState)
         this.lazyInitializeStateMachine()
         this.lazyInitializeViewController()
         this.updateStateMachine()
-
-        this.updateViewController({
-            camera: gameEngineState.battleOrchestratorState.battleState.camera,
-            graphicsContext,
-        })
         this.connectStateMachineWithViewController()
     }
 
@@ -79,19 +69,6 @@ export class PlayerActionTargetSelect implements BattleOrchestratorComponent {
                     stateMachineWaitingForPlayerConfirmCount += 1
                 return stateMachineWaitingForPlayerConfirmCount > 1
             },
-        })
-    }
-
-    updateViewController({
-        camera,
-        graphicsContext,
-    }: {
-        camera: BattleCamera
-        graphicsContext: GraphicsBuffer
-    }) {
-        this.viewController?.draw({
-            camera,
-            graphicsContext,
         })
     }
 
@@ -214,5 +191,19 @@ export class PlayerActionTargetSelect implements BattleOrchestratorComponent {
         if (this.stateMachine && this.viewController) {
             this.stateMachine.uiObjects = this.viewController.getUIObjects()
         }
+    }
+
+    draw({
+        gameEngineState,
+        graphics,
+    }: {
+        gameEngineState: GameEngineState
+        graphics: GraphicsBuffer
+        resourceHandler: ResourceHandler | undefined
+    }): void {
+        this.viewController?.draw({
+            camera: gameEngineState.battleOrchestratorState.battleState.camera,
+            graphicsContext: graphics,
+        })
     }
 }

@@ -194,8 +194,6 @@ describe("battleMapDisplay", () => {
                 dateSpy.mockReturnValue(1000)
                 battleMapDisplay.update({
                     gameEngineState,
-                    resourceHandler: gameEngineState.resourceHandler!,
-                    graphicsContext: mockedP5GraphicsContext,
                 })
 
                 expect(

@@ -396,8 +396,6 @@ describe("BattleSquaddieSelector", () => {
         it("if no squaddie is selected, select the first squaddie by default", () => {
             selector.update({
                 gameEngineState,
-                graphicsContext: mockedP5GraphicsContext,
-                resourceHandler: gameEngineState.resourceHandler!,
             })
 
             expect(messageSpy).toBeCalledWith(
@@ -430,8 +428,6 @@ describe("BattleSquaddieSelector", () => {
 
             selector.update({
                 gameEngineState,
-                graphicsContext: mockedP5GraphicsContext,
-                resourceHandler: gameEngineState.resourceHandler!,
             })
 
             expect(messageSpy).toBeCalledWith(
@@ -501,8 +497,6 @@ describe("BattleSquaddieSelector", () => {
                 setup()
                 selector.update({
                     gameEngineState,
-                    graphicsContext: mockedP5GraphicsContext,
-                    resourceHandler: gameEngineState.resourceHandler!,
                 })
 
                 expect(messageSpy).not.toBeCalledWith(

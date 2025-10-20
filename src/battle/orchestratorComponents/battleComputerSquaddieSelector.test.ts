@@ -58,7 +58,6 @@ import {
     BattleActionDecisionStep,
     BattleActionDecisionStepService,
 } from "../actionDecision/battleActionDecisionStep"
-import { MockedP5GraphicsBuffer } from "../../utils/test/mocks"
 import { SquaddieRepositoryService } from "../../utils/test/squaddie"
 import { MapGraphicsLayer } from "../../hexMap/mapLayer/mapGraphicsLayer"
 import { BattleActionService } from "../history/battleAction/battleAction"
@@ -92,7 +91,6 @@ describe("BattleComputerSquaddieSelector", () => {
     let enemyDemonBattleSquaddie: BattleSquaddie
     let enemyDemonBattleSquaddie2: BattleSquaddie
     let demonBiteAction: ActionTemplate
-    let mockedP5GraphicsContext: MockedP5GraphicsBuffer
     let battlePhaseState: BattlePhaseState
     let teams: BattleSquaddieTeam[]
     let demonBiteActionDamage: number
@@ -100,7 +98,6 @@ describe("BattleComputerSquaddieSelector", () => {
     beforeEach(() => {
         selector = new BattleComputerSquaddieSelector()
         objectRepository = ObjectRepositoryService.new()
-        mockedP5GraphicsContext = new MockedP5GraphicsBuffer()
         teams = []
     })
 
@@ -293,8 +290,6 @@ describe("BattleComputerSquaddieSelector", () => {
             camera.moveCamera()
             selector.update({
                 gameEngineState,
-                graphicsContext: mockedP5GraphicsContext,
-                resourceHandler: gameEngineState.resourceHandler!,
             })
             expect(selector.hasCompleted(gameEngineState)).toBeTruthy()
             expect(camera.isPanning()).toBeFalsy()
@@ -331,8 +326,6 @@ describe("BattleComputerSquaddieSelector", () => {
             camera.moveCamera()
             selector.update({
                 gameEngineState,
-                graphicsContext: mockedP5GraphicsContext,
-                resourceHandler: gameEngineState.resourceHandler!,
             })
 
             expect(selector.hasCompleted(gameEngineState)).toBeFalsy()
@@ -411,8 +404,6 @@ describe("BattleComputerSquaddieSelector", () => {
             const resetSpy = vi.spyOn(BattleActionDecisionStepService, "reset")
             selector.update({
                 gameEngineState,
-                graphicsContext: mockedP5GraphicsContext,
-                resourceHandler: gameEngineState.resourceHandler!,
             })
             expect(resetSpy).toBeCalledWith(
                 gameEngineState.battleOrchestratorState.battleState
@@ -469,8 +460,6 @@ describe("BattleComputerSquaddieSelector", () => {
 
             selector.update({
                 gameEngineState,
-                graphicsContext: mockedP5GraphicsContext,
-                resourceHandler: gameEngineState.resourceHandler!,
             })
             expect(selector.hasCompleted(gameEngineState)).toBeTruthy()
 
@@ -538,8 +527,6 @@ describe("BattleComputerSquaddieSelector", () => {
             it("will default to ending its turn if none of the strategies provide instruction", () => {
                 selector.update({
                     gameEngineState,
-                    graphicsContext: mockedP5GraphicsContext,
-                    resourceHandler: gameEngineState.resourceHandler!,
                 })
                 expect(selector.hasCompleted(gameEngineState)).toBeTruthy()
                 expect(determineNextDecisionSpy).toBeCalled()
@@ -565,8 +552,6 @@ describe("BattleComputerSquaddieSelector", () => {
                     )
                 selector.update({
                     gameEngineState,
-                    graphicsContext: mockedP5GraphicsContext,
-                    resourceHandler: gameEngineState.resourceHandler!,
                 })
                 expect(selector.hasCompleted(gameEngineState)).toBeTruthy()
                 expect(determineNextDecisionSpy).toBeCalled()
@@ -661,8 +646,6 @@ describe("BattleComputerSquaddieSelector", () => {
             ).mockReturnValue(moveAction)
             selector.update({
                 gameEngineState,
-                graphicsContext: mockedP5GraphicsContext,
-                resourceHandler: gameEngineState.resourceHandler!,
             })
 
             expect(selector.hasCompleted(gameEngineState)).toBeTruthy()
@@ -753,8 +736,6 @@ describe("BattleComputerSquaddieSelector", () => {
                 vi.spyOn(Date, "now").mockImplementation(() => 0)
                 selector.update({
                     gameEngineState,
-                    graphicsContext: mockedP5GraphicsContext,
-                    resourceHandler: gameEngineState.resourceHandler!,
                 })
             })
 
@@ -793,8 +774,6 @@ describe("BattleComputerSquaddieSelector", () => {
                 expect(selector.hasCompleted(gameEngineState)).toBeFalsy()
                 selector.update({
                     gameEngineState,
-                    graphicsContext: mockedP5GraphicsContext,
-                    resourceHandler: gameEngineState.resourceHandler!,
                 })
 
                 vi.spyOn(Date, "now").mockImplementation(
@@ -802,8 +781,6 @@ describe("BattleComputerSquaddieSelector", () => {
                 )
                 selector.update({
                     gameEngineState,
-                    graphicsContext: mockedP5GraphicsContext,
-                    resourceHandler: gameEngineState.resourceHandler!,
                 })
                 expect(selector.hasCompleted(gameEngineState)).toBeTruthy()
             })
@@ -814,8 +791,6 @@ describe("BattleComputerSquaddieSelector", () => {
                 )
                 selector.update({
                     gameEngineState,
-                    graphicsContext: mockedP5GraphicsContext,
-                    resourceHandler: gameEngineState.resourceHandler!,
                 })
                 const recommendation =
                     selector.recommendStateChanges(gameEngineState)
@@ -854,8 +829,6 @@ describe("BattleComputerSquaddieSelector", () => {
                 expect(selector.hasCompleted(gameEngineState)).toBeFalsy()
                 selector.update({
                     gameEngineState,
-                    graphicsContext: mockedP5GraphicsContext,
-                    resourceHandler: gameEngineState.resourceHandler!,
                 })
 
                 const mouseEvent: OrchestratorComponentMouseEvent = {
@@ -870,8 +843,6 @@ describe("BattleComputerSquaddieSelector", () => {
                 selector.mouseEventHappened(gameEngineState, mouseEvent)
                 selector.update({
                     gameEngineState,
-                    graphicsContext: mockedP5GraphicsContext,
-                    resourceHandler: gameEngineState.resourceHandler!,
                 })
                 expect(selector.hasCompleted(gameEngineState)).toBeTruthy()
             })
