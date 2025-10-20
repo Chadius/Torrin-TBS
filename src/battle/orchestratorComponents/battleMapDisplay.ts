@@ -12,7 +12,7 @@ import {
     DrawSquaddieIconOnMapUtilities,
 } from "../animation/drawSquaddieIconOnMap/drawSquaddieIconOnMap"
 import { ScreenDimensions } from "../../utils/graphics/graphicsConfig"
-import { UIControlSettings } from "../orchestrator/uiControlSettings"
+import { BattleUISettings, BattleUISettingsService } from "../orchestrator/uiSettings/uiSettings"
 import { MissionMapSquaddieCoordinateService } from "../../missionMap/squaddieCoordinate"
 import { ObjectRepositoryService } from "../objectRepository"
 import { isValidValue } from "../../utils/objectValidityCheck"
@@ -201,8 +201,8 @@ export class BattleMapDisplay implements BattleOrchestratorComponent {
         // Required by Inheritance
     }
 
-    uiControlSettings(_state: GameEngineState): UIControlSettings {
-        return new UIControlSettings({})
+    uiControlSettings(_state: GameEngineState): BattleUISettings {
+        return BattleUISettingsService.new({})
     }
 
     moveCameraBasedOnMouseMovement(

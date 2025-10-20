@@ -18,7 +18,10 @@ import { BattleMapDisplay } from "../orchestratorComponents/battleMapDisplay"
 import { BattlePhaseController } from "../orchestratorComponents/battlePhaseController"
 import { BattleSquaddieUsesActionOnMap } from "../orchestratorComponents/battleSquaddieUsesActionOnMap"
 import { BattleSquaddieUsesActionOnSquaddie } from "../orchestratorComponents/battleSquaddieUsesActionOnSquaddie"
-import { UIControlSettings } from "./uiControlSettings"
+import {
+    BattleUISettings,
+    BattleUISettingsService,
+} from "./uiSettings/uiSettings"
 import { BattleComputerSquaddieSelector } from "../orchestratorComponents/battleComputerSquaddieSelector"
 import {
     GameEngineChanges,
@@ -210,6 +213,7 @@ export class BattleOrchestrator implements GameEngineComponent {
 
         this.playerActionTargetSelect = playerActionTargetSelect
         this.battleEventMessageListener = battleEventMessageListener
+        this.uiControlSettings = BattleUISettingsService.new({})
 
         this.resetInternalState()
     }
@@ -226,11 +230,7 @@ export class BattleOrchestrator implements GameEngineComponent {
         return this._battleComplete
     }
 
-    private _uiControlSettings: UIControlSettings | undefined
-
-    get uiControlSettings(): UIControlSettings | undefined {
-        return this._uiControlSettings
-    }
+    uiControlSettings: BattleUISettings | undefined
 
     recommendStateChanges(state: GameEngineState): GameEngineChanges {
         if (
@@ -392,7 +392,10 @@ export class BattleOrchestrator implements GameEngineComponent {
         })
         const newUIControlSettingsChanges =
             currentComponent.uiControlSettings(gameEngineState)
-        this.uiControlSettings?.update(newUIControlSettingsChanges)
+        this.uiControlSettings = BattleUISettingsService.combine(
+            this.uiControlSettings,
+            newUIControlSettingsChanges
+        )
 
         if (currentComponent.hasCompleted(gameEngineState)) {
             if (
@@ -789,7 +792,7 @@ export class BattleOrchestrator implements GameEngineComponent {
     private resetInternalState() {
         this.mode = BattleOrchestratorMode.INITIALIZED
         this.defaultBattleOrchestrator = new DefaultBattleOrchestrator()
-        this._uiControlSettings = new UIControlSettings({})
+        this.uiControlSettings = BattleUISettingsService.new({})
 
         this._battleComplete = false
         this._previousUpdateTimestamp = undefined

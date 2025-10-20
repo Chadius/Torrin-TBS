@@ -22,8 +22,7 @@ import {
     MockedP5GraphicsBuffer,
     mockResourceHandler,
 } from "../../utils/test/mocks"
-import { UIControlSettings } from "./uiControlSettings"
-import { BattleComputerSquaddieSelector } from "../orchestratorComponents/battleComputerSquaddieSelector"
+import { BattleUISettingsService } from "./uiSettings/uiSettings"
 import { MouseButton } from "../../utils/mouseConfig"
 import { MissionObjectiveService } from "../missionResult/missionObjective"
 import { Cutscene, CutsceneService } from "../../cutscene/cutscene"
@@ -70,6 +69,7 @@ import {
     GameEngineState,
     GameEngineStateService,
 } from "../../gameEngine/gameEngineState/gameEngineState"
+import { BattleComputerSquaddieSelector } from "../orchestratorComponents/battleComputerSquaddieSelector"
 
 describe("Battle Orchestrator", () => {
     type OrchestratorTestOptions = {
@@ -115,17 +115,17 @@ describe("Battle Orchestrator", () => {
         mockBattleCutscenePlayer.update = vi.fn()
         mockBattleCutscenePlayer.uiControlSettings = vi
             .fn()
-            .mockReturnValue(new UIControlSettings({}))
+            .mockReturnValue(BattleUISettingsService.new({}))
         mockBattleCutscenePlayer.mouseEventHappened = vi.fn()
         mockBattleCutscenePlayer.hasCompleted = vi.fn().mockReturnValue(true)
 
         mockPlayerSquaddieSelector = new BattlePlayerSquaddieSelector()
         mockPlayerSquaddieSelector.update = vi.fn()
         mockPlayerSquaddieSelector.uiControlSettings = vi.fn().mockReturnValue(
-            new UIControlSettings({
-                displayMap: true,
+            BattleUISettingsService.new({
+                displayBattleMap: true,
                 displayPlayerHUD: true,
-                scrollCamera: true,
+                letMouseScrollCamera: true,
             })
         )
         mockPlayerSquaddieSelector.mouseEventHappened = vi.fn()
@@ -133,7 +133,7 @@ describe("Battle Orchestrator", () => {
         mockPlayerSquaddieSelector.hasCompleted = vi.fn().mockReturnValue(true)
         mockPlayerSquaddieSelector.recommendStateChanges = vi
             .fn()
-            .mockReturnValue({ displayMap: true })
+            .mockReturnValue({ displayBattleMap: true })
 
         mockPlayerActionTargetSelect = new PlayerActionTargetSelect()
         mockPlayerActionTargetSelect.update = vi.fn()
@@ -143,10 +143,10 @@ describe("Battle Orchestrator", () => {
         mockComputerSquaddieSelector.uiControlSettings = vi
             .fn()
             .mockReturnValue(
-                new UIControlSettings({
-                    displayMap: true,
+                BattleUISettingsService.new({
+                    displayBattleMap: true,
                     displayPlayerHUD: false,
-                    scrollCamera: false,
+                    letMouseScrollCamera: false,
                 })
             )
         mockComputerSquaddieSelector.mouseEventHappened = vi.fn()
@@ -156,14 +156,14 @@ describe("Battle Orchestrator", () => {
             .mockReturnValue(true)
         mockComputerSquaddieSelector.recommendStateChanges = vi
             .fn()
-            .mockReturnValue({ displayMap: true })
+            .mockReturnValue({ displayBattleMap: true })
 
         mockSquaddieMover = new BattleSquaddieMover()
         mockSquaddieMover.update = vi.fn()
         mockSquaddieMover.reset = vi.fn()
         mockSquaddieMover.uiControlSettings = vi
             .fn()
-            .mockReturnValue(new UIControlSettings({}))
+            .mockReturnValue(BattleUISettingsService.new({}))
         mockSquaddieMover.mouseEventHappened = vi.fn()
         mockSquaddieMover.hasCompleted = vi.fn().mockReturnValue(true)
 
@@ -171,7 +171,7 @@ describe("Battle Orchestrator", () => {
         mockSquaddieUsesActionOnMap.update = vi.fn()
         mockSquaddieUsesActionOnMap.uiControlSettings = vi
             .fn()
-            .mockReturnValue(new UIControlSettings({}))
+            .mockReturnValue(BattleUISettingsService.new({}))
         mockSquaddieUsesActionOnMap.mouseEventHappened = vi.fn()
         mockSquaddieUsesActionOnMap.hasCompleted = vi.fn().mockReturnValue(true)
 
@@ -180,7 +180,7 @@ describe("Battle Orchestrator", () => {
         mockSquaddieUsesActionOnSquaddie.update = vi.fn()
         mockSquaddieUsesActionOnSquaddie.uiControlSettings = vi
             .fn()
-            .mockReturnValue(new UIControlSettings({}))
+            .mockReturnValue(BattleUISettingsService.new({}))
         mockSquaddieUsesActionOnSquaddie.mouseEventHappened = vi.fn()
         mockSquaddieUsesActionOnSquaddie.hasCompleted = vi
             .fn()
@@ -193,7 +193,7 @@ describe("Battle Orchestrator", () => {
         mockMapDisplay.update = vi.fn()
         mockMapDisplay.uiControlSettings = vi
             .fn()
-            .mockReturnValue(new UIControlSettings({}))
+            .mockReturnValue(BattleUISettingsService.new({}))
         mockMapDisplay.mouseEventHappened = vi.fn()
         mockMapDisplay.keyEventHappened = vi.fn()
         mockMapDisplay.hasCompleted = vi.fn().mockReturnValue(true)
@@ -203,7 +203,7 @@ describe("Battle Orchestrator", () => {
         mockPhaseController.update = vi.fn()
         mockPhaseController.uiControlSettings = vi
             .fn()
-            .mockReturnValue(new UIControlSettings({}))
+            .mockReturnValue(BattleUISettingsService.new({}))
         mockPhaseController.mouseEventHappened = vi.fn()
         mockPhaseController.hasCompleted = vi.fn().mockReturnValue(true)
         mockPhaseController.draw = vi.fn()
@@ -213,9 +213,9 @@ describe("Battle Orchestrator", () => {
         mockPlayerHudController.reset = vi.fn()
         mockPlayerHudController.update = vi.fn()
         mockPlayerHudController.uiControlSettings = vi.fn().mockReturnValue(
-            new UIControlSettings({
-                displayMap: false,
-                scrollCamera: false,
+            BattleUISettingsService.new({
+                displayBattleMap: false,
+                letMouseScrollCamera: false,
             })
         )
         mockPlayerHudController.mouseEventHappened = vi.fn()
@@ -223,7 +223,7 @@ describe("Battle Orchestrator", () => {
         mockPlayerHudController.hasCompleted = vi.fn().mockReturnValue(true)
         mockPlayerHudController.recommendStateChanges = vi
             .fn()
-            .mockReturnValue({ displayMap: true })
+            .mockReturnValue({ displayBattleMap: true })
     }
 
     beforeEach(() => {
@@ -738,7 +738,7 @@ describe("Battle Orchestrator", () => {
         battleCutscenePlayerRecommendsAMode.update = vi.fn()
         battleCutscenePlayerRecommendsAMode.uiControlSettings = vi
             .fn()
-            .mockReturnValue(new UIControlSettings({}))
+            .mockReturnValue(BattleUISettingsService.new({}))
         battleCutscenePlayerRecommendsAMode.mouseEventHappened = vi.fn()
         battleCutscenePlayerRecommendsAMode.hasCompleted = vi
             .fn()
@@ -1149,8 +1149,8 @@ describe("Battle Orchestrator", () => {
             cutscenePlayerRecommendsAMode.uiControlSettings = vi
                 .fn()
                 .mockReturnValue(
-                    new UIControlSettings({
-                        displayMap: true,
+                    BattleUISettingsService.new({
+                        displayBattleMap: true,
                     })
                 )
             cutscenePlayerRecommendsAMode.mouseEventHappened = vi.fn()
@@ -1171,17 +1171,19 @@ describe("Battle Orchestrator", () => {
         it("will only draw the map if the settings turn it on", () => {
             const orchestrator1 = createOrchestrator({})
 
-            orchestrator1.uiControlSettings?.update(
-                new UIControlSettings({
-                    displayMap: false,
+            orchestrator1.uiControlSettings = BattleUISettingsService.combine(
+                orchestrator1.uiControlSettings,
+                BattleUISettingsService.new({
+                    displayBattleMap: false,
                 })
             )
             orchestrator1.update(nullState, mockedP5GraphicsContext)
             expect(mockMapDisplay.update).not.toBeCalled()
 
-            orchestrator1.uiControlSettings?.update(
-                new UIControlSettings({
-                    displayMap: true,
+            orchestrator1.uiControlSettings = BattleUISettingsService.combine(
+                orchestrator1.uiControlSettings,
+                BattleUISettingsService.new({
+                    displayBattleMap: true,
                 })
             )
             orchestrator1.update(nullState, mockedP5GraphicsContext)
@@ -1223,20 +1225,24 @@ describe("Battle Orchestrator", () => {
                     SummaryHUDStateService.new()
                 const hudSpy = vi.spyOn(SummaryHUDStateService, "draw")
 
-                orchestrator1.uiControlSettings?.update(
-                    new UIControlSettings({
-                        displayMap: true,
-                        displayPlayerHUD: false,
-                    })
-                )
+                orchestrator1.uiControlSettings =
+                    BattleUISettingsService.combine(
+                        orchestrator1.uiControlSettings,
+                        BattleUISettingsService.new({
+                            displayBattleMap: true,
+                            displayPlayerHUD: false,
+                        })
+                    )
                 orchestrator1.update(nullState, mockedP5GraphicsContext)
                 expect(hudSpy).not.toBeCalled()
 
-                orchestrator1.uiControlSettings?.update(
-                    new UIControlSettings({
-                        displayPlayerHUD: true,
-                    })
-                )
+                orchestrator1.uiControlSettings =
+                    BattleUISettingsService.combine(
+                        orchestrator1.uiControlSettings,
+                        BattleUISettingsService.new({
+                            displayPlayerHUD: true,
+                        })
+                    )
                 orchestrator1.update(nullState, mockedP5GraphicsContext)
                 expect(hudSpy).toBeCalled()
                 hudSpy.mockRestore()
@@ -1250,12 +1256,14 @@ describe("Battle Orchestrator", () => {
                     })
                 const hudSpy = vi.spyOn(SquaddieSelectorPanelService, "draw")
 
-                orchestrator1.uiControlSettings?.update(
-                    new UIControlSettings({
-                        displayMap: true,
-                        displayPlayerHUD: false,
-                    })
-                )
+                orchestrator1.uiControlSettings =
+                    BattleUISettingsService.combine(
+                        orchestrator1.uiControlSettings,
+                        BattleUISettingsService.new({
+                            displayBattleMap: true,
+                            displayPlayerHUD: false,
+                        })
+                    )
                 orchestrator1.update(nullState, mockedP5GraphicsContext)
                 expect(hudSpy).not.toBeCalled()
                 hudSpy.mockRestore()
@@ -1269,12 +1277,14 @@ describe("Battle Orchestrator", () => {
                     })
                 const hudSpy = vi.spyOn(SquaddieSelectorPanelService, "draw")
 
-                orchestrator1.uiControlSettings?.update(
-                    new UIControlSettings({
-                        displayMap: true,
-                        displayPlayerHUD: true,
-                    })
-                )
+                orchestrator1.uiControlSettings =
+                    BattleUISettingsService.combine(
+                        orchestrator1.uiControlSettings,
+                        BattleUISettingsService.new({
+                            displayBattleMap: true,
+                            displayPlayerHUD: true,
+                        })
+                    )
                 orchestrator1.update(nullState, mockedP5GraphicsContext)
                 expect(hudSpy).toBeCalled()
                 hudSpy.mockRestore()
@@ -1381,11 +1391,13 @@ describe("Battle Orchestrator", () => {
                 playerSquaddieSelector: mockPlayerSquaddieSelector,
                 initialMode: BattleOrchestratorMode.PLAYER_SQUADDIE_SELECTOR,
             })
-            squaddieSelectorOrchestratorShouldDisplayMap.uiControlSettings?.update(
-                new UIControlSettings({
-                    scrollCamera: true,
-                })
-            )
+            squaddieSelectorOrchestratorShouldDisplayMap.uiControlSettings =
+                BattleUISettingsService.combine(
+                    squaddieSelectorOrchestratorShouldDisplayMap.uiControlSettings,
+                    BattleUISettingsService.new({
+                        letMouseScrollCamera: true,
+                    })
+                )
 
             stateWantsToDisplayTheMap = GameEngineStateService.new({
                 resourceHandler: undefined,
@@ -1413,10 +1425,11 @@ describe("Battle Orchestrator", () => {
                 playerSquaddieSelector: mockPlayerSquaddieSelector,
                 initialMode: BattleOrchestratorMode.PLAYER_SQUADDIE_SELECTOR,
             })
-            orchestrator.uiControlSettings?.update(
-                new UIControlSettings({
-                    scrollCamera: true,
-                    displayMap: true,
+            orchestrator.uiControlSettings = BattleUISettingsService.combine(
+                orchestrator.uiControlSettings,
+                BattleUISettingsService.new({
+                    letMouseScrollCamera: true,
+                    displayBattleMap: true,
                 })
             )
 
@@ -1466,7 +1479,9 @@ describe("Battle Orchestrator", () => {
             const needsTwoUpdatesToFinishLoading = new BattleCutscenePlayer()
             needsTwoUpdatesToFinishLoading.uiControlSettings = vi
                 .fn()
-                .mockReturnValue(new UIControlSettings({ pauseTimer: true }))
+                .mockReturnValue(
+                    BattleUISettingsService.new({ pauseTimer: true })
+                )
             needsTwoUpdatesToFinishLoading.hasCompleted = vi
                 .fn()
                 .mockReturnValueOnce(false)
@@ -1480,7 +1495,9 @@ describe("Battle Orchestrator", () => {
 
             mockPlayerSquaddieSelector.uiControlSettings = vi
                 .fn()
-                .mockReturnValue(new UIControlSettings({ pauseTimer: false }))
+                .mockReturnValue(
+                    BattleUISettingsService.new({ pauseTimer: false })
+                )
 
             const gameEngineState: GameEngineState = GameEngineStateService.new(
                 {

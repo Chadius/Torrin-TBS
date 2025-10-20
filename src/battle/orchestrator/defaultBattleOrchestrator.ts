@@ -1,4 +1,4 @@
-import { UIControlSettings } from "./uiControlSettings"
+import { BattleUISettings, BattleUISettingsService } from "./uiSettings/uiSettings"
 import {
     BattleOrchestratorChanges,
     BattleOrchestratorComponent,
@@ -38,8 +38,8 @@ export class DefaultBattleOrchestrator implements BattleOrchestratorComponent {
         // Required by inheritance
     }
 
-    uiControlSettings(_: GameEngineState): UIControlSettings {
-        return new UIControlSettings({})
+    uiControlSettings(_: GameEngineState): BattleUISettings {
+        return BattleUISettingsService.new({})
     }
 
     update({}: {

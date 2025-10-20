@@ -6,7 +6,7 @@ import {
     OrchestratorComponentMouseEvent,
     OrchestratorComponentMouseEventType,
 } from "../orchestrator/battleOrchestratorComponent"
-import { UIControlSettings } from "../orchestrator/uiControlSettings"
+import { BattleUISettings, BattleUISettingsService } from "../orchestrator/uiSettings/uiSettings"
 import { Cutscene, CutsceneService } from "../../cutscene/cutscene"
 import { isValidValue } from "../../utils/objectValidityCheck"
 import { GraphicsBuffer } from "../../utils/graphics/graphicsRenderer"
@@ -88,9 +88,9 @@ export class BattleCutscenePlayer implements BattleOrchestratorComponent {
         }
     }
 
-    uiControlSettings(_state: GameEngineState): UIControlSettings {
-        return new UIControlSettings({
-            scrollCamera: true,
+    uiControlSettings(_state: GameEngineState): BattleUISettings {
+        return BattleUISettingsService.new({
+            letMouseScrollCamera: true,
             pauseTimer: true,
             displayPlayerHUD: false,
         })

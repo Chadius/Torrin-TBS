@@ -6,7 +6,7 @@ import {
 } from "../orchestrator/battleOrchestratorComponent"
 import { DrawSquaddieIconOnMapUtilities } from "../animation/drawSquaddieIconOnMap/drawSquaddieIconOnMap"
 import { OrchestratorUtilities } from "./orchestratorUtils"
-import { UIControlSettings } from "../orchestrator/uiControlSettings"
+import { BattleUISettings, BattleUISettingsService } from "../orchestrator/uiSettings/uiSettings"
 import { GraphicsBuffer } from "../../utils/graphics/graphicsRenderer"
 import { ObjectRepositoryService } from "../objectRepository"
 import { BattleSquaddie } from "../battleSquaddie"
@@ -62,10 +62,12 @@ export class BattleSquaddieMover implements BattleOrchestratorComponent {
         // Required by inheritance
     }
 
-    uiControlSettings(_gameEngineState: GameEngineState): UIControlSettings {
-        return new UIControlSettings({
-            scrollCamera: false,
-            displayMap: true,
+    uiControlSettings(
+        _gameEngineState: GameEngineState
+    ): BattleUISettings {
+        return BattleUISettingsService.new({
+            letMouseScrollCamera: false,
+            displayBattleMap: true,
             pauseTimer: true,
             displayPlayerHUD: false,
         })

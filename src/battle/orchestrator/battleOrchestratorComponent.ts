@@ -1,5 +1,5 @@
 import { TBattleOrchestratorMode } from "./battleOrchestrator"
-import { UIControlSettings } from "./uiControlSettings"
+import { BattleUISettings } from "./uiSettings/uiSettings"
 import {
     MouseDrag,
     MousePress,
@@ -96,7 +96,7 @@ export interface BattleOrchestratorComponent {
 
     uiControlSettings(
         gameEngineState: GameEngineState
-    ): UIControlSettings | undefined
+    ): BattleUISettings | undefined
 
     mouseEventHappened(
         gameEngineState: GameEngineState,

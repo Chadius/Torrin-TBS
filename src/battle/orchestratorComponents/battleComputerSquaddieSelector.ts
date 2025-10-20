@@ -15,7 +15,7 @@ import {
     TBattleOrchestratorMode,
 } from "../orchestrator/battleOrchestrator"
 import { GraphicsConfig } from "../../utils/graphics/graphicsConfig"
-import { UIControlSettings } from "../orchestrator/uiControlSettings"
+import { BattleUISettings, BattleUISettingsService } from "../orchestrator/uiSettings/uiSettings"
 import { HexCoordinate } from "../../hexMap/hexCoordinate/hexCoordinate"
 import { TeamStrategy } from "../teamStrategy/teamStrategy"
 import { DetermineNextDecisionService } from "../teamStrategy/determineNextDecision"
@@ -104,10 +104,10 @@ export class BattleComputerSquaddieSelector
         // Required by inheritance but does nothing
     }
 
-    uiControlSettings(_state: GameEngineState): UIControlSettings {
-        return new UIControlSettings({
-            scrollCamera: false,
-            displayMap: true,
+    uiControlSettings(_state: GameEngineState): BattleUISettings {
+        return BattleUISettingsService.new({
+            letMouseScrollCamera: false,
+            displayBattleMap: true,
             pauseTimer: true,
             displayPlayerHUD: false,
         })

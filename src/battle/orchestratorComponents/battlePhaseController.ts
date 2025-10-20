@@ -12,7 +12,7 @@ import {
 } from "./battlePhaseTracker"
 import { RectAreaService } from "../../ui/rectArea"
 import { ScreenDimensions } from "../../utils/graphics/graphicsConfig"
-import { UIControlSettings } from "../orchestrator/uiControlSettings"
+import { BattleUISettings, BattleUISettingsService } from "../orchestrator/uiSettings/uiSettings"
 import { TSquaddieAffiliation } from "../../squaddie/squaddieAffiliation"
 import {
     BattleSquaddieTeam,
@@ -99,10 +99,10 @@ export class BattlePhaseController implements BattleOrchestratorComponent {
         // Required by inheritance
     }
 
-    uiControlSettings(_: GameEngineState): UIControlSettings {
-        return new UIControlSettings({
-            scrollCamera: false,
-            displayMap: true,
+    uiControlSettings(_: GameEngineState): BattleUISettings {
+        return BattleUISettingsService.new({
+            letMouseScrollCamera: false,
+            displayBattleMap: true,
             displayPlayerHUD: false,
         })
     }

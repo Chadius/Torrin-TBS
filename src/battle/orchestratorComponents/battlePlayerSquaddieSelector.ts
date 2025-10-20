@@ -10,7 +10,7 @@ import {
     BattleOrchestratorMode,
     TBattleOrchestratorMode,
 } from "../orchestrator/battleOrchestrator"
-import { UIControlSettings } from "../orchestrator/uiControlSettings"
+import { BattleUISettings, BattleUISettingsService } from "../orchestrator/uiSettings/uiSettings"
 import { FileAccessHUDService } from "../hud/fileAccess/fileAccessHUD"
 import {
     MouseConfigService,
@@ -278,10 +278,12 @@ export class BattlePlayerSquaddieSelector
         })
     }
 
-    uiControlSettings(_gameEngineState: GameEngineState): UIControlSettings {
-        return new UIControlSettings({
-            scrollCamera: true,
-            displayMap: true,
+    uiControlSettings(
+        _gameEngineState: GameEngineState
+    ): BattleUISettings {
+        return BattleUISettingsService.new({
+            letMouseScrollCamera: true,
+            displayBattleMap: true,
             pauseTimer: false,
             displayPlayerHUD: true,
         })

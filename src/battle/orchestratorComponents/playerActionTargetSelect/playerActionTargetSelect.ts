@@ -6,7 +6,7 @@ import {
 } from "../../orchestrator/battleOrchestratorComponent"
 import { ResourceHandler } from "../../../resource/resourceHandler"
 import { GraphicsBuffer } from "../../../utils/graphics/graphicsRenderer"
-import { UIControlSettings } from "../../orchestrator/uiControlSettings"
+import { BattleUISettings, BattleUISettingsService } from "../../orchestrator/uiSettings/uiSettings"
 import { BattleOrchestratorMode } from "../../orchestrator/battleOrchestrator"
 import {
     PlayerActionTargetActionType,
@@ -95,8 +95,8 @@ export class PlayerActionTargetSelect implements BattleOrchestratorComponent {
         })
     }
 
-    uiControlSettings(_: GameEngineState): UIControlSettings {
-        return new UIControlSettings({})
+    uiControlSettings(_: GameEngineState): BattleUISettings {
+        return BattleUISettingsService.new({})
     }
 
     mouseEventHappened(

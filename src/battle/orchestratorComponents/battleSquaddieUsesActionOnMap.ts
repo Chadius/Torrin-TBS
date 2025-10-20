@@ -5,7 +5,7 @@ import {
     OrchestratorComponentMouseEvent,
 } from "../orchestrator/battleOrchestratorComponent"
 import { OrchestratorUtilities } from "./orchestratorUtils"
-import { UIControlSettings } from "../orchestrator/uiControlSettings"
+import { BattleUISettings, BattleUISettingsService } from "../orchestrator/uiSettings/uiSettings"
 import { GraphicsBuffer } from "../../utils/graphics/graphicsRenderer"
 import { ActionComponentCalculator } from "../actionDecision/actionComponentCalculator"
 import { MessageBoardMessageType } from "../../message/messageBoardMessage"
@@ -48,10 +48,12 @@ export class BattleSquaddieUsesActionOnMap
         // Required by inheritance
     }
 
-    uiControlSettings(_gameEngineState: GameEngineState): UIControlSettings {
-        return new UIControlSettings({
-            displayMap: true,
-            scrollCamera: false,
+    uiControlSettings(
+        _gameEngineState: GameEngineState
+    ): BattleUISettings {
+        return BattleUISettingsService.new({
+            displayBattleMap: true,
+            letMouseScrollCamera: false,
             pauseTimer: true,
             displayPlayerHUD: false,
         })

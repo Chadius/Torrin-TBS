@@ -8,7 +8,7 @@ import {
 } from "../orchestrator/battleOrchestratorComponent"
 import { OrchestratorUtilities } from "./orchestratorUtils"
 import { SquaddieService } from "../../squaddie/squaddieService"
-import { UIControlSettings } from "../orchestrator/uiControlSettings"
+import { BattleUISettings, BattleUISettingsService } from "../orchestrator/uiSettings/uiSettings"
 import { SquaddieTargetsOtherSquaddiesAnimator } from "../animation/squaddieActOnSquaddie/squaddieTargetsOtherSquaddiesAnimatior"
 import { SquaddieActionAnimator } from "../animation/squaddieActionAnimator"
 import { DefaultSquaddieActionAnimator } from "../animation/defaultSquaddieActionAnimator"
@@ -87,10 +87,10 @@ export class BattleSquaddieUsesActionOnSquaddie
         }
     }
 
-    uiControlSettings(_state: GameEngineState): UIControlSettings {
-        return new UIControlSettings({
-            scrollCamera: false,
-            displayMap: true,
+    uiControlSettings(_state: GameEngineState): BattleUISettings {
+        return BattleUISettingsService.new({
+            letMouseScrollCamera: false,
+            displayBattleMap: true,
             pauseTimer: true,
             displayPlayerHUD: false,
         })
