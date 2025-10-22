@@ -4,7 +4,10 @@ import {
     TCutsceneActionPlayerType,
 } from "../cutsceneAction"
 import { DialogueTextBox } from "./dialogueTextBox"
-import { DialoguePortraitImage } from "./dialoguePortraitImage"
+import {
+    DialoguePortraitImage,
+    DialoguePortraitImageService,
+} from "./dialoguePortraitImage"
 import { DialogueAnswerButton } from "./dialogueAnswerButton"
 import { GraphicsBuffer } from "../../utils/graphics/graphicsRenderer"
 import {
@@ -19,17 +22,17 @@ import {
     DIALOGUE_SPEAKER_PORTRAIT_STYLE_CONSTANTS,
     DialogueComponent,
     DialoguePosition,
-    DialogueTextService,
 } from "./constants"
 import { ResourceHandler } from "../../resource/resourceHandler"
 import { OrchestratorComponentKeyEvent } from "../../battle/orchestrator/battleOrchestratorComponent"
 import {
     PlayerInputAction,
-    TPlayerInputAction,
     PlayerInputState,
     PlayerInputStateService,
+    TPlayerInputAction,
 } from "../../ui/playerInput/playerInputState"
 import { MousePress } from "../../utils/mouseConfig"
+import { WINDOW_SPACING } from "../../ui/constants.ts"
 
 export interface DialoguePlayerState {
     type: TCutsceneActionPlayerType
@@ -127,17 +130,24 @@ export const DialoguePlayerService = {
         }
     },
     draw: (
-        state: DialoguePlayerState,
+        dialoguePlayerState: DialoguePlayerState,
         graphicsContext: GraphicsBuffer,
         resourceHandler: ResourceHandler
     ) => {
         graphicsContext.push()
-        drawBackground(state, graphicsContext)
-        state.speakerImage?.draw(graphicsContext, resourceHandler)
-        state.textBox?.draw(graphicsContext)
+        drawBackground(dialoguePlayerState, graphicsContext)
+        if (dialoguePlayerState.speakerImage != undefined)
+            DialoguePortraitImageService.draw({
+                graphics: graphicsContext,
+                resourceHandler,
+                portraitImage: dialoguePlayerState.speakerImage,
+            })
+        dialoguePlayerState.speakerNameBox?.draw(graphicsContext)
+        dialoguePlayerState.textBox?.draw(graphicsContext)
 
-        state.speakerNameBox?.draw(graphicsContext)
-        state.answerButtons.forEach((answer) => answer.draw(graphicsContext))
+        dialoguePlayerState.answerButtons.forEach((answer) =>
+            answer.draw(graphicsContext)
+        )
 
         graphicsContext.pop()
     },
@@ -254,7 +264,7 @@ const createUIObjects = (
 
 const setSpeakerUI = (state: DialoguePlayerState) => {
     if (state.speakerPortrait) {
-        state.speakerImage = new DialoguePortraitImage({
+        state.speakerImage = DialoguePortraitImageService.new({
             speakerPortrait: state.speakerPortrait,
             position: state.dialogue.speakerPortraitPosition,
         })
@@ -285,18 +295,20 @@ const getAnswerButtonPositions = (state: DialoguePlayerState): RectArea[] => {
         speakerBoxWidth =
             ScreenDimensions.SCREEN_WIDTH * rectStyle.widthFraction
     }
-    let dialogueTextLabelLeft: number =
-        DialogueTextService.calculateLeftAlignSide({
-            rectStyle,
-            dialogueBoxWidth: speakerBoxWidth,
-            horizontalMargin: 0,
-        })
+
+    let dialogueAnswerLabelLeft: number = {
+        [DialoguePosition.LEFT]: WINDOW_SPACING.SPACING2,
+        [DialoguePosition.CENTER]:
+            (ScreenDimensions.SCREEN_WIDTH - speakerBoxWidth) / 2,
+        [DialoguePosition.RIGHT]:
+            ScreenDimensions.SCREEN_WIDTH - speakerBoxWidth,
+    }[state.dialogue.dialogueTextPosition ?? DialoguePosition.LEFT]
 
     if (state.dialogue.answers == undefined) return []
     if (state.dialogue.answers.length == 1) {
         return [
             RectAreaService.new({
-                left: dialogueTextLabelLeft,
+                left: dialogueAnswerLabelLeft,
                 top: buttonTop,
                 width: ScreenDimensions.SCREEN_WIDTH,
                 height: buttonHeight,
@@ -323,7 +335,8 @@ const getAnswerButtonPositions = (state: DialoguePlayerState): RectArea[] => {
     return state.dialogue.answers.map((_, index): RectArea => {
         return RectAreaService.new({
             left:
-                dialogueTextLabelLeft + (buttonWidth + buttonGapWidth) * index,
+                dialogueAnswerLabelLeft +
+                (buttonWidth + buttonGapWidth) * index,
             top: buttonTop,
             width: buttonWidth,
             height: buttonHeight,

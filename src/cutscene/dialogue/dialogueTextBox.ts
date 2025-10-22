@@ -5,12 +5,11 @@ import {
     DIALOGUE_FONT_STYLE_CONSTANTS,
     DIALOGUE_TEXT_BOX_STYLE_CONSTANTS,
     DialogueComponent,
-    TDialogueComponent,
     DialogueFontStyle,
-    TDialogueFontStyle,
     DialoguePosition,
+    TDialogueComponent,
+    TDialogueFontStyle,
     TDialoguePosition,
-    DialogueTextService,
     ThirdOfScreenAlignment,
 } from "./constants"
 import { ScreenDimensions } from "../../utils/graphics/graphicsConfig"
@@ -56,6 +55,22 @@ const DIALOGUE_SPEAKER_NAME_BOX_STYLE_CONSTANTS: {
         horizontalMargin: WINDOW_SPACING.SPACING1,
         thirdOfScreenAlignment: HORIZONTAL_ALIGN.LEFT,
         thirdOfScreenSubAlignment: HORIZONTAL_ALIGN.LEFT,
+        topOffset: -5 * WINDOW_SPACING.SPACING1,
+        topFraction: 0.7,
+        textBoxMargin: [
+            WINDOW_SPACING.SPACING1 * 1.3,
+            0,
+            0,
+            WINDOW_SPACING.SPACING1,
+        ],
+    },
+    [DialoguePosition.RIGHT]: {
+        fillColor: [200, 10, 50],
+        maxPixelWidth: ScreenDimensions.SCREEN_WIDTH / 3,
+        linesOfTextRange: { maximum: 3 },
+        horizontalMargin: WINDOW_SPACING.SPACING2,
+        thirdOfScreenAlignment: HORIZONTAL_ALIGN.RIGHT,
+        thirdOfScreenSubAlignment: HORIZONTAL_ALIGN.RIGHT,
         topOffset: -5 * WINDOW_SPACING.SPACING1,
         topFraction: 0.7,
         textBoxMargin: [
@@ -124,12 +139,18 @@ export class DialogueTextBox {
             linesOfTextRange: rectStyle.linesOfTextRange,
         })
 
-        let dialogueTextLabelLeft: number =
-            DialogueTextService.calculateLeftAlignSide({
-                rectStyle,
-                dialogueBoxWidth: textFit.width,
-                horizontalMargin: rectStyle.horizontalMargin,
-            })
+        let dialogueTextLabelLeft: number = {
+            [DialoguePosition.LEFT]: WINDOW_SPACING.SPACING2,
+            [DialoguePosition.CENTER]:
+                (ScreenDimensions.SCREEN_WIDTH -
+                    textFit.width -
+                    WINDOW_SPACING.SPACING2) /
+                2,
+            [DialoguePosition.RIGHT]:
+                ScreenDimensions.SCREEN_WIDTH -
+                textFit.width -
+                WINDOW_SPACING.SPACING2,
+        }[this.position]
 
         this.dialogueTextLabel = LabelService.new({
             text: textFit.text,
