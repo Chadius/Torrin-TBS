@@ -21,6 +21,7 @@ import p5 from "p5"
 import {
     DIALOGUE_SPEAKER_PORTRAIT_STYLE_CONSTANTS,
     DialogueComponent,
+    DialogueFontStyle,
     DialoguePosition,
 } from "./constants"
 import { ResourceHandler } from "../../resource/resourceHandler"
@@ -85,12 +86,13 @@ export const DialoguePlayerService = {
         }
     },
     start: (
-        state: DialoguePlayerState,
+        dialoguePlayerState: DialoguePlayerState,
         context: TextSubstitutionContext
     ): void => {
-        state.dialogFinished = false
-        state.startTime = Date.now()
-        createUIObjects(state, context)
+        dialoguePlayerState.dialogFinished = false
+        dialoguePlayerState.startTime = Date.now()
+        createDialogueMainTextBox(dialoguePlayerState, context)
+        createAnswerButtons(dialoguePlayerState, context)
     },
     isAnimating: (state: DialoguePlayerState): boolean => {
         if (
@@ -134,8 +136,21 @@ export const DialoguePlayerService = {
         graphicsContext: GraphicsBuffer,
         resourceHandler: ResourceHandler
     ) => {
+        if (dialoguePlayerState.speakerNameBox == undefined) {
+            createDialogueSpeakerNameTextBoxAboveMainTextBox(
+                dialoguePlayerState
+            )
+            if (dialoguePlayerState.speakerNameBox != undefined) {
+                // @ts-ignore if statement checks to make sure the object was created
+                dialoguePlayerState.speakerNameBox.draw(graphicsContext)
+            }
+        }
+
         graphicsContext.push()
         drawBackground(dialoguePlayerState, graphicsContext)
+        if (dialoguePlayerState.speakerImage == undefined)
+            setSpeakerUI(dialoguePlayerState)
+
         if (dialoguePlayerState.speakerImage != undefined)
             DialoguePortraitImageService.draw({
                 graphics: graphicsContext,
@@ -183,7 +198,6 @@ export const DialoguePlayerService = {
 
 const setPortrait = (state: DialoguePlayerState, portrait: p5.Image) => {
     state.speakerPortrait = portrait
-    setSpeakerUI(state)
 }
 
 const isAnimating = (state: DialoguePlayerState): boolean => {
@@ -217,40 +231,95 @@ const isTimeExpired = (state: DialoguePlayerState): boolean => {
     return Date.now() >= state.startTime + state.dialogue.animationDuration
 }
 
-const createUIObjects = (
-    state: DialoguePlayerState,
-    context: TextSubstitutionContext
-) => {
+const setSpeakerUI = (dialoguePlayerState: DialoguePlayerState) => {
     if (
-        state.dialogue.dialogueTextPosition != undefined &&
-        state.dialogue.dialogueTextFontStyle != undefined
-    ) {
-        state.textBox = new DialogueTextBox({
-            text: SubstituteText(state.dialogue.dialogueText, context),
-            position: state.dialogue.dialogueTextPosition,
-            fontStyle: state.dialogue.dialogueTextFontStyle,
-            dialogueComponent: DialogueComponent.DIALOGUE_BOX,
-        })
+        dialoguePlayerState.speakerPortrait == undefined ||
+        dialoguePlayerState.textBox?.dialogueTextLabel == undefined
+    )
+        return
+
+    dialoguePlayerState.speakerImage = DialoguePortraitImageService.new({
+        speakerPortrait: dialoguePlayerState.speakerPortrait,
+        position: dialoguePlayerState.dialogue.speakerPortraitPosition,
+        speakerNameBox: dialoguePlayerState.speakerNameBox,
+        relativePlacementArea:
+            dialoguePlayerState.textBox?.dialogueTextLabel.rectangle.area,
+    })
+}
+
+const drawBackground = (
+    dialoguePlayerState: DialoguePlayerState,
+    graphics: GraphicsBuffer
+) => {
+    if (!dialoguePlayerState.dialogue.backgroundColor) {
+        return
     }
 
-    if (
-        state.dialogue.speakerNamePosition != undefined &&
-        state.dialogue.speakerNameFontStyle != undefined
-    ) {
-        state.speakerNameBox = new DialogueTextBox({
-            text: state.dialogue.speakerName,
-            position: state.dialogue.speakerNamePosition,
-            fontStyle: state.dialogue.speakerNameFontStyle,
-            dialogueComponent: DialogueComponent.SPEAKER_NAME,
-        })
-    }
-    const answerButtonPositions: RectArea[] = getAnswerButtonPositions(state)
-    state.answerButtons = answerButtonPositions
+    graphics.push()
+    graphics.fill(
+        dialoguePlayerState.dialogue.backgroundColor[0],
+        dialoguePlayerState.dialogue.backgroundColor[1],
+        dialoguePlayerState.dialogue.backgroundColor[2]
+    )
+    graphics.rect(
+        0,
+        0,
+        ScreenDimensions.SCREEN_WIDTH,
+        ScreenDimensions.SCREEN_HEIGHT
+    )
+    graphics.pop()
+}
+
+const createDialogueMainTextBox = (
+    dialoguePlayerState: DialoguePlayerState,
+    context: TextSubstitutionContext
+) => {
+    dialoguePlayerState.textBox = new DialogueTextBox({
+        text: SubstituteText(
+            dialoguePlayerState.dialogue.dialogueText,
+            context
+        ),
+        position:
+            dialoguePlayerState.dialogue.dialogueTextPosition ??
+            DialoguePosition.CENTER,
+        fontStyle:
+            dialoguePlayerState.dialogue.dialogueTextFontStyle ??
+            DialogueFontStyle.BLACK,
+        dialogueComponent: DialogueComponent.DIALOGUE_BOX,
+    })
+}
+
+const createDialogueSpeakerNameTextBoxAboveMainTextBox = (
+    dialoguePlayerState: DialoguePlayerState
+) => {
+    if (dialoguePlayerState.textBox?.dialogueTextLabel == undefined) return
+    if (dialoguePlayerState.speakerNameBox) return
+    dialoguePlayerState.speakerNameBox = new DialogueTextBox({
+        text: dialoguePlayerState.dialogue.speakerName,
+        relativePlacementArea:
+            dialoguePlayerState.textBox?.dialogueTextLabel?.rectangle.area,
+        position:
+            dialoguePlayerState.dialogue.speakerNamePosition ??
+            DialoguePosition.RIGHT,
+        fontStyle:
+            dialoguePlayerState.dialogue.speakerNameFontStyle ??
+            DialogueFontStyle.BLACK,
+        dialogueComponent: DialogueComponent.SPEAKER_NAME,
+    })
+}
+
+const createAnswerButtons = (
+    dialoguePlayerState: DialoguePlayerState,
+    context: TextSubstitutionContext
+) => {
+    const answerButtonPositions: RectArea[] =
+        getAnswerButtonPositions(dialoguePlayerState)
+    dialoguePlayerState.answerButtons = answerButtonPositions
         .map((position, index) =>
-            state.dialogue.answers
+            dialoguePlayerState.dialogue.answers
                 ? new DialogueAnswerButton({
                       answer: SubstituteText(
-                          state.dialogue.answers[index],
+                          dialoguePlayerState.dialogue.answers[index],
                           context
                       ),
                       position: position,
@@ -258,17 +327,6 @@ const createUIObjects = (
                 : undefined
         )
         .filter((x) => x != undefined)
-
-    setSpeakerUI(state)
-}
-
-const setSpeakerUI = (state: DialoguePlayerState) => {
-    if (state.speakerPortrait) {
-        state.speakerImage = DialoguePortraitImageService.new({
-            speakerPortrait: state.speakerPortrait,
-            position: state.dialogue.speakerPortraitPosition,
-        })
-    }
 }
 
 const getAnswerButtonPositions = (state: DialoguePlayerState): RectArea[] => {
@@ -342,27 +400,4 @@ const getAnswerButtonPositions = (state: DialoguePlayerState): RectArea[] => {
             height: buttonHeight,
         })
     })
-}
-
-const drawBackground = (
-    state: DialoguePlayerState,
-    graphicsContext: GraphicsBuffer
-) => {
-    if (!state.dialogue.backgroundColor) {
-        return
-    }
-
-    graphicsContext.push()
-    graphicsContext.fill(
-        state.dialogue.backgroundColor[0],
-        state.dialogue.backgroundColor[1],
-        state.dialogue.backgroundColor[2]
-    )
-    graphicsContext.rect(
-        0,
-        0,
-        ScreenDimensions.SCREEN_WIDTH,
-        ScreenDimensions.SCREEN_HEIGHT
-    )
-    graphicsContext.pop()
 }

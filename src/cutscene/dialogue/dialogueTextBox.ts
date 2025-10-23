@@ -1,11 +1,12 @@
 import { Label, LabelService } from "../../ui/label"
-import { RectAreaService } from "../../ui/rectArea"
+import { RectArea, RectAreaService } from "../../ui/rectArea"
 import { GraphicsBuffer } from "../../utils/graphics/graphicsRenderer"
 import {
     DIALOGUE_FONT_STYLE_CONSTANTS,
     DIALOGUE_TEXT_BOX_STYLE_CONSTANTS,
     DialogueComponent,
     DialogueFontStyle,
+    DialoguePlacementService,
     DialoguePosition,
     TDialogueComponent,
     TDialogueFontStyle,
@@ -88,20 +89,24 @@ export class DialogueTextBox {
     position: TDialoguePosition
     fontStyle: TDialogueFontStyle
     dialogueComponent: TDialogueComponent
+    relativePlacementArea?: RectArea
 
     constructor({
         text,
         position,
+        relativePlacementArea,
         dialogueComponent,
         fontStyle,
     }: {
         text: string
+        relativePlacementArea?: RectArea
         position: TDialoguePosition
         fontStyle: TDialogueFontStyle
         dialogueComponent: TDialogueComponent
     }) {
         this.dialogueText = text
         this.position = position || DialoguePosition.CENTER
+        this.relativePlacementArea = relativePlacementArea
         this.fontStyle = fontStyle || DialogueFontStyle.BLACK
         this.dialogueComponent = dialogueComponent
     }
@@ -139,18 +144,12 @@ export class DialogueTextBox {
             linesOfTextRange: rectStyle.linesOfTextRange,
         })
 
-        let dialogueTextLabelLeft: number = {
-            [DialoguePosition.LEFT]: WINDOW_SPACING.SPACING2,
-            [DialoguePosition.CENTER]:
-                (ScreenDimensions.SCREEN_WIDTH -
-                    textFit.width -
-                    WINDOW_SPACING.SPACING2) /
-                2,
-            [DialoguePosition.RIGHT]:
-                ScreenDimensions.SCREEN_WIDTH -
-                textFit.width -
-                WINDOW_SPACING.SPACING2,
-        }[this.position]
+        let dialogueTextLabelLeft: number =
+            DialoguePlacementService.getRelativePlacementLeftSide({
+                relativePlacementArea: this.relativePlacementArea,
+                position: this.position,
+                objectWidth: textFit.width,
+            })
 
         this.dialogueTextLabel = LabelService.new({
             text: textFit.text,

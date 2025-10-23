@@ -1,15 +1,16 @@
-import { RectAreaService } from "../../ui/rectArea"
+import { RectArea, RectAreaService } from "../../ui/rectArea"
 import { GraphicsBuffer } from "../../utils/graphics/graphicsRenderer"
 import { ScreenDimensions } from "../../utils/graphics/graphicsConfig"
 import p5 from "p5"
 import {
     DIALOGUE_SPEAKER_PORTRAIT_STYLE_CONSTANTS,
+    DialoguePlacementService,
     DialoguePosition,
     TDialoguePosition,
 } from "./constants"
 import { ImageUI, ImageUILoadingBehavior } from "../../ui/imageUI/imageUI"
 import { ResourceHandler } from "../../resource/resourceHandler"
-import { WINDOW_SPACING } from "../../ui/constants.ts"
+import { DialogueTextBox } from "./dialogueTextBox.ts"
 
 export interface DialoguePortraitImage {
     speakerPortrait: p5.Image | undefined
@@ -21,15 +22,22 @@ export const DialoguePortraitImageService = {
     new: ({
         speakerPortrait,
         position,
-    }: Partial<DialoguePortraitImage>): DialoguePortraitImage => {
+        relativePlacementArea,
+        speakerNameBox,
+    }: Partial<DialoguePortraitImage> & {
+        relativePlacementArea?: RectArea
+        speakerNameBox?: DialogueTextBox
+    }): DialoguePortraitImage => {
         const uiObjects = createUIObjects({
             speakerPortrait,
-            position: position ?? DialoguePosition.CENTER,
+            position: position ?? DialoguePosition.LEFT,
+            speakerNameBox,
+            relativePlacementArea,
         })
         return {
             speakerImage: uiObjects?.speakerImage,
             speakerPortrait,
-            position: position ?? DialoguePosition.CENTER,
+            position: position ?? DialoguePosition.LEFT,
         }
     },
     draw: ({
@@ -48,12 +56,104 @@ export const DialoguePortraitImageService = {
     },
 }
 
+const moveSpeakerPortraitIfOverlappingNameBox = ({
+    speakerNameBox,
+    speakerPortraitLeft,
+    speakerPortrait,
+    speakerPortraitBottom,
+    relativePlacementArea,
+}: {
+    speakerNameBox: DialogueTextBox | undefined
+    speakerPortraitLeft: number
+    speakerPortrait: p5.Image
+    speakerPortraitBottom: number
+    relativePlacementArea?: RectArea
+}) => {
+    if (speakerNameBox?.dialogueTextLabel?.rectangle.area == undefined) {
+        return {
+            speakerBoxBottom: speakerPortraitBottom,
+            speakerBoxLeft: speakerPortraitLeft,
+        }
+    }
+
+    let speakerPortraitRight = speakerPortraitLeft + speakerPortrait.width
+    let speakerNameBoxLeft = RectAreaService.left(
+        speakerNameBox.dialogueTextLabel.rectangle.area
+    )
+    let speakerNameBoxRight = RectAreaService.right(
+        speakerNameBox.dialogueTextLabel.rectangle.area
+    )
+
+    const arePortraitAndNameTooWideToFitInRelativeArea =
+        relativePlacementArea != undefined &&
+        speakerPortrait.width +
+            RectAreaService.width(
+                speakerNameBox.dialogueTextLabel.rectangle.area
+            ) >=
+            RectAreaService.width(relativePlacementArea)
+
+    const areOverlapping =
+        (speakerPortraitLeft >= speakerNameBoxLeft &&
+            speakerPortraitLeft <= speakerNameBoxRight) ||
+        (speakerPortraitRight >= speakerNameBoxLeft &&
+            speakerPortraitRight <= speakerNameBoxRight) ||
+        (speakerNameBoxLeft >= speakerPortraitLeft &&
+            speakerNameBoxLeft <= speakerPortraitRight) ||
+        (speakerNameBoxRight >= speakerPortraitLeft &&
+            speakerNameBoxRight <= speakerPortraitRight)
+
+    if (areOverlapping) {
+        if (arePortraitAndNameTooWideToFitInRelativeArea) {
+            return {
+                speakerBoxBottom: RectAreaService.top(
+                    speakerNameBox.dialogueTextLabel.rectangle.area
+                ),
+                speakerBoxLeft: relativePlacementArea
+                    ? RectAreaService.left(relativePlacementArea)
+                    : speakerPortraitLeft,
+            }
+        }
+
+        if (relativePlacementArea == undefined) {
+            return {
+                speakerBoxBottom: speakerPortraitBottom,
+                speakerBoxLeft: speakerPortraitLeft,
+            }
+        }
+
+        if (
+            RectAreaService.left(relativePlacementArea) +
+                speakerPortrait.width >=
+            speakerNameBoxLeft
+        ) {
+            return {
+                speakerBoxBottom: speakerPortraitBottom,
+                speakerBoxLeft:
+                    RectAreaService.right(relativePlacementArea) -
+                    speakerPortrait.width,
+            }
+        }
+
+        return {
+            speakerBoxBottom: speakerPortraitBottom,
+            speakerBoxLeft: RectAreaService.left(relativePlacementArea),
+        }
+    }
+    return {
+        speakerBoxLeft: speakerPortraitLeft,
+        speakerBoxBottom: speakerPortraitBottom,
+    }
+}
 const createUIObjects = ({
     speakerPortrait,
     position,
+    relativePlacementArea,
+    speakerNameBox,
 }: {
     speakerPortrait: p5.Image | undefined
     position: TDialoguePosition
+    speakerNameBox?: DialogueTextBox
+    relativePlacementArea?: RectArea
 }) => {
     if (speakerPortrait == undefined) return
     const rectStyle = DIALOGUE_SPEAKER_PORTRAIT_STYLE_CONSTANTS[position]
@@ -61,18 +161,12 @@ const createUIObjects = ({
     if (rectStyle.bottomFraction == undefined) return
     if (rectStyle.bottomOffset == undefined) return
 
-    let speakerBoxLeft: number = {
-        [DialoguePosition.LEFT]: WINDOW_SPACING.SPACING2,
-        [DialoguePosition.CENTER]:
-            (ScreenDimensions.SCREEN_WIDTH -
-                speakerPortrait.width -
-                WINDOW_SPACING.SPACING2) /
-            2,
-        [DialoguePosition.RIGHT]:
-            ScreenDimensions.SCREEN_WIDTH -
-            speakerPortrait.width -
-            WINDOW_SPACING.SPACING2,
-    }[position]
+    let speakerBoxLeft: number =
+        DialoguePlacementService.getRelativePlacementLeftSide({
+            relativePlacementArea,
+            position,
+            objectWidth: speakerPortrait.width,
+        })
 
     if (speakerBoxLeft < 0) {
         speakerBoxLeft = 0
@@ -83,9 +177,17 @@ const createUIObjects = ({
         speakerBoxLeft = ScreenDimensions.SCREEN_WIDTH - speakerPortrait.width
     }
 
-    const speakerBoxBottom =
-        ScreenDimensions.SCREEN_HEIGHT * rectStyle.bottomFraction -
-        rectStyle.bottomOffset
+    let speakerBoxBottom =
+        ScreenDimensions.SCREEN_HEIGHT * rectStyle.bottomFraction
+
+    ;({ speakerBoxLeft, speakerBoxBottom } =
+        moveSpeakerPortraitIfOverlappingNameBox({
+            speakerNameBox: speakerNameBox,
+            speakerPortraitLeft: speakerBoxLeft,
+            speakerPortrait: speakerPortrait,
+            speakerPortraitBottom: speakerBoxBottom,
+            relativePlacementArea,
+        }))
 
     const speakerImage = new ImageUI({
         imageLoadingBehavior: {

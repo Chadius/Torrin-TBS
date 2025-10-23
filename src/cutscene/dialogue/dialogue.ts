@@ -7,7 +7,6 @@ import { ResourceLocator, Resource } from "../../resource/resourceHandler"
 import {
     DialogueFontStyle,
     TDialogueFontStyle,
-    DialoguePosition,
     TDialoguePosition,
 } from "./constants"
 
@@ -62,13 +61,12 @@ export const DialogueService = {
             animationDuration == undefined ? 0 : animationDuration,
         answers: isValidValue(answers) ? answers : [],
         backgroundColor,
-        speakerPortraitPosition:
-            speakerPortraitPosition || DialoguePosition.CENTER,
+        speakerPortraitPosition,
         speakerName: speakerName ?? "???",
-        speakerNamePosition: speakerNamePosition || DialoguePosition.CENTER,
+        speakerNamePosition: speakerNamePosition,
         speakerNameFontStyle: speakerNameFontStyle || DialogueFontStyle.BLACK,
         dialogueText: dialogueText,
-        dialogueTextPosition: dialogueTextPosition || DialoguePosition.CENTER,
+        dialogueTextPosition: dialogueTextPosition,
         dialogueTextFontStyle: dialogueTextFontStyle || DialogueFontStyle.BLACK,
     }),
     getResourceLocators: (state: Dialogue): ResourceLocator[] => {

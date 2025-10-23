@@ -1,4 +1,5 @@
 import {
+    GOLDEN_RATIO,
     HORIZONTAL_ALIGN,
     HORIZONTAL_ALIGN_TYPE,
     VERTICAL_ALIGN_TYPE,
@@ -9,6 +10,7 @@ import { TextBoxMargin } from "../../ui/label"
 import { DialogTextBoxLayout } from "./dialogueTextBox"
 import { FontSizeRange } from "../../utils/graphics/textGraphicalHandlingService"
 import { EnumLike } from "../../utils/enum"
+import { RectArea, RectAreaService } from "../../ui/rectArea.ts"
 
 export const DialoguePosition = {
     CENTER: "CENTER",
@@ -170,5 +172,39 @@ export const DIALOGUE_SPEAKER_PORTRAIT_STYLE_CONSTANTS: {
         thirdOfScreenAlignment: HORIZONTAL_ALIGN.RIGHT,
         thirdOfScreenSubAlignment: HORIZONTAL_ALIGN.RIGHT,
         bottomFraction: 0.7,
+    },
+}
+
+export const DialoguePlacementService = {
+    getRelativePlacementLeftSide: ({
+        relativePlacementArea,
+        position,
+        objectWidth,
+    }: {
+        relativePlacementArea?: RectArea
+        position: TDialoguePosition
+        objectWidth: number
+    }) => {
+        let textBoxPlacement = {
+            left: relativePlacementArea
+                ? RectAreaService.left(relativePlacementArea)
+                : 0,
+            center: relativePlacementArea
+                ? RectAreaService.left(relativePlacementArea) +
+                  RectAreaService.width(relativePlacementArea) / GOLDEN_RATIO -
+                  objectWidth
+                : ScreenDimensions.SCREEN_WIDTH / GOLDEN_RATIO - objectWidth,
+            right: relativePlacementArea
+                ? RectAreaService.right(relativePlacementArea) - objectWidth
+                : ScreenDimensions.SCREEN_WIDTH - objectWidth,
+        }
+
+        let dialogueTextLabelLeft: number = {
+            [DialoguePosition.LEFT]:
+                textBoxPlacement.left + WINDOW_SPACING.SPACING2,
+            [DialoguePosition.CENTER]: textBoxPlacement.center,
+            [DialoguePosition.RIGHT]: textBoxPlacement.right,
+        }[position]
+        return dialogueTextLabelLeft
     },
 }
