@@ -87,7 +87,6 @@ type TileAttributeLabelLayout = {
     }
     title: {
         fontDescription: FontDescription
-        linesOfTextRange: LinesOfTextRange
         fontColor: [number, number, number]
     }
 }
@@ -103,7 +102,7 @@ const layout: TileAttributeLabelLayout = {
         bottomMargin: WINDOW_SPACING.SPACING1 / 4,
         leftMargin: WINDOW_SPACING.SPACING1 / 4,
         fontDescription: {
-            fontSizeRange: { preferred: 12, minimum: 6 },
+            preferredFontSize: 12,
             strokeWeight: 1,
         },
         linesOfTextRange: { maximum: 3 },
@@ -122,10 +121,9 @@ const layout: TileAttributeLabelLayout = {
     },
     title: {
         fontDescription: {
-            fontSizeRange: { preferred: 12, minimum: 8 },
+            preferredFontSize: 12,
             strokeWeight: 1,
         },
-        linesOfTextRange: { maximum: 1 },
         fontColor: [0, 7, 200],
     },
 }
@@ -380,9 +378,9 @@ const createTitleTextBox = ({
     const textFit = TextGraphicalHandlingService.fitTextWithinSpace({
         maximumWidth: widthAvailableForText,
         text: title,
-        linesOfTextRange: layout.title.linesOfTextRange,
+        mitigations: [],
         fontDescription: layout.title.fontDescription,
-        graphicsContext: graphicsBuffer,
+        graphics: graphicsBuffer,
     })
 
     return TextBoxService.new({
@@ -426,9 +424,16 @@ const createDescriptionTextBox = ({
     const textFit = TextGraphicalHandlingService.fitTextWithinSpace({
         maximumWidth: widthAvailableForText,
         text: label.description.text,
-        linesOfTextRange: layout.description.linesOfTextRange,
+        mitigations: layout.description.linesOfTextRange?.maximum
+            ? [
+                  {
+                      maximumNumberOfLines:
+                          layout.description.linesOfTextRange.maximum,
+                  },
+              ]
+            : [],
         fontDescription: layout.description.fontDescription,
-        graphicsContext: graphicsBuffer,
+        graphics: graphicsBuffer,
     })
 
     const heightNeededForText =

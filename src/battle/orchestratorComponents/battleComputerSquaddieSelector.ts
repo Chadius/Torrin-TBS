@@ -697,7 +697,6 @@ export class BattleComputerSquaddieSelector
             .forEach((movementStep) => {
                 let numberOfActionPointsSpentMoving: number
                 if (gameEngineState.repository == undefined) return
-                // TODO not working or getting removed immediately
                 BattleSquaddieSelectorService.createSearchPathAndHighlightMovementPath(
                     {
                         squaddieTemplate,

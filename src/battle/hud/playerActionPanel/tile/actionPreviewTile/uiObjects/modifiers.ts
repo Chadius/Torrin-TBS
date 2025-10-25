@@ -101,12 +101,13 @@ export class CreateLeftModifiersTextBoxAction implements BehaviorTreeTask {
         const textInfo = TextGraphicalHandlingService.fitTextWithinSpace({
             text: messageToShow,
             maximumWidth: modifiersLayoutConstants.leftColumn.width,
-            graphicsContext: uiObjects.graphicsContext,
+            graphics: uiObjects.graphicsContext,
             fontDescription: {
-                fontSizeRange: modifiersLayoutConstants.fontSizeRange,
+                preferredFontSize:
+                    modifiersLayoutConstants.fontSizeRange.preferred,
                 strokeWeight: modifiersLayoutConstants.strokeWeight,
             },
-            linesOfTextRange: modifiersLayoutConstants.linesOfTextRange,
+            mitigations: [{ maximumNumberOfLines: 1 }],
         })
 
         uiObjects.modifiers.leftSide.push(
@@ -195,12 +196,13 @@ export class CreateRightModifiersTextBoxAction implements BehaviorTreeTask {
         const textInfo = TextGraphicalHandlingService.fitTextWithinSpace({
             text: messageToShow,
             maximumWidth: modifiersLayoutConstants.rightColumn.width,
-            graphicsContext: uiObjects.graphicsContext,
+            graphics: uiObjects.graphicsContext,
             fontDescription: {
                 strokeWeight: modifiersLayoutConstants.strokeWeight,
-                fontSizeRange: modifiersLayoutConstants.fontSizeRange,
+                preferredFontSize:
+                    modifiersLayoutConstants.fontSizeRange.preferred,
             },
-            linesOfTextRange: modifiersLayoutConstants.linesOfTextRange,
+            mitigations: [{ maximumNumberOfLines: 1 }],
         })
 
         uiObjects.modifiers.rightSide.push(

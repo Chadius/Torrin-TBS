@@ -14,10 +14,7 @@ import {
     ThirdOfScreenAlignment,
 } from "./constants"
 import { ScreenDimensions } from "../../utils/graphics/graphicsConfig"
-import {
-    LinesOfTextRange,
-    TextGraphicalHandlingService,
-} from "../../utils/graphics/textGraphicalHandlingService"
+import { TextGraphicalHandlingService } from "../../utils/graphics/textGraphicalHandlingService"
 import { HORIZONTAL_ALIGN, WINDOW_SPACING } from "../../ui/constants"
 
 export interface DialogTextBoxLayout extends ThirdOfScreenAlignment {
@@ -27,7 +24,7 @@ export interface DialogTextBoxLayout extends ThirdOfScreenAlignment {
     topFraction: number
     maxPixelWidth: number
     textBoxMargin: [number, number, number, number]
-    linesOfTextRange: LinesOfTextRange
+    maximumLinesOfText?: number
 }
 
 const DIALOGUE_SPEAKER_NAME_BOX_STYLE_CONSTANTS: {
@@ -36,7 +33,6 @@ const DIALOGUE_SPEAKER_NAME_BOX_STYLE_CONSTANTS: {
     [DialoguePosition.CENTER]: {
         fillColor: [200, 10, 50],
         maxPixelWidth: ScreenDimensions.SCREEN_WIDTH / 3,
-        linesOfTextRange: { maximum: 1 },
         horizontalMargin: WINDOW_SPACING.SPACING1,
         thirdOfScreenAlignment: HORIZONTAL_ALIGN.CENTER,
         thirdOfScreenSubAlignment: HORIZONTAL_ALIGN.LEFT,
@@ -52,7 +48,7 @@ const DIALOGUE_SPEAKER_NAME_BOX_STYLE_CONSTANTS: {
     [DialoguePosition.LEFT]: {
         fillColor: [200, 10, 50],
         maxPixelWidth: ScreenDimensions.SCREEN_WIDTH / 3,
-        linesOfTextRange: { maximum: 3 },
+        maximumLinesOfText: 3,
         horizontalMargin: WINDOW_SPACING.SPACING1,
         thirdOfScreenAlignment: HORIZONTAL_ALIGN.LEFT,
         thirdOfScreenSubAlignment: HORIZONTAL_ALIGN.LEFT,
@@ -68,7 +64,7 @@ const DIALOGUE_SPEAKER_NAME_BOX_STYLE_CONSTANTS: {
     [DialoguePosition.RIGHT]: {
         fillColor: [200, 10, 50],
         maxPixelWidth: ScreenDimensions.SCREEN_WIDTH / 3,
-        linesOfTextRange: { maximum: 3 },
+        maximumLinesOfText: 3,
         horizontalMargin: WINDOW_SPACING.SPACING2,
         thirdOfScreenAlignment: HORIZONTAL_ALIGN.RIGHT,
         thirdOfScreenSubAlignment: HORIZONTAL_ALIGN.RIGHT,
@@ -135,13 +131,15 @@ export class DialogueTextBox {
         const fontStyle = DIALOGUE_FONT_STYLE_CONSTANTS[this.fontStyle]
         const textFit = TextGraphicalHandlingService.fitTextWithinSpace({
             text: this.dialogueText,
-            graphicsContext,
+            graphics: graphicsContext,
             maximumWidth: rectStyle.maxPixelWidth,
             fontDescription: {
                 strokeWeight: fontStyle.strokeWeight,
-                fontSizeRange: fontStyle.fontSizeRange,
+                preferredFontSize: fontStyle.fontSizeRange.preferred,
             },
-            linesOfTextRange: rectStyle.linesOfTextRange,
+            mitigations: rectStyle.maximumLinesOfText
+                ? [{ maximumNumberOfLines: rectStyle.maximumLinesOfText }]
+                : [],
         })
 
         let dialogueTextLabelLeft: number =

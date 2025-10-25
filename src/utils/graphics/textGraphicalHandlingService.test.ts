@@ -102,52 +102,16 @@ describe("Text Graphical Handling Service", () => {
                         text: "Hi",
                         maximumWidth: 9001,
                         fontDescription: {
-                            fontSizeRange: {
-                                preferred: 12,
-                                minimum: 8,
-                            },
+                            preferredFontSize: 12,
                             strokeWeight: 1,
                         },
-                        linesOfTextRange: {
-                            minimum: 1,
-                        },
-                        graphicsContext: mockGraphicsContext,
+                        mitigations: [{ maximumNumberOfLines: 1 }],
+                        graphics: mockGraphicsContext,
                     }),
                     {
                         text: "Hi",
                         fontSize: 12,
                         width: 2 * 12 * TEXT_WIDTH_MULTIPLIER,
-                    }
-                )
-            ).toBeTruthy()
-        })
-        it("Will split the text across multiple lines if there is a minimum number of lines needed", () => {
-            textWidthSpy = vi
-                .spyOn(mockGraphicsContext, "textWidth")
-                .mockImplementation((text: string) => {
-                    return text.length * 100
-                })
-            expect(
-                expectTextFitToBeCloseTo(
-                    TextGraphicalHandlingService.fitTextWithinSpace({
-                        text: "111 222 33",
-                        maximumWidth: 9001,
-                        fontDescription: {
-                            fontSizeRange: {
-                                preferred: 10,
-                                minimum: 8,
-                            },
-                            strokeWeight: 1,
-                        },
-                        linesOfTextRange: {
-                            minimum: 2,
-                        },
-                        graphicsContext: mockGraphicsContext,
-                    }),
-                    {
-                        text: "111 222\n33",
-                        fontSize: 10,
-                        width: 70 * 10 * TEXT_WIDTH_MULTIPLIER,
                     }
                 )
             ).toBeTruthy()
@@ -170,16 +134,11 @@ describe("Text Graphical Handling Service", () => {
                         text: "12345",
                         maximumWidth: 50,
                         fontDescription: {
-                            fontSizeRange: {
-                                preferred: 20,
-                                minimum: 10,
-                            },
+                            preferredFontSize: 20,
                             strokeWeight: 1,
                         },
-                        linesOfTextRange: {
-                            minimum: 1,
-                        },
-                        graphicsContext: mockGraphicsContext,
+                        mitigations: [{ minimumFontSize: 10 }],
+                        graphics: mockGraphicsContext,
                     }),
                     {
                         text: "12345",
@@ -220,16 +179,11 @@ describe("Text Graphical Handling Service", () => {
                         text: "1 3 5",
                         maximumWidth: 20,
                         fontDescription: {
-                            fontSizeRange: {
-                                preferred: 10,
-                                minimum: 10,
-                            },
+                            preferredFontSize: 10,
                             strokeWeight: 1,
                         },
-                        linesOfTextRange: {
-                            minimum: 1,
-                        },
-                        graphicsContext: mockGraphicsContext,
+                        mitigations: [{ maximumNumberOfLines: 3 }],
+                        graphics: mockGraphicsContext,
                     }),
                     {
                         text: "1\n3\n5",
@@ -240,23 +194,18 @@ describe("Text Graphical Handling Service", () => {
             ).toBeTruthy()
         })
 
-        it("will not add line breaks if already at the maximum lines of text", () => {
+        it("will not add line breaks if line breaks are not included", () => {
             expect(
                 expectTextFitToBeCloseTo(
                     TextGraphicalHandlingService.fitTextWithinSpace({
                         text: "1 3 5",
                         maximumWidth: 20,
                         fontDescription: {
-                            fontSizeRange: {
-                                preferred: 10,
-                                minimum: 10,
-                            },
+                            preferredFontSize: 10,
                             strokeWeight: 1,
                         },
-                        linesOfTextRange: {
-                            maximum: 1,
-                        },
-                        graphicsContext: mockGraphicsContext,
+                        mitigations: [],
+                        graphics: mockGraphicsContext,
                     }),
                     {
                         text: "1 3 5",
@@ -274,16 +223,11 @@ describe("Text Graphical Handling Service", () => {
                         text: "12345",
                         maximumWidth: 20,
                         fontDescription: {
-                            fontSizeRange: {
-                                preferred: 10,
-                                minimum: 10,
-                            },
+                            preferredFontSize: 10,
                             strokeWeight: 1,
                         },
-                        linesOfTextRange: {
-                            minimum: 1,
-                        },
-                        graphicsContext: mockGraphicsContext,
+                        mitigations: [{ maximumNumberOfLines: 1 }],
+                        graphics: mockGraphicsContext,
                     }),
                     {
                         text: "12345",
@@ -301,16 +245,11 @@ describe("Text Graphical Handling Service", () => {
                         text: "123 5",
                         maximumWidth: 20,
                         fontDescription: {
-                            fontSizeRange: {
-                                preferred: 10,
-                                minimum: 10,
-                            },
+                            preferredFontSize: 10,
                             strokeWeight: 1,
                         },
-                        linesOfTextRange: {
-                            minimum: 1,
-                        },
-                        graphicsContext: mockGraphicsContext,
+                        mitigations: [{ maximumNumberOfLines: 2 }],
+                        graphics: mockGraphicsContext,
                     }),
                     {
                         text: "123\n5",
@@ -321,23 +260,18 @@ describe("Text Graphical Handling Service", () => {
             ).toBeTruthy()
         })
 
-        it("will not modify text if the line is short enough", () => {
+        it("will not modify text if the line has line breaks that exceed maximum", () => {
             expect(
                 expectTextFitToBeCloseTo(
                     TextGraphicalHandlingService.fitTextWithinSpace({
                         text: "12\n3\n5",
                         maximumWidth: 20,
                         fontDescription: {
-                            fontSizeRange: {
-                                preferred: 10,
-                                minimum: 10,
-                            },
+                            preferredFontSize: 10,
                             strokeWeight: 1,
                         },
-                        linesOfTextRange: {
-                            minimum: 1,
-                        },
-                        graphicsContext: mockGraphicsContext,
+                        mitigations: [{ maximumNumberOfLines: 1 }],
+                        graphics: mockGraphicsContext,
                     }),
                     {
                         text: "12\n3\n5",

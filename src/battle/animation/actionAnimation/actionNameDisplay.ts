@@ -75,18 +75,12 @@ const createActionNameTextBox = ({
     const textFit = TextGraphicalHandlingService.fitTextWithinSpace({
         text: actionName,
         maximumWidth: ScreenDimensions.SCREEN_WIDTH * 0.5,
-        graphicsContext,
+        graphics: graphicsContext,
         fontDescription: {
-            fontSizeRange: {
-                minimum: constants.textSize,
-                preferred: constants.textSize,
-            },
+            preferredFontSize: constants.textSize,
             strokeWeight: constants.strokeWeight,
         },
-        linesOfTextRange: {
-            minimum: 1,
-            maximum: 1,
-        },
+        mitigations: [{ maximumNumberOfLines: 1 }],
     })
 
     return TextBoxService.new({

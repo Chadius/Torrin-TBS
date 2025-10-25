@@ -39,7 +39,7 @@ const layoutConstants = {
             preferred: 32,
             minimum: 10,
         },
-        linesOfTextRange: { minimum: 1 },
+        maximumNumberOfLines: 2,
     },
 }
 
@@ -161,12 +161,22 @@ const setPortraitNameTextBox = (
         text: tile.squaddieName,
         maximumWidth:
             RectAreaService.width(overallBoundingBox) - WINDOW_SPACING.SPACING2,
-        graphicsContext,
+        graphics: graphicsContext,
         fontDescription: {
-            fontSizeRange: layoutConstants.portraitNameText.fontSizeRange,
+            preferredFontSize:
+                layoutConstants.portraitNameText.fontSizeRange.preferred,
             strokeWeight: layoutConstants.portraitNameText.strokeWeight,
         },
-        linesOfTextRange: layoutConstants.portraitNameText.linesOfTextRange,
+        mitigations: [
+            {
+                maximumNumberOfLines:
+                    layoutConstants.portraitNameText.maximumNumberOfLines,
+            },
+            {
+                minimumFontSize:
+                    layoutConstants.portraitNameText.fontSizeRange.minimum,
+            },
+        ],
     })
 
     tile.squaddieNameTextBox = TextBoxService.new({

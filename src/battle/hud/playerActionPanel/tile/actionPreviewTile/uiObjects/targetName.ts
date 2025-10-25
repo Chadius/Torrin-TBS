@@ -52,12 +52,14 @@ export class CreateTargetNameTextBoxesAction implements BehaviorTreeTask {
         const textInfo = TextGraphicalHandlingService.fitTextWithinSpace({
             text: targetName,
             maximumWidth: layoutConstants.width,
-            graphicsContext: uiObjects.graphicsContext,
+            graphics: uiObjects.graphicsContext,
             fontDescription: {
                 strokeWeight: layoutConstants.strokeWeight,
-                fontSizeRange: layoutConstants.fontSizeRange,
+                preferredFontSize: layoutConstants.fontSizeRange.preferred,
             },
-            linesOfTextRange: layoutConstants.linesOfTextRange,
+            mitigations: [
+                { minimumFontSize: layoutConstants.fontSizeRange.minimum },
+            ],
         })
 
         uiObjects.targetNameTextBox = TextBoxService.new({

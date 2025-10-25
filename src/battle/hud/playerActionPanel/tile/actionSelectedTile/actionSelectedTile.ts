@@ -424,12 +424,14 @@ const createInformationTextBox = ({
     const textInfo = TextGraphicalHandlingService.fitTextWithinSpace({
         text,
         maximumWidth: availableTextWidth,
-        graphicsContext,
+        graphics: graphicsContext,
         fontDescription: {
-            fontSizeRange,
+            preferredFontSize: fontSizeRange.preferred,
             strokeWeight,
         },
-        linesOfTextRange,
+        mitigations: linesOfTextRange?.maximum
+            ? [{ maximumNumberOfLines: linesOfTextRange.maximum }]
+            : [],
     })
 
     const textBox: TextBox = TextBoxService.new({
@@ -629,12 +631,20 @@ const createActionTemplateDescriptionTextBox = ({
         text: actionTemplate.userInformation.userReadableDescription,
         maximumWidth:
             RectAreaService.width(overallBoundingBox) - WINDOW_SPACING.SPACING2,
-        graphicsContext,
+        graphics: graphicsContext,
         fontDescription: {
-            fontSizeRange: layoutConstants.description.fontSizeRange,
+            preferredFontSize:
+                layoutConstants.description.fontSizeRange.preferred,
             strokeWeight: layoutConstants.description.strokeWeight,
         },
-        linesOfTextRange: layoutConstants.description.linesOfTextRange,
+        mitigations: layoutConstants.description.linesOfTextRange?.maximum
+            ? [
+                  {
+                      maximumNumberOfLines:
+                          layoutConstants.description.linesOfTextRange.maximum,
+                  },
+              ]
+            : [],
     })
 
     tile.actionDescriptionTextBox = TextBoxService.new({

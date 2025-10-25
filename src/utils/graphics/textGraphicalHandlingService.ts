@@ -21,10 +21,73 @@ export interface TextFit {
 }
 
 export type FontDescription = {
-    fontSizeRange?: FontSizeRange
+    preferredFontSize: number
     strokeWeight: number
 }
 
+export type TextFitMitigation =
+    | {
+          minimumFontSize: number
+      }
+    | {
+          maximumNumberOfLines: number
+      }
+
+const applyMitigationsToSatisfy = (
+    mitigations: TextFitMitigation[],
+    inProgressTextFit: TextFit,
+    maximumWidth: number,
+    graphics: GraphicsBuffer,
+    fontDescription: FontDescription
+) => {
+    for (let i = 0; i < mitigations.length; i++) {
+        let mitigation = mitigations[i]
+        let doesItFit = doesTextFitWithinAllottedWidth({
+            inProgressTextFit,
+            maximumWidth,
+            graphicsContext: graphics,
+            font: fontDescription,
+        })
+        if (doesItFit) break
+
+        let numberOfLines = splitTextAgainstLineBreaks(inProgressTextFit).length
+
+        if ("minimumFontSize" in mitigation) {
+            updateTextFitViolateFontSizeConstraint({
+                inProgressTextFit,
+                font: fontDescription,
+                startingFontSize: fontDescription.preferredFontSize,
+                minimumFontSize: mitigation.minimumFontSize,
+                maximumPixelWidth: maximumWidth,
+                graphicsContext: graphics,
+            })
+        }
+        if ("maximumNumberOfLines" in mitigation) {
+            let remainingAttempts = mitigation.maximumNumberOfLines
+            while (
+                remainingAttempts > 0 &&
+                !(doesItFit || numberOfLines >= mitigation.maximumNumberOfLines)
+            ) {
+                reduceTextWidthByAddingALineBreak({
+                    inProgressTextFit,
+                    maximumLinesOfText: mitigation.maximumNumberOfLines,
+                    maximumPixelWidth: maximumWidth,
+                    graphicsContext: graphics,
+                    font: fontDescription,
+                })
+                doesItFit = doesTextFitWithinAllottedWidth({
+                    inProgressTextFit,
+                    maximumWidth,
+                    graphicsContext: graphics,
+                    font: fontDescription,
+                })
+                numberOfLines =
+                    splitTextAgainstLineBreaks(inProgressTextFit).length
+                remainingAttempts -= 1
+            }
+        }
+    }
+}
 export const TextGraphicalHandlingService = {
     calculateLengthOfLineOfText: ({
         text,
@@ -47,18 +110,17 @@ export const TextGraphicalHandlingService = {
         text,
         maximumWidth,
         fontDescription,
-        graphicsContext,
-        linesOfTextRange,
+        graphics,
+        mitigations,
     }: {
         text: string
         maximumWidth: number
-        graphicsContext: GraphicsBuffer
+        graphics: GraphicsBuffer
         fontDescription: FontDescription
-        linesOfTextRange?: LinesOfTextRange
+        mitigations: TextFitMitigation[]
     }): TextFit => {
         let defaultFontSize =
-            fontDescription?.fontSizeRange?.preferred ??
-            DEFAULT_FONT_SIZE.preferred
+            fontDescription.preferredFontSize ?? DEFAULT_FONT_SIZE.preferred
         if (!text || text.length <= 0)
             return {
                 text,
@@ -66,7 +128,7 @@ export const TextGraphicalHandlingService = {
                 fontSize: defaultFontSize,
             }
 
-        graphicsContext.push()
+        graphics.push()
         let inProgressTextFit: TextFit = {
             text,
             fontSize: defaultFontSize,
@@ -76,65 +138,23 @@ export const TextGraphicalHandlingService = {
                         text,
                         fontSize: defaultFontSize,
                         strokeWeight: fontDescription?.strokeWeight ?? 1,
-                        graphicsContext,
+                        graphicsContext: graphics,
                     })
                 )
             ),
         }
-        graphicsContext.pop()
-
-        let numberOfRetries = 4
-        while (numberOfRetries > 0) {
-            numberOfRetries -= 1
-
-            const violatedConstraints = {
-                tooWide: doesTextFitWithinAllottedWidth({
-                    inProgressTextFit,
-                    maximumWidth,
-                    graphicsContext,
-                    font: fontDescription,
-                }),
-                minimumNumberOfLines:
-                    doesTextFitViolateMinimumLinesOfTextConstraint({
-                        inProgressTextFit,
-                        linesOfTextRange,
-                    }),
-                fontSize: doesTextFitViolateFontSizeConstraint({
-                    inProgressTextFit,
-                    fontSizeRange: fontDescription?.fontSizeRange,
-                }),
-            }
-
-            if (!Object.values(violatedConstraints).includes(true)) break
-
-            if (violatedConstraints.tooWide && linesOfTextRange != undefined) {
-                reduceTextWidthByAddingLineBreaks({
-                    inProgressTextFit,
-                    linesOfTextRange,
-                    maximumPixelWidth: maximumWidth,
-                    graphicsContext,
-                    font: fontDescription,
-                })
-
-                updateTextFitViolateFontSizeConstraint({
-                    inProgressTextFit,
-                    font: fontDescription,
-                    maximumPixelWidth: maximumWidth,
-                    graphicsContext,
-                })
-            }
-
-            if (violatedConstraints.minimumNumberOfLines) {
-                updateTextFitToSatisfyMinimumLinesOfTextConstraint({
-                    inProgressTextFit,
-                    linesOfTextRange,
-                })
-            }
-        }
+        graphics.pop()
+        applyMitigationsToSatisfy(
+            mitigations,
+            inProgressTextFit,
+            maximumWidth,
+            graphics,
+            fontDescription
+        )
 
         inProgressTextFit.width = getWidthOfWidestLineOfText({
             inProgressTextFit: inProgressTextFit,
-            graphicsContext: graphicsContext,
+            graphicsContext: graphics,
             font: fontDescription,
             fontSize: inProgressTextFit.fontSize,
         })
@@ -158,56 +178,6 @@ export const TextGraphicalHandlingService = {
     },
 }
 
-const updateTextFitToSatisfyMinimumLinesOfTextConstraint = ({
-    inProgressTextFit,
-    linesOfTextRange,
-}: {
-    inProgressTextFit: TextFit
-    linesOfTextRange?: LinesOfTextRange
-}) => {
-    const textPerLine: string[] = splitTextAgainstLineBreaks(inProgressTextFit)
-    if (
-        linesOfTextRange?.minimum == undefined ||
-        textPerLine.length > linesOfTextRange?.minimum
-    )
-        return
-
-    let numberOfNewLinesToAdd =
-        (linesOfTextRange.minimum ?? 1) - textPerLine.length
-    while (numberOfNewLinesToAdd > 0) {
-        const indexOfLastLineWithASpace = textPerLine
-            .reverse()
-            .findIndex((lineOfText) => lineOfText.includes(" "))
-        if (indexOfLastLineWithASpace < 0) {
-            break
-        }
-
-        textPerLine[indexOfLastLineWithASpace] = textPerLine[
-            indexOfLastLineWithASpace
-        ].replace(/ ([^ ]*)$/, "\n" + "$1")
-        numberOfNewLinesToAdd -= 1
-    }
-    inProgressTextFit.text = textPerLine.join(" ")
-}
-
-const doesTextFitViolateMinimumLinesOfTextConstraint = ({
-    inProgressTextFit,
-    linesOfTextRange,
-}: {
-    inProgressTextFit: TextFit
-    linesOfTextRange?: LinesOfTextRange
-}): boolean => {
-    if (
-        linesOfTextRange?.minimum == undefined ||
-        inProgressTextFit.text.length <= 0
-    ) {
-        return false
-    }
-
-    const textPerLine: string[] = inProgressTextFit.text.split("\n")
-    return textPerLine.length < linesOfTextRange.minimum
-}
-
 const doesTextFitWithinAllottedWidth = ({
     inProgressTextFit,
     maximumWidth,
@@ -228,24 +198,7 @@ const doesTextFitWithinAllottedWidth = ({
         fontSize: inProgressTextFit.fontSize,
     })
     graphicsContext.pop()
-    return widestWidth > maximumWidth
-}
-
-const doesTextFitViolateFontSizeConstraint = ({
-    inProgressTextFit,
-    fontSizeRange,
-}: {
-    inProgressTextFit: TextFit
-    fontSizeRange?: FontSizeRange
-}): boolean => {
-    if (
-        fontSizeRange?.minimum == undefined ||
-        inProgressTextFit.text.length <= 0
-    ) {
-        return false
-    }
-
-    return inProgressTextFit.width < fontSizeRange.minimum
+    return widestWidth <= maximumWidth
 }
 
 const updateTextFitViolateFontSizeConstraint = ({
@@ -253,18 +206,20 @@ const updateTextFitViolateFontSizeConstraint = ({
     maximumPixelWidth,
     graphicsContext,
     font,
+    startingFontSize,
+    minimumFontSize,
 }: {
     inProgressTextFit: TextFit
     maximumPixelWidth: number
     graphicsContext: GraphicsBuffer
     font: FontDescription
+    startingFontSize: number
+    minimumFontSize: number
 }) => {
-    if (font.fontSizeRange == undefined) return
-
     graphicsContext.push()
 
-    let low = font.fontSizeRange.minimum
-    let high = font.fontSizeRange.preferred
+    let low = minimumFontSize
+    let high = startingFontSize
     let bestFontSize = low
 
     while (high - low > 0.5) {
@@ -333,25 +288,19 @@ const getWidthOfEachLineOfText = ({
 const splitTextAgainstLineBreaks = (inProgressTextFit: TextFit): string[] =>
     inProgressTextFit.text.split("\n")
 
-const reduceTextWidthByAddingLineBreaks = ({
+const reduceTextWidthByAddingALineBreak = ({
     inProgressTextFit,
-    linesOfTextRange,
     graphicsContext,
     maximumPixelWidth,
     font,
 }: {
     inProgressTextFit: TextFit
-    linesOfTextRange: LinesOfTextRange
+    maximumLinesOfText: number
     maximumPixelWidth: number
     graphicsContext: GraphicsBuffer
     font: FontDescription
 }) => {
     let splitText = splitTextAgainstLineBreaks(inProgressTextFit)
-    if (
-        linesOfTextRange?.maximum != undefined &&
-        splitText.length >= linesOfTextRange?.maximum
-    )
-        return
 
     let linePixelWidths = getWidthOfEachLineOfText({
         inProgressTextFit: inProgressTextFit,

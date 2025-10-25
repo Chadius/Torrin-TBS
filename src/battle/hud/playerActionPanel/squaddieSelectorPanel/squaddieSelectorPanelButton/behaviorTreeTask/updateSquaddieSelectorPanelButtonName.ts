@@ -118,14 +118,21 @@ export class UpdateSquaddieSelectorPanelButtonName implements BehaviorTreeTask {
         const textInfo = TextGraphicalHandlingService.fitTextWithinSpace({
             text: name,
             maximumWidth: RectAreaService.width(areaToRender),
-            graphicsContext: this.graphicsContext,
+            graphics: this.graphicsContext,
             fontDescription: {
                 strokeWeight:
                     layoutConstantsToUseBasedOnSelectable.strokeWeight,
-                fontSizeRange:
-                    layoutConstantsToUseBasedOnSelectable.fontSizeRange,
+                preferredFontSize:
+                    layoutConstantsToUseBasedOnSelectable.fontSizeRange
+                        .preferred,
             },
-            linesOfTextRange: { minimum: 1 },
+            mitigations: [
+                {
+                    minimumFontSize:
+                        layoutConstantsToUseBasedOnSelectable.fontSizeRange
+                            .minimum,
+                },
+            ],
         })
 
         uiObjects.squaddieName = TextBoxService.new({

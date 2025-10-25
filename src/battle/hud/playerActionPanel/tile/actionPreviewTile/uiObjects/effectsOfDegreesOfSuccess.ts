@@ -110,15 +110,21 @@ export class CreateNextEffectsOfDegreesOfSuccessTextBoxAction
         const textInfo = TextGraphicalHandlingService.fitTextWithinSpace({
             text: messageToShow,
             maximumWidth: effectsOfDegreesOfSuccessLayoutConstants.width,
-            graphicsContext: uiObjects.graphicsContext,
+            graphics: uiObjects.graphicsContext,
             fontDescription: {
-                fontSizeRange:
-                    effectsOfDegreesOfSuccessLayoutConstants.fontSizeRange,
+                preferredFontSize:
+                    effectsOfDegreesOfSuccessLayoutConstants.fontSizeRange
+                        .preferred,
                 strokeWeight:
                     effectsOfDegreesOfSuccessLayoutConstants.strokeWeight,
             },
-            linesOfTextRange:
-                effectsOfDegreesOfSuccessLayoutConstants.linesOfTextRange,
+            mitigations: [
+                {
+                    minimumFontSize:
+                        effectsOfDegreesOfSuccessLayoutConstants.fontSizeRange
+                            .minimum,
+                },
+            ],
         })
 
         uiObjects.effectsOfDegreesOfSuccessTextBoxes.push({
