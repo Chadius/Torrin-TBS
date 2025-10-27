@@ -376,7 +376,7 @@ const createTitleTextBox = ({
         layout.titleAndIconMargin.titleLeftOffset -
         layout.icon.width
     const textFit = TextGraphicalHandlingService.fitTextWithinSpace({
-        maximumWidth: widthAvailableForText,
+        currentContainerWidth: widthAvailableForText,
         text: title,
         mitigations: [],
         fontDescription: layout.title.fontDescription,
@@ -422,7 +422,7 @@ const createDescriptionTextBox = ({
         layout.description.rightMargin
 
     const textFit = TextGraphicalHandlingService.fitTextWithinSpace({
-        maximumWidth: widthAvailableForText,
+        currentContainerWidth: widthAvailableForText,
         text: label.description.text,
         mitigations: layout.description.linesOfTextRange?.maximum
             ? [
@@ -447,7 +447,7 @@ const createDescriptionTextBox = ({
         text: textFit.text,
         area: RectAreaService.new({
             left: RectAreaService.left(backgroundRectArea),
-            width: textFit.width,
+            width: textFit.maximumWidthOfText,
             bottom: RectAreaService.bottom(backgroundRectArea),
             height: heightNeededForText,
             margin: [

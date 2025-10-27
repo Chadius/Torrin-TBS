@@ -51,7 +51,7 @@ export class CreateTargetNameTextBoxesAction implements BehaviorTreeTask {
 
         const textInfo = TextGraphicalHandlingService.fitTextWithinSpace({
             text: targetName,
-            maximumWidth: layoutConstants.width,
+            currentContainerWidth: layoutConstants.width,
             graphics: uiObjects.graphicsContext,
             fontDescription: {
                 strokeWeight: layoutConstants.strokeWeight,

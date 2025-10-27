@@ -3,7 +3,6 @@ import { RectArea, RectAreaService } from "../../ui/rectArea"
 import { GraphicsBuffer } from "../../utils/graphics/graphicsRenderer"
 import {
     DIALOGUE_FONT_STYLE_CONSTANTS,
-    DIALOGUE_TEXT_BOX_STYLE_CONSTANTS,
     DialogueComponent,
     DialogueFontStyle,
     DialoguePlacementService,
@@ -17,12 +16,65 @@ import { ScreenDimensions } from "../../utils/graphics/graphicsConfig"
 import { TextGraphicalHandlingService } from "../../utils/graphics/textGraphicalHandlingService"
 import { HORIZONTAL_ALIGN, WINDOW_SPACING } from "../../ui/constants"
 
+export const DIALOGUE_TEXT_BOX_STYLE_CONSTANTS: {
+    [t in TDialoguePosition]: DialogTextBoxLayout
+} = {
+    [DialoguePosition.CENTER]: {
+        fillColor: [200, 10, 50],
+        horizontalMargin: WINDOW_SPACING.SPACING2,
+        topOffset: WINDOW_SPACING.SPACING1,
+        thirdOfScreenAlignment: HORIZONTAL_ALIGN.CENTER,
+        thirdOfScreenSubAlignment: HORIZONTAL_ALIGN.CENTER,
+        topFraction: 0.7,
+        possibleContainerWidths: [0.25, 0.33, 0.5, 0.7],
+        maximumLinesOfText: 3,
+        textBoxMargin: [
+            WINDOW_SPACING.SPACING2,
+            WINDOW_SPACING.SPACING2,
+            WINDOW_SPACING.SPACING2,
+            WINDOW_SPACING.SPACING2,
+        ],
+    },
+    [DialoguePosition.LEFT]: {
+        fillColor: [200, 10, 50],
+        horizontalMargin: WINDOW_SPACING.SPACING2,
+        topOffset: WINDOW_SPACING.SPACING1,
+        thirdOfScreenAlignment: HORIZONTAL_ALIGN.LEFT,
+        thirdOfScreenSubAlignment: HORIZONTAL_ALIGN.LEFT,
+        topFraction: 0.7,
+        possibleContainerWidths: [0.25, 0.33, 0.5, 0.7, 0.9],
+        maximumLinesOfText: 3,
+        textBoxMargin: [
+            WINDOW_SPACING.SPACING2,
+            WINDOW_SPACING.SPACING2,
+            WINDOW_SPACING.SPACING2,
+            WINDOW_SPACING.SPACING2,
+        ],
+    },
+    [DialoguePosition.RIGHT]: {
+        fillColor: [200, 10, 50],
+        horizontalMargin: WINDOW_SPACING.SPACING2,
+        topOffset: WINDOW_SPACING.SPACING1,
+        thirdOfScreenAlignment: HORIZONTAL_ALIGN.RIGHT,
+        thirdOfScreenSubAlignment: HORIZONTAL_ALIGN.RIGHT,
+        topFraction: 0.7,
+        possibleContainerWidths: [0.25, 0.33, 0.5],
+        maximumLinesOfText: 3,
+        textBoxMargin: [
+            WINDOW_SPACING.SPACING2,
+            WINDOW_SPACING.SPACING2,
+            WINDOW_SPACING.SPACING2,
+            WINDOW_SPACING.SPACING2,
+        ],
+    },
+}
+
 export interface DialogTextBoxLayout extends ThirdOfScreenAlignment {
     fillColor: number[]
     horizontalMargin: number
     topOffset: number
     topFraction: number
-    maxPixelWidth: number
+    possibleContainerWidths: number[]
     textBoxMargin: [number, number, number, number]
     maximumLinesOfText?: number
 }
@@ -32,7 +84,7 @@ const DIALOGUE_SPEAKER_NAME_BOX_STYLE_CONSTANTS: {
 } = {
     [DialoguePosition.CENTER]: {
         fillColor: [200, 10, 50],
-        maxPixelWidth: ScreenDimensions.SCREEN_WIDTH / 3,
+        possibleContainerWidths: [0.3],
         horizontalMargin: WINDOW_SPACING.SPACING1,
         thirdOfScreenAlignment: HORIZONTAL_ALIGN.CENTER,
         thirdOfScreenSubAlignment: HORIZONTAL_ALIGN.LEFT,
@@ -47,7 +99,7 @@ const DIALOGUE_SPEAKER_NAME_BOX_STYLE_CONSTANTS: {
     },
     [DialoguePosition.LEFT]: {
         fillColor: [200, 10, 50],
-        maxPixelWidth: ScreenDimensions.SCREEN_WIDTH / 3,
+        possibleContainerWidths: [0.3],
         maximumLinesOfText: 3,
         horizontalMargin: WINDOW_SPACING.SPACING1,
         thirdOfScreenAlignment: HORIZONTAL_ALIGN.LEFT,
@@ -63,7 +115,7 @@ const DIALOGUE_SPEAKER_NAME_BOX_STYLE_CONSTANTS: {
     },
     [DialoguePosition.RIGHT]: {
         fillColor: [200, 10, 50],
-        maxPixelWidth: ScreenDimensions.SCREEN_WIDTH / 3,
+        possibleContainerWidths: [0.3],
         maximumLinesOfText: 3,
         horizontalMargin: WINDOW_SPACING.SPACING2,
         thirdOfScreenAlignment: HORIZONTAL_ALIGN.RIGHT,
@@ -129,25 +181,45 @@ export class DialogueTextBox {
         if (rectStyle == undefined) return
 
         const fontStyle = DIALOGUE_FONT_STYLE_CONSTANTS[this.fontStyle]
+        let textFitMitigations = [
+            rectStyle.possibleContainerWidths.length > 1
+                ? {
+                      possibleContainerWidths:
+                          rectStyle.possibleContainerWidths.map(
+                              (ratio) => ScreenDimensions.SCREEN_WIDTH * ratio
+                          ),
+                  }
+                : undefined,
+            rectStyle.maximumLinesOfText
+                ? { maximumNumberOfLines: rectStyle.maximumLinesOfText }
+                : undefined,
+        ].filter((x) => x != undefined)
+
         const textFit = TextGraphicalHandlingService.fitTextWithinSpace({
             text: this.dialogueText,
             graphics: graphicsContext,
-            maximumWidth: rectStyle.maxPixelWidth,
+            currentContainerWidth:
+                ScreenDimensions.SCREEN_WIDTH *
+                rectStyle.possibleContainerWidths[0],
             fontDescription: {
                 strokeWeight: fontStyle.strokeWeight,
                 preferredFontSize: fontStyle.fontSizeRange.preferred,
             },
-            mitigations: rectStyle.maximumLinesOfText
-                ? [{ maximumNumberOfLines: rectStyle.maximumLinesOfText }]
-                : [],
+            mitigations: textFitMitigations,
         })
 
         let dialogueTextLabelLeft: number =
             DialoguePlacementService.getRelativePlacementLeftSide({
                 relativePlacementArea: this.relativePlacementArea,
                 position: this.position,
-                objectWidth: textFit.width,
+                objectWidth: textFit.maximumWidthOfText,
             })
+
+        const labelTextWidth =
+            {
+                [DialogueComponent.DIALOGUE_BOX]: textFit.containerWidth,
+                [DialogueComponent.SPEAKER_NAME]: textFit.maximumWidthOfText,
+            }[dialogueComponent] ?? ScreenDimensions.SCREEN_WIDTH
 
         this.dialogueTextLabel = LabelService.new({
             text: textFit.text,
@@ -159,7 +231,7 @@ export class DialogueTextBox {
                     ScreenDimensions.SCREEN_HEIGHT * rectStyle.topFraction +
                     rectStyle.topOffset,
                 width:
-                    textFit.width +
+                    labelTextWidth +
                     rectStyle.textBoxMargin[1] +
                     rectStyle.textBoxMargin[3],
                 left: dialogueTextLabelLeft,

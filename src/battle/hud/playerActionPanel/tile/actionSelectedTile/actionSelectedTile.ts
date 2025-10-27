@@ -423,7 +423,7 @@ const createInformationTextBox = ({
 
     const textInfo = TextGraphicalHandlingService.fitTextWithinSpace({
         text,
-        maximumWidth: availableTextWidth,
+        currentContainerWidth: availableTextWidth,
         graphics: graphicsContext,
         fontDescription: {
             preferredFontSize: fontSizeRange.preferred,
@@ -441,7 +441,7 @@ const createInformationTextBox = ({
                 RectAreaService.left(overallBoundingBox) +
                 WINDOW_SPACING.SPACING1 +
                 leftOffset,
-            width: textInfo.width,
+            width: textInfo.maximumWidthOfText,
             top: topOffset,
             height: textInfo.text.split("\n").length * textInfo.fontSize,
         }),
@@ -629,7 +629,7 @@ const createActionTemplateDescriptionTextBox = ({
 
     const textInfo = TextGraphicalHandlingService.fitTextWithinSpace({
         text: actionTemplate.userInformation.userReadableDescription,
-        maximumWidth:
+        currentContainerWidth:
             RectAreaService.width(overallBoundingBox) - WINDOW_SPACING.SPACING2,
         graphics: graphicsContext,
         fontDescription: {

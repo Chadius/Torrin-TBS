@@ -100,7 +100,7 @@ export class CreateLeftModifiersTextBoxAction implements BehaviorTreeTask {
         if (uiObjects.graphicsContext == undefined) return false
         const textInfo = TextGraphicalHandlingService.fitTextWithinSpace({
             text: messageToShow,
-            maximumWidth: modifiersLayoutConstants.leftColumn.width,
+            currentContainerWidth: modifiersLayoutConstants.leftColumn.width,
             graphics: uiObjects.graphicsContext,
             fontDescription: {
                 preferredFontSize:
@@ -195,7 +195,7 @@ export class CreateRightModifiersTextBoxAction implements BehaviorTreeTask {
         if (uiObjects.graphicsContext == undefined) return false
         const textInfo = TextGraphicalHandlingService.fitTextWithinSpace({
             text: messageToShow,
-            maximumWidth: modifiersLayoutConstants.rightColumn.width,
+            currentContainerWidth: modifiersLayoutConstants.rightColumn.width,
             graphics: uiObjects.graphicsContext,
             fontDescription: {
                 strokeWeight: modifiersLayoutConstants.strokeWeight,

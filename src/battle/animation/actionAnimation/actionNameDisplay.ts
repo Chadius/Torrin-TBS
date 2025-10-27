@@ -74,7 +74,7 @@ const createActionNameTextBox = ({
 }: ActionNameDisplayArguments): TextBox => {
     const textFit = TextGraphicalHandlingService.fitTextWithinSpace({
         text: actionName,
-        maximumWidth: ScreenDimensions.SCREEN_WIDTH * 0.5,
+        currentContainerWidth: ScreenDimensions.SCREEN_WIDTH * 0.5,
         graphics: graphicsContext,
         fontDescription: {
             preferredFontSize: constants.textSize,
@@ -90,7 +90,7 @@ const createActionNameTextBox = ({
         area: RectAreaService.new({
             left: left + constants.padding + WINDOW_SPACING.SPACING1,
             bottom: bottom - constants.padding,
-            width: textFit.width + constants.padding * 2,
+            width: textFit.maximumWidthOfText + constants.padding * 2,
             height: constants.textSize + constants.padding,
         }),
     })

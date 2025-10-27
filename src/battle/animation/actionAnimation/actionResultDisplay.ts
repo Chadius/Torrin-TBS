@@ -127,7 +127,7 @@ const createTextBox = ({
 }): TextBox => {
     const textFit = TextGraphicalHandlingService.fitTextWithinSpace({
         text,
-        maximumWidth: ScreenDimensions.SCREEN_WIDTH * 0.5,
+        currentContainerWidth: ScreenDimensions.SCREEN_WIDTH * 0.5,
         graphics: graphicsContext,
         fontDescription: {
             preferredFontSize: constants.textSize,
@@ -143,7 +143,7 @@ const createTextBox = ({
         area: RectAreaService.new({
             left,
             top,
-            width: textFit.width + constants.padding,
+            width: textFit.maximumWidthOfText + constants.padding,
             height: constants.lineHeight,
         }),
     })

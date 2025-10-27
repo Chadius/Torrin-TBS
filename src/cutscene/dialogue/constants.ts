@@ -7,7 +7,6 @@ import {
 } from "../../ui/constants"
 import { ScreenDimensions } from "../../utils/graphics/graphicsConfig"
 import { TextBoxMargin } from "../../ui/label"
-import { DialogTextBoxLayout } from "./dialogueTextBox"
 import { FontSizeRange } from "../../utils/graphics/textGraphicalHandlingService"
 import { EnumLike } from "../../utils/enum"
 import { RectArea, RectAreaService } from "../../ui/rectArea.ts"
@@ -32,59 +31,6 @@ export const MAX_WIDTH: number = 768
 export interface ThirdOfScreenAlignment {
     thirdOfScreenAlignment: HORIZONTAL_ALIGN_TYPE
     thirdOfScreenSubAlignment: HORIZONTAL_ALIGN_TYPE
-}
-
-export const DIALOGUE_TEXT_BOX_STYLE_CONSTANTS: {
-    [t in TDialoguePosition]: DialogTextBoxLayout
-} = {
-    [DialoguePosition.CENTER]: {
-        fillColor: [200, 10, 50],
-        horizontalMargin: WINDOW_SPACING.SPACING2,
-        topOffset: WINDOW_SPACING.SPACING1,
-        thirdOfScreenAlignment: HORIZONTAL_ALIGN.CENTER,
-        thirdOfScreenSubAlignment: HORIZONTAL_ALIGN.CENTER,
-        topFraction: 0.7,
-        maxPixelWidth: ScreenDimensions.SCREEN_WIDTH / 3,
-        linesOfTextRange: { maximum: 3 },
-        textBoxMargin: [
-            WINDOW_SPACING.SPACING2,
-            WINDOW_SPACING.SPACING2,
-            WINDOW_SPACING.SPACING2,
-            WINDOW_SPACING.SPACING2,
-        ],
-    },
-    [DialoguePosition.LEFT]: {
-        fillColor: [200, 10, 50],
-        horizontalMargin: WINDOW_SPACING.SPACING2,
-        topOffset: WINDOW_SPACING.SPACING1,
-        thirdOfScreenAlignment: HORIZONTAL_ALIGN.LEFT,
-        thirdOfScreenSubAlignment: HORIZONTAL_ALIGN.LEFT,
-        topFraction: 0.7,
-        maxPixelWidth: ScreenDimensions.SCREEN_WIDTH / 3,
-        linesOfTextRange: { maximum: 3 },
-        textBoxMargin: [
-            WINDOW_SPACING.SPACING2,
-            WINDOW_SPACING.SPACING2,
-            WINDOW_SPACING.SPACING2,
-            WINDOW_SPACING.SPACING2,
-        ],
-    },
-    [DialoguePosition.RIGHT]: {
-        fillColor: [200, 10, 50],
-        horizontalMargin: WINDOW_SPACING.SPACING2,
-        topOffset: WINDOW_SPACING.SPACING1,
-        thirdOfScreenAlignment: HORIZONTAL_ALIGN.RIGHT,
-        thirdOfScreenSubAlignment: HORIZONTAL_ALIGN.RIGHT,
-        topFraction: 0.7,
-        maxPixelWidth: ScreenDimensions.SCREEN_WIDTH / 3,
-        linesOfTextRange: { maximum: 3 },
-        textBoxMargin: [
-            WINDOW_SPACING.SPACING2,
-            WINDOW_SPACING.SPACING2,
-            WINDOW_SPACING.SPACING2,
-            WINDOW_SPACING.SPACING2,
-        ],
-    },
 }
 
 export const DialogueFontStyle = {
@@ -205,6 +151,15 @@ export const DialoguePlacementService = {
             [DialoguePosition.CENTER]: textBoxPlacement.center,
             [DialoguePosition.RIGHT]: textBoxPlacement.right,
         }[position]
+
+        const paddingIfOffScreen =
+            (ScreenDimensions.SCREEN_WIDTH - objectWidth) / 4
+        if (dialogueTextLabelLeft < 0) return paddingIfOffScreen
+        if (dialogueTextLabelLeft + objectWidth > ScreenDimensions.SCREEN_WIDTH)
+            return (
+                ScreenDimensions.SCREEN_WIDTH - objectWidth - paddingIfOffScreen
+            )
+
         return dialogueTextLabelLeft
     },
 }

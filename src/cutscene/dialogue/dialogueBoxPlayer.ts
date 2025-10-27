@@ -141,7 +141,7 @@ export const DialoguePlayerService = {
                 dialoguePlayerState
             )
             if (dialoguePlayerState.speakerNameBox != undefined) {
-                // @ts-ignore if statement checks to make sure the object was created
+                // @ts-ignore dialoguePlayerState.speakerNameBox cannot be undefined, but TS complains it can be
                 dialoguePlayerState.speakerNameBox.draw(graphicsContext)
             }
         }

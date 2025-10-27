@@ -11,6 +11,7 @@ import {
 import { ImageUI, ImageUILoadingBehavior } from "../../ui/imageUI/imageUI"
 import { ResourceHandler } from "../../resource/resourceHandler"
 import { DialogueTextBox } from "./dialogueTextBox.ts"
+import { WINDOW_SPACING } from "../../ui/constants.ts"
 
 export interface DialoguePortraitImage {
     speakerPortrait: p5.Image | undefined
@@ -76,72 +77,63 @@ const moveSpeakerPortraitIfOverlappingNameBox = ({
         }
     }
 
-    let speakerPortraitRight = speakerPortraitLeft + speakerPortrait.width
     let speakerNameBoxLeft = RectAreaService.left(
+        speakerNameBox.dialogueTextLabel.rectangle.area
+    )
+    let speakerNameBoxTop = RectAreaService.top(
         speakerNameBox.dialogueTextLabel.rectangle.area
     )
     let speakerNameBoxRight = RectAreaService.right(
         speakerNameBox.dialogueTextLabel.rectangle.area
     )
 
-    const arePortraitAndNameTooWideToFitInRelativeArea =
-        relativePlacementArea != undefined &&
-        speakerPortrait.width +
-            RectAreaService.width(
-                speakerNameBox.dialogueTextLabel.rectangle.area
-            ) >=
-            RectAreaService.width(relativePlacementArea)
-
-    const areOverlapping =
-        (speakerPortraitLeft >= speakerNameBoxLeft &&
-            speakerPortraitLeft <= speakerNameBoxRight) ||
-        (speakerPortraitRight >= speakerNameBoxLeft &&
-            speakerPortraitRight <= speakerNameBoxRight) ||
-        (speakerNameBoxLeft >= speakerPortraitLeft &&
-            speakerNameBoxLeft <= speakerPortraitRight) ||
-        (speakerNameBoxRight >= speakerPortraitLeft &&
-            speakerNameBoxRight <= speakerPortraitRight)
-
-    if (areOverlapping) {
-        if (arePortraitAndNameTooWideToFitInRelativeArea) {
-            return {
-                speakerBoxBottom: RectAreaService.top(
-                    speakerNameBox.dialogueTextLabel.rectangle.area
-                ),
-                speakerBoxLeft: relativePlacementArea
-                    ? RectAreaService.left(relativePlacementArea)
-                    : speakerPortraitLeft,
-            }
-        }
-
-        if (relativePlacementArea == undefined) {
-            return {
-                speakerBoxBottom: speakerPortraitBottom,
-                speakerBoxLeft: speakerPortraitLeft,
-            }
-        }
-
-        if (
-            RectAreaService.left(relativePlacementArea) +
-                speakerPortrait.width >=
-            speakerNameBoxLeft
-        ) {
-            return {
-                speakerBoxBottom: speakerPortraitBottom,
-                speakerBoxLeft:
-                    RectAreaService.right(relativePlacementArea) -
-                    speakerPortrait.width,
-            }
-        }
-
+    if (relativePlacementArea == undefined)
         return {
+            speakerBoxLeft: speakerPortraitLeft,
             speakerBoxBottom: speakerPortraitBottom,
+        }
+
+    const canPortraitFitOnTheRightSide =
+        speakerNameBoxRight + speakerPortrait.width <
+        RectAreaService.right(relativePlacementArea)
+    const canPortraitFitOnTheLeftSide =
+        speakerNameBoxLeft - speakerPortrait.width >
+        RectAreaService.left(relativePlacementArea)
+
+    if (!canPortraitFitOnTheLeftSide && !canPortraitFitOnTheRightSide)
+        return {
+            speakerBoxBottom: RectAreaService.top(
+                speakerNameBox.dialogueTextLabel.rectangle.area
+            ),
             speakerBoxLeft: RectAreaService.left(relativePlacementArea),
         }
+
+    if (canPortraitFitOnTheLeftSide) {
+        const speakerPortraitRight = speakerPortraitLeft + speakerPortrait.width
+        const areOverlapping =
+            (speakerPortraitLeft >= speakerNameBoxLeft &&
+                speakerPortraitLeft <= speakerNameBoxRight) ||
+            (speakerPortraitRight >= speakerNameBoxLeft &&
+                speakerPortraitRight <= speakerNameBoxRight) ||
+            (speakerNameBoxLeft >= speakerPortraitLeft &&
+                speakerNameBoxLeft <= speakerPortraitRight) ||
+            (speakerNameBoxRight >= speakerPortraitLeft &&
+                speakerNameBoxRight <= speakerPortraitRight)
+        if (areOverlapping) {
+            return {
+                speakerBoxLeft: speakerPortraitLeft,
+                speakerBoxBottom: speakerNameBoxTop - 1,
+            }
+        }
+        return {
+            speakerBoxLeft: speakerPortraitLeft,
+            speakerBoxBottom: speakerPortraitBottom,
+        }
     }
+
     return {
-        speakerBoxLeft: speakerPortraitLeft,
         speakerBoxBottom: speakerPortraitBottom,
+        speakerBoxLeft: speakerNameBoxRight + WINDOW_SPACING.SPACING1,
     }
 }
 const createUIObjects = ({

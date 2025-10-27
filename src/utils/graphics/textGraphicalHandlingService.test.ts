@@ -16,9 +16,27 @@ import {
 
 describe("Text Graphical Handling Service", () => {
     let mockGraphicsContext: MockedP5GraphicsBuffer
+    let textWidthSpy: MockInstance
+    let textSizeSpy: MockInstance
+    let fontSize = 20
 
     beforeEach(() => {
         mockGraphicsContext = new MockedP5GraphicsBuffer()
+        textSizeSpy = vi
+            .spyOn(mockGraphicsContext, "textSize")
+            .mockImplementation((size: number) => {
+                fontSize = size
+            })
+        textWidthSpy = vi
+            .spyOn(mockGraphicsContext, "textWidth")
+            .mockImplementation((text: string) => {
+                return text.length * fontSize
+            })
+    })
+
+    afterEach(() => {
+        if (textWidthSpy) textWidthSpy.mockRestore()
+        if (textSizeSpy) textSizeSpy.mockRestore()
     })
 
     it("asks the graphics buffer for the text width", () => {
@@ -84,14 +102,6 @@ describe("Text Graphical Handling Service", () => {
         textDescentSpy.mockRestore()
     })
     describe("change font to ensure it fits size", () => {
-        let textWidthSpy: MockInstance
-        let textSizeSpy: MockInstance
-
-        afterEach(() => {
-            if (textWidthSpy) textWidthSpy.mockRestore()
-            if (textSizeSpy) textSizeSpy.mockRestore()
-        })
-
         it("Returns default font size if text fits on one line", () => {
             textWidthSpy = vi
                 .spyOn(mockGraphicsContext, "textWidth")
@@ -100,7 +110,7 @@ describe("Text Graphical Handling Service", () => {
                 expectTextFitToBeCloseTo(
                     TextGraphicalHandlingService.fitTextWithinSpace({
                         text: "Hi",
-                        maximumWidth: 9001,
+                        currentContainerWidth: 9001,
                         fontDescription: {
                             preferredFontSize: 12,
                             strokeWeight: 1,
@@ -111,28 +121,18 @@ describe("Text Graphical Handling Service", () => {
                     {
                         text: "Hi",
                         fontSize: 12,
-                        width: 2 * 12 * TEXT_WIDTH_MULTIPLIER,
+                        maximumWidthOfText: 2 * 12 * TEXT_WIDTH_MULTIPLIER,
+                        containerWidth: 9001,
                     }
                 )
             ).toBeTruthy()
         })
         it("Will reduce the font size if it does not fit on a single line", () => {
-            let fontSize = 20
-            textSizeSpy = vi
-                .spyOn(mockGraphicsContext, "textSize")
-                .mockImplementation((size: number) => {
-                    fontSize = size
-                })
-            textWidthSpy = vi
-                .spyOn(mockGraphicsContext, "textWidth")
-                .mockImplementation((text: string) => {
-                    return text.length * fontSize
-                })
             expect(
                 expectTextFitToBeCloseTo(
                     TextGraphicalHandlingService.fitTextWithinSpace({
                         text: "12345",
-                        maximumWidth: 50,
+                        currentContainerWidth: 50,
                         fontDescription: {
                             preferredFontSize: 20,
                             strokeWeight: 1,
@@ -143,41 +143,20 @@ describe("Text Graphical Handling Service", () => {
                     {
                         text: "12345",
                         fontSize: 10,
-                        width: 50 * TEXT_WIDTH_MULTIPLIER,
+                        maximumWidthOfText: 50 * TEXT_WIDTH_MULTIPLIER,
+                        containerWidth: 50,
                     }
                 )
             ).toBeTruthy()
         })
     })
     describe("split text on multiple lines", () => {
-        let textWidthSpy: MockInstance
-        let textSizeSpy: MockInstance
-
-        beforeEach(() => {
-            let fontSize = 20
-            textSizeSpy = vi
-                .spyOn(mockGraphicsContext, "textSize")
-                .mockImplementation((size: number) => {
-                    fontSize = size
-                })
-            textWidthSpy = vi
-                .spyOn(mockGraphicsContext, "textWidth")
-                .mockImplementation((text: string) => {
-                    return text.length * fontSize
-                })
-        })
-
-        afterEach(() => {
-            if (textWidthSpy) textWidthSpy.mockRestore()
-            if (textSizeSpy) textSizeSpy.mockRestore()
-        })
-
         it("will add line breaks to split text on multiple lines", () => {
             expect(
                 expectTextFitToBeCloseTo(
                     TextGraphicalHandlingService.fitTextWithinSpace({
                         text: "1 3 5",
-                        maximumWidth: 20,
+                        currentContainerWidth: 20,
                         fontDescription: {
                             preferredFontSize: 10,
                             strokeWeight: 1,
@@ -188,7 +167,8 @@ describe("Text Graphical Handling Service", () => {
                     {
                         text: "1\n3\n5",
                         fontSize: 10,
-                        width: 10 * TEXT_WIDTH_MULTIPLIER,
+                        maximumWidthOfText: 10 * TEXT_WIDTH_MULTIPLIER,
+                        containerWidth: 20,
                     }
                 )
             ).toBeTruthy()
@@ -199,7 +179,7 @@ describe("Text Graphical Handling Service", () => {
                 expectTextFitToBeCloseTo(
                     TextGraphicalHandlingService.fitTextWithinSpace({
                         text: "1 3 5",
-                        maximumWidth: 20,
+                        currentContainerWidth: 20,
                         fontDescription: {
                             preferredFontSize: 10,
                             strokeWeight: 1,
@@ -210,7 +190,8 @@ describe("Text Graphical Handling Service", () => {
                     {
                         text: "1 3 5",
                         fontSize: 10,
-                        width: 50 * TEXT_WIDTH_MULTIPLIER,
+                        maximumWidthOfText: 50 * TEXT_WIDTH_MULTIPLIER,
+                        containerWidth: 20,
                     }
                 )
             ).toBeTruthy()
@@ -221,7 +202,7 @@ describe("Text Graphical Handling Service", () => {
                 expectTextFitToBeCloseTo(
                     TextGraphicalHandlingService.fitTextWithinSpace({
                         text: "12345",
-                        maximumWidth: 20,
+                        currentContainerWidth: 20,
                         fontDescription: {
                             preferredFontSize: 10,
                             strokeWeight: 1,
@@ -232,7 +213,8 @@ describe("Text Graphical Handling Service", () => {
                     {
                         text: "12345",
                         fontSize: 10,
-                        width: 50 * TEXT_WIDTH_MULTIPLIER,
+                        maximumWidthOfText: 50 * TEXT_WIDTH_MULTIPLIER,
+                        containerWidth: 20,
                     }
                 )
             ).toBeTruthy()
@@ -243,7 +225,7 @@ describe("Text Graphical Handling Service", () => {
                 expectTextFitToBeCloseTo(
                     TextGraphicalHandlingService.fitTextWithinSpace({
                         text: "123 5",
-                        maximumWidth: 20,
+                        currentContainerWidth: 20,
                         fontDescription: {
                             preferredFontSize: 10,
                             strokeWeight: 1,
@@ -254,7 +236,8 @@ describe("Text Graphical Handling Service", () => {
                     {
                         text: "123\n5",
                         fontSize: 10,
-                        width: 30 * TEXT_WIDTH_MULTIPLIER,
+                        maximumWidthOfText: 30 * TEXT_WIDTH_MULTIPLIER,
+                        containerWidth: 20,
                     }
                 )
             ).toBeTruthy()
@@ -265,7 +248,7 @@ describe("Text Graphical Handling Service", () => {
                 expectTextFitToBeCloseTo(
                     TextGraphicalHandlingService.fitTextWithinSpace({
                         text: "12\n3\n5",
-                        maximumWidth: 20,
+                        currentContainerWidth: 20,
                         fontDescription: {
                             preferredFontSize: 10,
                             strokeWeight: 1,
@@ -276,7 +259,85 @@ describe("Text Graphical Handling Service", () => {
                     {
                         text: "12\n3\n5",
                         fontSize: 10,
-                        width: 20 * TEXT_WIDTH_MULTIPLIER,
+                        maximumWidthOfText: 20 * TEXT_WIDTH_MULTIPLIER,
+                        containerWidth: 20,
+                    }
+                )
+            ).toBeTruthy()
+        })
+    })
+    describe("change window width", () => {
+        afterEach(() => {
+            if (textWidthSpy) textWidthSpy.mockRestore()
+            if (textSizeSpy) textSizeSpy.mockRestore()
+        })
+
+        it("will use smallest width that will accommodate the text", () => {
+            expect(
+                expectTextFitToBeCloseTo(
+                    TextGraphicalHandlingService.fitTextWithinSpace({
+                        text: "1 3 5",
+                        currentContainerWidth: 20,
+                        fontDescription: {
+                            preferredFontSize: 10,
+                            strokeWeight: 1,
+                        },
+                        mitigations: [
+                            { possibleContainerWidths: [100, 30, 50, 10, 200] },
+                        ],
+                        graphics: mockGraphicsContext,
+                    }),
+                    {
+                        text: "1 3 5",
+                        fontSize: 10,
+                        maximumWidthOfText: 50 * TEXT_WIDTH_MULTIPLIER,
+                        containerWidth: 100,
+                    }
+                )
+            ).toBeTruthy()
+        })
+
+        it("will not increase width if it is already wide enough", () => {
+            expect(
+                expectTextFitToBeCloseTo(
+                    TextGraphicalHandlingService.fitTextWithinSpace({
+                        text: "1 3 5",
+                        currentContainerWidth: 20,
+                        fontDescription: {
+                            preferredFontSize: 10,
+                            strokeWeight: 1,
+                        },
+                        mitigations: [{ possibleContainerWidths: [100] }],
+                        graphics: mockGraphicsContext,
+                    }),
+                    {
+                        text: "1 3 5",
+                        fontSize: 10,
+                        maximumWidthOfText: 50 * TEXT_WIDTH_MULTIPLIER,
+                        containerWidth: 100,
+                    }
+                )
+            ).toBeTruthy()
+        })
+
+        it("will use widest available width even if the word is too long", () => {
+            expect(
+                expectTextFitToBeCloseTo(
+                    TextGraphicalHandlingService.fitTextWithinSpace({
+                        text: "12345",
+                        currentContainerWidth: 20,
+                        fontDescription: {
+                            preferredFontSize: 10,
+                            strokeWeight: 1,
+                        },
+                        mitigations: [{ possibleContainerWidths: [10] }],
+                        graphics: mockGraphicsContext,
+                    }),
+                    {
+                        text: "12345",
+                        fontSize: 10,
+                        maximumWidthOfText: 50 * TEXT_WIDTH_MULTIPLIER,
+                        containerWidth: 10,
                     }
                 )
             ).toBeTruthy()
@@ -290,6 +351,7 @@ const expectTextFitToBeCloseTo = (
 ): boolean => {
     expect(actual.text).toEqual(expected.text)
     expect(actual.fontSize).toBeCloseTo(expected.fontSize)
-    expect(actual.width).toBeCloseTo(expected.width)
+    expect(actual.maximumWidthOfText).toBeCloseTo(expected.maximumWidthOfText)
+    expect(actual.containerWidth).toBeCloseTo(expected.containerWidth)
     return true
 }

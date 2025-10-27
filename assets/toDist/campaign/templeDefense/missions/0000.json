@@ -633,7 +633,7 @@
             "speakerPortraitPosition": "LEFT",
             "speakerName": "Hi, Nahla",
             "speakerNamePosition": "LEFT",
-            "dialogueText": "This is Nahla. She can attack at range. She can spend 2 AP to heal.",
+            "dialogueText": "This is Nahla. She can attack at range.\nShe can spend 2 AP to heal.",
             "dialogueTextPosition": "CENTER",
             "comment": "Nahla's portrait and map icon are here. Show a situation where she won't have enough action points to heal.",
             "animationDuration": 0,
@@ -645,8 +645,8 @@
             "speakerPortraitResourceKey": "how-to-play-sir-camil-2",
             "speakerPortraitPosition": "LEFT",
             "speakerName": "Sir Camil!",
-            "speakerNamePosition": "CENTER",
-            "dialogueText": "Sir Camil can take more hits. Raise his Shield for even more defense.",
+            "speakerNamePosition": "LEFT",
+            "dialogueText": "Sir Camil can take more hits.\nRaise his Shield for even more defense.",
             "dialogueTextPosition": "LEFT",
             "comment": "Sir Camil's portrait and map icon. Show Raise Shield increasing his defense.",
             "animationDuration": 0,
@@ -689,7 +689,7 @@
             "type": "DIALOGUE",
             "id": "turn1_2",
             "speakerName": "Sir Camil",
-            "dialogueText": "Then click on the longsword and click OK\n to strike the demon!",
+            "dialogueText": "Then click on the longsword and click OK to strike the demon!",
             "speakerPortraitResourceKey": "sir camil cutscene portrait",
             "animationDuration": 0
           },
@@ -708,7 +708,7 @@
             "speakerPortraitPosition": "LEFT",
             "speakerName": "Nahla",
             "speakerNamePosition": "LEFT",
-            "dialogueText": "Or if you defeated the demon, I can select End Turn.",
+            "dialogueText": "Or if you defeated the demon,\nI can select End Turn.",
             "dialogueTextPosition": "LEFT",
             "animationDuration": 0
           }
@@ -804,7 +804,7 @@
             "type": "DIALOGUE",
             "id": "turn4_0",
             "speakerName": "Nahla",
-            "dialogueText": "The sand tiles slows us down. Normally I can move 2 tiles per AP, but sand halves it!",
+            "dialogueText": "The sand tiles slows us down. Normally I can move\n 2 tiles per AP, but sand halves it!",
             "speakerPortraitResourceKey": "young nahla cutscene portrait",
             "animationDuration": 0
           },
@@ -960,7 +960,7 @@
             "type": "DIALOGUE",
             "id": "killed_first_enemy_2",
             "speakerName": "Sir Camil",
-            "dialogueText": "The Slither demons have to fight up close, but they can take 2 hits.",
+            "dialogueText": "The Slither demons have to fight up close,\n but they can take 2 hits.",
             "speakerPortraitResourceKey": "sir camil cutscene portrait",
             "animationDuration": 0
           },
@@ -968,7 +968,7 @@
             "type": "DIALOGUE",
             "id": "killed_first_enemy_3",
             "speakerName": "Nahla",
-            "dialogueText": "I'm worried about those locusts, they can shoot us from up to 3 tiles away.",
+            "dialogueText": "I'm worried about those locusts,\n they can shoot us from up to 3 tiles away.",
             "speakerPortraitResourceKey": "young nahla cutscene portrait",
             "animationDuration": 0
           },

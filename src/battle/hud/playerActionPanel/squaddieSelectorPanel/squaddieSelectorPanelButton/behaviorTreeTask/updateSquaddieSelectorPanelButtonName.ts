@@ -117,7 +117,7 @@ export class UpdateSquaddieSelectorPanelButtonName implements BehaviorTreeTask {
 
         const textInfo = TextGraphicalHandlingService.fitTextWithinSpace({
             text: name,
-            maximumWidth: RectAreaService.width(areaToRender),
+            currentContainerWidth: RectAreaService.width(areaToRender),
             graphics: this.graphicsContext,
             fontDescription: {
                 strokeWeight:
