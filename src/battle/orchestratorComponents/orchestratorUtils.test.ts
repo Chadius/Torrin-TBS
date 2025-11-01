@@ -141,7 +141,10 @@ describe("Orchestration Utils", () => {
                 resourceRepository: ResourceRepositoryService.new({
                     imageLoader: new TestLoadImmediatelyImageLoader({}),
                     urls: Object.fromEntries(
-                        LoadCampaignData.getResourceKeys().map((key) => [key, "url"])
+                        LoadCampaignData.getResourceKeys().map((key) => [
+                            key,
+                            "url",
+                        ])
                     ),
                 }),
                 repository: repository,
@@ -277,7 +280,10 @@ describe("Orchestration Utils", () => {
                 resourceRepository: ResourceRepositoryService.new({
                     imageLoader: new TestLoadImmediatelyImageLoader({}),
                     urls: Object.fromEntries(
-                        LoadCampaignData.getResourceKeys().map((key) => [key, "url"])
+                        LoadCampaignData.getResourceKeys().map((key) => [
+                            key,
+                            "url",
+                        ])
                     ),
                 }),
                 battleOrchestratorState: BattleOrchestratorStateService.new({
@@ -494,7 +500,10 @@ describe("Orchestration Utils", () => {
                 resourceRepository: ResourceRepositoryService.new({
                     imageLoader: new TestLoadImmediatelyImageLoader({}),
                     urls: Object.fromEntries(
-                        LoadCampaignData.getResourceKeys().map((key) => [key, "url"])
+                        LoadCampaignData.getResourceKeys().map((key) => [
+                            key,
+                            "url",
+                        ])
                     ),
                 }),
                 battleOrchestratorState: BattleOrchestratorStateService.new({
@@ -650,7 +659,10 @@ describe("Orchestration Utils", () => {
                 resourceRepository: ResourceRepositoryService.new({
                     imageLoader: new TestLoadImmediatelyImageLoader({}),
                     urls: Object.fromEntries(
-                        LoadCampaignData.getResourceKeys().map((key) => [key, "url"])
+                        LoadCampaignData.getResourceKeys().map((key) => [
+                            key,
+                            "url",
+                        ])
                     ),
                 }),
                 campaign: CampaignService.default(),
@@ -872,7 +884,10 @@ describe("Orchestration Utils", () => {
                 resourceRepository: ResourceRepositoryService.new({
                     imageLoader: new TestLoadImmediatelyImageLoader({}),
                     urls: Object.fromEntries(
-                        LoadCampaignData.getResourceKeys().map((key) => [key, "url"])
+                        LoadCampaignData.getResourceKeys().map((key) => [
+                            key,
+                            "url",
+                        ])
                     ),
                 }),
                 campaign: CampaignService.default(),
@@ -946,7 +961,10 @@ describe("Orchestration Utils", () => {
                 resourceRepository: ResourceRepositoryService.new({
                     imageLoader: new TestLoadImmediatelyImageLoader({}),
                     urls: Object.fromEntries(
-                        LoadCampaignData.getResourceKeys().map((key) => [key, "url"])
+                        LoadCampaignData.getResourceKeys().map((key) => [
+                            key,
+                            "url",
+                        ])
                     ),
                 }),
                 battleOrchestratorState: BattleOrchestratorStateService.new({

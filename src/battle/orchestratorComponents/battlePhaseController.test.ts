@@ -128,7 +128,10 @@ describe("BattlePhaseController", () => {
             resourceRepository: ResourceRepositoryService.new({
                 imageLoader: new TestLoadImmediatelyImageLoader({}),
                 urls: Object.fromEntries(
-                    LoadCampaignData.getResourceKeys().map((key) => [key, "url"])
+                    LoadCampaignData.getResourceKeys().map((key) => [
+                        key,
+                        "url",
+                    ])
                 ),
             }),
             battleOrchestratorState: BattleOrchestratorStateService.new({
@@ -185,7 +188,10 @@ describe("BattlePhaseController", () => {
             resourceRepository: ResourceRepositoryService.new({
                 imageLoader: new TestLoadImmediatelyImageLoader({}),
                 urls: Object.fromEntries(
-                    LoadCampaignData.getResourceKeys().map((key) => [key, "url"])
+                    LoadCampaignData.getResourceKeys().map((key) => [
+                        key,
+                        "url",
+                    ])
                 ),
             }),
             battleOrchestratorState: BattleOrchestratorStateService.new({
@@ -245,7 +251,10 @@ describe("BattlePhaseController", () => {
             resourceRepository: ResourceRepositoryService.new({
                 imageLoader: new TestLoadImmediatelyImageLoader({}),
                 urls: Object.fromEntries(
-                    LoadCampaignData.getResourceKeys().map((key) => [key, "url"])
+                    LoadCampaignData.getResourceKeys().map((key) => [
+                        key,
+                        "url",
+                    ])
                 ),
             }),
             battleOrchestratorState: BattleOrchestratorStateService.new({
@@ -475,7 +484,10 @@ describe("BattlePhaseController", () => {
                 resourceRepository: ResourceRepositoryService.new({
                     imageLoader: new TestLoadImmediatelyImageLoader({}),
                     urls: Object.fromEntries(
-                        LoadCampaignData.getResourceKeys().map((key) => [key, "url"])
+                        LoadCampaignData.getResourceKeys().map((key) => [
+                            key,
+                            "url",
+                        ])
                     ),
                 }),
                 battleOrchestratorState: BattleOrchestratorStateService.new({
@@ -521,7 +533,10 @@ describe("BattlePhaseController", () => {
                 resourceRepository: ResourceRepositoryService.new({
                     imageLoader: new TestLoadImmediatelyImageLoader({}),
                     urls: Object.fromEntries(
-                        LoadCampaignData.getResourceKeys().map((key) => [key, "url"])
+                        LoadCampaignData.getResourceKeys().map((key) => [
+                            key,
+                            "url",
+                        ])
                     ),
                 }),
                 battleOrchestratorState: BattleOrchestratorStateService.new({

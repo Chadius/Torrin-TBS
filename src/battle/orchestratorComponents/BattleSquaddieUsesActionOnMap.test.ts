@@ -83,7 +83,9 @@ describe("BattleSquaddieUsesActionOnMap", () => {
 
         mapAction = new BattleSquaddieUsesActionOnMap()
 
-        const loadImmediatelyImageLoader = new TestLoadImmediatelyImageLoader({})
+        const loadImmediatelyImageLoader = new TestLoadImmediatelyImageLoader(
+            {}
+        )
         const resourceRepository = ResourceRepositoryService.new({
             imageLoader: loadImmediatelyImageLoader,
             urls: Object.fromEntries(

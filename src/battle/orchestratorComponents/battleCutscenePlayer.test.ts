@@ -18,7 +18,9 @@ describe("BattleCutscenePlayer", () => {
     let lunchDate: Cutscene
 
     const createTestResourceRepository = () => {
-        const loadImmediatelyImageLoader = new TestLoadImmediatelyImageLoader({})
+        const loadImmediatelyImageLoader = new TestLoadImmediatelyImageLoader(
+            {}
+        )
         return ResourceRepositoryService.new({
             imageLoader: loadImmediatelyImageLoader,
             urls: Object.fromEntries(

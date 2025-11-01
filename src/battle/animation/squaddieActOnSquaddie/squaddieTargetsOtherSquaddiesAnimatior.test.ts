@@ -13,7 +13,10 @@ import {
     OrchestratorComponentMouseEvent,
     OrchestratorComponentMouseEventType,
 } from "../../orchestrator/battleOrchestratorComponent"
-import { ResourceRepository, ResourceRepositoryService } from "../../../resource/resourceRepository"
+import {
+    ResourceRepository,
+    ResourceRepositoryService,
+} from "../../../resource/resourceRepository"
 import { TestLoadImmediatelyImageLoader } from "../../../resource/resourceRepositoryTestUtils"
 import { LoadCampaignData } from "../../../utils/fileHandling/loadCampaignData"
 import { MockedP5GraphicsBuffer } from "../../../utils/test/mocks"
@@ -128,12 +131,17 @@ describe("SquaddieTargetsOtherSquaddiesAnimation", () => {
 
         animator = new SquaddieTargetsOtherSquaddiesAnimator()
 
-        const loadImmediatelyImageLoader = new TestLoadImmediatelyImageLoader({})
+        const loadImmediatelyImageLoader = new TestLoadImmediatelyImageLoader(
+            {}
+        )
         resourceRepository = ResourceRepositoryService.new({
             imageLoader: loadImmediatelyImageLoader,
             urls: {
                 ...Object.fromEntries(
-                    LoadCampaignData.getResourceKeys().map((key) => [key, "url"])
+                    LoadCampaignData.getResourceKeys().map((key) => [
+                        key,
+                        "url",
+                    ])
                 ),
                 knight_neutral: "knight_neutral",
                 knight_attack: "knight_attack",

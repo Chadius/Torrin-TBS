@@ -1,5 +1,8 @@
 import { ObjectRepository, ObjectRepositoryService } from "../objectRepository"
-import { ResourceRepository, ResourceRepositoryService } from "../../resource/resourceRepository"
+import {
+    ResourceRepository,
+    ResourceRepositoryService,
+} from "../../resource/resourceRepository"
 import { TestLoadImmediatelyImageLoader } from "../../resource/resourceRepositoryTestUtils"
 import { LoadCampaignData } from "../../utils/fileHandling/loadCampaignData"
 import { MockedP5GraphicsBuffer } from "../../utils/test/mocks"
@@ -59,7 +62,9 @@ describe("SquaddieSkipsAnimationAnimator", () => {
 
     beforeEach(() => {
         mockedP5GraphicsContext = new MockedP5GraphicsBuffer()
-        const loadImmediatelyImageLoader = new TestLoadImmediatelyImageLoader({})
+        const loadImmediatelyImageLoader = new TestLoadImmediatelyImageLoader(
+            {}
+        )
         resourceRepository = ResourceRepositoryService.new({
             imageLoader: loadImmediatelyImageLoader,
             urls: Object.fromEntries(
