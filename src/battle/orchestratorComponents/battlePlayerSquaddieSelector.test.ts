@@ -12,7 +12,6 @@ import { TerrainTileMapService } from "../../hexMap/terrainTileMap"
 import { MissionMap, MissionMapService } from "../../missionMap/missionMap"
 import { BattleCamera } from "../battleCamera"
 import { ConvertCoordinateService } from "../../hexMap/convertCoordinates"
-import * as mocks from "../../utils/test/mocks"
 import { MockedP5GraphicsBuffer } from "../../utils/test/mocks"
 import { BattleStateService } from "../battleState/battleState"
 import { CampaignService } from "../../campaign/campaign"
@@ -90,10 +89,12 @@ import { HexCoordinate } from "../../hexMap/hexCoordinate/hexCoordinate"
 import { ValidityCheckService } from "../actionValidity/validityChecker"
 import { MapSearchTestUtils } from "../../hexMap/pathfinder/pathGeneration/mapSearchTests/mapSearchTestUtils"
 import { CampaignResourcesService } from "../../campaign/campaignResources"
+import { ResourceRepositoryTestUtilsService } from "../../resource/resourceRepositoryTestUtils"
 import {
     GameEngineState,
     GameEngineStateService,
 } from "../../gameEngine/gameEngineState/gameEngineState"
+import { BattleHUDStateService } from "../hud/battleHUD/battleHUDState.ts"
 
 describe("BattleSquaddieSelector", () => {
     let selector: BattlePlayerSquaddieSelector =
@@ -343,15 +344,22 @@ describe("BattleSquaddieSelector", () => {
         }
     }
 
-    const createGameEngineState = ({
+    const createGameEngineState = async ({
         battlePhaseState,
         missionMap,
     }: {
         battlePhaseState: BattlePhaseState
         missionMap: MissionMap
-    }): GameEngineState =>
-        GameEngineStateService.new({
-            resourceHandler: mocks.mockResourceHandler(mockedP5GraphicsContext),
+    }): Promise<GameEngineState> => {
+        const resourceRepository =
+            await ResourceRepositoryTestUtilsService.getResourceRepositoryWithAllTestImages(
+                {
+                    graphics: new MockedP5GraphicsBuffer(),
+                }
+            )
+
+        return GameEngineStateService.new({
+            resourceRepository,
             battleOrchestratorState: BattleOrchestratorStateService.new({
                 battleHUD: BattleHUDService.new({}),
                 battleState: BattleStateService.newBattleState({
@@ -362,14 +370,18 @@ describe("BattleSquaddieSelector", () => {
                     battlePhaseState,
                     teams,
                 }),
+                battleHUDState: BattleHUDStateService.new({
+                    summaryHUDState: SummaryHUDStateService.new(),
+                }),
             }),
             repository: objectRepository,
             campaign: CampaignService.default(),
         })
+    }
 
     describe("automatically select the first playable controllable squaddie", () => {
         let gameEngineState: GameEngineState
-        beforeEach(() => {
+        beforeEach(async () => {
             const missionMap: MissionMap = MissionMapService.new({
                 terrainTileMap: TerrainTileMapService.new({
                     movementCost: ["1 1 "],
@@ -379,7 +391,7 @@ describe("BattleSquaddieSelector", () => {
             const battlePhaseState =
                 makeBattlePhaseTrackerWithPlayerTeam(missionMap)
 
-            gameEngineState = createGameEngineState({
+            gameEngineState = await createGameEngineState({
                 battlePhaseState,
                 missionMap,
             })
@@ -394,6 +406,8 @@ describe("BattleSquaddieSelector", () => {
         })
 
         it("if no squaddie is selected, select the first squaddie by default", () => {
+            gameEngineState.battleOrchestratorState.battleHUDState.summaryHUDState =
+                undefined
             selector.update({
                 gameEngineState,
             })
@@ -407,6 +421,8 @@ describe("BattleSquaddieSelector", () => {
         })
 
         it("if the first squaddie turn ends, select the next squaddie", () => {
+            gameEngineState.battleOrchestratorState.battleHUDState.summaryHUDState =
+                undefined
             const { battleSquaddie, squaddieTemplate } =
                 ObjectRepositoryService.getSquaddieByBattleId(
                     gameEngineState.repository!,
@@ -513,7 +529,7 @@ describe("BattleSquaddieSelector", () => {
         let battleSquaddieScreenPositionX: number
         let battleSquaddieScreenPositionY: number
 
-        beforeEach(() => {
+        beforeEach(async () => {
             const missionMap: MissionMap = MissionMapService.new({
                 terrainTileMap: TerrainTileMapService.new({
                     movementCost: ["1 1 "],
@@ -522,7 +538,7 @@ describe("BattleSquaddieSelector", () => {
             const battlePhaseState =
                 makeBattlePhaseTrackerWithPlayerTeam(missionMap)
 
-            gameEngineState = createGameEngineState({
+            gameEngineState = await createGameEngineState({
                 battlePhaseState,
                 missionMap,
             })
@@ -605,7 +621,7 @@ describe("BattleSquaddieSelector", () => {
         let gameEngineState: GameEngineState
         let x: number
         let y: number
-        beforeEach(() => {
+        beforeEach(async () => {
             const missionMap: MissionMap = MissionMapService.new({
                 terrainTileMap: TerrainTileMapService.new({
                     movementCost: ["1 1 "],
@@ -615,7 +631,7 @@ describe("BattleSquaddieSelector", () => {
             const battlePhaseState =
                 makeBattlePhaseTrackerWithPlayerTeam(missionMap)
 
-            gameEngineState = createGameEngineState({
+            gameEngineState = await createGameEngineState({
                 battlePhaseState,
                 missionMap,
             })
@@ -788,11 +804,11 @@ describe("BattleSquaddieSelector", () => {
         let y: number
         let showPlayerActionsSpy: MockInstance
 
-        beforeEach(() => {
+        beforeEach(async () => {
             const battlePhaseState =
                 makeBattlePhaseTrackerWithPlayerTeam(missionMap)
 
-            gameEngineState = createGameEngineState({
+            gameEngineState = await createGameEngineState({
                 battlePhaseState,
                 missionMap,
             })
@@ -898,11 +914,11 @@ describe("BattleSquaddieSelector", () => {
         let y: number
         let showPlayerActionsSpy: MockInstance
 
-        beforeEach(() => {
+        beforeEach(async () => {
             const map = MapSearchTestUtils.create1row5columnsAllFlatTerrain()
             const battlePhaseState = makeBattlePhaseTrackerWithPlayerTeam(map)
 
-            gameEngineState = createGameEngineState({
+            gameEngineState = await createGameEngineState({
                 battlePhaseState,
                 missionMap: map,
             })
@@ -1019,7 +1035,7 @@ describe("BattleSquaddieSelector", () => {
                                         .battleState.missionMap,
                                 summaryHUDState:
                                     gameEngineState.battleOrchestratorState
-                                        .battleHUDState.summaryHUDState,
+                                        .battleHUDState.summaryHUDState!,
                                 battleActionDecisionStep:
                                     gameEngineState.battleOrchestratorState
                                         .battleState.battleActionDecisionStep,
@@ -1065,11 +1081,11 @@ describe("BattleSquaddieSelector", () => {
     describe("Keyboard buttons", () => {
         let gameEngineState: GameEngineState
 
-        beforeEach(() => {
+        beforeEach(async () => {
             const battlePhaseState =
                 makeBattlePhaseTrackerWithPlayerTeam(missionMap)
 
-            gameEngineState = createGameEngineState({
+            gameEngineState = await createGameEngineState({
                 battlePhaseState,
                 missionMap,
             })
@@ -1203,13 +1219,13 @@ describe("BattleSquaddieSelector", () => {
         })
     })
 
-    it("will mark the battle orchestrator component complete and recommend the message", () => {
+    it("will mark the battle orchestrator component complete and recommend the message", async () => {
         let gameEngineState: GameEngineState
 
         const battlePhaseState =
             makeBattlePhaseTrackerWithPlayerTeam(missionMap)
 
-        gameEngineState = createGameEngineState({
+        gameEngineState = await createGameEngineState({
             battlePhaseState,
             missionMap,
         })
@@ -1285,7 +1301,7 @@ const selectActionButton = ({
                 .summaryHUDState!,
         gameEngineState,
         graphicsBuffer,
-        resourceHandler: mocks.mockResourceHandler(graphicsBuffer),
+        resourceRepository: gameEngineState.resourceRepository!,
     })
 
     const actionButton =

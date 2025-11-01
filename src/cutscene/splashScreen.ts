@@ -3,7 +3,7 @@ import {
     CutsceneActionPlayerType,
     TCutsceneActionPlayerType,
 } from "./cutsceneAction"
-import { ResourceLocator, Resource } from "../resource/resourceHandler"
+import { Resource, ResourceLocator } from "../resource/resourceLocator.ts"
 
 export interface SplashScreen {
     type: TCutsceneActionPlayerType

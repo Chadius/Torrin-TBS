@@ -13,8 +13,9 @@ import {
     OrchestratorComponentMouseEvent,
     OrchestratorComponentMouseEventType,
 } from "../../orchestrator/battleOrchestratorComponent"
-import { ResourceHandler } from "../../../resource/resourceHandler"
-import * as mocks from "../../../utils/test/mocks"
+import { ResourceRepository, ResourceRepositoryService } from "../../../resource/resourceRepository"
+import { TestLoadImmediatelyImageLoader } from "../../../resource/resourceRepositoryTestUtils"
+import { LoadCampaignData } from "../../../utils/fileHandling/loadCampaignData"
 import { MockedP5GraphicsBuffer } from "../../../utils/test/mocks"
 import {
     CreateNewKnightSquaddie,
@@ -77,7 +78,7 @@ describe("SquaddieTargetsOtherSquaddiesAnimation", () => {
 
     let longswordActionTemplate: ActionTemplate
     let animator: SquaddieTargetsOtherSquaddiesAnimator
-    let mockResourceHandler: ResourceHandler
+    let resourceRepository: ResourceRepository
 
     let knightHitsThiefWithLongswordInstructionBattleAction: BattleAction
 
@@ -127,11 +128,26 @@ describe("SquaddieTargetsOtherSquaddiesAnimation", () => {
 
         animator = new SquaddieTargetsOtherSquaddiesAnimator()
 
-        mockResourceHandler = mocks.mockResourceHandler(mockedP5GraphicsContext)
-        mockResourceHandler.loadResource = vi.fn().mockImplementation(() => {})
-        mockResourceHandler.getResource = vi
-            .fn()
-            .mockReturnValue({ width: 32, height: 32 })
+        const loadImmediatelyImageLoader = new TestLoadImmediatelyImageLoader({})
+        resourceRepository = ResourceRepositoryService.new({
+            imageLoader: loadImmediatelyImageLoader,
+            urls: {
+                ...Object.fromEntries(
+                    LoadCampaignData.getResourceKeys().map((key) => [key, "url"])
+                ),
+                knight_neutral: "knight_neutral",
+                knight_attack: "knight_attack",
+                knight_assisting: "knight_assisting",
+                knight_thankful: "knight_thankful",
+                thief_neutral: "thief_neutral",
+                thief_damaged: "thief_damaged",
+                thief_targeted: "thief_targeted",
+                thief_dead: "thief_dead",
+                thief_assisting: "thief_assisting",
+                thief_thankful: "thief_thankful",
+                thief_attack: "thief_attack",
+            },
+        })
 
         knightHitsThiefWithLongswordInstructionBattleAction =
             BattleActionService.new({
@@ -166,7 +182,7 @@ describe("SquaddieTargetsOtherSquaddiesAnimation", () => {
         const dateSpy = vi.spyOn(Date, "now").mockImplementation(() => 0)
         animateKnightHittingWithLongsword({
             objectRepository: objectRepository,
-            mockResourceHandler: mockResourceHandler,
+            resourceRepository: resourceRepository,
             battleAction: knightHitsThiefWithLongswordInstructionBattleAction,
             animator: animator,
             mockedP5GraphicsContext: mockedP5GraphicsContext,
@@ -200,7 +216,7 @@ describe("SquaddieTargetsOtherSquaddiesAnimation", () => {
     it("creates dice roll animation", () => {
         animateKnightHittingWithLongsword({
             objectRepository: objectRepository,
-            mockResourceHandler: mockResourceHandler,
+            resourceRepository: resourceRepository,
             battleAction: knightHitsThiefWithLongswordInstructionBattleAction,
             animator: animator,
             mockedP5GraphicsContext: mockedP5GraphicsContext,
@@ -270,7 +286,7 @@ describe("SquaddieTargetsOtherSquaddiesAnimation", () => {
 
         animateKnightHittingWithLongsword({
             objectRepository: objectRepository,
-            mockResourceHandler: mockResourceHandler,
+            resourceRepository: resourceRepository,
             battleAction: attackWithModifiers,
             animator: animator,
             mockedP5GraphicsContext: mockedP5GraphicsContext,
@@ -354,7 +370,7 @@ describe("SquaddieTargetsOtherSquaddiesAnimation", () => {
         it.each(tests)(`$name `, ({ action }) => {
             const gameEngineState = animateKnightHittingWithLongsword({
                 objectRepository: objectRepository,
-                mockResourceHandler: mockResourceHandler,
+                resourceRepository: resourceRepository,
                 battleAction:
                     knightHitsThiefWithLongswordInstructionBattleAction,
                 animator: animator,
@@ -364,7 +380,7 @@ describe("SquaddieTargetsOtherSquaddiesAnimation", () => {
             animator.update({
                 gameEngineState,
                 graphicsContext: mockedP5GraphicsContext,
-                resourceHandler: gameEngineState.resourceHandler!,
+                resourceRepository: gameEngineState.resourceRepository!,
             })
             expect(animator.hasCompleted(gameEngineState)).toBeFalsy()
 
@@ -372,7 +388,7 @@ describe("SquaddieTargetsOtherSquaddiesAnimation", () => {
             animator.update({
                 gameEngineState,
                 graphicsContext: mockedP5GraphicsContext,
-                resourceHandler: gameEngineState.resourceHandler!,
+                resourceRepository: gameEngineState.resourceRepository!,
             })
             expect(animator.hasCompleted(gameEngineState)).toBeTruthy()
         })
@@ -382,7 +398,7 @@ describe("SquaddieTargetsOtherSquaddiesAnimation", () => {
         const dateSpy = vi.spyOn(Date, "now").mockReturnValue(0)
         const gameEngineState = animateKnightHittingWithLongsword({
             objectRepository: objectRepository,
-            mockResourceHandler: mockResourceHandler,
+            resourceRepository: resourceRepository,
             battleAction: knightHitsThiefWithLongswordInstructionBattleAction,
             animator: animator,
             mockedP5GraphicsContext: mockedP5GraphicsContext,
@@ -404,7 +420,7 @@ describe("SquaddieTargetsOtherSquaddiesAnimation", () => {
         animator.update({
             gameEngineState,
             graphicsContext: mockedP5GraphicsContext,
-            resourceHandler: gameEngineState.resourceHandler!,
+            resourceRepository: gameEngineState.resourceRepository!,
         })
         expect(animator.hasCompleted(gameEngineState)).toBeTruthy()
         expect(dateSpy).toHaveBeenCalled()
@@ -414,7 +430,7 @@ describe("SquaddieTargetsOtherSquaddiesAnimation", () => {
     it("will set the battle action animation to true when it resets", () => {
         const gameEngineState: GameEngineState = GameEngineStateService.new({
             repository: objectRepository,
-            resourceHandler: mockResourceHandler,
+            resourceRepository: resourceRepository,
             battleOrchestratorState: BattleOrchestratorStateService.new({
                 battleState: BattleStateService.newBattleState({
                     missionId: "test mission",
@@ -443,20 +459,20 @@ describe("SquaddieTargetsOtherSquaddiesAnimation", () => {
 
 const animateKnightHittingWithLongsword = ({
     objectRepository,
-    mockResourceHandler,
+    resourceRepository,
     battleAction,
     animator,
     mockedP5GraphicsContext,
 }: {
     objectRepository: ObjectRepository
-    mockResourceHandler: ResourceHandler
+    resourceRepository: ResourceRepository
     battleAction: BattleAction
     animator: SquaddieTargetsOtherSquaddiesAnimator
     mockedP5GraphicsContext: MockedP5GraphicsBuffer
 }) => {
     const gameEngineState: GameEngineState = GameEngineStateService.new({
         repository: objectRepository,
-        resourceHandler: mockResourceHandler,
+        resourceRepository: resourceRepository,
         battleOrchestratorState: BattleOrchestratorStateService.new({
             battleState: BattleStateService.newBattleState({
                 missionId: "test mission",
@@ -474,7 +490,7 @@ const animateKnightHittingWithLongsword = ({
     animator.update({
         gameEngineState,
         graphicsContext: mockedP5GraphicsContext,
-        resourceHandler: gameEngineState.resourceHandler!,
+        resourceRepository: gameEngineState.resourceRepository!,
     })
     return gameEngineState
 }

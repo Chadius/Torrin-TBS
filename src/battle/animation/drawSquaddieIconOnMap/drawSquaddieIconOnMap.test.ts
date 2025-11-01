@@ -1,17 +1,18 @@
 import { beforeEach, describe, expect, it, vi } from "vitest"
 import { GraphicsBuffer } from "../../../utils/graphics/graphicsRenderer"
-import * as mocks from "../../../utils/test/mocks"
 import {
     MockedGraphicsBufferService,
     MockedP5GraphicsBuffer,
 } from "../../../utils/test/mocks"
+import { ResourceRepository, ResourceRepositoryService } from "../../../resource/resourceRepository"
+import { TestLoadImmediatelyImageLoader } from "../../../resource/resourceRepositoryTestUtils"
+import { LoadCampaignData } from "../../../utils/fileHandling/loadCampaignData"
 import {
     ObjectRepository,
     ObjectRepositoryService,
 } from "../../objectRepository"
 import { SquaddieRepositoryService } from "../../../utils/test/squaddie"
 import { SquaddieAffiliation } from "../../../squaddie/squaddieAffiliation"
-import { ResourceHandler } from "../../../resource/resourceHandler"
 import { ImageUI, ImageUILoadingBehavior } from "../../../ui/imageUI/imageUI"
 import { RectAreaService } from "../../../ui/rectArea"
 import {
@@ -25,18 +26,19 @@ import { ConvertCoordinateService } from "../../../hexMap/convertCoordinates"
 describe("DrawSquaddieIconOnMap", () => {
     let graphicsContext: GraphicsBuffer
     let objectRepository: ObjectRepository
-    let resourceHandler: ResourceHandler
+    let resourceRepository: ResourceRepository
     let imageUI: ImageUI
 
     beforeEach(() => {
         graphicsContext = new MockedP5GraphicsBuffer()
         objectRepository = ObjectRepositoryService.new()
-        resourceHandler = mocks.mockResourceHandler(graphicsContext)
-        resourceHandler.isResourceLoaded = vi.fn().mockReturnValue(true)
-        resourceHandler.loadResource = vi.fn().mockImplementation(() => {})
-        resourceHandler.getResource = vi
-            .fn()
-            .mockReturnValue({ width: 200, height: 100 })
+        const loadImmediatelyImageLoader = new TestLoadImmediatelyImageLoader({})
+        resourceRepository = ResourceRepositoryService.new({
+            imageLoader: loadImmediatelyImageLoader,
+            urls: Object.fromEntries(
+                LoadCampaignData.getResourceKeys().map((key) => [key, "url"])
+            ),
+        })
 
         SquaddieRepositoryService.createNewSquaddieAndAddToRepository({
             objectRepository,
@@ -59,7 +61,7 @@ describe("DrawSquaddieIconOnMap", () => {
                 height: 0,
             }),
         })
-        imageUI.load(resourceHandler)
+        imageUI.load(resourceRepository)
 
         ObjectRepositoryService.addImageUIByBattleSquaddieId({
             repository: objectRepository,

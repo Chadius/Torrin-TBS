@@ -48,7 +48,7 @@ import { ActionCalculator } from "../calculator/actionCalculator/calculator"
 import { MissionMapService } from "../../missionMap/missionMap"
 import { BattleActionRecorderService } from "../history/battleAction/battleActionRecorder"
 import { BattleSquaddie } from "../battleSquaddie"
-import { ResourceHandler } from "../../resource/resourceHandler"
+import { ResourceRepository } from "../../resource/resourceRepository"
 import { SearchResultAdapterService } from "../../hexMap/pathfinder/searchResults/searchResultAdapter"
 import { MapSearchService } from "../../hexMap/pathfinder/pathGeneration/mapSearch"
 import { SearchLimitService } from "../../hexMap/pathfinder/pathGeneration/searchLimit"
@@ -771,13 +771,12 @@ export class BattleComputerSquaddieSelector
     draw({
         gameEngineState,
         graphics,
-        resourceHandler,
     }: {
         gameEngineState: GameEngineState
         graphics: GraphicsBuffer
-        resourceHandler: ResourceHandler | undefined
-    }): void {
-        if (gameEngineState.repository == undefined) return
+    }): ResourceRepository | undefined {
+        if (gameEngineState.repository == undefined)
+            return gameEngineState.resourceRepository
         if (
             gameEngineState.battleOrchestratorState.battleState.camera.isPanning() &&
             this.mostRecentDecisionSteps !== undefined
@@ -785,16 +784,17 @@ export class BattleComputerSquaddieSelector
             drawSquaddieAtInitialPositionAsCameraPans(
                 gameEngineState,
                 graphics,
-                resourceHandler
+                gameEngineState.resourceRepository
             )
         }
+        return gameEngineState.resourceRepository
     }
 }
 
 const drawSquaddieAtInitialPositionAsCameraPans = (
     gameEngineState: GameEngineState,
     graphicsContext: GraphicsBuffer,
-    resourceHandler: ResourceHandler | undefined
+    resourceRepository: ResourceRepository | undefined
 ) => {
     const battleAction = BattleActionRecorderService.peekAtAnimationQueue(
         gameEngineState.battleOrchestratorState.battleState.battleActionRecorder
@@ -810,13 +810,13 @@ const drawSquaddieAtInitialPositionAsCameraPans = (
 
     if (startLocation == undefined) return
     if (gameEngineState.repository == undefined) return
-    if (resourceHandler == undefined) return
+    if (resourceRepository == undefined) return
     DrawSquaddieIconOnMapUtilities.drawSquaddieMapIconAtMapCoordinate({
         graphics: graphicsContext,
         squaddieRepository: gameEngineState.repository,
         battleSquaddieId: battleSquaddieId,
         mapCoordinate: startLocation,
         camera: gameEngineState.battleOrchestratorState.battleState.camera,
-        resourceHandler,
+        resourceRepository,
     })
 }

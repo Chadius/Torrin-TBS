@@ -5,8 +5,13 @@ import { TitleScreenState } from "./titleScreenState"
 import { GameModeEnum } from "../utils/startupConfig"
 import { MouseButton, ScreenLocation } from "../utils/mouseConfig"
 import { ScreenDimensions } from "../utils/graphics/graphicsConfig"
-import { ResourceHandler } from "../resource/resourceHandler"
 import { RectAreaService } from "../ui/rectArea"
+import {
+    ResourceRepository,
+    ResourceRepositoryService,
+} from "../resource/resourceRepository.ts"
+import { TestLoadImmediatelyImageLoader } from "../resource/resourceRepositoryTestUtils.ts"
+import { LoadCampaignData } from "../utils/fileHandling/loadCampaignData"
 import {
     LoadState,
     LoadSaveStateService,
@@ -36,7 +41,7 @@ describe("Title Screen", () => {
     let gameEngineState: GameEngineState
     let titleScreen: TitleScreen
     let titleScreenState: TitleScreenState
-    let mockResourceHandler: ResourceHandler
+    let resourceRepository: ResourceRepository
     let mockedP5GraphicsContext: MockedP5GraphicsBuffer
 
     beforeEach(() => {
@@ -47,15 +52,13 @@ describe("Title Screen", () => {
         vi.spyOn(mockedP5GraphicsContext, "height", "get").mockReturnValue(
             ScreenDimensions.SCREEN_HEIGHT
         )
-        mockResourceHandler = mocks.mockResourceHandler(mockedP5GraphicsContext)
-        mockResourceHandler.isResourceLoaded = vi.fn().mockReturnValue(true)
-        mockResourceHandler.areAllResourcesLoaded = vi
-            .fn()
-            .mockReturnValueOnce(false)
-            .mockReturnValue(true)
-        mockResourceHandler.getResource = vi
-            .fn()
-            .mockReturnValue({ width: 32, height: 32 })
+        let loadImmediatelyImageLoader = new TestLoadImmediatelyImageLoader({})
+        resourceRepository = ResourceRepositoryService.new({
+            imageLoader: loadImmediatelyImageLoader,
+            urls: Object.fromEntries(
+                LoadCampaignData.getResourceKeys().map((key) => [key, "url"])
+            ),
+        })
         titleScreen = new TitleScreen({
             version: "TEST",
             p5Instance: mocks.mockedP5(),
@@ -63,7 +66,7 @@ describe("Title Screen", () => {
         titleScreenState = titleScreen.setup()
         gameEngineState = GameEngineStateService.new({
             titleScreenState,
-            resourceHandler: mockResourceHandler,
+            resourceRepository,
         })
 
         const playerDataMessageListener: PlayerDataMessageListener =
@@ -162,7 +165,7 @@ describe("Title Screen", () => {
         expect(titleScreen.hasCompleted(gameEngineState)).toBeFalsy()
     })
 
-    it("will update the start game button if the window is too small", () => {
+    it("will update the start game button if the window is too small", async () => {
         const [mockedWidth, mockedHeight] = [
             ScreenDimensions.SCREEN_WIDTH / 2,
             ScreenDimensions.SCREEN_HEIGHT / 2,
@@ -173,7 +176,7 @@ describe("Title Screen", () => {
         })
         let textSpy = vi.spyOn(mockedP5GraphicsContext.mockedP5, "text")
         titleScreen.reset(gameEngineState)
-        titleScreen.update(gameEngineState, mockedP5GraphicsContext)
+        await titleScreen.update(gameEngineState, mockedP5GraphicsContext)
 
         const expectedButtonLabel = `Set browser window size to ${ScreenDimensions.SCREEN_WIDTH}x${ScreenDimensions.SCREEN_HEIGHT}\n currently ${mockedWidth}x${mockedHeight}`
         expect(textSpy).toBeCalledWith(
@@ -185,7 +188,7 @@ describe("Title Screen", () => {
         )
     })
 
-    it("will say the window is too small if the window is too small", () => {
+    it("will say the window is too small if the window is too small", async () => {
         const [mockedWidth, mockedHeight] = [1, 1]
         vi.spyOn(WindowService, "getDimensions").mockReturnValue({
             width: mockedWidth,
@@ -193,7 +196,7 @@ describe("Title Screen", () => {
         })
         let textSpy = vi.spyOn(mockedP5GraphicsContext.mockedP5, "text")
         titleScreen.reset(gameEngineState)
-        titleScreen.update(gameEngineState, mockedP5GraphicsContext)
+        await titleScreen.update(gameEngineState, mockedP5GraphicsContext)
 
         const expectedButtonLabel = `Window is too small`
         expect(textSpy).toBeCalledWith(
@@ -205,14 +208,14 @@ describe("Title Screen", () => {
         )
     })
 
-    it("will reset the screen size warning if the window is restored", () => {
+    it("will reset the screen size warning if the window is restored", async () => {
         const [mockedWidth, mockedHeight] = [1, 1]
         vi.spyOn(WindowService, "getDimensions").mockReturnValue({
             width: mockedWidth,
             height: mockedHeight,
         })
         titleScreen.reset(gameEngineState)
-        titleScreen.update(gameEngineState, mockedP5GraphicsContext)
+        await titleScreen.update(gameEngineState, mockedP5GraphicsContext)
 
         vi.spyOn(WindowService, "getDimensions").mockReturnValue({
             width: ScreenDimensions.SCREEN_WIDTH,
@@ -220,7 +223,7 @@ describe("Title Screen", () => {
         })
 
         let textSpy = vi.spyOn(mockedP5GraphicsContext.mockedP5, "text")
-        titleScreen.update(gameEngineState, mockedP5GraphicsContext)
+        await titleScreen.update(gameEngineState, mockedP5GraphicsContext)
         expect(textSpy).toBeCalledWith(
             "START: click here / press enter",
             expect.anything(),
@@ -316,8 +319,8 @@ describe("Title Screen", () => {
     })
 
     describe("user clicks the load button", () => {
-        it("should ignore other inputs while loading", () => {
-            titleScreen.update(gameEngineState, mockedP5GraphicsContext)
+        it("should ignore other inputs while loading", async () => {
+            await titleScreen.update(gameEngineState, mockedP5GraphicsContext)
             mousePressContinueButton(titleScreen, gameEngineState)
             expect(titleScreen.newGameSelected).toBeFalsy()
 
@@ -357,7 +360,7 @@ describe("Title Screen", () => {
             ]
             it.each(tests)(
                 `$name`,
-                ({
+                async ({
                     loadSaveStateChange,
                     expectedSaveStateField,
                     expectedErrorMessage,
@@ -367,7 +370,10 @@ describe("Title Screen", () => {
                         gameEngineState.messageBoard,
                         "sendMessage"
                     )
-                    titleScreen.update(gameEngineState, mockedP5GraphicsContext)
+                    await titleScreen.update(
+                        gameEngineState,
+                        mockedP5GraphicsContext
+                    )
                     mousePressContinueButton(titleScreen, gameEngineState)
                     loadSaveStateChange(gameEngineState.loadState)
 
@@ -410,18 +416,18 @@ describe("Title Screen", () => {
             )
         })
 
-        it("should show a failure message if the load failed", () => {
+        it("should show a failure message if the load failed", async () => {
             vi.spyOn(Date, "now").mockReturnValue(0)
             const loadGame = vi.spyOn(
                 gameEngineState.messageBoard,
                 "sendMessage"
             )
-            titleScreen.update(gameEngineState, mockedP5GraphicsContext)
+            await titleScreen.update(gameEngineState, mockedP5GraphicsContext)
             mousePressContinueButton(titleScreen, gameEngineState)
             gameEngineState.loadState.applicationErroredWhileLoading = true
 
             const textSpy = vi.spyOn(mockedP5GraphicsContext.mockedP5, "text")
-            titleScreen.update(gameEngineState, mockedP5GraphicsContext)
+            await titleScreen.update(gameEngineState, mockedP5GraphicsContext)
 
             expect(loadGame).toBeCalled()
             expect(textSpy).toBeCalled()
@@ -453,8 +459,8 @@ describe("Title Screen", () => {
                 gameEngineState.loadState.applicationErroredWhileLoading
             ).toBeFalsy()
         })
-        it("should mark as completed and recommend the battle loader", () => {
-            titleScreen.update(gameEngineState, mockedP5GraphicsContext)
+        it("should mark as completed and recommend the battle loader", async () => {
+            await titleScreen.update(gameEngineState, mockedP5GraphicsContext)
             expect(titleScreen.hasCompleted(gameEngineState)).toBeFalsy()
             mousePressContinueButton(titleScreen, gameEngineState)
             expect(titleScreen.hasCompleted(gameEngineState)).toBeFalsy()
@@ -470,9 +476,9 @@ describe("Title Screen", () => {
         })
     })
 
-    it("will show the version", () => {
+    it("will show the version", async () => {
         let textSpy = vi.spyOn(mockedP5GraphicsContext.mockedP5, "text")
-        titleScreen.update(gameEngineState, mockedP5GraphicsContext)
+        await titleScreen.update(gameEngineState, mockedP5GraphicsContext)
         expect(textSpy).toBeCalled()
         expect(textSpy).toBeCalledWith(
             "Version TEST",

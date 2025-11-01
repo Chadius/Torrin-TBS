@@ -69,7 +69,6 @@ import { ChallengeModifierSetting } from "../challengeModifier/challengeModifier
 import { ActionValidityByIdCacheService } from "../actionValidity/cache/actionValidityByIdCache"
 import { GameEngineState } from "../../gameEngine/gameEngineState/gameEngineState"
 import { BattleCache } from "./battleCache/battleCache"
-import { ResourceHandler } from "../../resource/resourceHandler"
 
 export const BattleOrchestratorMode = {
     UNKNOWN: "UNKNOWN",
@@ -308,7 +307,6 @@ export class BattleOrchestrator implements GameEngineComponent {
         this.draw({
             gameEngineState,
             graphics: graphicsContext,
-            resourceHandler: gameEngineState.resourceHandler,
         })
     }
 
@@ -347,18 +345,20 @@ export class BattleOrchestrator implements GameEngineComponent {
         graphicsContext: GraphicsBuffer
     ) {
         if (this.uiControlSettings?.displayBattleMap !== true) return
-        this.mapDisplay?.draw({
+        const updatedResourceRepository = this.mapDisplay?.draw({
             gameEngineState,
             graphics: graphicsContext,
-            resourceHandler: gameEngineState.resourceHandler,
         })
+        if (updatedResourceRepository) {
+            gameEngineState.resourceRepository = updatedResourceRepository
+        }
     }
 
     private displayPlayerHUD(
         gameEngineState: GameEngineState,
         graphicsContext: GraphicsBuffer
     ) {
-        const resourceHandler = gameEngineState.resourceHandler
+        const resourceRepository = gameEngineState.resourceRepository
         const repository = gameEngineState.repository
         const squaddieSelectorPanel =
             gameEngineState.battleOrchestratorState.battleHUDState
@@ -370,27 +370,27 @@ export class BattleOrchestrator implements GameEngineComponent {
         if (
             this.uiControlSettings?.displayPlayerHUD === true &&
             repository &&
-            resourceHandler &&
+            resourceRepository &&
             squaddieSelectorPanel
         ) {
             SquaddieSelectorPanelService.draw({
                 squaddieSelectorPanel,
                 objectRepository: repository,
                 graphicsContext,
-                resourceHandler,
+                resourceRepository,
             })
         }
 
         if (
             this.uiControlSettings?.displayPlayerHUD &&
             summaryHUDState &&
-            resourceHandler
+            resourceRepository != undefined
         ) {
             SummaryHUDStateService.draw({
                 summaryHUDState,
                 graphicsBuffer: graphicsContext,
                 gameEngineState,
-                resourceHandler,
+                resourceRepository,
             })
         }
 
@@ -831,23 +831,24 @@ export class BattleOrchestrator implements GameEngineComponent {
     private draw({
         gameEngineState,
         graphics,
-        resourceHandler,
     }: {
         gameEngineState: GameEngineState
         graphics: GraphicsBuffer
-        resourceHandler: ResourceHandler | undefined
     }) {
         if (
             this.mode != undefined &&
             this.mode in this.battleOrchestratorModeComponentConstants
         ) {
-            this.battleOrchestratorModeComponentConstants[this.mode]
-                .getCurrentComponent()
-                ?.draw({
-                    gameEngineState,
-                    graphics,
-                    resourceHandler,
-                })
+            const updatedResourceRepository =
+                this.battleOrchestratorModeComponentConstants[this.mode]
+                    .getCurrentComponent()
+                    ?.draw({
+                        gameEngineState,
+                        graphics,
+                    })
+            if (updatedResourceRepository) {
+                gameEngineState.resourceRepository = updatedResourceRepository
+            }
         }
         this.drawDebugMenu(gameEngineState, graphics)
     }

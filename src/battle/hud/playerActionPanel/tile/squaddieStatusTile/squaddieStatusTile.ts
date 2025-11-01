@@ -2,7 +2,6 @@ import {
     ObjectRepository,
     ObjectRepositoryService,
 } from "../../../../objectRepository"
-import { ResourceHandler } from "../../../../../resource/resourceHandler"
 import { GraphicsBuffer } from "../../../../../utils/graphics/graphicsRenderer"
 import { TSquaddieAffiliation } from "../../../../../squaddie/squaddieAffiliation"
 import {
@@ -69,6 +68,7 @@ import {
 } from "./uiObjects/actionPoints"
 import { ACTION_POINT_METER_FILL_COLOR } from "../../../../../ui/colors"
 import { GameEngineState } from "../../../../../gameEngine/gameEngineState/gameEngineState"
+import { ResourceRepository } from "../../../../../resource/resourceRepository.ts"
 
 export interface SquaddieStatusTile {
     data: DataBlob
@@ -420,20 +420,20 @@ export const SquaddieStatusTileService = {
     draw: ({
         tile,
         graphicsContext,
-        resourceHandler,
+        resourceRepository,
     }: {
         tile: SquaddieStatusTile | undefined
         graphicsContext: GraphicsBuffer
-        resourceHandler: ResourceHandler | undefined
+        resourceRepository: ResourceRepository | undefined
     }) => {
         if (tile == undefined) return
-        if (resourceHandler == undefined) return
+        if (resourceRepository == undefined) return
 
         if (tile.drawBehaviorTree == undefined) {
             tile.drawBehaviorTree = createDrawingTree({
                 dataBlob: tile.data,
                 graphicsContext,
-                resourceHandler,
+                resourceRepository,
             })
         }
 
@@ -451,7 +451,7 @@ export const SquaddieStatusTileService = {
         updateUIObjects({
             dataBlob: tile.data,
             graphicsContext: graphicsContext,
-            resourceHandler: resourceHandler,
+            resourceRepository,
         })
         tile.drawBehaviorTree.run()
     },
@@ -879,11 +879,11 @@ const updateContext = ({
 const updateUIObjects = ({
     dataBlob,
     graphicsContext,
-    resourceHandler,
+    resourceRepository,
 }: {
     dataBlob: DataBlob
     graphicsContext: GraphicsBuffer
-    resourceHandler: ResourceHandler
+    resourceRepository: ResourceRepository
 }) => {
     const updateArmor = new SequenceComposite(dataBlob, [
         new UpdateArmorUIObjectsAction(dataBlob, graphicsContext),
@@ -912,7 +912,7 @@ const updateUIObjects = ({
         new UpdateAttributeModifiersUIObjectsAction(
             dataBlob,
             graphicsContext,
-            resourceHandler
+            resourceRepository
         ),
     ])
 
@@ -931,11 +931,11 @@ const updateUIObjects = ({
 const createDrawingTree = ({
     dataBlob,
     graphicsContext,
-    resourceHandler,
+    resourceRepository,
 }: {
     dataBlob: DataBlob
     graphicsContext: GraphicsBuffer
-    resourceHandler: ResourceHandler
+    resourceRepository: ResourceRepository
 }) => {
     const drawTextBoxTreeAction = new DrawTextBoxesAction(
         dataBlob,
@@ -980,7 +980,7 @@ const createDrawingTree = ({
             return graphicsContext
         },
         (_: DataBlob) => {
-            return resourceHandler
+            return resourceRepository
         }
     )
 
@@ -1493,16 +1493,16 @@ class UpdateAttributeModifiersContextAction implements BehaviorTreeTask {
 class UpdateAttributeModifiersUIObjectsAction implements BehaviorTreeTask {
     dataBlob: DataBlob
     graphicsContext: GraphicsBuffer
-    resourceHandler: ResourceHandler
+    resourceRepository: ResourceRepository
 
     constructor(
         dataBlob: DataBlob,
         graphicsContext: GraphicsBuffer,
-        resourceHandler: ResourceHandler
+        resourceRepository: ResourceRepository
     ) {
         this.dataBlob = dataBlob
         this.graphicsContext = graphicsContext
-        this.resourceHandler = resourceHandler
+        this.resourceRepository = resourceRepository
     }
 
     run(): boolean {
@@ -1568,26 +1568,6 @@ class UpdateAttributeModifiersUIObjectsAction implements BehaviorTreeTask {
         if (attributeTypeAndAmounts.length <= 0) return
 
         const graphicsContext = this.graphicsContext
-        const resourceHandler = this.resourceHandler
-
-        ;[
-            "attribute-up",
-            "attribute-down",
-            ...attributeTypeAndAmounts.map((attributeTypeAndAmount) =>
-                AttributeTypeService.getAttributeIconResourceKeyForAttributeType(
-                    attributeTypeAndAmount.type
-                )
-            ),
-        ]
-            .filter(
-                (comparisonImageResourceKey) =>
-                    !resourceHandler.isResourceLoaded(
-                        comparisonImageResourceKey
-                    )
-            )
-            .forEach((comparisonImageResourceKey) =>
-                resourceHandler.loadResource(comparisonImageResourceKey)
-            )
 
         const squaddieAffiliationHue: number =
             HUE_BY_SQUADDIE_AFFILIATION[context.squaddieAffiliation]
@@ -1680,25 +1660,6 @@ class UpdateAttributeModifiersUIObjectsAction implements BehaviorTreeTask {
         layout: SquaddieStatusTileUILayout
     }) {
         if (attributeTypeAndAmounts.length <= 0) return
-
-        const resourceHandler = this.resourceHandler
-
-        ;[
-            ...attributeTypeAndAmounts.map((attributeTypeAndAmount) =>
-                AttributeTypeService.getAttributeIconResourceKeyForAttributeType(
-                    attributeTypeAndAmount.type
-                )
-            ),
-        ]
-            .filter(
-                (comparisonImageResourceKey) =>
-                    !resourceHandler.isResourceLoaded(
-                        comparisonImageResourceKey
-                    )
-            )
-            .forEach((comparisonImageResourceKey) =>
-                resourceHandler.loadResource(comparisonImageResourceKey)
-            )
 
         attributeTypeAndAmounts.forEach((attributeTypeAndAmount) => {
             const { attributeLeft, attributeTop } =

@@ -67,7 +67,6 @@ describe("File Access HUD", () => {
 
         const objectRepository = ObjectRepositoryService.new()
         return GameEngineStateService.new({
-            resourceHandler: undefined,
             battleOrchestratorState: BattleOrchestratorStateService.new({
                 battleState: BattleStateService.newBattleState({
                     campaignId: "test campaign",

@@ -18,7 +18,6 @@ import {
 } from "./actionSelectedTile"
 import { ActionTilePosition } from "../actionTilePosition"
 import { GraphicsBuffer } from "../../../../../utils/graphics/graphicsRenderer"
-import * as mocks from "../../../../../utils/test/mocks"
 import {
     MockedGraphicsBufferService,
     MockedP5GraphicsBuffer,
@@ -32,7 +31,6 @@ import {
     MockInstance,
     vi,
 } from "vitest"
-import { ResourceHandler } from "../../../../../resource/resourceHandler"
 import {
     ActionEffectTemplateService,
     TargetBySquaddieAffiliationRelation,
@@ -47,6 +45,12 @@ import {
 } from "../../../../../squaddie/attribute/attribute"
 import { Glossary } from "../../../../../campaign/glossary/glossary"
 import { TileAttributeLabelStackService } from "../tileAttributeLabel/tileAttributeLabelStack"
+import {
+    ResourceRepository,
+    ResourceRepositoryService,
+} from "../../../../../resource/resourceRepository.ts"
+import { TestLoadImmediatelyImageLoader } from "../../../../../resource/resourceRepositoryTestUtils.ts"
+import { LoadCampaignData } from "../../../../../utils/fileHandling/loadCampaignData.ts"
 
 describe("Action Selected Tile", () => {
     let objectRepository: ObjectRepository
@@ -150,8 +154,7 @@ describe("Action Selected Tile", () => {
         let tile: ActionSelectedTile
         let graphicsBuffer: GraphicsBuffer
         let graphicsBufferSpies: { [key: string]: MockInstance }
-        const fakeImage = { width: 1, height: 1 }
-        let resourceHandler: ResourceHandler
+        let resourceRepository: ResourceRepository
 
         beforeEach(() => {
             tile = ActionSelectedTileService.new({
@@ -164,8 +167,18 @@ describe("Action Selected Tile", () => {
             graphicsBuffer = new MockedP5GraphicsBuffer()
             graphicsBufferSpies =
                 MockedGraphicsBufferService.addSpies(graphicsBuffer)
-            resourceHandler = mocks.mockResourceHandler(graphicsBuffer)
-            resourceHandler.getResource = vi.fn().mockReturnValue(fakeImage)
+            let loadImmediatelyImageLoader = new TestLoadImmediatelyImageLoader(
+                {}
+            )
+            resourceRepository = ResourceRepositoryService.new({
+                imageLoader: loadImmediatelyImageLoader,
+                urls: Object.fromEntries(
+                    LoadCampaignData.getResourceKeys().map((key) => [
+                        key,
+                        "url",
+                    ])
+                ),
+            })
         })
         afterEach(() => {
             MockedGraphicsBufferService.resetSpies(graphicsBufferSpies)
@@ -177,7 +190,7 @@ describe("Action Selected Tile", () => {
                 tile,
                 graphicsContext: graphicsBuffer,
                 objectRepository,
-                resourceHandler,
+                resourceRepository,
             })
             expect(stackSpy).toBeCalled()
             stackSpy.mockRestore()

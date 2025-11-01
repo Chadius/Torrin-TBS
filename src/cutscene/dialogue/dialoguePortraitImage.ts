@@ -9,9 +9,9 @@ import {
     TDialoguePosition,
 } from "./constants"
 import { ImageUI, ImageUILoadingBehavior } from "../../ui/imageUI/imageUI"
-import { ResourceHandler } from "../../resource/resourceHandler"
 import { DialogueTextBox } from "./dialogueTextBox.ts"
 import { WINDOW_SPACING } from "../../ui/constants.ts"
+import { ResourceRepository } from "../../resource/resourceRepository.ts"
 
 export interface DialoguePortraitImage {
     speakerPortrait: p5.Image | undefined
@@ -44,15 +44,15 @@ export const DialoguePortraitImageService = {
     draw: ({
         portraitImage,
         graphics,
-        resourceHandler,
+        resourceRepository,
     }: {
         portraitImage: DialoguePortraitImage
         graphics: GraphicsBuffer
-        resourceHandler: ResourceHandler
+        resourceRepository: ResourceRepository
     }): void => {
         portraitImage?.speakerImage?.draw({
             graphicsContext: graphics,
-            resourceHandler,
+            resourceRepository,
         })
     },
 }

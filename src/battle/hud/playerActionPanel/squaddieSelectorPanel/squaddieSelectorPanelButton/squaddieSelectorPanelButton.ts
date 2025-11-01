@@ -1,6 +1,5 @@
 import { ObjectRepository } from "../../../../objectRepository"
 import { GraphicsBuffer } from "../../../../../utils/graphics/graphicsRenderer"
-import { ResourceHandler } from "../../../../../resource/resourceHandler"
 import { TextBox } from "../../../../../ui/textBox/textBox"
 import { Rectangle } from "../../../../../ui/rectangle/rectangle"
 import { ImageUI } from "../../../../../ui/imageUI/imageUI"
@@ -25,6 +24,7 @@ import { UpdateSquaddieSelectorPanelButtonBackground } from "./behaviorTreeTask/
 import { MouseButton, MousePress } from "../../../../../utils/mouseConfig"
 import { SquaddieAffiliation } from "../../../../../squaddie/squaddieAffiliation"
 import { ActionTilePositionService } from "../../tile/actionTilePosition"
+import { ResourceRepository } from "../../../../../resource/resourceRepository.ts"
 
 interface SelectedStatusLayout {
     borderColor: [number, number, number]
@@ -60,7 +60,6 @@ export interface SquaddieSelectorPanelButtonObjects {
     background: Rectangle | undefined
     mapIcon: ImageUI | undefined
     graphicsContext?: GraphicsBuffer
-    resourceHandler?: ResourceHandler
 }
 
 export interface SquaddieSelectorPanelButtonContext {
@@ -136,12 +135,12 @@ export const SquaddieSelectorPanelButtonService = {
     draw: ({
         button,
         graphicsContext,
-        resourceHandler,
+        resourceRepository,
         objectRepository,
     }: {
         button: SquaddieSelectorPanelButton
         graphicsContext: GraphicsBuffer
-        resourceHandler: ResourceHandler
+        resourceRepository: ResourceRepository
         objectRepository: ObjectRepository
     }) => {
         if (!button.updateBehavior) {
@@ -155,7 +154,7 @@ export const SquaddieSelectorPanelButtonService = {
             button.drawingBehavior = createDrawingBehaviorTree({
                 data: button,
                 graphicsContext,
-                resourceHandler,
+                resourceRepository,
             })
         }
 
@@ -335,11 +334,11 @@ const createLayout = (): SquaddieSelectorPanelButtonLayout => {
 const createDrawingBehaviorTree = ({
     data,
     graphicsContext,
-    resourceHandler,
+    resourceRepository,
 }: {
     data: SquaddieSelectorPanelButton
     graphicsContext: GraphicsBuffer
-    resourceHandler: ResourceHandler
+    resourceRepository: ResourceRepository
 }): BehaviorTreeTask => {
     const drawBackgroundAction = new DrawRectanglesAction(
         data,
@@ -386,7 +385,7 @@ const createDrawingBehaviorTree = ({
             return graphicsContext
         },
         (_: DataBlob) => {
-            return resourceHandler
+            return resourceRepository
         }
     )
 

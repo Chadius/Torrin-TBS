@@ -16,10 +16,10 @@ import {
 } from "../ui/constants"
 import { RectArea, RectAreaService } from "../ui/rectArea"
 import {
-    Resource,
-    ResourceHandler,
-    ResourceLocator,
-} from "../resource/resourceHandler"
+    ResourceRepository,
+    ResourceRepositoryService,
+    ResourceRepositoryStatus,
+} from "../resource/resourceRepository.ts"
 import { TextSubstitutionContext } from "../textSubstitution/textSubstitution"
 import { Dialogue, DialogueService } from "./dialogue/dialogue"
 import { SplashScreen, SplashScreenService } from "./splashScreen"
@@ -50,6 +50,7 @@ import {
     CutsceneShouldCreateFastForwardButton,
 } from "./uiComponents/fastForwardButton"
 import { ButtonStatusChangeEventByButtonId } from "../ui/button/logic/base"
+import { Resource, ResourceLocator } from "../resource/resourceLocator.ts"
 
 const FAST_FORWARD_ACTION_WAIT_TIME_MILLISECONDS = 100
 
@@ -207,9 +208,9 @@ export const CutsceneService = {
     },
     hasLoaded: (
         cutscene: Cutscene,
-        resourceHandler: ResourceHandler
+        resourceRepository: ResourceRepository | undefined
     ): boolean => {
-        return hasLoaded(cutscene, resourceHandler)
+        return hasLoaded(cutscene, resourceRepository)
     },
     isInProgress: (cutscene: Cutscene): boolean => {
         return (
@@ -223,33 +224,38 @@ export const CutsceneService = {
             cutscene.currentDirection === undefined
         )
     },
-    draw: (
-        cutscene: Cutscene,
-        graphicsContext: GraphicsBuffer,
-        resourceHandler: ResourceHandler | undefined
-    ) => {
+    draw: ({
+        cutscene,
+        graphicsContext,
+        resourceRepository,
+    }: {
+        cutscene: Cutscene
+        graphicsContext: GraphicsBuffer
+        resourceRepository?: ResourceRepository
+    }) => {
         if (
             cutscene.currentDirection !== undefined &&
-            resourceHandler !== undefined
+            resourceRepository != undefined
         ) {
             switch (cutscene.currentDirection.type) {
                 case CutsceneActionPlayerType.DIALOGUE:
-                    DialoguePlayerService.draw(
-                        cutscene.cutscenePlayerStateById[
+                    DialoguePlayerService.draw({
+                        dialoguePlayerState: cutscene.cutscenePlayerStateById[
                             cutscene.currentDirection.id
                         ] as DialoguePlayerState,
-                        graphicsContext,
-                        resourceHandler
-                    )
+                        graphicsContext: graphicsContext,
+                        resourceRepository,
+                    })
                     break
                 case CutsceneActionPlayerType.SPLASH_SCREEN:
-                    SplashScreenPlayerService.draw(
-                        cutscene.cutscenePlayerStateById[
+                    SplashScreenPlayerService.draw({
+                        splashScreenPlayerState: cutscene
+                            .cutscenePlayerStateById[
                             cutscene.currentDirection.id
                         ] as SplashScreenPlayerState,
-                        graphicsContext,
-                        resourceHandler
-                    )
+                        graphicsContext: graphicsContext,
+                        resourceRepository,
+                    })
                     break
             }
         }
@@ -402,24 +408,25 @@ export const CutsceneService = {
 
         advanceToNextCutsceneDirectionIfFinished(cutscene, context)
     },
-    loadResources: (cutscene: Cutscene, resourceHandler: ResourceHandler) => {
-        if (!isValidValue(resourceHandler)) {
+    setResources: (
+        cutscene: Cutscene,
+        resourceRepository: ResourceRepository | undefined
+    ) => {
+        if (!isValidValue(resourceRepository)) {
             return
         }
 
-        return resourceHandler.loadResources(cutscene.allResourceKeys)
-    },
-    setResources: (cutscene: Cutscene, resourceHandler: ResourceHandler) => {
-        if (!isValidValue(resourceHandler)) {
-            return
-        }
-
-        if (!resourceHandler.areAllResourcesLoaded(cutscene.allResourceKeys)) {
-            return
-        }
+        const allLoaded = cutscene.allResourceKeys.every(
+            (key) =>
+                ResourceRepositoryService.getStatus({
+                    resourceRepository: resourceRepository!,
+                    key,
+                }).status === ResourceRepositoryStatus.LOADING_SUCCESSFUL
+        )
+        if (!allLoaded) return
 
         cutscene.directions.forEach((direction) => {
-            let resourceLocators: ResourceLocator[] = getResourceLocators(
+            const resourceLocators: ResourceLocator[] = getResourceLocators(
                 cutscene,
                 direction
             )
@@ -437,12 +444,13 @@ export const CutsceneService = {
             }
 
             resourceLocators.forEach((locator) => {
-                if (!locator.key) {
-                    return
-                }
+                if (!locator.key) return
 
                 if (locator.type === Resource.IMAGE) {
-                    let foundImage = resourceHandler.getResource(locator.key)
+                    const foundImage = ResourceRepositoryService.getImage({
+                        resourceRepository: resourceRepository!,
+                        key: locator.key,
+                    })
                     if (foundImage == undefined) return
                     switch (
                         cutscene.cutscenePlayerStateById[direction.id].type
@@ -468,12 +476,16 @@ export const CutsceneService = {
             })
         })
     },
-    start: (
-        cutscene: Cutscene,
-        resourceHandler: ResourceHandler | undefined,
+    start: ({
+        cutscene,
+        resourceRepository,
+        context,
+    }: {
+        cutscene: Cutscene
+        resourceRepository: ResourceRepository | undefined
         context: TextSubstitutionContext
-    ) => {
-        if (!hasLoaded(cutscene, resourceHandler)) {
+    }) => {
+        if (!hasLoaded(cutscene, resourceRepository)) {
             return new Error("cutscene has not finished loading")
         }
 
@@ -520,12 +532,18 @@ export const CutsceneService = {
 
 const hasLoaded = (
     cutscene: Cutscene,
-    resourceHandler: ResourceHandler | undefined
+    resourceRepository: ResourceRepository | undefined
 ): boolean => {
-    if (resourceHandler == undefined) {
+    if (resourceRepository == undefined) {
         return true
     }
-    return resourceHandler.areAllResourcesLoaded(cutscene.allResourceKeys)
+    return cutscene.allResourceKeys.every(
+        (key) =>
+            ResourceRepositoryService.getStatus({
+                resourceRepository,
+                key,
+            }).status === ResourceRepositoryStatus.LOADING_SUCCESSFUL
+    )
 }
 
 const startDirection = (

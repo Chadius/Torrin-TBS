@@ -53,6 +53,9 @@ import {
     GameEngineState,
     GameEngineStateService,
 } from "../../gameEngine/gameEngineState/gameEngineState"
+import { ResourceRepositoryService } from "../../resource/resourceRepository"
+import { TestLoadImmediatelyImageLoader } from "../../resource/resourceRepositoryTestUtils"
+import { LoadCampaignData } from "../../utils/fileHandling/loadCampaignData"
 
 describe("Orchestration Utils", () => {
     let knightSquaddieTemplate: SquaddieTemplate
@@ -135,8 +138,12 @@ describe("Orchestration Utils", () => {
                     // @ts-ignore
                     numberGenerator: undefined,
                 }),
-                // @ts-ignore
-                resourceHandler: undefined,
+                resourceRepository: ResourceRepositoryService.new({
+                    imageLoader: new TestLoadImmediatelyImageLoader({}),
+                    urls: Object.fromEntries(
+                        LoadCampaignData.getResourceKeys().map((key) => [key, "url"])
+                    ),
+                }),
                 repository: repository,
             })
         })
@@ -267,6 +274,12 @@ describe("Orchestration Utils", () => {
 
             gameEngineState = GameEngineStateService.new({
                 repository,
+                resourceRepository: ResourceRepositoryService.new({
+                    imageLoader: new TestLoadImmediatelyImageLoader({}),
+                    urls: Object.fromEntries(
+                        LoadCampaignData.getResourceKeys().map((key) => [key, "url"])
+                    ),
+                }),
                 battleOrchestratorState: BattleOrchestratorStateService.new({
                     battleState: BattleStateService.new({
                         battlePhaseState: BattlePhaseStateService.new({
@@ -478,6 +491,12 @@ describe("Orchestration Utils", () => {
 
             gameEngineState = GameEngineStateService.new({
                 repository,
+                resourceRepository: ResourceRepositoryService.new({
+                    imageLoader: new TestLoadImmediatelyImageLoader({}),
+                    urls: Object.fromEntries(
+                        LoadCampaignData.getResourceKeys().map((key) => [key, "url"])
+                    ),
+                }),
                 battleOrchestratorState: BattleOrchestratorStateService.new({
                     battleState: BattleStateService.new({
                         battlePhaseState: BattlePhaseStateService.new({
@@ -628,6 +647,12 @@ describe("Orchestration Utils", () => {
                     }),
                 }),
                 repository: squaddieRepository,
+                resourceRepository: ResourceRepositoryService.new({
+                    imageLoader: new TestLoadImmediatelyImageLoader({}),
+                    urls: Object.fromEntries(
+                        LoadCampaignData.getResourceKeys().map((key) => [key, "url"])
+                    ),
+                }),
                 campaign: CampaignService.default(),
             })
         })
@@ -844,6 +869,12 @@ describe("Orchestration Utils", () => {
                     }),
                 }),
                 repository: squaddieRepository,
+                resourceRepository: ResourceRepositoryService.new({
+                    imageLoader: new TestLoadImmediatelyImageLoader({}),
+                    urls: Object.fromEntries(
+                        LoadCampaignData.getResourceKeys().map((key) => [key, "url"])
+                    ),
+                }),
                 campaign: CampaignService.default(),
             })
 
@@ -912,6 +943,12 @@ describe("Orchestration Utils", () => {
             })
             const gameEngineState = GameEngineStateService.new({
                 repository: squaddieRepository,
+                resourceRepository: ResourceRepositoryService.new({
+                    imageLoader: new TestLoadImmediatelyImageLoader({}),
+                    urls: Object.fromEntries(
+                        LoadCampaignData.getResourceKeys().map((key) => [key, "url"])
+                    ),
+                }),
                 battleOrchestratorState: BattleOrchestratorStateService.new({
                     battleState: BattleStateService.new({
                         missionMap,

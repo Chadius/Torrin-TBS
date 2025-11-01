@@ -38,6 +38,9 @@ import {
     GameEngineState,
     GameEngineStateService,
 } from "../../gameEngine/gameEngineState/gameEngineState"
+import { ResourceRepositoryService } from "../../resource/resourceRepository"
+import { TestLoadImmediatelyImageLoader } from "../../resource/resourceRepositoryTestUtils"
+import { LoadCampaignData } from "../../utils/fileHandling/loadCampaignData"
 
 describe("BattleSquaddieUsesActionOnMap", () => {
     let squaddieRepository: ObjectRepository
@@ -80,9 +83,17 @@ describe("BattleSquaddieUsesActionOnMap", () => {
 
         mapAction = new BattleSquaddieUsesActionOnMap()
 
+        const loadImmediatelyImageLoader = new TestLoadImmediatelyImageLoader({})
+        const resourceRepository = ResourceRepositoryService.new({
+            imageLoader: loadImmediatelyImageLoader,
+            urls: Object.fromEntries(
+                LoadCampaignData.getResourceKeys().map((key) => [key, "url"])
+            ),
+        })
+
         gameEngineState = GameEngineStateService.new({
             repository: squaddieRepository,
-            resourceHandler: undefined,
+            resourceRepository,
             battleOrchestratorState: BattleOrchestratorStateService.new({
                 battleState: BattleStateService.newBattleState({
                     campaignId: "test campaign",

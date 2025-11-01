@@ -9,10 +9,24 @@ import {
     GameEngineState,
     GameEngineStateService,
 } from "../../gameEngine/gameEngineState/gameEngineState"
+import { ResourceRepositoryService } from "../../resource/resourceRepository"
+import { TestLoadImmediatelyImageLoader } from "../../resource/resourceRepositoryTestUtils"
+import { LoadCampaignData } from "../../utils/fileHandling/loadCampaignData"
 
 describe("BattleCutscenePlayer", () => {
     let dinnerDate: Cutscene
     let lunchDate: Cutscene
+
+    const createTestResourceRepository = () => {
+        const loadImmediatelyImageLoader = new TestLoadImmediatelyImageLoader({})
+        return ResourceRepositoryService.new({
+            imageLoader: loadImmediatelyImageLoader,
+            urls: Object.fromEntries(
+                LoadCampaignData.getResourceKeys().map((key) => [key, "url"])
+            ),
+        })
+    }
+
     beforeEach(() => {
         dinnerDate = CutsceneService.new({
             directions: [
@@ -44,7 +58,7 @@ describe("BattleCutscenePlayer", () => {
         })
         const initialState: GameEngineState = GameEngineStateService.new({
             repository: undefined,
-            resourceHandler: undefined,
+            resourceRepository: createTestResourceRepository(),
             battleOrchestratorState: BattleOrchestratorStateService.new({
                 battleState: BattleStateService.newBattleState({
                     missionId: "test mission",
@@ -64,7 +78,7 @@ describe("BattleCutscenePlayer", () => {
         })
         const initialState: GameEngineState = GameEngineStateService.new({
             repository: undefined,
-            resourceHandler: undefined,
+            resourceRepository: createTestResourceRepository(),
             battleOrchestratorState: BattleOrchestratorStateService.new({
                 battleState: BattleStateService.newBattleState({
                     missionId: "test mission",
@@ -88,7 +102,7 @@ describe("BattleCutscenePlayer", () => {
         })
         const initialState: GameEngineState = GameEngineStateService.new({
             repository: undefined,
-            resourceHandler: undefined,
+            resourceRepository: createTestResourceRepository(),
             battleOrchestratorState: BattleOrchestratorStateService.new({
                 battleState: BattleStateService.newBattleState({
                     missionId: "test mission",
@@ -120,7 +134,7 @@ describe("BattleCutscenePlayer", () => {
                     cutsceneCollection,
                 }),
             }),
-            resourceHandler: undefined,
+            resourceRepository: createTestResourceRepository(),
         })
 
         const cutscenePlayer: BattleCutscenePlayer = new BattleCutscenePlayer()
@@ -144,7 +158,7 @@ describe("BattleCutscenePlayer", () => {
 
         const cutscenePlayer: BattleCutscenePlayer = new BattleCutscenePlayer()
         const initialState: GameEngineState = GameEngineStateService.new({
-            resourceHandler: undefined,
+            resourceRepository: createTestResourceRepository(),
             battleOrchestratorState: BattleOrchestratorStateService.new({
                 battleState: BattleStateService.newBattleState({
                     missionId: "test mission",
@@ -173,7 +187,7 @@ describe("BattleCutscenePlayer", () => {
         })
         const initialState: GameEngineState = GameEngineStateService.new({
             repository: undefined,
-            resourceHandler: undefined,
+            resourceRepository: createTestResourceRepository(),
             battleOrchestratorState: BattleOrchestratorStateService.new({
                 battleState: BattleStateService.newBattleState({
                     missionId: "test mission",

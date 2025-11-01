@@ -235,7 +235,6 @@ describe("calculator", () => {
         numberGenerator?: NumberGeneratorStrategy
     }) => {
         return GameEngineStateService.new({
-            resourceHandler: undefined,
             repository: objectRepository,
             battleOrchestratorState: BattleOrchestratorStateService.new({
                 numberGenerator,

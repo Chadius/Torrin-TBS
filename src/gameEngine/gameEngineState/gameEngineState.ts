@@ -4,7 +4,6 @@ import {
     BattleOrchestratorStateService,
 } from "../../battle/orchestrator/battleOrchestratorState"
 import { ObjectRepository } from "../../battle/objectRepository"
-import { ResourceHandler } from "../../resource/resourceHandler"
 import {
     TitleScreenState,
     TitleScreenStateHelper,
@@ -23,11 +22,12 @@ import {
     PlayerInputState,
     PlayerInputStateService,
 } from "../../ui/playerInput/playerInputState"
+import { ResourceRepository } from "../../resource/resourceRepository.ts"
 
 export interface GameEngineState {
     battleOrchestratorState: BattleOrchestratorState
     repository: ObjectRepository | undefined
-    resourceHandler: ResourceHandler | undefined
+    resourceRepository: ResourceRepository | undefined
     titleScreenState: TitleScreenState
     campaign: Campaign
     saveSaveState: SaveSaveState
@@ -40,15 +40,15 @@ export const GameEngineStateService = {
     new: ({
         battleOrchestratorState,
         titleScreenState,
-        resourceHandler,
         previousMode,
         repository,
         campaign,
         playerInputState,
+        resourceRepository,
     }: {
         battleOrchestratorState?: BattleOrchestratorState
         titleScreenState?: TitleScreenState
-        resourceHandler?: ResourceHandler
+        resourceRepository?: ResourceRepository
         previousMode?: TGameMode
         campaign?: Campaign
         repository?: ObjectRepository
@@ -66,7 +66,7 @@ export const GameEngineStateService = {
             }),
             campaign: campaign ?? CampaignService.default(),
             repository,
-            resourceHandler,
+            resourceRepository,
             messageBoard: new MessageBoard({
                 logMessages: process.env.LOG_MESSAGES === "true",
             }),
@@ -87,9 +87,9 @@ export const GameEngineStateService = {
             loadState: LoadSaveStateService.clone(original.loadState),
             campaign: original.campaign,
             repository: original.repository,
-            resourceHandler: original.resourceHandler,
             messageBoard: original.messageBoard,
             playerInputState: original.playerInputState,
+            resourceRepository: original.resourceRepository,
         }
     },
 }

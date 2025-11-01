@@ -2,7 +2,6 @@ import { SquaddieAffiliation } from "../../../squaddie/squaddieAffiliation"
 import {
     mockConsoleWarn,
     MockedP5GraphicsBuffer,
-    mockResourceHandler,
 } from "../../../utils/test/mocks"
 import {
     SUMMARY_HUD_PEEK_EXPIRATION_MS,
@@ -20,7 +19,6 @@ import {
     TargetBySquaddieAffiliationRelation,
 } from "../../../action/template/actionEffectTemplate"
 import { CampaignService } from "../../../campaign/campaign"
-import { ResourceHandler } from "../../../resource/resourceHandler"
 import {
     PlayerCommandSelection,
     PlayerCommandStateService,
@@ -60,20 +58,25 @@ import {
     GameEngineStateService,
 } from "../../../gameEngine/gameEngineState/gameEngineState"
 import { CoordinateGeneratorShape } from "../../targeting/coordinateGenerator"
+import { ResourceRepository } from "../../../resource/resourceRepository.ts"
+import { ResourceRepositoryTestUtilsService } from "../../../resource/resourceRepositoryTestUtils.ts"
 
 describe("summaryHUD", () => {
     let graphicsBuffer: MockedP5GraphicsBuffer
     let objectRepository: ObjectRepository
     let summaryHUDState: SummaryHUDState
-    let resourceHandler: ResourceHandler
     let consoleWarnSpy: MockInstance
     let targetResultSpy: MockInstance
+    let resourceRepository: ResourceRepository
 
-    beforeEach(() => {
+    beforeEach(async () => {
         objectRepository = ObjectRepositoryService.new()
         graphicsBuffer = new MockedP5GraphicsBuffer()
+        resourceRepository =
+            await ResourceRepositoryTestUtilsService.getResourceRepositoryWithAllTestImages(
+                { graphics: graphicsBuffer }
+            )
         graphicsBuffer.textWidth = vi.fn().mockReturnValue(1)
-        resourceHandler = mockResourceHandler(graphicsBuffer)
         consoleWarnSpy = mockConsoleWarn()
 
         let targetingResults = TargetingResultsService.new()
@@ -170,7 +173,6 @@ describe("summaryHUD", () => {
     describe("will draw tiles for the acting squaddie", () => {
         it("can draw the acting window on the left side", () => {
             let gameEngineState = GameEngineStateService.new({
-                resourceHandler,
                 repository: objectRepository,
                 campaign: CampaignService.default(),
             })
@@ -191,7 +193,7 @@ describe("summaryHUD", () => {
                 summaryHUDState,
                 graphicsBuffer,
                 gameEngineState,
-                resourceHandler,
+                resourceRepository: gameEngineState.resourceRepository!,
             })
 
             expect(
@@ -221,7 +223,6 @@ describe("summaryHUD", () => {
 
             it.each(tests)(`$name`, ({ positions }) => {
                 let gameEngineState = GameEngineStateService.new({
-                    resourceHandler,
                     repository: objectRepository,
                     campaign: CampaignService.default(),
                 })
@@ -301,7 +302,7 @@ describe("summaryHUD", () => {
                     summaryHUDState,
                     graphicsBuffer,
                     gameEngineState,
-                    resourceHandler,
+                    resourceRepository: gameEngineState.resourceRepository!,
                 })
 
                 expectIsMouseHoveringOverTheExpectedPanelWindowRectArea(
@@ -315,7 +316,6 @@ describe("summaryHUD", () => {
     describe("will draw tiles for the peeked squaddie", () => {
         it("can draw the playable squaddie tiles", () => {
             let gameEngineState = GameEngineStateService.new({
-                resourceHandler,
                 repository: objectRepository,
                 campaign: CampaignService.default(),
             })
@@ -332,7 +332,7 @@ describe("summaryHUD", () => {
                 summaryHUDState,
                 graphicsBuffer,
                 gameEngineState,
-                resourceHandler,
+                resourceRepository: gameEngineState.resourceRepository!,
             })
 
             expect(
@@ -363,7 +363,6 @@ describe("summaryHUD", () => {
         })
         it("can draw the unplayable squaddie window", () => {
             let gameEngineState = GameEngineStateService.new({
-                resourceHandler,
                 repository: objectRepository,
                 campaign: CampaignService.default(),
             })
@@ -380,7 +379,7 @@ describe("summaryHUD", () => {
                 summaryHUDState,
                 graphicsBuffer,
                 gameEngineState,
-                resourceHandler,
+                resourceRepository: gameEngineState.resourceRepository!,
             })
 
             expect(
@@ -421,7 +420,6 @@ describe("summaryHUD", () => {
         })
         it("will expire over time", () => {
             let gameEngineState = GameEngineStateService.new({
-                resourceHandler,
                 repository: objectRepository,
                 campaign: CampaignService.default(),
             })
@@ -439,7 +437,7 @@ describe("summaryHUD", () => {
                 summaryHUDState,
                 graphicsBuffer,
                 gameEngineState,
-                resourceHandler,
+                resourceRepository: gameEngineState.resourceRepository!,
             })
             expect(
                 summaryHUDState.squaddieNameTiles[
@@ -451,7 +449,7 @@ describe("summaryHUD", () => {
                 summaryHUDState,
                 graphicsBuffer,
                 gameEngineState,
-                resourceHandler,
+                resourceRepository: gameEngineState.resourceRepository!,
             })
             expect(
                 summaryHUDState.squaddieNameTiles[
@@ -463,7 +461,7 @@ describe("summaryHUD", () => {
                 summaryHUDState,
                 graphicsBuffer,
                 gameEngineState,
-                resourceHandler,
+                resourceRepository: gameEngineState.resourceRepository!,
             })
             expect(
                 summaryHUDState.squaddieNameTiles[
@@ -473,7 +471,6 @@ describe("summaryHUD", () => {
         })
         it("will override the peeked squaddie if a different one is peeked", () => {
             let gameEngineState = GameEngineStateService.new({
-                resourceHandler,
                 repository: objectRepository,
                 campaign: CampaignService.default(),
             })
@@ -498,7 +495,7 @@ describe("summaryHUD", () => {
                 summaryHUDState,
                 graphicsBuffer,
                 gameEngineState,
-                resourceHandler,
+                resourceRepository: gameEngineState.resourceRepository!,
             })
 
             SummaryHUDStateService.peekAtSquaddie({
@@ -511,7 +508,7 @@ describe("summaryHUD", () => {
                 summaryHUDState,
                 graphicsBuffer,
                 gameEngineState,
-                resourceHandler,
+                resourceRepository: gameEngineState.resourceRepository!,
             })
 
             expect(
@@ -537,7 +534,6 @@ describe("summaryHUD", () => {
 
         beforeEach(() => {
             gameEngineState = GameEngineStateService.new({
-                resourceHandler,
                 repository: objectRepository,
                 campaign: CampaignService.default(),
             })
@@ -567,7 +563,7 @@ describe("summaryHUD", () => {
                 summaryHUDState,
                 graphicsBuffer,
                 gameEngineState,
-                resourceHandler,
+                resourceRepository: gameEngineState.resourceRepository!,
             })
         })
 
@@ -582,7 +578,7 @@ describe("summaryHUD", () => {
                 summaryHUDState,
                 graphicsBuffer,
                 gameEngineState,
-                resourceHandler,
+                resourceRepository: gameEngineState.resourceRepository!,
             })
 
             expect(
@@ -618,7 +614,7 @@ describe("summaryHUD", () => {
                 summaryHUDState,
                 graphicsBuffer,
                 gameEngineState,
-                resourceHandler,
+                resourceRepository: gameEngineState.resourceRepository!,
             })
 
             expect(
@@ -679,7 +675,6 @@ describe("summaryHUD", () => {
 
         beforeEach(() => {
             gameEngineState = GameEngineStateService.new({
-                resourceHandler,
                 repository: objectRepository,
                 campaign: CampaignService.default(),
             })
@@ -693,7 +688,7 @@ describe("summaryHUD", () => {
                 summaryHUDState,
                 graphicsBuffer,
                 gameEngineState,
-                resourceHandler,
+                resourceRepository: gameEngineState.resourceRepository!,
             })
 
             expect(
@@ -725,7 +720,6 @@ describe("summaryHUD", () => {
 
             it.each(tests)(`$name`, ({ positions }) => {
                 gameEngineState = GameEngineStateService.new({
-                    resourceHandler,
                     repository: objectRepository,
                     campaign: CampaignService.default(),
                 })
@@ -756,7 +750,7 @@ describe("summaryHUD", () => {
                     summaryHUDState,
                     graphicsBuffer,
                     gameEngineState,
-                    resourceHandler,
+                    resourceRepository: gameEngineState.resourceRepository!,
                 })
 
                 expectIsMouseHoveringOverTheExpectedPanelWindowRectArea(
@@ -773,7 +767,7 @@ describe("summaryHUD", () => {
                 summaryHUDState,
                 graphicsBuffer,
                 gameEngineState,
-                resourceHandler,
+                resourceRepository: gameEngineState.resourceRepository!,
             })
 
             SummaryHUDStateService.peekAtSquaddie({
@@ -786,7 +780,7 @@ describe("summaryHUD", () => {
                 summaryHUDState,
                 graphicsBuffer,
                 gameEngineState,
-                resourceHandler,
+                resourceRepository: gameEngineState.resourceRepository!,
             })
 
             expect(
@@ -812,7 +806,6 @@ describe("summaryHUD", () => {
             dateSpy = vi.spyOn(Date, "now").mockReturnValue(0)
             summaryHUDState = SummaryHUDStateService.new()
             gameEngineState = GameEngineStateService.new({
-                resourceHandler,
                 repository: objectRepository,
                 campaign: CampaignService.default(),
             })
@@ -830,7 +823,7 @@ describe("summaryHUD", () => {
                 summaryHUDState,
                 graphicsBuffer,
                 gameEngineState,
-                resourceHandler,
+                resourceRepository: gameEngineState.resourceRepository!,
             })
 
             expect(summaryHUDState?.squaddieToPeekAt?.battleSquaddieId).toEqual(
@@ -849,7 +842,7 @@ describe("summaryHUD", () => {
                 summaryHUDState,
                 graphicsBuffer,
                 gameEngineState,
-                resourceHandler,
+                resourceRepository: gameEngineState.resourceRepository!,
             })
 
             expect(summaryHUDState.squaddieToPeekAt).toBeUndefined()
@@ -937,8 +930,8 @@ describe("summaryHUD", () => {
         beforeEach(() => {
             summaryHUDState = SummaryHUDStateService.new()
             let gameEngineState = GameEngineStateService.new({
-                resourceHandler,
                 repository: objectRepository,
+                resourceRepository,
                 campaign: CampaignService.default(),
             })
 
@@ -963,7 +956,7 @@ describe("summaryHUD", () => {
                 summaryHUDState,
                 graphicsBuffer,
                 gameEngineState,
-                resourceHandler,
+                resourceRepository: gameEngineState.resourceRepository!,
             })
         })
         it("will create a playerCommandHUD when the squaddie is player controllable", () => {
@@ -1001,8 +994,8 @@ describe("summaryHUD", () => {
             summaryHUDState = SummaryHUDStateService.new()
 
             gameEngineState = GameEngineStateService.new({
-                resourceHandler,
                 repository: objectRepository,
+                resourceRepository,
                 campaign: CampaignService.default(),
             })
             gameEngineState.battleOrchestratorState.battleState.battleActionDecisionStep =
@@ -1029,7 +1022,7 @@ describe("summaryHUD", () => {
                 summaryHUDState,
                 gameEngineState,
                 graphicsBuffer,
-                resourceHandler,
+                resourceRepository: gameEngineState.resourceRepository!,
             })
 
             const playerCommandSpy = vi.spyOn(
@@ -1085,7 +1078,7 @@ describe("summaryHUD", () => {
                     summaryHUDState,
                     gameEngineState,
                     graphicsBuffer,
-                    resourceHandler,
+                    resourceRepository: gameEngineState.resourceRepository!,
                 })
                 showPlayerActionsSpy = vi
                     .spyOn(SummaryHUDStateService, "shouldShowAllPlayerActions")

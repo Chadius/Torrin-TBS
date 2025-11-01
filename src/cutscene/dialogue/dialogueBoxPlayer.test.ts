@@ -8,10 +8,7 @@ import { BattleStateService } from "../../battle/battleState/battleState"
 import { Dialogue, DialogueService } from "./dialogue"
 import { RectAreaService } from "../../ui/rectArea"
 import { ScreenDimensions } from "../../utils/graphics/graphicsConfig"
-import {
-    MockedP5GraphicsBuffer,
-    mockResourceHandler,
-} from "../../utils/test/mocks"
+import { MockedP5GraphicsBuffer } from "../../utils/test/mocks"
 import {
     afterEach,
     beforeEach,
@@ -24,8 +21,24 @@ import {
 import { PlayerInputTestService } from "../../utils/test/playerInput"
 import { PlayerInputStateService } from "../../ui/playerInput/playerInputState"
 import { MouseButton } from "../../utils/mouseConfig"
+import {
+    ResourceRepository,
+    ResourceRepositoryService,
+} from "../../resource/resourceRepository.ts"
+import { TestLoadImmediatelyImageLoader } from "../../resource/resourceRepositoryTestUtils.ts"
+import { LoadCampaignData } from "../../utils/fileHandling/loadCampaignData.ts"
 
 describe("dialogue box player", () => {
+    let resourceRepository: ResourceRepository
+    beforeEach(() => {
+        let loadImmediatelyImageLoader = new TestLoadImmediatelyImageLoader({})
+        resourceRepository = ResourceRepositoryService.new({
+            imageLoader: loadImmediatelyImageLoader,
+            urls: Object.fromEntries(
+                LoadCampaignData.getResourceKeys().map((key) => [key, "url"])
+            ),
+        })
+    })
     describe("dialog box without answers finishes", () => {
         let dialogue: Dialogue
         let dialoguePlayerState: DialoguePlayerState
@@ -273,11 +286,11 @@ describe("dialogue box player", () => {
         })
 
         it("will draw the substituted text", () => {
-            DialoguePlayerService.draw(
-                dialoguePlayerState,
-                mockedP5GraphicsContext,
-                mockResourceHandler(mockedP5GraphicsContext)
-            )
+            DialoguePlayerService.draw({
+                dialoguePlayerState: dialoguePlayerState,
+                graphicsContext: mockedP5GraphicsContext,
+                resourceRepository,
+            })
             expect(textSpy).toBeCalledWith(
                 "Turns: 5",
                 expect.anything(),
@@ -326,11 +339,11 @@ describe("dialogue box player", () => {
                 dialogue: dialogueWithBackgroundState,
             })
 
-            DialoguePlayerService.draw(
-                dialoguePlayerState,
-                mockedP5GraphicsContext,
-                mockResourceHandler(mockedP5GraphicsContext)
-            )
+            DialoguePlayerService.draw({
+                dialoguePlayerState: dialoguePlayerState,
+                graphicsContext: mockedP5GraphicsContext,
+                resourceRepository,
+            })
             expect(drawRectSpy).toBeCalled()
             expect(drawRectSpy).toBeCalledWith(
                 0,
@@ -350,11 +363,11 @@ describe("dialogue box player", () => {
                 dialogue: dialogueWithoutBackgroundState,
             })
 
-            DialoguePlayerService.draw(
-                dialoguePlayerState,
-                mockedP5GraphicsContext,
-                mockResourceHandler(mockedP5GraphicsContext)
-            )
+            DialoguePlayerService.draw({
+                dialoguePlayerState: dialoguePlayerState,
+                graphicsContext: mockedP5GraphicsContext,
+                resourceRepository,
+            })
             expect(drawRectSpy).not.toBeCalled()
         })
     })

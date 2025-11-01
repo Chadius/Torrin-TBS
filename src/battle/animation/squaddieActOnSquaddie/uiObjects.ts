@@ -39,7 +39,6 @@ import {
     RollModifierTypeService,
     TRollModifier,
 } from "../../calculator/actionCalculator/rollResult"
-import { ResourceHandler } from "../../../resource/resourceHandler"
 import { BattleAction } from "../../history/battleAction/battleAction"
 import { SquaddieActionAnimationPlanService } from "../actionAnimation/animationPlanner/squaddieActionAnimationPlanService"
 import { GraphicsBuffer } from "../../../utils/graphics/graphicsRenderer"
@@ -55,6 +54,7 @@ import { HitPointMeter } from "../actionAnimation/hitPointMeter"
 import { BattleActionSquaddieChange } from "../../history/battleAction/battleActionSquaddieChange"
 import { SquaddieService } from "../../../squaddie/squaddieService"
 import { HUE_BY_SQUADDIE_AFFILIATION } from "../../../graphicsConstants"
+import { ResourceRepository } from "../../../resource/resourceRepository.ts"
 
 const Layout = {
     diceRollAnimationLayout: {
@@ -102,14 +102,14 @@ export const SquaddieActOnSquaddieUIObjectsService = {
         results,
         actionTemplateId,
         repository,
-        resourceHandler,
+        resourceRepository,
         actionToShow,
         graphicsContext,
     }: {
         results: ActionEffectChange
         actionTemplateId: string | undefined
         repository: ObjectRepository
-        resourceHandler: ResourceHandler
+        resourceRepository: ResourceRepository
         actionToShow: BattleAction
         graphicsContext: GraphicsBuffer
     }): SquaddieActOnSquaddieUIObjects => {
@@ -130,7 +130,7 @@ export const SquaddieActOnSquaddieUIObjectsService = {
             modifierDisplayColumns: newModifierDisplays(results),
             squaddieActionAnimationDrawState: newSquaddieAnimation({
                 repository,
-                resourceHandler,
+                resourceRepository,
                 actionToShow,
             }),
             results,
@@ -435,11 +435,11 @@ const newModifierDisplays = (results: ActionEffectChange) => {
 
 const newSquaddieAnimation = ({
     repository,
-    resourceHandler,
+    resourceRepository,
     actionToShow,
 }: {
     repository: ObjectRepository
-    resourceHandler: ResourceHandler
+    resourceRepository: ResourceRepository
     actionToShow: BattleAction
 }) => {
     const animationPlan =
@@ -449,7 +449,7 @@ const newSquaddieAnimation = ({
         })
 
     return SquaddieActionAnimationDrawStateService.new({
-        resourceHandler,
+        resourceRepository,
         animationPlan,
         repository,
     })

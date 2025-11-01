@@ -40,7 +40,7 @@ import {
 import { PlayerSelectionChanges } from "../playerSelectionService/playerSelectionChanges"
 import { PlayerSelectionContext } from "../playerSelectionService/playerSelectionContext"
 import { MessageBoardListener } from "../../message/messageBoardListener"
-import { ResourceHandler } from "../../resource/resourceHandler"
+import { ResourceRepository } from "../../resource/resourceRepository"
 import {
     PlayerInputAction,
     PlayerInputStateService,
@@ -427,12 +427,14 @@ export class BattlePlayerSquaddieSelector
         ).recommendedMode
     }
 
-    draw({}: {
+    draw({
+        gameEngineState,
+    }: {
         gameEngineState: GameEngineState
         graphics: GraphicsBuffer
-        resourceHandler: ResourceHandler | undefined
-    }): void {
+    }): ResourceRepository | undefined {
         this.addHighlightToCurrentlyActingSquaddie()
+        return gameEngineState.resourceRepository
     }
 }
 

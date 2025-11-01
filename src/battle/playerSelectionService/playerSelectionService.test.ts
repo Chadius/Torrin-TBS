@@ -26,8 +26,8 @@ import { MouseButton, MouseConfigService } from "../../utils/mouseConfig"
 import { ConvertCoordinateService } from "../../hexMap/convertCoordinates"
 import {
     PlayerIntent,
-    TPlayerIntent,
     PlayerSelectionService,
+    TPlayerIntent,
 } from "./playerSelectionService"
 import { SquaddieTurnService } from "../../squaddie/turn"
 import { BattleSquaddieTeamService } from "../battleSquaddieTeam"
@@ -64,7 +64,6 @@ import {
 } from "vitest"
 import { PlayerInputAction } from "../../ui/playerInput/playerInputState"
 import { SquaddieSelectorPanelService } from "../hud/playerActionPanel/squaddieSelectorPanel/squaddieSelectorPanel"
-import * as mocks from "../../utils/test/mocks"
 import { MockedP5GraphicsBuffer } from "../../utils/test/mocks"
 import { GraphicsBuffer } from "../../utils/graphics/graphicsRenderer"
 import { SquaddieSelectorPanelButtonService } from "../hud/playerActionPanel/squaddieSelectorPanel/squaddieSelectorPanelButton/squaddieSelectorPanelButton"
@@ -77,6 +76,8 @@ import {
     GameEngineStateService,
 } from "../../gameEngine/gameEngineState/gameEngineState"
 import { CoordinateGeneratorShape } from "../targeting/coordinateGenerator"
+import { ResourceRepositoryTestUtilsService } from "../../resource/resourceRepositoryTestUtils.ts"
+import { BattleHUDStateService } from "../hud/battleHUD/battleHUDState.ts"
 
 describe("Player Selection Service", () => {
     let gameEngineState: GameEngineState
@@ -85,7 +86,7 @@ describe("Player Selection Service", () => {
     let messageSpy: MockInstance
 
     describe("At the start of the turn, Player tries to select a squaddie but all playable squaddies have acted", () => {
-        beforeEach(() => {
+        beforeEach(async () => {
             objectRepository = ObjectRepositoryService.new()
             missionMap = createMap()
             const { battleSquaddie: playerBattleSquaddie } = createSquaddie({
@@ -109,6 +110,13 @@ describe("Player Selection Service", () => {
             })
             SquaddieTurnService.endTurn(playerBattleSquaddie.squaddieTurn)
 
+            const resourceRepository =
+                await ResourceRepositoryTestUtilsService.getResourceRepositoryWithAllTestImages(
+                    {
+                        graphics: new MockedP5GraphicsBuffer(),
+                    }
+                )
+
             gameEngineState = GameEngineStateService.new({
                 battleOrchestratorState: BattleOrchestratorStateService.new({
                     battleState: BattleStateService.new({
@@ -121,8 +129,12 @@ describe("Player Selection Service", () => {
                             turnCount: 0,
                         }),
                     }),
+                    battleHUDState: BattleHUDStateService.new({
+                        summaryHUDState: SummaryHUDStateService.new(),
+                    }),
                 }),
                 repository: objectRepository,
+                resourceRepository,
                 campaign: CampaignService.default(),
             })
         })
@@ -160,12 +172,12 @@ describe("Player Selection Service", () => {
         })
     })
 
-    const createGameEngineWith1PlayerAnd1EnemyAndSpyMessages = (
+    const createGameEngineWith1PlayerAnd1EnemyAndSpyMessages = async (
         movementCost?: string[]
     ) => {
         objectRepository = ObjectRepositoryService.new()
         missionMap = createMap(movementCost)
-        gameEngineState = createGameEngineStateWith1PlayerAnd1Enemy({
+        gameEngineState = await createGameEngineStateWith1PlayerAnd1Enemy({
             objectRepository,
             missionMap,
         })
@@ -175,8 +187,8 @@ describe("Player Selection Service", () => {
         messageSpy = vi.spyOn(gameEngineState.messageBoard, "sendMessage")
     }
     describe("At the start of the turn, Player tries to select a squaddie when there are controllable squaddies around", () => {
-        beforeEach(() => {
-            createGameEngineWith1PlayerAnd1EnemyAndSpyMessages()
+        beforeEach(async () => {
+            await createGameEngineWith1PlayerAnd1EnemyAndSpyMessages()
         })
         afterEach(() => {
             messageSpy.mockRestore()
@@ -401,10 +413,10 @@ describe("Player Selection Service", () => {
             let playerBattleSquaddie2: BattleSquaddie
             let actualContext: PlayerSelectionContext
 
-            beforeEach(() => {
+            beforeEach(async () => {
                 mockedP5GraphicsContext = new MockedP5GraphicsBuffer()
 
-                createGameEngineWith1PlayerAnd1EnemyAndSpyMessages()
+                await createGameEngineWith1PlayerAnd1EnemyAndSpyMessages()
                 ;({ battleSquaddie: playerBattleSquaddie2 } = createSquaddie({
                     objectRepository,
                     squaddieAffiliation: SquaddieAffiliation.PLAYER,
@@ -436,7 +448,7 @@ describe("Player Selection Service", () => {
                     })
                 SquaddieSelectorPanelService.draw({
                     graphicsContext: mockedP5GraphicsContext,
-                    resourceHandler: gameEngineState.resourceHandler!,
+                    resourceRepository: gameEngineState.resourceRepository!,
                     objectRepository: gameEngineState.repository!,
                     squaddieSelectorPanel:
                         gameEngineState.battleOrchestratorState.battleHUDState
@@ -550,8 +562,8 @@ describe("Player Selection Service", () => {
     })
 
     describe("At the start of the turn, Player peeks on a squaddie", () => {
-        beforeEach(() => {
-            createGameEngineWith1PlayerAnd1EnemyAndSpyMessages()
+        beforeEach(async () => {
+            await createGameEngineWith1PlayerAnd1EnemyAndSpyMessages()
         })
         afterEach(() => {
             messageSpy.mockRestore()
@@ -735,8 +747,8 @@ describe("Player Selection Service", () => {
     })
 
     describe("Calculation context is UNKNOWN", () => {
-        beforeEach(() => {
-            createGameEngineWith1PlayerAnd1EnemyAndSpyMessages()
+        beforeEach(async () => {
+            await createGameEngineWith1PlayerAnd1EnemyAndSpyMessages()
         })
         afterEach(() => {
             messageSpy.mockRestore()
@@ -769,10 +781,10 @@ describe("Player Selection Service", () => {
         let x: number
         let y: number
 
-        beforeEach(() => {
+        beforeEach(async () => {
             objectRepository = ObjectRepositoryService.new()
             missionMap = createMap()
-            gameEngineState = createGameEngineStateWith1PlayerAnd1Enemy({
+            gameEngineState = await createGameEngineStateWith1PlayerAnd1Enemy({
                 objectRepository,
                 missionMap,
                 enemyMapCoordinate: { q: 0, r: 2 },
@@ -855,10 +867,10 @@ describe("Player Selection Service", () => {
     })
 
     describe("After selecting a squaddie and considering an action, the user moves the mouse off map", () => {
-        beforeEach(() => {
+        beforeEach(async () => {
             objectRepository = ObjectRepositoryService.new()
             missionMap = createMap()
-            gameEngineState = createGameEngineStateWith1PlayerAnd1Enemy({
+            gameEngineState = await createGameEngineStateWith1PlayerAnd1Enemy({
                 objectRepository,
                 missionMap,
                 enemyMapCoordinate: { q: 0, r: 2 },
@@ -955,8 +967,8 @@ describe("Player Selection Service", () => {
     })
 
     describe("user selects a squaddie then hovers over the map", () => {
-        beforeEach(() => {
-            createGameEngineWith1PlayerAnd1EnemyAndSpyMessages([
+        beforeEach(async () => {
+            await createGameEngineWith1PlayerAnd1EnemyAndSpyMessages([
                 "1 1 x 1 ",
                 " 1 1 x x ",
             ])
@@ -1105,10 +1117,10 @@ describe("Player Selection Service", () => {
 
     describe("user selects an action template", () => {
         let meleeActionId: string = "melee"
-        beforeEach(() => {
+        beforeEach(async () => {
             objectRepository = ObjectRepositoryService.new()
             missionMap = createMap()
-            gameEngineState = createGameEngineStateWith1PlayerAnd1Enemy({
+            gameEngineState = await createGameEngineStateWith1PlayerAnd1Enemy({
                 objectRepository,
                 missionMap,
             })
@@ -1216,7 +1228,7 @@ describe("Player Selection Service", () => {
                     missionMap,
                     summaryHUDState:
                         gameEngineState.battleOrchestratorState.battleHUDState
-                            .summaryHUDState,
+                            .summaryHUDState!,
                     battleActionDecisionStep:
                         gameEngineState.battleOrchestratorState.battleState
                             .battleActionDecisionStep,
@@ -1245,10 +1257,10 @@ describe("Player Selection Service", () => {
     describe("user ends the squaddie turn", () => {
         let actualContext: PlayerSelectionContext
 
-        beforeEach(() => {
+        beforeEach(async () => {
             objectRepository = ObjectRepositoryService.new()
             missionMap = createMap()
-            gameEngineState = createGameEngineStateWith1PlayerAnd1Enemy({
+            gameEngineState = await createGameEngineStateWith1PlayerAnd1Enemy({
                 objectRepository,
                 missionMap,
             })
@@ -1315,7 +1327,7 @@ describe("Player Selection Service", () => {
                     battleActionRecorder:
                         gameEngineState.battleOrchestratorState.battleState
                             .battleActionRecorder,
-                    objectRepository: gameEngineState.repository,
+                    objectRepository: gameEngineState.repository!,
                     messageBoard: gameEngineState.messageBoard,
                     battleAction: BattleActionService.new({
                         actor: {
@@ -1563,7 +1575,7 @@ const hoverOverMapCoordinate = ({
     })
 }
 
-const createGameEngineStateWith1PlayerAnd1Enemy = ({
+const createGameEngineStateWith1PlayerAnd1Enemy = async ({
     objectRepository,
     missionMap,
     enemyMapCoordinate,
@@ -1573,7 +1585,7 @@ const createGameEngineStateWith1PlayerAnd1Enemy = ({
     missionMap: MissionMap
     enemyMapCoordinate?: HexCoordinate
     playerBattleSquaddie?: BattleSquaddie
-}) => {
+}): Promise<GameEngineState> => {
     if (playerBattleSquaddie === undefined) {
         ;({ battleSquaddie: playerBattleSquaddie } = createSquaddie({
             objectRepository,
@@ -1616,6 +1628,13 @@ const createGameEngineStateWith1PlayerAnd1Enemy = ({
         },
     })
 
+    let resourceRepository =
+        await ResourceRepositoryTestUtilsService.getResourceRepositoryWithAllTestImages(
+            {
+                graphics: new MockedP5GraphicsBuffer(),
+            }
+        )
+
     return GameEngineStateService.new({
         battleOrchestratorState: BattleOrchestratorStateService.new({
             battleState: BattleStateService.new({
@@ -1628,12 +1647,13 @@ const createGameEngineStateWith1PlayerAnd1Enemy = ({
                     turnCount: 0,
                 }),
             }),
+            battleHUDState: BattleHUDStateService.new({
+                summaryHUDState: SummaryHUDStateService.new(),
+            }),
         }),
         repository: objectRepository,
         campaign: CampaignService.default(),
-        resourceHandler: mocks.mockResourceHandler(
-            new MockedP5GraphicsBuffer()
-        ),
+        resourceRepository,
     })
 }
 

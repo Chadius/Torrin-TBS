@@ -12,7 +12,6 @@ import {
     ScreenLocation,
 } from "../../../utils/mouseConfig"
 import { ActionTemplate } from "../../../action/template/actionTemplate"
-import { ResourceHandler } from "../../../resource/resourceHandler"
 import { GraphicsBuffer } from "../../../utils/graphics/graphicsRenderer"
 import { isValidValue } from "../../../utils/objectValidityCheck"
 import { WINDOW_SPACING } from "../../../ui/constants"
@@ -45,6 +44,7 @@ import {
 } from "../../actionValidity/cache/actionValidityByIdCache"
 import { EnumLike } from "../../../utils/enum"
 import { GameEngineState } from "../../../gameEngine/gameEngineState/gameEngineState"
+import { ResourceRepository } from "../../../resource/resourceRepository.ts"
 
 export const END_TURN_NAME = "END TURN"
 
@@ -215,7 +215,9 @@ export const PlayerCommandStateService = {
 
         if (
             !consideredActionButton &&
-            playerCommandState.consideredActionTemplateId
+            playerCommandState.consideredActionTemplateId &&
+            gameEngineState.battleOrchestratorState.battleHUDState
+                .summaryHUDState != undefined
         ) {
             gameEngineState.messageBoard.sendMessage({
                 type: MessageBoardMessageType.PLAYER_CANCELS_PLAYER_ACTION_CONSIDERATIONS,
@@ -262,7 +264,9 @@ export const PlayerCommandStateService = {
                 playerCommandState.consideredActionTemplateId
             ]?.isValid ||
             gameEngineState.battleOrchestratorState.battleState
-                .playerConsideredActions == undefined
+                .playerConsideredActions == undefined ||
+            gameEngineState.battleOrchestratorState.battleHUDState
+                .summaryHUDState == undefined
         ) {
             return
         }
@@ -296,13 +300,13 @@ export const PlayerCommandStateService = {
         playerCommandState,
         graphicsBuffer,
         gameEngineState,
-        resourceHandler,
+        resourceRepository,
         showOnlySelectedActionButton,
     }: {
         playerCommandState: PlayerCommandState
         graphicsBuffer: GraphicsBuffer
         gameEngineState: GameEngineState
-        resourceHandler: ResourceHandler
+        resourceRepository: ResourceRepository
         showOnlySelectedActionButton: boolean
     }) {
         createQueuedPopupIfNeeded(
@@ -343,7 +347,7 @@ export const PlayerCommandStateService = {
         drawActionButtons({
             actionButtons: playerCommandState.actionButtons,
             graphicsBuffer: graphicsBuffer,
-            resourceHandler: resourceHandler,
+            resourceRepository,
             actionValidity:
                 gameEngineState.battleOrchestratorState.cache.actionValidity
                     .byActionTemplateId,
@@ -613,7 +617,7 @@ const createActionButtons = ({
 const drawActionButtons = ({
     actionButtons,
     graphicsBuffer,
-    resourceHandler,
+    resourceRepository,
     actionValidity,
     consideredActionTemplateId,
     selectedActionTemplateId,
@@ -621,7 +625,7 @@ const drawActionButtons = ({
 }: {
     actionButtons: ActionButton[]
     graphicsBuffer: GraphicsBuffer
-    resourceHandler: ResourceHandler
+    resourceRepository: ResourceRepository
     actionValidity: { [_: string]: ActionValidityStatus }
     consideredActionTemplateId?: string
     selectedActionTemplateId?: string
@@ -688,7 +692,7 @@ const drawActionButtons = ({
         ActionButtonService.draw({
             actionButton,
             graphicsBuffer,
-            resourceHandler,
+            resourceRepository,
             disabled: !actionIsEnabled,
             selected: actionIsConsidered || actionIsSelected,
             warning: actionHasAWarning,

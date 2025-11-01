@@ -14,8 +14,8 @@ import {
 } from "../../../actionDecision/battleActionDecisionStep"
 import { DataBlobService } from "../../../../utils/dataBlob/dataBlob"
 import { GraphicsBuffer } from "../../../../utils/graphics/graphicsRenderer"
-import { ResourceHandler } from "../../../../resource/resourceHandler"
 import { MousePress } from "../../../../utils/mouseConfig"
+import { ResourceRepository } from "../../../../resource/resourceRepository.ts"
 
 export interface SquaddieSelectorPanel {
     buttons: SquaddieSelectorPanelButton[]
@@ -75,12 +75,12 @@ export const SquaddieSelectorPanelService = {
         squaddieSelectorPanel,
         objectRepository,
         graphicsContext,
-        resourceHandler,
+        resourceRepository,
     }: {
         squaddieSelectorPanel: SquaddieSelectorPanel
         objectRepository: ObjectRepository
         graphicsContext: GraphicsBuffer
-        resourceHandler: ResourceHandler
+        resourceRepository: ResourceRepository
     }) => {
         squaddieSelectorPanel.buttons.forEach(
             (button: SquaddieSelectorPanelButton) => {
@@ -105,7 +105,7 @@ export const SquaddieSelectorPanelService = {
                     button,
                     objectRepository,
                     graphicsContext,
-                    resourceHandler,
+                    resourceRepository,
                 })
             }
         )

@@ -24,7 +24,6 @@ import {
     DialogueFontStyle,
     DialoguePosition,
 } from "./constants"
-import { ResourceHandler } from "../../resource/resourceHandler"
 import { OrchestratorComponentKeyEvent } from "../../battle/orchestrator/battleOrchestratorComponent"
 import {
     PlayerInputAction,
@@ -34,6 +33,7 @@ import {
 } from "../../ui/playerInput/playerInputState"
 import { MousePress } from "../../utils/mouseConfig"
 import { WINDOW_SPACING } from "../../ui/constants.ts"
+import { ResourceRepository } from "../../resource/resourceRepository.ts"
 
 export interface DialoguePlayerState {
     type: TCutsceneActionPlayerType
@@ -131,11 +131,15 @@ export const DialoguePlayerService = {
             dialoguePlayerState.dialogFinished = true
         }
     },
-    draw: (
-        dialoguePlayerState: DialoguePlayerState,
-        graphicsContext: GraphicsBuffer,
-        resourceHandler: ResourceHandler
-    ) => {
+    draw: ({
+        dialoguePlayerState,
+        graphicsContext,
+        resourceRepository,
+    }: {
+        dialoguePlayerState: DialoguePlayerState
+        graphicsContext: GraphicsBuffer
+        resourceRepository: ResourceRepository
+    }) => {
         if (dialoguePlayerState.speakerNameBox == undefined) {
             createDialogueSpeakerNameTextBoxAboveMainTextBox(
                 dialoguePlayerState
@@ -154,7 +158,7 @@ export const DialoguePlayerService = {
         if (dialoguePlayerState.speakerImage != undefined)
             DialoguePortraitImageService.draw({
                 graphics: graphicsContext,
-                resourceHandler,
+                resourceRepository,
                 portraitImage: dialoguePlayerState.speakerImage,
             })
         dialoguePlayerState.speakerNameBox?.draw(graphicsContext)

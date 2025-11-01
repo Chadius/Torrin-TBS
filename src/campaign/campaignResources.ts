@@ -3,6 +3,7 @@ import {
     THexGridMovementCost,
 } from "../hexMap/hexGridMovementCost"
 import { EnumLike } from "../utils/enum"
+import { TAttribute } from "../squaddie/attribute/attribute.ts"
 
 export const ActionEffectTemplateButtonIconKey = {
     UNKNOWN: "UNKNOWN",
@@ -22,6 +23,13 @@ export interface CampaignResources {
     }
     mapTiles: MapTilesResources
     endTurnIconResourceKey: string
+    attributeIcons: {
+        up: string
+        down: string
+        byAttribute: {
+            [t in TAttribute]?: string
+        }
+    }
 }
 
 export const CampaignResourcesService = {
@@ -49,6 +57,14 @@ export const CampaignResourcesService = {
                 },
             },
             endTurnIconResourceKey: "decision-button-end-turn",
+            attributeIcons: {
+                up: "attribute-up",
+                down: "attribute-down",
+                byAttribute: {
+                    ARMOR: "attribute-icon-armor",
+                    ABSORB: "attribute-icon-absorb",
+                },
+            },
         }
     },
     clone: (original: CampaignResources): CampaignResources => ({
@@ -60,5 +76,26 @@ export const CampaignResourcesService = {
             resourceKeys: [...original.mapTiles.resourceKeys],
             defaultByTerrainCost: { ...original.mapTiles.defaultByTerrainCost },
         },
+        attributeIcons: {
+            up: original.attributeIcons.up,
+            down: original.attributeIcons.down,
+            byAttribute: {
+                ...original.attributeIcons.byAttribute,
+            },
+        },
     }),
+    getAllImageResourceKeys: (
+        campaignResources: CampaignResources
+    ): string[] => {
+        return [
+            ...Object.values(
+                campaignResources.actionEffectSquaddieTemplateButtonIcons
+            ),
+            ...campaignResources.mapTiles.resourceKeys,
+            campaignResources.endTurnIconResourceKey,
+            campaignResources.attributeIcons.up,
+            campaignResources.attributeIcons.down,
+            ...Object.values(campaignResources.attributeIcons.byAttribute),
+        ]
+    },
 }

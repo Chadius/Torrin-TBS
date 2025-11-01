@@ -49,7 +49,6 @@ describe("Mission Objective", () => {
 
         const state: GameEngineState = GameEngineStateService.new({
             repository: undefined,
-            resourceHandler: undefined,
             battleOrchestratorState: BattleOrchestratorStateService.new({
                 battleState: BattleStateService.newBattleState({
                     missionId: "test mission",
@@ -124,7 +123,6 @@ describe("Mission Objective", () => {
 
         const state: GameEngineState = GameEngineStateService.new({
             repository: undefined,
-            resourceHandler: undefined,
             battleOrchestratorState: BattleOrchestratorStateService.new({
                 battleState: BattleStateService.newBattleState({
                     missionId: "test mission",
@@ -202,7 +200,6 @@ describe("Mission Objective", () => {
 
         const state: GameEngineState = GameEngineStateService.new({
             repository: undefined,
-            resourceHandler: undefined,
             battleOrchestratorState: BattleOrchestratorStateService.new({
                 battleState: BattleStateService.newBattleState({
                     missionId: "test mission",
@@ -258,7 +255,6 @@ describe("Mission Objective", () => {
         })
         const state: GameEngineState = GameEngineStateService.new({
             repository: undefined,
-            resourceHandler: undefined,
             battleOrchestratorState: BattleOrchestratorStateService.new({
                 battleState: BattleStateService.newBattleState({
                     missionId: "test mission",
@@ -313,7 +309,6 @@ describe("Mission Objective", () => {
 
         const state: GameEngineState = GameEngineStateService.new({
             repository: undefined,
-            resourceHandler: undefined,
             battleOrchestratorState: BattleOrchestratorStateService.new({
                 battleState: BattleStateService.newBattleState({
                     missionId: "test mission",

@@ -14,7 +14,6 @@ import { MissionObjectiveService } from "../battle/missionResult/missionObjectiv
 import { MissionRewardType } from "../battle/missionResult/missionReward"
 import { MissionConditionType } from "../battle/missionResult/missionCondition"
 import { ObjectRepositoryService } from "../battle/objectRepository"
-import { ResourceLocator, Resource } from "../resource/resourceHandler"
 import * as DataLoader from "../dataLoader/dataLoader"
 import { SaveSaveStateService } from "../dataLoader/saveSaveState"
 import { MessageBoardMessageType } from "../message/messageBoardMessage"
@@ -29,6 +28,7 @@ import {
     vi,
 } from "vitest"
 import { ScreenDimensions } from "../utils/graphics/graphicsConfig"
+import { Resource, ResourceLocator } from "../resource/resourceLocator.ts"
 
 const resourceLocators: ResourceLocator[] = [
     {

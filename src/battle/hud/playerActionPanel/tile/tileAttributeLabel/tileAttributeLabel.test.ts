@@ -9,6 +9,7 @@ import {
 } from "vitest"
 import { GraphicsBuffer } from "../../../../../utils/graphics/graphicsRenderer"
 import { MockedGraphicsBufferService } from "../../../../../utils/test/mocks"
+import { ResourceRepository } from "../../../../../resource/resourceRepository"
 import {
     TileAttributeLabel,
     TileAttributeLabelService,
@@ -20,17 +21,16 @@ import {
     ActionTilePositionService,
 } from "../actionTilePosition"
 import { WINDOW_SPACING } from "../../../../../ui/constants"
-import { ResourceHandler } from "../../../../../resource/resourceHandler"
 import { TileAttributeTestUtils } from "./testUtils"
 
 describe("TileAttributeLabel", () => {
     let graphicsBuffer: GraphicsBuffer
     let graphicsBufferSpies: { [key: string]: MockInstance }
-    let resourceHandler: ResourceHandler
+    let resourceRepository: ResourceRepository
 
-    beforeEach(() => {
-        ;({ graphicsBufferSpies, graphicsBuffer, resourceHandler } =
-            TileAttributeTestUtils.mockGraphicsAndAddSpies())
+    beforeEach(async () => {
+        ;({ graphicsBufferSpies, graphicsBuffer, resourceRepository } =
+            await TileAttributeTestUtils.mockGraphicsAndAddSpies())
     })
     afterEach(() => {
         MockedGraphicsBufferService.resetSpies(graphicsBufferSpies)
@@ -121,7 +121,7 @@ describe("TileAttributeLabel", () => {
                 TileAttributeLabelService.draw({
                     label,
                     graphicsBuffer,
-                    resourceHandler,
+                    resourceRepository,
                 })
                 expect(graphicsBufferSpies["rect"]).toHaveBeenCalledWith(
                     RectAreaService.left(
@@ -144,7 +144,7 @@ describe("TileAttributeLabel", () => {
                 TileAttributeLabelService.draw({
                     label: label,
                     graphicsBuffer: graphicsBuffer,
-                    resourceHandler,
+                    resourceRepository,
                 })
             })
             it("will create title text near the top of the rectangle.", () => {
@@ -185,17 +185,17 @@ describe("TileAttributeLabel", () => {
         })
         describe("icon", () => {
             beforeEach(() => {
-                label.iconResourceKey = "armor-resource-key"
+                label.iconResourceKey = "attribute-icon-armor"
                 TileAttributeLabelService.draw({
                     label: label,
                     graphicsBuffer: graphicsBuffer,
-                    resourceHandler,
+                    resourceRepository,
                 })
             })
             it("will create an icon near the top of the rectangle.", () => {
                 expect(label.uiElements.icon).not.toBeUndefined()
                 expect(label.uiElements.icon!.resourceKey).toEqual(
-                    "armor-resource-key"
+                    "attribute-icon-armor"
                 )
 
                 expect(
@@ -289,7 +289,7 @@ describe("TileAttributeLabel", () => {
             TileAttributeLabelService.draw({
                 label,
                 graphicsBuffer,
-                resourceHandler,
+                resourceRepository,
             })
             const startingHeight = RectAreaService.height(
                 TileAttributeLabelService.getArea(label)
@@ -298,7 +298,7 @@ describe("TileAttributeLabel", () => {
             TileAttributeLabelService.draw({
                 label,
                 graphicsBuffer,
-                resourceHandler,
+                resourceRepository,
             })
 
             const currentHeight = RectAreaService.height(
@@ -312,7 +312,7 @@ describe("TileAttributeLabel", () => {
             TileAttributeLabelService.draw({
                 label,
                 graphicsBuffer,
-                resourceHandler,
+                resourceRepository,
             })
             const startingWidth = RectAreaService.width(
                 TileAttributeLabelService.getArea(label)
@@ -321,7 +321,7 @@ describe("TileAttributeLabel", () => {
             TileAttributeLabelService.draw({
                 label,
                 graphicsBuffer,
-                resourceHandler,
+                resourceRepository,
             })
 
             const currentWidth = RectAreaService.width(
@@ -335,13 +335,13 @@ describe("TileAttributeLabel", () => {
             TileAttributeLabelService.draw({
                 label,
                 graphicsBuffer,
-                resourceHandler,
+                resourceRepository,
             })
             dateSpy.mockReturnValue(9001)
             TileAttributeLabelService.draw({
                 label,
                 graphicsBuffer,
-                resourceHandler,
+                resourceRepository,
             })
             expect(label.animationStatus).toBe(
                 TileAttributeLabelStatus.FULLY_OPEN
@@ -370,7 +370,7 @@ describe("TileAttributeLabel", () => {
             TileAttributeLabelService.draw({
                 label: label,
                 graphicsBuffer: graphicsBuffer,
-                resourceHandler,
+                resourceRepository,
             })
             expect(graphicsBufferSpies["text"]).toHaveBeenCalledWith(
                 label.description.text,
@@ -421,7 +421,7 @@ describe("TileAttributeLabel", () => {
             TileAttributeLabelService.draw({
                 label,
                 graphicsBuffer,
-                resourceHandler,
+                resourceRepository,
             })
             const startingHeight = RectAreaService.height(
                 TileAttributeLabelService.getArea(label)
@@ -430,7 +430,7 @@ describe("TileAttributeLabel", () => {
             TileAttributeLabelService.draw({
                 label,
                 graphicsBuffer,
-                resourceHandler,
+                resourceRepository,
             })
 
             const currentHeight = RectAreaService.height(
@@ -444,7 +444,7 @@ describe("TileAttributeLabel", () => {
             TileAttributeLabelService.draw({
                 label,
                 graphicsBuffer,
-                resourceHandler,
+                resourceRepository,
             })
             const startingWidth = RectAreaService.width(
                 TileAttributeLabelService.getArea(label)
@@ -453,7 +453,7 @@ describe("TileAttributeLabel", () => {
             TileAttributeLabelService.draw({
                 label,
                 graphicsBuffer,
-                resourceHandler,
+                resourceRepository,
             })
 
             const currentWidth = RectAreaService.width(
@@ -467,13 +467,13 @@ describe("TileAttributeLabel", () => {
             TileAttributeLabelService.draw({
                 label,
                 graphicsBuffer,
-                resourceHandler,
+                resourceRepository,
             })
             dateSpy.mockReturnValue(9001)
             TileAttributeLabelService.draw({
                 label,
                 graphicsBuffer,
-                resourceHandler,
+                resourceRepository,
             })
             expect(label.animationStatus).toBe(
                 TileAttributeLabelStatus.FULLY_CLOSED

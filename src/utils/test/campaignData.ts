@@ -24,6 +24,17 @@ export const TestCampaignData = () => {
                 },
             },
             endTurnIconResourceKey: "end-turn",
+            attributeIcons: {
+                up: "attribute-up",
+                down: "attribute-down",
+                byAttribute: {
+                    ARMOR: "attribute-icon-armor",
+                    ABSORB: "attribute-icon-absorb",
+                    HUSTLE: "attribute-icon-hustle",
+                    MOVEMENT: "attribute-icon-movement",
+                    ELUSIVE: "attribute-icon-elusive",
+                },
+            },
         },
     }
 

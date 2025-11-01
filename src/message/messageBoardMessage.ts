@@ -62,8 +62,6 @@ export type MessageBoardMessage =
     | MessageBoardMessagePlayerDataLoadErrorDuring
     | MessageBoardMessagePlayerDataLoadUserCancel
     | MessageBoardMessagePlayerDataLoadFinishRequest
-    | MessageBoardMessageTypeLoadBlockerBeginsLoadingResources
-    | MessageBoardMessageTypeLoadBlockerFinishesLoadingResources
 
 export const MessageBoardMessageType = {
     BASE: Symbol.for("MessageBoardMessageType.BASE"),
@@ -154,12 +152,6 @@ export const MessageBoardMessageType = {
     ),
     PLAYER_DATA_LOAD_FINISH_REQUEST_LOAD: Symbol.for(
         "MessageBoardMessageType.PLAYER_DATA_LOAD_FINISH_REQUEST_LOAD"
-    ),
-    LOAD_BLOCKER_BEGINS_LOADING_RESOURCES: Symbol.for(
-        "MessageBoardMessageType.LOAD_BLOCKER_BEGINS_LOADING_RESOURCES"
-    ),
-    LOAD_BLOCKER_FINISHES_LOADING_RESOURCES: Symbol.for(
-        "MessageBoardMessageType.LOAD_BLOCKER_FINISHES_LOADING_RESOURCES"
     ),
 } as const
 export type TMessageBoardMessageType = EnumLike<typeof MessageBoardMessageType>
@@ -508,7 +500,6 @@ export interface MessageBoardMessagePlayerControlledSquaddieNeedsNextAction {
     objectRepository: ObjectRepository
     battleSquaddieId: string
     missionMap: MissionMap
-    playerCommandState: PlayerCommandState
     campaignResources: CampaignResources
     squaddieAllMovementCache: SearchResultsCache
 }
@@ -648,14 +639,6 @@ const isMessageBoardMessagePlayerConsidersMovement = (
         messageBoardMessage.type ===
         MessageBoardMessageType.PLAYER_CONSIDERS_MOVEMENT
     )
-}
-
-export interface MessageBoardMessageTypeLoadBlockerBeginsLoadingResources {
-    type: typeof MessageBoardMessageType.LOAD_BLOCKER_BEGINS_LOADING_RESOURCES
-}
-
-export interface MessageBoardMessageTypeLoadBlockerFinishesLoadingResources {
-    type: typeof MessageBoardMessageType.LOAD_BLOCKER_FINISHES_LOADING_RESOURCES
 }
 
 export const MessageBoardMessageService = {

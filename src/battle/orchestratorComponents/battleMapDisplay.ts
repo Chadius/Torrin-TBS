@@ -26,7 +26,7 @@ import { TerrainTileMapService } from "../../hexMap/terrainTileMap"
 import { BattleActionRecorderService } from "../history/battleAction/battleActionRecorder"
 import { MissionMapService } from "../../missionMap/missionMap"
 import { TerrainTileGraphicsService } from "../../hexMap/terrainTileGraphics"
-import { ResourceHandler } from "../../resource/resourceHandler"
+import { ResourceRepository } from "../../resource/resourceRepository"
 import {
     PlayerInputAction,
     PlayerInputStateService,
@@ -73,12 +73,10 @@ export class BattleMapDisplay implements BattleOrchestratorComponent {
     draw({
         gameEngineState,
         graphics,
-        resourceHandler,
     }: {
         gameEngineState: GameEngineState
         graphics: GraphicsBuffer
-        resourceHandler: ResourceHandler | undefined
-    }): void {
+    }): ResourceRepository | undefined {
         graphics.background(50, 10, 20)
 
         if (
@@ -90,10 +88,13 @@ export class BattleMapDisplay implements BattleOrchestratorComponent {
                     .terrainTileMap
             )
 
-            if (!this.mapImage && resourceHandler != undefined) {
+            if (
+                !this.mapImage &&
+                gameEngineState.resourceRepository != undefined
+            ) {
                 this.mapImage = HexDrawingUtils.createMapImage({
                     graphicsBuffer: graphics,
-                    resourceHandler,
+                    resourceRepository: gameEngineState.resourceRepository,
                     terrainTileMap:
                         gameEngineState.battleOrchestratorState.battleState
                             .missionMap.terrainTileMap,
@@ -132,12 +133,12 @@ export class BattleMapDisplay implements BattleOrchestratorComponent {
 
         let battleSquaddieIdsToOmit =
             getCurrentlyMovingBattleSquaddieIds(gameEngineState)
-        this.drawSquaddieMapIcons(
-            gameEngineState,
-            graphics,
-            battleSquaddieIdsToOmit,
-            resourceHandler
-        )
+        this.drawSquaddieMapIcons({
+            gameEngineState: gameEngineState,
+            graphicsContext: graphics,
+            battleSquaddieIdsToOmit: battleSquaddieIdsToOmit,
+            resourceRepository: gameEngineState.resourceRepository,
+        })
         gameEngineState.battleOrchestratorState.battleState.camera.moveCamera()
 
         FileAccessHUDService.updateBasedOnGameEngineState(
@@ -155,6 +156,7 @@ export class BattleMapDisplay implements BattleOrchestratorComponent {
             gameEngineState.battleOrchestratorState.battleHUD.fileAccessHUD,
             graphics
         )
+        return gameEngineState.resourceRepository
     }
 
     hasCompleted(_: GameEngineState): boolean {
@@ -335,12 +337,17 @@ export class BattleMapDisplay implements BattleOrchestratorComponent {
         this.scrollTime = undefined
     }
 
-    private drawSquaddieMapIcons(
-        gameEngineState: GameEngineState,
-        graphicsContext: GraphicsBuffer,
-        battleSquaddieIdsToOmit: string[],
-        resourceHandler: ResourceHandler | undefined
-    ) {
+    private drawSquaddieMapIcons({
+        gameEngineState,
+        graphicsContext,
+        battleSquaddieIdsToOmit,
+        resourceRepository,
+    }: {
+        gameEngineState: GameEngineState
+        graphicsContext: GraphicsBuffer
+        battleSquaddieIdsToOmit: string[]
+        resourceRepository: ResourceRepository | undefined
+    }) {
         if (gameEngineState.repository == undefined) return
         let targetedBattleSquaddieIds: string[] =
             this.getTargetedBattleSquaddieIds(gameEngineState)
@@ -434,7 +441,7 @@ export class BattleMapDisplay implements BattleOrchestratorComponent {
                         mapCoordinate: datum.currentMapCoordinate,
                         camera: gameEngineState.battleOrchestratorState
                             .battleState.camera,
-                        resourceHandler,
+                        resourceRepository,
                     }
                 )
             })

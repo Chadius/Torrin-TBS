@@ -5,11 +5,10 @@ import {
 } from "../../objectRepository"
 import {
     PlayerCommandSelection,
-    TPlayerCommandSelection,
     PlayerCommandState,
     PlayerCommandStateService,
+    TPlayerCommandSelection,
 } from "../playerCommand/playerCommandHUD"
-import { ResourceHandler } from "../../../resource/resourceHandler"
 import { MouseRelease, ScreenLocation } from "../../../utils/mouseConfig"
 import { isValidValue } from "../../../utils/objectValidityCheck"
 import {
@@ -47,6 +46,7 @@ import { PlayerConsideredActions } from "../../battleState/playerConsideredActio
 import { Glossary } from "../../../campaign/glossary/glossary"
 import { TPlayerInputAction } from "../../../ui/playerInput/playerInputState"
 import { GameEngineState } from "../../../gameEngine/gameEngineState/gameEngineState"
+import { ResourceRepository } from "../../../resource/resourceRepository.ts"
 
 export const SUMMARY_HUD_PEEK_EXPIRATION_MS = 2000
 
@@ -178,18 +178,18 @@ export const SummaryHUDStateService = {
         summaryHUDState,
         graphicsBuffer,
         gameEngineState,
-        resourceHandler,
+        resourceRepository,
     }: {
         summaryHUDState: SummaryHUDState
         graphicsBuffer: GraphicsBuffer
         gameEngineState: GameEngineState
-        resourceHandler: ResourceHandler
+        resourceRepository: ResourceRepository
     }) => {
         PlayerCommandStateService.draw({
             playerCommandState: summaryHUDState.playerCommandState,
             graphicsBuffer,
             gameEngineState,
-            resourceHandler,
+            resourceRepository,
             showOnlySelectedActionButton:
                 !!summaryHUDState.playerCommandState.selectedActionTemplateId,
         })
@@ -531,7 +531,7 @@ const drawActorTiles = ({
     SquaddieNameAndPortraitTileService.draw({
         tile: summaryHUDState.squaddieNameTiles[ActionTilePosition.ACTOR_NAME],
         graphicsContext: graphicsBuffer,
-        resourceHandler: gameEngineState.resourceHandler,
+        resourceRepository: gameEngineState.resourceRepository,
     })
 
     if (
@@ -551,7 +551,7 @@ const drawActorTiles = ({
             ActionTilePosition.ACTOR_STATUS
         ],
         graphicsContext: graphicsBuffer,
-        resourceHandler: gameEngineState.resourceHandler,
+        resourceRepository: gameEngineState.resourceRepository,
     })
 }
 
@@ -605,7 +605,7 @@ const drawTargetTiles = ({
     SquaddieNameAndPortraitTileService.draw({
         tile: summaryHUDState.squaddieNameTiles[ActionTilePosition.TARGET_NAME],
         graphicsContext: graphicsBuffer,
-        resourceHandler: gameEngineState.resourceHandler,
+        resourceRepository: gameEngineState.resourceRepository,
     })
 
     if (
@@ -626,7 +626,7 @@ const drawTargetTiles = ({
             ActionTilePosition.TARGET_STATUS
         ],
         graphicsContext: graphicsBuffer,
-        resourceHandler: gameEngineState.resourceHandler,
+        resourceRepository: gameEngineState.resourceRepository,
     })
 }
 
@@ -657,7 +657,7 @@ const drawSelectedActionTile = ({
         tile: summaryHUDState.actionSelectedTile,
         graphicsContext: graphicsBuffer,
         objectRepository: gameEngineState.repository,
-        resourceHandler: gameEngineState.resourceHandler,
+        resourceRepository: gameEngineState.resourceRepository,
     })
 }
 
@@ -897,7 +897,7 @@ const drawPeekablePanel = ({
         SquaddieNameAndPortraitTileService.draw({
             tile: summaryHUDState.squaddieNameTiles[actionPanelPosition],
             graphicsContext: graphicsBuffer,
-            resourceHandler: gameEngineState.resourceHandler,
+            resourceRepository: gameEngineState.resourceRepository,
         })
     }
 
@@ -905,7 +905,7 @@ const drawPeekablePanel = ({
         SquaddieStatusTileService.draw({
             tile: summaryHUDState.squaddieStatusTiles[actionPanelPosition],
             graphicsContext: graphicsBuffer,
-            resourceHandler: gameEngineState.resourceHandler,
+            resourceRepository: gameEngineState.resourceRepository,
         })
     }
 }

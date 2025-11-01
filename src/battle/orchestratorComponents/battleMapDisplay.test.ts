@@ -7,7 +7,6 @@ import { ObjectRepositoryService } from "../objectRepository"
 import { BattleCamera } from "../battleCamera"
 import { ScreenDimensions } from "../../utils/graphics/graphicsConfig"
 import { OrchestratorComponentMouseEventType } from "../orchestrator/battleOrchestratorComponent"
-import * as mocks from "../../utils/test/mocks"
 import { MockedP5GraphicsBuffer } from "../../utils/test/mocks"
 import { MissionMapService } from "../../missionMap/missionMap"
 import { TerrainTileMapService } from "../../hexMap/terrainTileMap"
@@ -15,7 +14,9 @@ import { BattleStateService } from "../battleState/battleState"
 import { BattleHUDService } from "../hud/battleHUD/battleHUD"
 import { BattleHUDStateService } from "../hud/battleHUD/battleHUDState"
 import { SummaryHUDStateService } from "../hud/summary/summaryHUD"
-import { ResourceHandler } from "../../resource/resourceHandler"
+import { ResourceRepositoryService } from "../../resource/resourceRepository"
+import { TestLoadImmediatelyImageLoader } from "../../resource/resourceRepositoryTestUtils"
+import { LoadCampaignData } from "../../utils/fileHandling/loadCampaignData"
 import {
     afterEach,
     beforeEach,
@@ -40,7 +41,6 @@ import {
 describe("battleMapDisplay", () => {
     let battleMapDisplay: BattleMapDisplay
     let mockedP5GraphicsContext: MockedP5GraphicsBuffer
-    let resourceHandler: ResourceHandler
 
     beforeEach(() => {
         vi.spyOn(
@@ -51,7 +51,6 @@ describe("battleMapDisplay", () => {
         battleMapDisplay = new BattleMapDisplay()
 
         mockedP5GraphicsContext = new MockedP5GraphicsBuffer()
-        resourceHandler = mocks.mockResourceHandler(mockedP5GraphicsContext)
     })
 
     describe("panning the camera", () => {
@@ -65,9 +64,15 @@ describe("battleMapDisplay", () => {
 
             gameEngineState = GameEngineStateService.new({
                 repository: undefined,
-                resourceHandler: mocks.mockResourceHandler(
-                    mockedP5GraphicsContext
-                ),
+                resourceRepository: ResourceRepositoryService.new({
+                    imageLoader: new TestLoadImmediatelyImageLoader({}),
+                    urls: Object.fromEntries(
+                        LoadCampaignData.getResourceKeys().map((key) => [
+                            key,
+                            "url",
+                        ])
+                    ),
+                }),
                 battleOrchestratorState: BattleOrchestratorStateService.new({
                     battleHUD: BattleHUDService.new({}),
                     battleState: BattleStateService.newBattleState({
@@ -105,7 +110,6 @@ describe("battleMapDisplay", () => {
             battleMapDisplay.draw({
                 gameEngineState: gameEngineState,
                 graphics: mockedP5GraphicsContext,
-                resourceHandler,
             })
             expect(camera.getWorldLocation().x).toBeCloseTo(
                 (initialCameraCoordinates[0] + destinationCoordinates[0]) / 2
@@ -128,7 +132,6 @@ describe("battleMapDisplay", () => {
             battleMapDisplay.draw({
                 gameEngineState: gameEngineState,
                 graphics: mockedP5GraphicsContext,
-                resourceHandler,
             })
             expect(camera.getWorldLocation().x).toBeCloseTo(
                 destinationCoordinates[0]

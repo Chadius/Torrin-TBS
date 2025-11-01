@@ -20,10 +20,6 @@ import { GameEngineComponent } from "./gameEngineComponent"
 import { TitleScreen } from "../titleScreen/titleScreen"
 import { TitleScreenStateHelper } from "../titleScreen/titleScreenState"
 import {
-    ResourceHandler,
-    ResourceHandlerService,
-} from "../resource/resourceHandler"
-import {
     BattleSaveState,
     BattleSaveStateService,
 } from "../battle/history/battleSaveState"
@@ -47,12 +43,18 @@ import {
     GameEngineState,
     GameEngineStateService,
 } from "./gameEngineState/gameEngineState"
+import {
+    ResourceRepository,
+    ResourceRepositoryService,
+} from "../resource/resourceRepository.ts"
+import { P5LoadImageLoader } from "../resource/p5Loaders/p5LoadImageLoader.ts"
 
 export class GameEngine {
     gameEngineState: GameEngineState | undefined
     gameEngineGameLoader: GameEngineGameLoader | undefined
     graphicsBuffer: GraphicsBuffer
     version: string | undefined
+    resourceRepository: ResourceRepository | undefined
 
     constructor({
         graphicsBuffer,
@@ -98,12 +100,6 @@ export class GameEngine {
         return this._battleOrchestrator
     }
 
-    private _resourceHandler: ResourceHandler | undefined
-
-    get resourceHandler(): ResourceHandler | undefined {
-        return this._resourceHandler
-    }
-
     async setup({
         graphicsBuffer,
         campaignId,
@@ -133,20 +129,17 @@ export class GameEngine {
             ),
         })
 
-        await this.lazyLoadResourceHandler({
-            graphicsBuffer: graphicsBuffer,
-            campaignId,
-            p5Instance,
-        })
-
         this._titleScreen = new TitleScreen({
             version,
             p5Instance,
         })
         this.gameEngineGameLoader = new GameEngineGameLoader(
-            process.env.CAMPAIGN_ID!
+            process.env.CAMPAIGN_ID!,
+            graphicsBuffer
         )
         this.version = version
+        this.resourceRepository =
+            await this.setupResourceRepositoryWithCampaignData({ campaignId })
         this.resetComponentStates()
     }
 
@@ -214,6 +207,12 @@ export class GameEngine {
             return
         }
         await this.gameEngineComponent?.update(this.gameEngineState, graphics)
+        if (
+            this.currentMode == GameModeEnum.LOADING_BATTLE &&
+            this.gameEngineGameLoader?.resourceRepository
+        )
+            this.gameEngineState.resourceRepository =
+                this.gameEngineGameLoader?.resourceRepository
 
         if (this.gameEngineState.saveSaveState.savingInProgress) {
             this.saveGameAndDownloadFile()
@@ -255,7 +254,7 @@ export class GameEngine {
             battleOrchestratorState: this.battleOrchestrator?.setup(),
             titleScreenState: this.titleScreen?.setup(),
             repository: ObjectRepositoryService.new(),
-            resourceHandler: this.resourceHandler,
+            resourceRepository: this.resourceRepository,
             campaign: undefined,
         })
         this.addMessageListeners()
@@ -368,39 +367,15 @@ export class GameEngine {
         })
     }
 
-    private async lazyLoadResourceHandler({
-        graphicsBuffer,
+    private async setupResourceRepositoryWithCampaignData({
         campaignId,
-        p5Instance,
     }: {
-        graphicsBuffer: GraphicsBuffer
         campaignId: string
-        p5Instance?: p5
-    }) {
-        if (this.resourceHandler === undefined) {
-            this._resourceHandler = ResourceHandlerService.new({
-                graphics: graphicsBuffer,
-                resourceLocators: [],
-                imageLoader: undefined,
-                p5Instance,
-            })
-
-            const resourceLocationsFilename = `assets/campaign/${campaignId}/resourceLocators.json`
-            try {
-                await ResourceHandlerService.loadResourceLocations(
-                    this._resourceHandler,
-                    resourceLocationsFilename
-                )
-            } catch (e) {
-                console.error(
-                    `Failed to load resource locations in file: ${resourceLocationsFilename}`
-                )
-                console.error(e)
-                throw e
-            }
-        }
-
-        return this.resourceHandler
+    }): Promise<ResourceRepository> {
+        return await ResourceRepositoryService.newWithUrlsFromFile({
+            imageLoader: new P5LoadImageLoader(),
+            filename: `assets/campaign/${campaignId}/resourceLocators.json`,
+        })
     }
 
     private saveGameAndDownloadFile() {

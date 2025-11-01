@@ -16,8 +16,8 @@ import { BattleActionDecisionStepService } from "../actionDecision/battleActionD
 import { GraphicsBuffer } from "../../utils/graphics/graphicsRenderer"
 import { BattleActionService } from "../history/battleAction/battleAction"
 import { BattleActionRecorderService } from "../history/battleAction/battleActionRecorder"
-import { ResourceHandler } from "../../resource/resourceHandler"
 import { GameEngineState } from "../../gameEngine/gameEngineState/gameEngineState"
+import { ResourceRepository } from "../../resource/resourceRepository"
 
 export class PlayerHudController implements BattleOrchestratorComponent {
     hasCompleted(_gameEngineState: GameEngineState): boolean {
@@ -129,12 +129,13 @@ export class PlayerHudController implements BattleOrchestratorComponent {
         // Required by inheritance
     }
 
-    draw({}: {
+    draw({
+        gameEngineState,
+    }: {
         gameEngineState: GameEngineState
         graphics: GraphicsBuffer
-        resourceHandler: ResourceHandler | undefined
-    }): void {
-        // Required by inheritance
+    }): ResourceRepository | undefined {
+        return gameEngineState.resourceRepository
     }
 }
 

@@ -4,8 +4,8 @@ import {
     OrchestratorComponentKeyEvent,
     OrchestratorComponentMouseEvent,
 } from "../../orchestrator/battleOrchestratorComponent"
-import { ResourceHandler } from "../../../resource/resourceHandler"
 import { GraphicsBuffer } from "../../../utils/graphics/graphicsRenderer"
+import { ResourceRepository } from "../../../resource/resourceRepository"
 import {
     BattleUISettings,
     BattleUISettingsService,
@@ -199,11 +199,11 @@ export class PlayerActionTargetSelect implements BattleOrchestratorComponent {
     }: {
         gameEngineState: GameEngineState
         graphics: GraphicsBuffer
-        resourceHandler: ResourceHandler | undefined
-    }): void {
+    }): ResourceRepository | undefined {
         this.viewController?.draw({
             camera: gameEngineState.battleOrchestratorState.battleState.camera,
             graphicsContext: graphics,
         })
+        return gameEngineState.resourceRepository
     }
 }

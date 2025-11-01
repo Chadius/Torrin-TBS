@@ -3,8 +3,6 @@ import { MissionMap, MissionMapService } from "../../missionMap/missionMap"
 import { TerrainTileMapService } from "../../hexMap/terrainTileMap"
 import { ObjectRepository, ObjectRepositoryService } from "../objectRepository"
 import { CampaignService } from "../../campaign/campaign"
-import * as mocks from "../../utils/test/mocks"
-import { MockedP5GraphicsBuffer } from "../../utils/test/mocks"
 import { BattleOrchestratorStateService } from "../orchestrator/battleOrchestratorState"
 import { BattleStateService } from "../battleState/battleState"
 import {
@@ -38,6 +36,9 @@ import {
     GameEngineState,
     GameEngineStateService,
 } from "../../gameEngine/gameEngineState/gameEngineState"
+import { ResourceRepositoryService } from "../../resource/resourceRepository"
+import { TestLoadImmediatelyImageLoader } from "../../resource/resourceRepositoryTestUtils"
+import { LoadCampaignData } from "../../utils/fileHandling/loadCampaignData"
 
 describe("PlayerHUDController", () => {
     let gameEngineState: GameEngineState
@@ -55,6 +56,16 @@ describe("PlayerHUDController", () => {
 
         repository = ObjectRepositoryService.new()
 
+        const loadImmediatelyImageLoader = new TestLoadImmediatelyImageLoader(
+            {}
+        )
+        const resourceRepository = ResourceRepositoryService.new({
+            imageLoader: loadImmediatelyImageLoader,
+            urls: Object.fromEntries(
+                LoadCampaignData.getResourceKeys().map((key) => [key, "url"])
+            ),
+        })
+
         gameEngineState = GameEngineStateService.new({
             battleOrchestratorState: BattleOrchestratorStateService.new({
                 battleState: BattleStateService.newBattleState({
@@ -63,9 +74,7 @@ describe("PlayerHUDController", () => {
                     missionId: "missionId",
                 }),
             }),
-            resourceHandler: mocks.mockResourceHandler(
-                new MockedP5GraphicsBuffer()
-            ),
+            resourceRepository,
             repository,
             campaign: CampaignService.default(),
         })

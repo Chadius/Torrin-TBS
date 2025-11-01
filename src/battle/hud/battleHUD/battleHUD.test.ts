@@ -15,7 +15,6 @@ import {
     FileAccessHUD,
     FileAccessHUDService,
 } from "../fileAccess/fileAccessHUD"
-import * as mocks from "../../../utils/test/mocks"
 import { MockedP5GraphicsBuffer } from "../../../utils/test/mocks"
 import {
     SquaddieTemplate,
@@ -129,6 +128,7 @@ import {
     GameEngineStateService,
 } from "../../../gameEngine/gameEngineState/gameEngineState"
 import { MapSearchTestUtils } from "../../../hexMap/pathfinder/pathGeneration/mapSearchTests/mapSearchTestUtils"
+import { ResourceRepositoryTestUtilsService } from "../../../resource/resourceRepositoryTestUtils.ts"
 
 describe("Battle HUD", () => {
     let mockP5GraphicsContext: MockedP5GraphicsBuffer
@@ -138,7 +138,7 @@ describe("Battle HUD", () => {
         mockP5GraphicsContext.textWidth = vi.fn().mockReturnValue(1)
     })
 
-    const createGameEngineState = ({
+    const createGameEngineState = async ({
         battlePhaseState,
         battleSquaddieCoordinate,
         missionMap,
@@ -146,14 +146,14 @@ describe("Battle HUD", () => {
         battlePhaseState?: BattlePhaseState
         battleSquaddieCoordinate?: HexCoordinate
         missionMap?: MissionMap
-    }): {
+    }): Promise<{
         gameEngineState: GameEngineState
         longswordAction: ActionTemplate
         healSelfAction: ActionTemplate
         playerSoldierBattleSquaddie: BattleSquaddie
         playerSoldierSquaddieTemplate: SquaddieTemplate
         battleSquaddie2: BattleSquaddie
-    } => {
+    }> => {
         const repository = ObjectRepositoryService.new()
         missionMap =
             missionMap ??
@@ -258,10 +258,14 @@ describe("Battle HUD", () => {
             originMapCoordinate: { q: 0, r: 1 },
         })
 
+        let resourceRepository =
+            await ResourceRepositoryTestUtilsService.getResourceRepositoryWithAllTestImages(
+                {
+                    graphics: new MockedP5GraphicsBuffer(),
+                }
+            )
+
         const gameEngineState = GameEngineStateService.new({
-            resourceHandler: mocks.mockResourceHandler(
-                new MockedP5GraphicsBuffer()
-            ),
             battleOrchestratorState: BattleOrchestratorStateService.new({
                 battleHUD: BattleHUDService.new({}),
                 battleState: BattleStateService.newBattleState({
@@ -282,6 +286,7 @@ describe("Battle HUD", () => {
                 }),
             }),
             repository,
+            resourceRepository,
             campaign: CampaignService.default(),
         })
         ObjectRepositoryService.addActionTemplate(
@@ -411,7 +416,7 @@ describe("Battle HUD", () => {
         let gameEngineState: GameEngineState
         let battleSquaddie: BattleSquaddie
 
-        const createGameEngineStateWithAffiliation = ({
+        const createGameEngineStateWithAffiliation = async ({
             repository,
             missionMap,
             teamAffiliation,
@@ -421,10 +426,10 @@ describe("Battle HUD", () => {
             teamAffiliation: TSquaddieAffiliation
             battlePhase: TBattlePhase
             repository: ObjectRepository
-        }): {
+        }): Promise<{
             gameEngineState: GameEngineState
             battleSquaddie: BattleSquaddie
-        } => {
+        }> => {
             const squaddieTemplate = SquaddieTemplateService.new({
                 squaddieId: SquaddieIdService.new({
                     name: "squaddie template",
@@ -461,6 +466,13 @@ describe("Battle HUD", () => {
                 battleSquaddieIds: [battleSquaddie.battleSquaddieId],
             })
 
+            let resourceRepository =
+                await ResourceRepositoryTestUtilsService.getResourceRepositoryWithAllTestImages(
+                    {
+                        graphics: mockP5GraphicsContext,
+                    }
+                )
+
             gameEngineState = GameEngineStateService.new({
                 battleOrchestratorState: BattleOrchestratorStateService.new({
                     battleState: BattleStateService.newBattleState({
@@ -476,9 +488,7 @@ describe("Battle HUD", () => {
                 }),
                 campaign: CampaignService.default(),
                 repository,
-                resourceHandler: mocks.mockResourceHandler(
-                    mockP5GraphicsContext
-                ),
+                resourceRepository,
             })
 
             const battleHUDListener = new BattleHUDListener("battleHUDListener")
@@ -490,7 +500,7 @@ describe("Battle HUD", () => {
             return { gameEngineState, battleSquaddie }
         }
 
-        beforeEach(() => {
+        beforeEach(async () => {
             const repository = ObjectRepositoryService.new()
             const missionMap = MissionMapService.new({
                 terrainTileMap: TerrainTileMapService.new({
@@ -499,7 +509,7 @@ describe("Battle HUD", () => {
             })
 
             ;({ gameEngineState, battleSquaddie } =
-                createGameEngineStateWithAffiliation({
+                await createGameEngineStateWithAffiliation({
                     teamAffiliation: SquaddieAffiliation.PLAYER,
                     battlePhase: BattlePhase.PLAYER,
                     missionMap,
@@ -528,7 +538,7 @@ describe("Battle HUD", () => {
                     gameEngineState.battleOrchestratorState.battleHUDState
                         .summaryHUDState!!,
                 gameEngineState,
-                resourceHandler: gameEngineState.resourceHandler!,
+                resourceRepository: gameEngineState.resourceRepository!,
                 graphicsBuffer: mockP5GraphicsContext,
             })
         }
@@ -595,7 +605,7 @@ describe("Battle HUD", () => {
             gameEngineState.messageBoard.sendMessage({
                 type: MessageBoardMessageType.PLAYER_SELECTS_AND_LOCKS_SQUADDIE,
                 battleSquaddieSelectedId: battleSquaddie.battleSquaddieId,
-                repository: gameEngineState.repository,
+                repository: gameEngineState.repository!,
                 battleHUDState:
                     gameEngineState.battleOrchestratorState.battleHUDState,
                 battleState:
@@ -637,7 +647,7 @@ describe("Battle HUD", () => {
             let gameEngineState: GameEngineState
             let enemyBattleSquaddie: BattleSquaddie
 
-            beforeEach(() => {
+            beforeEach(async () => {
                 const repository = ObjectRepositoryService.new()
                 const missionMap = MissionMapService.new({
                     terrainTileMap: TerrainTileMapService.new({
@@ -646,7 +656,7 @@ describe("Battle HUD", () => {
                 })
 
                 ;({ gameEngineState, battleSquaddie: enemyBattleSquaddie } =
-                    createGameEngineStateWithAffiliation({
+                    await createGameEngineStateWithAffiliation({
                         teamAffiliation: SquaddieAffiliation.ENEMY,
                         battlePhase: BattlePhase.ENEMY,
                         missionMap,
@@ -657,7 +667,7 @@ describe("Battle HUD", () => {
                     type: MessageBoardMessageType.PLAYER_SELECTS_AND_LOCKS_SQUADDIE,
                     battleSquaddieSelectedId:
                         enemyBattleSquaddie.battleSquaddieId,
-                    repository: gameEngineState.repository,
+                    repository: gameEngineState.repository!,
                     battleHUDState:
                         gameEngineState.battleOrchestratorState.battleHUDState,
                     battleState:
@@ -674,7 +684,7 @@ describe("Battle HUD", () => {
                         gameEngineState.battleOrchestratorState.battleHUDState
                             .summaryHUDState!!,
                     gameEngineState,
-                    resourceHandler: gameEngineState.resourceHandler!,
+                    resourceRepository: gameEngineState.resourceRepository!,
                     graphicsBuffer: mockP5GraphicsContext,
                 })
             })
@@ -701,9 +711,9 @@ describe("Battle HUD", () => {
         let battleSquaddie: BattleSquaddie
         let battleHUDListener: BattleHUDListener
 
-        beforeEach(() => {
+        beforeEach(async () => {
             ;({ gameEngineState, playerSoldierBattleSquaddie: battleSquaddie } =
-                createGameEngineState({
+                await createGameEngineState({
                     missionMap: MissionMapService.new({
                         terrainTileMap: TerrainTileMapService.new({
                             movementCost: ["1 1 1 "],
@@ -804,7 +814,7 @@ describe("Battle HUD", () => {
             gameEngineState.messageBoard.sendMessage({
                 type: MessageBoardMessageType.PLAYER_SELECTS_AND_LOCKS_SQUADDIE,
                 battleSquaddieSelectedId: battleSquaddie.battleSquaddieId,
-                repository: gameEngineState.repository,
+                repository: gameEngineState.repository!,
                 battleHUDState:
                     gameEngineState.battleOrchestratorState.battleHUDState,
                 battleState:
@@ -820,7 +830,7 @@ describe("Battle HUD", () => {
                     gameEngineState.battleOrchestratorState.battleHUDState
                         .summaryHUDState!!,
                 gameEngineState,
-                resourceHandler: gameEngineState.resourceHandler!,
+                resourceRepository: gameEngineState.resourceRepository!,
                 graphicsBuffer: mockP5GraphicsContext,
             })
             gameEngineState.messageBoard.sendMessage({
@@ -846,7 +856,7 @@ describe("Battle HUD", () => {
                     gameEngineState.battleOrchestratorState.battleHUDState
                         .summaryHUDState!!,
                 gameEngineState,
-                resourceHandler: gameEngineState.resourceHandler!,
+                resourceRepository: gameEngineState.resourceRepository!,
                 graphicsBuffer: mockP5GraphicsContext,
             })
 
@@ -955,12 +965,12 @@ describe("Battle HUD", () => {
         let longswordAction: ActionTemplate
         let addGraphicsLayerSpy: MockInstance
 
-        beforeEach(() => {
+        beforeEach(async () => {
             ;({
                 gameEngineState,
                 playerSoldierBattleSquaddie: battleSquaddie,
                 longswordAction,
-            } = createGameEngineState({
+            } = await createGameEngineState({
                 battleSquaddieCoordinate: { q: 1, r: 1 },
             }))
 
@@ -1038,9 +1048,9 @@ describe("Battle HUD", () => {
         let messageSpy: MockInstance
         let endTurnBattleAction: BattleAction
 
-        beforeEach(() => {
+        beforeEach(async () => {
             ;({ gameEngineState, playerSoldierBattleSquaddie } =
-                createGameEngineState({}))
+                await createGameEngineState({}))
 
             battleHUDListener = new BattleHUDListener("battleHUDListener")
 
@@ -1201,12 +1211,12 @@ describe("Battle HUD", () => {
         let longswordAction: ActionTemplate
         let messageSpy: MockInstance
 
-        beforeEach(() => {
+        beforeEach(async () => {
             ;({
                 gameEngineState,
                 playerSoldierBattleSquaddie,
                 longswordAction,
-            } = createGameEngineState({}))
+            } = await createGameEngineState({}))
 
             const repository = gameEngineState.repository
             messageSpy = vi.spyOn(gameEngineState.messageBoard, "sendMessage")
@@ -1321,9 +1331,10 @@ describe("Battle HUD", () => {
         let battleHUDListener: BattleHUDListener
         let gameEngineState: GameEngineState
 
-        beforeEach(() => {
+        beforeEach(async () => {
             let longswordAction: ActionTemplate
-            ;({ gameEngineState, longswordAction } = createGameEngineState({}))
+            ;({ gameEngineState, longswordAction } =
+                await createGameEngineState({}))
 
             BattleActionDecisionStepService.addAction({
                 actionDecisionStep:
@@ -1382,7 +1393,7 @@ describe("Battle HUD", () => {
                     gameEngineState.battleOrchestratorState.battleHUDState
                         .summaryHUDState!,
                 gameEngineState,
-                resourceHandler: gameEngineState.resourceHandler!,
+                resourceRepository: gameEngineState.resourceRepository!,
                 graphicsBuffer: mockP5GraphicsContext,
             })
 
@@ -1406,12 +1417,12 @@ describe("Battle HUD", () => {
         let thiefBattleSquaddie: BattleSquaddie
         let playerSoldierBattleSquaddie: BattleSquaddie
 
-        beforeEach(() => {
+        beforeEach(async () => {
             ;({
                 gameEngineState,
                 longswordAction,
                 playerSoldierBattleSquaddie,
-            } = createGameEngineState({}))
+            } = await createGameEngineState({}))
             ;({ battleSquaddie: thiefBattleSquaddie } =
                 SquaddieRepositoryService.createNewSquaddieAndAddToRepository({
                     name: "Thief",
@@ -1427,6 +1438,7 @@ describe("Battle HUD", () => {
                         }),
                     }),
                 }))
+
             MissionMapService.addSquaddie({
                 missionMap:
                     gameEngineState.battleOrchestratorState.battleState
@@ -1967,9 +1979,9 @@ describe("Battle HUD", () => {
         let isMovementPossibleSpy: MockInstance
         let messageSpy: MockInstance
 
-        beforeEach(() => {
+        beforeEach(async () => {
             ;({ gameEngineState, playerSoldierBattleSquaddie: battleSquaddie } =
-                createGameEngineState({
+                await createGameEngineState({
                     missionMap: MissionMapService.new({
                         terrainTileMap: TerrainTileMapService.new({
                             movementCost: ["1 1 1 1 "],
@@ -1991,7 +2003,7 @@ describe("Battle HUD", () => {
 
             gameEngineState.messageBoard.sendMessage({
                 type: MessageBoardMessageType.PLAYER_SELECTS_AND_LOCKS_SQUADDIE,
-                repository: gameEngineState.repository,
+                repository: gameEngineState.repository!,
                 battleHUDState:
                     gameEngineState.battleOrchestratorState.battleHUDState,
                 battleState:
@@ -2326,9 +2338,9 @@ describe("Battle HUD", () => {
         let battleSquaddie: BattleSquaddie
         let battleHUDListener: BattleHUDListener
         let addGraphicsSpy: MockInstance
-        beforeEach(() => {
+        beforeEach(async () => {
             ;({ gameEngineState, playerSoldierBattleSquaddie: battleSquaddie } =
-                createGameEngineState({}))
+                await createGameEngineState({}))
             battleHUDListener = new BattleHUDListener("battleHUDListener")
             BattleActionDecisionStepService.setActor({
                 actionDecisionStep:
@@ -2362,7 +2374,7 @@ describe("Battle HUD", () => {
                 battleSquaddieId: BattleActionDecisionStepService.getActor(
                     gameEngineState.battleOrchestratorState.battleState
                         .battleActionDecisionStep
-                )?.battleSquaddieId,
+                )!.battleSquaddieId,
                 missionMap:
                     gameEngineState.battleOrchestratorState.battleState
                         .missionMap,
@@ -2416,9 +2428,6 @@ describe("Battle HUD", () => {
                     missionMap:
                         gameEngineState.battleOrchestratorState.battleState
                             .missionMap,
-                    playerCommandState:
-                        gameEngineState.battleOrchestratorState.battleHUDState
-                            .summaryHUDState!.playerCommandState,
                     campaignResources: gameEngineState.campaign.resources,
                     squaddieAllMovementCache:
                         gameEngineState.battleOrchestratorState.cache

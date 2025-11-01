@@ -148,7 +148,7 @@ describe("squaddie phase starts", () => {
 
             gameEngineState.messageBoard.sendMessage({
                 type: MessageBoardMessageType.SQUADDIE_PHASE_STARTS,
-                repository: gameEngineState.repository,
+                repository: gameEngineState.repository!,
                 battleState:
                     gameEngineState.battleOrchestratorState.battleState,
                 teams: gameEngineState.battleOrchestratorState.battleState
@@ -215,7 +215,7 @@ describe("squaddie phase starts", () => {
 
             gameEngineState.messageBoard.sendMessage({
                 type: MessageBoardMessageType.SQUADDIE_PHASE_STARTS,
-                repository: gameEngineState.repository,
+                repository: gameEngineState.repository!,
                 battleState:
                     gameEngineState.battleOrchestratorState.battleState,
                 teams: gameEngineState.battleOrchestratorState.battleState
@@ -286,7 +286,7 @@ describe("squaddie phase starts", () => {
 
         gameEngineState.messageBoard.sendMessage({
             type: MessageBoardMessageType.SQUADDIE_PHASE_STARTS,
-            repository: gameEngineState.repository,
+            repository: gameEngineState.repository!,
             battleState: gameEngineState.battleOrchestratorState.battleState,
             teams: gameEngineState.battleOrchestratorState.battleState.teams,
             missionMap:
@@ -339,7 +339,7 @@ describe("squaddie phase starts", () => {
 
         gameEngineState.messageBoard.sendMessage({
             type: MessageBoardMessageType.SQUADDIE_PHASE_STARTS,
-            repository: gameEngineState.repository,
+            repository: gameEngineState.repository!,
             battleState: gameEngineState.battleOrchestratorState.battleState,
             teams: gameEngineState.battleOrchestratorState.battleState.teams,
             missionMap:

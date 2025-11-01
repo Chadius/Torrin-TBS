@@ -1,6 +1,5 @@
 import { RectArea, RectAreaService } from "../../../ui/rectArea"
 import { SummaryHUDState, SummaryHUDStateService } from "../summary/summaryHUD"
-import * as mocks from "../../../utils/test/mocks"
 import { MockedP5GraphicsBuffer } from "../../../utils/test/mocks"
 import {
     ObjectRepository,
@@ -21,7 +20,6 @@ import {
     TargetBySquaddieAffiliationRelation,
 } from "../../../action/template/actionEffectTemplate"
 import { MouseButton } from "../../../utils/mouseConfig"
-import { ResourceHandler } from "../../../resource/resourceHandler"
 import { CampaignService } from "../../../campaign/campaign"
 import { SquaddieRepositoryService } from "../../../utils/test/squaddie"
 import { ValidityCheckService } from "../../actionValidity/validityChecker"
@@ -54,6 +52,8 @@ import {
     GameEngineStateService,
 } from "../../../gameEngine/gameEngineState/gameEngineState"
 import { CoordinateGeneratorShape } from "../../targeting/coordinateGenerator"
+import { ResourceRepositoryTestUtilsService } from "../../../resource/resourceRepositoryTestUtils.ts"
+import { ResourceRepository } from "../../../resource/resourceRepository.ts"
 
 describe("playerCommandHUD", () => {
     let graphicsBuffer: MockedP5GraphicsBuffer
@@ -61,25 +61,28 @@ describe("playerCommandHUD", () => {
     let summaryHUDState: SummaryHUDState
     let playerCommandState: PlayerCommandState
     let gameEngineState: GameEngineState
-    let resourceHandler: ResourceHandler
     let validityCheckerSpy: MockInstance
 
     let actionNeedsTarget: ActionTemplate
     let actionAlsoNeedsTarget: ActionTemplate
     let actionHasAWarning: ActionTemplate
     let actionWillAlwaysBeDisabled: ActionTemplate
+    let resourceRepository: ResourceRepository
 
-    beforeEach(() => {
+    beforeEach(async () => {
         objectRepository = ObjectRepositoryService.new()
         graphicsBuffer = new MockedP5GraphicsBuffer()
         graphicsBuffer.textWidth = vi.fn().mockReturnValue(1)
-        resourceHandler = mocks.mockResourceHandler(graphicsBuffer)
-        resourceHandler.getResource = vi
-            .fn()
-            .mockReturnValue({ width: 32, height: 32 })
+        resourceRepository =
+            await ResourceRepositoryTestUtilsService.getResourceRepositoryWithAllTestImages(
+                {
+                    graphics: graphicsBuffer,
+                }
+            )
+
         gameEngineState = GameEngineStateService.new({
-            resourceHandler,
             repository: objectRepository,
+            resourceRepository,
             campaign: CampaignService.default(),
         })
         gameEngineState.battleOrchestratorState.battleHUDState.summaryHUDState =
@@ -246,7 +249,7 @@ describe("playerCommandHUD", () => {
             summaryHUDState,
             graphicsBuffer,
             gameEngineState,
-            resourceHandler,
+            resourceRepository: gameEngineState.resourceRepository!,
         })
         playerCommandState = summaryHUDState.playerCommandState
     }
@@ -320,7 +323,7 @@ describe("playerCommandHUD", () => {
                 summaryHUDState,
                 graphicsBuffer,
                 gameEngineState,
-                resourceHandler,
+                resourceRepository: gameEngineState.resourceRepository!,
             })
             expect(actionButtonSpy).toBeCalledTimes(1)
             actionButtonSpy.mockRestore()
@@ -364,7 +367,7 @@ describe("playerCommandHUD", () => {
                 summaryHUDState,
                 graphicsBuffer,
                 gameEngineState,
-                resourceHandler,
+                resourceRepository: gameEngineState.resourceRepository!,
             })
             const disabledButtonCalls = getAllDrawCallsForActionButton(
                 actionButtonSpy,
@@ -732,7 +735,7 @@ describe("playerCommandHUD", () => {
             summaryHUDState,
             graphicsBuffer,
             gameEngineState,
-            resourceHandler,
+            resourceRepository: gameEngineState.resourceRepository!,
         })
         const actionButtonDrawCalls = getAllDrawCallsForActionButton(
             actionButtonSpy,

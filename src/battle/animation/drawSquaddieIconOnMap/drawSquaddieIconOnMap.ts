@@ -26,7 +26,6 @@ import {
 } from "../../../hexMap/mapLayer/mapGraphicsLayer"
 import { ConvertCoordinateService } from "../../../hexMap/convertCoordinates"
 import { ImageUI } from "../../../ui/imageUI/imageUI"
-import { ResourceHandler } from "../../../resource/resourceHandler"
 import { ScreenLocation } from "../../../utils/mouseConfig"
 import {
     PULSE_COLOR_FORMULA,
@@ -41,6 +40,7 @@ import {
     SquaddieMoveOnMapAnimation,
     SquaddieMoveOnMapAnimationService,
 } from "../squaddieMoveOnMap/squaddieMoveOnMapAnimation"
+import { ResourceRepository } from "../../../resource/resourceRepository.ts"
 
 interface DrawSquaddieIconOnMapLayout {
     ActionPointsBarColors: {
@@ -379,14 +379,14 @@ export const DrawSquaddieIconOnMapUtilities = {
         battleSquaddieId,
         mapCoordinate,
         camera,
-        resourceHandler,
+        resourceRepository,
     }: {
         graphics: GraphicsBuffer
         squaddieRepository: ObjectRepository
         battleSquaddieId: string
         mapCoordinate: HexCoordinate
         camera: BattleCamera
-        resourceHandler: ResourceHandler | undefined
+        resourceRepository: ResourceRepository | undefined
     }) => {
         return drawSquaddieMapIconAtMapCoordinate(
             graphics,
@@ -394,7 +394,7 @@ export const DrawSquaddieIconOnMapUtilities = {
             battleSquaddieId,
             mapCoordinate,
             camera,
-            resourceHandler
+            resourceRepository
         )
     },
     unTintSquaddieMapIcon: (
@@ -544,7 +544,7 @@ const drawSquaddieMapIconAtMapCoordinate = (
     battleSquaddieId: string,
     mapCoordinate: HexCoordinate,
     camera: BattleCamera,
-    resourceHandler: ResourceHandler | undefined
+    resourceRepository: ResourceRepository | undefined
 ) => {
     const { x, y } =
         ConvertCoordinateService.convertMapCoordinatesToScreenLocation({
@@ -559,8 +559,8 @@ const drawSquaddieMapIconAtMapCoordinate = (
         mapIcon,
         screenLocation: { x, y },
     })
-    if (resourceHandler)
-        mapIcon?.draw({ graphicsContext: graphics, resourceHandler })
+    if (resourceRepository != undefined)
+        mapIcon?.draw({ graphicsContext: graphics, resourceRepository })
     const { squaddieTemplate, battleSquaddie } =
         ObjectRepositoryService.getSquaddieByBattleId(
             squaddieRepository,

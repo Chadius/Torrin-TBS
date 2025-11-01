@@ -1,6 +1,7 @@
 import { ObjectRepository, ObjectRepositoryService } from "../objectRepository"
-import { ResourceHandler } from "../../resource/resourceHandler"
-import * as mocks from "../../utils/test/mocks"
+import { ResourceRepository, ResourceRepositoryService } from "../../resource/resourceRepository"
+import { TestLoadImmediatelyImageLoader } from "../../resource/resourceRepositoryTestUtils"
+import { LoadCampaignData } from "../../utils/fileHandling/loadCampaignData"
 import { MockedP5GraphicsBuffer } from "../../utils/test/mocks"
 import {
     ANIMATE_TEXT_WINDOW_WAIT_TIME,
@@ -45,7 +46,7 @@ import {
 import { CoordinateGeneratorShape } from "../targeting/coordinateGenerator"
 
 describe("SquaddieSkipsAnimationAnimator", () => {
-    let mockResourceHandler: ResourceHandler
+    let resourceRepository: ResourceRepository
 
     let objectRepository: ObjectRepository
     let monkStaticId = "monk static"
@@ -58,10 +59,13 @@ describe("SquaddieSkipsAnimationAnimator", () => {
 
     beforeEach(() => {
         mockedP5GraphicsContext = new MockedP5GraphicsBuffer()
-        mockResourceHandler = mocks.mockResourceHandler(mockedP5GraphicsContext)
-        mockResourceHandler.getResource = vi
-            .fn()
-            .mockReturnValue({ width: 32, height: 32 })
+        const loadImmediatelyImageLoader = new TestLoadImmediatelyImageLoader({})
+        resourceRepository = ResourceRepositoryService.new({
+            imageLoader: loadImmediatelyImageLoader,
+            urls: Object.fromEntries(
+                LoadCampaignData.getResourceKeys().map((key) => [key, "url"])
+            ),
+        })
 
         objectRepository = ObjectRepositoryService.new()
 
@@ -111,7 +115,7 @@ describe("SquaddieSkipsAnimationAnimator", () => {
 
     it("will create a text window with the action results", () => {
         const gameEngineState: GameEngineState = GameEngineStateService.new({
-            resourceHandler: mockResourceHandler,
+            resourceRepository: resourceRepository,
             battleOrchestratorState: BattleOrchestratorStateService.new({
                 battleState: BattleStateService.newBattleState({
                     campaignId: "test campaign",
@@ -136,7 +140,6 @@ describe("SquaddieSkipsAnimationAnimator", () => {
         animator.update({
             gameEngineState,
             graphicsContext: mockedP5GraphicsContext,
-            resourceHandler: gameEngineState.resourceHandler!,
         })
 
         expect(animator.outputTextDisplay).not.toBeUndefined()
@@ -164,7 +167,6 @@ describe("SquaddieSkipsAnimationAnimator", () => {
         animator.update({
             gameEngineState,
             graphicsContext: mockedP5GraphicsContext,
-            resourceHandler: gameEngineState.resourceHandler!,
         })
         expect(animator.hasCompleted(gameEngineState)).toBeTruthy()
     })
@@ -172,7 +174,7 @@ describe("SquaddieSkipsAnimationAnimator", () => {
     const setupAnimationAtTime0 = () => {
         vi.spyOn(Date, "now").mockImplementation(() => 0)
         const gameEngineState: GameEngineState = GameEngineStateService.new({
-            resourceHandler: mockResourceHandler,
+            resourceRepository: resourceRepository,
             battleOrchestratorState: BattleOrchestratorStateService.new({
                 battleState: BattleStateService.newBattleState({
                     missionId: "test mission",
@@ -191,7 +193,6 @@ describe("SquaddieSkipsAnimationAnimator", () => {
         animator.update({
             gameEngineState,
             graphicsContext: mockedP5GraphicsContext,
-            resourceHandler: gameEngineState.resourceHandler!,
         })
         expect(animator.hasCompleted(gameEngineState)).toBeFalsy()
         return gameEngineState
@@ -213,14 +214,13 @@ describe("SquaddieSkipsAnimationAnimator", () => {
         animator.update({
             gameEngineState,
             graphicsContext: mockedP5GraphicsContext,
-            resourceHandler: gameEngineState.resourceHandler!,
         })
         expect(animator.hasCompleted(gameEngineState)).toBeTruthy()
     })
 
     it("will set the battle action animation to true when it resets", () => {
         const gameEngineState: GameEngineState = GameEngineStateService.new({
-            resourceHandler: mockResourceHandler,
+            resourceRepository: resourceRepository,
             battleOrchestratorState: BattleOrchestratorStateService.new({
                 battleState: BattleStateService.newBattleState({
                     missionId: "test mission",

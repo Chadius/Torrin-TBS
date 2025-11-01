@@ -15,7 +15,6 @@ import { WINDOW_SPACING } from "../ui/constants"
 import { ScreenDimensions } from "../utils/graphics/graphicsConfig"
 import { TextBox } from "../ui/textBox/textBox"
 import { Rectangle } from "../ui/rectangle/rectangle"
-import { ResourceHandler } from "../resource/resourceHandler"
 import { GraphicsBuffer } from "../utils/graphics/graphicsRenderer"
 import { ImageUI } from "../ui/imageUI/imageUI"
 import {
@@ -69,8 +68,8 @@ import {
     ShouldCreateContinueGameButtonAction,
 } from "./components/continueGameButton"
 import {
-    LoadState,
     LoadSaveStateService,
+    LoadState,
 } from "../dataLoader/playerData/loadState"
 import { MessageBoardMessageType } from "../message/messageBoardMessage"
 import { DrawRectanglesAction } from "../ui/rectangle/drawRectanglesAction"
@@ -86,6 +85,11 @@ import { TitleScreenCreateDebugModeTextBoxAction } from "./components/debugMode"
 import { EnumLike } from "../utils/enum"
 import { GameEngineState } from "../gameEngine/gameEngineState/gameEngineState"
 import { SaveSaveState } from "../dataLoader/saveSaveState"
+import {
+    ResourceRepository,
+    ResourceRepositoryScope,
+    ResourceRepositoryService,
+} from "../resource/resourceRepository.ts"
 
 const EXTERNAL_LINK_ITCH_IO_IMAGE_PATH =
     "assets/externalLinks/itchIo-app-icon.png"
@@ -263,7 +267,7 @@ export interface TitleScreenUIObjects {
         descriptionText: TextBox | undefined
     }
     graphicsContext?: GraphicsBuffer
-    resourceHandler?: ResourceHandler
+    resourceRepository?: ResourceRepository
     externalLinks: {
         [key: string]: p5.Element | undefined
     }
@@ -440,11 +444,13 @@ export class TitleScreen implements GameEngineComponent {
         gameEngineState: GameEngineState,
         graphicsContext: GraphicsBuffer
     ) {
-        this.draw(
-            gameEngineState,
-            graphicsContext,
-            gameEngineState.resourceHandler
-        )
+        if (gameEngineState.resourceRepository != undefined) {
+            gameEngineState.resourceRepository = await this.draw({
+                gameEngineState: gameEngineState,
+                graphicsContext: graphicsContext,
+                resourceRepository: gameEngineState.resourceRepository,
+            })
+        }
         const uiObjects = this.data.getUIObjects()
         uiObjects.startGameButton?.clearStatus()
         uiObjects.continueGameButton?.clearStatus()
@@ -614,15 +620,54 @@ export class TitleScreen implements GameEngineComponent {
         }
     }
 
-    private draw(
-        gameEngineState: GameEngineState,
-        graphicsContext: GraphicsBuffer,
-        resourceHandler: ResourceHandler | undefined
-    ): void {
+    private async draw({
+        gameEngineState,
+        graphicsContext,
+        resourceRepository,
+    }: {
+        gameEngineState: GameEngineState
+        graphicsContext: GraphicsBuffer
+        resourceRepository: ResourceRepository
+    }): Promise<ResourceRepository> {
+        const layout = this.data.getLayout()
+        const imagesToQueue = [
+            layout.logo.iconImageResourceKey,
+            layout.demonSlither.iconImageResourceKey,
+            layout.demonLocust.iconImageResourceKey,
+            layout.nahla.iconImageResourceKey,
+            layout.sirCamil.iconImageResourceKey,
+        ]
+        if (
+            imagesToQueue.some(
+                (key) =>
+                    ResourceRepositoryService.getImage({
+                        resourceRepository,
+                        key,
+                    }) == undefined
+            )
+        ) {
+            resourceRepository = ResourceRepositoryService.queueImages({
+                resourceRepository,
+                imagesToQueue: imagesToQueue.map((key) => ({
+                    key,
+                    scope: ResourceRepositoryScope.TITLE_SCREEN,
+                })),
+            })
+            resourceRepository =
+                ResourceRepositoryService.beginLoadingAllQueuedImages({
+                    graphics: graphicsContext,
+                    resourceRepository,
+                })
+            resourceRepository =
+                await ResourceRepositoryService.blockUntilLoadingCompletes({
+                    resourceRepository,
+                })
+        }
+
         const uiObjects: TitleScreenUIObjects = this.data.getUIObjects()
 
         uiObjects.graphicsContext = graphicsContext
-        uiObjects.resourceHandler = resourceHandler
+        uiObjects.resourceRepository = resourceRepository
         this.data.setUIObjects(uiObjects)
 
         const context: TitleScreenContext = this.data.getContext()
@@ -631,7 +676,6 @@ export class TitleScreen implements GameEngineComponent {
         context.messageBoard = gameEngineState.messageBoard
         this.data.setContext(context)
 
-        const layout: TitleScreenLayout = this.data.getLayout()
         layout.htmlGenerator = this.p5Instance
         this.data.setLayout(layout)
 
@@ -646,6 +690,8 @@ export class TitleScreen implements GameEngineComponent {
                 )
                 button.draw()
             })
+
+        return resourceRepository
     }
 
     private resetContext() {
@@ -877,7 +923,7 @@ export class TitleScreen implements GameEngineComponent {
                         this.getAllImages().filter((x) => x != undefined),
                     // @ts-ignore ComponentDataBlob is a subclass of DataBlob
                     getGraphicsContext,
-                    getResourceHandler
+                    getResourceRepository
                 ),
             ]),
         ])
@@ -939,16 +985,16 @@ const getGraphicsContext = (
     return uiObjects.graphicsContext
 }
 
-const getResourceHandler = (
+const getResourceRepository = (
     dataBlob: ComponentDataBlob<
         TitleScreenLayout,
         TitleScreenContext,
         TitleScreenUIObjects
     >
-): ResourceHandler => {
+): ResourceRepository => {
     const uiObjects: TitleScreenUIObjects = dataBlob.getUIObjects()
-    if (uiObjects.resourceHandler == undefined) {
-        throw new Error("[getResourceHandler] GraphicsContext not found")
+    if (uiObjects.resourceRepository == undefined) {
+        throw new Error("[getResourceRepository] ResourceRepository not found")
     }
-    return uiObjects.resourceHandler
+    return uiObjects.resourceRepository
 }

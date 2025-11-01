@@ -143,7 +143,6 @@ describe("Mission Condition: Defeat All Squaddies of a given Affiliation", () =>
 
         state = GameEngineStateService.new({
             repository: squaddieRepository,
-            resourceHandler: undefined,
             battleOrchestratorState: BattleOrchestratorStateService.new({
                 battleState: BattleStateService.newBattleState({
                     missionId: "test mission",

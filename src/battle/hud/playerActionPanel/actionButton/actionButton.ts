@@ -4,7 +4,6 @@ import {
     ObjectRepositoryService,
 } from "../../../objectRepository"
 import { MouseButton, TMouseButton } from "../../../../utils/mouseConfig"
-import { ResourceHandler } from "../../../../resource/resourceHandler"
 import { ImageUI, ImageUILoadingBehavior } from "../../../../ui/imageUI/imageUI"
 import { GraphicsBuffer } from "../../../../utils/graphics/graphicsRenderer"
 import { ActionTemplate } from "../../../../action/template/actionTemplate"
@@ -19,6 +18,7 @@ import {
     ActionResourceCostDisplay,
     ActionResourceCostDisplayService,
 } from "../../actionResourceCostDisplay/actionResourceCostDisplay"
+import { ResourceRepository } from "../../../../resource/resourceRepository.ts"
 
 interface ActionButtonLayout {
     creationTime: number
@@ -215,19 +215,19 @@ export const ActionButtonService = {
     draw({
         actionButton,
         graphicsBuffer,
-        resourceHandler,
+        resourceRepository,
         selected,
         disabled,
         warning,
     }: {
         actionButton: ActionButton
         graphicsBuffer: GraphicsBuffer
-        resourceHandler: ResourceHandler
+        resourceRepository: ResourceRepository
         selected?: boolean
         disabled?: boolean
         warning?: boolean
     }) {
-        drawButtonIcon(actionButton, graphicsBuffer, resourceHandler)
+        drawButtonIcon(actionButton, graphicsBuffer, resourceRepository)
         drawActionName(actionButton, graphicsBuffer)
         const drawADecoration = selected || disabled || warning
         if (drawADecoration) {
@@ -289,9 +289,12 @@ export const ActionButtonService = {
 const drawButtonIcon = (
     actionButton: ActionButton,
     graphicsContext: GraphicsBuffer,
-    resourceHandler: ResourceHandler
+    resourceRepository: ResourceRepository
 ) => {
-    actionButton.uiObjects.buttonIcon.draw({ graphicsContext, resourceHandler })
+    actionButton.uiObjects.buttonIcon.draw({
+        graphicsContext,
+        resourceRepository,
+    })
 }
 
 const drawActionName = (

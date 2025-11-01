@@ -19,13 +19,20 @@ import {
     BattleSquaddieTeam,
     BattleSquaddieTeamService,
 } from "../../../battleSquaddieTeam"
-import * as mocks from "../../../../utils/test/mocks"
 import {
     MockedGraphicsBufferService,
     MockedP5GraphicsBuffer,
 } from "../../../../utils/test/mocks"
-import { ResourceHandler } from "../../../../resource/resourceHandler"
 import { RectAreaService } from "../../../../ui/rectArea"
+import {
+    ResourceRepository,
+    ResourceRepositoryService,
+} from "../../../../resource/resourceRepository"
+import {
+    ResourceRepositoryTestUtilsService,
+    TestLoadImmediatelyImageLoader,
+} from "../../../../resource/resourceRepositoryTestUtils"
+import { LoadCampaignData } from "../../../../utils/fileHandling/loadCampaignData"
 import { ScreenDimensions } from "../../../../utils/graphics/graphicsConfig"
 import { WINDOW_SPACING } from "../../../../ui/constants"
 import { HUE_BY_SQUADDIE_AFFILIATION } from "../../../../graphicsConstants"
@@ -70,7 +77,7 @@ describe("Squaddie Name and Portrait Tile", () => {
                 affiliation: SquaddieAffiliation.PLAYER,
                 resources: SquaddieResourceService.new({
                     actionSpritesByEmotion: {
-                        [SquaddieEmotion.NEUTRAL]: "portrait-joe-the-soldier",
+                        [SquaddieEmotion.NEUTRAL]: "combat-young-nahla-neutral",
                     },
                 }),
             }),
@@ -98,7 +105,7 @@ describe("Squaddie Name and Portrait Tile", () => {
 
         expect(tile.squaddieName).toBe("Joe the Soldier")
         expect(tile.squaddiePortraitResourceKey).toBe(
-            "portrait-joe-the-soldier"
+            "combat-young-nahla-neutral"
         )
     })
 
@@ -145,7 +152,7 @@ describe("Squaddie Name and Portrait Tile", () => {
 
     describe("background color set by affiliation", () => {
         let tile: SquaddieNameAndPortraitTile
-        let resourceHandler: ResourceHandler
+        let resourceRepository: ResourceRepository
         let mockP5GraphicsContext: MockedP5GraphicsBuffer
         let graphicsBufferSpies: { [key: string]: MockInstance }
 
@@ -156,12 +163,15 @@ describe("Squaddie Name and Portrait Tile", () => {
         ]
 
         beforeEach(() => {
-            ;({ mockP5GraphicsContext, resourceHandler, graphicsBufferSpies } =
-                mockGraphicsCalls(
-                    mockP5GraphicsContext,
-                    resourceHandler,
-                    graphicsBufferSpies
-                ))
+            ;({
+                mockP5GraphicsContext,
+                resourceRepository,
+                graphicsBufferSpies,
+            } = mockGraphicsCalls(
+                mockP5GraphicsContext,
+                resourceRepository,
+                graphicsBufferSpies
+            ))
         })
 
         afterEach(() => {
@@ -178,7 +188,7 @@ describe("Squaddie Name and Portrait Tile", () => {
             SquaddieNameAndPortraitTileService.draw({
                 tile: tile,
                 graphicsContext: mockP5GraphicsContext,
-                resourceHandler,
+                resourceRepository,
             })
 
             expect(graphicsBufferSpies["rect"]).toBeCalled()
@@ -194,24 +204,34 @@ describe("Squaddie Name and Portrait Tile", () => {
 
     const mockGraphicsCalls = (
         mockP5GraphicsContext: MockedP5GraphicsBuffer,
-        resourceHandler: ResourceHandler,
+        resourceRepository: ResourceRepository,
         graphicsBufferSpies: {
             [p: string]: MockInstance
         }
     ) => {
         mockP5GraphicsContext = new MockedP5GraphicsBuffer()
-        resourceHandler = mocks.mockResourceHandler(mockP5GraphicsContext)
-        resourceHandler.isResourceLoaded = vi.fn().mockReturnValue(false)
-        resourceHandler.loadResource = vi.fn().mockImplementation(() => {})
+        const loadImmediatelyImageLoader = new TestLoadImmediatelyImageLoader(
+            {}
+        )
+        resourceRepository = ResourceRepositoryService.new({
+            imageLoader: loadImmediatelyImageLoader,
+            urls: Object.fromEntries(
+                LoadCampaignData.getResourceKeys().map((key) => [key, "url"])
+            ),
+        })
         graphicsBufferSpies = MockedGraphicsBufferService.addSpies(
             mockP5GraphicsContext
         )
-        return { mockP5GraphicsContext, resourceHandler, graphicsBufferSpies }
+        return {
+            mockP5GraphicsContext,
+            resourceRepository,
+            graphicsBufferSpies,
+        }
     }
     const setupDrawingMocks = (
         tile: SquaddieNameAndPortraitTile,
         mockP5GraphicsContext: MockedP5GraphicsBuffer,
-        resourceHandler: ResourceHandler,
+        resourceRepository: ResourceRepository,
         graphicsBufferSpies: {
             [p: string]: MockInstance
         }
@@ -220,35 +240,35 @@ describe("Squaddie Name and Portrait Tile", () => {
             objectRepository,
             tile,
         }))
-        ;({ mockP5GraphicsContext, resourceHandler, graphicsBufferSpies } =
+        ;({ mockP5GraphicsContext, resourceRepository, graphicsBufferSpies } =
             mockGraphicsCalls(
                 mockP5GraphicsContext,
-                resourceHandler,
+                resourceRepository,
                 graphicsBufferSpies
             ))
         return {
             tile,
             mockP5GraphicsContext,
-            resourceHandler,
+            resourceRepository,
             graphicsBufferSpies,
         }
     }
     describe("portrait", () => {
         let tile: SquaddieNameAndPortraitTile
-        let resourceHandler: ResourceHandler
+        let resourceRepository: ResourceRepository
         let mockP5GraphicsContext: MockedP5GraphicsBuffer
         let graphicsBufferSpies: { [key: string]: MockInstance }
 
         beforeEach(() => {
             ;({
                 mockP5GraphicsContext,
-                resourceHandler,
+                resourceRepository,
                 graphicsBufferSpies,
                 tile,
             } = setupDrawingMocks(
                 tile,
                 mockP5GraphicsContext,
-                resourceHandler,
+                resourceRepository,
                 graphicsBufferSpies
             ))
         })
@@ -258,11 +278,13 @@ describe("Squaddie Name and Portrait Tile", () => {
         })
 
         describe("drawing", () => {
-            beforeEach(() => {
-                resourceHandler.isResourceLoaded = vi.fn().mockReturnValue(true)
-                resourceHandler.getResource = vi
-                    .fn()
-                    .mockReturnValue({ width: 32, height: 32 })
+            beforeEach(async () => {
+                resourceRepository =
+                    await ResourceRepositoryTestUtilsService.getResourceRepositoryWithAllTestImages(
+                        {
+                            graphics: mockP5GraphicsContext,
+                        }
+                    )
                 graphicsBufferSpies["image"] = vi.spyOn(
                     mockP5GraphicsContext,
                     "image"
@@ -274,7 +296,7 @@ describe("Squaddie Name and Portrait Tile", () => {
                 SquaddieNameAndPortraitTileService.draw({
                     tile: tile,
                     graphicsContext: mockP5GraphicsContext,
-                    resourceHandler,
+                    resourceRepository,
                 })
             })
 
@@ -300,20 +322,20 @@ describe("Squaddie Name and Portrait Tile", () => {
 
     describe("squaddie name", () => {
         let tile: SquaddieNameAndPortraitTile
-        let resourceHandler: ResourceHandler
+        let resourceRepository: ResourceRepository
         let mockP5GraphicsContext: MockedP5GraphicsBuffer
         let graphicsBufferSpies: { [key: string]: MockInstance }
 
         beforeEach(() => {
             ;({
                 mockP5GraphicsContext,
-                resourceHandler,
+                resourceRepository,
                 graphicsBufferSpies,
                 tile,
             } = setupDrawingMocks(
                 tile,
                 mockP5GraphicsContext,
-                resourceHandler,
+                resourceRepository,
                 graphicsBufferSpies
             ))
         })
@@ -331,7 +353,7 @@ describe("Squaddie Name and Portrait Tile", () => {
             SquaddieNameAndPortraitTileService.draw({
                 tile: tile,
                 graphicsContext: mockP5GraphicsContext,
-                resourceHandler,
+                resourceRepository,
             })
             expect(tile.squaddieNameTextBox).not.toBeUndefined()
         })
@@ -345,7 +367,7 @@ describe("Squaddie Name and Portrait Tile", () => {
             SquaddieNameAndPortraitTileService.draw({
                 tile: tile,
                 graphicsContext: mockP5GraphicsContext,
-                resourceHandler,
+                resourceRepository,
             })
 
             expect(
@@ -371,7 +393,7 @@ describe("Squaddie Name and Portrait Tile", () => {
             SquaddieNameAndPortraitTileService.draw({
                 tile: tile,
                 graphicsContext: mockP5GraphicsContext,
-                resourceHandler,
+                resourceRepository,
             })
 
             expect(graphicsBufferSpies["text"]).toBeCalled()
@@ -594,8 +616,7 @@ describe("Squaddie Name and Portrait Tile", () => {
         let tile: SquaddieNameAndPortraitTile
         let graphicsBuffer: GraphicsBuffer
         let graphicsBufferSpies: { [key: string]: MockInstance }
-        const fakeImage = { width: 1, height: 1 }
-        let resourceHandler: ResourceHandler
+        let resourceRepository: ResourceRepository
 
         beforeEach(() => {
             ;({ tile, objectRepository } = createSquaddieOfGivenAffiliation({
@@ -638,8 +659,17 @@ describe("Squaddie Name and Portrait Tile", () => {
             graphicsBuffer = new MockedP5GraphicsBuffer()
             graphicsBufferSpies =
                 MockedGraphicsBufferService.addSpies(graphicsBuffer)
-            resourceHandler = mocks.mockResourceHandler(graphicsBuffer)
-            resourceHandler.getResource = vi.fn().mockReturnValue(fakeImage)
+            const loadImmediatelyImageLoader =
+                new TestLoadImmediatelyImageLoader({})
+            resourceRepository = ResourceRepositoryService.new({
+                imageLoader: loadImmediatelyImageLoader,
+                urls: Object.fromEntries(
+                    LoadCampaignData.getResourceKeys().map((key) => [
+                        key,
+                        "url",
+                    ])
+                ),
+            })
         })
 
         afterEach(() => {
@@ -651,7 +681,7 @@ describe("Squaddie Name and Portrait Tile", () => {
             SquaddieNameAndPortraitTileService.draw({
                 tile,
                 graphicsContext: graphicsBuffer,
-                resourceHandler,
+                resourceRepository,
             })
             expect(stackSpy).toBeCalled()
             stackSpy.mockRestore()
@@ -689,7 +719,7 @@ const createSquaddieOfGivenAffiliation = ({
             affiliation: affiliation ?? SquaddieAffiliation.PLAYER,
             resources: SquaddieResourceService.new({
                 actionSpritesByEmotion: {
-                    [SquaddieEmotion.NEUTRAL]: "portrait-joe-the-soldier",
+                    [SquaddieEmotion.NEUTRAL]: "combat-young-nahla-neutral",
                 },
             }),
         }),

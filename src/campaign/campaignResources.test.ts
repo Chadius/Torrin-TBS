@@ -53,5 +53,9 @@ describe("campaign resources", () => {
                 original.endTurnIconResourceKey
             )
         })
+
+        it("attribute icons", () => {
+            expect(cloned.attributeIcons).toEqual(original.attributeIcons)
+        })
     })
 })

@@ -13,9 +13,9 @@ import { GraphicsBuffer } from "../../utils/graphics/graphicsRenderer"
 import { ActionComponentCalculator } from "../actionDecision/actionComponentCalculator"
 import { MessageBoardMessageType } from "../../message/messageBoardMessage"
 import { BattleActionRecorderService } from "../history/battleAction/battleActionRecorder"
-import { ResourceHandler } from "../../resource/resourceHandler"
 import { ObjectRepositoryService } from "../objectRepository"
 import { SquaddieService } from "../../squaddie/squaddieService"
+import { ResourceRepository } from "../../resource/resourceRepository"
 import {
     GameEngineState,
     GameEngineStateService,
@@ -117,12 +117,13 @@ export class BattleSquaddieUsesActionOnMap
         this.completed = true
     }
 
-    draw({}: {
+    draw({
+        gameEngineState,
+    }: {
         gameEngineState: GameEngineState
         graphics: GraphicsBuffer
-        resourceHandler: ResourceHandler | undefined
-    }): void {
-        // Required by inheritance
+    }): ResourceRepository | undefined {
+        return gameEngineState.resourceRepository
     }
 }
 

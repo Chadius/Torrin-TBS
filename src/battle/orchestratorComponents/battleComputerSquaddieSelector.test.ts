@@ -82,6 +82,9 @@ import {
     GameEngineStateService,
 } from "../../gameEngine/gameEngineState/gameEngineState"
 import { CoordinateGeneratorShape } from "../targeting/coordinateGenerator"
+import { ResourceRepositoryService } from "../../resource/resourceRepository"
+import { TestLoadImmediatelyImageLoader } from "../../resource/resourceRepositoryTestUtils"
+import { LoadCampaignData } from "../../utils/fileHandling/loadCampaignData"
 
 describe("BattleComputerSquaddieSelector", () => {
     let selector: BattleComputerSquaddieSelector =
@@ -249,7 +252,12 @@ describe("BattleComputerSquaddieSelector", () => {
             camera = new BattleCamera(x, y)
             gameEngineState = GameEngineStateService.new({
                 repository: objectRepository,
-                resourceHandler: undefined,
+                resourceRepository: ResourceRepositoryService.new({
+                    imageLoader: new TestLoadImmediatelyImageLoader({}),
+                    urls: Object.fromEntries(
+                        LoadCampaignData.getResourceKeys().map((key) => [key, "url"])
+                    ),
+                }),
                 battleOrchestratorState: BattleOrchestratorStateService.new({
                     battleState: BattleStateService.newBattleState({
                         missionId: "test mission",
@@ -434,7 +442,12 @@ describe("BattleComputerSquaddieSelector", () => {
             const gameEngineState: GameEngineState = GameEngineStateService.new(
                 {
                     repository: objectRepository,
-                    resourceHandler: undefined,
+                    resourceRepository: ResourceRepositoryService.new({
+                        imageLoader: new TestLoadImmediatelyImageLoader({}),
+                        urls: Object.fromEntries(
+                            LoadCampaignData.getResourceKeys().map((key) => [key, "url"])
+                        ),
+                    }),
                     battleOrchestratorState: BattleOrchestratorStateService.new(
                         {
                             battleState: BattleStateService.newBattleState({
@@ -495,7 +508,12 @@ describe("BattleComputerSquaddieSelector", () => {
             beforeEach(() => {
                 gameEngineState = GameEngineStateService.new({
                     repository: objectRepository,
-                    resourceHandler: undefined,
+                    resourceRepository: ResourceRepositoryService.new({
+                        imageLoader: new TestLoadImmediatelyImageLoader({}),
+                        urls: Object.fromEntries(
+                            LoadCampaignData.getResourceKeys().map((key) => [key, "url"])
+                        ),
+                    }),
                     battleOrchestratorState: BattleOrchestratorStateService.new(
                         {
                             battleState: BattleStateService.newBattleState({
@@ -614,7 +632,12 @@ describe("BattleComputerSquaddieSelector", () => {
             const gameEngineState: GameEngineState = GameEngineStateService.new(
                 {
                     repository: objectRepository,
-                    resourceHandler: undefined,
+                    resourceRepository: ResourceRepositoryService.new({
+                        imageLoader: new TestLoadImmediatelyImageLoader({}),
+                        urls: Object.fromEntries(
+                            LoadCampaignData.getResourceKeys().map((key) => [key, "url"])
+                        ),
+                    }),
                     battleOrchestratorState: BattleOrchestratorStateService.new(
                         {
                             battleHUD: BattleHUDService.new({}),
@@ -706,7 +729,12 @@ describe("BattleComputerSquaddieSelector", () => {
 
                 gameEngineState = GameEngineStateService.new({
                     repository: objectRepository,
-                    resourceHandler: undefined,
+                    resourceRepository: ResourceRepositoryService.new({
+                        imageLoader: new TestLoadImmediatelyImageLoader({}),
+                        urls: Object.fromEntries(
+                            LoadCampaignData.getResourceKeys().map((key) => [key, "url"])
+                        ),
+                    }),
                     battleOrchestratorState: BattleOrchestratorStateService.new(
                         {
                             battleState: BattleStateService.newBattleState({

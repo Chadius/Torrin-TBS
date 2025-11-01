@@ -18,10 +18,7 @@ import { SquaddieAffiliation } from "../../squaddie/squaddieAffiliation"
 import { BattleOrchestratorComponent } from "./battleOrchestratorComponent"
 import { TerrainTileMapService } from "../../hexMap/terrainTileMap"
 import { BattleSquaddieUsesActionOnSquaddie } from "../orchestratorComponents/battleSquaddieUsesActionOnSquaddie"
-import {
-    MockedP5GraphicsBuffer,
-    mockResourceHandler,
-} from "../../utils/test/mocks"
+import { MockedP5GraphicsBuffer } from "../../utils/test/mocks"
 import { BattleUISettingsService } from "./uiSettings/uiSettings"
 import { MouseButton } from "../../utils/mouseConfig"
 import { MissionObjectiveService } from "../missionResult/missionObjective"
@@ -56,7 +53,6 @@ import { SquaddieTemplateService } from "../../campaign/squaddieTemplate"
 import { SquaddieIdService } from "../../squaddie/id"
 import { SquaddieResourceService } from "../../squaddie/resource"
 import { BattleSquaddieService } from "../battleSquaddie"
-import { GraphicsBuffer } from "../../utils/graphics/graphicsRenderer"
 import { PlayerActionTargetSelect } from "../orchestratorComponents/playerActionTargetSelect/playerActionTargetSelect"
 import { TriggeringEvent } from "../event/eventTrigger/triggeringEvent"
 import { BattleEvent, BattleEventService } from "../event/battleEvent"
@@ -70,6 +66,9 @@ import {
     GameEngineStateService,
 } from "../../gameEngine/gameEngineState/gameEngineState"
 import { BattleComputerSquaddieSelector } from "../orchestratorComponents/battleComputerSquaddieSelector"
+import { ResourceRepositoryService } from "../../resource/resourceRepository"
+import { TestLoadImmediatelyImageLoader } from "../../resource/resourceRepositoryTestUtils"
+import { LoadCampaignData } from "../../utils/fileHandling/loadCampaignData"
 
 describe("Battle Orchestrator", () => {
     type OrchestratorTestOptions = {
@@ -228,7 +227,15 @@ describe("Battle Orchestrator", () => {
 
     beforeEach(() => {
         nullState = GameEngineStateService.new({
-            resourceHandler: undefined,
+            resourceRepository: ResourceRepositoryService.new({
+                imageLoader: new TestLoadImmediatelyImageLoader({}),
+                urls: Object.fromEntries(
+                    LoadCampaignData.getResourceKeys().map((key) => [
+                        key,
+                        "url",
+                    ])
+                ),
+            }),
             battleOrchestratorState: BattleOrchestratorStateService.new({
                 battleHUD: BattleHUDService.new({}),
                 battleState: BattleStateService.newBattleState({
@@ -327,7 +334,15 @@ describe("Battle Orchestrator", () => {
         })
 
         const turn1State: GameEngineState = GameEngineStateService.new({
-            resourceHandler: undefined,
+            resourceRepository: ResourceRepositoryService.new({
+                imageLoader: new TestLoadImmediatelyImageLoader({}),
+                urls: Object.fromEntries(
+                    LoadCampaignData.getResourceKeys().map((key) => [
+                        key,
+                        "url",
+                    ])
+                ),
+            }),
             battleOrchestratorState: BattleOrchestratorStateService.new({
                 battleState: BattleStateService.newBattleState({
                     missionId: "test mission",
@@ -373,7 +388,15 @@ describe("Battle Orchestrator", () => {
         })
 
         const stateWithCutscene: GameEngineState = GameEngineStateService.new({
-            resourceHandler: nullState.resourceHandler,
+            resourceRepository: ResourceRepositoryService.new({
+                imageLoader: new TestLoadImmediatelyImageLoader({}),
+                urls: Object.fromEntries(
+                    LoadCampaignData.getResourceKeys().map((key) => [
+                        key,
+                        "url",
+                    ])
+                ),
+            }),
             battleOrchestratorState: BattleOrchestratorStateService.new({
                 battleState: BattleStateService.newBattleState({
                     missionId: "test mission",
@@ -424,7 +447,15 @@ describe("Battle Orchestrator", () => {
         })
 
         const stateWithCutscene: GameEngineState = GameEngineStateService.new({
-            resourceHandler: nullState.resourceHandler,
+            resourceRepository: ResourceRepositoryService.new({
+                imageLoader: new TestLoadImmediatelyImageLoader({}),
+                urls: Object.fromEntries(
+                    LoadCampaignData.getResourceKeys().map((key) => [
+                        key,
+                        "url",
+                    ])
+                ),
+            }),
             battleOrchestratorState: BattleOrchestratorStateService.new({
                 battleState: BattleStateService.newBattleState({
                     missionId: "test mission",
@@ -493,7 +524,15 @@ describe("Battle Orchestrator", () => {
         })
 
         const stateWithCutscene: GameEngineState = GameEngineStateService.new({
-            resourceHandler: nullState.resourceHandler,
+            resourceRepository: ResourceRepositoryService.new({
+                imageLoader: new TestLoadImmediatelyImageLoader({}),
+                urls: Object.fromEntries(
+                    LoadCampaignData.getResourceKeys().map((key) => [
+                        key,
+                        "url",
+                    ])
+                ),
+            }),
             battleOrchestratorState: BattleOrchestratorStateService.new({
                 battleState: BattleStateService.newBattleState({
                     missionId: "test mission",
@@ -787,7 +826,15 @@ describe("Battle Orchestrator", () => {
             cutscenePlayer = new BattleCutscenePlayer()
 
             victoryState = GameEngineStateService.new({
-                resourceHandler: undefined,
+                resourceRepository: ResourceRepositoryService.new({
+                    imageLoader: new TestLoadImmediatelyImageLoader({}),
+                    urls: Object.fromEntries(
+                        LoadCampaignData.getResourceKeys().map((key) => [
+                            key,
+                            "url",
+                        ])
+                    ),
+                }),
                 battleOrchestratorState: BattleOrchestratorStateService.new({
                     battleHUD: BattleHUDService.new({}),
                     battleState: BattleStateService.newBattleState({
@@ -847,7 +894,15 @@ describe("Battle Orchestrator", () => {
             })
 
             defeatState = GameEngineStateService.new({
-                resourceHandler: undefined,
+                resourceRepository: ResourceRepositoryService.new({
+                    imageLoader: new TestLoadImmediatelyImageLoader({}),
+                    urls: Object.fromEntries(
+                        LoadCampaignData.getResourceKeys().map((key) => [
+                            key,
+                            "url",
+                        ])
+                    ),
+                }),
                 battleOrchestratorState: BattleOrchestratorStateService.new({
                     battleHUD: BattleHUDService.new({}),
                     battleState: BattleStateService.newBattleState({
@@ -907,7 +962,15 @@ describe("Battle Orchestrator", () => {
             })
 
             victoryAndDefeatState = GameEngineStateService.new({
-                resourceHandler: undefined,
+                resourceRepository: ResourceRepositoryService.new({
+                    imageLoader: new TestLoadImmediatelyImageLoader({}),
+                    urls: Object.fromEntries(
+                        LoadCampaignData.getResourceKeys().map((key) => [
+                            key,
+                            "url",
+                        ])
+                    ),
+                }),
                 battleOrchestratorState: BattleOrchestratorStateService.new({
                     battleHUD: BattleHUDService.new({}),
                     battleState: BattleStateService.newBattleState({
@@ -1192,7 +1255,6 @@ describe("Battle Orchestrator", () => {
 
         describe("HUD", () => {
             let orchestrator1: BattleOrchestrator
-            let graphicsBuffer: GraphicsBuffer
 
             beforeEach(() => {
                 orchestrator1 = createOrchestrator({})
@@ -1216,8 +1278,6 @@ describe("Battle Orchestrator", () => {
                     battleSquaddie,
                     squaddieTemplate,
                 })
-                graphicsBuffer = new MockedP5GraphicsBuffer()
-                nullState.resourceHandler = mockResourceHandler(graphicsBuffer)
             })
 
             it("will only draw the Summary HUD if the settings turn it on", () => {
@@ -1400,7 +1460,15 @@ describe("Battle Orchestrator", () => {
                 )
 
             stateWantsToDisplayTheMap = GameEngineStateService.new({
-                resourceHandler: undefined,
+                resourceRepository: ResourceRepositoryService.new({
+                    imageLoader: new TestLoadImmediatelyImageLoader({}),
+                    urls: Object.fromEntries(
+                        LoadCampaignData.getResourceKeys().map((key) => [
+                            key,
+                            "url",
+                        ])
+                    ),
+                }),
                 battleOrchestratorState: BattleOrchestratorStateService.new({
                     battleState: BattleStateService.newBattleState({
                         missionId: "test mission",
@@ -1439,7 +1507,14 @@ describe("Battle Orchestrator", () => {
             ) => {
                 const stateWantsToDisplayTheMap: GameEngineState =
                     GameEngineStateService.new({
-                        resourceHandler: undefined,
+                        resourceRepository: ResourceRepositoryService.new({
+                            imageLoader: new TestLoadImmediatelyImageLoader({}),
+                            urls: Object.fromEntries(
+                                LoadCampaignData.getResourceKeys().map(
+                                    (key) => [key, "url"]
+                                )
+                            ),
+                        }),
                         battleOrchestratorState:
                             BattleOrchestratorStateService.new({
                                 battleState: BattleStateService.newBattleState({
@@ -1501,7 +1576,15 @@ describe("Battle Orchestrator", () => {
 
             const gameEngineState: GameEngineState = GameEngineStateService.new(
                 {
-                    resourceHandler: undefined,
+                    resourceRepository: ResourceRepositoryService.new({
+                        imageLoader: new TestLoadImmediatelyImageLoader({}),
+                        urls: Object.fromEntries(
+                            LoadCampaignData.getResourceKeys().map((key) => [
+                                key,
+                                "url",
+                            ])
+                        ),
+                    }),
                     battleOrchestratorState: BattleOrchestratorStateService.new(
                         {
                             battleState: BattleStateService.newBattleState({
@@ -1581,7 +1664,15 @@ describe("Battle Orchestrator", () => {
             })
 
             gameEngineState = GameEngineStateService.new({
-                resourceHandler: undefined,
+                resourceRepository: ResourceRepositoryService.new({
+                    imageLoader: new TestLoadImmediatelyImageLoader({}),
+                    urls: Object.fromEntries(
+                        LoadCampaignData.getResourceKeys().map((key) => [
+                            key,
+                            "url",
+                        ])
+                    ),
+                }),
                 battleOrchestratorState: BattleOrchestratorStateService.new({
                     battleState: BattleStateService.newBattleState({
                         missionId: "test mission",

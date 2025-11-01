@@ -27,7 +27,6 @@ import { MessageBoard } from "../../../message/messageBoard"
 import { MessageBoardMessageType } from "../../../message/messageBoardMessage"
 import { ButtonStatus } from "../../../ui/button/buttonStatus"
 import { Button } from "../../../ui/button/button"
-import { ResourceHandler } from "../../../resource/resourceHandler"
 import { DataBlob, DataBlobService } from "../../../utils/dataBlob/dataBlob"
 import { BehaviorTreeTask } from "../../../utils/behaviorTree/task"
 import { SequenceComposite } from "../../../utils/behaviorTree/composite/sequence/sequence"
@@ -187,7 +186,6 @@ export interface FileAccessHUDUIObjects {
     saveButton: Button | undefined
     loadButton: Button | undefined
     graphicsContext?: GraphicsBuffer
-    resourceHandler?: ResourceHandler
 }
 
 export const FileAccessHUDService = {
@@ -651,7 +649,6 @@ const resetUIObjects = (fileAccessHUD: FileAccessHUD) => {
         loadButton: undefined,
         saveButton: undefined,
         graphicsContext: undefined,
-        resourceHandler: undefined,
     }
     fileAccessHUD.data.setUIObjects(uiObjects)
 }

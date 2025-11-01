@@ -284,17 +284,29 @@ export class PlayerActionTargetStateMachine extends StateMachine<
                     context.playerIntent.targetSelection.automaticallySelected = true
                     context.playerIntent.targetSelection.battleSquaddieIds =
                         Object.keys(context.targetResults.validTargets)
+                    const targetCoordinate = Object.values(
+                        context.targetResults.validTargets
+                    )[0].currentMapCoordinate
+                    const objectRepository = context.objectRepository
+                    if (
+                        context.messageParameters.summaryHUDState ==
+                            undefined ||
+                        targetCoordinate == undefined ||
+                        objectRepository == undefined
+                    )
+                        throw new Error(
+                            "[PlayerActionTargetActionEnum.TRIGGER_TARGETS_AUTOMATICALLY_SELECTED]: objectRepository, summaryHUDState and targetCoordinate must be defined"
+                        )
                     context.messageBoard.sendMessage({
                         type: MessageBoardMessageType.PLAYER_SELECTS_TARGET_COORDINATE,
                         ...context,
+                        objectRepository,
                         battleActionRecorder: context.battleActionRecorder,
                         numberGenerator:
                             context.messageParameters.numberGenerator,
                         summaryHUDState:
                             context.messageParameters.summaryHUDState,
-                        targetCoordinate: Object.values(
-                            context.targetResults.validTargets
-                        )[0].currentMapCoordinate,
+                        targetCoordinate,
                     })
                 },
             [PlayerActionTargetActionEnum.WAITING_FOR_PLAYER_CONFIRM]: (
@@ -318,6 +330,14 @@ export class PlayerActionTargetStateMachine extends StateMachine<
                 },
             [PlayerActionTargetActionEnum.TRIGGER_PLAYER_CONFIRMS_ACTION_SELECTION]:
                 (context: PlayerActionTargetStateMachineContext) => {
+                    if (
+                        context.messageParameters.summaryHUDState ==
+                            undefined ||
+                        context.objectRepository == undefined
+                    )
+                        throw new Error(
+                            "[PlayerActionTargetActionEnum.TRIGGER_PLAYER_CONFIRMS_ACTION_SELECTION]: objectRepository, summaryHUDState must be defined"
+                        )
                     context.messageBoard.sendMessage({
                         type: MessageBoardMessageType.PLAYER_CONFIRMS_ACTION,
                         battleActionDecisionStep:
@@ -338,6 +358,14 @@ export class PlayerActionTargetStateMachine extends StateMachine<
                 },
             [PlayerActionTargetActionEnum.TRIGGER_PLAYER_CANCELS_TARGET_SELECTION]:
                 (context: PlayerActionTargetStateMachineContext) => {
+                    if (
+                        context.messageParameters.summaryHUDState ==
+                            undefined ||
+                        context.objectRepository == undefined
+                    )
+                        throw new Error(
+                            "[PlayerActionTargetActionEnum.TRIGGER_PLAYER_CANCELS_TARGET_SELECTION]: objectRepository, summaryHUDState must be defined"
+                        )
                     context.messageBoard.sendMessage({
                         type: MessageBoardMessageType.PLAYER_CANCELS_TARGET_SELECTION,
                         summaryHUDState:
@@ -355,6 +383,15 @@ export class PlayerActionTargetStateMachine extends StateMachine<
                 },
             [PlayerActionTargetActionEnum.TRIGGER_PLAYER_CONSIDERS_TARGET_SELECTION]:
                 (context: PlayerActionTargetStateMachineContext) => {
+                    if (
+                        context.messageParameters.summaryHUDState ==
+                            undefined ||
+                        context.objectRepository == undefined
+                    )
+                        throw new Error(
+                            "[PlayerActionTargetActionEnum.TRIGGER_PLAYER_CONSIDERS_TARGET_SELECTION]: objectRepository, summaryHUDState must be defined"
+                        )
+
                     const battleSquaddieIdSelected =
                         context.playerIntent.targetSelection
                             .battleSquaddieIds[0]
@@ -387,6 +424,15 @@ export class PlayerActionTargetStateMachine extends StateMachine<
             },
             [PlayerActionTargetActionEnum.TRIGGER_PLAYER_CANCELS_ACTION_SELECTION]:
                 (context: PlayerActionTargetStateMachineContext) => {
+                    if (
+                        context.messageParameters.summaryHUDState ==
+                            undefined ||
+                        context.objectRepository == undefined
+                    )
+                        throw new Error(
+                            "[PlayerActionTargetActionEnum.TRIGGER_PLAYER_CANCELS_ACTION_SELECTION]: objectRepository, summaryHUDState must be defined"
+                        )
+
                     context.messageBoard.sendMessage({
                         type: MessageBoardMessageType.PLAYER_CANCELS_TARGET_SELECTION,
                         summaryHUDState:
@@ -769,6 +815,12 @@ const parseMouseEventsWhenPlayerCanSelectTarget = (
                     )
 
                     if (battleSquaddieIds.length === 0) return
+                    if (
+                        context.messageParameters.summaryHUDState ==
+                            undefined ||
+                        context.objectRepository == undefined
+                    )
+                        return
 
                     context.messageBoard.sendMessage({
                         type: MessageBoardMessageType.PLAYER_PEEKS_AT_SQUADDIE,

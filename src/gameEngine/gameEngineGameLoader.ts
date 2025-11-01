@@ -44,11 +44,19 @@ import {
     MissionFileFormat,
 } from "../dataLoader/missionLoader"
 import { PlayerArmy } from "../campaign/playerArmy"
-import { ResourceHandlerBlocker } from "../dataLoader/loadBlocker/resourceHandlerBlocker"
 import { BattleStateService } from "../battle/battleState/battleState"
 import { EnumLike } from "../utils/enum"
-import { CampaignResources } from "../campaign/campaignResources"
+import {
+    CampaignResources,
+    CampaignResourcesService,
+} from "../campaign/campaignResources"
 import { GameEngineState } from "./gameEngineState/gameEngineState"
+import {
+    ResourceRepository,
+    ResourceRepositoryScope,
+    ResourceRepositoryService,
+} from "../resource/resourceRepository.ts"
+import { GraphicsBuffer } from "../utils/graphics/graphicsRenderer.ts"
 
 export const TransitionAction = {
     REVERT_BACKUPS: "REVERT_BACKUPS",
@@ -90,9 +98,10 @@ export class GameEngineGameLoader implements GameEngineComponent {
         appliedContext: boolean
         campaignIsAlreadyLoaded: boolean
     }
-    loadBlocker: ResourceHandlerBlocker | undefined
+    resourceRepository: ResourceRepository | undefined
+    graphics: GraphicsBuffer
 
-    constructor(campaignIdToLoad: string) {
+    constructor(campaignIdToLoad: string, graphics: GraphicsBuffer) {
         this.missionLoaderContext = MissionLoader.newEmptyMissionLoaderContext()
         this.campaignLoaderContext = CampaignLoaderService.newLoaderContext()
         this.backup = {
@@ -114,6 +123,7 @@ export class GameEngineGameLoader implements GameEngineComponent {
         }
         this.resetInternalFields()
         this.campaignLoaderContext.campaignIdToLoad = campaignIdToLoad
+        this.graphics = graphics
     }
 
     async update(gameEngineState: GameEngineState) {
@@ -140,12 +150,18 @@ export class GameEngineGameLoader implements GameEngineComponent {
             this.missionLoaderContext.completionProgress.started &&
             this.missionLoaderContext.completionProgress.loadedFileData
 
+        const resourceRepositoryHasFinishedLoading =
+            this.resourceRepository != undefined &&
+            ResourceRepositoryService.areAllResourcesLoaded({
+                resourceRepository: this.resourceRepository,
+            })
+
         return (
             campaignHasFinishedLoading &&
             missionHasFinishedLoading &&
             this.status.success &&
             this.status.completedLoadingResources &&
-            (this.loadBlocker?.finishesLoading ?? false)
+            resourceRepositoryHasFinishedLoading
         )
     }
 
@@ -534,7 +550,7 @@ export class GameEngineGameLoader implements GameEngineComponent {
             await CampaignLoaderService.loadCampaignFromFile(campaignId)
         if (
             !isValidValue(campaignData) ||
-            gameEngineState.resourceHandler == undefined
+            gameEngineState.resourceRepository == undefined
         ) {
             gameEngineState.messageBoard.sendMessage({
                 type: MessageBoardMessageType.PLAYER_DATA_LOAD_ERROR_DURING,
@@ -545,10 +561,7 @@ export class GameEngineGameLoader implements GameEngineComponent {
         }
         this.loadedData.campaign = campaignData
         this.campaignLoaderContext.campaignIdToLoad = campaignId
-        this.loadBlocker = new ResourceHandlerBlocker(
-            gameEngineState.resourceHandler,
-            gameEngineState.messageBoard
-        )
+        this.resourceRepository = gameEngineState.resourceRepository
         return true
     }
 
@@ -620,8 +633,9 @@ export class GameEngineGameLoader implements GameEngineComponent {
     }
 
     private async beginLoadingResources(gameEngineState: GameEngineState) {
-        if (this.loadBlocker == undefined) return false
-        if (this.loadBlocker.startsLoading) return false
+        if (this.resourceRepository == undefined) return false
+        if (ResourceRepositoryService.isStillLoading(this.resourceRepository))
+            return false
         if (gameEngineState.repository != undefined) {
             ObjectRepositoryService.reset(gameEngineState.repository)
         } else {
@@ -632,29 +646,30 @@ export class GameEngineGameLoader implements GameEngineComponent {
         if (campaignInfo == undefined) return false
         const { id, campaign, resources: campaignResources } = campaignInfo
 
-        this.loadBlocker.queueResourceToLoad([
-            ...Object.values(
-                campaignResources.actionEffectSquaddieTemplateButtonIcons
-            ),
-            ...campaignResources.mapTiles.resourceKeys,
-        ])
+        this.resourceRepository = ResourceRepositoryService.queueImages({
+            resourceRepository: this.resourceRepository,
+            imagesToQueue: CampaignResourcesService.getAllImageResourceKeys(
+                campaignResources
+            ).map((key) => ({ key, scope: ResourceRepositoryScope.BATTLE })),
+        })
         if (
             this.loadedData.mission == undefined ||
             this.loadedData.playerArmy == undefined
         )
             return false
-        await MissionLoader.applyMissionData({
+        this.resourceRepository = await MissionLoader.applyMissionData({
             missionData: this.loadedData.mission,
             missionLoaderContext: this.missionLoaderContext,
             objectRepository: gameEngineState.repository,
-            loadBlocker: this.loadBlocker,
+            resourceRepository: this.resourceRepository,
         })
-        await MissionLoader.loadPlayerSquaddieTemplatesFile({
-            playerArmyData: this.loadedData.playerArmy,
-            missionLoaderContext: this.missionLoaderContext,
-            objectRepository: gameEngineState.repository,
-            loadBlocker: this.loadBlocker,
-        })
+        this.resourceRepository =
+            await MissionLoader.loadPlayerSquaddieTemplatesFile({
+                playerArmyData: this.loadedData.playerArmy,
+                missionLoaderContext: this.missionLoaderContext,
+                objectRepository: gameEngineState.repository,
+                resourceRepository: this.resourceRepository,
+            })
         await MissionLoader.createAndAddBattleSquaddies({
             playerArmyData: this.loadedData.playerArmy,
             objectRepository: gameEngineState.repository,
@@ -662,7 +677,15 @@ export class GameEngineGameLoader implements GameEngineComponent {
 
         gameEngineState.loadState.campaignIdThatWasLoaded = id
         gameEngineState.campaign = campaign
-        this.loadBlocker.beginLoading()
+        this.resourceRepository =
+            ResourceRepositoryService.beginLoadingAllQueuedImages({
+                resourceRepository: this.resourceRepository,
+                graphics: this.graphics,
+            })
+        this.resourceRepository =
+            await ResourceRepositoryService.blockUntilLoadingCompletes({
+                resourceRepository: this.resourceRepository,
+            })
         return true
     }
 
@@ -686,9 +709,11 @@ export class GameEngineGameLoader implements GameEngineComponent {
         const missionIsStillWaiting =
             !playerArmyHasLoaded || missionIsStillLoadingCutscenes
 
-        this.loadBlocker?.updateLoadingStatus()
+        if (this.resourceRepository == undefined) return false
         const resourceHandlerFinishedLoading =
-            this.loadBlocker != undefined && this.loadBlocker.finishesLoading
+            ResourceRepositoryService.areAllResourcesLoaded({
+                resourceRepository: this.resourceRepository,
+            })
         return !missionIsStillWaiting && resourceHandlerFinishedLoading
     }
 
@@ -704,12 +729,12 @@ export class GameEngineGameLoader implements GameEngineComponent {
     private applyLoadedContext(gameEngineState: GameEngineState) {
         if (
             this.isLoadingFinished(gameEngineState) &&
-            gameEngineState.resourceHandler != undefined &&
+            this.resourceRepository != undefined &&
             gameEngineState.repository != undefined
         ) {
-            MissionLoader.assignResourceHandlerResources({
+            MissionLoader.assignResourceRepositoryResources({
                 missionLoaderContext: this.missionLoaderContext,
-                resourceHandler: gameEngineState.resourceHandler,
+                resourceRepository: this.resourceRepository,
                 repository: gameEngineState.repository,
             })
             this.resetBattleOrchestratorState(
@@ -756,15 +781,12 @@ export class GameEngineGameLoader implements GameEngineComponent {
     }
 
     private updateCampaignIsAlreadyLoaded(gameEngineState: GameEngineState) {
-        if (gameEngineState.resourceHandler == undefined) return false
+        if (gameEngineState.resourceRepository == undefined) return false
         this.status.campaignIsAlreadyLoaded =
             gameEngineState?.campaign?.id != undefined &&
             gameEngineState?.loadState.saveState?.campaignId ==
                 gameEngineState.campaign.id
-        this.loadBlocker = new ResourceHandlerBlocker(
-            gameEngineState.resourceHandler,
-            gameEngineState.messageBoard
-        )
+        this.resourceRepository = gameEngineState.resourceRepository
         return true
     }
 }

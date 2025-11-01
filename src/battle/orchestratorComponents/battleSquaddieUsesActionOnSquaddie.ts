@@ -27,9 +27,9 @@ import { BattleActionRecorderService } from "../history/battleAction/battleActio
 import { ObjectRepositoryService } from "../objectRepository"
 import { isValidValue } from "../../utils/objectValidityCheck"
 import { MissionMapService } from "../../missionMap/missionMap"
-import { ResourceHandler } from "../../resource/resourceHandler"
 import { DrawSquaddieIconOnMapUtilities } from "../animation/drawSquaddieIconOnMap/drawSquaddieIconOnMap"
 import { GameEngineState } from "../../gameEngine/gameEngineState/gameEngineState"
+import { ResourceRepository } from "../../resource/resourceRepository"
 
 export class BattleSquaddieUsesActionOnSquaddie
     implements BattleOrchestratorComponent
@@ -284,18 +284,18 @@ export class BattleSquaddieUsesActionOnSquaddie
     draw({
         gameEngineState,
         graphics,
-        resourceHandler,
     }: {
         gameEngineState: GameEngineState
         graphics: GraphicsBuffer
-        resourceHandler: ResourceHandler | undefined
-    }): void {
-        if (resourceHandler == undefined) return
+    }): ResourceRepository | undefined {
+        if (gameEngineState.resourceRepository == undefined)
+            return gameEngineState.resourceRepository
         this.squaddieActionAnimator.update({
             gameEngineState,
             graphicsContext: graphics,
-            resourceHandler,
+            resourceRepository: gameEngineState.resourceRepository,
         })
+        return gameEngineState.resourceRepository
     }
 }
 

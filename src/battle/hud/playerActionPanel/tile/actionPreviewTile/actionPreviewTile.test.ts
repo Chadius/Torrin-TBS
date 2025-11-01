@@ -162,7 +162,6 @@ describe("Action Preview Tile", () => {
             })
 
             gameEngineState = GameEngineStateService.new({
-                resourceHandler: undefined,
                 battleOrchestratorState: BattleOrchestratorStateService.new({
                     battleState: BattleStateService.newBattleState({
                         campaignId: "test campaign",
@@ -561,7 +560,6 @@ describe("Action Preview Tile", () => {
                     originMapCoordinate: { q: 0, r: 0 },
                 })
                 gameEngineState = GameEngineStateService.new({
-                    resourceHandler: undefined,
                     battleOrchestratorState: BattleOrchestratorStateService.new(
                         {
                             battleState: BattleStateService.newBattleState({

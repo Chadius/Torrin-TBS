@@ -26,9 +26,12 @@ import { MessageBoardMessageType } from "../../message/messageBoardMessage"
 import p5 from "p5"
 import { GraphicsBuffer } from "../../utils/graphics/graphicsRenderer"
 import { TerrainTileMapService } from "../../hexMap/terrainTileMap"
-import { ResourceHandler } from "../../resource/resourceHandler"
 import { ImageUI, ImageUILoadingBehavior } from "../../ui/imageUI/imageUI"
 import { GameEngineState } from "../../gameEngine/gameEngineState/gameEngineState"
+import {
+    ResourceRepository,
+    ResourceRepositoryService,
+} from "../../resource/resourceRepository"
 
 export const BANNER_ANIMATION_TIME = 2000
 
@@ -171,6 +174,7 @@ export class BattlePhaseController implements BattleOrchestratorComponent {
     private advanceToNextPhaseAndShowTeamBanner(
         gameEngineState: GameEngineState
     ) {
+        if (gameEngineState.repository == undefined) return
         gameEngineState.messageBoard.sendMessage({
             type: MessageBoardMessageType.SQUADDIE_PHASE_ENDS,
             repository: gameEngineState.repository,
@@ -266,15 +270,18 @@ export class BattlePhaseController implements BattleOrchestratorComponent {
             const teamIconResourceKey = teams[0].iconResourceKey
             if (
                 teamIconResourceKey != undefined &&
-                teamIconResourceKey !== ""
+                teamIconResourceKey !== "" &&
+                state.resourceRepository != undefined
             ) {
-                this.affiliationImage =
-                    state.resourceHandler?.getResource(teamIconResourceKey)
+                this.affiliationImage = ResourceRepositoryService.getImage({
+                    resourceRepository: state.resourceRepository,
+                    key: teamIconResourceKey,
+                })
             }
         }
 
         if (
-            state.resourceHandler != undefined &&
+            state.resourceRepository != undefined &&
             state.repository != undefined
         ) {
             let bannerResourceKey =
@@ -282,9 +289,11 @@ export class BattlePhaseController implements BattleOrchestratorComponent {
                     state.repository,
                     battlePhase
                 )
-            if (bannerResourceKey)
-                this.bannerImage =
-                    state.resourceHandler.getResource(bannerResourceKey)
+            if (bannerResourceKey && state.resourceRepository != undefined)
+                this.bannerImage = ResourceRepositoryService.getImage({
+                    resourceRepository: state.resourceRepository,
+                    key: bannerResourceKey,
+                })
         }
 
         if (!this.bannerImage) {
@@ -331,29 +340,29 @@ export class BattlePhaseController implements BattleOrchestratorComponent {
     draw({
         gameEngineState,
         graphics,
-        resourceHandler,
     }: {
         gameEngineState: GameEngineState
         graphics: GraphicsBuffer
-        resourceHandler: ResourceHandler | undefined
-    }): void {
+    }): ResourceRepository | undefined {
         if (this.isTeamStillActingAndNoBannerToShow(gameEngineState)) {
-            return
+            return gameEngineState.resourceRepository
         }
 
-        if (!this.shouldDrawPhaseBanner()) return
+        if (!this.shouldDrawPhaseBanner())
+            return gameEngineState.resourceRepository
 
-        if (this.bannerImageUI && resourceHandler) {
+        if (this.bannerImageUI && gameEngineState.resourceRepository) {
             this.bannerImageUI.draw({
                 graphicsContext: graphics,
-                resourceHandler,
+                resourceRepository: gameEngineState.resourceRepository,
             })
             if (this.affiliationImageUI)
                 this.affiliationImageUI.draw({
                     graphicsContext: graphics,
-                    resourceHandler,
+                    resourceRepository: gameEngineState.resourceRepository,
                 })
         }
+        return gameEngineState.resourceRepository
     }
 
     recommendStateChanges(

@@ -3,7 +3,6 @@ import {
     SquaddieActionAnimationPlanService,
     SquaddieAnimationDrawingInstructions,
 } from "../squaddieActionAnimationPlanService"
-import { ResourceHandler } from "../../../../../resource/resourceHandler"
 import {
     ObjectRepository,
     ObjectRepositoryService,
@@ -20,10 +19,14 @@ import { SquaddieActionAnimationEvent } from "../squaddieActionAnimationEvent/sq
 import { RectAreaService } from "../../../../../ui/rectArea"
 import { GraphicsBuffer } from "../../../../../utils/graphics/graphicsRenderer"
 import { HORIZONTAL_ALIGN, VERTICAL_ALIGN } from "../../../../../ui/constants"
+import {
+    ResourceRepository,
+    ResourceRepositoryService,
+} from "../../../../../resource/resourceRepository.ts"
 
 export interface SquaddieActionAnimationDrawState {
     animationPlan: SquaddieActionAnimationPlan
-    resourceHandler: ResourceHandler
+    resourceRepository: ResourceRepository
     repository: ObjectRepository
     imagesBySquaddieAndEmotion: {
         [battleSquaddieId: string]: {
@@ -36,16 +39,16 @@ export interface SquaddieActionAnimationDrawState {
 export const SquaddieActionAnimationDrawStateService = {
     new: ({
         animationPlan,
-        resourceHandler,
+        resourceRepository,
         repository,
     }: {
         animationPlan: SquaddieActionAnimationPlan
-        resourceHandler: ResourceHandler
+        resourceRepository: ResourceRepository
         repository: ObjectRepository
     }): SquaddieActionAnimationDrawState => {
         return {
             animationPlan,
-            resourceHandler,
+            resourceRepository,
             repository,
             imagesBySquaddieAndEmotion: {},
             timestampAnimationStarted: undefined,
@@ -60,7 +63,6 @@ export const SquaddieActionAnimationDrawStateService = {
     }) => {
         const squaddieDrawingInstructions =
             getSquaddieDrawingInstructions(drawState)
-        loadImagesIntoResourceHandler(drawState)
         createImagesWithResources(drawState, squaddieDrawingInstructions)
         positionImages({ drawState, squaddieDrawingInstructions })
         drawImages({
@@ -69,57 +71,6 @@ export const SquaddieActionAnimationDrawStateService = {
             squaddieDrawingInstructions,
         })
     },
-}
-
-const loadImagesIntoResourceHandler = (
-    drawState: SquaddieActionAnimationDrawState
-) => {
-    const imageResourceKeysToLoad: string[] =
-        drawState.animationPlan.events.reduce(
-            (resourceKeys: string[], event) => {
-                const { squaddieTemplate } =
-                    ObjectRepositoryService.getSquaddieByBattleId(
-                        drawState.repository,
-                        event.battleSquaddieId
-                    )
-                const emotionKeyResource =
-                    squaddieTemplate.squaddieId.resources
-                        .actionSpritesByEmotion[event.squaddieEmotion] ??
-                    squaddieTemplate.squaddieId.resources
-                        .actionSpritesByEmotion[SquaddieEmotion.NEUTRAL]
-                if (emotionKeyResource == undefined) {
-                    return resourceKeys
-                }
-
-                if (
-                    drawState.resourceHandler.isResourceLoaded(
-                        emotionKeyResource
-                    )
-                ) {
-                    return resourceKeys
-                }
-
-                return [...resourceKeys, emotionKeyResource]
-            },
-            []
-        )
-    imageResourceKeysToLoad.forEach((key) => {
-        drawState.resourceHandler.loadResource(key)
-    })
-
-    drawState.animationPlan.events.forEach((event) => {
-        const squaddieImageResourceKey = getSquaddieEmotionResourceKey({
-            drawState: drawState,
-            event: event,
-        })
-        if (squaddieImageResourceKey) {
-            drawState.resourceHandler.loadResource(squaddieImageResourceKey)
-        }
-        drawState.imagesBySquaddieAndEmotion[event.battleSquaddieId] ??= {}
-        drawState.imagesBySquaddieAndEmotion[event.battleSquaddieId]![
-            event.squaddieEmotion
-        ] = undefined
-    })
 }
 
 const createImagesWithResources = (
@@ -137,6 +88,8 @@ const createImagesWithResources = (
             return
         }
 
+        drawState.imagesBySquaddieAndEmotion[event.battleSquaddieId] ??= {}
+
         if (
             drawState.imagesBySquaddieAndEmotion[event.battleSquaddieId][
                 event.squaddieEmotion
@@ -147,8 +100,6 @@ const createImagesWithResources = (
 
         const drawingInstructions =
             squaddieDrawingInstructions[event.battleSquaddieId]
-
-        drawState.imagesBySquaddieAndEmotion[event.battleSquaddieId] ??= {}
         drawState.imagesBySquaddieAndEmotion[event.battleSquaddieId][
             event.squaddieEmotion
         ] = new ImageUI({
@@ -156,9 +107,10 @@ const createImagesWithResources = (
                 resourceKey: squaddieImageResourceKey,
                 loadingBehavior: ImageUILoadingBehavior.USE_IMAGE_SIZE,
             },
-            graphic: drawState.resourceHandler.getResource(
-                squaddieImageResourceKey
-            ),
+            graphic: ResourceRepositoryService.getImage({
+                resourceRepository: drawState.resourceRepository,
+                key: squaddieImageResourceKey,
+            }),
             area: RectAreaService.new({
                 left: 0,
                 top: 0,
@@ -260,7 +212,7 @@ const drawImages = ({
             }
             squaddieImage.draw({
                 graphicsContext,
-                resourceHandler: drawState.resourceHandler,
+                resourceRepository: drawState.resourceRepository,
             })
         }
     )

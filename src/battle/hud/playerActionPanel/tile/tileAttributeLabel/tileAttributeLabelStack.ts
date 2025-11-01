@@ -7,7 +7,7 @@ import {
 import { RectAreaService } from "../../../../../ui/rectArea"
 import { ScreenLocation } from "../../../../../utils/mouseConfig"
 import { GraphicsBuffer } from "../../../../../utils/graphics/graphicsRenderer"
-import { ResourceHandler } from "../../../../../resource/resourceHandler"
+import { ResourceRepository } from "../../../../../resource/resourceRepository.ts"
 
 export interface TileAttributeLabelStack {
     labels: TileAttributeLabel[]
@@ -72,17 +72,17 @@ export const TileAttributeLabelStackService = {
     draw: ({
         stack,
         graphicsBuffer,
-        resourceHandler,
+        resourceRepository,
     }: {
         stack: TileAttributeLabelStack
         graphicsBuffer: GraphicsBuffer
-        resourceHandler: ResourceHandler
+        resourceRepository: ResourceRepository
     }) => {
         stack.labels.forEach((label) => {
             TileAttributeLabelService.draw({
                 label,
                 graphicsBuffer,
-                resourceHandler,
+                resourceRepository,
             })
         })
         stack.labels.forEach((label, index, array) => {

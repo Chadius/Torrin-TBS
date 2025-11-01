@@ -9,15 +9,15 @@ import {
 } from "vitest"
 import { TerrainTileMap, TerrainTileMapService } from "./terrainTileMap"
 import { GraphicsBuffer } from "../utils/graphics/graphicsRenderer"
-import * as mocks from "../utils/test/mocks"
 import {
     MockedGraphicsBufferService,
     MockedP5GraphicsBuffer,
 } from "../utils/test/mocks"
 import {
-    ResourceHandler,
-    ResourceHandlerService,
-} from "../resource/resourceHandler"
+    ResourceRepository,
+    ResourceRepositoryService,
+} from "../resource/resourceRepository.ts"
+import { ResourceRepositoryTestUtilsService } from "../resource/resourceRepositoryTestUtils.ts"
 import { HexDrawingUtils } from "./hexDrawingUtils"
 import { ConvertCoordinateService } from "./convertCoordinates"
 import { HexGridMovementCost } from "./hexGridMovementCost"
@@ -31,9 +31,9 @@ describe("Hex Drawing Utils", () => {
         let graphicsBuffer: GraphicsBuffer
         let graphicsBufferSpies: { [key: string]: MockInstance }
         let copyImageSpy: MockInstance
-        let resourceHandler: ResourceHandler
+        let resourceRepository: ResourceRepository
 
-        beforeEach(() => {
+        beforeEach(async () => {
             terrainTileMap = TerrainTileMapService.new({
                 movementCost: ["1 1 x ", " 2 - 1 "],
             })
@@ -42,7 +42,12 @@ describe("Hex Drawing Utils", () => {
 
             graphicsBufferSpies =
                 MockedGraphicsBufferService.addSpies(graphicsBuffer)
-            resourceHandler = mocks.mockResourceHandler(graphicsBuffer)
+            resourceRepository =
+                await ResourceRepositoryTestUtilsService.getResourceRepositoryWithAllTestImages(
+                    {
+                        graphics: graphicsBuffer,
+                    }
+                )
         })
 
         afterEach(() => {
@@ -61,7 +66,7 @@ describe("Hex Drawing Utils", () => {
             HexDrawingUtils.drawMapTilesOntoImage({
                 mapImage,
                 terrainTileMap,
-                resourceHandler,
+                resourceRepository,
             })
 
             expect(copyImageSpy).toBeCalledTimes(6)
@@ -74,7 +79,7 @@ describe("Hex Drawing Utils", () => {
                 HexDrawingUtils.drawMapTilesOntoImage({
                     mapImage,
                     terrainTileMap,
-                    resourceHandler,
+                    resourceRepository,
                 })
             })
 
@@ -146,20 +151,22 @@ describe("Hex Drawing Utils", () => {
                     })
 
                     const resourceSpy = vi.spyOn(
-                        ResourceHandlerService,
-                        "getResource"
+                        ResourceRepositoryService,
+                        "getImage"
                     )
                     const mapImage = graphicsBuffer.createImage(1, 1)
                     addCopyImageSpy(mapImage)
                     HexDrawingUtils.drawMapTilesOntoImage({
                         mapImage,
                         terrainTileMap,
-                        resourceHandler,
+                        resourceRepository,
                     })
 
                     expect(resourceSpy).toBeCalledWith(
-                        resourceHandler,
-                        expectedResourceKey
+                        expect.objectContaining({
+                            resourceRepository,
+                            key: expectedResourceKey,
+                        })
                     )
                     resourceSpy.mockRestore()
                 }
@@ -178,7 +185,7 @@ describe("Hex Drawing Utils", () => {
             const mapImage: p5.Image = HexDrawingUtils.createMapImage({
                 graphicsBuffer,
                 terrainTileMap,
-                resourceHandler,
+                resourceRepository,
             })
 
             expect(graphicsBufferSpies["createImage"]).toBeCalled()
@@ -195,7 +202,7 @@ describe("Hex Drawing Utils", () => {
             const mapImage: p5.Image = HexDrawingUtils.createMapImage({
                 graphicsBuffer,
                 terrainTileMap,
-                resourceHandler,
+                resourceRepository,
             })
 
             const camera = new BattleCamera(0, 0)

@@ -1,4 +1,3 @@
-import { ResourceHandler } from "../../resource/resourceHandler"
 import { MissionMap, MissionMapService } from "../../missionMap/missionMap"
 import {
     MissionFileFormat,
@@ -42,9 +41,13 @@ import {
 } from "../../action/template/actionTemplate"
 import { ImageUI, ImageUILoadingBehavior } from "../../ui/imageUI/imageUI"
 import { ScreenDimensions } from "../../utils/graphics/graphicsConfig"
-import { ResourceHandlerBlocker } from "../../dataLoader/loadBlocker/resourceHandlerBlocker"
 import { BattleEvent, BattleEventService } from "../event/battleEvent"
 import { TBattlePhase } from "../orchestratorComponents/battlePhaseTracker"
+import {
+    ResourceRepository,
+    ResourceRepositoryScope,
+    ResourceRepositoryService,
+} from "../../resource/resourceRepository.ts"
 
 export interface MissionLoaderCompletionProgress {
     started: boolean
@@ -107,13 +110,13 @@ export const MissionLoader = {
         missionData,
         missionLoaderContext,
         objectRepository,
-        loadBlocker,
+        resourceRepository,
     }: {
         missionData: MissionFileFormat
         missionLoaderContext: MissionLoaderContext
         objectRepository: ObjectRepository
-        loadBlocker: ResourceHandlerBlocker
-    }) => {
+        resourceRepository: ResourceRepository
+    }): Promise<ResourceRepository> => {
         missionLoaderContext.completionProgress.started = true
         missionLoaderContext.id = missionData.id
 
@@ -146,10 +149,10 @@ export const MissionLoader = {
         await loadActionTemplates({
             objectRepository,
         })
-        await loadAndPrepareNPCTemplateData({
+        resourceRepository = await loadAndPrepareNPCTemplateData({
             missionLoaderContext,
             repository: objectRepository,
-            loadBlocker,
+            resourceRepository,
         })
 
         createPlayerSquaddieTeam(missionLoaderContext, missionData)
@@ -164,46 +167,51 @@ export const MissionLoader = {
 
         initializeCameraPosition({ missionLoaderContext: missionLoaderContext })
 
-        loadPhaseAffiliationBanners(
-            missionLoaderContext,
-            missionData,
-            objectRepository,
-            loadBlocker
-        )
-        loadTeamIcons(missionData, objectRepository, loadBlocker)
-        loadCutscenes({
-            missionLoaderContext,
-            missionData,
-            loadBlocker,
+        resourceRepository = loadPhaseAffiliationBanners({
+            missionLoaderContext: missionLoaderContext,
+            missionData: missionData,
+            repository: objectRepository,
+            resourceRepository,
         })
+        resourceRepository = loadTeamIcons({
+            missionData: missionData,
+            repository: objectRepository,
+            resourceRepository,
+        })
+        resourceRepository = loadCutscenes({
+            missionLoaderContext,
+            missionData,
+            resourceRepository,
+        })
+        return resourceRepository
     },
-    assignResourceHandlerResources: ({
+    assignResourceRepositoryResources: ({
         repository,
         missionLoaderContext,
-        resourceHandler,
+        resourceRepository,
     }: {
         repository: ObjectRepository
         missionLoaderContext: MissionLoaderContext
-        resourceHandler: ResourceHandler
+        resourceRepository: ResourceRepository
     }) => {
-        initializeCutscenes({ missionLoaderContext, resourceHandler })
-        initializeSquaddieResources({
-            repository: repository,
+        initializeSquaddieResourcesFromRepository({
+            repository,
             missionLoaderContext,
-            resourceHandler,
+            resourceRepository,
         })
+        initializeCutscenes({ missionLoaderContext, resourceRepository })
     },
     loadPlayerSquaddieTemplatesFile: async ({
         playerArmyData,
         missionLoaderContext,
         objectRepository,
-        loadBlocker,
+        resourceRepository,
     }: {
         playerArmyData: PlayerArmy
         missionLoaderContext: MissionLoaderContext
         objectRepository: ObjectRepository
-        loadBlocker: ResourceHandlerBlocker
-    }) => {
+        resourceRepository: ResourceRepository
+    }): Promise<ResourceRepository> => {
         const baseSquaddieTemplates: SquaddieTemplate[] = []
         for (const build of playerArmyData.squaddieBuilds) {
             const loadedTemplate =
@@ -222,10 +230,10 @@ export const MissionLoader = {
         })
 
         baseSquaddieTemplates.forEach((squaddieTemplate) => {
-            loadSquaddieTemplateResources({
+            resourceRepository = loadSquaddieTemplateResources({
                 template: squaddieTemplate,
                 objectRepository,
-                loadBlocker,
+                resourceRepository,
             })
         })
 
@@ -242,6 +250,8 @@ export const MissionLoader = {
                 squaddieTemplate
             )
         })
+
+        return resourceRepository
     },
     createAndAddBattleSquaddies: async ({
         playerArmyData,
@@ -287,15 +297,21 @@ export const MissionLoader = {
 const loadSquaddieTemplateResources = ({
     template,
     objectRepository,
-    loadBlocker,
+    resourceRepository,
 }: {
     template: SquaddieTemplate
     objectRepository: ObjectRepository
-    loadBlocker: ResourceHandlerBlocker
-}) => {
+    resourceRepository: ResourceRepository
+}): ResourceRepository => {
     const squaddieTemplateResourceKeys =
         SquaddieTemplateService.getResourceKeys(template, objectRepository)
-    loadBlocker.queueResourceToLoad(squaddieTemplateResourceKeys)
+    return ResourceRepositoryService.queueImages({
+        imagesToQueue: squaddieTemplateResourceKeys.map((key) => ({
+            key,
+            scope: ResourceRepositoryScope.BATTLE,
+        })),
+        resourceRepository,
+    })
 }
 
 const initializeCameraPosition = ({
@@ -314,14 +330,14 @@ const initializeCameraPosition = ({
     )
 }
 
-const initializeSquaddieResources = ({
+const initializeSquaddieResourcesFromRepository = ({
     repository,
     missionLoaderContext,
-    resourceHandler,
+    resourceRepository,
 }: {
     repository: ObjectRepository
     missionLoaderContext: MissionLoaderContext
-    resourceHandler: ResourceHandler
+    resourceRepository: ResourceRepository
 }) => {
     ObjectRepositoryService.getBattleSquaddieIterator(repository).forEach(
         (info) => {
@@ -332,16 +348,15 @@ const initializeSquaddieResources = ({
                     battleSquaddieId
                 )
 
-            if (
-                squaddieTemplate.squaddieId.resources.mapIconResourceKey ==
-                undefined
-            )
-                return
+            const key = squaddieTemplate.squaddieId.resources.mapIconResourceKey
+            if (key == undefined) return
             if (missionLoaderContext.missionMap == undefined) return
             if (missionLoaderContext.mapSettings.camera == undefined) return
-            let image = resourceHandler.getResource(
-                squaddieTemplate.squaddieId.resources.mapIconResourceKey
-            )
+
+            const image = ResourceRepositoryService.getImage({
+                resourceRepository,
+                key,
+            })
             if (image == undefined) return
 
             const datum = MissionMapService.getByBattleSquaddieId(
@@ -366,9 +381,7 @@ const initializeSquaddieResources = ({
                 battleSquaddieId,
                 imageUI: new ImageUI({
                     imageLoadingBehavior: {
-                        resourceKey:
-                            squaddieTemplate.squaddieId.resources
-                                .mapIconResourceKey,
+                        resourceKey: key,
                         loadingBehavior:
                             ImageUILoadingBehavior.KEEP_AREA_RESIZE_IMAGE,
                     },
@@ -388,26 +401,26 @@ const initializeSquaddieResources = ({
 
 const initializeCutscenes = ({
     missionLoaderContext,
-    resourceHandler,
+    resourceRepository,
 }: {
     missionLoaderContext: MissionLoaderContext
-    resourceHandler: ResourceHandler
+    resourceRepository: ResourceRepository
 }) => {
     Object.entries(
         missionLoaderContext.cutsceneInfo.cutsceneCollection?.cutsceneById ?? {}
     ).forEach(([_, cutscene]) => {
-        CutsceneService.setResources(cutscene, resourceHandler)
+        CutsceneService.setResources(cutscene, resourceRepository)
     })
 }
 
 const loadCutscenes = ({
     missionLoaderContext,
     missionData,
-    loadBlocker,
+    resourceRepository,
 }: {
     missionLoaderContext: MissionLoaderContext
     missionData: MissionFileFormat
-    loadBlocker: ResourceHandlerBlocker
+    resourceRepository: ResourceRepository
 }) => {
     const cutsceneById = Object.fromEntries(
         Object.entries(missionData.cutscene.cutsceneById).map(
@@ -427,12 +440,19 @@ const loadCutscenes = ({
             return cutscene.allResourceKeys
         })
         .flat()
-    loadBlocker.queueResourceToLoad(cutsceneResourceKeys)
 
     missionLoaderContext.cutsceneInfo.cutsceneCollection = cutsceneCollection
     missionLoaderContext.battleEvents = missionData.battleEvents.map(
         (battleEvent) => BattleEventService.sanitize(battleEvent)
     )
+
+    return ResourceRepositoryService.queueImages({
+        imagesToQueue: cutsceneResourceKeys.map((key) => ({
+            key,
+            scope: ResourceRepositoryScope.BATTLE,
+        })),
+        resourceRepository,
+    })
 }
 
 const loadNPCTemplatesFromFile = async (
@@ -458,12 +478,12 @@ const loadNPCTemplatesFromFile = async (
 const loadAndPrepareNPCTemplateData = async ({
     missionLoaderContext,
     repository,
-    loadBlocker,
+    resourceRepository,
 }: {
     missionLoaderContext: MissionLoaderContext
     repository: ObjectRepository
-    loadBlocker: ResourceHandlerBlocker
-}) => {
+    resourceRepository: ResourceRepository
+}): Promise<ResourceRepository> => {
     const loadedNPCTemplatesById = await loadNPCTemplatesFromFile(
         Object.keys(missionLoaderContext.squaddieData.templates)
     )
@@ -483,7 +503,13 @@ const loadAndPrepareNPCTemplateData = async ({
     Object.values(loadedTemplatesById).forEach((template) => {
         const squaddieTemplateResourceKeys =
             SquaddieTemplateService.getResourceKeys(template, repository)
-        loadBlocker.queueResourceToLoad(squaddieTemplateResourceKeys)
+        resourceRepository = ResourceRepositoryService.queueImages({
+            resourceRepository,
+            imagesToQueue: squaddieTemplateResourceKeys.map((key) => ({
+                key,
+                scope: ResourceRepositoryScope.BATTLE,
+            })),
+        })
         if (
             !ObjectRepositoryService.hasSquaddieByTemplateId(
                 repository,
@@ -492,6 +518,7 @@ const loadAndPrepareNPCTemplateData = async ({
         )
             ObjectRepositoryService.addSquaddieTemplate(repository, template)
     })
+    return resourceRepository
 }
 
 const spawnNPCSquaddiesAndAddToMap = ({
@@ -620,15 +647,21 @@ const createPlayerSquaddieTeam = (
     })
 }
 
-const loadPhaseAffiliationBanners = (
-    missionLoaderContext: MissionLoaderContext,
-    missionData: MissionFileFormat,
-    repository: ObjectRepository,
-    loadBlocker: ResourceHandlerBlocker
-) => {
+const loadPhaseAffiliationBanners = ({
+    missionLoaderContext,
+    missionData,
+    repository,
+    resourceRepository,
+}: {
+    missionLoaderContext: MissionLoaderContext
+    missionData: MissionFileFormat
+    repository: ObjectRepository
+    resourceRepository: ResourceRepository
+}): ResourceRepository => {
     missionLoaderContext.phaseBannersByAffiliation = {
         ...missionData.phaseBannersByAffiliation,
     }
+    const keys: string[] = []
     Object.entries(missionLoaderContext.phaseBannersByAffiliation).forEach(
         ([battlePhaseStr, resourceKeyName]) => {
             if (!isValidValue(resourceKeyName) || resourceKeyName === "") {
@@ -642,19 +675,32 @@ const loadPhaseAffiliationBanners = (
                 battlePhase,
             })
 
-            loadBlocker.queueResourceToLoad(resourceKeyName)
+            keys.push(resourceKeyName)
         }
     )
+    resourceRepository = ResourceRepositoryService.queueImages({
+        resourceRepository,
+        imagesToQueue: keys.map((key) => ({
+            key,
+            scope: ResourceRepositoryScope.BATTLE,
+        })),
+    })
+    return resourceRepository
 }
 
-const loadTeamIcons = (
-    missionData: MissionFileFormat,
-    repository: ObjectRepository,
-    loadBlocker: ResourceHandlerBlocker
-) => {
+const loadTeamIcons = ({
+    missionData,
+    repository,
+    resourceRepository,
+}: {
+    missionData: MissionFileFormat
+    repository: ObjectRepository
+    resourceRepository: ResourceRepository
+}): ResourceRepository => {
     ObjectRepositoryService.resetTeamAffiliationIcons(repository)
 
     const playerTeamIconResourceKey = missionData.player.iconResourceKey
+    const keysToQueue: string[] = []
     if (
         isValidValue(playerTeamIconResourceKey) &&
         playerTeamIconResourceKey !== ""
@@ -664,7 +710,7 @@ const loadTeamIcons = (
             teamId: missionData.player.teamId,
             resourceKey: playerTeamIconResourceKey,
         })
-        loadBlocker.queueResourceToLoad(playerTeamIconResourceKey)
+        keysToQueue.push(playerTeamIconResourceKey)
     }
 
     const deployments: NpcTeamMissionDeployment[] = [
@@ -687,9 +733,16 @@ const loadTeamIcons = (
                     teamId: team.id,
                     resourceKey: teamIconResourceKey,
                 })
-                loadBlocker.queueResourceToLoad(teamIconResourceKey)
+                keysToQueue.push(teamIconResourceKey)
             })
     )
+    return ResourceRepositoryService.queueImages({
+        imagesToQueue: keysToQueue.map((key) => ({
+            key,
+            scope: ResourceRepositoryScope.BATTLE,
+        })),
+        resourceRepository,
+    })
 }
 
 const loadActionTemplates = async ({

@@ -8,8 +8,8 @@ import {
     vi,
 } from "vitest"
 import { GraphicsBuffer } from "../../../../../utils/graphics/graphicsRenderer"
-import { ResourceHandler } from "../../../../../resource/resourceHandler"
 import { MockedGraphicsBufferService } from "../../../../../utils/test/mocks"
+import { ResourceRepository } from "../../../../../resource/resourceRepository"
 import {
     TileAttributeLabel,
     TileAttributeLabelService,
@@ -26,11 +26,11 @@ import { TileAttributeTestUtils } from "./testUtils"
 describe("TileAttributeLabelStack", () => {
     let graphicsBuffer: GraphicsBuffer
     let graphicsBufferSpies: { [key: string]: MockInstance }
-    let resourceHandler: ResourceHandler
+    let resourceRepository: ResourceRepository
 
-    beforeEach(() => {
-        ;({ graphicsBufferSpies, graphicsBuffer, resourceHandler } =
-            TileAttributeTestUtils.mockGraphicsAndAddSpies())
+    beforeEach(async () => {
+        ;({ graphicsBufferSpies, graphicsBuffer, resourceRepository } =
+            await TileAttributeTestUtils.mockGraphicsAndAddSpies())
     })
     afterEach(() => {
         MockedGraphicsBufferService.resetSpies(graphicsBufferSpies)
@@ -282,7 +282,7 @@ describe("TileAttributeLabelStack", () => {
             TileAttributeLabelStackService.draw({
                 stack,
                 graphicsBuffer,
-                resourceHandler,
+                resourceRepository,
             })
 
             // @ts-ignore
@@ -338,7 +338,7 @@ describe("TileAttributeLabelStack", () => {
             TileAttributeLabelStackService.draw({
                 stack,
                 graphicsBuffer,
-                resourceHandler,
+                resourceRepository,
             })
 
             topTileArea.current = {

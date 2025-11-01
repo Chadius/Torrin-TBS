@@ -3,12 +3,12 @@ import {
     TCutsceneActionPlayerType,
 } from "../cutsceneAction"
 import { isValidValue } from "../../utils/objectValidityCheck"
-import { ResourceLocator, Resource } from "../../resource/resourceHandler"
 import {
     DialogueFontStyle,
     TDialogueFontStyle,
     TDialoguePosition,
 } from "./constants"
+import { Resource, ResourceLocator } from "../../resource/resourceLocator.ts"
 
 export interface Dialogue {
     type: TCutsceneActionPlayerType

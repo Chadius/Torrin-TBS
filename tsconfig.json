@@ -9,6 +9,7 @@
         "allowJs": true,
         "moduleResolution": "node",
         "allowImportingTsExtensions": true,
+        "noEmit": true,
         "allowSyntheticDefaultImports": true,
         "esModuleInterop": true,
         "sourceMap": true,

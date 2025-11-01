@@ -22,6 +22,17 @@
         "wall": "map-tiles-basic-wall"
       }
     },
-    "endTurnIconResourceKey": "decision-button-end-turn"
+    "endTurnIconResourceKey": "decision-button-end-turn",
+      "attributeIcons": {
+          "up": "attribute-up",
+          "down": "attribute-down",
+          "byAttribute": {
+              "ABSORB": "attribute-icon-absorb",
+              "ARMOR": "attribute-icon-armor",
+              "MOVEMENT": "attribute-icon-movement",
+              "HUSTLE": "attribute-icon-hustle",
+              "ELUSIVE": "attribute-icon-elusive"
+          }
+      }
   }
 }

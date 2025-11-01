@@ -33,10 +33,10 @@ import {
     TileAttributeLabelStackService,
 } from "../tileAttributeLabel/tileAttributeLabelStack"
 import { Glossary } from "../../../../../campaign/glossary/glossary"
-import { ResourceHandler } from "../../../../../resource/resourceHandler"
 import { ScreenLocation } from "../../../../../utils/mouseConfig"
 import { TextFormatService } from "../../../../../utils/graphics/textFormatService"
 import { TargetConstraintsService } from "../../../../../action/targetConstraints"
+import { ResourceRepository } from "../../../../../resource/resourceRepository.ts"
 
 type ActionSelectedTileLayout = {
     actionNameText: {
@@ -148,15 +148,15 @@ export const ActionSelectedTileService = {
         tile,
         graphicsContext,
         objectRepository,
-        resourceHandler,
+        resourceRepository,
     }: {
         tile: ActionSelectedTile
         graphicsContext: GraphicsBuffer
         objectRepository: ObjectRepository | undefined
-        resourceHandler: ResourceHandler | undefined
+        resourceRepository: ResourceRepository | undefined
     }) => {
         if (objectRepository == undefined) return
-        if (resourceHandler == undefined) return
+        if (resourceRepository == undefined) return
         ActionTilePositionService.drawBackground({
             squaddieAffiliation: tile.squaddieAffiliation,
             graphicsContext,
@@ -179,7 +179,7 @@ export const ActionSelectedTileService = {
         TileAttributeLabelStackService.draw({
             stack: tile.glossaryLabelStack,
             graphicsBuffer: graphicsContext,
-            resourceHandler,
+            resourceRepository: resourceRepository,
         })
     },
     mouseMoved: ({

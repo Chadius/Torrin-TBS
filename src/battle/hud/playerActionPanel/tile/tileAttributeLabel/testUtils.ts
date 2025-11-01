@@ -1,6 +1,3 @@
-import { vi } from "vitest"
-import { GraphicsBuffer } from "../../../../../utils/graphics/graphicsRenderer"
-import * as mocks from "../../../../../utils/test/mocks"
 import {
     TileAttributeLabel,
     TileAttributeLabelService,
@@ -10,14 +7,18 @@ import {
     MockedGraphicsBufferService,
     MockedP5GraphicsBuffer,
 } from "../../../../../utils/test/mocks"
+import { ResourceRepositoryTestUtilsService } from "../../../../../resource/resourceRepositoryTestUtils"
 
 export const TileAttributeTestUtils = {
-    mockGraphicsAndAddSpies: () => {
+    mockGraphicsAndAddSpies: async () => {
         let graphicsBuffer = new MockedP5GraphicsBuffer()
         let graphicsBufferSpies =
             MockedGraphicsBufferService.addSpies(graphicsBuffer)
-        let resourceHandler = createMockResourceHandler(graphicsBuffer)
-        return { graphicsBuffer, graphicsBufferSpies, resourceHandler }
+        let resourceRepository =
+            await ResourceRepositoryTestUtilsService.getResourceRepositoryWithAllTestImages(
+                { graphics: graphicsBuffer }
+            )
+        return { graphicsBuffer, graphicsBufferSpies, resourceRepository }
     },
     moveMouseOnLabel: (label: TileAttributeLabel) => {
         let labelBackgroundArea = TileAttributeLabelService.getArea(label)
@@ -38,12 +39,4 @@ export const TileAttributeTestUtils = {
             },
         })
     },
-}
-
-const createMockResourceHandler = (graphicsBuffer: GraphicsBuffer) => {
-    let resourceHandler = mocks.mockResourceHandler(graphicsBuffer)
-    resourceHandler.getResource = vi
-        .fn()
-        .mockReturnValue({ width: 32, height: 32 })
-    return resourceHandler
 }

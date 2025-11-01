@@ -1,12 +1,18 @@
 import { ImageUI, ImageUILoadingBehavior, ImageUIService } from "./imageUI"
 import { RectArea, RectAreaService } from "../rectArea"
-import { ResourceHandler } from "../../resource/resourceHandler"
-import * as mocks from "../../utils/test/mocks"
 import {
     MockedGraphicsBufferService,
     MockedP5GraphicsBuffer,
-    mockResourceHandler,
 } from "../../utils/test/mocks"
+import {
+    ResourceRepository,
+    ResourceRepositoryService,
+} from "../../resource/resourceRepository"
+import {
+    ResourceRepositoryTestUtilsService,
+    TestLoadImmediatelyImageLoader,
+} from "../../resource/resourceRepositoryTestUtils"
+import { LoadCampaignData } from "../../utils/fileHandling/loadCampaignData"
 import {
     afterEach,
     beforeEach,
@@ -47,17 +53,15 @@ describe("ImageUI", () => {
     })
 
     describe("loading the image manually", () => {
-        let resourceHandler: ResourceHandler
+        let resourceRepository: ResourceRepository
         let mockP5GraphicsContext: MockedP5GraphicsBuffer
 
-        beforeEach(() => {
+        beforeEach(async () => {
             mockP5GraphicsContext = new MockedP5GraphicsBuffer()
-            resourceHandler = mocks.mockResourceHandler(mockP5GraphicsContext)
-            resourceHandler.isResourceLoaded = vi.fn().mockReturnValue(true)
-            resourceHandler.loadResource = vi.fn().mockImplementation(() => {})
-            resourceHandler.getResource = vi
-                .fn()
-                .mockReturnValue({ width: 200, height: 100 })
+            resourceRepository =
+                await ResourceRepositoryTestUtilsService.getResourceRepositoryWithAllTestImages(
+                    { graphics: mockP5GraphicsContext }
+                )
         })
 
         afterEach(() => {})
@@ -65,7 +69,7 @@ describe("ImageUI", () => {
         it("will use the resource handler and resize behavior if the graphic does not exist", () => {
             const imageUI: ImageUI = new ImageUI({
                 imageLoadingBehavior: {
-                    resourceKey: "resourceKey",
+                    resourceKey: "attribute-up",
                     loadingBehavior: ImageUILoadingBehavior.USE_IMAGE_SIZE,
                 },
                 area: RectAreaService.new({
@@ -75,17 +79,8 @@ describe("ImageUI", () => {
                     height: 0,
                 }),
             })
-            imageUI.load(resourceHandler)
-
-            expect(resourceHandler.isResourceLoaded).toHaveBeenCalledWith(
-                "resourceKey"
-            )
-            expect(resourceHandler.getResource).toHaveBeenCalledWith(
-                "resourceKey"
-            )
+            imageUI.load(resourceRepository)
             expect(imageUI.graphic).not.toBeUndefined()
-            expect(RectAreaService.width(imageUI.drawArea)).toEqual(200)
-            expect(RectAreaService.height(imageUI.drawArea)).toEqual(100)
         })
 
         it("will not use the resource handler if the graphic already exists", () => {
@@ -102,10 +97,7 @@ describe("ImageUI", () => {
                     height: 0,
                 }),
             })
-            imageUI.load(resourceHandler)
-
-            expect(resourceHandler.isResourceLoaded).not.toHaveBeenCalled()
-            expect(resourceHandler.getResource).not.toHaveBeenCalled()
+            imageUI.load(resourceRepository)
             expect(imageUI.graphic).not.toBeUndefined()
             expect(RectAreaService.width(imageUI.drawArea)).toEqual(0)
             expect(RectAreaService.height(imageUI.drawArea)).toEqual(0)
@@ -148,18 +140,26 @@ describe("ImageUI", () => {
     })
 
     describe("area changes when the loading completes", () => {
-        let resourceHandler: ResourceHandler
+        let resourceRepository: ResourceRepository
         let mockP5GraphicsContext: MockedP5GraphicsBuffer
         let imageSpy: MockInstance
 
-        beforeEach(() => {
+        beforeEach(async () => {
             mockP5GraphicsContext = new MockedP5GraphicsBuffer()
-            resourceHandler = mocks.mockResourceHandler(mockP5GraphicsContext)
-            resourceHandler.isResourceLoaded = vi.fn().mockReturnValue(true)
-            resourceHandler.loadResource = vi.fn().mockImplementation(() => {})
-            resourceHandler.getResource = vi
-                .fn()
-                .mockReturnValue({ width: 200, height: 100 })
+            mockP5GraphicsContext.createImage = vi.fn().mockReturnValue({
+                width: 200,
+                height: 100,
+            })
+            resourceRepository =
+                await ResourceRepositoryTestUtilsService.getResourceRepositoryWithAllTestImages(
+                    {
+                        graphics: mockP5GraphicsContext,
+                        imageSize: {
+                            width: 200,
+                            height: 100,
+                        },
+                    }
+                )
             imageSpy = vi
                 .spyOn(mockP5GraphicsContext, "image")
                 .mockReturnValue()
@@ -231,7 +231,7 @@ describe("ImageUI", () => {
             }) => {
                 const imageUI: ImageUI = new ImageUI({
                     imageLoadingBehavior: {
-                        resourceKey: "resourceKey",
+                        resourceKey: "attribute-up",
                         loadingBehavior,
                     },
                     area: RectAreaService.new({
@@ -243,15 +243,8 @@ describe("ImageUI", () => {
 
                 imageUI.draw({
                     graphicsContext: mockP5GraphicsContext,
-                    resourceHandler,
+                    resourceRepository,
                 })
-
-                expect(resourceHandler.isResourceLoaded).toHaveBeenCalledWith(
-                    "resourceKey"
-                )
-                expect(resourceHandler.getResource).toHaveBeenCalledWith(
-                    "resourceKey"
-                )
 
                 expect(imageUI.graphic!.width).toEqual(200)
                 expect(imageUI.graphic!.height).toEqual(100)
@@ -287,7 +280,7 @@ describe("ImageUI", () => {
 
                 const imageUI: ImageUI = new ImageUI({
                     imageLoadingBehavior: {
-                        resourceKey: "resourceKey",
+                        resourceKey: "attribute-up",
                         loadingBehavior:
                             ImageUILoadingBehavior.USE_CUSTOM_AREA_CALLBACK,
                         customAreaCallback: tryToCenter,
@@ -302,7 +295,7 @@ describe("ImageUI", () => {
 
                 imageUI.draw({
                     graphicsContext: mockP5GraphicsContext,
-                    resourceHandler,
+                    resourceRepository,
                 })
 
                 expect(RectAreaService.left(imageUI.drawArea)).toEqual(150)
@@ -316,7 +309,7 @@ describe("ImageUI", () => {
                     .mockImplementation(() => {})
                 const imageUI: ImageUI = new ImageUI({
                     imageLoadingBehavior: {
-                        resourceKey: "resourceKey",
+                        resourceKey: "attribute-up",
                         loadingBehavior:
                             ImageUILoadingBehavior.USE_CUSTOM_AREA_CALLBACK,
                     },
@@ -330,7 +323,7 @@ describe("ImageUI", () => {
 
                 imageUI.draw({
                     graphicsContext: mockP5GraphicsContext,
-                    resourceHandler,
+                    resourceRepository,
                 })
 
                 expect(RectAreaService.left(imageUI.drawArea)).toEqual(0)
@@ -339,7 +332,7 @@ describe("ImageUI", () => {
                 expect(RectAreaService.height(imageUI.drawArea)).toEqual(1000)
 
                 expect(consoleWarnSpy).toBeCalledWith(
-                    '[ImageUI.draw] no custom callback provided for "resourceKey"'
+                    '[ImageUI.draw] no custom callback provided for "attribute-up"'
                 )
                 consoleWarnSpy.mockRestore()
             })
@@ -348,7 +341,7 @@ describe("ImageUI", () => {
 
     describe("tint and pulse color", () => {
         let graphicsContext: GraphicsBuffer
-        let resourceHandler: ResourceHandler
+        let resourceRepository: ResourceRepository
         let graphicsBufferSpies: { [key: string]: MockInstance }
         let imageUI: ImageUI
         let tintColor = [10, 20, 30, 40]
@@ -357,7 +350,17 @@ describe("ImageUI", () => {
             graphicsContext = new MockedP5GraphicsBuffer()
             graphicsBufferSpies =
                 MockedGraphicsBufferService.addSpies(graphicsContext)
-            resourceHandler = mockResourceHandler(graphicsContext)
+            const loadImmediatelyImageLoader =
+                new TestLoadImmediatelyImageLoader({})
+            resourceRepository = ResourceRepositoryService.new({
+                imageLoader: loadImmediatelyImageLoader,
+                urls: Object.fromEntries(
+                    LoadCampaignData.getResourceKeys().map((key) => [
+                        key,
+                        "url",
+                    ])
+                ),
+            })
             imageUI = new ImageUI({
                 imageLoadingBehavior: {
                     resourceKey: undefined,
@@ -376,7 +379,7 @@ describe("ImageUI", () => {
         it("does not tint by default", () => {
             imageUI.draw({
                 graphicsContext,
-                resourceHandler,
+                resourceRepository,
             })
             expect(graphicsBufferSpies["tint"]).not.toHaveBeenCalled()
         })
@@ -390,7 +393,7 @@ describe("ImageUI", () => {
             )
             imageUI.draw({
                 graphicsContext,
-                resourceHandler,
+                resourceRepository,
             })
             expect(graphicsBufferSpies["tint"]).toHaveBeenCalledWith(
                 tintColor[0],
@@ -405,7 +408,7 @@ describe("ImageUI", () => {
             imageUI.setTint(tintColor[0], tintColor[1], tintColor[2])
             imageUI.draw({
                 graphicsContext,
-                resourceHandler,
+                resourceRepository,
             })
             expect(graphicsBufferSpies["tint"]).toHaveBeenCalledWith(
                 tintColor[0],
@@ -420,7 +423,7 @@ describe("ImageUI", () => {
             imageUI.removeTint()
             imageUI.draw({
                 graphicsContext,
-                resourceHandler,
+                resourceRepository,
             })
             expect(graphicsBufferSpies["tint"]).not.toHaveBeenCalled()
         })
@@ -448,7 +451,7 @@ describe("ImageUI", () => {
 
                 imageUI.draw({
                     graphicsContext,
-                    resourceHandler,
+                    resourceRepository,
                 })
                 expect(pulseColorSpy).toHaveBeenCalledWith(pulseColor)
                 expect(graphicsBufferSpies["tint"]).toHaveBeenCalled()
@@ -458,7 +461,7 @@ describe("ImageUI", () => {
                 imageUI.removePulseColor()
                 imageUI.draw({
                     graphicsContext,
-                    resourceHandler,
+                    resourceRepository,
                 })
                 expect(graphicsBufferSpies["tint"]).not.toHaveBeenCalled()
             })

@@ -1,5 +1,4 @@
 import p5 from "p5"
-import { ResourceHandler } from "../../resource/resourceHandler"
 import { GraphicsBuffer } from "../graphics/graphicsRenderer"
 import { MockInstance, vi } from "vitest"
 
@@ -48,17 +47,6 @@ vi.mock("p5", () => {
 export const mockedP5 = () => {
     // @ts-ignore
     return new p5(undefined, undefined)
-}
-
-export const mockResourceHandler = (graphics: GraphicsBuffer) => {
-    const handler = new ResourceHandler({
-        resourceLocators: [],
-    })
-    handler.loadResources = vi.fn()
-    handler.getResource = vi.fn().mockReturnValue(graphics.createImage(32, 32))
-    handler.isResourceLoaded = vi.fn().mockReturnValue(true)
-    handler.areAllResourcesLoaded = vi.fn().mockReturnValue(true)
-    return handler
 }
 
 export class MockedP5GraphicsBuffer implements GraphicsBuffer {

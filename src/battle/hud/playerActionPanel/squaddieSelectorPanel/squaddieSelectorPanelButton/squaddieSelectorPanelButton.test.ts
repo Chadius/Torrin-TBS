@@ -5,20 +5,19 @@ import {
     expect,
     it,
     MockInstance,
-    vi,
 } from "vitest"
 import {
     ObjectRepository,
     ObjectRepositoryService,
 } from "../../../../objectRepository"
 import { GraphicsBuffer } from "../../../../../utils/graphics/graphicsRenderer"
-import { ResourceHandler } from "../../../../../resource/resourceHandler"
 import { SquaddieTemplateService } from "../../../../../campaign/squaddieTemplate"
+import { ResourceRepository } from "../../../../../resource/resourceRepository"
+import { ResourceRepositoryTestUtilsService } from "../../../../../resource/resourceRepositoryTestUtils"
 import { SquaddieIdService } from "../../../../../squaddie/id"
 import { SquaddieAffiliation } from "../../../../../squaddie/squaddieAffiliation"
 import { SquaddieResourceService } from "../../../../../squaddie/resource"
 import { BattleSquaddieService } from "../../../../battleSquaddie"
-import * as mocks from "../../../../../utils/test/mocks"
 import {
     MockedGraphicsBufferService,
     MockedP5GraphicsBuffer,
@@ -35,16 +34,16 @@ describe("Squaddie Selector Panel Button", () => {
     let objectRepository: ObjectRepository
     let graphicsContext: GraphicsBuffer
     let graphicsBufferSpies: { [key: string]: MockInstance }
-    let resourceHandler: ResourceHandler
+    let resourceRepository: ResourceRepository
 
     const squaddieToAdd = {
         squaddieTemplateId: "playerSquaddieTemplate0",
         battleSquaddieId: "playerBattleSquaddieId0",
         name: "Player Squaddie 0",
-        mapIconResourceKey: "playerSquaddieMapIcon0",
+        mapIconResourceKey: "map icon demon slither",
     }
 
-    beforeEach(() => {
+    beforeEach(async () => {
         objectRepository = ObjectRepositoryService.new()
 
         const squaddieTemplate = SquaddieTemplateService.new({
@@ -68,10 +67,12 @@ describe("Squaddie Selector Panel Button", () => {
         })
 
         graphicsContext = new MockedP5GraphicsBuffer()
-        resourceHandler = mocks.mockResourceHandler(graphicsContext)
-        resourceHandler.loadResource = vi
-            .fn()
-            .mockReturnValue({ width: 1, height: 1 })
+        resourceRepository =
+            await ResourceRepositoryTestUtilsService.getResourceRepositoryWithAllTestImages(
+                {
+                    graphics: graphicsContext,
+                }
+            )
         graphicsBufferSpies =
             MockedGraphicsBufferService.addSpies(graphicsContext)
     })
@@ -89,7 +90,7 @@ describe("Squaddie Selector Panel Button", () => {
         SquaddieSelectorPanelButtonService.draw({
             button,
             graphicsContext,
-            resourceHandler,
+            resourceRepository,
             objectRepository,
         })
         return button
@@ -250,7 +251,7 @@ describe("Squaddie Selector Panel Button", () => {
         SquaddieSelectorPanelButtonService.draw({
             button,
             graphicsContext,
-            resourceHandler,
+            resourceRepository,
             objectRepository,
         })
 
@@ -348,7 +349,7 @@ describe("Squaddie Selector Panel Button", () => {
             SquaddieSelectorPanelButtonService.draw({
                 button,
                 graphicsContext,
-                resourceHandler,
+                resourceRepository,
                 objectRepository,
             })
             let fillColorWhenNotSelected: number[] = [
@@ -363,7 +364,7 @@ describe("Squaddie Selector Panel Button", () => {
             SquaddieSelectorPanelButtonService.draw({
                 button,
                 graphicsContext,
-                resourceHandler,
+                resourceRepository,
                 objectRepository,
             })
             let fillColorWhenSelected: number[] = [
@@ -386,7 +387,7 @@ describe("Squaddie Selector Panel Button", () => {
             SquaddieSelectorPanelButtonService.draw({
                 button,
                 graphicsContext,
-                resourceHandler,
+                resourceRepository,
                 objectRepository,
             })
             let fillColorWhenControllable: number[] = [
@@ -402,7 +403,7 @@ describe("Squaddie Selector Panel Button", () => {
             SquaddieSelectorPanelButtonService.draw({
                 button,
                 graphicsContext,
-                resourceHandler,
+                resourceRepository,
                 objectRepository,
             })
             let fillColorWhenUncontrollable: number[] = [
@@ -426,7 +427,7 @@ describe("Squaddie Selector Panel Button", () => {
             SquaddieSelectorPanelButtonService.draw({
                 button,
                 graphicsContext,
-                resourceHandler,
+                resourceRepository,
                 objectRepository,
             })
 
@@ -520,7 +521,7 @@ describe("Squaddie Selector Panel Button", () => {
                     SquaddieSelectorPanelButtonService.draw({
                         button,
                         graphicsContext,
-                        resourceHandler,
+                        resourceRepository,
                         objectRepository,
                     })
 

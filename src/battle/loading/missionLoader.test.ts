@@ -18,23 +18,23 @@ import {
     TSquaddieAffiliation,
 } from "../../squaddie/squaddieAffiliation"
 import { PlayerArmy } from "../../campaign/playerArmy"
-import { isValidValue } from "../../utils/objectValidityCheck"
 import { CutsceneActionPlayerType } from "../../cutscene/cutsceneAction"
 import { Dialogue } from "../../cutscene/dialogue/dialogue"
 import { SplashScreen } from "../../cutscene/splashScreen"
 import { ActionTemplate } from "../../action/template/actionTemplate"
 import { LoadCampaignData } from "../../utils/fileHandling/loadCampaignData"
 import { MissionMapService } from "../../missionMap/missionMap"
-import { beforeEach, describe, expect, it, vi } from "vitest"
-import { ResourceHandlerBlocker } from "../../dataLoader/loadBlocker/resourceHandlerBlocker"
+import { beforeEach, describe, expect, it } from "vitest"
+import { MockedP5GraphicsBuffer } from "../../utils/test/mocks"
 import {
-    MockedP5GraphicsBuffer,
-    mockResourceHandler,
-} from "../../utils/test/mocks"
-import { MessageBoard } from "../../message/messageBoard"
+    ResourceRepository,
+    ResourceRepositoryService,
+    ResourceRepositoryStatus,
+} from "../../resource/resourceRepository.ts"
+import { TestLoadImmediatelyImageLoader } from "../../resource/resourceRepositoryTestUtils.ts"
 
 describe("Mission Loader", () => {
-    let loadBlocker: ResourceHandlerBlocker
+    let resourceRepository: ResourceRepository
     let missionData: MissionFileFormat
     let missionLoaderContext: MissionLoaderContext
     let objectRepository: ObjectRepository
@@ -45,12 +45,6 @@ describe("Mission Loader", () => {
     let playerArmy: PlayerArmy
 
     beforeEach(() => {
-        const resourceHandler = mockResourceHandler(
-            new MockedP5GraphicsBuffer()
-        )
-        resourceHandler.loadResources = vi.fn()
-        resourceHandler.loadResource = vi.fn()
-        resourceHandler.areAllResourcesLoaded = vi.fn().mockReturnValue(true)
         ;({
             playerArmy,
             missionData,
@@ -60,12 +54,15 @@ describe("Mission Loader", () => {
             playerActionTemplates,
         } = LoadCampaignData.createLoadFileSpy())
 
-        loadBlocker = new ResourceHandlerBlocker(
-            resourceHandler,
-            new MessageBoard()
-        )
         missionLoaderContext = MissionLoader.newEmptyMissionLoaderContext()
         objectRepository = ObjectRepositoryService.new()
+        let loadImmediatelyImageLoader = new TestLoadImmediatelyImageLoader({})
+        resourceRepository = ResourceRepositoryService.new({
+            imageLoader: loadImmediatelyImageLoader,
+            urls: Object.fromEntries(
+                LoadCampaignData.getResourceKeys().map((key) => [key, "url"])
+            ),
+        })
     })
 
     it("knows it has not started yet", () => {
@@ -77,11 +74,11 @@ describe("Mission Loader", () => {
 
     describe("can apply mission data from a file", () => {
         beforeEach(async () => {
-            await MissionLoader.applyMissionData({
+            resourceRepository = await MissionLoader.applyMissionData({
                 missionData,
                 missionLoaderContext: missionLoaderContext,
                 objectRepository: objectRepository,
-                loadBlocker,
+                resourceRepository,
             })
         })
 
@@ -159,13 +156,18 @@ describe("Mission Loader", () => {
                 )
             )
 
-            expect(loadBlocker.resourceKeysToLoad).toContain(
-                "tutorial-confirm-cancel"
-            )
-            expect(loadBlocker.resourceKeysToLoad).toContain("splash victory")
             expect(
-                loadBlocker.resourceKeysToLoad.every((key) => isValidValue(key))
-            ).toBeTruthy()
+                ResourceRepositoryService.getStatus({
+                    resourceRepository,
+                    key: "tutorial-confirm-cancel",
+                }).status
+            ).toEqual(ResourceRepositoryStatus.QUEUED)
+            expect(
+                ResourceRepositoryService.getStatus({
+                    resourceRepository,
+                    key: "splash victory",
+                }).status
+            ).toEqual(ResourceRepositoryStatus.QUEUED)
 
             expect(missionLoaderContext.battleEvents).toEqual(
                 missionData.battleEvents
@@ -221,14 +223,18 @@ describe("Mission Loader", () => {
                 ).toEqual(enemyDemonSlitherTemplate2)
             })
             it("knows it has to load resources based on the template resources", () => {
-                expect(loadBlocker.resourceKeysToLoad).toEqual(
-                    expect.arrayContaining(
-                        SquaddieTemplateService.getResourceKeys(
-                            enemyDemonSlitherTemplate,
-                            objectRepository
-                        )
+                expect(
+                    SquaddieTemplateService.getResourceKeys(
+                        enemyDemonSlitherTemplate,
+                        objectRepository
+                    ).every(
+                        (key) =>
+                            ResourceRepositoryService.getStatus({
+                                resourceRepository,
+                                key,
+                            }).status == ResourceRepositoryStatus.QUEUED
                     )
-                )
+                ).toBeTruthy()
             })
             it("knows to add the template to the repository", () => {
                 expect(
@@ -408,9 +414,12 @@ describe("Mission Loader", () => {
                 Object.values(missionData.phaseBannersByAffiliation)
                     .filter((key) => key !== "")
                     .forEach((bannerResourceKey) => {
-                        expect(loadBlocker.resourceKeysToLoad).toContain(
-                            bannerResourceKey
-                        )
+                        expect(
+                            ResourceRepositoryService.getStatus({
+                                resourceRepository,
+                                key: bannerResourceKey,
+                            }).status
+                        ).toEqual(ResourceRepositoryStatus.QUEUED)
                     })
             })
             it("adds action templates to the repository", () => {
@@ -428,19 +437,15 @@ describe("Mission Loader", () => {
     })
 
     describe("can load player army information", () => {
-        let initialPendingResourceListLength: number
         let playerArmyData: PlayerArmy
 
         beforeEach(async () => {
-            await MissionLoader.applyMissionData({
+            resourceRepository = await MissionLoader.applyMissionData({
                 missionData,
                 missionLoaderContext: missionLoaderContext,
-                loadBlocker,
                 objectRepository: objectRepository,
+                resourceRepository,
             })
-
-            initialPendingResourceListLength =
-                loadBlocker.resourceKeysToLoad.length
 
             const tempPlayerArmyData = await LoadPlayerArmyFromFile()
             if (tempPlayerArmyData != undefined) {
@@ -449,12 +454,13 @@ describe("Mission Loader", () => {
                 throw new Error("Failed to load player army")
             }
 
-            await MissionLoader.loadPlayerSquaddieTemplatesFile({
-                playerArmyData,
-                loadBlocker,
-                missionLoaderContext,
-                objectRepository,
-            })
+            resourceRepository =
+                await MissionLoader.loadPlayerSquaddieTemplatesFile({
+                    playerArmyData,
+                    resourceRepository,
+                    missionLoaderContext,
+                    objectRepository,
+                })
         })
 
         it("gets player squaddie templates", () => {
@@ -470,10 +476,6 @@ describe("Mission Loader", () => {
         })
 
         it("adds resource keys to the list of resources to load", () => {
-            expect(loadBlocker.resourceKeysToLoad.length).toBeGreaterThan(
-                initialPendingResourceListLength
-            )
-
             const missionLoaderContextSquaddieTemplates: SquaddieTemplate[] =
                 Object.values(
                     missionLoaderContext.squaddieData.templates
@@ -484,9 +486,16 @@ describe("Mission Loader", () => {
                         template,
                         objectRepository
                     )
-                expect(loadBlocker.resourceKeysToLoad).toEqual(
-                    expect.arrayContaining(playerResourceKeys)
-                )
+
+                expect(
+                    playerResourceKeys.every(
+                        (key) =>
+                            ResourceRepositoryService.getStatus({
+                                resourceRepository,
+                                key,
+                            }).status == ResourceRepositoryStatus.QUEUED
+                    )
+                ).toBeTruthy()
             })
         })
 
@@ -562,10 +571,6 @@ describe("Mission Loader", () => {
                 Object.keys(missionLoaderContext.squaddieData.teamStrategyById)
                     .length
             ).toBeGreaterThan(0)
-
-            expect(loadBlocker.resourceKeysToLoad.length).toBeGreaterThan(
-                initialPendingResourceListLength
-            )
         })
 
         it("adds action templates to the repository", () => {
@@ -583,27 +588,26 @@ describe("Mission Loader", () => {
 
     describe("initializes resources once loading is finished and resources are found", () => {
         beforeEach(async () => {
-            loadBlocker.resourceHandler.getResource = vi
-                .fn()
-                .mockReturnValue({ width: 1, height: 1 })
-
-            await MissionLoader.applyMissionData({
+            resourceRepository = await MissionLoader.applyMissionData({
                 missionData,
                 missionLoaderContext: missionLoaderContext,
-                loadBlocker,
                 objectRepository: objectRepository,
+                resourceRepository,
             })
 
-            vi.spyOn(
-                loadBlocker.resourceHandler,
-                "isResourceLoaded"
-            ).mockReturnValue(true)
-            loadBlocker.beginLoading()
-            loadBlocker.updateLoadingStatus()
+            resourceRepository =
+                ResourceRepositoryService.beginLoadingAllQueuedImages({
+                    graphics: new MockedP5GraphicsBuffer(),
+                    resourceRepository,
+                })
+            resourceRepository =
+                await ResourceRepositoryService.blockUntilLoadingCompletes({
+                    resourceRepository,
+                })
 
-            MissionLoader.assignResourceHandlerResources({
+            MissionLoader.assignResourceRepositoryResources({
                 missionLoaderContext,
-                resourceHandler: loadBlocker.resourceHandler,
+                resourceRepository,
                 repository: objectRepository,
             })
         })

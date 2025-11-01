@@ -5,22 +5,13 @@ import {
 import { Cutscene, CutsceneService } from "./cutscene"
 import { CutsceneDecisionTriggerService } from "./decisionTrigger"
 import {
-    ResourceHandler,
-    ResourceHandlerService,
-    Resource,
-} from "../resource/resourceHandler"
-import { StubImmediateLoader } from "../resource/resourceHandlerTestUtils"
-import {
     BattleOrchestratorState,
     BattleOrchestratorStateService,
 } from "../battle/orchestrator/battleOrchestratorState"
 import { BattleStateService } from "../battle/battleState/battleState"
 import { SplashScreen, SplashScreenService } from "./splashScreen"
 import { Dialogue, DialogueService } from "./dialogue/dialogue"
-import {
-    MockedP5GraphicsBuffer,
-    mockResourceHandler,
-} from "../utils/test/mocks"
+import { MockedP5GraphicsBuffer } from "../utils/test/mocks"
 import { RectAreaService } from "../ui/rectArea"
 import { beforeEach, describe, expect, it, vi } from "vitest"
 import { PlayerInputTestService } from "../utils/test/playerInput"
@@ -28,6 +19,13 @@ import { PlayerInputStateService } from "../ui/playerInput/playerInputState"
 import { GraphicsBuffer } from "../utils/graphics/graphicsRenderer"
 import { Button } from "../ui/button/button"
 import { MouseButton } from "../utils/mouseConfig"
+import {
+    ResourceRepository,
+    ResourceRepositoryScope,
+    ResourceRepositoryService,
+} from "../resource/resourceRepository.ts"
+import { TestLoadImmediatelyImageLoader } from "../resource/resourceRepositoryTestUtils.ts"
+import { isValidValue } from "../utils/objectValidityCheck.ts"
 
 describe("Cutscene", () => {
     let splash1: SplashScreen
@@ -35,7 +33,8 @@ describe("Cutscene", () => {
     let frontDoorGreeting: Dialogue
     let hostGreeting: Dialogue
     let graphicsContext: GraphicsBuffer
-    let resourceHandler: ResourceHandler
+    let resourceRepository: ResourceRepository
+    let loadImmediatelyImageLoader: TestLoadImmediatelyImageLoader
 
     beforeEach(() => {
         splash1 = SplashScreenService.new({
@@ -64,7 +63,16 @@ describe("Cutscene", () => {
             speakerPortraitResourceKey: undefined,
         })
         graphicsContext = new MockedP5GraphicsBuffer()
-        resourceHandler = mockResourceHandler(graphicsContext)
+
+        loadImmediatelyImageLoader = new TestLoadImmediatelyImageLoader({})
+        resourceRepository = ResourceRepositoryService.new({
+            imageLoader: loadImmediatelyImageLoader,
+            urls: {
+                restaurant_entrance: "path/to/image",
+                splash1: "splash1",
+                splash2: "splash2",
+            },
+        })
     })
 
     it("should not start upon construction", () => {
@@ -80,11 +88,11 @@ describe("Cutscene", () => {
             directions: [frontDoorGreeting],
         })
 
-        CutsceneService.start(
-            dinnerDate,
-            mockResourceHandler(new MockedP5GraphicsBuffer()),
-            {}
-        )
+        CutsceneService.start({
+            cutscene: dinnerDate,
+            resourceRepository: undefined,
+            context: {},
+        })
         expect(CutsceneService.isInProgress(dinnerDate)).toBeTruthy()
         expect(dinnerDate.currentDirection).toEqual(frontDoorGreeting)
     })
@@ -94,28 +102,42 @@ describe("Cutscene", () => {
             directions: [frontDoorGreeting],
         })
 
-        CutsceneService.start(
-            dinnerDate,
-            mockResourceHandler(new MockedP5GraphicsBuffer()),
-            {}
-        )
+        CutsceneService.start({
+            cutscene: dinnerDate,
+            resourceRepository: resourceRepository,
+            context: {},
+        })
         CutsceneService.stop(dinnerDate)
         expect(CutsceneService.isInProgress(dinnerDate)).toBeFalsy()
     })
 
-    it("should move to the next action when the mouse clicks", () => {
+    it("should move to the next action when the mouse clicks", async () => {
         const dinnerDate: Cutscene = CutsceneService.new({
             directions: [splash1, splash2],
         })
 
-        CutsceneService.start(
-            dinnerDate,
-            mockResourceHandler(new MockedP5GraphicsBuffer()),
-            {}
-        )
+        resourceRepository = loadResources({
+            cutscene: dinnerDate,
+            resourceRepository: resourceRepository,
+            graphics: graphicsContext,
+        })
+        resourceRepository =
+            await ResourceRepositoryService.blockUntilLoadingCompletes({
+                resourceRepository,
+            })
+
+        CutsceneService.start({
+            cutscene: dinnerDate,
+            resourceRepository: resourceRepository,
+            context: {},
+        })
 
         expect(dinnerDate.currentDirection).toEqual(splash1)
-        CutsceneService.draw(dinnerDate, graphicsContext, resourceHandler)
+        CutsceneService.draw({
+            cutscene: dinnerDate,
+            graphicsContext: graphicsContext,
+            resourceRepository,
+        })
         CutsceneService.mousePressed({
             cutscene: dinnerDate,
             mousePress: { x: 100, y: 100, button: MouseButton.ACCEPT },
@@ -124,16 +146,26 @@ describe("Cutscene", () => {
         expect(dinnerDate.currentDirection).toEqual(splash2)
     })
 
-    it("should move to the next action when the keyboard presses accept", () => {
+    it("should move to the next action when the keyboard presses accept", async () => {
         const dinnerDate: Cutscene = CutsceneService.new({
             directions: [splash1, splash2],
         })
 
-        CutsceneService.start(
-            dinnerDate,
-            mockResourceHandler(new MockedP5GraphicsBuffer()),
-            {}
-        )
+        resourceRepository = loadResources({
+            cutscene: dinnerDate,
+            resourceRepository: resourceRepository,
+            graphics: graphicsContext,
+        })
+        resourceRepository =
+            await ResourceRepositoryService.blockUntilLoadingCompletes({
+                resourceRepository,
+            })
+
+        CutsceneService.start({
+            cutscene: dinnerDate,
+            resourceRepository: resourceRepository,
+            context: {},
+        })
 
         expect(dinnerDate.currentDirection).toEqual(splash1)
         CutsceneService.keyboardPressed({
@@ -150,11 +182,11 @@ describe("Cutscene", () => {
             directions: [frontDoorGreeting, hostGreeting],
         })
 
-        CutsceneService.start(
-            dinnerDate,
-            mockResourceHandler(new MockedP5GraphicsBuffer()),
-            {}
-        )
+        CutsceneService.start({
+            cutscene: dinnerDate,
+            resourceRepository: resourceRepository,
+            context: {},
+        })
         expect(CutsceneService.isInProgress(dinnerDate)).toBeTruthy()
 
         expect(dinnerDate.currentDirection).toEqual(frontDoorGreeting)
@@ -211,11 +243,11 @@ describe("Cutscene", () => {
                 ],
             })
 
-            CutsceneService.start(
-                purchasePrompt,
-                mockResourceHandler(new MockedP5GraphicsBuffer()),
-                {}
-            )
+            CutsceneService.start({
+                cutscene: purchasePrompt,
+                resourceRepository: resourceRepository,
+                context: {},
+            })
             expect(purchasePrompt.currentDirection?.id).toBe("buy my stuff")
             const answerButtonRectArea = (
                 purchasePrompt.cutscenePlayerStateById[
@@ -265,11 +297,11 @@ describe("Cutscene", () => {
                 ],
             })
 
-            CutsceneService.start(
-                purchasePrompt,
-                mockResourceHandler(new MockedP5GraphicsBuffer()),
-                {}
-            )
+            CutsceneService.start({
+                cutscene: purchasePrompt,
+                resourceRepository: resourceRepository,
+                context: {},
+            })
             expect(purchasePrompt.currentDirection?.id).toBe("buy my stuff")
             const answerButtonRectArea = (
                 purchasePrompt.cutscenePlayerStateById[
@@ -317,11 +349,11 @@ describe("Cutscene", () => {
                 ],
             })
 
-            CutsceneService.start(
-                purchasePrompt,
-                mockResourceHandler(new MockedP5GraphicsBuffer()),
-                {}
-            )
+            CutsceneService.start({
+                cutscene: purchasePrompt,
+                resourceRepository: resourceRepository,
+                context: {},
+            })
             expect(purchasePrompt.currentDirection?.id).toBe("act serious")
             CutsceneService.mousePressed({
                 cutscene: purchasePrompt,
@@ -377,11 +409,11 @@ describe("Cutscene", () => {
                 ],
             })
 
-            CutsceneService.start(
-                purchasePrompt,
-                mockResourceHandler(new MockedP5GraphicsBuffer()),
-                {}
-            )
+            CutsceneService.start({
+                cutscene: purchasePrompt,
+                resourceRepository: resourceRepository,
+                context: {},
+            })
             expect(purchasePrompt.currentDirection?.id).toBe("buy my stuff")
             CutsceneService.mousePressed({
                 cutscene: purchasePrompt,
@@ -457,8 +489,16 @@ describe("Cutscene", () => {
         })
 
         it("should enter fast-forward mode when you click on the fast forward button", () => {
-            CutsceneService.start(dinnerDate, resourceHandler, {})
-            CutsceneService.draw(dinnerDate, graphicsContext, resourceHandler)
+            CutsceneService.start({
+                cutscene: dinnerDate,
+                resourceRepository: resourceRepository,
+                context: {},
+            })
+            CutsceneService.draw({
+                cutscene: dinnerDate,
+                graphicsContext: graphicsContext,
+                resourceRepository: resourceRepository,
+            })
             const fastForwardButton = getFastForwardButton(dinnerDate)
             expect(fastForwardButton).not.toBeUndefined()
             if (fastForwardButton == undefined) return
@@ -475,8 +515,16 @@ describe("Cutscene", () => {
         })
 
         it("should enter fast-forward mode when you press the cancel key", () => {
-            CutsceneService.start(dinnerDate, resourceHandler, {})
-            CutsceneService.draw(dinnerDate, graphicsContext, resourceHandler)
+            CutsceneService.start({
+                cutscene: dinnerDate,
+                resourceRepository: resourceRepository,
+                context: {},
+            })
+            CutsceneService.draw({
+                cutscene: dinnerDate,
+                graphicsContext: graphicsContext,
+                resourceRepository: resourceRepository,
+            })
 
             CutsceneService.keyboardPressed({
                 cutscene: dinnerDate,
@@ -488,8 +536,16 @@ describe("Cutscene", () => {
         })
 
         it("should auto progress dialog messages when in fast-forward mode", () => {
-            CutsceneService.start(dinnerDate, resourceHandler, {})
-            CutsceneService.draw(dinnerDate, graphicsContext, resourceHandler)
+            CutsceneService.start({
+                cutscene: dinnerDate,
+                resourceRepository: resourceRepository,
+                context: {},
+            })
+            CutsceneService.draw({
+                cutscene: dinnerDate,
+                graphicsContext: graphicsContext,
+                resourceRepository: resourceRepository,
+            })
 
             vi.spyOn(Date, "now").mockImplementation(() => 0)
             const fastForwardButton = getFastForwardButton(dinnerDate)
@@ -513,8 +569,16 @@ describe("Cutscene", () => {
         })
 
         it("should stop fast-forward mode if the dialog is on the last action", () => {
-            CutsceneService.start(dinnerDate, resourceHandler, {})
-            CutsceneService.draw(dinnerDate, graphicsContext, resourceHandler)
+            CutsceneService.start({
+                cutscene: dinnerDate,
+                resourceRepository: resourceRepository,
+                context: {},
+            })
+            CutsceneService.draw({
+                cutscene: dinnerDate,
+                graphicsContext: graphicsContext,
+                resourceRepository: resourceRepository,
+            })
 
             vi.spyOn(Date, "now").mockImplementation(() => 0)
             expect(CutsceneService.canFastForward(dinnerDate)).toBeTruthy()
@@ -559,8 +623,16 @@ describe("Cutscene", () => {
                 ],
             })
 
-            CutsceneService.start(dinnerDate, resourceHandler, {})
-            CutsceneService.draw(dinnerDate, graphicsContext, resourceHandler)
+            CutsceneService.start({
+                cutscene: dinnerDate,
+                resourceRepository: resourceRepository,
+                context: {},
+            })
+            CutsceneService.draw({
+                cutscene: dinnerDate,
+                graphicsContext: graphicsContext,
+                resourceRepository: resourceRepository,
+            })
 
             vi.spyOn(Date, "now").mockImplementation(() => 0)
             expect(dinnerDate.currentDirection?.id).toBe("waiterGreets")
@@ -594,31 +666,34 @@ describe("Cutscene", () => {
         })
     })
 
-    it("can start after loading if no actions require loading", () => {
+    it("can start after loading if no actions require loading", async () => {
         const dinnerDate: Cutscene = CutsceneService.new({
             directions: [splash1, frontDoorGreeting],
         })
 
-        CutsceneService.loadResources(
-            dinnerDate,
-            mockResourceHandler(new MockedP5GraphicsBuffer())
-        )
+        resourceRepository = loadResources({
+            cutscene: dinnerDate,
+            resourceRepository: resourceRepository,
+            graphics: graphicsContext,
+        })
+        resourceRepository =
+            await ResourceRepositoryService.blockUntilLoadingCompletes({
+                resourceRepository,
+            })
+
         expect(
-            CutsceneService.hasLoaded(
-                dinnerDate,
-                mockResourceHandler(new MockedP5GraphicsBuffer())
-            )
+            CutsceneService.hasLoaded(dinnerDate, resourceRepository)
         ).toBeTruthy()
-        const error = CutsceneService.start(
-            dinnerDate,
-            mockResourceHandler(new MockedP5GraphicsBuffer()),
-            {}
-        )
+        const error = CutsceneService.start({
+            cutscene: dinnerDate,
+            resourceRepository: resourceRepository,
+            context: {},
+        })
         expect(error).toBeUndefined()
         expect(CutsceneService.isInProgress(dinnerDate)).toBeTruthy()
     })
 
-    it("can load required resources and indicate if it is ready to load", () => {
+    it("can load required resources and indicate if it is ready to load", async () => {
         const restaurantEntrance = SplashScreenService.new({
             id: "splash1",
             screenImageResourceKey: "restaurant_entrance",
@@ -626,27 +701,37 @@ describe("Cutscene", () => {
 
         const graphicsContext = new MockedP5GraphicsBuffer()
 
-        const handler = ResourceHandlerService.new({
-            graphics: graphicsContext,
-            imageLoader: new StubImmediateLoader(graphicsContext),
-            resourceLocators: [
-                {
-                    type: Resource.IMAGE,
-                    path: "path/to/image",
-                    key: "restaurant_entrance",
-                },
-            ],
+        resourceRepository = ResourceRepositoryService.new({
+            imageLoader: loadImmediatelyImageLoader,
+            urls: {
+                restaurant_entrance: "path/to/image",
+            },
         })
 
         const dinnerDate: Cutscene = CutsceneService.new({
             directions: [restaurantEntrance],
         })
 
-        CutsceneService.loadResources(dinnerDate, handler)
-        CutsceneService.setResources(dinnerDate, handler)
+        resourceRepository = loadResources({
+            cutscene: dinnerDate,
+            resourceRepository: resourceRepository,
+            graphics: graphicsContext,
+        })
+        resourceRepository =
+            await ResourceRepositoryService.blockUntilLoadingCompletes({
+                resourceRepository,
+            })
 
-        expect(CutsceneService.hasLoaded(dinnerDate, handler)).toBeTruthy()
-        const error = CutsceneService.start(dinnerDate, handler, {})
+        CutsceneService.setResources(dinnerDate, resourceRepository)
+
+        expect(
+            CutsceneService.hasLoaded(dinnerDate, resourceRepository)
+        ).toBeTruthy()
+        const error = CutsceneService.start({
+            cutscene: dinnerDate,
+            resourceRepository,
+            context: {},
+        })
         expect(error).toBeUndefined()
         expect(CutsceneService.isInProgress(dinnerDate)).toBeTruthy()
     })
@@ -668,11 +753,13 @@ describe("Cutscene", () => {
         ] as DialoguePlayerState
 
         const greetingSpy = vi.spyOn(DialoguePlayerService, "start")
-        CutsceneService.start(
-            dinnerDate,
-            mockResourceHandler(new MockedP5GraphicsBuffer()),
-            { battleOrchestratorState: battleState }
-        )
+        CutsceneService.start({
+            cutscene: dinnerDate,
+            resourceRepository: resourceRepository,
+            context: {
+                battleOrchestratorState: battleState,
+            },
+        })
         expect(greetingSpy).toBeCalledWith(frontDoorPlayer, {
             battleOrchestratorState: battleState,
         })
@@ -681,3 +768,32 @@ describe("Cutscene", () => {
 
 const getFastForwardButton = (cutscene: Cutscene): Button | undefined =>
     cutscene.uiData.getUIObjects()?.fastForwardButton
+
+const loadResources = ({
+    cutscene,
+    resourceRepository,
+    graphics,
+}: {
+    cutscene: Cutscene
+    resourceRepository: ResourceRepository
+    graphics: GraphicsBuffer
+}): ResourceRepository => {
+    if (!isValidValue(resourceRepository)) {
+        throw new Error(
+            "[CutsceneService.loadResources]: resourceRepository must be defined"
+        )
+    }
+    const imagesToQueue = cutscene.allResourceKeys.map((key) => ({
+        key,
+        scope: ResourceRepositoryScope.CUTSCENE,
+    }))
+    let queuedRepository = ResourceRepositoryService.queueImages({
+        resourceRepository,
+        imagesToQueue,
+    })
+    queuedRepository = ResourceRepositoryService.beginLoadingAllQueuedImages({
+        graphics,
+        resourceRepository: queuedRepository,
+    })
+    return queuedRepository
+}

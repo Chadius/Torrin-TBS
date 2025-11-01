@@ -9,7 +9,6 @@ import { ObjectRepository } from "../../objectRepository"
 import { GraphicsBuffer } from "../../../utils/graphics/graphicsRenderer"
 import { BattleActionService } from "../../history/battleAction/battleAction"
 import { BattleActionRecorderService } from "../../history/battleAction/battleActionRecorder"
-import { ResourceHandler } from "../../../resource/resourceHandler"
 import { GameEngineState } from "../../../gameEngine/gameEngineState/gameEngineState"
 import { SquaddieActionAnimationDrawStateService } from "../actionAnimation/animationPlanner/squaddieActionAnimationDrawState/squaddieActionAnimationDrawState"
 import { SquaddieActionAnimationPlanService } from "../actionAnimation/animationPlanner/squaddieActionAnimationPlanService"
@@ -17,6 +16,7 @@ import {
     SquaddieActOnSquaddieUIObjects,
     SquaddieActOnSquaddieUIObjectsService,
 } from "./uiObjects"
+import { ResourceRepository } from "../../../resource/resourceRepository.ts"
 
 export class SquaddieTargetsOtherSquaddiesAnimator
     implements SquaddieActionAnimator
@@ -85,15 +85,15 @@ export class SquaddieTargetsOtherSquaddiesAnimator
     update({
         gameEngineState,
         graphicsContext,
-        resourceHandler,
+        resourceRepository,
     }: {
         gameEngineState: GameEngineState
         graphicsContext: GraphicsBuffer
-        resourceHandler: ResourceHandler
+        resourceRepository: ResourceRepository
     }): void {
         this.initializeDrawing({
             gameEngineState,
-            resourceHandler,
+            resourceRepository,
             repository: gameEngineState.repository!,
             graphicsContext,
         })
@@ -190,12 +190,12 @@ export class SquaddieTargetsOtherSquaddiesAnimator
 
     private initializeDrawing({
         gameEngineState,
-        resourceHandler,
+        resourceRepository,
         repository,
         graphicsContext,
     }: {
         gameEngineState: GameEngineState
-        resourceHandler: ResourceHandler
+        resourceRepository: ResourceRepository
         repository: ObjectRepository
         graphicsContext: GraphicsBuffer
     }) {
@@ -212,7 +212,7 @@ export class SquaddieTargetsOtherSquaddiesAnimator
         this.uiObjects = SquaddieActOnSquaddieUIObjectsService.new({
             actionToShow,
             actionTemplateId: actionToShow.action?.actionTemplateId,
-            resourceHandler,
+            resourceRepository,
             repository,
             results: {
                 actorContext: actionToShow.actor.actorContext,

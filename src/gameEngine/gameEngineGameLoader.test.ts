@@ -1,6 +1,4 @@
 import { GameEngineGameLoader } from "./gameEngineGameLoader"
-import { ResourceHandler } from "../resource/resourceHandler"
-import * as mocks from "./../utils/test/mocks"
 import { MockedP5GraphicsBuffer } from "../utils/test/mocks"
 import {
     ObjectRepository,
@@ -62,6 +60,13 @@ import {
     GameEngineState,
     GameEngineStateService,
 } from "./gameEngineState/gameEngineState"
+import {
+    ResourceRepository,
+    ResourceRepositoryService,
+    ResourceRepositoryStatus,
+} from "../resource/resourceRepository.ts"
+import { TestLoadImmediatelyImageLoader } from "../resource/resourceRepositoryTestUtils.ts"
+import { CampaignResourcesService } from "../campaign/campaignResources.ts"
 
 describe("GameEngineGameLoader", () => {
     let loader: GameEngineGameLoader
@@ -69,26 +74,28 @@ describe("GameEngineGameLoader", () => {
     let campaignFileData: CampaignFileFormat
     let loadFileIntoFormatSpy: MockInstance
     let gameEngineState: GameEngineState
-    let resourceHandler: ResourceHandler
+    let resourceRepository: ResourceRepository
     let squaddieRepository: ObjectRepository
     const campaignId = "coolCampaign"
 
     beforeEach(() => {
-        loader = new GameEngineGameLoader(campaignId)
-
-        resourceHandler = mocks.mockResourceHandler(
+        loader = new GameEngineGameLoader(
+            campaignId,
             new MockedP5GraphicsBuffer()
         )
-        resourceHandler.areAllResourcesLoaded = vi.fn().mockReturnValue(true)
-        resourceHandler.isResourceLoaded = vi.fn().mockReturnValue(true)
-        resourceHandler.loadResource = vi
-            .fn()
-            .mockReturnValue({ width: 1, height: 1 })
+
         squaddieRepository = ObjectRepositoryService.new()
+        let loadImmediatelyImageLoader = new TestLoadImmediatelyImageLoader({})
+        resourceRepository = ResourceRepositoryService.new({
+            imageLoader: loadImmediatelyImageLoader,
+            urls: Object.fromEntries(
+                LoadCampaignData.getResourceKeys().map((key) => [key, "url"])
+            ),
+        })
 
         gameEngineState = GameEngineStateService.new({
             repository: squaddieRepository,
-            resourceHandler,
+            resourceRepository,
             battleOrchestratorState: BattleOrchestratorStateService.new({
                 battleState: BattleStateService.newBattleState({
                     missionId: "",
@@ -143,14 +150,21 @@ describe("GameEngineGameLoader", () => {
                             campaignFileData.resources
                                 .actionEffectSquaddieTemplateButtonIcons
                         ),
-                        ...Object.values(
-                            campaignFileData.resources.mapTiles.resourceKeys
+                        ...CampaignResourcesService.getAllImageResourceKeys(
+                            campaignFileData.resources
                         ),
                     ]
 
-                    expect(loader.loadBlocker!.resourceKeysToLoad).toEqual(
-                        expect.arrayContaining(expectedResourceKeys)
-                    )
+                    expect(
+                        expectedResourceKeys.every(
+                            (key) =>
+                                ResourceRepositoryService.getStatus({
+                                    resourceRepository:
+                                        loader.resourceRepository!,
+                                    key,
+                                }).status == ResourceRepositoryStatus.QUEUED
+                        )
+                    ).toBeTruthy
                 })
             })
 
@@ -170,14 +184,11 @@ describe("GameEngineGameLoader", () => {
                 })
 
                 it("knows the resources have been loaded", () => {
-                    expect(messageSpy).toBeCalledWith({
-                        type: MessageBoardMessageType.LOAD_BLOCKER_FINISHES_LOADING_RESOURCES,
-                    })
-                    expect(loader.loadBlocker!.startsLoading).toBeTruthy()
-                    expect(loader.loadBlocker!.finishesLoading).toBeTruthy()
-                    expect(loader.loadBlocker!.resourceKeysToLoad).toHaveLength(
-                        0
-                    )
+                    expect(
+                        ResourceRepositoryService.areAllResourcesLoaded({
+                            resourceRepository: loader.resourceRepository!,
+                        })
+                    ).toBeTruthy()
                 })
 
                 describe("when the loaded files are applied to the context", () => {
@@ -327,7 +338,7 @@ describe("GameEngineGameLoader", () => {
                                         .cutsceneById[
                                         DEFAULT_VICTORY_CUTSCENE_ID
                                     ],
-                                    resourceHandler
+                                    loader.resourceRepository!
                                 )
                             ).toBeTruthy()
                         })
@@ -450,7 +461,10 @@ describe("GameEngineGameLoader", () => {
                 value: true,
             })
 
-            loader = new GameEngineGameLoader(campaignId)
+            loader = new GameEngineGameLoader(
+                campaignId,
+                new MockedP5GraphicsBuffer()
+            )
             loadedBattleSaveState = {
                 ...DefaultBattleSaveState(),
                 campaignId,
@@ -507,7 +521,7 @@ describe("GameEngineGameLoader", () => {
             originalState = GameEngineStateService.new({
                 repository: squaddieRepository,
                 previousMode: GameModeEnum.BATTLE,
-                resourceHandler,
+                resourceRepository,
                 battleOrchestratorState: BattleOrchestratorStateService.new({
                     battleHUD: BattleHUDService.new({}),
                     battleState: BattleStateService.newBattleState({
@@ -579,7 +593,7 @@ describe("GameEngineGameLoader", () => {
                 ),
                 campaign: { ...originalState.campaign },
                 repository: originalState.repository,
-                resourceHandler: originalState.resourceHandler,
+                resourceRepository: originalState.resourceRepository,
             })
             currentState.loadState.modeThatInitiatedLoading =
                 originalState.loadState.modeThatInitiatedLoading
@@ -626,7 +640,11 @@ describe("GameEngineGameLoader", () => {
                 await loader.update(currentState)
             }
 
-            expect(loader.loadBlocker!.resourceKeysToLoad).toHaveLength(0)
+            expect(
+                ResourceRepositoryService.areAllResourcesLoaded({
+                    resourceRepository: loader.resourceRepository!,
+                })
+            ).toBeTruthy()
             expect(
                 currentState.battleOrchestratorState.battleState.battleEvents
                     .length
@@ -637,7 +655,7 @@ describe("GameEngineGameLoader", () => {
                         .cutsceneCollection!.cutsceneById[
                         DEFAULT_VICTORY_CUTSCENE_ID
                     ],
-                    resourceHandler
+                    loader.resourceRepository
                 )
             ).toBeTruthy()
             expect(
@@ -876,7 +894,10 @@ describe("GameEngineGameLoader", () => {
         let originalState: GameEngineState
         let currentState: GameEngineState
         beforeEach(async () => {
-            loader = new GameEngineGameLoader(campaignId)
+            loader = new GameEngineGameLoader(
+                campaignId,
+                new MockedP5GraphicsBuffer()
+            )
             loadedBattleSaveState = {
                 ...DefaultBattleSaveState(),
                 campaignId,
@@ -931,7 +952,7 @@ describe("GameEngineGameLoader", () => {
 
             originalState = GameEngineStateService.new({
                 repository: ObjectRepositoryService.new(),
-                resourceHandler,
+                resourceRepository,
                 battleOrchestratorState: BattleOrchestratorStateService.new({}),
                 titleScreenState: TitleScreenStateHelper.new(),
                 campaign: CampaignService.default(),
@@ -943,7 +964,7 @@ describe("GameEngineGameLoader", () => {
                 ),
                 campaign: { ...originalState.campaign },
                 repository: originalState.repository,
-                resourceHandler: originalState.resourceHandler,
+                resourceRepository: originalState.resourceRepository,
                 previousMode: GameModeEnum.TITLE_SCREEN,
             })
             setupMessageBoardForSaveStateChanges(currentState)

@@ -9,8 +9,6 @@ import {
 } from "vitest"
 import { PlayerActionTargetSelect } from "./playerActionTargetSelect"
 import { GraphicsBuffer } from "../../../utils/graphics/graphicsRenderer"
-import { ResourceHandler } from "../../../resource/resourceHandler"
-import * as mocks from "../../../utils/test/mocks"
 import { MockedP5GraphicsBuffer } from "../../../utils/test/mocks"
 import { BattleOrchestratorMode } from "../../orchestrator/battleOrchestrator"
 import {
@@ -44,18 +42,19 @@ import {
     GameEngineState,
     GameEngineStateService,
 } from "../../../gameEngine/gameEngineState/gameEngineState"
+import { ResourceRepositoryService } from "../../../resource/resourceRepository"
+import { TestLoadImmediatelyImageLoader } from "../../../resource/resourceRepositoryTestUtils"
+import { LoadCampaignData } from "../../../utils/fileHandling/loadCampaignData"
 
 describe("Player Action Target Select", () => {
     let playerActionTargetSelect: PlayerActionTargetSelect
     let gameEngineState: GameEngineState
     let graphicsContext: GraphicsBuffer
-    let resourceHandler: ResourceHandler
     let stateMachineSpy: MockInstance
     let drawViewControllerSpy: MockInstance
 
     beforeEach(() => {
         graphicsContext = new MockedP5GraphicsBuffer()
-        resourceHandler = mocks.mockResourceHandler(graphicsContext)
         gameEngineState = GameEngineStateService.new({
             battleOrchestratorState: BattleOrchestratorStateService.new({
                 battleState: BattleStateService.new({
@@ -65,6 +64,16 @@ describe("Player Action Target Select", () => {
                     missionId: "missionId",
                 }),
             }),
+            resourceRepository: ResourceRepositoryService.new({
+                imageLoader: new TestLoadImmediatelyImageLoader({}),
+                urls: Object.fromEntries(
+                    LoadCampaignData.getResourceKeys().map((key) => [
+                        key,
+                        "url",
+                    ])
+                ),
+            }),
+            repository: ObjectRepositoryService.new(),
             campaign: CampaignService.default(),
         })
         gameEngineState.battleOrchestratorState.battleHUDState.summaryHUDState =
@@ -91,7 +100,7 @@ describe("Player Action Target Select", () => {
                 .mockReturnValue()
             drawViewControllerSpy = vi
                 .spyOn(playerActionTargetSelect, "draw")
-                .mockReturnValue()
+                .mockReturnValue(gameEngineState.resourceRepository)
         })
 
         describe("it will run the updaters when it updates", () => {
@@ -164,14 +173,13 @@ describe("Player Action Target Select", () => {
         }
         drawViewControllerSpy = vi
             .spyOn(playerActionTargetSelect, "draw")
-            .mockReturnValue()
+            .mockReturnValue(gameEngineState.resourceRepository)
         playerActionTargetSelect.update({
             gameEngineState,
         })
         playerActionTargetSelect.draw({
             gameEngineState,
             graphics: graphicsContext,
-            resourceHandler,
         })
     }
     describe("update runs the state machine", () => {
@@ -306,7 +314,7 @@ describe("Player Action Target Select", () => {
                 .mockReturnValue()
             drawViewControllerSpy = vi
                 .spyOn(playerActionTargetSelect, "draw")
-                .mockReturnValue()
+                .mockReturnValue(gameEngineState.resourceRepository)
             playerActionTargetSelect.update({
                 gameEngineState,
             })
@@ -397,7 +405,7 @@ describe("Player Action Target Select", () => {
             }
             drawViewControllerSpy = vi
                 .spyOn(playerActionTargetSelect, "draw")
-                .mockReturnValue()
+                .mockReturnValue(gameEngineState.resourceRepository)
 
             playerActionTargetSelect.update({
                 gameEngineState,

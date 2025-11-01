@@ -8,6 +8,7 @@ import { MissionFileFormat } from "../../dataLoader/missionLoader"
 import { PlayerArmy } from "../../campaign/playerArmy"
 import { CampaignFileFormat } from "../../campaign/campaignFileFormat"
 import { vi } from "vitest"
+import { CampaignResourcesService } from "../../campaign/campaignResources.ts"
 
 export const LoadCampaignData = {
     createLoadFileSpy: () => {
@@ -147,5 +148,15 @@ export const LoadCampaignData = {
             npcActionTemplates,
             baseSquaddieTemplatesById,
         }
+    },
+    getResourceKeys: () => {
+        const { resourceKeys } = TestMissionData()
+        const { campaignFile } = TestCampaignData()
+        return [
+            ...resourceKeys,
+            ...CampaignResourcesService.getAllImageResourceKeys(
+                campaignFile.resources
+            ),
+        ]
     },
 }

@@ -9,8 +9,8 @@ import {
     OrchestratorComponentMouseEvent,
 } from "./battleOrchestratorComponent"
 import { GraphicsBuffer } from "../../utils/graphics/graphicsRenderer"
-import { ResourceHandler } from "../../resource/resourceHandler"
 import { GameEngineState } from "../../gameEngine/gameEngineState/gameEngineState"
+import { ResourceRepository } from "../../resource/resourceRepository.ts"
 
 export class DefaultBattleOrchestrator implements BattleOrchestratorComponent {
     hasCompleted(_: GameEngineState): boolean {
@@ -49,11 +49,13 @@ export class DefaultBattleOrchestrator implements BattleOrchestratorComponent {
         // Required by inheritance
     }
 
-    draw({}: {
+    draw({
+        gameEngineState,
+    }: {
         gameEngineState: GameEngineState
         graphics: GraphicsBuffer
-        resourceHandler: ResourceHandler | undefined
-    }): void {
+    }): ResourceRepository | undefined {
         // Required by inheritance
+        return gameEngineState.resourceRepository
     }
 }

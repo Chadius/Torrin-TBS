@@ -13,8 +13,8 @@ import {
 import { Cutscene, CutsceneService } from "../../cutscene/cutscene"
 import { isValidValue } from "../../utils/objectValidityCheck"
 import { GraphicsBuffer } from "../../utils/graphics/graphicsRenderer"
-import { ResourceHandler } from "../../resource/resourceHandler"
 import { GameEngineState } from "../../gameEngine/gameEngineState/gameEngineState"
+import { ResourceRepository } from "../../resource/resourceRepository.ts"
 
 export class BattleCutscenePlayer implements BattleOrchestratorComponent {
     private _currentCutscene: Cutscene | undefined
@@ -106,51 +106,64 @@ export class BattleCutscenePlayer implements BattleOrchestratorComponent {
 
         if (
             this.currentCutscene != undefined &&
-            gameEngineState.resourceHandler != undefined &&
+            gameEngineState.resourceRepository != undefined &&
             CutsceneService.hasLoaded(
                 this.currentCutscene,
-                gameEngineState.resourceHandler
+                gameEngineState.resourceRepository
             ) &&
             !CutsceneService.isInProgress(this.currentCutscene)
         ) {
             CutsceneService.setResources(
                 this.currentCutscene,
-                gameEngineState.resourceHandler
+                gameEngineState.resourceRepository
             )
-            CutsceneService.start(
-                this.currentCutscene,
-                gameEngineState.resourceHandler,
-                {
+            CutsceneService.start({
+                cutscene: this.currentCutscene,
+                resourceRepository: gameEngineState.resourceRepository,
+                context: {
                     battleOrchestratorState:
                         gameEngineState.battleOrchestratorState,
-                }
-            )
+                },
+            })
         }
     }
 
     draw({
         graphics,
-        resourceHandler,
         gameEngineState,
     }: {
         gameEngineState: GameEngineState
         graphics: GraphicsBuffer
-        resourceHandler: ResourceHandler | undefined
+    }): ResourceRepository | undefined {
+        this.drawNEW({
+            graphics,
+            gameEngineState,
+            resourceRepository: gameEngineState.resourceRepository,
+        })
+        return gameEngineState.resourceRepository
+    }
+
+    drawNEW({
+        graphics,
+        resourceRepository,
+        gameEngineState,
+    }: {
+        gameEngineState: GameEngineState
+        graphics: GraphicsBuffer
+        resourceRepository: ResourceRepository | undefined
     }): void {
-        if (
-            this.currentCutscene != undefined &&
-            CutsceneService.isInProgress(this.currentCutscene)
-        ) {
-            CutsceneService.draw(
-                this.currentCutscene,
-                graphics,
-                resourceHandler
-            )
-            CutsceneService.update(this.currentCutscene, {
-                battleOrchestratorState:
-                    gameEngineState.battleOrchestratorState,
-            })
-        }
+        if (resourceRepository == undefined) return
+        if (this.currentCutscene == undefined) return
+        if (!CutsceneService.isInProgress(this.currentCutscene)) return
+
+        CutsceneService.draw({
+            cutscene: this.currentCutscene,
+            graphicsContext: graphics,
+            resourceRepository,
+        })
+        CutsceneService.update(this.currentCutscene, {
+            battleOrchestratorState: gameEngineState.battleOrchestratorState,
+        })
     }
 
     recommendStateChanges(
@@ -186,13 +199,13 @@ export class BattleCutscenePlayer implements BattleOrchestratorComponent {
             gameEngineState.battleOrchestratorState.battleState.cutsceneCollection.cutsceneById[
                 cutsceneId
             ]
-        CutsceneService.start(
-            this._currentCutscene,
-            gameEngineState.resourceHandler,
-            {
+        CutsceneService.start({
+            cutscene: this._currentCutscene,
+            resourceRepository: gameEngineState.resourceRepository,
+            context: {
                 battleOrchestratorState:
                     gameEngineState.battleOrchestratorState,
-            }
-        )
+            },
+        })
     }
 }

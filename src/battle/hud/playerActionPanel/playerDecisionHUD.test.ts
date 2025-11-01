@@ -15,7 +15,6 @@ import {
     PlayerDecisionHUDService,
     PopupWindowType,
 } from "./playerDecisionHUD"
-import * as mocks from "../../../utils/test/mocks"
 import { MockedP5GraphicsBuffer } from "../../../utils/test/mocks"
 import {
     afterEach,
@@ -79,6 +78,7 @@ import {
     GameEngineState,
     GameEngineStateService,
 } from "../../../gameEngine/gameEngineState/gameEngineState"
+import { ResourceRepositoryTestUtilsService } from "../../../resource/resourceRepositoryTestUtils.ts"
 
 describe("Player Decision HUD", () => {
     const differentSquaddiePopup: PopupWindow = PopupWindowService.new({
@@ -228,7 +228,7 @@ describe("Player Decision HUD", () => {
         })
     })
 
-    const createGameEngineState = ({
+    const createGameEngineState = async ({
         battlePhaseState,
         battleSquaddieCoordinate,
         missionMap,
@@ -236,13 +236,13 @@ describe("Player Decision HUD", () => {
         battlePhaseState?: BattlePhaseState
         battleSquaddieCoordinate?: HexCoordinate
         missionMap?: MissionMap
-    }): {
+    }): Promise<{
         gameEngineState: GameEngineState
         longswordAction: ActionTemplate
         healSelfAction: ActionTemplate
         playerSoldierBattleSquaddie: BattleSquaddie
         battleSquaddie2: BattleSquaddie
-    } => {
+    }> => {
         const repository = ObjectRepositoryService.new()
         missionMap =
             missionMap ??
@@ -345,10 +345,14 @@ describe("Player Decision HUD", () => {
             originMapCoordinate: { q: 0, r: 1 },
         })
 
+        const resourceRepository =
+            await ResourceRepositoryTestUtilsService.getResourceRepositoryWithAllTestImages(
+                {
+                    graphics: new MockedP5GraphicsBuffer(),
+                }
+            )
+
         const gameEngineState = GameEngineStateService.new({
-            resourceHandler: mocks.mockResourceHandler(
-                new MockedP5GraphicsBuffer()
-            ),
             battleOrchestratorState: BattleOrchestratorStateService.new({
                 battleHUD: BattleHUDService.new({}),
                 battleState: BattleStateService.newBattleState({
@@ -369,6 +373,7 @@ describe("Player Decision HUD", () => {
                 }),
             }),
             repository,
+            resourceRepository,
             campaign: CampaignService.default(),
         })
         ObjectRepositoryService.addActionTemplate(
@@ -411,12 +416,12 @@ describe("Player Decision HUD", () => {
             mockP5GraphicsContext.textWidth = vi.fn().mockReturnValue(1)
         })
 
-        beforeEach(() => {
+        beforeEach(async () => {
             ;({
                 gameEngineState,
                 longswordAction,
                 playerSoldierBattleSquaddie,
-            } = createGameEngineState({}))
+            } = await createGameEngineState({}))
 
             const repository = gameEngineState.repository!
 
@@ -435,7 +440,7 @@ describe("Player Decision HUD", () => {
                     gameEngineState.battleOrchestratorState.battleHUDState
                         .summaryHUDState!,
                 gameEngineState,
-                resourceHandler: gameEngineState.resourceHandler!,
+                resourceRepository: gameEngineState.resourceRepository!,
                 graphicsBuffer: mockP5GraphicsContext,
             })
             playerDecisionHUDListener = new PlayerDecisionHUDListener(
@@ -461,7 +466,7 @@ describe("Player Decision HUD", () => {
                     type: MessageBoardMessageType.PLAYER_CONSIDERS_ACTION,
                     playerConsideredActions:
                         gameEngineState.battleOrchestratorState.battleState
-                            .playerConsideredActions,
+                            .playerConsideredActions!,
                     summaryHUDState:
                         gameEngineState.battleOrchestratorState.battleHUDState
                             .summaryHUDState!,
@@ -522,7 +527,7 @@ describe("Player Decision HUD", () => {
                 type: MessageBoardMessageType.PLAYER_CONSIDERS_ACTION,
                 playerConsideredActions:
                     gameEngineState.battleOrchestratorState.battleState
-                        .playerConsideredActions,
+                        .playerConsideredActions!,
                 summaryHUDState:
                     gameEngineState.battleOrchestratorState.battleHUDState
                         .summaryHUDState!,
@@ -547,7 +552,7 @@ describe("Player Decision HUD", () => {
                     gameEngineState.battleOrchestratorState.battleHUDState
                         .summaryHUDState!,
                 gameEngineState,
-                resourceHandler: gameEngineState.resourceHandler!,
+                resourceRepository: gameEngineState.resourceRepository!,
                 graphicsBuffer: mockP5GraphicsContext,
             })
 
@@ -563,7 +568,7 @@ describe("Player Decision HUD", () => {
                     type: MessageBoardMessageType.PLAYER_CONSIDERS_ACTION,
                     playerConsideredActions:
                         gameEngineState.battleOrchestratorState.battleState
-                            .playerConsideredActions,
+                            .playerConsideredActions!,
                     summaryHUDState:
                         gameEngineState.battleOrchestratorState.battleHUDState
                             .summaryHUDState!,
@@ -650,7 +655,7 @@ describe("Player Decision HUD", () => {
                     type: MessageBoardMessageType.PLAYER_CONSIDERS_MOVEMENT,
                     playerConsideredActions:
                         gameEngineState.battleOrchestratorState.battleState
-                            .playerConsideredActions,
+                            .playerConsideredActions!,
                     summaryHUDState:
                         gameEngineState.battleOrchestratorState.battleHUDState
                             .summaryHUDState!,
@@ -718,10 +723,10 @@ describe("Player Decision HUD", () => {
         let mockP5GraphicsContext: MockedP5GraphicsBuffer
         let battleSquaddie: BattleSquaddie
 
-        beforeEach(() => {
+        beforeEach(async () => {
             mockP5GraphicsContext = new MockedP5GraphicsBuffer()
             ;({ gameEngineState, playerSoldierBattleSquaddie: battleSquaddie } =
-                createGameEngineState({
+                await createGameEngineState({
                     missionMap: MissionMapService.new({
                         terrainTileMap: TerrainTileMapService.new({
                             movementCost: ["1 1 1 1 "],
@@ -741,7 +746,7 @@ describe("Player Decision HUD", () => {
                     gameEngineState.battleOrchestratorState.battleHUDState
                         .summaryHUDState!,
                 gameEngineState,
-                resourceHandler: gameEngineState.resourceHandler!,
+                resourceRepository: gameEngineState.resourceRepository!,
                 graphicsBuffer: mockP5GraphicsContext,
             })
 
@@ -919,7 +924,7 @@ describe("Player Decision HUD", () => {
                     gameEngineState.battleOrchestratorState.battleHUDState
                         .summaryHUDState!,
                 gameEngineState,
-                resourceHandler: gameEngineState.resourceHandler!,
+                resourceRepository: gameEngineState.resourceRepository!,
                 graphicsBuffer: mockP5GraphicsContext,
             })
         })

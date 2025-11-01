@@ -17,9 +17,9 @@ import { ActionComponentCalculator } from "../actionDecision/actionComponentCalc
 import { MessageBoardMessageType } from "../../message/messageBoardMessage"
 import { BattleActionService } from "../history/battleAction/battleAction"
 import { BattleActionRecorderService } from "../history/battleAction/battleActionRecorder"
-import { ResourceHandler } from "../../resource/resourceHandler"
 import { SquaddieService } from "../../squaddie/squaddieService"
 import { GraphicsConfig } from "../../utils/graphics/graphicsConfig"
+import { ResourceRepository } from "../../resource/resourceRepository"
 import { SearchPathAdapterService } from "../../search/searchPathAdapter/searchPathAdapter"
 import { GameEngineState } from "../../gameEngine/gameEngineState/gameEngineState"
 import {
@@ -127,11 +127,15 @@ export class BattleSquaddieMover implements BattleOrchestratorComponent {
         }
     }
 
-    private updateWhileAnimationIsInProgress(
-        gameEngineState: GameEngineState,
-        graphicsContext: GraphicsBuffer,
-        resourceHandler: ResourceHandler | undefined
-    ) {
+    private updateWhileAnimationIsInProgress({
+        gameEngineState,
+        graphicsContext,
+        resourceRepository,
+    }: {
+        gameEngineState: GameEngineState
+        graphicsContext: GraphicsBuffer
+        resourceRepository: ResourceRepository | undefined
+    }) {
         if (gameEngineState.repository == undefined) return
         const repository = gameEngineState.repository
 
@@ -148,8 +152,8 @@ export class BattleSquaddieMover implements BattleOrchestratorComponent {
                         repository,
                         battleSquaddieId: battleSquaddieId,
                     })
-                if (mapIcon && resourceHandler) {
-                    mapIcon.draw({ graphicsContext, resourceHandler })
+                if (mapIcon && resourceRepository) {
+                    mapIcon.draw({ graphicsContext, resourceRepository })
                 }
             }
         )
@@ -283,13 +287,12 @@ export class BattleSquaddieMover implements BattleOrchestratorComponent {
     draw({
         gameEngineState,
         graphics,
-        resourceHandler,
     }: {
         gameEngineState: GameEngineState
         graphics: GraphicsBuffer
-        resourceHandler: ResourceHandler | undefined
-    }): void {
-        if (!this.progress.createdAnimation) return
+    }): ResourceRepository | undefined {
+        if (!this.progress.createdAnimation)
+            return gameEngineState.resourceRepository
 
         if (!this.progress.startedAnimation) {
             this.progress.startedAnimation = true
@@ -301,12 +304,12 @@ export class BattleSquaddieMover implements BattleOrchestratorComponent {
                 .squaddieMovePath != undefined &&
             !this.hasAllMovementAnimationsFinished()
         ) {
-            this.updateWhileAnimationIsInProgress(
-                gameEngineState,
-                graphics,
-                resourceHandler
-            )
-            return
+            this.updateWhileAnimationIsInProgress({
+                gameEngineState: gameEngineState,
+                graphicsContext: graphics,
+                resourceRepository: gameEngineState.resourceRepository,
+            })
+            return gameEngineState.resourceRepository
         }
 
         Object.keys(this.progress.squaddieMoveOnMapAnimations).forEach(
@@ -322,26 +325,32 @@ export class BattleSquaddieMover implements BattleOrchestratorComponent {
                     gameEngineState.repository,
                     battleSquaddie
                 )
-                if (gameEngineState.resourceHandler) {
-                    updateIconLocation(
-                        gameEngineState,
-                        battleSquaddie,
-                        graphics,
-                        gameEngineState.resourceHandler
-                    )
+                if (gameEngineState.resourceRepository) {
+                    updateIconLocation({
+                        gameEngineState: gameEngineState,
+                        battleSquaddie: battleSquaddie,
+                        graphicsContext: graphics,
+                        resourceRepository: gameEngineState.resourceRepository,
+                    })
                 }
             }
         )
         this.progress.finishedAnimation = true
+        return gameEngineState.resourceRepository
     }
 }
 
-const updateIconLocation = (
-    gameEngineState: GameEngineState,
-    battleSquaddie: BattleSquaddie,
-    graphicsContext: GraphicsBuffer,
-    resourceHandler: ResourceHandler
-) => {
+const updateIconLocation = ({
+    gameEngineState,
+    battleSquaddie,
+    graphicsContext,
+    resourceRepository,
+}: {
+    gameEngineState: GameEngineState
+    battleSquaddie: BattleSquaddie
+    graphicsContext: GraphicsBuffer
+    resourceRepository: ResourceRepository
+}) => {
     if (gameEngineState.repository == undefined) return
     const mapIcon = ObjectRepositoryService.getImageUIByBattleSquaddieId({
         repository: gameEngineState.repository,
@@ -361,5 +370,5 @@ const updateIconLocation = (
         destination,
         camera: gameEngineState.battleOrchestratorState.battleState.camera,
     })
-    mapIcon.draw({ graphicsContext, resourceHandler })
+    mapIcon.draw({ graphicsContext, resourceRepository })
 }

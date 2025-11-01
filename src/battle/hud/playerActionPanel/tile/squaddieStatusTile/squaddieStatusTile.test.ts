@@ -12,13 +12,16 @@ import {
     BattleSquaddie,
     BattleSquaddieService,
 } from "../../../../battleSquaddie"
-import * as mocks from "../../../../../utils/test/mocks"
 import {
     MockedGraphicsBufferService,
     MockedP5GraphicsBuffer,
 } from "../../../../../utils/test/mocks"
-import { ResourceHandler } from "../../../../../resource/resourceHandler"
 import { HUE_BY_SQUADDIE_AFFILIATION } from "../../../../../graphicsConstants"
+import {
+    ResourceRepository,
+    ResourceRepositoryService,
+} from "../../../../../resource/resourceRepository"
+import { ResourceRepositoryTestUtilsService } from "../../../../../resource/resourceRepositoryTestUtils"
 import { ActionTilePosition } from "../actionTilePosition"
 import {
     SquaddieStatusTile,
@@ -69,23 +72,24 @@ import {
 describe("Squaddie Status Tile", () => {
     let objectRepository: ObjectRepository
     let tile: SquaddieStatusTile
-    let resourceHandler: ResourceHandler
+    let resourceRepository: ResourceRepository
     let mockP5GraphicsContext: MockedP5GraphicsBuffer
     let graphicsBufferSpies: { [key: string]: MockInstance }
     let gameEngineState: GameEngineState
 
-    beforeEach(() => {
+    beforeEach(async () => {
         objectRepository = ObjectRepositoryService.new()
         mockP5GraphicsContext = new MockedP5GraphicsBuffer()
-        resourceHandler = mocks.mockResourceHandler(mockP5GraphicsContext)
-        resourceHandler.loadResource = vi
-            .fn()
-            .mockReturnValue({ width: 1, height: 1 })
+        resourceRepository =
+            await ResourceRepositoryTestUtilsService.getResourceRepositoryWithAllTestImages(
+                { graphics: mockP5GraphicsContext }
+            )
+
         graphicsBufferSpies = MockedGraphicsBufferService.addSpies(
             mockP5GraphicsContext
         )
         gameEngineState = GameEngineStateService.new({
-            resourceHandler,
+            resourceRepository,
             repository: objectRepository,
             campaign: CampaignService.default(),
             battleOrchestratorState: BattleOrchestratorStateService.new({
@@ -128,11 +132,10 @@ describe("Squaddie Status Tile", () => {
                 gameEngineState,
             }))
 
-            resourceHandler.isResourceLoaded = vi.fn().mockReturnValue(false)
             SquaddieStatusTileService.draw({
                 tile: tile,
                 graphicsContext: mockP5GraphicsContext,
-                resourceHandler,
+                resourceRepository,
             })
 
             expect(graphicsBufferSpies["rect"]).toBeCalled()
@@ -177,7 +180,7 @@ describe("Squaddie Status Tile", () => {
             SquaddieStatusTileService.draw({
                 tile,
                 graphicsContext: mockP5GraphicsContext,
-                resourceHandler,
+                resourceRepository,
             })
 
             expect(graphicsBufferSpies["text"]).toBeCalledWith(
@@ -217,7 +220,7 @@ describe("Squaddie Status Tile", () => {
             SquaddieStatusTileService.draw({
                 tile,
                 graphicsContext: mockP5GraphicsContext,
-                resourceHandler,
+                resourceRepository,
             })
 
             expect(graphicsBufferSpies["text"]).toBeCalledWith(
@@ -254,7 +257,7 @@ describe("Squaddie Status Tile", () => {
             SquaddieStatusTileService.draw({
                 tile,
                 graphicsContext: mockP5GraphicsContext,
-                resourceHandler,
+                resourceRepository,
             })
             return tile
         }
@@ -605,7 +608,7 @@ describe("Squaddie Status Tile", () => {
             SquaddieStatusTileService.draw({
                 tile,
                 graphicsContext: mockP5GraphicsContext,
-                resourceHandler,
+                resourceRepository,
             })
 
             const uiObjects = DataBlobService.get<SquaddieStatusTileUIObjects>(
@@ -704,7 +707,7 @@ describe("Squaddie Status Tile", () => {
             SquaddieStatusTileService.draw({
                 tile,
                 graphicsContext: mockP5GraphicsContext,
-                resourceHandler,
+                resourceRepository,
             })
 
             expect(graphicsBufferSpies["text"]).toBeCalledWith(
@@ -761,7 +764,7 @@ describe("Squaddie Status Tile", () => {
             SquaddieStatusTileService.draw({
                 tile,
                 graphicsContext: mockP5GraphicsContext,
-                resourceHandler,
+                resourceRepository,
             })
 
             const uiObjects = DataBlobService.get<SquaddieStatusTileUIObjects>(
@@ -892,7 +895,7 @@ describe("Squaddie Status Tile", () => {
             SquaddieStatusTileService.draw({
                 tile,
                 graphicsContext: mockP5GraphicsContext,
-                resourceHandler,
+                resourceRepository,
             })
 
             expect(graphicsBufferSpies["text"]).toBeCalledWith(
@@ -945,7 +948,7 @@ describe("Squaddie Status Tile", () => {
             SquaddieStatusTileService.draw({
                 tile,
                 graphicsContext: mockP5GraphicsContext,
-                resourceHandler,
+                resourceRepository,
             })
 
             expect(graphicsBufferSpies["text"]).toBeCalledWith(
@@ -997,7 +1000,7 @@ describe("Squaddie Status Tile", () => {
             SquaddieStatusTileService.draw({
                 tile,
                 graphicsContext: mockP5GraphicsContext,
-                resourceHandler,
+                resourceRepository,
             })
 
             expect(graphicsBufferSpies["text"]).toBeCalledWith(
@@ -1013,7 +1016,6 @@ describe("Squaddie Status Tile", () => {
     describe("attribute modifiers", () => {
         let getResourceSpy: MockInstance
         let battleSquaddie: BattleSquaddie
-        const fakeImage = { width: 1, height: 1 }
 
         beforeEach(() => {
             ;({ tile, battleSquaddie } = createSquaddieOfGivenAffiliation({
@@ -1021,19 +1023,15 @@ describe("Squaddie Status Tile", () => {
                 affiliation: SquaddieAffiliation.PLAYER,
             }))
 
-            resourceHandler.getResource = vi.fn().mockReturnValue(fakeImage)
-            getResourceSpy = vi.spyOn(resourceHandler, "getResource")
+            getResourceSpy = vi.spyOn(ResourceRepositoryService, "getImage")
         })
 
         afterEach(() => {
             getResourceSpy.mockRestore()
         })
 
-        it("will not draw attribute modifier icons until it loads", () => {
+        it("will draw attribute modifier icons", () => {
             const armorAttributeIcon = "attribute-icon-armor"
-            const isResourceLoadedSpy = (resourceHandler.isResourceLoaded = vi
-                .fn()
-                .mockReturnValue(false))
 
             InBattleAttributesService.addActiveAttributeModifier(
                 battleSquaddie.inBattleAttributes,
@@ -1061,29 +1059,13 @@ describe("Squaddie Status Tile", () => {
             SquaddieStatusTileService.draw({
                 tile,
                 graphicsContext: mockP5GraphicsContext,
-                resourceHandler,
+                resourceRepository,
             })
 
-            expect(isResourceLoadedSpy).toBeCalledWith(armorAttributeIcon)
-            expect(graphicsBufferSpies["image"]).not.toBeCalled()
-
-            resourceHandler.isResourceLoaded = vi.fn().mockReturnValue(true)
-
-            SquaddieStatusTileService.draw({
-                tile,
-                graphicsContext: mockP5GraphicsContext,
-                resourceHandler,
-            })
-
-            expect(getResourceSpy).toBeCalledWith(armorAttributeIcon)
+            expect(getResourceSpy).toBeCalledWith(
+                expect.objectContaining({ key: armorAttributeIcon })
+            )
             expect(graphicsBufferSpies["image"]).toBeCalled()
-
-            const drawSpyCalls = graphicsBufferSpies["image"].mock.calls
-            expect(
-                drawSpyCalls.some((call) => call[0] === fakeImage)
-            ).toBeTruthy()
-
-            isResourceLoadedSpy.mockRestore()
         })
 
         describe("will draw the attribute icon", () => {
@@ -1110,60 +1092,41 @@ describe("Squaddie Status Tile", () => {
                 },
             ]
 
-            it.each(drawAttributeTests)(
-                `$name`,
-                ({ attributeType, expectedIconKey }) => {
-                    const isResourceLoadedSpy =
-                        (resourceHandler.isResourceLoaded = vi
-                            .fn()
-                            .mockImplementation(
-                                (resourceKey: string) =>
-                                    resourceKey === expectedIconKey
-                            ))
-
-                    InBattleAttributesService.addActiveAttributeModifier(
-                        battleSquaddie.inBattleAttributes,
-                        AttributeModifierService.new({
-                            type: attributeType,
-                            source: AttributeSource.CIRCUMSTANCE,
-                            amount: 1,
-                        })
-                    )
-
-                    SquaddieStatusTileService.updateTileUsingSquaddie({
-                        tile,
-                        missionMap:
-                            gameEngineState.battleOrchestratorState.battleState
-                                .missionMap,
-                        playerConsideredActions:
-                            gameEngineState.battleOrchestratorState.battleState
-                                .playerConsideredActions,
-                        battleActionDecisionStep:
-                            gameEngineState.battleOrchestratorState.battleState
-                                .battleActionDecisionStep,
-                        objectRepository: gameEngineState.repository!,
+            it.each(drawAttributeTests)(`$name`, ({ attributeType }) => {
+                InBattleAttributesService.addActiveAttributeModifier(
+                    battleSquaddie.inBattleAttributes,
+                    AttributeModifierService.new({
+                        type: attributeType,
+                        source: AttributeSource.CIRCUMSTANCE,
+                        amount: 1,
                     })
+                )
 
-                    SquaddieStatusTileService.draw({
-                        tile,
-                        graphicsContext: mockP5GraphicsContext,
-                        resourceHandler,
-                    })
+                SquaddieStatusTileService.updateTileUsingSquaddie({
+                    tile,
+                    missionMap:
+                        gameEngineState.battleOrchestratorState.battleState
+                            .missionMap,
+                    playerConsideredActions:
+                        gameEngineState.battleOrchestratorState.battleState
+                            .playerConsideredActions,
+                    battleActionDecisionStep:
+                        gameEngineState.battleOrchestratorState.battleState
+                            .battleActionDecisionStep,
+                    objectRepository: gameEngineState.repository!,
+                })
 
-                    expect(isResourceLoadedSpy).toBeCalledWith(expectedIconKey)
-                    expect(graphicsBufferSpies["image"]).toBeCalled()
+                SquaddieStatusTileService.draw({
+                    tile,
+                    graphicsContext: mockP5GraphicsContext,
+                    resourceRepository,
+                })
 
-                    const drawSpyCalls = graphicsBufferSpies["image"].mock.calls
-                    expect(
-                        drawSpyCalls.some((call) => call[0] === fakeImage)
-                    ).toBeTruthy()
-                    isResourceLoadedSpy.mockRestore()
-                }
-            )
+                expect(graphicsBufferSpies["image"]).toBeCalled()
+            })
         })
 
         describe("will draw comparison icons to show the amount of an attribute modifier", () => {
-            const armorAttributeIcon = "attribute-icon-armor"
             const drawAmountTests: {
                 name: string
                 amount: number
@@ -1193,22 +1156,6 @@ describe("Squaddie Status Tile", () => {
                 }) => {
                     expect(amount).not.toEqual(0)
 
-                    let fakeAttributeImage = { width: 1, height: 1 }
-                    let fakeComparisonImage = { width: 2, height: 2 }
-                    resourceHandler.getResource = vi
-                        .fn()
-                        .mockImplementation((key) => {
-                            if (key === armorAttributeIcon) {
-                                return fakeAttributeImage
-                            }
-                            return fakeComparisonImage
-                        })
-                    getResourceSpy = vi.spyOn(resourceHandler, "getResource")
-                    const isResourceLoadedSpy =
-                        (resourceHandler.isResourceLoaded = vi
-                            .fn()
-                            .mockReturnValue(true))
-
                     InBattleAttributesService.addActiveAttributeModifier(
                         battleSquaddie.inBattleAttributes,
                         AttributeModifierService.new({
@@ -1235,26 +1182,16 @@ describe("Squaddie Status Tile", () => {
                     SquaddieStatusTileService.draw({
                         tile,
                         graphicsContext: mockP5GraphicsContext,
-                        resourceHandler,
+                        resourceRepository,
                     })
 
-                    expect(isResourceLoadedSpy).toBeCalledWith(
-                        expectedComparisonIconResourceKey
-                    )
                     expect(getResourceSpy).toBeCalledWith(
-                        expectedComparisonIconResourceKey
+                        expect.objectContaining({
+                            key: expectedComparisonIconResourceKey,
+                        })
                     )
 
                     expect(graphicsBufferSpies["image"]).toBeCalled()
-
-                    const drawSpyCalls = graphicsBufferSpies["image"].mock.calls
-                    expect(
-                        drawSpyCalls.some(
-                            (call) =>
-                                call[0].width === fakeComparisonImage.width
-                        )
-                    ).toBeTruthy()
-
                     expect(graphicsBufferSpies["text"]).toBeCalledWith(
                         expect.stringMatching(expectedText),
                         expect.anything(),
@@ -1267,20 +1204,7 @@ describe("Squaddie Status Tile", () => {
         })
 
         it("will not draw comparison icons for binary attributes", () => {
-            const ignoreTerrainCostAttributeIcon = "attribute-icon-hustle"
-
-            let fakeAttributeImage = { width: 1, height: 1 }
-            let fakeComparisonImage = { width: 2, height: 2 }
-            resourceHandler.getResource = vi.fn().mockImplementation((key) => {
-                if (key === ignoreTerrainCostAttributeIcon) {
-                    return fakeAttributeImage
-                }
-                return fakeComparisonImage
-            })
-            getResourceSpy = vi.spyOn(resourceHandler, "getResource")
-            const isResourceLoadedSpy = (resourceHandler.isResourceLoaded = vi
-                .fn()
-                .mockReturnValue(true))
+            getResourceSpy = vi.spyOn(ResourceRepositoryService, "getImage")
 
             InBattleAttributesService.addActiveAttributeModifier(
                 battleSquaddie.inBattleAttributes,
@@ -1308,20 +1232,15 @@ describe("Squaddie Status Tile", () => {
             SquaddieStatusTileService.draw({
                 tile,
                 graphicsContext: mockP5GraphicsContext,
-                resourceHandler,
+                resourceRepository,
             })
 
-            expect(isResourceLoadedSpy).not.toBeCalledWith("attribute-up")
+            expect(getResourceSpy).toBeCalledWith(
+                expect.objectContaining({ key: "attribute-icon-hustle" })
+            )
             expect(getResourceSpy).not.toBeCalledWith("attribute-up")
 
             expect(graphicsBufferSpies["image"]).toBeCalled()
-
-            const drawSpyCalls = graphicsBufferSpies["image"].mock.calls
-            expect(
-                drawSpyCalls.some(
-                    (call) => call[0].width === fakeComparisonImage.width
-                )
-            ).toBeFalsy()
 
             const textSpyCalls = graphicsBufferSpies["text"].mock.calls
             expect(textSpyCalls.some((call) => call[0] === "+1")).toBeFalsy()
@@ -1348,16 +1267,7 @@ describe("Squaddie Status Tile", () => {
                     })
                 )
 
-                resourceHandler.isResourceLoaded = vi.fn().mockReturnValue(true)
-                resourceHandler.getResource = vi
-                    .fn()
-                    .mockImplementation((key) => {
-                        if (key.includes("attribute-icon")) {
-                            return fakeAttributeImage
-                        }
-                        return fakeComparisonImage
-                    })
-                getResourceSpy = vi.spyOn(resourceHandler, "getResource")
+                getResourceSpy = vi.spyOn(ResourceRepositoryService, "getImage")
 
                 SquaddieStatusTileService.updateTileUsingSquaddie({
                     tile,
@@ -1376,7 +1286,7 @@ describe("Squaddie Status Tile", () => {
                 SquaddieStatusTileService.draw({
                     tile,
                     graphicsContext: mockP5GraphicsContext,
-                    resourceHandler,
+                    resourceRepository,
                 })
             })
             it("will remove icons and not draw them again if the duration expires", () => {
@@ -1403,7 +1313,7 @@ describe("Squaddie Status Tile", () => {
                 SquaddieStatusTileService.draw({
                     tile,
                     graphicsContext: mockP5GraphicsContext,
-                    resourceHandler,
+                    resourceRepository,
                 })
 
                 const drawSpyCalls = graphicsBufferSpies["image"].mock.calls

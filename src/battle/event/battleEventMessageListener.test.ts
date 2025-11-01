@@ -64,7 +64,6 @@ describe("Event Message Listener", () => {
     beforeEach(() => {
         gameEngineState = GameEngineStateService.new({
             repository: ObjectRepositoryService.new(),
-            resourceHandler: undefined,
             battleOrchestratorState: BattleOrchestratorStateService.new({
                 battleState: BattleStateService.newBattleState({
                     missionId: "test mission",

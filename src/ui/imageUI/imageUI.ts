@@ -1,9 +1,13 @@
 import { RectArea } from "../rectArea"
 import p5 from "p5"
 import { GraphicsBuffer } from "../../utils/graphics/graphicsRenderer"
-import { ResourceHandler } from "../../resource/resourceHandler"
 import { PulseColor, PulseColorService } from "../../hexMap/pulseColor"
 import { EnumLike } from "../../utils/enum"
+import {
+    ResourceRepository,
+    ResourceRepositoryService,
+    ResourceRepositoryStatus,
+} from "../../resource/resourceRepository.ts"
 
 export const ImageUILoadingBehavior = {
     USE_IMAGE_SIZE: "USE_IMAGE_SIZE",
@@ -112,12 +116,12 @@ export class ImageUI {
 
     draw({
         graphicsContext,
-        resourceHandler,
+        resourceRepository,
     }: {
         graphicsContext: GraphicsBuffer
-        resourceHandler: ResourceHandler
+        resourceRepository: ResourceRepository
     }) {
-        this.load(resourceHandler)
+        this.load(resourceRepository)
         if (!this.graphic) return
 
         graphicsContext.push()
@@ -209,16 +213,21 @@ export class ImageUI {
         this.tintColor = []
     }
 
-    load(resourceHandler: ResourceHandler) {
+    load(resourceRepository: ResourceRepository) {
         if (this.graphic) return
         if (this.resourceKey == undefined) return
-        if (resourceHandler.isResourceLoaded(this.resourceKey)) {
-            this.graphic = resourceHandler.getResource(this.resourceKey)
+        const imageInfo = ResourceRepositoryService.getStatus({
+            resourceRepository,
+            key: this.resourceKey,
+        })
+        if (imageInfo.status == ResourceRepositoryStatus.LOADING_SUCCESSFUL) {
+            this.graphic = ResourceRepositoryService.getImage({
+                resourceRepository,
+                key: this.resourceKey,
+            })
             this.resizeDrawAreaBasedOnLoadingBehavior()
             return
         }
-
-        resourceHandler.loadResource(this.resourceKey)
     }
 
     isImageLoaded(): boolean {

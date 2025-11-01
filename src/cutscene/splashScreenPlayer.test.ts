@@ -4,10 +4,7 @@ import {
 } from "./splashScreenPlayer"
 import { SplashScreen, SplashScreenService } from "./splashScreen"
 import { ScreenDimensions } from "../utils/graphics/graphicsConfig"
-import {
-    MockedP5GraphicsBuffer,
-    mockResourceHandler,
-} from "../utils/test/mocks"
+import { MockedP5GraphicsBuffer } from "../utils/test/mocks"
 import {
     afterEach,
     beforeEach,
@@ -19,8 +16,25 @@ import {
 } from "vitest"
 import { PlayerInputTestService } from "../utils/test/playerInput"
 import { PlayerInputStateService } from "../ui/playerInput/playerInputState"
+import {
+    ResourceRepository,
+    ResourceRepositoryService,
+} from "../resource/resourceRepository.ts"
+import { TestLoadImmediatelyImageLoader } from "../resource/resourceRepositoryTestUtils.ts"
+import { LoadCampaignData } from "../utils/fileHandling/loadCampaignData.ts"
 
 describe("splash screen", () => {
+    let resourceRepository: ResourceRepository
+    beforeEach(() => {
+        let loadImmediatelyImageLoader = new TestLoadImmediatelyImageLoader({})
+        resourceRepository = ResourceRepositoryService.new({
+            imageLoader: loadImmediatelyImageLoader,
+            urls: Object.fromEntries(
+                LoadCampaignData.getResourceKeys().map((key) => [key, "url"])
+            ),
+        })
+    })
+
     describe("splash screen finishes", () => {
         let titleScreenData: SplashScreen
         let player: SplashScreenPlayerState
@@ -116,11 +130,11 @@ describe("splash screen", () => {
                 splashScreen: splashWithBackgroundState,
             })
 
-            SplashScreenPlayerService.draw(
-                splashPlayerState,
-                mockedP5GraphicsContext,
-                mockResourceHandler(mockedP5GraphicsContext)
-            )
+            SplashScreenPlayerService.draw({
+                splashScreenPlayerState: splashPlayerState,
+                graphicsContext: mockedP5GraphicsContext,
+                resourceRepository,
+            })
             expect(drawRectSpy).toBeCalled()
             expect(drawRectSpy).toBeCalledWith(
                 0,
@@ -140,11 +154,11 @@ describe("splash screen", () => {
                 splashScreen: splashWithoutBackgroundState,
             })
 
-            SplashScreenPlayerService.draw(
-                splashPlayerState,
-                mockedP5GraphicsContext,
-                mockResourceHandler(mockedP5GraphicsContext)
-            )
+            SplashScreenPlayerService.draw({
+                splashScreenPlayerState: splashPlayerState,
+                graphicsContext: mockedP5GraphicsContext,
+                resourceRepository,
+            })
             expect(drawRectSpy).not.toBeCalled()
         })
     })

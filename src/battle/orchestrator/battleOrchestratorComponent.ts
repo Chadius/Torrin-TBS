@@ -8,9 +8,9 @@ import {
     ScreenLocation,
 } from "../../utils/mouseConfig"
 import { GraphicsBuffer } from "../../utils/graphics/graphicsRenderer"
-import { ResourceHandler } from "../../resource/resourceHandler"
 import { EnumLike } from "../../utils/enum"
 import { GameEngineState } from "../../gameEngine/gameEngineState/gameEngineState"
+import { ResourceRepository } from "../../resource/resourceRepository"
 
 export const OrchestratorComponentMouseEventType = {
     UNKNOWN: "UNKNOWN",
@@ -89,8 +89,7 @@ export interface BattleOrchestratorComponent {
     draw({}: {
         gameEngineState: GameEngineState
         graphics: GraphicsBuffer
-        resourceHandler: ResourceHandler | undefined
-    }): void
+    }): ResourceRepository | undefined
 
     uiControlSettings(
         gameEngineState: GameEngineState

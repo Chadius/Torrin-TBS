@@ -17,8 +17,6 @@ import {
 } from "../orchestrator/battleOrchestratorComponent"
 import { LabelService } from "../../ui/label"
 import { TerrainTileMapService } from "../../hexMap/terrainTileMap"
-import { ResourceHandler } from "../../resource/resourceHandler"
-import * as mocks from "../../utils/test/mocks"
 import { MockedP5GraphicsBuffer } from "../../utils/test/mocks"
 import { Damage, SquaddieService } from "../../squaddie/squaddieService"
 import { MissionMap, MissionMapService } from "../../missionMap/missionMap"
@@ -75,6 +73,9 @@ import {
     GameEngineStateService,
 } from "../../gameEngine/gameEngineState/gameEngineState"
 import { CoordinateGeneratorShape } from "../targeting/coordinateGenerator"
+import { ResourceRepositoryService } from "../../resource/resourceRepository"
+import { TestLoadImmediatelyImageLoader } from "../../resource/resourceRepositoryTestUtils"
+import { LoadCampaignData } from "../../utils/fileHandling/loadCampaignData"
 
 describe("BattleSquaddieUsesActionOnSquaddie", () => {
     let objectRepository: ObjectRepository
@@ -86,7 +87,6 @@ describe("BattleSquaddieUsesActionOnSquaddie", () => {
     let attackLongswordAction: ActionTemplate
     let monkKoanAction: ActionTemplate
     let squaddieUsesActionOnSquaddie: BattleSquaddieUsesActionOnSquaddie
-    let mockResourceHandler: ResourceHandler
     let mockedP5GraphicsContext: MockedP5GraphicsBuffer
     const targetDynamicSquaddieBattleSquaddieId = "target_dynamic_squaddie"
     let squaddieUpkeepSpy: MockInstance
@@ -213,11 +213,6 @@ describe("BattleSquaddieUsesActionOnSquaddie", () => {
             .mockImplementation(() => {})
 
         squaddieUsesActionOnSquaddie = new BattleSquaddieUsesActionOnSquaddie()
-
-        mockResourceHandler = mocks.mockResourceHandler(mockedP5GraphicsContext)
-        mockResourceHandler.getResource = vi
-            .fn()
-            .mockReturnValue({ width: 32, height: 32 })
     })
 
     afterEach(() => {
@@ -242,7 +237,15 @@ describe("BattleSquaddieUsesActionOnSquaddie", () => {
         const gameEngineState = GameEngineStateService.new({
             battleOrchestratorState,
             repository: objectRepository,
-            resourceHandler: mockResourceHandler,
+            resourceRepository: ResourceRepositoryService.new({
+                imageLoader: new TestLoadImmediatelyImageLoader({}),
+                urls: Object.fromEntries(
+                    LoadCampaignData.getResourceKeys().map((key) => [
+                        key,
+                        "url",
+                    ])
+                ),
+            }),
             campaign: CampaignService.default(),
         })
 
@@ -264,7 +267,7 @@ describe("BattleSquaddieUsesActionOnSquaddie", () => {
 
         gameEngineState.messageBoard.sendMessage({
             type: MessageBoardMessageType.PLAYER_SELECTS_AND_LOCKS_SQUADDIE,
-            repository: gameEngineState.repository,
+            repository: gameEngineState.repository!,
             battleHUDState:
                 gameEngineState.battleOrchestratorState.battleHUDState,
             battleState: gameEngineState.battleOrchestratorState.battleState,
@@ -330,13 +333,21 @@ describe("BattleSquaddieUsesActionOnSquaddie", () => {
         const gameEngineState = GameEngineStateService.new({
             battleOrchestratorState,
             repository: objectRepository,
-            resourceHandler: mockResourceHandler,
+            resourceRepository: ResourceRepositoryService.new({
+                imageLoader: new TestLoadImmediatelyImageLoader({}),
+                urls: Object.fromEntries(
+                    LoadCampaignData.getResourceKeys().map((key) => [
+                        key,
+                        "url",
+                    ])
+                ),
+            }),
             campaign: CampaignService.default(),
         })
 
         gameEngineState.messageBoard.sendMessage({
             type: MessageBoardMessageType.PLAYER_SELECTS_AND_LOCKS_SQUADDIE,
-            repository: gameEngineState.repository,
+            repository: gameEngineState.repository!,
             battleHUDState:
                 gameEngineState.battleOrchestratorState.battleHUDState,
             battleState: gameEngineState.battleOrchestratorState.battleState,
@@ -572,7 +583,6 @@ describe("BattleSquaddieUsesActionOnSquaddie", () => {
             squaddieUsesActionOnSquaddie.draw({
                 gameEngineState,
                 graphics: mockedP5GraphicsContext,
-                resourceHandler: gameEngineState.resourceHandler!,
             })
             expect(
                 squaddieTargetsOtherSquaddiesAnimatorHasCompletedSpy
@@ -646,7 +656,6 @@ describe("BattleSquaddieUsesActionOnSquaddie", () => {
         squaddieUsesActionOnSquaddie.draw({
             gameEngineState,
             graphics: mockedP5GraphicsContext,
-            resourceHandler: gameEngineState.resourceHandler!,
         })
 
         expect(
@@ -735,7 +744,6 @@ describe("BattleSquaddieUsesActionOnSquaddie", () => {
         squaddieUsesActionOnSquaddie.draw({
             gameEngineState,
             graphics: mockedP5GraphicsContext,
-            resourceHandler: gameEngineState.resourceHandler!,
         })
 
         expect(

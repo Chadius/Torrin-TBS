@@ -248,22 +248,23 @@ const messageAndHighlightPlayableSquaddieTakingATurn = ({
         return
     }
 
-    gameEngineState.messageBoard.sendMessage({
-        type: MessageBoardMessageType.PLAYER_CONTROLLED_SQUADDIE_NEEDS_NEXT_ACTION,
-        objectRepository: gameEngineState.repository,
-        battleSquaddieId: BattleActionDecisionStepService.getActor(
-            gameEngineState.battleOrchestratorState.battleState
-                .battleActionDecisionStep
-        )?.battleSquaddieId,
-        missionMap:
-            gameEngineState.battleOrchestratorState.battleState.missionMap,
-        playerCommandState:
-            gameEngineState.battleOrchestratorState.battleHUDState
-                .summaryHUDState?.playerCommandState,
-        campaignResources: gameEngineState.campaign.resources,
-        squaddieAllMovementCache:
-            gameEngineState.battleOrchestratorState.cache.searchResultsCache,
-    })
+    const actingBattleSquaddieId = BattleActionDecisionStepService.getActor(
+        gameEngineState.battleOrchestratorState.battleState
+            .battleActionDecisionStep
+    )?.battleSquaddieId
+    if (actingBattleSquaddieId != undefined) {
+        gameEngineState.messageBoard.sendMessage({
+            type: MessageBoardMessageType.PLAYER_CONTROLLED_SQUADDIE_NEEDS_NEXT_ACTION,
+            objectRepository: gameEngineState.repository,
+            battleSquaddieId: actingBattleSquaddieId,
+            missionMap:
+                gameEngineState.battleOrchestratorState.battleState.missionMap,
+            campaignResources: gameEngineState.campaign.resources,
+            squaddieAllMovementCache:
+                gameEngineState.battleOrchestratorState.cache
+                    .searchResultsCache,
+        })
+    }
 
     gameEngineState.messageBoard.sendMessage({
         type: MessageBoardMessageType.PLAYER_SELECTS_AND_LOCKS_SQUADDIE,

@@ -5,13 +5,9 @@ import {
 } from "../graphicsConstants"
 import {
     HexGridMovementCost,
-    THexGridMovementCost,
     HexGridTile,
+    THexGridMovementCost,
 } from "./hexGridMovementCost"
-import {
-    ResourceHandler,
-    ResourceHandlerService,
-} from "../resource/resourceHandler"
 import { ConvertCoordinateService } from "./convertCoordinates"
 import { TerrainTileMap, TerrainTileMapService } from "./terrainTileMap"
 import {
@@ -27,6 +23,10 @@ import p5 from "p5"
 import { TerrainTileGraphicsService } from "./terrainTileGraphics"
 import { ScreenLocation } from "../utils/mouseConfig"
 import { EnumLike } from "../utils/enum"
+import {
+    ResourceRepository,
+    ResourceRepositoryService,
+} from "../resource/resourceRepository.ts"
 
 export const HighlightPulseColorNames = {
     PURPLE: "PURPLE",
@@ -220,16 +220,16 @@ export const HexDrawingUtils = {
     drawMapTilesOntoImage: ({
         mapImage,
         terrainTileMap,
-        resourceHandler,
+        resourceRepository,
     }: {
         mapImage: p5.Image
         terrainTileMap: TerrainTileMap
-        resourceHandler: ResourceHandler
+        resourceRepository: ResourceRepository
     }) =>
         drawMapTilesOntoImage({
             mapImage,
             terrainTileMap,
-            resourceHandler,
+            resourceRepository,
         }),
     drawOutlinedTile: ({
         graphics,
@@ -251,13 +251,13 @@ export const HexDrawingUtils = {
     createMapImage: ({
         graphicsBuffer,
         terrainTileMap,
-        resourceHandler,
+        resourceRepository,
     }: {
         graphicsBuffer: GraphicsBuffer
         terrainTileMap: TerrainTileMap
-        resourceHandler: ResourceHandler
+        resourceRepository: ResourceRepository
     }): p5.Image =>
-        createMapImage({ graphicsBuffer, terrainTileMap, resourceHandler }),
+        createMapImage({ graphicsBuffer, terrainTileMap, resourceRepository }),
     drawMapOnScreen: ({
         mapImage,
         screenGraphicsBuffer,
@@ -284,19 +284,19 @@ export const HexDrawingUtils = {
 const drawMapTilesOntoImage = ({
     mapImage,
     terrainTileMap,
-    resourceHandler,
+    resourceRepository,
 }: {
     mapImage: p5.Image
     terrainTileMap: TerrainTileMap
-    resourceHandler: ResourceHandler
+    resourceRepository: ResourceRepository
 }) => {
     terrainTileMap.coordinates.forEach((hexGridTile) => {
         const imageResourceKey =
             defaultTerrainResourceKeyByTerrainType[hexGridTile.terrainType]
-        const terrainImage = ResourceHandlerService.getResource(
-            resourceHandler,
-            imageResourceKey
-        )
+        const terrainImage = ResourceRepositoryService.getImage({
+            resourceRepository,
+            key: imageResourceKey,
+        })
         if (terrainImage == undefined) return
         let { x, y } =
             ConvertCoordinateService.convertMapCoordinatesToWorldLocation({
@@ -320,11 +320,11 @@ const drawMapTilesOntoImage = ({
 const createMapImage = ({
     graphicsBuffer,
     terrainTileMap,
-    resourceHandler,
+    resourceRepository,
 }: {
     graphicsBuffer: GraphicsBuffer
     terrainTileMap: TerrainTileMap
-    resourceHandler: ResourceHandler
+    resourceRepository: ResourceRepository
 }): p5.Image => {
     const { widthOfWidestRow, numberOfRows } =
         TerrainTileMapService.getDimensions(terrainTileMap)
@@ -342,7 +342,7 @@ const createMapImage = ({
     HexDrawingUtils.drawMapTilesOntoImage({
         mapImage,
         terrainTileMap,
-        resourceHandler,
+        resourceRepository,
     })
     return mapImage
 }

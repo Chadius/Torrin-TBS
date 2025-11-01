@@ -21,12 +21,10 @@ import {
     BattleSquaddieTeamService,
 } from "../../../battleSquaddieTeam"
 import { GraphicsBuffer } from "../../../../utils/graphics/graphicsRenderer"
-import * as mocks from "../../../../utils/test/mocks"
 import {
     MockedGraphicsBufferService,
     MockedP5GraphicsBuffer,
 } from "../../../../utils/test/mocks"
-import { ResourceHandler } from "../../../../resource/resourceHandler"
 import {
     SquaddieSelectorPanel,
     SquaddieSelectorPanelService,
@@ -44,12 +42,18 @@ import {
     GameEngineState,
     GameEngineStateService,
 } from "../../../../gameEngine/gameEngineState/gameEngineState"
+import { TestLoadImmediatelyImageLoader } from "../../../../resource/resourceRepositoryTestUtils.ts"
+import {
+    ResourceRepository,
+    ResourceRepositoryService,
+} from "../../../../resource/resourceRepository.ts"
+import { LoadCampaignData } from "../../../../utils/fileHandling/loadCampaignData.ts"
 
 describe("Squaddie Selector Panel", () => {
     let objectRepository: ObjectRepository
     let graphicsContext: GraphicsBuffer
     let graphicsBufferSpies: { [key: string]: MockInstance }
-    let resourceHandler: ResourceHandler
+    let resourceRepository: ResourceRepository
 
     const squaddiesToAdd = [
         {
@@ -111,10 +115,13 @@ describe("Squaddie Selector Panel", () => {
         )
 
         graphicsContext = new MockedP5GraphicsBuffer()
-        resourceHandler = mocks.mockResourceHandler(graphicsContext)
-        resourceHandler.loadResource = vi
-            .fn()
-            .mockReturnValue({ width: 1, height: 1 })
+        let loadImmediatelyImageLoader = new TestLoadImmediatelyImageLoader({})
+        resourceRepository = ResourceRepositoryService.new({
+            imageLoader: loadImmediatelyImageLoader,
+            urls: Object.fromEntries(
+                LoadCampaignData.getResourceKeys().map((key) => [key, "url"])
+            ),
+        })
         graphicsBufferSpies =
             MockedGraphicsBufferService.addSpies(graphicsContext)
     })
@@ -269,7 +276,7 @@ describe("Squaddie Selector Panel", () => {
                 squaddieSelectorPanel: panel,
                 objectRepository,
                 graphicsContext,
-                resourceHandler,
+                resourceRepository,
             })
             expect(drawSpy).toHaveBeenCalledTimes(3)
             expect(
@@ -300,7 +307,7 @@ describe("Squaddie Selector Panel", () => {
                 squaddieSelectorPanel: panel,
                 objectRepository,
                 graphicsContext,
-                resourceHandler,
+                resourceRepository,
             })
             expect(panel.buttons[0]!.data.context!.battleSquaddieId).toBe(
                 "playerBattleSquaddieId0"
@@ -323,7 +330,7 @@ describe("Squaddie Selector Panel", () => {
                 squaddieSelectorPanel: panel,
                 objectRepository,
                 graphicsContext,
-                resourceHandler,
+                resourceRepository,
             })
             expect(
                 SquaddieSelectorPanelButtonService.getStatus(panel.buttons[0]!)
@@ -359,11 +366,11 @@ describe("Squaddie Selector Panel", () => {
             SquaddieSelectorPanelService.draw({
                 squaddieSelectorPanel: panel,
                 objectRepository,
-                resourceHandler,
+                resourceRepository,
                 graphicsContext,
             })
             gameEngineState = GameEngineStateService.new({
-                resourceHandler,
+                resourceRepository,
                 repository: objectRepository,
                 campaign: CampaignService.default(),
             })

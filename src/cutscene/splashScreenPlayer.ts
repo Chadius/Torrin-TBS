@@ -9,9 +9,9 @@ import { isValidValue } from "../utils/objectValidityCheck"
 import p5 from "p5"
 import { GraphicsBuffer } from "../utils/graphics/graphicsRenderer"
 import { ImageUI, ImageUILoadingBehavior } from "../ui/imageUI/imageUI"
-import { ResourceHandler } from "../resource/resourceHandler"
 import { OrchestratorComponentKeyEvent } from "../battle/orchestrator/battleOrchestratorComponent"
 import { PlayerInputState } from "../ui/playerInput/playerInputState"
+import { ResourceRepository } from "../resource/resourceRepository.ts"
 
 export interface SplashScreenPlayerState {
     type: TCutsceneActionPlayerType
@@ -65,16 +65,20 @@ export const SplashScreenPlayerService = {
             splashScreenPlayerState.dialogFinished
         )
     },
-    draw: (
-        splashScreenPlayerState: SplashScreenPlayerState,
-        graphicsContext: GraphicsBuffer,
-        resourceHandler: ResourceHandler
-    ): void => {
+    draw: ({
+        splashScreenPlayerState,
+        graphicsContext,
+        resourceRepository,
+    }: {
+        splashScreenPlayerState: SplashScreenPlayerState
+        graphicsContext: GraphicsBuffer
+        resourceRepository: ResourceRepository
+    }): void => {
         drawBackground(splashScreenPlayerState, graphicsContext)
 
         if (splashScreenPlayerState.screenImage) {
             splashScreenPlayerState.screenImage.draw({
-                resourceHandler,
+                resourceRepository,
                 graphicsContext,
             })
         }

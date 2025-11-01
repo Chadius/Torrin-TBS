@@ -196,6 +196,13 @@ export const PlayerSelectionService = {
                 })
             case PlayerIntent.START_OF_TURN_CLICK_ON_SQUADDIE_PLAYABLE:
             case PlayerIntent.START_OF_TURN_CLICK_ON_SQUADDIE_UNCONTROLLABLE:
+                if (
+                    gameEngineState.repository == undefined ||
+                    context.actorBattleSquaddieId == undefined
+                )
+                    throw new Error(
+                        "PlayerIntent.START_OF_TURN_CLICK_ON_SQUADDIE_UNCONTROLLABLE: repository and actorBattleSquaddieId must be defined"
+                    )
                 messageSent = {
                     type: MessageBoardMessageType.PLAYER_SELECTS_AND_LOCKS_SQUADDIE,
                     repository: gameEngineState.repository,
@@ -213,6 +220,16 @@ export const PlayerSelectionService = {
                 gameEngineState.messageBoard.sendMessage(messageSent)
                 return PlayerSelectionChangesService.new({ messageSent })
             case PlayerIntent.PEEK_AT_SQUADDIE:
+                if (
+                    gameEngineState.battleOrchestratorState.battleHUDState
+                        .summaryHUDState == undefined ||
+                    gameEngineState.repository == undefined ||
+                    context.actorBattleSquaddieId == undefined
+                )
+                    throw new Error(
+                        "PlayerIntent.PEEK_AT_SQUADDIE: summaryHUDState, repository and actorBattleSquaddieId must be defined"
+                    )
+
                 messageSent = {
                     type: MessageBoardMessageType.PLAYER_PEEKS_AT_SQUADDIE,
                     summaryHUDState:
@@ -251,6 +268,14 @@ export const PlayerSelectionService = {
                 gameEngineState.messageBoard.sendMessage(messageSent)
                 return PlayerSelectionChangesService.new({ messageSent })
             case PlayerIntent.SQUADDIE_SELECTED_MOVE_SQUADDIE_TO_COORDINATE:
+                if (
+                    gameEngineState.repository == undefined ||
+                    context.actorBattleSquaddieId == undefined
+                )
+                    throw new Error(
+                        "PlayerIntent.SQUADDIE_SELECTED_MOVE_SQUADDIE_TO_COORDINATE: summaryHUDState, repository and actorBattleSquaddieId must be defined"
+                    )
+
                 messageSent = {
                     type: MessageBoardMessageType.MOVE_SQUADDIE_TO_COORDINATE,
                     battleSquaddieId: context.actorBattleSquaddieId,
@@ -276,6 +301,15 @@ export const PlayerSelectionService = {
                 gameEngineState.messageBoard.sendMessage(messageSent)
                 return PlayerSelectionChangesService.new({ messageSent })
             case PlayerIntent.CANCEL_SQUADDIE_CONSIDERED_ACTIONS:
+                if (
+                    gameEngineState.battleOrchestratorState.battleHUDState
+                        .summaryHUDState == undefined ||
+                    gameEngineState.repository == undefined
+                )
+                    throw new Error(
+                        "PlayerIntent.CANCEL_SQUADDIE_CONSIDERED_ACTIONS: summaryHUDState, repository and actorBattleSquaddieId must be defined"
+                    )
+
                 messageSent = {
                     type: MessageBoardMessageType.PLAYER_CANCELS_PLAYER_ACTION_CONSIDERATIONS,
                     missionMap:
@@ -309,9 +343,14 @@ export const PlayerSelectionService = {
                     context,
                 })
             case PlayerIntent.END_SQUADDIE_TURN:
-                if (context.actorBattleSquaddieId == undefined) {
-                    throw new Error("Actor BattleSquaddieId must be specified")
-                }
+                if (
+                    gameEngineState.repository == undefined ||
+                    context.actorBattleSquaddieId == undefined
+                )
+                    throw new Error(
+                        "PlayerIntent.END_SQUADDIE_TURN: summaryHUDState, repository and actorBattleSquaddieId must be defined"
+                    )
+
                 endTurnBattleAction = BattleActionService.new({
                     actor: {
                         actorBattleSquaddieId: context.actorBattleSquaddieId,
@@ -341,6 +380,15 @@ export const PlayerSelectionService = {
                         BattleOrchestratorMode.PLAYER_HUD_CONTROLLER,
                 })
             case PlayerIntent.CONSIDER_MOVING_SQUADDIE:
+                if (
+                    gameEngineState.battleOrchestratorState.battleHUDState
+                        .summaryHUDState == undefined ||
+                    gameEngineState.repository == undefined
+                )
+                    throw new Error(
+                        "PlayerIntent.CONSIDER_MOVING_SQUADDIE: summaryHUDState, repository must be defined"
+                    )
+
                 if (context.movement == undefined) {
                     messageSent = {
                         type: MessageBoardMessageType.PLAYER_CANCELS_PLAYER_ACTION_CONSIDERATIONS,
@@ -371,6 +419,14 @@ export const PlayerSelectionService = {
                     gameEngineState.messageBoard.sendMessage(messageSent)
                     return PlayerSelectionChangesService.new({ messageSent })
                 }
+
+                if (
+                    gameEngineState.battleOrchestratorState.battleState
+                        .playerConsideredActions == undefined
+                )
+                    throw new Error(
+                        "PlayerIntent.CONSIDER_MOVING_SQUADDIE: playerConsideredActions must be defined"
+                    )
 
                 messageSent = {
                     type: MessageBoardMessageType.PLAYER_CONSIDERS_MOVEMENT,
@@ -547,6 +603,18 @@ const playerSelectsAnAction = ({
         gameEngineState.battleOrchestratorState.battleState.missionMap,
         battleSquaddieId
     )
+
+    if (
+        gameEngineState.battleOrchestratorState.battleHUDState
+            .summaryHUDState == undefined ||
+        gameEngineState.repository == undefined ||
+        context.actorBattleSquaddieId == undefined ||
+        context.actionTemplateId == undefined ||
+        currentMapCoordinate == undefined
+    )
+        throw new Error(
+            "playerSelectsAnAction: currentMapCoordinate, actionTemplateId, summaryHUDState, repository and actorBattleSquaddieId must be defined"
+        )
 
     let messageSent: MessageBoardMessage = {
         type: MessageBoardMessageType.PLAYER_SELECTS_ACTION_TEMPLATE,

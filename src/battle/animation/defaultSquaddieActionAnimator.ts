@@ -6,8 +6,8 @@ import { SquaddieActionAnimator } from "./squaddieActionAnimator"
 import { GraphicsBuffer } from "../../utils/graphics/graphicsRenderer"
 import { BattleActionService } from "../history/battleAction/battleAction"
 import { BattleActionRecorderService } from "../history/battleAction/battleActionRecorder"
-import { ResourceHandler } from "../../resource/resourceHandler"
 import { GameEngineState } from "../../gameEngine/gameEngineState/gameEngineState"
+import { ResourceRepository } from "../../resource/resourceRepository.ts"
 
 export class DefaultSquaddieActionAnimator implements SquaddieActionAnimator {
     hasCompleted(_: GameEngineState): boolean {
@@ -47,7 +47,7 @@ export class DefaultSquaddieActionAnimator implements SquaddieActionAnimator {
     update({}: {
         gameEngineState: GameEngineState
         graphicsContext: GraphicsBuffer
-        resourceHandler: ResourceHandler
+        resourceRepository: ResourceRepository
     }): void {
         // Required by inheritance
     }

@@ -21,11 +21,11 @@ import {
     LinesOfTextRange,
     TextGraphicalHandlingService,
 } from "../../../../../utils/graphics/textGraphicalHandlingService"
-import { ResourceHandler } from "../../../../../resource/resourceHandler"
 import { ScreenLocation } from "../../../../../utils/mouseConfig"
 import { SquaddieAffiliation } from "../../../../../squaddie/squaddieAffiliation"
 import { ScreenDimensions } from "../../../../../utils/graphics/graphicsConfig"
 import { EnumLike } from "../../../../../utils/enum"
+import { ResourceRepository } from "../../../../../resource/resourceRepository.ts"
 
 export interface TileAttributeLabel {
     id: string
@@ -205,11 +205,11 @@ export const TileAttributeLabelService = {
     draw: ({
         label,
         graphicsBuffer,
-        resourceHandler,
+        resourceRepository,
     }: {
         label: TileAttributeLabel
         graphicsBuffer: GraphicsBuffer
-        resourceHandler: ResourceHandler
+        resourceRepository: ResourceRepository
     }) => {
         if (
             !label.uiElements.descriptionTextBox &&
@@ -297,7 +297,7 @@ export const TileAttributeLabelService = {
         if (label.uiElements.icon) {
             label.uiElements.icon.draw({
                 graphicsContext: graphicsBuffer,
-                resourceHandler,
+                resourceRepository,
             })
         }
     },

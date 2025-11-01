@@ -8,7 +8,6 @@ import {
     vi,
 } from "vitest"
 import { RectArea, RectAreaService } from "../../../../ui/rectArea"
-import * as mocks from "../../../../utils/test/mocks"
 import {
     MockedGraphicsBufferService,
     MockedP5GraphicsBuffer,
@@ -22,8 +21,13 @@ import {
     ActionTemplate,
     ActionTemplateService,
 } from "../../../../action/template/actionTemplate"
-import { ResourceHandler } from "../../../../resource/resourceHandler"
 import { ActionButton, ActionButtonService } from "./actionButton"
+import {
+    ResourceRepository,
+    ResourceRepositoryService,
+} from "../../../../resource/resourceRepository"
+import { TestLoadImmediatelyImageLoader } from "../../../../resource/resourceRepositoryTestUtils"
+import { LoadCampaignData } from "../../../../utils/fileHandling/loadCampaignData"
 
 describe("Action Button", () => {
     let buttonArea: RectArea
@@ -107,39 +111,34 @@ describe("Action Button", () => {
     describe("drawing", () => {
         let graphicsBuffer: MockedP5GraphicsBuffer
         let graphicsSpies: { [p: string]: MockInstance }
-        let resourceHandler: ResourceHandler
+        let resourceRepository: ResourceRepository
 
         beforeEach(() => {
             graphicsBuffer = new MockedP5GraphicsBuffer()
             graphicsSpies = MockedGraphicsBufferService.addSpies(graphicsBuffer)
 
-            resourceHandler = mocks.mockResourceHandler(graphicsBuffer)
-            resourceHandler.getResource = vi
-                .fn()
-                .mockReturnValue({ width: 32, height: 32 })
+            const loadImmediatelyImageLoader =
+                new TestLoadImmediatelyImageLoader({})
+            resourceRepository = ResourceRepositoryService.new({
+                imageLoader: loadImmediatelyImageLoader,
+                urls: Object.fromEntries(
+                    LoadCampaignData.getResourceKeys().map((key) => [
+                        key,
+                        "url",
+                    ])
+                ),
+            })
         })
 
         afterEach(() => {
             MockedGraphicsBufferService.resetSpies(graphicsSpies)
         })
 
-        it("tries to load the resource key", () => {
-            ActionButtonService.draw({
-                actionButton,
-                graphicsBuffer,
-                resourceHandler,
-            })
-
-            expect(resourceHandler.getResource).toHaveBeenCalledWith(
-                actionTemplate.buttonIconResourceKey
-            )
-        })
-
         it("draws the action's name", () => {
             ActionButtonService.draw({
                 actionButton,
                 graphicsBuffer,
-                resourceHandler,
+                resourceRepository,
             })
             expect(graphicsSpies["text"]).toBeCalledWith(
                 actionTemplate.name,
@@ -154,7 +153,7 @@ describe("Action Button", () => {
             ActionButtonService.draw({
                 actionButton,
                 graphicsBuffer,
-                resourceHandler,
+                resourceRepository,
                 selected: true,
             })
 
@@ -176,7 +175,7 @@ describe("Action Button", () => {
             ActionButtonService.draw({
                 actionButton,
                 graphicsBuffer,
-                resourceHandler,
+                resourceRepository,
                 disabled: true,
             })
 
@@ -205,7 +204,7 @@ describe("Action Button", () => {
         let actionButtonWithOverrides: ActionButton
         let graphicsBuffer: MockedP5GraphicsBuffer
         let graphicsSpies: { [p: string]: MockInstance }
-        let resourceHandler: ResourceHandler
+        let resourceRepository: ResourceRepository
 
         beforeEach(() => {
             actionButtonWithOverrides = ActionButtonService.new({
@@ -227,15 +226,22 @@ describe("Action Button", () => {
             graphicsBuffer = new MockedP5GraphicsBuffer()
             graphicsSpies = MockedGraphicsBufferService.addSpies(graphicsBuffer)
 
-            resourceHandler = mocks.mockResourceHandler(graphicsBuffer)
-            resourceHandler.getResource = vi
-                .fn()
-                .mockReturnValue({ width: 32, height: 32 })
+            const loadImmediatelyImageLoader =
+                new TestLoadImmediatelyImageLoader({})
+            resourceRepository = ResourceRepositoryService.new({
+                imageLoader: loadImmediatelyImageLoader,
+                urls: Object.fromEntries(
+                    LoadCampaignData.getResourceKeys().map((key) => [
+                        key,
+                        "url",
+                    ])
+                ),
+            })
 
             ActionButtonService.draw({
                 actionButton: actionButtonWithOverrides,
                 graphicsBuffer,
-                resourceHandler,
+                resourceRepository,
             })
         })
         afterEach(() => {

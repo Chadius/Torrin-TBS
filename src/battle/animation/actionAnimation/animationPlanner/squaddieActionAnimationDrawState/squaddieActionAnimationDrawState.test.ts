@@ -20,7 +20,13 @@ import {
     ObjectRepository,
     ObjectRepositoryService,
 } from "../../../../objectRepository"
-import { ResourceHandler } from "../../../../../resource/resourceHandler"
+import {
+    ResourceRepository,
+    ResourceRepositoryScope,
+    ResourceRepositoryService,
+} from "../../../../../resource/resourceRepository"
+import { TestLoadImmediatelyImageLoader } from "../../../../../resource/resourceRepositoryTestUtils"
+import { LoadCampaignData } from "../../../../../utils/fileHandling/loadCampaignData"
 import {
     SquaddieActionAnimationDrawState,
     SquaddieActionAnimationDrawStateService,
@@ -28,7 +34,6 @@ import {
 import {
     MockedGraphicsBufferService,
     MockedP5GraphicsBuffer,
-    mockResourceHandler,
 } from "../../../../../utils/test/mocks"
 import {
     ActionRange,
@@ -59,18 +64,34 @@ describe("SquaddieActionAnimationDrawer", () => {
     let animationPlan: SquaddieActionAnimationPlan
 
     let repository: ObjectRepository
-    let resourceHandler: ResourceHandler
+    let resourceRepository: ResourceRepository
     let mockedP5GraphicsContext: MockedP5GraphicsBuffer
     let graphicsBufferSpies: { [key: string]: MockInstance }
 
-    beforeEach(() => {
+    beforeEach(async () => {
         repository = ObjectRepositoryService.new()
         mockedP5GraphicsContext = new MockedP5GraphicsBuffer()
-        resourceHandler = mockResourceHandler(mockedP5GraphicsContext)
-        resourceHandler.loadResource = vi.fn().mockImplementation(() => {})
-        resourceHandler.getResource = vi
-            .fn()
-            .mockReturnValue({ width: 32, height: 32 })
+        const loadImmediatelyImageLoader = new TestLoadImmediatelyImageLoader(
+            {}
+        )
+        resourceRepository = ResourceRepositoryService.new({
+            imageLoader: loadImmediatelyImageLoader,
+            urls: {
+                ...Object.fromEntries(
+                    LoadCampaignData.getResourceKeys().map((key) => [
+                        key,
+                        "url",
+                    ])
+                ),
+                actor_neutral: "actor_neutral",
+                actor_attack: "actor_attack",
+                actor_assisting: "actor_assisting",
+                target_neutral: "target_neutral",
+                target_damaged: "target_damaged",
+                target_targeted: "target_targeted",
+                target_dead: "target_dead",
+            },
+        })
         graphicsBufferSpies = MockedGraphicsBufferService.addSpies(
             mockedP5GraphicsContext
         )
@@ -151,10 +172,45 @@ describe("SquaddieActionAnimationDrawer", () => {
                 },
             }),
         })
+        resourceRepository = ResourceRepositoryService.queueImages({
+            resourceRepository,
+            imagesToQueue: [
+                { key: "actor_neutral", scope: ResourceRepositoryScope.BATTLE },
+                { key: "actor_attack", scope: ResourceRepositoryScope.BATTLE },
+                {
+                    key: "actor_assisting",
+                    scope: ResourceRepositoryScope.BATTLE,
+                },
+                {
+                    key: "target_neutral",
+                    scope: ResourceRepositoryScope.BATTLE,
+                },
+                {
+                    key: "target_damaged",
+                    scope: ResourceRepositoryScope.BATTLE,
+                },
+                {
+                    key: "target_targeted",
+                    scope: ResourceRepositoryScope.BATTLE,
+                },
+                { key: "target_dead", scope: ResourceRepositoryScope.BATTLE },
+            ],
+        })
+
+        resourceRepository =
+            ResourceRepositoryService.beginLoadingAllQueuedImages({
+                graphics: mockedP5GraphicsContext,
+                resourceRepository,
+            })
+        resourceRepository =
+            await ResourceRepositoryService.blockUntilLoadingCompletes({
+                resourceRepository,
+            })
+
         squaddieActionAnimationDrawState =
             SquaddieActionAnimationDrawStateService.new({
                 animationPlan,
-                resourceHandler,
+                resourceRepository,
                 repository,
             })
     })
@@ -163,11 +219,7 @@ describe("SquaddieActionAnimationDrawer", () => {
         MockedGraphicsBufferService.resetSpies(graphicsBufferSpies)
     })
 
-    it("will call the resource handler to load the images for the actor and target sprites", () => {
-        let resourceSpy = vi
-            .spyOn(resourceHandler, "loadResource")
-            .mockImplementation(() => {})
-
+    it("will use the resource repository to get the images for the actor and target sprites", () => {
         SquaddieActionAnimationDrawStateService.draw({
             drawState: squaddieActionAnimationDrawState,
             graphicsContext: mockedP5GraphicsContext,
@@ -194,15 +246,16 @@ describe("SquaddieActionAnimationDrawer", () => {
         )
 
         expectedResourceKeys.forEach((key) => {
-            expect(resourceSpy).toHaveBeenCalledWith(key)
+            expect(
+                ResourceRepositoryService.getStatus({
+                    resourceRepository,
+                    key,
+                }).status
+            ).toBeDefined()
         })
-
-        resourceSpy.mockRestore()
     })
 
-    it("once the resource handler loads the images it will create objects to store each sprite", () => {
-        let resourceSpy = vi.spyOn(resourceHandler, "getResource")
-
+    it("once the resource repository provides the images it will create objects to store each sprite", () => {
         SquaddieActionAnimationDrawStateService.draw({
             drawState: squaddieActionAnimationDrawState,
             graphicsContext: mockedP5GraphicsContext,
@@ -234,7 +287,12 @@ describe("SquaddieActionAnimationDrawer", () => {
             .filter((key) => key !== undefined)
 
         expectedSquaddieImageKeys.forEach((key) => {
-            expect(resourceSpy).toHaveBeenCalledWith(key.resourceKey)
+            expect(
+                ResourceRepositoryService.getImage({
+                    resourceRepository,
+                    key: key.resourceKey,
+                })
+            ).toBeDefined()
         })
 
         expectedSquaddieImageKeys.forEach((key) => {
@@ -244,8 +302,6 @@ describe("SquaddieActionAnimationDrawer", () => {
                 ]?.[key.emotion]?.resourceKey
             ).toBe(key.resourceKey)
         })
-
-        resourceSpy.mockRestore()
     })
 
     it("will position the images correctly", () => {

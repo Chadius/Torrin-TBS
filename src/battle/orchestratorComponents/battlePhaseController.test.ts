@@ -12,9 +12,10 @@ import {
     BANNER_ANIMATION_TIME,
     BattlePhaseController,
 } from "./battlePhaseController"
-import { ResourceHandler } from "../../resource/resourceHandler"
-import * as mocks from "../../utils/test/mocks"
 import { MockedP5GraphicsBuffer } from "../../utils/test/mocks"
+import { ResourceRepositoryService } from "../../resource/resourceRepository"
+import { TestLoadImmediatelyImageLoader } from "../../resource/resourceRepositoryTestUtils"
+import { LoadCampaignData } from "../../utils/fileHandling/loadCampaignData"
 import {
     SquaddieTemplate,
     SquaddieTemplateService,
@@ -39,7 +40,6 @@ describe("BattlePhaseController", () => {
     let battlePhaseController: BattlePhaseController
     let playerSquaddieTeam: BattleSquaddieTeam
     let enemySquaddieTeam: BattleSquaddieTeam
-    let resourceHandler: ResourceHandler
     let diffTime: number
     let gameEngineState: GameEngineState
     let mockedP5GraphicsContext: MockedP5GraphicsBuffer
@@ -123,16 +123,14 @@ describe("BattlePhaseController", () => {
 
         diffTime = 100
 
-        resourceHandler = mocks.mockResourceHandler(
-            new MockedP5GraphicsBuffer()
-        )
-        resourceHandler.getResource = vi
-            .fn()
-            .mockReturnValue({ width: 32, height: 32 })
-
         gameEngineState = GameEngineStateService.new({
             repository: objectRepository,
-            resourceHandler,
+            resourceRepository: ResourceRepositoryService.new({
+                imageLoader: new TestLoadImmediatelyImageLoader({}),
+                urls: Object.fromEntries(
+                    LoadCampaignData.getResourceKeys().map((key) => [key, "url"])
+                ),
+            }),
             battleOrchestratorState: BattleOrchestratorStateService.new({
                 battleState: BattleStateService.newBattleState({
                     campaignId: "test campaign",
@@ -184,7 +182,12 @@ describe("BattlePhaseController", () => {
     it("starts showing the player phase banner by default", () => {
         const gameEngineState: GameEngineState = GameEngineStateService.new({
             repository: objectRepository,
-            resourceHandler,
+            resourceRepository: ResourceRepositoryService.new({
+                imageLoader: new TestLoadImmediatelyImageLoader({}),
+                urls: Object.fromEntries(
+                    LoadCampaignData.getResourceKeys().map((key) => [key, "url"])
+                ),
+            }),
             battleOrchestratorState: BattleOrchestratorStateService.new({
                 battleState: BattleStateService.newBattleState({
                     missionId: "test mission",
@@ -239,7 +242,12 @@ describe("BattlePhaseController", () => {
     it("stops the camera when it displays the banner if it is not the player phase", () => {
         const state: GameEngineState = GameEngineStateService.new({
             repository: objectRepository,
-            resourceHandler,
+            resourceRepository: ResourceRepositoryService.new({
+                imageLoader: new TestLoadImmediatelyImageLoader({}),
+                urls: Object.fromEntries(
+                    LoadCampaignData.getResourceKeys().map((key) => [key, "url"])
+                ),
+            }),
             battleOrchestratorState: BattleOrchestratorStateService.new({
                 battleState: BattleStateService.newBattleState({
                     missionId: "test mission",
@@ -464,7 +472,12 @@ describe("BattlePhaseController", () => {
         battlePhaseController.reset(
             GameEngineStateService.new({
                 repository: undefined,
-                resourceHandler: undefined,
+                resourceRepository: ResourceRepositoryService.new({
+                    imageLoader: new TestLoadImmediatelyImageLoader({}),
+                    urls: Object.fromEntries(
+                        LoadCampaignData.getResourceKeys().map((key) => [key, "url"])
+                    ),
+                }),
                 battleOrchestratorState: BattleOrchestratorStateService.new({
                     battleState: BattleStateService.newBattleState({
                         missionId: "test mission",
@@ -505,7 +518,12 @@ describe("BattlePhaseController", () => {
 
             gameEngineState = GameEngineStateService.new({
                 repository: objectRepository,
-                resourceHandler,
+                resourceRepository: ResourceRepositoryService.new({
+                    imageLoader: new TestLoadImmediatelyImageLoader({}),
+                    urls: Object.fromEntries(
+                        LoadCampaignData.getResourceKeys().map((key) => [key, "url"])
+                    ),
+                }),
                 battleOrchestratorState: BattleOrchestratorStateService.new({
                     battleState: BattleStateService.newBattleState({
                         missionId: "test mission",

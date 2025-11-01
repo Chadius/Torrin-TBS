@@ -14,8 +14,8 @@ import { BattleSquaddieTeam } from "../battleSquaddieTeam"
 import { BattlePhaseService } from "../orchestratorComponents/battlePhaseTracker"
 import { ObjectRepositoryService } from "../objectRepository"
 import { GraphicsBuffer } from "../../utils/graphics/graphicsRenderer"
-import { ResourceHandler } from "../../resource/resourceHandler"
 import { GameEngineState } from "../../gameEngine/gameEngineState/gameEngineState"
+import { ResourceRepository } from "../../resource/resourceRepository"
 
 export class InitializeBattle implements BattleOrchestratorComponent {
     hasCompleted(_: GameEngineState): boolean {
@@ -75,11 +75,12 @@ export class InitializeBattle implements BattleOrchestratorComponent {
         // Required by inheritance
     }
 
-    draw({}: {
+    draw({
+        gameEngineState,
+    }: {
         gameEngineState: GameEngineState
         graphics: GraphicsBuffer
-        resourceHandler: ResourceHandler | undefined
-    }): void {
-        // Required by inheritance
+    }): ResourceRepository | undefined {
+        return gameEngineState.resourceRepository
     }
 }

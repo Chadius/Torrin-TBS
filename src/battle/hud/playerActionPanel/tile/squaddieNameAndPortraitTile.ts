@@ -8,7 +8,6 @@ import {
     getValidValueOrDefault,
     isValidValue,
 } from "../../../../utils/objectValidityCheck"
-import { ResourceHandler } from "../../../../resource/resourceHandler"
 import { RectArea, RectAreaService } from "../../../../ui/rectArea"
 import { TextBox, TextBoxService } from "../../../../ui/textBox/textBox"
 import { WINDOW_SPACING } from "../../../../ui/constants"
@@ -31,6 +30,7 @@ import {
 } from "./tileAttributeLabel/tileAttributeLabelStack"
 import { Glossary } from "../../../../campaign/glossary/glossary"
 import { ScreenLocation } from "../../../../utils/mouseConfig"
+import { ResourceRepository } from "../../../../resource/resourceRepository.ts"
 
 const layoutConstants = {
     portraitNameText: {
@@ -98,14 +98,14 @@ export const SquaddieNameAndPortraitTileService = {
     draw: ({
         tile,
         graphicsContext,
-        resourceHandler,
+        resourceRepository,
     }: {
         tile: SquaddieNameAndPortraitTile | undefined
         graphicsContext: GraphicsBuffer
-        resourceHandler: ResourceHandler | undefined
+        resourceRepository: ResourceRepository | undefined
     }) => {
         if (tile == undefined) return
-        if (resourceHandler == undefined) return
+        if (resourceRepository == undefined) return
 
         ActionTilePositionService.drawBackground({
             squaddieAffiliation: tile.squaddieAffiliation,
@@ -113,7 +113,7 @@ export const SquaddieNameAndPortraitTileService = {
             graphicsContext: graphicsContext,
         })
 
-        drawPortraitImage({ tile, graphicsContext, resourceHandler })
+        drawPortraitImage({ tile, graphicsContext, resourceRepository })
 
         if (!tile.squaddieNameTextBox) {
             setPortraitNameTextBox(tile, graphicsContext)
@@ -122,7 +122,7 @@ export const SquaddieNameAndPortraitTileService = {
         TileAttributeLabelStackService.draw({
             stack: tile.glossaryLabelStack,
             graphicsBuffer: graphicsContext,
-            resourceHandler,
+            resourceRepository,
         })
     },
     getBoundingBoxBasedOnActionPanelPosition: (
@@ -201,11 +201,11 @@ const setPortraitNameTextBox = (
 const drawPortraitImage = ({
     tile,
     graphicsContext,
-    resourceHandler,
+    resourceRepository,
 }: {
     tile: SquaddieNameAndPortraitTile
     graphicsContext: GraphicsBuffer
-    resourceHandler: ResourceHandler
+    resourceRepository: ResourceRepository
 }) => {
     if (!isValidValue(tile.portraitImage)) {
         const overallBoundingBox =
@@ -255,7 +255,7 @@ const drawPortraitImage = ({
             }),
         })
     }
-    tile.portraitImage?.draw({ graphicsContext, resourceHandler })
+    tile.portraitImage?.draw({ graphicsContext, resourceRepository })
 }
 
 const drawPortraitNameTextBox = (

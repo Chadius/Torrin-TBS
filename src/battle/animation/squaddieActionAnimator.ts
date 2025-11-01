@@ -3,8 +3,8 @@ import {
     OrchestratorComponentMouseEvent,
 } from "../orchestrator/battleOrchestratorComponent"
 import { GraphicsBuffer } from "../../utils/graphics/graphicsRenderer"
-import { ResourceHandler } from "../../resource/resourceHandler"
 import { GameEngineState } from "../../gameEngine/gameEngineState/gameEngineState"
+import { ResourceRepository } from "../../resource/resourceRepository.ts"
 
 export interface SquaddieActionAnimator {
     hasCompleted(gameEngineState: GameEngineState): boolean
@@ -24,11 +24,11 @@ export interface SquaddieActionAnimator {
     update({
         gameEngineState,
         graphicsContext,
-        resourceHandler,
+        resourceRepository,
     }: {
         gameEngineState: GameEngineState
         graphicsContext: GraphicsBuffer
-        resourceHandler: ResourceHandler
+        resourceRepository: ResourceRepository
     }): void
 
     reset(state: GameEngineState): void

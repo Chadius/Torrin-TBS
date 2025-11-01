@@ -11,8 +11,10 @@ import {
 import { BattleSquaddieMover } from "./battleSquaddieMover"
 import { MissionMap, MissionMapService } from "../../missionMap/missionMap"
 import { TerrainTileMapService } from "../../hexMap/terrainTileMap"
-import * as mocks from "../../utils/test/mocks"
 import { MockedP5GraphicsBuffer } from "../../utils/test/mocks"
+import { ResourceRepositoryService } from "../../resource/resourceRepository"
+import { TestLoadImmediatelyImageLoader } from "../../resource/resourceRepositoryTestUtils"
+import { LoadCampaignData } from "../../utils/fileHandling/loadCampaignData"
 import { SquaddieTemplate } from "../../campaign/squaddieTemplate"
 import { BattleStateService } from "../battleState/battleState"
 import { SearchResult } from "../../hexMap/pathfinder/searchResults/searchResult"
@@ -110,7 +112,6 @@ describe("BattleSquaddieMover", () => {
         mover.draw({
             gameEngineState,
             graphics: mockedP5GraphicsContext,
-            resourceHandler: gameEngineState.resourceHandler!,
         })
         expect(mover.hasCompleted(gameEngineState)).toBeFalsy()
 
@@ -119,7 +120,6 @@ describe("BattleSquaddieMover", () => {
         mover.draw({
             gameEngineState,
             graphics: mockedP5GraphicsContext,
-            resourceHandler: gameEngineState.resourceHandler!,
         })
         mover.update({
             gameEngineState,
@@ -150,7 +150,6 @@ describe("BattleSquaddieMover", () => {
         mover.draw({
             gameEngineState,
             graphics: mockedP5GraphicsContext,
-            resourceHandler: gameEngineState.resourceHandler!,
         })
         mover.update({
             gameEngineState,
@@ -183,7 +182,6 @@ describe("BattleSquaddieMover", () => {
         mover.draw({
             gameEngineState,
             graphics: mockedP5GraphicsContext,
-            resourceHandler: gameEngineState.resourceHandler!,
         })
 
         const timeToMove = calculateMovementTimeForAllAnimations(mover)
@@ -191,7 +189,6 @@ describe("BattleSquaddieMover", () => {
         mover.draw({
             gameEngineState,
             graphics: mockedP5GraphicsContext,
-            resourceHandler: gameEngineState.resourceHandler!,
         })
         mover.update({
             gameEngineState,
@@ -274,19 +271,20 @@ describe("BattleSquaddieMover", () => {
                     originMapCoordinate: { q: 0, r: 0 },
                 })
 
-                let mockResourceHandler = mocks.mockResourceHandler(
-                    mockedP5GraphicsContext
-                )
-                mockResourceHandler.getResource = vi
-                    .fn()
-                    .mockReturnValue({ width: 32, height: 32 })
-
                 gameEngineState = GameEngineStateService.new({
                     battleOrchestratorState: setupSquaddie({
                         squaddieAffiliation: SquaddieAffiliation.PLAYER,
                     }),
                     repository: objectRepository,
-                    resourceHandler: mockResourceHandler,
+                    resourceRepository: ResourceRepositoryService.new({
+                        imageLoader: new TestLoadImmediatelyImageLoader({}),
+                        urls: Object.fromEntries(
+                            LoadCampaignData.getResourceKeys().map((key) => [
+                                key,
+                                "url",
+                            ])
+                        ),
+                    }),
                 })
                 BattleActionRecorderService.addReadyToAnimateBattleAction(
                     gameEngineState.battleOrchestratorState.battleState
@@ -379,7 +377,12 @@ const moveSquaddieAndGetGameEngineState = ({
 
     const gameEngineState: GameEngineState = GameEngineStateService.new({
         repository: objectRepository,
-        resourceHandler: undefined,
+        resourceRepository: ResourceRepositoryService.new({
+            imageLoader: new TestLoadImmediatelyImageLoader({}),
+            urls: Object.fromEntries(
+                LoadCampaignData.getResourceKeys().map((key) => [key, "url"])
+            ),
+        }),
         battleOrchestratorState: BattleOrchestratorStateService.new({
             battleState: BattleStateService.newBattleState({
                 campaignId: "test campaign",
