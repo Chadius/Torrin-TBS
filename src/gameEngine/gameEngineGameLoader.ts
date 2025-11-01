@@ -698,10 +698,10 @@ export class GameEngineGameLoader implements GameEngineComponent {
             .every(
                 (template) =>
                     gameEngineState.repository != undefined &&
-                    ObjectRepositoryService.getSquaddieByBattleId(
+                    ObjectRepositoryService.hasSquaddieByBattleId(
                         gameEngineState.repository,
                         template
-                    ) != undefined
+                    )
             )
         const missionIsStillLoadingCutscenes =
             this.missionLoaderContext.cutsceneInfo.cutsceneCollection ===
